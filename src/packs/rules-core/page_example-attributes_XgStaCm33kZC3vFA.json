@@ -1,0 +1,21 @@
+{
+  "_id": "XgStaCm33kZC3vFA",
+  "name": "Example: Attributes",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Example: Attributes</h1></header>\n<h2>Example: Alaris Chooses Her Attributes</h2>\n<p>Alaris is built as a <strong>mobile melee skirmisher</strong>. She survives through movement, Evade, and Phasing rather than heavy armor, so her highest values support that identity.</p>\n<table class=\"df-rules-table\">\n<thead>\n<tr>\n<th align=\"left\"><strong>Attribute</strong></th>\n<th align=\"center\"><strong>Value</strong></th>\n<th align=\"left\"><strong>Why Alaris chooses it</strong></th>\n</tr>\n</thead>\n<tbody><tr>\n<td align=\"left\"><strong>Agility</strong></td>\n<td align=\"center\"><strong>4</strong></td>\n<td align=\"left\">Her primary combat Attribute. It supports Finesse attacks, Evade, and movement-based Skills.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Vitality</strong></td>\n<td align=\"center\"><strong>4</strong></td>\n<td align=\"left\">Gives her enough Health to remain in melee when an attack does connect.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Might</strong></td>\n<td align=\"center\"><strong>3</strong></td>\n<td align=\"left\">Keeps her dangerous with a greatsword and supports physical actions.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Wits</strong></td>\n<td align=\"center\"><strong>3</strong></td>\n<td align=\"left\">Supports awareness, tracking, and fast battlefield decisions.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Resolve</strong></td>\n<td align=\"center\"><strong>2</strong></td>\n<td align=\"left\">Gives her basic inner stability and supports several social and occult approaches.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Influence</strong></td>\n<td align=\"center\"><strong>2</strong></td>\n<td align=\"left\">Lets her participate meaningfully in social scenes.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Intellect</strong></td>\n<td align=\"center\"><strong>2</strong></td>\n<td align=\"left\">Structured analysis and academic spellcasting are not central to this concept.</td>\n</tr>\n</tbody></table>\n<p>Alaris then assigns her two starting Stones independently: one <strong>Agility Stone</strong> and one <strong>Vitality Stone</strong>.</p>\n<!-- v0.9.9.0: legacy numeric character-sheet image removed; regenerate the asset with the compressed Attribute scale before restoring it. -->\n\n<h5>What this example shows</h5>\n<p>Start with the character&#39;s intended playstyle, then place the fixed values where they support that playstyle. The lowest Attribute is not a punishment; it identifies what the character is not trying to specialize in.</p>\n</div>"
+  },
+  "sort": 400000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!59olICKXQdHCbPc2.XgStaCm33kZC3vFA"
+}

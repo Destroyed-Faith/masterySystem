@@ -1,0 +1,17 @@
+{
+  "_id": "wkm1AChNBACCS0ZI",
+  "name": "World & Setting",
+  "pages": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!wkm1AChNBACCS0ZI"
+}

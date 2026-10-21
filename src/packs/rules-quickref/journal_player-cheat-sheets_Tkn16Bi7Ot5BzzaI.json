@@ -1,0 +1,17 @@
+{
+  "_id": "Tkn16Bi7Ot5BzzaI",
+  "name": "Player Cheat Sheets",
+  "pages": [],
+  "folder": null,
+  "sort": 300000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!Tkn16Bi7Ot5BzzaI"
+}

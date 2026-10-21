@@ -1,0 +1,17 @@
+{
+  "_id": "uWPCsDf9nKtDOHcv",
+  "name": "Deathless",
+  "pages": [],
+  "folder": null,
+  "sort": 1000000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!uWPCsDf9nKtDOHcv"
+}

@@ -1,0 +1,21 @@
+{
+  "_id": "W6kYHCHj9gIC0qxH",
+  "name": "The Veil Days",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>The Veil Days</h1></header>\n<h2>The Veil Days</h2>\n<p>Veil Days are <strong>outside the month</strong>.<br>No one likes to schedule weddings on them, but everyone schedules <em>necessary things</em>.</p>\n<hr>\n<p>Each Veil Day sits <strong>between</strong> two months. In many towns, bells ring once at dawn and once at deep night:<br>to mark that time “slipped” and returned.</p>\n<hr>\n<h3>Veil Day List</h3>\n<ol>\n<li><p><strong>Ash-Veil</strong><br><em>Custom:</em> hearths are cleaned; names of the dead are spoken once.<br><em>Omen:</em> the past demands payment.</p>\n</li>\n<li><p><strong>Mirror-Veil</strong><br><em>Custom:</em> no oaths; people avoid promises and “final words”.<br><em>Omen:</em> truth is visible, but not kind.</p>\n</li>\n<li><p><strong>Chain-Veil</strong><br><em>Custom:</em> debts are recorded, contracts renewed, prisoners counted.<br><em>Omen:</em> what binds you tightens.</p>\n</li>\n<li><p><strong>Lantern-Veil</strong><br><em>Custom:</em> lantern lines in streets; travelers move under escort.<br><em>Omen:</em> guidance appears — but only if you look.</p>\n</li>\n<li><p><strong>Knife-Veil</strong><br><em>Custom:</em> tools are sharpened; militia drills; hidden weapons inspected.<br><em>Omen:</em> conflict chooses a direction.</p>\n</li>\n<li><p><strong>Suture-Veil</strong><br><em>Custom:</em> healers work without charge for a watch; wounds are “closed right”.<br><em>Omen:</em> survival is possible, but costs effort.</p>\n</li>\n<li><p><strong>Salt-Veil</strong><br><em>Custom:</em> thresholds salted; stores counted; water purified.<br><em>Omen:</em> protection holds, if maintained.</p>\n</li>\n<li><p><strong>Silence-Veil</strong><br><em>Custom:</em> no music until the second bell; people speak softly.<br><em>Omen:</em> the sky listens.</p>\n</li>\n</ol>\n<hr>\n</div>"
+  },
+  "sort": 300000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!wkm1AChNBACCS0ZI.W6kYHCHj9gIC0qxH"
+}

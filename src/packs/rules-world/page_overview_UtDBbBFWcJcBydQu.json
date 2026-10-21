@@ -1,0 +1,21 @@
+{
+  "_id": "UtDBbBFWcJcBydQu",
+  "name": "Overview",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Overview</h1></header>\n<h2>Playable Echoes</h2>\n<p>Echoes are <strong>remnants of ancient lineages</strong>, manifestations of divine, arcane, or elemental origins that survived the collapse of the Age of the Gods.<br>Each Echo carries the <strong>imprint of a lost world</strong> its powers, its instincts, its flaws. To be an Echo is to be <strong>a living artifact</strong>: flesh shaped by memory, bound by purpose.</p>\n<p>You can choose from the following Echoes:</p>\n<ul>\n<li><p><strong>Humans</strong> – Masters of consequence: survivors who turn scarcity into leverage, make ugly deals, improvise with nothing, and pay the price later in Fear, fractures, and relationships.</p>\n</li>\n<li><p><strong>Halflings</strong> – The hunted hearthfolk: nearly extinct survivors whose warmth, memory, and soul-rich blood are prized as demonic delicacies. Most live on the run; others survive in locked cellars and feast-prisons, waiting to be served.</p>\n</li>\n<li><p><strong>Dwarves</strong> – The bastion against Hell: incorruptible stone-hearts who stand where others break, holding the line against demons, preserving what must not fall, and turning endurance into a weapon.</p>\n</li>\n<li><p><strong>Elves</strong> – A rare, burning glare: outsiders between realms whose light cuts through lies and rot, almost myth, almost painful, too bright to be common and too sharp to be safe.</p>\n</li>\n<li><p><strong>Sentinels</strong> – Forgotten fragments of divine order: living verdict-machines whose purpose outlived their makers, glitching through obedience, justice, and the hollow silence where meaning used to be.</p>\n</li>\n<li><p><strong>Titanborn</strong> – Awakened fury of the godless age: revered, wild front-line champions driven by inner rage, rising where the gods are gone to reclaim the world from demons with blood, steel, and will.</p>\n</li>\n<li><p><strong>Dragonborn</strong> – Hidden survivors of extermination: a people who endured genocide through secrecy and retreat, avoiding conflict because if the last of their kind die, the great song dies with them.</p>\n</li>\n</ul>\n<ul>\n<li><p><strong>Unbound</strong> – Those who chose freedom over purity: altered survivors who draw power from nature, forbidden craft, ancient relics, transformation, and traditions the gods once condemned. They are not a single people, but a loose family of paths united by one thing: they refuse to let gods, demons, or blood decide what they are.</p>\n<p>The Unbound include:</p>\n<ul>\n<li><strong>Beast</strong> – shapeshifters who embrace the animal nature within them.</li>\n<li><strong>Witch</strong> – practitioners of forbidden traditions, old magic, and coven lore.</li>\n<li><strong>Bane: Alchemist</strong> – hunters who harvest and refine natural materials to empower themselves against their prey.</li>\n<li><strong>Bane: Greenwarden</strong> – wardens bound to the living world, its creatures, and its untamed places.</li>\n<li><strong>Bane: Relic Hunter</strong> – seekers who recover and wield remnants of powers and civilizations that should have stayed buried.</li>\n</ul>\n</li>\n</ul>\n</div>"
+  },
+  "sort": 0,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!753lEBMTfdDBbqGV.UtDBbBFWcJcBydQu"
+}

@@ -49,6 +49,7 @@ import { initializeHealingBar } from './ui/healing-bar.js';
 import { registerGmEffectsBarSettings } from './system/gm-effects-bar.js';
 import { initializeGmEffectsBar } from './ui/gm-effects-bar.js';
 import { registerApplySpecialRegionBehavior } from './regions/apply-special-behavior.js';
+import { registerRulesJournalHooks } from './rules-journals/rules-index.js';
 import { initializeSpecialTokenArea, registerSpecialTokenAreaSettings } from './ui/special-token-area.js';
 import { registerCarouselClientSettings } from './ui/combat-carousel-settings.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
@@ -154,6 +155,7 @@ Hooks.once('init', async function () {
         : '?.?.?';
     const versionInner = `  Version: ${sysVer}`.slice(0, 57).padEnd(57);
     registerAllMasteryInitSettings();
+    registerRulesJournalHooks();
     // Register custom Document classes
     CONFIG.Actor.documentClass = MasteryActor;
     CONFIG.Item.documentClass = MasteryItem;

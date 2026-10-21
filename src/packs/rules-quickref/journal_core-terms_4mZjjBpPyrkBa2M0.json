@@ -1,0 +1,17 @@
+{
+  "_id": "4mZjjBpPyrkBa2M0",
+  "name": "Core Terms",
+  "pages": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!4mZjjBpPyrkBa2M0"
+}

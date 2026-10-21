@@ -1,0 +1,21 @@
+{
+  "_id": "8oARLDtRZZMDe4xh",
+  "name": "Example: Powers",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Example: Powers</h1></header>\n<h2>Example: Alaris Chooses Her Powers</h2>\n<p>Alaris begins at <strong>MR 2</strong> and uses the standard starting package: <strong>two Actives at Power Level 2</strong>, plus <strong>two Passives</strong>, <strong>one Active Buff</strong>, and <strong>one Reaction</strong> at Power Level 4.</p>\n<table class=\"df-rules-table\">\n<thead>\n<tr>\n<th align=\"left\"><strong>Power</strong></th>\n<th align=\"center\"><strong>Power Level</strong></th>\n<th align=\"left\"><strong>Role in the build</strong></th>\n</tr>\n</thead>\n<tbody><tr>\n<td align=\"left\"><strong>Melee Single Target Attack</strong></td>\n<td align=\"center\"><strong>2</strong></td>\n<td align=\"left\">Reliable direct weapon damage.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Melee Single Target Special: Sundered</strong></td>\n<td align=\"center\"><strong>2</strong></td>\n<td align=\"left\">Applies Sundered to prepare the target for later non-Spell attacks; this Power deals no direct damage.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Passive: Evade</strong></td>\n<td align=\"center\"><strong>4</strong></td>\n<td align=\"left\">Raises her everyday defense against direct attacks.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Passive: Phasing</strong></td>\n<td align=\"center\"><strong>4</strong></td>\n<td align=\"left\">Establishes Phasing at the start of combat.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Active Buff: Phasing</strong></td>\n<td align=\"center\"><strong>4</strong></td>\n<td align=\"left\">Reinforces that Phasing defense during difficult fights.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Reaction: Phasing</strong></td>\n<td align=\"center\"><strong>4</strong></td>\n<td align=\"left\">Provides an immediate answer to a decisive hit.</td>\n</tr>\n</tbody></table>\n<p>The two Actives give Alaris a choice between immediate damage and preparing a target for the group. Her defensive Powers then commit to one clear identity: <strong>Evade handles ordinary pressure, while Phasing protects her from the hits that matter most.</strong></p>\n</div>"
+  },
+  "sort": 800000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!59olICKXQdHCbPc2.8oARLDtRZZMDe4xh"
+}

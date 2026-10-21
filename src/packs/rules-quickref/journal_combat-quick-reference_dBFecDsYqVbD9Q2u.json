@@ -1,0 +1,17 @@
+{
+  "_id": "dBFecDsYqVbD9Q2u",
+  "name": "Combat Quick Reference",
+  "pages": [],
+  "folder": null,
+  "sort": 200000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!dBFecDsYqVbD9Q2u"
+}

@@ -1,0 +1,17 @@
+{
+  "_id": "BLoRfQiPJehabihw",
+  "name": "Equipment, Magic & Powers",
+  "pages": [],
+  "folder": null,
+  "sort": 300000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!BLoRfQiPJehabihw"
+}

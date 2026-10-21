@@ -1,0 +1,17 @@
+{
+  "_id": "PtRWDDeG3NCDtdeF",
+  "name": "Dragonborn",
+  "pages": [],
+  "folder": null,
+  "sort": 800000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!PtRWDDeG3NCDtdeF"
+}

@@ -1,0 +1,21 @@
+{
+  "_id": "QQnpDDB3ByEDwfa6",
+  "name": "Example: Skills",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Example: Skills</h1></header>\n<h2>Example: Alaris Selects Her Skills</h2>\n<p>Alaris chooses Skills that reinforce how she moves through the world outside direct combat.</p>\n<ul>\n<li><strong>Movement and infiltration:</strong> Acrobatics, Stealth, Concealment, and Sleight of Hand.</li>\n<li><strong>Travel and scouting:</strong> Perception, Survival, Tracking, Navigation, and Streetwise.</li>\n<li><strong>Broader usefulness:</strong> Crafting, Herbalism, Investigation, Persuasion, Etiquette, and Occultism.</li>\n</ul>\n<p>Her high Agility and Wits make movement, awareness, and positioning natural strengths. Her smaller investments in social and knowledge Skills ensure that she still has options across exploration, investigation, and social scenes.</p>\n<h5>What this example shows</h5>\n<p>Skills should support the character&#39;s existing strengths and provide a few deliberate secondary options. They should not be chosen as an unrelated list of individually useful entries.</p>\n</div>"
+  },
+  "sort": 600000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!59olICKXQdHCbPc2.QQnpDDB3ByEDwfa6"
+}

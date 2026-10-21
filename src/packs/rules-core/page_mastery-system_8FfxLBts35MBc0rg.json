@@ -1,0 +1,21 @@
+{
+  "_id": "8FfxLBts35MBc0rg",
+  "name": "Mastery System",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Mastery System</h1></header>\n<h2>Mastery System</h2>\n<p><em>“Clarity over chance. Choice over chaos.”</em>  </p>\n<hr>\n<p>The <strong>Mastery System</strong> is a roleplaying game designed for heroes who grow through struggle, discovery, and the choices they make at the table.<br>It is not bound by rigid classes or endless charts of bonuses.  </p>\n<p>Instead, it focuses on <strong>clarity, cinematic action, and player-driven mastery</strong> in a world where success comes not from luck, but from <strong>understanding the system, making smart decisions, and taking responsibility for every choice</strong>.</p>\n<p>What sets it apart is how it handles power: <strong>it is classless, modular, and mathematically transparent.</strong><br>Your strength does not come from arbitrary level spikes or hidden feature packages — it comes from <strong>Mastery Ranks</strong>, <strong>Stones</strong>, your chosen <strong>Trees</strong>, and the way you combine them.</p>\n<p><strong>Mastery Ranks keep heroes on the same curve.</strong><br>No one falls behind because their class “comes online later.” No one runs away with the game because of a single feature spike.<br>Progression is <strong>consistent and comparable</strong>, built on a foundation that can be <strong>measured, tuned, and proven</strong>, not guessed.</p>\n<p>In the Mastery System, players are not at the mercy of hidden mechanics: they <strong>see the numbers, shape their fate, and own their triumphs and failures alike.</strong></p>\n<p>At its heart, the system rests on a few core ideas:</p>\n<ul>\n<li><p><strong>Attributes Define Capability</strong><br>Each point in an Attribute adds one die to its Pool. Attributes determine how much raw capability you bring to a roll, but they do not determine your Stones.</p>\n</li>\n<li><p><strong>Stones Define Affinity</strong><br>Stones are gained through <strong>Lifetime Experience</strong> and may be assigned to Attributes or converted into Permanent Colorless Stones. They replace class features with a modular supernatural toolkit, independent of how high or low the linked Attribute is.<br>You decide where your supernatural affinity develops and what kind of hero you become.</p>\n</li>\n<li><p><strong>Raises Create Drama</strong><br>You may always meet the Target Number for a normal success, but by risking more, by <em>raising the stakes</em>, you unlock special effects, crushing blows, and cinematic moments.<br>Each Raise is a gamble and a story beat.</p>\n</li>\n<li><p><strong>Actions and Reactions Matter</strong><br>Every round is a choice: attack, defend, maneuver, or risk everything.<br>Reactions keep you engaged even when it’s not your turn — parries, dodges, counterstrikes, and warnings make combat feel alive.</p>\n</li>\n<li><p><strong>Simple Dice, Big Moments</strong><br>Rolls explode. Success is clear. The math is fast, but the outcomes are cinematic.<br>You will know when you land a decisive strike — and when fate turns against you.</p>\n</li>\n</ul>\n<hr>\n</div>"
+  },
+  "sort": 0,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!59olICKXQdHCbPc2.8FfxLBts35MBc0rg"
+}

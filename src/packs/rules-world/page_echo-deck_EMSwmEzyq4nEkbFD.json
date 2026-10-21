@@ -1,0 +1,21 @@
+{
+  "_id": "EMSwmEzyq4nEkbFD",
+  "name": "Echo Deck",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Echo Deck</h1></header>\n<h4>Dragonborn Echo Deck</h4>\n<p><em>&quot;We were erased. We remember.&quot;</em><br><strong>Theme:</strong> Hidden heirs of dragons living in human skins, guarding old lines, sealed hoards, and the last song that binds their souls. </p>\n<div class=\"card-center\">\n\n<h6>MELODY-BOUND MEMORY</h6>\n<p>  <em>Trigger: A relic, ruin, name, or moment of dawn/dusk stirs something old and you need a truth that was buried.</em>  </p>\n<hr>\n<p><strong>I — HEAR THE CHORD</strong></p>\n<hr>\n<p><em>Skill: Occultism</em><br>You sense the unseen thread and what it is tied to.</p>\n<p><strong>II — NAME THE AGE</strong></p>\n<hr>\n<p><em>Skill: Lore</em><br>You place it in the right era, clan, and story.</p>\n<p><strong>III — READ THE WORK</strong></p>\n<hr>\n<p><em>Skill: Engineering</em><br>You understand how it was built and where it can be bypassed.</p>\n<p><strong>IV — MAKE IT REAL</strong></p>\n<hr>\n<p><em>Skill: Crafting</em><br>You recreate the key detail: a seal, a proof, a workable replica.</p>\n<h6>THE HIDDEN NEST</h6>\n<p>  <em>Trigger: You must move unseen, find safety, or keep others alive while hunters, Sentinels, or fate closes in.</em>  </p>\n<hr>\n<p><strong>I — FIND SHELTER</strong></p>\n<hr>\n<p><em>Skill: Survival</em><br>You pick the safest place and the safest time to stop.</p>\n<p><strong>II — READ THE PURSUIT</strong></p>\n<hr>\n<p><em>Skill: Tracking</em><br>You learn how close they are, and how they will approach.</p>\n<p><strong>III — STEAL THE WEATHER</strong></p>\n<hr>\n<p><em>Skill: Weather Sense</em><br>You choose the window where nature covers your mistakes.</p>\n<p><strong>IV — TURN THE WILD</strong></p>\n<hr>\n<p><em>Skill: Animal Handling</em><br>You use beasts, noise, and instinct to draw danger away.</p>\n<h6>MAKE THEM LOOK AWAY</h6>\n<p>  <em>Trigger: Someone is about to notice the wrong detail, ask the wrong question, or spread the wrong rumor.</em>  </p>\n<hr>\n<p><strong>I — FEED THEM A STORY</strong></p>\n<hr>\n<p><em>Skill: Deception</em><br>You give them a version that ends the curiosity.</p>\n<p><strong>II — GUIDE THE CONVERSATION</strong></p>\n<hr>\n<p><em>Skill: Persuasion</em><br>You redirect attention without raising alarms.</p>\n<p><strong>III — MOVE THE GOSSIP</strong></p>\n<hr>\n<p><em>Skill: Streetwise</em><br>You shift the rumor through the right mouths and alleys.</p>\n<p><strong>IV — HIDE BEHIND RITUAL</strong></p>\n<hr>\n<p><em>Skill: Etiquette</em><br>You use protocol, titles, and social rules to shut doors politely.</p>\n<h6>OATH OF THE LAST</h6>\n<p>  <em>Trigger: The group fractures, fear spreads, or a vow must be spoken to keep the line alive.</em>  </p>\n<hr>\n<p><strong>I — SPEAK AS COMMAND</strong></p>\n<hr>\n<p><em>Skill: Leadership</em><br>You make people stand together long enough to act.</p>\n<p><strong>II — BIND IT IN TERMS</strong></p>\n<hr>\n<p><em>Skill: Negotiation</em><br>You turn intent into obligation and clear commitments.</p>\n<p><strong>III — REMIND THEM OF COST</strong></p>\n<hr>\n<p><em>Skill: Intimidation</em><br>You make the consequences feel real and immediate.</p>\n<p><strong>IV — NAME THE REAL NEED</strong></p>\n<hr>\n<p><em>Skill: Empathy</em><br>You identify what breaks them and offer the one thing that holds.</p>\n</div>\n</div>"
+  },
+  "sort": 100000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!PtRWDDeG3NCDtdeF.EMSwmEzyq4nEkbFD"
+}

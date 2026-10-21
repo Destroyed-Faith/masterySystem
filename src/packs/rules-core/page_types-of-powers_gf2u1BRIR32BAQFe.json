@@ -1,0 +1,21 @@
+{
+  "_id": "gf2u1BRIR32BAQFe",
+  "name": "Types of Powers",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Types of Powers</h1></header>\n<h2>Types of Powers</h2>\n<p>Powers are divided into five main types:</p>\n<table class=\"df-rules-table\">\n<thead>\n<tr>\n<th><strong>Power Type</strong></th>\n<th><strong>Short Description</strong></th>\n</tr>\n</thead>\n<tbody><tr>\n<td><strong>Active</strong></td>\n<td>Action-based Powers for attacks, healing, effects, zones, barriers, and Special delivery.</td>\n</tr>\n<tr>\n<td><strong>Passive</strong></td>\n<td>Ongoing character features that define your baseline and combat identity.</td>\n</tr>\n<tr>\n<td><strong>Active Buff</strong></td>\n<td>Temporary combat states, stances, auras, or short-term enhancements; mechanical size changes use Transformation, while Form is visual only.</td>\n</tr>\n<tr>\n<td><strong>Reaction</strong></td>\n<td>Immediate responses to specific triggers outside your turn.</td>\n</tr>\n<tr>\n<td><strong>Movement Power</strong></td>\n<td>Special movement options that replace your normal Movement.</td>\n</tr>\n</tbody></table>\n<p>For full rules, templates, pricing, limits, and examples, see the dedicated <strong>Power Catalogues</strong>. Only a qualifying <strong>damaging Instant Active Power</strong> with its own printed Damage Dice may be learned as a <strong>Limited Power</strong>; see <strong>Limited Power Modifier</strong> for uses per Safe Haven Rest and doubled Power Damage Dice. Special-only Powers are never Limited.</p>\n<h3>A Shared Combat Language</h3>\n<p>Destroyed Faith uses a shared mechanical language for combat.\nMany combat abilities are built from a limited set of standardized effects called <strong>Specials</strong>. Specials are not an additional layer of rules placed on top of your abilities. They are the building blocks from which many of those abilities are created.</p>\n<p>Each Special has one clear mechanical function. <strong>Ruin</strong> deals damage. <strong>Slow</strong> reduces Movement. <strong>Corrode</strong> reduces Armor. <strong>Hex</strong> increases Spell Damage. <strong>Sundered</strong> does the same for non-Spell Damage, and so on.\nYou do not need to memorize every Special before you play. Learn the ones your character uses. When another Special appears at the table, its effect can simply be looked up or explained once.\nOnce you know a Special, you know what it does wherever it appears.</p>\n<p>Different characters may describe the same Special in completely different ways. A curse, a weapon technique, an artifact, or a supernatural power may look entirely different in the fiction while using the same mechanical effect.</p>\n<p>Characters normally specialize in only a small number of Specials and combine them with the abilities of the rest of the group. This creates tactical combinations without requiring every individual Power to introduce its own separate set of rules.</p>\n<p><strong>Specials are not additional systems to learn. They are the shared vocabulary from which much of combat is built.</strong></p>\n<p>::</p>\n<h3>Power Tags</h3>\n<h4>Tag: Spell</h4>\n<p>Any Power that interacts with the <strong>Veil</strong> the boundary between matter and will gains the <strong>(Spell)</strong> tag.<br>Only abilities that explicitly reference “Spells” can target, dispel or suppress these effects.  </p>\n<p><em>Examples:</em> Ruin, Root, Bless, Hex Bolt, Healing Pulse.</p>\n</div>"
+  },
+  "sort": 100000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!gwMsbERZl0cECCA9.gf2u1BRIR32BAQFe"
+}

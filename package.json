@@ -1,11 +1,12 @@
 {
   "name": "mastery-system",
-  "version": "0.9.756",
+  "version": "0.9.757",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
     "build": "tsc && node scripts/fix-imports.js",
     "build:packs": "node scripts/build-echo-artifact-pack.mjs",
+    "build:rules-journals": "node scripts/build-rules-journals.mjs",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build",
@@ -45,6 +46,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^8.57.0",
     "jsdom": "^29.1.1",
+    "marked": "^15.0.12",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "ts-morph": "^28.0.0",

@@ -1,0 +1,17 @@
+{
+  "_id": "WAuygHnI7h0u6hel",
+  "name": "Combat Core",
+  "pages": [],
+  "folder": null,
+  "sort": 200000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!WAuygHnI7h0u6hel"
+}

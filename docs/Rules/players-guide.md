@@ -1728,12 +1728,9 @@ And the Marked show everyone what happens to those who resist.
 In Destroyed Faith, money is not a sign of freedom.
 
 It is only another tool in a world that has learned to manage people until they are ripe for the harvest.
-}}
 
+:
 
-\page
-{{pageNumber,auto}}
-{{wide
 ### A World Without Hope
 :
 Godless temples and ruins from ages past stand as silent witnesses to the great loss, and the ancient prophecies that once foretold the end have long been forgotten. The memory of the old pantheon lives only in the dreams of the few who still dare to believe in the divine. Paladins and priests have vanished, and only rarely does one find a survivor who still understands divine magic.
@@ -1840,18 +1837,21 @@ Killing a marked host destroys the vessel but not the demon, saving one may cost
 Your victories will be small, your sacrifices great yet even the smallest triumph proves that the darkness can bleed.  
 
 ---
-:
+
 
 > *“Hope is not given, it is made.”*  
 > — Teachings of the Hidden Flame
-:::::
-::::
+
+}}
+\page
+{{pageNumber,auto}}
+
 > ## Core Terms
 > 
 > **Pool & Keep:** Use only eight-sided dice (**d8**). Roll your Pool (X d8), keep the best Y.  
 > **Exploding Dice:** On a natural **8**, **reroll that die** and **add** the new result. Repeat on further 8s. An attack designated for **Critical** explodes on natural **7s and 8s** instead.
 
-> **Critical(X):** Before rolling a Martial Attack Pool or a damaging Spell Casting Pool, designate that roll as one of the **X Critical rolls** granted by the active Critical source. For that complete Pool, natural **7s and 8s explode**: reroll each qualifying die and add its new result; subsequent natural 7s or 8s explode again. One designated Attack Roll or Casting Roll spends one Critical roll, regardless of the number of targets in an AoE. Critical changes **Pool dice**, not Damage Dice. **Active Buff: Critical** grants X designated rolls per combat while that Buff is maintained; reactivating the Buff in the same combat does not refresh that allowance. **Agility Ability: Crit** grants 1 / 2 / 3 / 4 designated rolls **in the current Round** at Ranks 1 / 2 / 3 / 4, each with Critical(1). Applying two Critical sources to the same roll has the same 7–8 explosion effect and spends only the selected source's allowance. Disadvantage still limits a Pool to one exploding die.
+> **Critical(X):** Before an eligible Martial Attack Pool or damaging Spell Casting Pool is rolled, designate **one source**: **Passive: Critical** (PL 4-7: 1, PL 8-14: 2, PL 15-16: 3 free uses per Combat), **Active Buff: Critical** (printed per-Combat quota while maintained), or **Agility Ability: Crit** (Rank 1/2/3/4: 1/2/3/4 uses in the current Round). The designated Pool explodes on natural **7s and 8s**, including subsequent qualifying rerolls; **Damage Dice are unchanged**. One Pool, including a shared AoE Pool, spends only one use of the chosen source. Unused Passive charges never refresh during Combat; reactivating the Buff does not refill its Combat quota. Disadvantage still permits only one exploding die.
 
 
 > **Guaranteed Eight:** Before rolling, you may exchange **8 dice from your final dice Pool** for **1 Guaranteed Eight**. Each exchange removes eight dice and adds one Guaranteed Eight to the final Pool. A Guaranteed Eight is treated as a natural **8**: reroll it and add the new result, repeating on further 8s as normal. It remains a normal die result for **Pool & Keep** and is not automatically kept.
@@ -1877,7 +1877,6 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 
 
 
-}}
 
 \page
 {{pageNumber,auto}}
@@ -1886,15 +1885,11 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 
 ### **Character Creation — Quick Reference**
 
-Creating a hero in the **Mastery System** is about shaping a **unique legend**, not following rigid classes.  
-Each decision defines **who you are**, **what drives you**, and **how you face the shattered world** of *Destroyed Faith*.
+Creating a hero in the **Mastery System** is about shaping a **unique legend**, not following rigid classes. Each decision defines **who you are**, **what drives you**, and **how you face the shattered world** of *Destroyed Faith*.
+
 
 ---
 
-*Read the full chapter once, then use this to see that you have everything.*
-
----
-:
 #### **Step 1 — Choose Attributes & Starting Stones** 
 *On your sheet: write your final values into the **Attributes** section, then assign your two starting Stones.*
 
@@ -1918,6 +1913,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 
 *On your sheet: pick your starting Powers and list them in the Powers section with their Power Level.*
 
+---
 > **Powers** —  choose **two Active Powers at Power Level 2**.  
 > In addition, choose a number of **Passives equal to your available Passive Slots**, plus **one Reaction** and **one Active Buff Power** at **Power Level 4**. A normal **MR 2** starting character chooses **two Passives**; an **MR 1** starting character chooses **one Passive**. **Character-creation exception:** that starting Passive, Reaction, and Active Buff are granted at **PL 4** even at MR 1; the normal MR 1 **PL 2 cap** applies to other Powers and later advancement.
 
@@ -1951,6 +1947,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 
 *On your sheet: write your chosen Disadvantages and your maximum Reroll Points.*
 
+---
 > **Disadvantages** — take up to **8 Disadvantage Points**. Your total Disadvantage Points become your maximum **Reroll Points**.
 ---
 :
@@ -3218,7 +3215,7 @@ Use the Power Catalogues when you need to know:
 
 | **Power Type / Catalogue** | **Use it for** |
 |---|---|
-| **Actives** | Action-based Powers: attacks, healing, Specials, AoE, Autofire, Split-Attack, zones, barriers, and other direct effects. |
+| **Actives** | Action-based Powers: attacks, Scarred-Bar Restoration, Cleanse, Specials, AoE, Autofire, Split-Attack, zones, barriers, and other direct effects. |
 | **Passives** | Always-on or pre-selected character features: Armor, Evade, Damage, Health, Damage Reduction, Phasing, and passive Special support. |
 | **Active Buffs** | Temporary combat states: stances, auras, offensive/defensive boosts, and maintained effects. Size-changing Transformations use their own noncombat rules; visual Form does not change mechanics. |
 | **Reactions** | Immediate answers to specific triggers: defenses, counters, emergency protection, interception, and trigger-based responses. |
@@ -3950,7 +3947,7 @@ The **Ringchain of Kept Names** is a Halfling Echo Artifact representing family,
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Amulet | Halfling Ringchain | Not a Target Stone Support / Cleanse / Healing Aura / Single Heal | Echo-bound |
+| Amulet | Halfling Ringchain | Not a Target Stone Support / Cleanse / Hearth Circle AoE Restoration / Remembered Hands Restoration | Echo-bound |
 
 The Ringchain occupies the **Amulet Slot**. Although it carries rings, those rings are part of the Artifact and do not occupy the Ring Slot or count as separate Ring Artifacts. A Halfling with the Ringchain cannot wear another Amulet Artifact, magical necklace, soul chain, oath mark, curse mark, or similar Amulet-based Artifact.
 
@@ -3997,11 +3994,9 @@ This effect does not make the Halfling invisible, hidden, permanently untargetab
 {{pageNumber,auto}}
 {{wide
 
-#### Healing Aura
+#### Hearth Circle: Restoration AoE
 
-Healing Aura follows the normal **Active Buff** rules and uses the character's maintained Active Buff slot. A character may normally maintain only one Active Buff at a time.
-
-Healing Aura restores HP only inside the creature's current Health Level. It does not restore lost Health Levels unless another rule explicitly says otherwise.
+**Hearth Circle** grants **Melee AoE Restoration** as an Instant Artifact Active. Spend the normal Attack Action, select legal allies in its radius and distribute its **one shared Scarred-Bar Recovery Pool**: each point returns one Scarred Bar at **full HP**. Resolve the effect when the Artifact Active is used. A Safe Haven Rest refreshes the pool; upgrading from I to II increases its maximum while preserving points already spent in that recovery cycle.
 
 ---
 
@@ -4011,12 +4006,12 @@ Healing Aura restores HP only inside the creature's current Health Level. It doe
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Kept from Sight I**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid normally. |
 | **2** | **Burden Lifted I**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 4)</span> | Active, Support | 20 m | None | Instant | Remove up to **6 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. |
-| **3** | **Hearth Circle I**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 4)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **3d8 HP**. Each creature can be affected only once per Round. |
-| **4** | **Remembered Hands I**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 10)</span> | Active, Support | 44 m | None | Instant | Heal one creature for **12d8 HP** in the current Health Bar. This does not recover Scarred Health Bars. |
+| **3** | **Hearth Circle I**<span class="artifactTechnicalReference">Melee AoE Restoration (PL 4)</span> | Active, Support | Self | Radius 2 m | Instant | Distribute up to **2 full Scarred Bar restorations** among eligible allies inside the radius using **one shared pool per Safe Haven Rest** (1 point per Bar). |
+| **4** | **Remembered Hands I**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 10)</span> | Active, Support | 44 m | None | Instant | Restore up to **6 fully refilled Scarred Health Bars** on one legal creature using the remaining shared Recovery Pool per Safe Haven Rest (1 point per Bar). |
 | **5** | **Kept from Sight II**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid normally. |
 | **6** | **Burden Lifted II**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 10)</span> | Active, Support | 44 m | None | Instant | Remove up to **10 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. This replaces Burden Lifted I. |
-| **7** | **Remembered Hands II**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 16)</span> | Active, Support | 68 m | None | Instant | Heal one creature for **20d8 HP** in the current Health Bar. This does not recover Scarred Health Bars and replaces Remembered Hands I. |
-| **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 16)</span> | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **11d8 HP**. Each creature can be affected only once per Round. This replaces Hearth Circle I. |
+| **7** | **Remembered Hands II**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 16)</span> | Active, Support | 68 m | None | Instant | Restore up to **10 fully refilled Scarred Health Bars** on one legal creature from the upgraded Recovery Pool per Safe Haven Rest; replaces Remembered Hands I, without duplicating its resource. |
+| **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Melee AoE Restoration (PL 16)</span> | Active, Support | Self | Radius 4 m | Instant | Distribute up to **9 full Scarred Bar restorations** among eligible allies using **one shared pool per Safe Haven Rest**; replaces Hearth Circle I and resolves immediately on activation. |
 | **9** | **Kept from Sight III**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid normally. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Ringchain of Kept Names)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 }}
@@ -4283,36 +4278,32 @@ It does not perceive flying, hovering, swimming, fully airborne, incorporeal, or
 ---
 
 
-> **Design decision — divine artifacts:** Exactly **eight divine artifacts** exist in the setting. Known examples are the **Book of Light**, the **Moonsword**, and the **Lantern of the Hollow Star**. Five identities are not established in this release; do not invent them. Divine artifacts are exceptional, and the Sentinel Echo artifacts may exceed normal Stone-function limits because Sentinels are god-created beings. The Lantern retains its three Stone-linked functions as an explicit unique exception.
-
-> **Current ruling (16 October 2026):** **Might Stone Ability: Armor Reduction** is an attacker-specific reduction of the Armor of all enemies the character damages this Round: Rank 1/2/3/4 reduces the Armor applied against that character's damaging attacks by 4/8/16/32. It stacks **additively** with **Weapon Special: Penetration(X)** on an eligible weapon hit and with any **Corrode(X)** currently affecting the target; the effective Armor cannot fall below 0. Armor Reduction does not change the target's listed Armor, does not place Corrode, and does not aid other attackers. Generic Penetration Actives and Active Buffs remain removed. **Immovable** is restricted to **Feet Artifact Base Value B**: declare it during Stone allocation in the Round's Preparation Phase; for that Round you cannot voluntarily move and cannot be forcibly displaced. Existing Stonebound Soles still use Base B: Tunneling. Form is purely visual and never changes the mechanical build. Transformation governs mechanical size changes only, including persistent Growth Health Bars. Polymorph and True Polymorph are not independent Powers; Titan Growth I–III use the approved Growth 1/2/3 rules.
-
 #### Immovable
 
 **Availability:** Only a Feet Artifact that has **Immovable as Base Value B** grants this option. It is not a standalone Active, Active Buff, Reaction, Passive, Stone Ability, or a Base Value for another equipment slot. A Feet Artifact has at most Base Values A and B; an Artifact already using Base B for another effect does not gain a third Base Value. Existing Stonebound Soles retain Tunneling as Base B.
 
 **Declaration:** During the **Preparation Phase**, while choosing and assigning Stone Abilities for the coming Round, the wearer may announce: "I am Immovable this Round." The announcement is made **before the Round's actions**, costs **no separate Action or Stone**, and cannot be added retroactively after an Attack or forced-movement effect. No additional activation Power is required.
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 **Duration and tradeoff:** The choice lasts **for that Round only**, ending when the Round ends. Throughout that Round, the wearer has **0 m voluntary Movement** and cannot move voluntarily by Move, Dash, Disengage, or a Movement Power. In exchange, the wearer **cannot be pushed, pulled, knocked back, or otherwise forcibly displaced**. This is protection from displacement, not immunity to every condition: it does not itself prevent Prone or Stunned.
 
 **Other defenses:** Immovable does not itself cancel Evade, make attacks automatic hits, change Armor or Damage Reduction, or prevent legal non-movement Actions and Reactions. On the next Round the wearer can choose again during Preparation; without a new declaration, Immovable is inactive.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Level Progression
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Anchoring Stance I**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 4)**: at the start of each turn while the Buff lasts, restore Temporary HP from this Buff up to **32** (no real HP); it lasts Mastery Rank Rounds. |
+| **1** | **Anchoring Stance I**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. |
 | **2** | **Stone-Sure Step I**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 4)</span> | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path without provoking movement-triggered Reactions. |
 | **3** | **Stoneweave Guard I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+1 PL, +1 round)</span> | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
-| **4** | **Anchoring Stance II**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 10)**: at the start of each turn while the Buff lasts, restore Temporary HP from this Buff up to **77** (no real HP); it lasts Mastery Rank Rounds. This replaces Anchoring Stance I. |
+| **4** | **Anchoring Stance II**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 10)**: gain **77 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance I. |
 | **5** | **Stone-Sure Step II**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 10)</span> | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step I. |
 | **6** | **Stoneweave Guard II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+2 PL, +2 rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
-| **7** | **Anchoring Stance III**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 16)**: at the start of each turn while the Buff lasts, restore Temporary HP from this Buff up to **122** (no real HP); it lasts Mastery Rank Rounds. This replaces Anchoring Stance II. |
+| **7** | **Anchoring Stance III**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II. |
 | **8** | **Stone-Sure Step III**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 16)</span> | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step II. |
 | **9** | **Stoneweave Guard III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+3 PL, +3 rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Stonebound Soles)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -4900,13 +4891,13 @@ The Sentinel Frame channels **Resolve** through healing, stabilization, and Spec
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
-| **1** | **Single Heal I**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 4; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Heal one creature for **5d8 HP** in the current Health Bar; this does not recover Scarred Health Bars. Only the printed Range is overridden to 8 m. |
+| **1** | **Single Restoration I**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 4; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m. |
 | **2** | **Resolve Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Resolve (2)</span> | Stone Pool | Self | — | Passive | Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions. |
 | **3** | **Healing Support I**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
-| **4** | **Single Heal II**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 10; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Heal one creature for **12d8 HP** in the current Health Bar; this does not recover Scarred Health Bars and replaces Single Heal I. Only the printed Range is overridden to 8 m. |
+| **4** | **Single Restoration II**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 10; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool. |
 | **5** | **Special Negation Support I**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **6** | **Resolve Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Resolve (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Resolve Stones**. |
-| **7** | **Single Heal III**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 16; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Heal one creature for **20d8 HP** in the current Health Bar; this does not recover Scarred Health Bars and replaces Single Heal II. Only the printed Range is overridden to 8 m. |
+| **7** | **Single Restoration III**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 16; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool. |
 | **8** | **Healing Support II**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **9** | **Special Negation Support II**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Sentinel Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -5656,11 +5647,8 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 | MR 7 | 4 |
 | MR 8 | 4 |
 
-#### Draconic Recovery
 
-When Dragon Head reaches Artifact Level 3, choose one Attribute for Draconic Recovery. This choice is permanent. Draconic Recovery can be used once per Safe Haven Rest and restores spent Stones only from that Attribute. Draconic Recovery II and III replace the earlier profile; they do not grant additional uses.
 
-:::
 #### Level Progression
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
@@ -5685,6 +5673,12 @@ When Dragon Head reaches Artifact Level 3, choose one Attribute for Draconic Rec
 \page
 {{pageNumber,auto}}
 {{wide
+
+##### Draconic Recovery
+
+When Dragon Head reaches Artifact Level 3, choose one Attribute for Draconic Recovery. This choice is permanent. Draconic Recovery can be used once per Safe Haven Rest and restores spent Stones only from that Attribute. Draconic Recovery II and III replace the earlier profile; they do not grant additional uses.
+
+
 #### Dragon Claws
 ![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Dragon%20Claws.png){position:absolute,top:50px,right:80px,width:200px}
 
@@ -6176,14 +6170,7 @@ The chosen tradition determines the Staff’s Tradition Special, Main Spell, and
 |---|---|---|---|
 | Main Hand + Off Hand | Two-Handed Arcane Staff | Weapon Damage / Spell Focus / Tradition Special / Raises Stone Power Support / Binding Circle (Ranged AoE Root Active) / Tradition Main Spell | Echo-bound |
 
-Witch Staff occupies both hand Slots.
-
-A Witch with Witch Staff cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.
-
-Witch Staff is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
-
-Witch Staff counts as a **Spell Focus** from Level 1.
-
+Witch Staff occupies both hand Slots. A Witch with Witch Staff cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Witch Staff is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound. Witch Staff counts as a **Spell Focus** from Level 1. 
 Witch Staff may be used with **Intellect**.
 
 ---
@@ -6393,7 +6380,7 @@ Alchemist Stone is a dedicated **Artifact Function** of the Alchemist Coat, not 
 At Artifact Level 2, 5, or 8, the effect is respectively **+1 / +2 / +3 effective Power Levels** and **+1 / +2 / +3 Rounds**. These values replace earlier Alchemist Stone values; they do not add together.
 
 The normal Active Buff rules still apply. The effective Power Level cannot exceed the applicable Power Level cap, and Alchemist Stone does not allow a second Active Buff to be maintained. If another source empowers the same Buff, use only the highest applicable increase unless an explicit rule permits stacking.
----
+
 }}
 \page
 {{pageNumber,auto}}
@@ -6549,7 +6536,7 @@ Where Alchemists survive the hunt by changing their own bodies, and Green Warden
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Limited Single Target Strike / Expose Special / Damage Maximization Stone Power Support | Echo-bound |
+| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Limited Single Target Strike / Expose Special / Maximization Stone Power Support | Echo-bound |
 
 Hunter's Scourge occupies both hand Slots.
 A Relic Hunter with Hunter's Scourge cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.
@@ -6598,28 +6585,33 @@ Hunter's Scourge keeps the **Finesse** quality.
 \page
 {{pageNumber,auto}}
 {{wide
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:620px,right:260px,width:280px}
+
 ### Level Progression
 
 **Limited source:** Scourge Strike is a granted variant of the normal **Melee Single Target Attack**. It inherits that catalogue Power's full Attack Roll, action, delivery, and other rules. The normal Power bonus Damage Dice are doubled by the universal Limited rule; the weapon's Base Damage is not. Its use counter scales with effective Power Level and resets only on a Safe Haven Rest. It grants no free additional Attack Actions, and the Artifact's copy does not bypass duplicate-source restrictions.
 
-**Hunter's Scourge Stone Support exception:** Although Hand Artifacts normally grant Might/Agility-oriented Stone support, Hunter's Scourge is an explicitly approved Echo Artifact exception supporting **Vitality: Damage Maximization**. This grants no Vitality Stones or automatic access to locked Vitality Stone Abilities: the wielder still needs the Ability legally unlocked and must pay its required lower Ranks. This exception applies only to the named Hunter's Scourge support, not to Hand Artifacts generally.
+**Hunter's Scourge Stone Support exception:** Although Hand Artifacts normally grant Might/Agility-oriented Stone support, Hunter's Scourge is an explicitly approved Echo Artifact exception supporting **Vitality: Maximization**. This grants no Vitality Stones or automatic access to locked Vitality Stone Abilities: the wielder still needs the Ability legally unlocked and must pay its required lower Ranks. This exception applies only to the named Hunter's Scourge support, not to Hand Artifacts generally.
 
-**Damage Maximization Support:** Scourge Strike is a **Limited Instant Active** and **may be maximized** by **Vitality Ability: Damage Maximization**. Hunter's Scourge grants the normal Stone Power Support for this Ability at Artifact Levels 2 / 5 / 8. Support pre-fills exactly the named Rank's incremental Stone cost; lower Ranks remain payable. Choose the Rank and pay the remaining cost once during the first Preparation Phase of combat. The Support does not grant a second activation, extra Damage Rolls, additional Limited uses, or a separate Power. A maximization may be spent on Scourge Strike or on any other Damage Roll the wielder makes, following the universal Damage Maximization rules.
-
+**Maximization Support:** Scourge Strike is a **Limited Instant Active** and **may be maximized** by **Vitality Ability: Maximization**. Hunter's Scourge grants the normal Stone Power Support for this Ability at Artifact Levels 2 / 5 / 8. Support pre-fills exactly the named Rank's incremental Stone cost; lower Ranks remain payable. Choose the Rank and pay the remaining cost once during the first Preparation Phase of combat. The Support does not grant a second activation, extra uses, additional Limited uses, or a separate Power. Its **shared Maximization allowance** may be spent on Scourge Strike, another eligible Damage Roll, or an eligible **Healing Roll made by the wielder**, following the universal Maximization rules.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Scourge Strike I**<span class="artifactTechnicalReference">Melee Single Target Attack (Limited, PL 4; Hunter's Scourge source only)</span> | Active (Limited) | Melee Reach | — | Instant | Use **Melee Single Target Attack (Limited, PL 4)** with Hunter's Scourge: on hit, deal its Weapon Damage + **16d8 Power damage**. **2 uses per Safe Haven Rest**. The 16d8 is the Limited output of its normal 8d8 Power bonus; the Scourge's Weapon Damage is not doubled. |
-| **2** | **Damage Maximization Support I**<span class="artifactTechnicalReference">Vitality Ability: Damage Maximization (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of **Vitality: Damage Maximization** (**2-Stone Rank cost** supplied by Hunter's Scourge). Pay Rank 1 normally (**1 Stone**), activate once at the first Preparation Phase of combat, and gain **2 complete Damage Roll maximizations** to spend during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
+| **2** | **Maximization Support I**<span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of **Vitality: Maximization** (**2-Stone Rank cost** supplied by Hunter's Scourge). Pay Rank 1 normally (**1 Stone**), activate once at the first Preparation Phase of combat, and gain **2 shared Maximization uses** for complete Damage or Healing Rolls during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
 | **3** | **Unmask the Prey I**<span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 4)</span> | Active, Special | Melee Reach | — | Instant | Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(5)**, **no damage**. |
 | **4** | **Scourge Strike II**<span class="artifactTechnicalReference">Melee Single Target Attack (Limited, PL 10; Hunter's Scourge source only)</span> | Active (Limited) | Melee Reach | — | Instant | Use **Melee Single Target Attack (Limited, PL 10)** with Hunter's Scourge: on hit, deal its Weapon Damage + **40d8 Power damage**. **5 uses per Safe Haven Rest**. Replaces Scourge Strike I; the Safe Haven Rest counter is shared, not refilled on an in-day Artifact Level change. |
-| **5** | **Damage Maximization Support II**<span class="artifactTechnicalReference">Vitality Ability: Damage Maximization (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of **Vitality: Damage Maximization** (**4-Stone Rank cost** supplied by Hunter's Scourge). Pay Ranks 1 and 2 normally (**3 Stones**), activate once at the first Preparation Phase of combat, and gain **3 complete Damage Roll maximizations** to spend during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
+| **5** | **Maximization Support II**<span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of **Vitality: Maximization** (**4-Stone Rank cost** supplied by Hunter's Scourge). Pay Ranks 1 and 2 normally (**3 Stones**), activate once at the first Preparation Phase of combat, and gain **3 shared Maximization uses** for complete Damage or Healing Rolls during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
 | **6** | **Unmask the Prey II**<span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 10)</span> | Active, Special | Melee Reach | — | Instant | Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(8)**, **no damage**. This replaces Unmask the Prey I. |
 | **7** | **Scourge Strike III**<span class="artifactTechnicalReference">Melee Single Target Attack (Limited, PL 16; Hunter's Scourge source only)</span> | Active (Limited) | Melee Reach | — | Instant | Use **Melee Single Target Attack (Limited, PL 16)** with Hunter's Scourge: on hit, deal its Weapon Damage + **64d8 Power damage**. **8 uses per Safe Haven Rest**. Replaces Scourge Strike II. |
-| **8** | **Damage Maximization Support III**<span class="artifactTechnicalReference">Vitality Ability: Damage Maximization (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of **Vitality: Damage Maximization** (**8-Stone Rank cost** supplied by Hunter's Scourge). Pay Ranks 1, 2 and 3 normally (**7 Stones**), activate once at the first Preparation Phase of combat, and gain **4 complete Damage Roll maximizations** to spend during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
+| **8** | **Maximization Support III**<span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of **Vitality: Maximization** (**8-Stone Rank cost** supplied by Hunter's Scourge). Pay Ranks 1, 2 and 3 normally (**7 Stones**), activate once at the first Preparation Phase of combat, and gain **4 shared Maximization uses** for complete Damage or Healing Rolls during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
 | **9** | **Unmask the Prey III**<span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 16)</span> | Active, Special | Melee Reach | — | Instant | Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(10)**, **no damage**. This replaces Unmask the Prey II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Hunter's Scourge)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
-![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:620px,right:260px,width:280px}
+
 
 }}
 \page
@@ -6812,7 +6804,7 @@ Hollow Crown occupies the Head Slot. A Deathless character with Hollow Crown can
 
 Deathless are not automatically evil. They are not servants of demons by nature. They do not hate the living simply because they no longer live. But death changes what a body needs, what pain means, and how long a soul can remain whole.
 
-Deathless use the normal rules for **Health, healing, rest, and recovery**. Normal healing restores damage within the current active Health Bar normally, but does not restore Scarred Health Bars unless a rule explicitly allows it.
+Deathless use the normal rules for **Health, healing, rest, and recovery**. Resolve Stone Healing and Damage Transfer repair HP within the current active Health Bar under their own rules; Scarred Bars require dedicated full-Bar Restoration, Regeneration or explicitly permitted recovery.
 
 What separates the Deathless from the living is **Life Absorption**. By drawing vitality from living creatures, a Deathless can create temporary **Absorbed Vitality Stones** and use them to fuel Vitality Stone Abilities such as **Remove Scar**.
 
@@ -7146,7 +7138,7 @@ Compare the result to the encounter threshold.
 
 If a phase roll fails, the story continues.
 
-Each participating PC makes a **Fear Check (Resolve k1, TN 8)** if the failure entails credible psychological pressure. Use **TN 12** only for a truly terrifying or supernatural consequence. Each failed check adds **1 Fear**, which accumulates until a Safe Haven Rest.
+Each participating PC makes a **Fear Check (Resolve k1; fixed Fear result bands)** if the failure entails credible psychological pressure. Each character applies **+2 Fear on a result below 8, +1 on 8–15, or +0 on 16+**. The GM selects who makes the check, not a TN; ordinary and supernatural consequences use the **same bands**. Fear accumulates until a Safe Haven Rest.
 
 The GM should describe the pressure as dread, shame, fear, doubt, or the cost of maintaining the act. Ordinary disagreements do not automatically call for Fear Checks.
 
@@ -7169,7 +7161,7 @@ The GM should describe the pressure as dread, shame, fear, doubt, or the cost of
   - **<4** Fail
   - **4–7** Success
   - **8+** Overdeliver
-- Failed phases may trigger individual **Fear Checks (Resolve k1; TN 8 or 12)**. Each failure adds **1 Fear**.
+- Failed phases may trigger individual **Fear Checks (Resolve k1; fixed bands)**: below 8 → **+2 Fear**, 8–15 → **+1 Fear**, 16+ → **+0 Fear**.
   
 }}
 
@@ -7727,7 +7719,11 @@ Stones exist in 4 states:
 ### Colorless Stones
 
 Every permanent Stone earned **after the 2 starting Attribute Stones** may be chosen as a **Permanent Colorless Stone at a 1:1 ratio**, with **no MR-based cap**. The 2 starting Attribute Stones cannot be converted to Colorless later. Colorless Stones can pay the normal costs of any eligible **unlocked** Stone Ability, but do not unlock Attribute Stone Abilities themselves. Their source determines when they are gained, when they expire, and any explicit source-specific restrictions.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 **One recovery rule for all Colorless Stones:** Spent Colorless Stones become **Exhausted**. They **cannot be restored through normal Stone Recovery by default**, regardless of source. **Influence Stone Ability: Colorless Recovery** is the way to make up to **2 / 4 / 8 / 16** Colorless Stones eligible for the existing shared Stone Recovery limit (Ranks 1–4; normal activation costs **1 / 3 / 7 / 15** Stones). This Ability is activated **once per combat** at one chosen Rank; its designation lasts until combat ends. The activation Stones become **Exhausted**, not **Sealed**, and may be recovered according to their normal rules. It cannot be activated again or upgraded during the same combat. This does not grant Stones or increase the **MR Stones per Round** Recovery rate. The designation changes eligibility for recovery, not the Stone's Ready/Exhausted state.
 
 - **Permanent Colorless Stones** persist between combats. Unrecovered Exhausted permanent Colorless Stones become Ready at **end of combat**, like other permanent Stones, unless Sealed or Bound.
@@ -7738,11 +7734,7 @@ Every permanent Stone earned **after the 2 starting Attribute Stones** may be ch
 All Colorless Stones share the same spending Pool. Source distinctions affect **persistence and any explicit source-specific restrictions**, not ordinary recovery eligibility.
 
 ---
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 #### Spending Stones
 
 During the **Preparation Phase** at the start of each Round, first receive any Absorption Colorless Stones earned since your previous Preparation Phase. Those Stones are Ready and may be used when you choose and commit Stone Abilities for this Round.
@@ -7750,10 +7742,25 @@ You may spend any number of **Ready Stones** available to you across your Stone 
 When spent, an Attribute Stone or Colorless Stone becomes **Exhausted** unless a specific effect explicitly removes that Stone. Spent Colorless Stones remain unavailable through normal Stone Recovery unless designated by **Influence: Colorless Recovery**; temporary Stones still expire when their source says they expire.
 Once the first Turn of the Round begins, your Stone choices for that Round are locked unless a rule explicitly allows a change.
 Stone Abilities with a specific Turn timing or trigger are still prepared during the Preparation Phase, but their effect resolves only when that timing or trigger occurs.
-For a Stone Ability activated during the Preparation Phase, an effect that lasts **until the start of your next Turn** lasts until the start of your Turn in the **following Round**.
+
+
+**Round-Based Stone Ability Duration**
+
+Round-based Stone Abilities are prepared and paid for during the Preparation Phase before the Round begins. 
+Their effects become available immediately, unless the Ability specifies a later resolution timing or trigger.
+A Round-based Stone Ability remains available for the entire current Round, independently of the activating character's Turn or Initiative position.
+Any unused Round-based benefits expire at the end of that Round, before the next Preparation Phase begins.
+Round-based effects never carry over into the next Round. A character must prepare and pay for the Ability again during the next Preparation Phase to receive its benefits again.
+Abilities that explicitly provide a longer duration, a once-per-combat allowance, or a lasting result follow their specific rules instead.
+
+
 
 All Stone Abilities have **4 Ranks**. They use one of two cost progressions.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 **Normal Stone Abilities**
 
 | Rank | Additional Cost | Total Cost |
@@ -7785,7 +7792,7 @@ Stone Power Support pre-fills one named Rank of a Stone Ability. The supported R
 - Support for **Rank 3** requires Ranks 1 and 2 to be paid normally.
 - Support for **Rank 4** requires Ranks 1, 2, and 3 to be paid normally.
 
-**Vitality: Damage Maximization Support** follows this rule without adding charges of its own. Rank 2 / 3 / 4 Support pre-fills the corresponding **2 / 4 / 8 Stone** incremental cost. The character still pays lower required Ranks (**1 / 3 / 7 Stones** for supported Rank 2 / 3 / 4) during the **first Preparation Phase of combat**. The resulting allowance remains **2 / 3 / 4 Damage Rolls for that combat**, not a second or recurring activation. Support can be used with a Limited Power, including the Hunter's Scourge Limited Strike, if its other requirements are met.
+**Vitality: Maximization Support** follows this rule without adding charges of its own. Rank 2 / 3 / 4 Support pre-fills the corresponding **2 / 4 / 8 Stone** incremental cost. The character still pays lower required Ranks (**1 / 3 / 7 Stones** for supported Rank 2 / 3 / 4) during the **first Preparation Phase of combat**. The resulting allowance remains **2 / 3 / 4 shared Maximization uses for Damage or Healing Rolls during that combat**, not a second or recurring activation. Support can be used with a Limited Power, including the Hunter's Scourge Limited Strike, if its other requirements are met.
 
 Stone Ability costs reset each **Preparation Phase** unless an Ability explicitly states that its cost is cumulative per combat.
 
@@ -7808,112 +7815,117 @@ Stone Ability costs reset each **Preparation Phase** unless an Ability explicitl
 
 
 #### General Stone Abilities
+
 | **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
 |:--|:--|:--|:--|:--|
-| **Extra Attack** | Gain **1 additional Attack Action** this round. | Gain **2 additional Attack Actions** this round. | Gain **3 additional Attack Actions** this round. | Gain **4 additional Attack Actions** this round. |
-| **Extra Movement** | Gain **1 additional Movement** this round. | Gain **2 additional Movements** this round. | Gain **3 additional Movements** this round. | Gain **4 additional Movements** this round. |
-| **Extra Reaction** | Gain **1 additional Reaction** this round. | Gain **2 additional Reactions** this round. | Gain **3 additional Reactions** this round. | Gain **4 additional Reactions** this round. |
-| **Movement Enhancement** | Add **+4 m** to each of your Movement Actions this Round. | Add **+8 m** to each of your Movement Actions this Round. | Add **+12 m** to each of your Movement Actions this Round. | Add **+16 m** to each of your Movement Actions this Round. |
+| **Extra Attack** | **+1 Attack Action** | **+2 Attack Actions** | **+3 Attack Actions** | **+4 Attack Actions** |
+| **Extra Movement** | **+1 Movement** | **+2 Movements** | **+3 Movements** | **+4 Movements** |
+| **Extra Reaction** | **+1 Reaction** | **+2 Reactions** | **+3 Reactions** | **+4 Reactions** |
+| **Movement Enhancement** | **+4 m** per Movement | **+8 m** per Movement | **+12 m** per Movement | **+16 m** per Movement |
 
-**Movement Enhancement:** During Preparation, pay the normal Stone cost **1 / 3 / 7 / 15** for **+4 / +8 / +12 / +16 m** on **every Movement Action this Round** (normal Move, Dash, Disengage, or a legal Movement Power). Calculate the Action's normal distance first (Dash first doubles Speed), add the bonus once per Action, then apply applicable distance reductions and rounding. Extra Movements receive the same bonus. This does not grant Actions or modes, change base Speed (including Slow overflow), overcome Root/Immovable or terrain restrictions, or benefit Quick Load. Passive swapping is not part of this Ability.
+**Round duration.** Unless expressly stated otherwise, Stone Abilities are prepared and paid for in the **Preparation Phase**. Round-based effects apply throughout the upcoming Round and end at **Round End**, not at the start of the user's next Turn. Triggered effects resolve at their stated timing. Combat-long allowances and lasting results follow their own rules.
 
-**Additional Attack Action Limit:** Additional Attack Actions from different sources do **not** add together unless a rule explicitly says otherwise. If several sources grant additional Attack Actions during the same Round, use only the highest single grant. **Stone Power Support** for Extra Attack modifies the same Extra Attack activation and is not a separate source of additional Attack Actions. This rule does not remove or replace your normal base Attack Action.
+**Movement Enhancement.** Add the listed distance once to **each Movement Action this Round**, including normal Move, Dash, Disengage, eligible Movement Powers, and Extra Movements. Calculate the normal distance first (including Dash doubling), then add the bonus before applying distance reductions and rounding. This grants no extra Action or movement mode, changes no base Speed, bypasses no Root, Immovable, or terrain restriction, and does not affect Quick Load or Passive swapping. Normal Stone costs: **1 / 3 / 7 / 15**.
 
----
-:
+**Additional Attack Action Limit.** Extra Attack Actions from different sources do **not stack** unless explicitly allowed; use the highest single grant. Stone Power Support modifies the same Extra Attack activation, not a separate source. Your normal Attack Action remains available.
+
 #### Temporary Defensive Stone Values
 
-Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**, or **Special Negation** create the listed defense if you do not already have it. If you already have that defense, add the listed value to your existing value. Temporary **Parry**, **Damage Reduction**, and **Special Negation** expire at the start of your next turn. Temporary **Damage Negation** is one consumable pool for the current Round and expires at Round End. All normal limits and resolution rules still apply.
+Stone bonuses to existing defenses add to their corresponding values under the normal rules. A Stone Ability can provide **Parry, Damage Negation, Damage Reduction, or Special Negation** even without a previously learned source. All Round-based defensive Stone bonuses expire at **Round End**.
 
----
-:
-#### Might Stone Abilities
-
-| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
-|:--|:--|:--|:--|:--|
-| **Parry** | Gain **+2 Parry Pool** until the start of your next turn. | Gain **+4 Parry Pool** until the start of your next turn. | Gain **+6 Parry Pool** until the start of your next turn. | Gain **+8 Parry Pool** until the start of your next turn. |
-| **Damage** | Add **+2 Damage Dice** to the damage roll of your next **Martial Attack** this turn. | Add **+4 Damage Dice** to the damage roll of your next **Martial Attack** this turn. | Add **+8 Damage Dice** to the damage roll of your next **Martial Attack** this turn. | Add **+16 Damage Dice** to the damage roll of your next **Martial Attack** this turn. |
-| **Armor** | Gain **+4 Armor** until the start of your next turn. | Gain **+8 Armor** until the start of your next turn. | Gain **+16 Armor** until the start of your next turn. | Gain **+32 Armor** until the start of your next turn. |
-| **Armor Reduction** | All your **damaging attacks this Round** ignore **4 Armor**. | All your **damaging attacks this Round** ignore **8 Armor**. | All your **damaging attacks this Round** ignore **16 Armor**. | All your **damaging attacks this Round** ignore **32 Armor**. |
-
-**Parry** increases your current Parry Pool regardless of whether your learned Parry delivery is **Martial** or **Spell**. It does not change that chosen delivery and does not make an otherwise ineligible effect parryable.
-
-**Damage** applies to any **Martial Attack** that deals damage, whether melee, ranged, a natural weapon, or Martial AoE. It does not increase **Spell Attack** damage. **Might Stone Ability: Armor Reduction** is activated during Preparation and applies to **every damaging Attack this Round made by the character** (melee, ranged, weapon-based, natural-weapon, or damaging Spell). Its Ranks 1-4 ignore 4 / 8 / 16 / 32 Armor. This reduces the **Armor counted against the activating character's attacks only**, not the target's listed Armor and not the Armor other attackers face. **Corrode(X)** on the target reduces its current Armor for everyone; **Weapon Special: Penetration(X)** ignores additional Armor for a qualifying weapon-delivered hit. These three values **add** and cannot make effective Armor negative. Penetration remains available as a Weapon Special, but not as a generic Active or Active Buff. The Stone Ability costs and Rank scaling do not change.
-
----
-:
-#### Agility Stone Abilities
-
-**Crit** uses the universal **Critical(X)** roll rule: choose each eligible Martial Attack or damaging Spell Casting Pool **before the roll**. Rank 1 / 2 / 3 / 4 permits 1 / 2 / 3 / 4 designated Pools in that Round, each benefiting from **Critical(1)** (natural 7s and 8s explode).
-
-| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
-|:--|:--|:--|:--|:--|
-| **Crit** | **One** of your Martial Attacks or damaging Spells this round can have **Crit(1)**. Decide before its **Attack Roll or Casting Roll**. | **Two** of your Martial Attacks or damaging Spells this round can have **Crit(1)**. Decide before each **Attack Roll or Casting Roll**. | **Three** of your Martial Attacks or damaging Spells this round can have **Crit(1)**. Decide before each **Attack Roll or Casting Roll**. | **Four** of your Martial Attacks or damaging Spells this round can have **Crit(1)**. Decide before each **Attack Roll or Casting Roll**. |
-| **Evade** | Gain **+8 Evade** until the start of your next turn. | Gain **+16 Evade** until the start of your next turn. | Gain **+24 Evade** until the start of your next turn. | Gain **+32 Evade** until the start of your next turn. |
-| **Safe Movement** | Move up to **4 m**. This movement does not provoke reactions. | Move up to **8 m**. This movement does not provoke reactions. | Move up to **12 m**. This movement does not provoke reactions. | Move up to **16 m**. This movement does not provoke reactions. |
-| **Invisibility Boost** | Add **+1 Invisibility Bonus** this Round. | Add **+2 Invisibility Bonus** this Round. | Add **+4 Invisibility Bonus** this Round. | Add **+8 Invisibility Bonus** this Round. |
-
-**Invisibility Boost** adds its listed value to your existing Invisibility Bonus for the current Round only. It raises the corresponding Invisibility Perception TN but does not grant Invisibility, change which Combat Senses are Obscured, or make an unaffected Sense unable to detect you.
-
+**Damage Negation** is a **single expendable pool for the current Round**, not a fresh allowance per attack. Before a Damage Roll, spend any number of its remaining points; each point removes **1 Damage Die**. You may divide the pool among multiple incoming attacks. Spend temporary Negation before the Passive's combat reserve. Unused temporary points expire at Round End.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+#### Might Stone Abilities
 
+| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
+|:--|:--|:--|:--|:--|
+| **Parry** | **+2 Parry Pool** | **+4 Parry Pool** | **+6 Parry Pool** | **+8 Parry Pool** |
+| **Damage** | **+2 Damage Dice** | **+4 Damage Dice** | **+8 Damage Dice** | **+16 Damage Dice** |
+| **Armor** | **+4 Armor** | **+8 Armor** | **+16 Armor** | **+32 Armor** |
+| **Armor Reduction** | Ignore **4 Armor** | Ignore **8 Armor** | Ignore **16 Armor** | Ignore **32 Armor** |
+
+**Parry / Armor.** The bonus lasts for the current Round. Parry increases your existing **Martial or Spell Parry Pool** without changing its chosen delivery or making an ineligible effect parryable.
+
+**Damage.** Add the indicated dice to your **next damaging Martial Attack this Turn**, whether melee, ranged, natural weapon, or Martial AoE. This does not increase Spell damage.
+
+**Armor Reduction.** Applies to **every damaging Attack you make this Round**, including Martial and Spell Attacks. Only your own attacks ignore the listed Armor; the target's Armor against other attackers is unchanged. This combines with **Corrode(X)** and eligible **Weapon Special: Penetration(X)**, but effective Armor cannot fall below 0. Penetration is not available as a generic Active or Active Buff.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+#### Agility Stone Abilities
+
+| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
+|:--|:--|:--|:--|:--|
+| **Crit** | **1 pool** with Critical(1) | **2 pools** with Critical(1) | **3 pools** with Critical(1) | **4 pools** with Critical(1) |
+| **Evade** | **+8 Evade** | **+16 Evade** | **+24 Evade** | **+32 Evade** |
+| **Safe Movement** | Move up to **4 m** safely | Move up to **8 m** safely | Move up to **12 m** safely | Move up to **16 m** safely |
+| **Invisibility Boost** | **+1 Invisibility Bonus** | **+2 Invisibility Bonus** | **+4 Invisibility Bonus** | **+8 Invisibility Bonus** |
+
+**Crit.** During the current Round, designate the listed number of **Martial Attack Pools or damaging Spell Casting Pools**. Choose each **before its roll**. Each chosen pool gains **Critical(1)**: natural **7s and 8s explode**.
+
+**Evade.** The bonus lasts until Round End.
+
+**Safe Movement.** The listed movement does not provoke movement-triggered Reactions; other normal movement restrictions still apply.
+
+**Invisibility Boost.** Improves an **existing** Invisibility Bonus for the current Round and its related Perception TN. It does not grant Invisibility, change obscured Combat Senses, or block senses that could already detect the creature.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Vitality Stone Abilities
 
 | **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
 |:--|:--|:--|:--|:--|
-| **Damage Negation** | Gain **+2 Damage Negation** until Round End. | Gain **+4 Damage Negation** until Round End. | Gain **+8 Damage Negation** until Round End. | Gain **+12 Damage Negation** until Round End. |
-| **Temporary HP** | Gain **20 Temporary HP**. | Gain **40 Temporary HP**. | Gain **80 Temporary HP**. | Gain **160 Temporary HP**. |
-| **Damage Maximization** | Once per combat, maximize **1** complete Damage Roll. | Once per combat, maximize **2** complete Damage Rolls. | Once per combat, maximize **3** complete Damage Rolls. | Once per combat, maximize **4** complete Damage Rolls. |
-| **Remove Scar** | Recover **1 Scarred Health Bar**. Seal **1 Vitality Stone**. | Recover **1 Scarred Health Bar**. Seal **2 Vitality Stones**. | Recover **1 Scarred Health Bar**. Seal **4 Vitality Stones**. | Recover **1 Scarred Health Bar**. Seal **8 Vitality Stones**. |
+| **Damage Negation** | **+2 Negation** | **+4 Negation** | **+8 Negation** | **+12 Negation** |
+| **Temporary HP** | **20 Temporary HP** | **40 Temporary HP** | **80 Temporary HP** | **160 Temporary HP** |
+| **Maximization** | **1 use** per combat | **2 uses** per combat | **3 uses** per combat | **4 uses** per combat |
+| **Remove Scar** | **1 Bar**, Seal **1** Stone | **1 Bar**, Seal **2** Stones | **1 Bar**, Seal **4** Stones | **1 Bar**, Seal **8** Stones |
 
-Temporary HP gained from this Stone Ability lasts until depleted or until the end of combat. You may activate **Temporary HP only once per combat**. The Stones spent to activate it become Exhausted normally and may recover normally. Recovering those Stones does not allow you to activate Temporary HP again during the same combat.
+**Damage Negation.** **Premium** costs: **2 / 6 / 12 / 20 Stones**. Gain one expendable pool for the current Round. Each point removes **1 Damage Die** before rolling; divide it among incoming attacks as needed. Unused points expire at Round End.
 
+**Temporary HP.** Activate **once per combat**. The HP remain until depleted or combat ends, including across multiple hits. Spent Stones become Exhausted and may recover, but recovery does not permit a second activation. This differs from Reaction-granted Temporary HP, which protects one damage instance only.
 
-##### Damage Maximization
+##### Maximization
 
-**Damage Maximization is a Normal Vitality Stone Ability, not a Premium Ability.** During the **first Preparation Phase of each combat**, choose one Rank and spend its normal cumulative Stone cost: **1 / 3 / 7 / 15 Stones** at Ranks 1–4. You must have unlocked Vitality Stone Abilities normally. Paid Stones become **Exhausted** and follow their normal Stone Recovery rules; **no Health Bar is Scarred and no Stone is Sealed by Damage Maximization**. Colorless Stones may contribute to the cost if they are otherwise eligible for this unlocked Stone Ability.
+Activate once in the **first Preparation Phase of combat**. Pay **1 / 3 / 7 / 15 Stones** (eligible Colorless Stones allowed); the Stones become Exhausted. Gain **1 / 2 / 3 / 4 shared uses** for that combat. The Rank cannot change and unused uses expire at combat end.
 
-The selected Rank grants **1 / 2 / 3 / 4 uses to maximize a complete Damage Roll during that same combat**. This is **one activation per combat**: you cannot activate it again, upgrade the Rank, repay Stones for more maximizations, or refresh its uses in the same combat, even if the activation Stones recover. Unused maximizations expire at combat end. Once the first Preparation Phase has passed, a character who did not activate Damage Maximization cannot activate it later in that combat.
+Spend one use **before an eligible complete Damage or Healing Roll**: each d8 counts as **8**, without triggering any **natural-8** effect. For damage, apply **Damage Negation first** and maximize only the remaining dice, then resolve Armor and other mitigation. A complete roll includes eligible Weapon, Power, and Limited dice. Martial, Spell, Reaction, and Artifact damage qualify. **One shared AoE roll uses one charge; separate rolls each use one.** No targets, Range, AoE, or Action costs change.
 
-**Before each eligible Damage Roll**, declare that you are spending one remaining maximization. Every **d8 Damage Die that would actually be rolled in that complete Damage Pool** instead has a result of **8**. Form the Damage Pool normally first (including weapon dice, Power dice, Limited output, bonuses and all permitted modifiers); remove any dice prevented by Damage Negation before applying the maximization. The maximization changes **only the results of the remaining Damage Dice**. It does not create Damage Dice, add new rolls or attacks, increase Specials, multiply flat damage, modify Healing Dice, or affect Range, AoE, targets, duration or action economy. Artificially maximized 8s are **not natural 8s**, do not explode, and do not produce natural-8-based bonus or minimum damage.
-
-You may apply available maximizations to separate Damage Rolls in the **same Round or different Rounds**; there is no per-Round allowance beyond the number of real rolls you can legally make. The effect can maximize a Damage Roll from a **normal attack, damaging Spell, eligible Reaction, Artifact attack or Limited Instant Active**. On an AoE that uses **one shared Damage Roll**, spending one maximization covers that shared roll for all affected targets; defenses and per-target damage mitigation still resolve normally. Multiple separate Damage Rolls each require their own maximization. A prevented or missed attack that never produces a Damage Roll does not use a maximization.
-
-**Examples:** A 15d8 Damage Roll is maximized to **120** before mitigation. A Limited Active with 16d8 Power damage plus 7d8 Weapon Damage has 23d8 in its combined rolled pool; one maximization gives **184** before mitigation, not a new damage multiplier. For a 64d8 Damage Roll the result is **512** before mitigation. The large high-level peak is intentional and must be monitored in playtests.
-
+For Healing, apply the current-Bar HP cap and the positive-Healing exception for living Incapacitated or Stable creatures. **Resolve: Healing** qualifies; **Restoration** has no Healing Roll. **Damage Transfer** heals only actual HP lost, even after Maximization of its Damage Roll.
 
 ##### Remove Scar
 
-Each Rank of **Remove Scar** recovers **1 Scarred Health Bar**. When Remove Scar is activated at a higher Rank, all lower unresolved Ranks are resolved as well and their Stone costs are cumulative. Reaching Rank 2 therefore Seals a total of **3 Vitality Stones**, Rank 3 Seals **7 Vitality Stones**, and Rank 4 Seals **15 Vitality Stones**. A Rank already resolved since the last Safe Haven Rest is not paid or resolved again. **Remove Scar may be activated outside combat**; its resolved Ranks and Sealed Stones remain spent until the next Safe Haven Rest. When activating a higher Rank later, resolve and pay only the unresolved Ranks up to that Rank. Vitality Stones used for Remove Scar become **Sealed**, not Exhausted. Sealed Stones cannot recover and return only after a Safe Haven Rest.
+Each Rank restores **1 Scarred Health Bar** and **Seals** its printed Vitality Stones. Cumulative totals through Ranks 1–4 are **1 / 3 / 7 / 15 Sealed Stones** for up to **1 / 2 / 3 / 4 restored Bars**. Activation is allowed outside combat. Ranks already used since the last Safe Haven Rest cannot be repeated; when advancing, pay and resolve only unused Ranks. **Colorless Stones cannot pay.** Sealed Stones return only after a Safe Haven Rest.
 
-**Colorless Stones cannot be used to pay any Remove Scar cost.**
+**Artifact exception.** The Artifact Level-10 Awakening's once-per-Safe-Haven-Rest **cost-free supported activation** pays and Seals **0 Stones**, including prerequisite Ranks, and restores only still-unused Ranks. Ordinary **Stone Power Support** instead covers just its named Rank; lower Ranks must be paid and Sealed (e.g., Rank 4 Support leaves **7 Vitality Stones** to pay for Ranks 1–3).
 
-**Artifact Level-10 Awakening exception:** If an Artifact supports Remove Scar, its **once-per-Safe-Haven-Rest cost-free supported activation** pays **zero Vitality Stones** and **Seals zero Vitality Stones**, including prerequisite Ranks. Resolve only Ranks still unused since the last Safe Haven Rest, up to the supported Rank, against existing Scarred Health Bars. An ordinary paid Rank-4 activation still Seals **15 Vitality Stones**.
-
-Stone Power Support interacts with Remove Scar normally. A supported Rank is considered pre-filled, while all lower Ranks must still be paid for and resolved normally. For example, if Rank 4 is pre-filled by Stone Power Support, the character must still pay the costs of Ranks 1, 2, and 3, Sealing a total of **7 Vitality Stones** to recover up to **4 Scarred Health Bars**.
-
----
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Intellect Stone Abilities
+
 | **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
 |:--|:--|:--|:--|:--|
-| **Raises** | **2 Free Raises** this Round. | **4 Free Raises** this Round. | **6 Free Raises** this Round. | **8 Free Raises** this Round. |
-| **Range & AoE Boost** | **+10 m Range**, **+2 m Melee Reach**, and **+1 m existing AoE radius**. | **+20 m Range**, **+4 m Melee Reach**, and **+2 m existing AoE radius**. | **+30 m Range**, **+6 m Melee Reach**, and **+3 m existing AoE radius**. | **+40 m Range**, **+8 m Melee Reach**, and **+4 m existing AoE radius**. |
-| **Special Boost** | Every numeric **Special(X)** you successfully apply this round gains **+2**. | Every numeric **Special(X)** you successfully apply this round gains **+4**. | Every numeric **Special(X)** you successfully apply this round gains **+8**. | Every numeric **Special(X)** you successfully apply this round gains **+12**. |
-| **Spell Resistance** | Until the start of your next turn, gain **+4 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. | Until the start of your next turn, gain **+8 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. | Until the start of your next turn, gain **+12 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. | Until the start of your next turn, gain **+16 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. |
+| **Raises** | **2 Free Raises** | **4 Free Raises** | **6 Free Raises** | **8 Free Raises** |
+| **Range & AoE Boost** | **+10 m** Range, **+2 m** Reach, **+1 m** Radius | **+20 m**, **+4 m**, **+2 m** | **+30 m**, **+6 m**, **+3 m** | **+40 m**, **+8 m**, **+4 m** |
+| **Special Boost** | **+2 Special(X)** | **+4 Special(X)** | **+8 Special(X)** | **+12 Special(X)** |
+| **Spell Resistance** | **+4 Spell Resistance** | **+8 Spell Resistance** | **+12 Spell Resistance** | **+16 Spell Resistance** |
 
----
-**Raises (Intellect Stone Ability)** grants **2 / 4 / 6 / 8 Free Raises** at Ranks 1–4 as **one shared allowance for the current combat Round**. Before an eligible roll, declare how many available Free Raises you are using; choose their permitted effects after a successful roll. **Free Raises do not increase the Target Number and have no Raise Cost.** On a successful roll against the **applicable TN, including declared Paid Raises**, the selected Free Raises grant their full effects alongside successful paid Raises. If that TN is missed, the Free Raises have no effect. Declared Free Raises are consumed whether the roll succeeds or fails; unused Free Raises expire at the end of the Round. You may distribute them among rolls using any Attribute, including Martial Attacks, Spells, and other rolls where Raises are permitted. Free Raises do not override an explicit prohibition on Raises. Paid Raises increase the TN by +4 each and have no Raise Cost.
+**Raises.** The listed Free Raises form **one shared allowance for the current Round**, usable on eligible rolls with **any Attribute**, including Martial and Spell rolls. Declare the number **before rolling**; choose permitted effects **after a successful roll**. Declared Free Raises are spent even on failure. They add **no TN or Raise Cost**; **Paid Raises still add +4 TN each** and have no Raise Cost. They cannot bypass a prohibition on Raises. Unused Free Raises expire at Round End.
 
-**Range & AoE Boost** applies for the current Round to eligible existing attack/Powers with Range, Melee Reach or an AoE radius. Its selected Rank grants **+10 / +20 / +30 / +40 m Range**, **+2 / +4 / +6 / +8 m Melee Reach** and **+1 / +2 / +3 / +4 m to the radius of an existing AoE**. Apply each bonus only to a delivery component that already exists; the Ability does not grant new Range, create an AoE, add a target, or create a second attack. These are temporary delivery bonuses even when the normal Power's purchased radius cap has been reached; they do not alter the Power's purchased base profile.
+**Range & AoE Boost.** During the current Round, improve only delivery components an eligible Attack or Power **already possesses**: Range, Melee Reach, and/or an existing AoE radius. This grants no new delivery mode, AoE, target, or attack. The temporary bonus may exceed the Power's purchased radius cap without changing its base profile.
 
-**Special Boost is a Premium Stone Ability.** It adds its Rank bonus (**+2 / +4 / +8 / +12**) to the incoming numeric **Special(X)** of every eligible effect you deliver in the current Round, including Martial Attacks, Spells, weapons, Powers, Artifacts, Reactions and persistent effects applying during that Round.
+**Special Boost.** A **Premium Stone Ability**. Each eligible numeric **Special(X)** you successfully deliver during the Round gains the listed bonus, including Martial, Spell, Weapon, Power, Artifact, Reaction, and applicable persistent effects. Add successful Raise increases first, then Special Boost, eligible **Passive: Special Amplification** for the owner's attack, and target **Vulnerability**; then apply **Special Negation** and the per-Round **Special Application Limit**. The Passive does not amplify persistent effects. No new, binary, or nonnumeric Special is created or improved.
 
-**Special application order (authoritative):** printed Special(X) → successful Raise Special Increase → Intellect Stone Special Boost → **Passive: Special Amplification** (if slotted) → target Vulnerability → target Special Negation → per-Round **Special Application Limit** (4 × Mastery Rank). Passive: Special Amplification increases only eligible numeric Specials freshly delivered by the owner's qualifying attack; it is distinct from Passive: Special Aura. Special Boost and Special Amplification neither create a new Special nor increase binary or nonnumeric Specials. All Special-specific limits remain in force.
+**Spell Resistance.** Lasts until Round End and increases your **Final Spell TN** against both direct Spells and Spell AoEs that affect you.
 
 }}
 \page
@@ -7923,63 +7935,58 @@ Stone Power Support interacts with Remove Scar normally. A supported Rank is con
 
 | **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
 |:--|:--|:--|:--|:--|
-| **Damage Reduction** | Gain **+10% Damage Reduction** until the start of your next turn. | Gain **+20% Damage Reduction** until the start of your next turn. | Gain **+30% Damage Reduction** until the start of your next turn. | Gain **+40% Damage Reduction** until the start of your next turn. |
-| **Healing** | You or one ally within **2 m** heals **4d8 HP** in their current Health Bar. | You or one ally within **4 m** heals **8d8 HP** in their current Health Bar. | You or one ally within **8 m** heals **12d8 HP** in their current Health Bar. | You or one ally within **16 m** heals **16d8 HP** in their current Health Bar. |
-| **Active Buff Empowerment** | Increase one **Active Buff** you activate this Round by **+1 Power Level** and **+1 Round**. | Increase one **Active Buff** you activate this Round by **+2 Power Levels** and **+2 Rounds**. | Increase one **Active Buff** you activate this Round by **+3 Power Levels** and **+3 Rounds**. | Increase one **Active Buff** you activate this Round by **+4 Power Levels** and **+4 Rounds**. |
-| **Special Negation** | Gain **+2 Special Negation** until the start of your next turn. | Gain **+4 Special Negation** until the start of your next turn. | Gain **+8 Special Negation** until the start of your next turn. | Gain **+12 Special Negation** until the start of your next turn. |
+| **Damage Reduction** | **+10% DR** | **+20% DR** | **+30% DR** | **+40% DR** |
+| **Healing** | **4d8 HP**, within **2 m** | **8d8 HP**, within **4 m** | **12d8 HP**, within **8 m** | **16d8 HP**, within **16 m** |
+| **Active Buff Empowerment** | **+1 PL**, **+1 Round** | **+2 PL**, **+2 Rounds** | **+3 PL**, **+3 Rounds** | **+4 PL**, **+4 Rounds** |
+| **Special Negation** | **+2 Special Negation** | **+4 Special Negation** | **+8 Special Negation** | **+12 Special Negation** |
 
----
+**Damage Reduction / Special Negation.** Round-based defensive bonuses expire at Round End. Special Negation reduces incoming eligible hostile numeric **Special(X)**; if reduced to **0 or less**, it is not applied.
 
-**Active Buff Empowerment** increases both the effective Power Level and duration of one Active Buff activated this Round. The increased Power Level is subject to that Power's normal PL cap; the effects do not allow an additional maintained Active Buff. Multiple Empowerment sources do not stack unless an explicit rule permits it.
+**Healing.** During Preparation, pay the normal cumulative Stone cost for **one Healing application**. Trigger it later in the current Round at a legal action boundary, targeting **yourself or one ally** within the listed Range. You may also trigger it **before incoming HP damage**; heal first, then resolve the hit's damage. Triggering uses **no additional Stones, Attack Action, or Reaction**. Roll once, then expend the prepared application. Unused Healing expires at Round End; Stones remain spent. Apply the current-Bar cap and the positive-Healing exception for living Incapacitated or Stable creatures. Eligible **Maximization** may enhance the roll.
 
----
-
-Stone-granted **Special Negation** follows the normal incoming-Special defense rules. It applies only to eligible hostile **Special(X)** values. If Special Negation reduces a Special to **0 or less**, that Special is not applied.
-
-
-
-#### Influence Stone Abilities
-
-| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
-|:--|:--|:--|:--|:--|
-| **Not a Target** | One enemy within **8 m** cannot target you with its next attack before the start of your next turn unless you are the only valid target. | Up to **2 enemies** within **16 m** cannot target you with their next attack before the start of your next turn unless you are the only valid target. | Up to **3 enemies** within **24 m** cannot target you with their next attack before the start of your next turn unless you are the only valid target. | Up to **4 enemies** within **32 m** cannot target you with their next attack before the start of your next turn unless you are the only valid target. |
-| **Cleanse** | Apply **Cleanse(2)** to one creature within **20 m**. | Apply **Cleanse(4)** to one creature within **20 m**. | Apply **Cleanse(8)** to one creature within **20 m**. | Apply **Cleanse(16)** to one creature within **20 m**. |
-| **Colorless Recovery** | **Once per combat:** make up to **2 Colorless Stones** eligible for normal Stone Recovery until combat ends. | **Once per combat:** make up to **4 Colorless Stones** eligible for normal Stone Recovery until combat ends. | **Once per combat:** make up to **8 Colorless Stones** eligible for normal Stone Recovery until combat ends. | **Once per combat:** make up to **16 Colorless Stones** eligible for normal Stone Recovery until combat ends. |
-| **Enemy Evade Reduction** | For all of your attacks this Round, each enemy you attack is treated as having **−1 Evade** against your attacks only. | For all of your attacks this Round, each enemy you attack is treated as having **−2 Evade** against your attacks only. | For all of your attacks this Round, each enemy you attack is treated as having **−4 Evade** against your attacks only. | For all of your attacks this Round, each enemy you attack is treated as having **−8 Evade** against your attacks only. |
-
-**Cleanse (Influence Stone Ability)** targets **one creature within 20 m**, including yourself, at every Rank. Use the normal Cleanse(X) rule: distribute the listed value across eligible negative Specials on that creature. Cleanse does not affect multiple creatures with a single activation.
-
-**Colorless Recovery (Influence Stone Ability):** Does **not** require Passive: Absorption. Activate this Ability **only once per combat**, during a Preparation Phase. Choose **one Rank (1–4)** and pay its normal cumulative activation cost of **1 / 3 / 7 / 15 Stones**. The Stones spent to activate it become **Exhausted, not Sealed**. They may return through normal Stone Recovery if they are otherwise eligible (Attribute Stones normally; Colorless Stones only when designated by Colorless Recovery). Recovering the activation Stones does **not** permit another activation.
-
-The chosen Rank makes up to **2 / 4 / 8 / 16 Colorless Stones** of any source eligible for the **existing shared Stone Recovery** until the **end of this combat**. Select Stones already held (Ready **or Exhausted**) when the Ability resolves. Any unused selection capacity may be assigned to Colorless Stones earned later in the same combat **without another activation**. The Rank and maximum selection capacity are fixed for the combat: **you cannot activate Colorless Recovery again, raise its Rank later, pay additional Stones to expand it, or stack multiple activations**. Selected Stones still become Exhausted when spent and return only via the usual **MR Stones per Round** Stone Recovery; they are **not recovered immediately or automatically**. Unselected Colorless Stones cannot recover during combat. This Ability creates no Stones, adds no Recovery, and does not extend any temporary Stone beyond its existing duration.
-
----
-:
-#### Wits Stone Abilities
-
-Wits expresses awareness, reaction speed, timing, initiative, and control of an opponent's tactical options.
-
-| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
-|:--|:--|:--|:--|:--|
-| **Phasing** | **Once per Combat**, gain **1 Phasing Charge**. | **Once per Combat**, gain **2 Phasing Charges**. | **Once per Combat**, gain **3 Phasing Charges**. | **Once per Combat**, gain **4 Phasing Charges**. |
-| **Initiative Boost** | Gain Initiative equal to your **Mastery Rank**. | Gain Initiative equal to **2 × your Mastery Rank**. | Gain Initiative equal to **4 × your Mastery Rank**. | Gain Initiative equal to **8 × your Mastery Rank**. |
-| **Reaction Denial** | Prevent the next **1 Reaction** of one chosen enemy this Round, of any type. | Prevent the next **2 Reactions** of one chosen enemy this Round, of any type. | Prevent the next **3 Reactions** of one chosen enemy this Round, of any type. | Prevent the next **4 Reactions** of one chosen enemy this Round, of any type. |
-| **Movement Reduction** | The Movement distance of every Movement Action of **1 chosen enemy** is **halved** this Round. | The Movement distance of every Movement Action of **2 chosen enemies** is **halved** this Round. | The Movement distance of every Movement Action of **3 chosen enemies** is **halved** this Round. | The Movement distance of every Movement Action of **4 chosen enemies** is **halved** this Round. |
+**Active Buff Empowerment.** Improve **one Active Buff activated this Round** by the listed effective Power Levels (up to its normal PL cap) and extra duration. The improved Buff keeps its own resulting duration; this does not add another maintained Buff. Multiple Empowerment sources do not stack unless expressly allowed.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-**Initiative Boost** may be activated only during Initiative Exchange at the start of a Round and only **once per combat**, regardless of Rank or source. Add the gained Initiative before converting Initiative into Initiative Colorless Stones. Stones spent on Initiative Boost become Exhausted normally.
+#### Influence Stone Abilities
 
+| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
+|:--|:--|:--|:--|:--|
+| **Not a Target** | **1 enemy** within **8 m** | Up to **2 enemies** within **16 m** | Up to **3 enemies** within **24 m** | Up to **4 enemies** within **32 m** |
+| **Cleanse** | **Cleanse(2)** | **Cleanse(4)** | **Cleanse(8)** | **Cleanse(16)** |
+| **Colorless Recovery** | Up to **2 Stones** | Up to **4 Stones** | Up to **8 Stones** | Up to **16 Stones** |
+| **Enemy Evade Reduction** | **-1 Evade** | **-2 Evade** | **-4 Evade** | **-8 Evade** |
 
-**Phasing Charges last until spent or until Combat ends. Phasing can be activated only once per Combat, regardless of Rank or source.**
+**Not a Target.** Choose the listed number of enemies in Range during Preparation. Each cannot target you with its **next attack this Round**, unless you are its **only valid target**. The restriction expires at Round End.
 
-**Reaction Denial** targets **one enemy** during the Preparation Phase. When that enemy attempts to use a Reaction during the current Round, prevent the next **1 / 2 / 3 / 4** eligible Reaction declarations at the selected Rank, **whether defensive, offensive, utility, Parry-based or another Reaction type**. The declared Reaction does not resolve. As with the previous denial rule, a denied opportunity does **not** consume the enemy's Reaction use; Reaction Denial does not change the enemy's normal Reaction allowance. Each eligible denied declaration consumes one of this Ability's remaining denials. An enemy cannot simply re-declare the same Reaction against the **same trigger** after it has been denied.
+**Cleanse.** Apply the listed **Cleanse(X)** to **one creature within 20 m**, including yourself. Distribute it among eligible negative Specials on that creature; one activation never affects multiple creatures.
 
-**Movement Reduction** halves the distance of **each individual Movement Action** of the selected enemies during the current Round, regardless of how many Movements they receive. Round every resulting **half-metre up to the nearest whole metre** (ordinary mathematical rounding): **5 m → 3 m, 7 m → 4 m, 9 m → 5 m**. This never changes their base Speed, never removes Movement Actions, and does not also halve them a second time if they perform several Movements. Apply any separate Slow reductions according to their own rules.
+**Colorless Recovery.** Activate **once per combat** during Preparation; pay the normal **1 / 3 / 7 / 15 Stones**, which become **Exhausted, not Sealed**. No **Passive: Absorption** is required. Choose up to the listed number of **Ready or Exhausted Colorless Stones**; unused selection capacity may be assigned to Stones gained later in this combat. Those selected Stones may participate in the existing **shared MR-Stones-per-Round Recovery** until combat ends. They are **not recovered immediately**. The Rank and selection limit cannot later increase, and this Ability cannot be activated or stacked again in the same combat. Unselected Colorless Stones remain ineligible for normal Recovery. This creates no Stones, grants no additional Recovery, and never extends a Stone's own expiration. The activation Stones may recover normally if eligible, but this does not grant another use.
 
-**Enemy Evade Reduction** affects only attacks made by the Stone user during the current Round. For those attacks, treat each targeted enemy as having the listed Evade reduction when resolving the Attack Roll. The enemy's actual Evade is unchanged, so other attackers gain no benefit. Unlike Expose(X), this is an attacker-specific modifier, not a negative Special placed on the target.
+**Enemy Evade Reduction.** For **your own attacks this Round**, treat each targeted enemy as having the listed Evade penalty. Its actual Evade is unchanged, so allies gain no benefit. This is **not Expose(X)** and applies no Special.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+#### Wits Stone Abilities
+
+| **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
+|:--|:--|:--|:--|:--|
+| **Phasing** | **1 Charge** | **2 Charges** | **3 Charges** | **4 Charges** |
+| **Initiative Boost** | **+1 x MR** Initiative | **+2 x MR** Initiative | **+4 x MR** Initiative | **+8 x MR** Initiative |
+| **Reaction Denial** | Deny **1 Reaction** | Deny **2 Reactions** | Deny **3 Reactions** | Deny **4 Reactions** |
+| **Movement Reduction** | Halve Movement of **1 enemy** | Halve Movement of **2 enemies** | Halve Movement of **3 enemies** | Halve Movement of **4 enemies** |
+
+**Phasing.** Activate **once per combat**, regardless of Rank or source. Charges remain available until spent or combat ends.
+
+**Initiative Boost.** Activate **once per combat** during the Preparation Phase's Initiative Exchange sequence. Add the bonus **before Initiative is converted into Initiative Colorless Stones**. Spent Stones become Exhausted normally.
+
+**Reaction Denial.** Choose **one enemy** during Preparation. Deny its next **1 / 2 / 3 / 4 eligible Reaction declarations this Round**, regardless of Reaction type. A denied Reaction has no effect but **does not consume** the enemy's Reaction allowance. Each denied declaration uses one denial; the same Reaction cannot be re-declared against the **same trigger**.
+
+**Movement Reduction.** Halve the distance of **every individual Movement Action this Round** for the selected enemies, including additional Movements. Round half-metres **up** (5 m to 3 m, 7 m to 4 m). This does not change base Speed, remove Movements, or apply twice to the same Movement. Resolve separate **Slow** reductions under their own rules.
 
 ::
 
@@ -7989,6 +7996,10 @@ Wits expresses awareness, reaction speed, timing, initiative, and control of an 
 Once per Safe Haven Rest, when you would drop to Incapacitated, you may burn **1 Stone** from any Attribute. You remain conscious with **1 free box** in your Wounded Health Bar. Any remaining damage from the triggering damage instance is ignored. You cannot use Last Breath again until you complete a Safe Haven Rest.
 
 ::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 
 ## Types of Powers
@@ -8147,6 +8158,10 @@ Multiple Raises may be assigned to the same option. **Range, Melee Reach, AoE si
 **Example:** At MR3 a character declares one Paid Raise against TN22, making the new TN26. A roll of 25 fails; a roll of 28 succeeds. After success, the player chooses **+3d8 Damage**, **+2d8 Damage if the Power is AoE**, or **+3 to an existing numeric Special**. Martial and Spell use the same values.
 
 ---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 ## Combat Senses
 
@@ -8220,7 +8235,7 @@ A Special Sense never gains information outside its nature. Tremor Sense does no
 
 **Stealth** is the Skill used to hide presence, movement, traces, and position. **Hidden** means an observer has not successfully detected or located a creature. **Invisibility** Obscures specific Combat Senses, making the creature harder to locate, target, and perceive through those Senses.
 
-A creature may be Hidden without being invisible, invisible without using Stealth, or both.
+A creature may be Hidden without being invisible, invisible without using Stealth, or both. **Invisibility itself never breaks merely because the creature moves, attacks, casts, reacts, is detected, or takes damage.** Ordinary Stealth is a separate state and can still end for its printed reasons.
 
 ### Stealth
 
@@ -8228,7 +8243,11 @@ When a creature hides normally, make one **Stealth Check**. Its Final Result bec
 
 > **Stealth Final Result = Perception TN**
 
-On a successful Perception Check, that observer detects or locates the creature. Multiple observers roll separately against the same TN. A Stealth attempt ends when the creature clearly reveals its position or stops acting carefully. It always ends when the creature makes a direct Attack, casts a hostile Spell or uses a hostile Power, uses a visible Reaction, takes final HP Damage, or voluntarily moves more than **3 m**. A new Stealth attempt requires a meaningful new opportunity to hide. When resolving Invisibility, the Stealth Check Result is not added to the Invisibility TN. Instead, the creature may spend Stealth Skill Points retroactively, as described below.
+On a successful Perception Check, that observer detects or locates the creature. Multiple observers roll separately against the same TN.
+
+**Ordinary Stealth only:** A normal Stealth hiding attempt ends when the creature clearly reveals its position, stops acting carefully, makes a direct Attack, casts a hostile Spell or uses a hostile Power, uses a visible Reaction, takes final HP Damage, or voluntarily moves more than **3 m**. A new normal Stealth attempt requires a meaningful new opportunity to hide. **Ending ordinary Stealth never ends Invisibility, makes an invisible creature visible, or automatically reveals it to Normal Combat Awareness.**
+
+**Invisibility is separate:** No Stealth Check is required to keep Invisibility active, including after an attack. An invisible creature remains Obscured to Normal Combat Awareness. The result of an ordinary Stealth Check is not added to the Invisibility TN; only retroactively spent Stealth Skill Points can raise that TN, as described below.
 
 ---
 
@@ -8256,16 +8275,19 @@ If Invisibility covers a Combat Sense, the observer must succeed on a Perception
 **Uncovered Sense — Unaffected**
 
 If Invisibility does not cover a Combat Sense, that Sense is completely unaffected by Invisibility. The observer perceives the creature **normally through that Sense, as though the creature were not invisible**. No Invisibility TN applies. No Invisibility Bonus applies. Retroactive Stealth spending cannot prevent detection through that Sense.
+
+
+}}
+\page
+
+{{pageNumber,auto}}
 The Sense must still be capable of perceiving the creature and must satisfy its normal Range and detection requirements. Other independent forms of concealment or ordinary Stealth may still apply. 
 
 **Blocked Sense — Unavailable**
 
 A Sense that is genuinely Blocked by another effect cannot be used for Perception. Invisibility itself causes **Obscuration, not Blocking**. 
 If an observer has at least one active, valid, unaffected Sense that clearly locates the creature, Invisibility provides no protection against that observer.
-}}
-\page
 
-{{pageNumber,auto}}
 ### Invisibility Detection TN
 
 The Perception TN of an invisible creature is determined by its Mastery Rank, Invisibility Bonus, current Health Level, and any Stealth Skill Points spent during the Round.
@@ -8295,7 +8317,7 @@ For each lost Health Bar, reduce the TN by the creature's Mastery Rank.
 | Broken (−50%) | −4 × MR |
 
 These reductions use the number of lost Health Bars, not the percentage value of the normal Health Penalty. The reduction applies immediately when a Health Bar is lost.
-If the creature becomes **Incapacitated**, Invisibility is suppressed until it is no longer Incapacitated.
+Becoming **Incapacitated** does not automatically suppress Invisibility. Passive Invisibility remains active while slotted; Active Buff: Invisibility remains active for its printed duration unless it ends under the ordinary Active Buff rules.
 
 #### Final TN
 
@@ -8315,11 +8337,13 @@ An invisible creature may use its **Stealth Skill Pool** to resist detection thr
 - Further spending occurs in steps of Mastery Rank.
 - The normal **All-in** exception remains available.
 - Each Stealth Point spent increases the Perception TN by **+1**.
-- The invisible creature may spend enough points to turn a successful Perception Check into a failure.
-- The new TN must exceed the observer's final result to prevent detection. A result equal to the TN succeeds.
+
 \page
 
 {{pageNumber,auto}}
+- The invisible creature may spend enough points to turn a successful Perception Check into a failure.
+- The new TN must exceed the observer's final result to prevent detection. A result equal to the TN succeeds.
+
 **Round-Wide Reinforcement**
 
 Stealth Points spent this way increase the Invisibility TN for the **entire current Round**, not merely against one observer. The creature may spend additional Stealth Points against later Perception Checks in the same Round. These points are added to the existing bonus. Already resolved detections are not retroactively undone by later spending.
@@ -8331,7 +8355,7 @@ Retroactive Stealth spending has no effect against a Clear, uncovered Combat Sen
 
 ### Targeting Through Concealment
 
-Before directly targeting a Hidden or invisible creature with an Attack, Spell, or hostile Power, check the attacker's active Combat Senses.
+Before directly targeting a Hidden or invisible creature with an Attack, Spell, or hostile Power, check the attacker's active Combat Senses. **If the target is Obscured, the attacker may make a free Perception Check immediately before attempting direct targeting. This Check costs no Attack Action, Movement, Reaction, Stone, or automatic Skill Point expenditure.** Optional Skill Point spending still follows the normal Skill Check rules.
 
 - **Clear:** If an active Sense can clearly locate the creature, it may be targeted normally. An uncovered Special Combat Sense ignores Invisibility entirely.
 - **Obscured:** If Invisibility or another effect Obscures a valid Sense, make a Perception Check against the appropriate TN.
@@ -8339,27 +8363,29 @@ Before directly targeting a Hidden or invisible creature with an Attack, Spell, 
 
 **Successful Perception**
 
-The observer locates the creature until the end of the current Round and may target it normally.
+The observer locates the creature until the end of the current Round and may target it normally. **This is observer-specific targeting, not visibility:** it does not reveal the creature to everyone, change its Invisibility status, remove its Invisibility Bonus, or make it Clear to Normal Combat Awareness.
 
 **Failed Perception**
 
-The observer cannot directly target the creature during its current Turn unless another valid Sense or effect reveals its location. The attempted targeting action is not spent. Each observer may normally make **one Perception Check per Hidden or invisible creature per Round**. At the start of each new Round, previous Perception-based location results expire. A new Check is required if the creature remains Obscured. Area effects, zones, environmental effects, and abilities that do not require precise targeting remain usable normally.
+The observer cannot directly target the creature during its current Turn unless another valid Sense or effect locates it. The attempted targeting action is not spent. Each observer may make **one free Perception Check per Hidden or invisible creature per Round**; a failed Check cannot be repeated against that same creature until the next Round. At the start of each new Round, previous Perception-based location results expire. A new Check is required if the creature remains Obscured. Area effects, zones, environmental effects, and abilities that do not require precise targeting remain usable normally.
 
 
 
 ### Attacking from Invisibility
 
-When an invisible creature attacks, its position is revealed and Invisibility provides no protection for the remainder of the Round. Normal cover and concealment rules still apply.
+An invisible creature **remains invisible when it attacks**. An Attack, Spell, hostile Power, Reaction, Movement, or other action does not automatically reveal its position, cancel Invisibility, or remove its protection for the remainder of the Round. **Normal Combat Awareness (including Darkvision) remains Obscured even after the attack.** Observers must locate the creature through their valid active Combat Senses using the rules above. A successful observer-specific Perception Check permits direct targeting until the end of that Round; **it does not make the creature visible or change its Invisibility status**. Normal cover and concealment rules still apply.
 
 ### Injury and Invisibility
 
 Invisibility becomes progressively weaker as the creature loses Health Bars. Each lost Health Bar reduces the Invisibility TN by the creature's Mastery Rank.
 
 Movement, attacks, Reactions, and individual instances of HP Damage no longer apply separate numerical reductions to the Invisibility Bonus.
-Attacking may reveal the creature's location, but does not automatically deactivate Invisibility.
+Attacking does not automatically reveal the creature's location or deactivate Invisibility. Damage never switches Invisibility off by itself; the existing Lost Health Bar adjustment changes only its Perception TN.
 
 ---
+\page
 
+{{pageNumber,auto}}
 ### Surprise
 
 If a creature initiates combat against an enemy that is unaware of it, the attacker gains **Surprise Priority**.
@@ -8369,9 +8395,7 @@ After the first Round, Surprise Priority ends.
 If an unaware creature is drawn into an **Opposed Attribute Contest**, the initiator instead also gains **Advantage** and the unaware creature has **Disadvantage** for that initial Contest only.
 
 ---
-\page
 
-{{pageNumber,auto}}
 {{note
 ##### Quick Examples
 
@@ -8394,30 +8418,32 @@ If an unaware creature is drawn into an **Opposed Attribute Contest**, the initi
 Each combat follows this structure:
 
 1. **Preparation Phase**
+The Preparation Phase takes place before the Round begins. Creatures prepare Stone Abilities and choose any Active Buff activation or replacement before any Turn. Round-based benefits apply throughout the upcoming Round, regardless of Initiative Order.
+
+
    - At the start of this Phase, first receive Ready Absorption Stones earned through eligible Scarred Health Bars since the previous Preparation Phase.
    - On the first Round only, roll Initiative.
    - Before any creature moves, acts, or begins its Turn, all creatures prepare their Stone use for the Round.
    - Resolve **Initiative Boost** first. Any Stones used for Initiative Boost are committed and spent immediately.
    - Resolve **Initiative Exchange** and convert Initiative into Initiative Colorless Stones.
    - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Initiative Colorless Stones on their other Stone Abilities for the Round.
-   - Characters may activate or replace **one Active Buff** for the upcoming Round, committing their **base Attack Action** for that Round. Maintaining an existing Buff costs no Action. Round-based Buff resources (such as Temporary HP and Damage Negation Pool) refresh here once per Round.
    - Defensive and passive Stone values that apply during the Round become active immediately.
-   - Stone Abilities that require the creature's Turn or a specific trigger are prepared now, but resolve only when their normal timing occurs.
-   - Once all Stone choices are complete, determine Initiative Order and lock it for this Round.
+   - Stone Abilities with a Turn timing or trigger are prepared now but resolve at their specified time.
+   - Activate, keep, or replace an **Active Buff** here. A new activation commits this Round's **base Attack Action**. Apply any **Active Buff Empowerment** chosen in this same Phase and initialize Buff resources once.
+   - Once Preparation choices are complete, determine Initiative Order and lock it for this Round.
 
 2. **Resolve Turns**
    - Creatures act in Initiative Order.
    - Each creature takes one Turn per Round.
-   - Active Buffs remain fully effective for the whole Round regardless of Initiative; their duration is not reduced at Turn start or Turn end.
 
 3. **End the Round**
    - Resolve end-of-round effects.
-   - Active Buffs whose final Round just ended expire here (Round End), after eligible effects for that Round have resolved.
-   - Regenerate Exhausted Stones as normal.
+   - Expire Round-based Stone Ability effects, unused Round-based pools, and Active Buffs reaching their final **Round End**.
+   - Recover Exhausted Stones according to normal Stone Recovery.
 
 4. **Start a New Round**
    - Keep all remaining Initiative Scores.
-   - Begin a new **Preparation Phase**.
+   - Begin a new Preparation Phase.
    - Do not roll Initiative again unless a rule explicitly allows it.
 ---
 
@@ -8429,11 +8455,7 @@ At the start of each Round, each character normally has:
 - **1 Attack Action**
 - **1 Reaction**
 
-If the character committed their **base Attack Action** during Preparation to activate or replace an Active Buff, that base Attack Action is not restored when the Round or Turn begins. Additional Attack Actions granted by Stones or other legal sources remain available.
-
-That same committed base Attack Action cannot also pay for **Dash**, **Disengage**, or **Parry**. Entering Parry normally consumes the base Attack Action at the beginning of the Turn; if Preparation already committed it to an Active Buff, the character may instead spend one legally available **additional Attack Action** to enter Parry. The same Attack Action cannot pay for both effects. Activating **Active Buff: Parry Recovery** does not enter Parry.
-
-Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions.
+Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. A base Attack Action committed to an Active Buff in Preparation is unavailable on that Round's Turn; legal additional Attack Actions remain usable.
 
 ---
 ::
@@ -8473,7 +8495,7 @@ Resolve effects at the start of your Turn in this order:
 1. Resolve **Ticks** of Diminishing Specials already present when this Turn began (for example, existing Ruin and Slow).
 2. Apply **Natural Special Recovery** to eligible negative Diminishing Specials.
 3. Apply normal **Diminishing Decay** of **−1** to each stored Diminishing stack. Resolve Root's separate start-of-turn reduction by the affected creature's MR.
-4. Apply other **start-of-turn healing, temporary-HP refresh and similar start-of-turn benefits**.
+4. Apply legal **start-of-turn benefits**, including **Passive: Self Cleanse** (additional to Natural Special Recovery), **Active Buff: Self Cleanse**, and eligible healing. **Active Buff: Temporary HP** refreshes in Preparation, not here.
 5. Resolve **Persistent Zone start-of-turn applications** for zones the creature is currently inside. Newly applied Specials enter the active stacks now; their first normal start-of-turn Tick occurs at the creature's next eligible Turn start.
 
 A Persistent Zone also applies when it appears around a creature or the creature first enters it during a Round, according to the zone's normal rules. Each **zone/creature pair makes at most one application attempt per Round**, including an application resisted by Spell Resistance. Once attempted, further entry or start-of-turn events in that Round do not cause another application from that zone.
@@ -8495,7 +8517,7 @@ During your Turn, you may use:
 
 You may use them in either order unless a rule says otherwise.
 A Movement may be normal Movement or a Movement Power.
-An Attack Action may be used to:
+An available Attack Action may be used to:
 
 - make a weapon attack,
 - use an Active Power,
@@ -8503,10 +8525,13 @@ An Attack Action may be used to:
 - use an item,
 - or perform another action that costs an Attack Action.
 
-**Active Buffs** are not activated during your Turn. They are activated during the Preparation Phase and already spend the base Attack Action of the upcoming Round when chosen there.
+**Active Buffs activate only in Preparation**, never through a Turn Attack Action.
 
 ---
+}}
+\page
 
+{{pageNumber,auto}}
 ### Reactions
 
 A Reaction is used when its specific Trigger occurs. You normally have **1 Reaction per Round**. Additional Reactions may be spent when an eligible Trigger occurs.
@@ -8530,7 +8555,7 @@ An **Ally** Trigger uses the same window when that event affects the ally. A Rea
 At the end of your Turn, resolve effects that trigger at the end of your Turn.
 
 ---
-}}
+
 
 \page
 {{pageNumber,auto}}
@@ -8538,9 +8563,7 @@ At the end of your Turn, resolve effects that trigger at the end of your Turn.
 ## Initiative
 
 Initiative represents combat tempo, reaction speed, and the ability to seize openings.
-Initiative is rolled once at the **start of combat**.
-Roll a number of d8s equal to your **Mastery Rank**.
-
+Initiative is rolled once at the **start of combat**. Roll a number of d8s equal to your **Mastery Rank**. 
 Keep all dice and 8s explode.
 
 Your Initiative Score is:
@@ -8580,17 +8603,13 @@ The cost of one Initiative Colorless Stone is:
 
 You may buy more than one Stone during the same Initiative Exchange if you can pay the full cost of each Stone. Subtract the cost immediately. Initiative can never drop below **0**.
 
-An **Initiative Colorless Stone** is gained Ready and joins your Colorless Pool for the current combat. It may pay any part of the normal Stone cost of an unlocked Stone Ability. When spent, it becomes **Exhausted**; it can return through normal Stone Recovery **only if selected by Influence Stone Ability: Colorless Recovery**. It remains part of your Colorless Pool for the rest of the combat and disappears when combat ends, whether Ready or Exhausted.
-
-Initiative Colorless Stones cannot be burned, Sealed, or Bound. They do not count against an Attribute Stone limit, do not count as permanent Stone progression, and never affect Mastery Rank.
+An **Initiative Colorless Stone** is gained Ready and joins your Colorless Pool for the current combat. It may pay any part of the normal Stone cost of an unlocked Stone Ability. When spent, it becomes **Exhausted**; it can return through normal Stone Recovery **only if selected by Influence Stone Ability: Colorless Recovery**. It remains part of your Colorless Pool for the rest of the combat and disappears when combat ends, whether Ready or Exhausted. Initiative Colorless Stones cannot be burned, Sealed, or Bound. They do not count against an Attribute Stone limit, do not count as permanent Stone progression, and never affect Mastery Rank.
 
 ---
 
 ### Initiative Order
 
-After Initiative Exchange, higher Initiative acts first. **On equal Initiative Scores, higher Mastery Rank acts first; if still tied, compare Agility Pool (higher first). If all three are tied, tied creatures each roll 1d8; highest acts first, repeating only between creatures still tied until order is unique.** When multiple eligible Reactions to the same simultaneous event need an order, process their declarations and resolutions in this Initiative order (using the same tie breakers).
-
-Once the first Turn begins, Initiative Order is locked for the rest of that Round. Changes to Initiative do not reorder the current Round unless a rule explicitly says they do.
+After Initiative Exchange, higher Initiative acts first. **On equal Initiative Scores, higher Mastery Rank acts first; if still tied, compare Agility Pool (higher first). If all three are tied, tied creatures each roll 1d8; highest acts first, repeating only between creatures still tied until order is unique.** When multiple eligible Reactions to the same simultaneous event need an order, process their declarations and resolutions in this Initiative order (using the same tie breakers). Once the first Turn begins, Initiative Order is locked for the rest of that Round. Changes to Initiative do not reorder the current Round unless a rule explicitly says they do.
 
 At the start of the next Round, before anyone moves or acts, resolve Initiative Exchange again and determine a new Initiative Order from the remaining Initiative Scores. Every creature still receives only one Turn per Round.
 
@@ -8627,7 +8646,7 @@ Premium Defense Systems are powerful specialized additions. They normally do not
 |:--|:--|:--|
 | **Phasing** | After the Attack hits | Ignores the complete triggering hit, including its damage and applicable hit effects. |
 | **Special Negation** | Before an eligible Special is applied | Reduces every incoming eligible hostile Special(X). If the Special is reduced to 0 or less, it is not applied. |
-| **Damage Negation** | Before the Damage Roll | Removes Damage Dice from an incoming Damage Pool. Damage Negation cannot remove more than half of the original Damage Dice. |
+| **Damage Negation** | Before the Damage Roll | Removes any chosen number of incoming Damage Dice, up to the dice in the Pool and the defender's available Damage Negation. The entire Damage Pool may be removed. |
 | **Damage Reduction** | After Armor | Reduces the remaining damage after Armor has been applied. |
 
 **Absorption** is a separate Stone-generation subsystem, **not** a damage-mitigation or HP-granting defense. When eligible hostile damage Scars a Health Bar (maximum four times per combat), it can generate Temporary Colorless Stones for later Preparation Phases. Fortitude is the dedicated Passive for increasing Health Bar size.
@@ -8636,8 +8655,11 @@ Premium Defense Systems are powerful specialized additions. They normally do not
 
 **Base Evade = Mastery Rank × 4.** Apply equipment, Powers, Passives, Active Buffs, Reactions, items, and other defined Evade modifiers afterward.
 
----
-:
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Choosing Your Defense
 
 Do not worry about using every defensive system listed above. Most characters focus on **one Primary Defense Pillar** and may later support it with a second Pillar or one of the specialized Premium Defenses.
@@ -8677,7 +8699,7 @@ Determine the defense used by the effect.
  - A Spell AoE uses one Casting Roll and compares that same result separately against the **Final Spell TN of each valid creature** in the area.
 ---
 
-Each valid creature in an AoE is checked independently against its own applicable defense.
+AoE targets are checked separately. **Passive: Enemy Evade Reduction** and **Passive: Spell Resistance Piercing** modify only the owner's eligible Martial and Spell TNs, respectively; neither changes the target's listed defenses.
 
 #### 3. Declare Raises
 
@@ -8689,7 +8711,7 @@ Build the appropriate dice pool from the relevant Attribute, weapon, Power, and 
 
 #### 5. Apply Parry
 
-A character with **Passive: Parry** chooses **Martial Parry** or **Spell Parry** when learning the Passive.
+**Passive: Parry** has Martial or Spell delivery. Enter Parry at Turn start by spending your base Attack Action, or one legal additional Attack Action if the base was committed to a Buff. Never enter for free.
 
 - **Martial Parry:** before an eligible direct Martial Attack targeting you is rolled, spend Parry. Each point removes **1 Attack Die** from the Attack Pool assigned to you.
 - **Spell Parry:** when you are a target of, or a valid creature inside, a hostile Spell whose source is within **22 m** and whose casting you can perceive, spend Parry before the Casting Roll. Each point removes **1 Casting Die** from that Spell's Casting Pool.
@@ -8699,7 +8721,11 @@ If the remaining Pool contains fewer dice than its normal Keep value, roll and k
 If the eligible Pool is reduced to **0 dice**, a Martial Attack is **Fully Parried** and a Spell is **Fully Countered**. No Attack Roll or Casting Roll is made; the effect does not hit or successfully cast, deals no damage, applies no Specials, and resolves no hit- or success-dependent effects.
 
 **Attack-Trigger Reactions** are declared and resolved in this pre-roll window. Apply their defensive modifiers to each affected creature's relevant defense before rolling.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 #### 6. Make the Roll
 
 Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. A Martial result below its defense misses. For a Spell, a result below Spell Base TN fizzles; a result that reaches Spell Base TN but not a creature's Final Spell TN is cast successfully but resisted by that creature. 
@@ -8713,14 +8739,10 @@ Once a hit is confirmed, resolve eligible **Hit-Trigger Reactions**, including P
 
 
 
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 #### 8. Apply Special Negation to Incoming Specials
 
-Calculate each incoming numeric Special as **printed Special(X) + successful Raise Special Increase + applicable Intellect Special Boost + applicable target Vulnerability**. Then reduce that complete incoming value by the target's **Special Negation**, separately for each eligible hostile Special delivered by the Attack or effect. A Special reduced to **0 or less** has no effect. Resolve eligible **Incoming Effect-Trigger Reactions** against the remaining value here. In Step 9, apply the Special's own rules and the target's **4 × MR per-Round application limit** to the remaining eligible Diminishing Special; store only the points that fit this limit. Existing stacks may be reduced through Cleanse.
+Calculate each incoming numeric Special as **printed Special(X) + successful Raise Special Increase + applicable Intellect Special Boost + eligible attacker Passive: Special Amplification + applicable target Vulnerability**. Then reduce that complete incoming value by the target's **Special Negation**, separately for each eligible hostile Special delivered by the Attack or effect. A Special reduced to **0 or less** has no effect. Resolve eligible **Incoming Effect-Trigger Reactions** against the remaining value here. In Step 9, apply the Special's own rules and the target's **4 × MR per-Round application limit** to the remaining eligible Diminishing Special; store only the points that fit this limit. Existing stacks may be reduced through Cleanse.
 
 **Special Aura** increases only the **effective value** of an already present eligible Diminishing Special by +1 while the target is in the aura. It does not place a new point into the stored stack or use the per-Round application allowance.
 
@@ -8736,30 +8758,38 @@ Determine the complete Damage Pool assigned to the target, including weapon dama
 
 #### 11. Apply Damage Negation
 
-Before the Damage Pool is rolled, the target may spend Damage Negation. Each point spent removes **1 Damage Die** from the Damage Pool assigned to that target. All Damage Negation effects combined can never remove more than half of the original Damage Dice, rounded down. Damage Negation does not cause the Attack to miss and does not prevent Specials or other hit effects.
+Before the Damage Pool is rolled, the target chooses how many of its assigned Damage Dice to remove, from **0 up to the full number of incoming Damage Dice**, limited only by its **total available Damage Negation** from legal sources. Each point spent removes **1 Damage Die**. The defender may remove the entire Damage Pool (for example, 8d8 becomes 0d8 by spending 8 points), in which case no Damage Dice are rolled. Spend temporary Damage Negation before the Passive Reserve; **choose the order among separate temporary pools**, track each independently, and apply its own expiry. Negation changes neither the Attack's hit nor Specials, flat damage, or other hit effects.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 #### 12. Roll Damage
 
-Normally, roll all remaining Damage Dice. Damage Dice do not explode unless a rule explicitly states otherwise. **Vitality: Damage Maximization** replaces the rolls of the chosen Damage Dice with fixed results of 8; use the following rule before making that roll.
+Normally roll the remaining Damage Dice; they do not explode unless stated. **After Damage Negation, before rolling**, you may spend one eligible use of **Passive: Maximization** or **Vitality Stone Ability: Maximization** to make every remaining die in the complete roll an **artificial 8**, with no natural-8 effects. Choose **one source per roll**, never both.
 
-If **Vitality: Damage Maximization** was activated once at the first Preparation Phase of this combat and has an unused maximization available, or **Passive: Maximization** has an unused per-Combat charge, the damage dealer may spend **one use from exactly one source before this Damage Roll**. In that case every remaining Damage Die in this complete Damage Pool (after Damage Negation) has result **8** instead of being rolled; the forced 8s are not natural 8s. Resolve Armor, Damage Reduction and other mitigation normally. One shared AoE Damage Roll costs one maximization; separate rolls cost separate maximizations. The same Maximization resolution applies to eligible Healing Rolls. Passive and Stone allowances do not stack on one roll. Damage Maximization may enhance a **Limited Power**, and it neither multiplies damage nor creates an additional attack.
+The slotted Passive grants **1 / 2 / 3 free uses per Combat** at PL 4-7 / 8-14 / 15-16. Vitality Maximization grants **1 / 2 / 3 / 4 shared Combat uses** if paid for in the first Preparation Phase. Track them separately. One shared AoE roll costs one use; separate rolls cost separate uses. Either source may maximize a legal **Limited Power** or eligible **Healing Roll**, but adds no attack or dice. Resolve Armor, DR and other mitigation normally. **Damage Transfer** has no separate Healing Roll.
 
 After determining the Damage Roll result, the attacker may spend any **Mark already on the target before this hit began** to set that Damage Roll's floor. Decide the amount **after viewing Damage Dice but before Damage-Trigger Reactions**; change qualifying die results and reduce the target's stored Mark immediately. Mark newly applied by this hit becomes available for **later hits**, not this hit. Then resolve eligible **Damage-Trigger Reactions** against the resulting Damage Roll before Armor and other damage mitigation. A Reaction requiring a later event, such as Scarring, resolves at that specifically stated event.
 
 #### 13. Apply Corrode, Armor Reduction, Weapon Penetration, and Armor
 
-Start with the target's **current Armor** for this hit (including any applicable Armor modifiers). Apply **Corrode(X)** present at the moment of Step 13, including Corrode applied by this very hit in Step 9, then subtract the attacker's active **Might Stone Ability: Armor Reduction** (Rank 1/2/3/4 = 4/8/16/32) and, if this hit is delivered through an eligible weapon, its **Weapon Special: Penetration(X)**. These reductions **stack additively**, including across all three sources, but never reduce Armor below zero.
+Start with the target's **current Armor** for this hit. Apply **Corrode(X)** present at Step 13 (including Corrode just applied by this hit), then subtract eligible attacker-specific **Passive: Armor Reduction**, **Might Stone Ability: Armor Reduction** (Rank 1/2/3/4 = 4/8/16/32), and any applicable **Weapon Special: Penetration(X)**. These stack additively against this attack only; Effective Armor cannot go below zero.
 
-`Effective Armor = max(0, Current Armor - Corrode - Attacker's Armor Reduction - Weapon Penetration)`
+`Effective Armor = max(0, Current Armor - Corrode - Passive Armor Reduction - Might Stone Armor Reduction - Weapon Penetration)`
 
-**Corrode newly applied at Step 9 already reduces Armor for the current hit's Step 13**, because Specials resolve before Armor. Hex and Sundered keep their expressly separate prior-hit snapshot rule. For example, a target with Armor **20**, affected by **Corrode(3)**, is hit by a character using **Armor Reduction 8** for this Round and a weapon with **Penetration(4)**: `20 - 3 - 8 - 4 = 5 Effective Armor`. Only **5 Armor** is subtracted from this hit's rolled damage. Another character without Armor Reduction or weapon Penetration still encounters the target's remaining **17 Armor** after Corrode, assuming no other modifiers. Any excess reduction past zero provides no additional damage. Stone Armor Reduction applies to all of its user's damaging attacks this Round; weapon Penetration applies only to the qualifying weapon hit.
+**Corrode newly applied at Step 9 already reduces Armor for the current hit's Step 13**, because Specials resolve before Armor. Hex and Sundered keep their expressly separate prior-hit snapshot rule. For example, a target with Armor **20**, affected by **Corrode(3)**, is hit by a character with **Stone Armor Reduction 8**, **no Passive Armor Reduction**, and weapon **Penetration(4)**: `20 - 3 - 8 - 4 = 5 Effective Armor`. Only **5 Armor** is subtracted from this hit's rolled damage. Another character without Armor Reduction or weapon Penetration still encounters the target's remaining **17 Armor** after Corrode, assuming no other modifiers. Any excess reduction past zero provides no additional damage. Passive Armor Reduction applies to its owner's eligible damaging attacks while slotted; Stone Armor Reduction applies for its active Round; weapon Penetration applies only to eligible weapon hits.
 
 Subtract effective Armor from the rolled damage using `Damage after Armor = Rolled Damage - Effective Armor`. Armor does not normally reduce Specials, conditions, or ongoing Special damage unless a rule explicitly states otherwise.
 
 #### 14. Apply Damage Reduction
 
 Apply percentage-based **Damage Reduction (DR)** to damage remaining after Armor. Start with the character's **Passive DR**. Add eligible **Active Buff DR** up to that Buff's printed total-DR cap; then add eligible **Reaction DR** up to that Reaction's own printed total-DR cap. Each cap limits how much that particular bonus can increase the current non-Stone DR subtotal; applying a lower cap never removes DR already present. Both Buff and Reaction require the underlying Passive DR when their entries say so. Then add **Resolve Stone Ability: Damage Reduction** outside those printed Buff/Reaction caps. The final total DR cannot exceed **100%**.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 **Final damage after DR = ceil(max(0, Damage after Armor) × (1 − total DR / 100)).** Apply the existing minimum-damage rule for natural 8s in Step 15. For example, 13 damage after Armor and 30% DR becomes **10**; with 80% total DR it becomes **3**. A separate explicitly stated 50% final-damage reduction such as Bulwark applies to the already calculated final damage when its own trigger resolves; round any fractional remaining damage **up**.
 
 #### 15. Apply Minimum Damage from Natural 8s
@@ -8768,7 +8798,7 @@ If Armor and Damage Reduction reduce the damage to **0 or less**, the target sti
 
 #### 16. Apply Temporary HP and Other Damage Buffers
 
-Apply the remaining damage to Temporary HP or another legal damage buffer before applying it to the target's real HP. Damage assigned to Temporary HP is not actual HP loss.
+Apply remaining damage to legal Temporary HP buffers before real HP, keeping distinct Passive, Active Buff, Stone, and Reaction sources separate. **Reaction Temporary HP protects only its triggering damage instance; any unused amount expires immediately afterward.** Temporary HP damage is not real HP loss.
 
 #### 17. Apply Damage to Health
 
@@ -8776,7 +8806,7 @@ Apply all remaining damage to the target's current Health Bar according to the n
 
 #### 18. Resolve Damage Transfer (Vampyr)
 
-For a successful **Melee Single Target Damage Transfer** or **Ranged Single Target Damage Transfer** attack or Spell, heal the attacker by the **real HP actually lost by the target from this attack** after all mitigation, Temporary HP, and other buffers. Martial Weapon Damage counts in the same damage instance; Spell delivery does not add Weapon Damage. Never count prevented damage, unused overkill, earlier damage, or HP loss from other sources. The self-healing is limited to missing HP in the attacker's **current active Health Bar**; it cannot restore Scarred bars or grant Temporary HP. No separate Healing Dice are rolled; zero real HP lost means zero healing. Limited and Damage Maximization modify eligible Damage Dice only; transferred healing still equals actual real HP lost. This fixed, single-target Transfer is not the Deathless Echo's Life Absorption Stone mechanic.
+For a successful **Melee Single Target Damage Transfer** or **Ranged Single Target Damage Transfer** attack or Spell, heal the attacker by the **real HP actually lost by the target from this attack** after all mitigation, Temporary HP, and other buffers. Martial Weapon Damage counts in the same damage instance; Spell delivery does not add Weapon Damage. Never count prevented damage, unused overkill, earlier damage, or HP loss from other sources. The self-healing is limited to missing HP in the attacker's **current active Health Bar**; it cannot restore Scarred bars or grant Temporary HP. No separate Healing Dice are rolled; zero real HP lost means zero healing. Limited and Maximization may modify the eligible Damage Dice, but transferred healing still equals actual real HP lost and has **no separate Healing Roll to maximize**. This fixed, single-target Transfer is not the Deathless Echo's Life Absorption Stone mechanic.
 
 #### 19. Resolve Absorption
 
@@ -9207,20 +9237,23 @@ Final Pool = **8k3**
 
 ---
 
-### Healing & Recovery
+### Healing and Scarred-Bar Restoration
 
-Healing — whether through magic, rest, Stones, or other effects — restores damage within the current <strong>Active Health Bar</strong>. **When an Incapacitated character has no active unscarred Bar, positive healing reopens Broken and restores HP there immediately**, as detailed under Incapacitation & Death.
+Healing has two distinct jobs: **restore HP in the current active Health Bar** or **return a lost Scarred Health Bar to full strength**. Each job has its own source and resource.
 
-<ul style="margin-top:0; padding-left: 1.2em;">
-  <li>Once a <strong>Health Bar</strong> is completely filled, it becomes <strong>Scarred</strong>.</li>
-  <li>A Scarred Health Bar is skipped. The next lower Health Bar becomes the new Active Health Bar.</li>
-  <li>Healing can reduce damage <strong>within</strong> the current Active Health Bar.</li>
-  <li>Healing cannot reset, reopen, or erase a Scarred Health Bar unless a rule explicitly says so.</li>
-  <li>Only <strong>long-term rest</strong>, <strong>ritual healing</strong>, or <strong>Stone expenditure</strong> may restore Scarred Health Bars. See Rest & Recovery for details.</li>
-</ul>
+- **HP Healing:** **Resolve Stone Ability: Healing** heals Self or one ally with **4d8 / 8d8 / 12d8 / 16d8** at Ranks 1-4, within **2 / 4 / 8 / 16 m**. **Damage Transfer** heals its user by actual HP removed from an enemy. End-of-combat and rest recovery refill HP at their stated times.
+- **Current Bar:** Ordinary HP Healing fills the current active Bar up to its maximum. A living **Incapacitated or Stable** character who receives positive legal HP Healing reopens **Broken** and places those HP there, as detailed under *Incapacitation & Death*.
+- **Restoring Scarred Bars:** **Restoration Actives**, **Passive: Regeneration** (Self), **Vitality: Remove Scar**, and specified natural, ritual or Artifact effects return Scarred Bars **unscarred and at full current HP**. Each source spends its printed Scarred-Bar resource. Partially damaged, already available Bars retain their existing HP; damage stays on the Bar where it occurred.
+- **Recovery order:** Recover the lowest eligible Scarred Bar first, progressing toward Healthy. Recover **Broken** first when an Incapacitated character needs an available Bar. A specific recovery rule, such as a hidden Growth Bar rule, may specify a different eligible choice. Recalculate the highest available Bar and all applicable Health penalties after recovery.
+- **Resource cycles:** Each Restoration Power has one finite pool per **Safe Haven Rest**; several uses draw from that same pool. **Regeneration** spends its own Self-only allowance per **Tyhran Day**. A Safe Haven Rest itself naturally returns exactly **one Scarred Bar**, independently of any Restoration Points the player later chooses to spend.
 
----
+Restoration works with whole Bars and their full HP capacity; Resolve Healing works with rolled HP and the current Bar. Consult *Actives* and *Passives* for the level tables, legal targets and action timing.
+}}
 
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Incapacitation & Death
 
 When all of your Health Bars are fully depleted, your body collapses under the weight of battle.
@@ -9235,12 +9268,7 @@ You are now **Incapacitated**.
 - At the end of each of your turns, the GM rolls your **Death Check**.
   *(The roll may be kept secret for dramatic effect.)*
 
-}}
 
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 
 ### Death Check
@@ -9275,16 +9303,19 @@ Once <strong>4 Successes</strong> are reached or an ally stabilizes you, you are
   <li>You remain <strong>Unconscious</strong> at <strong>0 Health Bars</strong>.</li>
   <li>You no longer roll Death Checks.</li>
   <li>You remain at <strong>0 boxes</strong> and do not awaken until healing or recovery restores you.</li>
-  <li>If you receive <strong>any healing</strong>, you wake <strong>immediately</strong> with that amount restored.</li>
+  <li>Positive legal HP Healing or external Scarred-Bar Restoration that creates an available Bar with positive HP awakens you immediately; ordinary stabilization by itself does not.</li>
 </ul>
-A living **Incapacitated or Stable** character who receives **positive HP healing** immediately reopens the **Broken Health Bar**, applies that healing there and regains consciousness with the restored HP. This works **before stabilization** as well. Incapacitated ends as soon as the character has HP again; the pending Death Check/Success/Death Mark tally for that incapacitation ends. If the creature takes damage and becomes Incapacitated again later, it starts a new tally as usual.
-
+A living **Incapacitated or Stable** character who receives **positive HP Healing from Resolve or another explicitly permitted HP-healing exception** immediately reopens **Broken**, applies that healing there and regains consciousness with positive HP; this works before stabilization. **External Restoration** can instead fully restore the required Scarred Bar (Broken first), ending Incapacitated/Stable when positive available HP is present. Passive Regeneration cannot be consciously activated by an Incapacitated creature. Neither operation revives a truly Dead creature. Incapacitated ends as soon as the creature has legal available HP again; the Death Check/Success/Death Mark tally for that incapacitation ends. A later incapacitation begins a new tally.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Healing & Assistance
 An adjacent ally may:
 <ul style="margin-top:0; padding-left: 1.2em;">
   <li>Spend <strong>1 Attack Action</strong> to make a Medicine Skill Check against a Difficult TN based on the patient’s Mastery Rank (<code>TN = (12 × MR) − 2</code>). On success, the patient is Stabilized (counts as <strong>4 Successes</strong>).</li>
-  <li>Use <strong>any Healing Spell, Power, or Aura</strong> to restore HP / end incapacitation once <code>HP &gt; 0</code>.</li>
-  <li>Passive or continuous <strong>Healing Auras</strong> restore you the moment your Health Bars rise above <code>0</code>.</li>
+  <li>Use legally prepared <strong>Resolve Stone Healing</strong> or a specifically allowed HP-healing exception to restore positive HP; alternatively use a legal <strong>external Restoration Active</strong> to fully restore Scarred Bars and regain positive available HP.</li>
+  <li><strong>Passive: Regeneration</strong> is a conscious Self-only choice for a capable creature; while Incapacitated, recovery comes from an eligible external source.</li>
 </ul>
 
 > *When light touches flesh, even the dying remember what it means to breathe.*
@@ -9309,51 +9340,45 @@ Continue this progression for greater distances.
 
 **Falling Damage ignores Armor.**
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 
-### Fear (Furcht)
+
+### Fear
 ---
 
-**Fear is a single accumulating value, not a second set of Health Bars.**
+**Fear** is an accumulating value that starts at **0**. When an event or the GM calls for a Fear Check, each selected character rolls their **Resolve Pool, keeping one die** (`Resolve k1`). Use the same fixed result bands for ordinary, extreme and supernatural events. The GM chooses who is affected; the band is determined by the roll rather than Challenge MR or an adjustable Difficulty.
 
-A character begins with **0 Fear**. Whenever a rule or the GM calls for a Fear Check, roll your **Resolve Pool and keep 1 die** (`Resolve k1`). This check is intentionally independent of Mastery Rank Keep.
+| **Resolve k1 result** | **Fear gained** |
+|:--|:--:|
+| **0-7** | **+2 Fear** |
+| **8-15** | **+1 Fear** |
+| **16 or higher** | **+0 Fear** |
 
-| **Fear Check** | **TN** | **Examples** |
-|:--|:--:|:--|
-| Disturbing danger | **8** | Sudden terror, a frightening failure, sustained threat. |
-| Extreme terror | **12** | Overwhelming supernatural horror or a truly dreadful revelation. |
+**Applying Fear.** Add the rolled Fear to the character's current total. Each point of Fear removes **one die from Attribute-based Pools**, including Martial Attack, Spell Casting, Skill, Attribute and Ritual Checks. Apply this flat reduction **before percentage Health Penalties**. The final Pool can reach 0 dice; a Fear Check made with 0 dice falls in the **0-7** band and gains **+2 Fear**. Keep, Damage Dice, Death Checks and MR-based Initiative Dice retain their normal values.
 
-- **Success:** Gain no Fear from this trigger.
-- **Failure:** Gain **1 Fear**. Record it on your character sheet.
-- Fear **accumulates** across scenes, rounds, and combats. Gaining new Fear does not reset existing Fear.
-- **Each point of Fear removes 1 die from every Attribute-based roll pool** (including Attack, Casting, Attribute, Skill, and Ritual checks). Apply Fear alongside other flat pool reductions **before** percentage Health Penalties. The final Pool can reach **0 dice**. Fear does not reduce Keep, Damage Dice, or Death Check dice pools.
-- Fear is **not automatically reduced by Healing, Cleanse, a Night Rest, or a Day of Rest**.
-- **Safe Haven Rest ends all accumulated Fear** and resets Fear to **0**.
-- A Fear Check grants no Raises and cannot use Skill Points. Existing Mental Restrictions continue to follow their own rules.
+**Recovery.** Fear continues across scenes and combats. A **Safe Haven Rest** returns Fear to **0**. Healing, Cleanse, Night Rest and Day of Rest resolve their own listed effects, leaving the Fear total in place.
+
+**Check procedure.** A Fear Check uses Resolve k1 and the fixed table. Skill Points and Raises are not part of this check; existing Mental Restrictions apply according to their own rules.
 
 ::
 
-**Scope:** Fear does not use the retired mental-health thresholds, Breakdown, token, or scar procedures. Each accumulated Fear point reduces applicable roll pools by 1 die as described above, but does not alter Keep or trigger a Breakdown at a numeric threshold.
-
 }}
-
-
-
 
 \page
 {{pageNumber,auto}}
 {{wide
 
+
 #### Fear Check Examples
 
-**Example — Sudden horror (TN 8):** A character witnesses a frightening event. The GM calls for a `Resolve k1` Fear Check against TN 8. A failed roll adds **1 Fear**; a success adds nothing.
+**Example — Sudden horror:** A character rolls `Resolve k1` and keeps a **7**. The result is below 8, so they gain **2 Fear**.
 
-**Example — Supernatural terror (TN 12):** A character faces an overwhelming manifestation of the abyss. The GM calls for a `Resolve k1` Fear Check against TN 12. A failed roll adds **1 Fear**.
+**Example — Unsettling revelation:** Another character rolls `Resolve k1` and keeps **15**. The result falls within 8–15, so they gain **1 Fear**.
 
-**Accumulation:** If a character begins the scene with Fear 2 and fails one Fear Check, they now have Fear 3. This value remains until a **Safe Haven Rest** or an explicit future rule provides another way to remove it. With Resolve 8 and Fear 3, the Resolve roll pool becomes 5 dice before applying any percentage Health Penalty; the final Pool can reach 0 dice.
+**Example — Holding steady:** A third character keeps **16** (or more) and gains **0 Fear**. The same bands apply whether the event was ordinary or supernatural; the GM does not select an alternate Fear TN.
+
+**Boundary results:** **7 → +2**, **8 → +1**, **15 → +1**, **16 → +0**.
+
+**Accumulation:** If a character begins the scene with Fear 2 and rolls an **8**, they gain 1 Fear and now have Fear 3. With Resolve 8 and Fear 3, their Resolve-based Attribute Pool is 5 dice before any percentage Health Penalty. Fear remains until a **Safe Haven Rest** or an explicit future rule provides another way to remove it; the final Pool can reach 0 dice.
 
 ---
 
@@ -9434,7 +9459,11 @@ When you declare a Ranged Attack or Ranged Power using a bow, crossbow, thrown w
 
 Make this Ranged Attack with **Disadvantage**.
 
-After declaration, each enemy **whose Melee Reach includes you** may immediately use a legal Reaction if it has an available Reaction.
+**Threatened Spellcasting:** Declare a legal Spell Casting Roll while within an enemy's **Melee Reach**: the Casting Roll has **Disadvantage**. This applies regardless of the Spell's effect or eligible delivery: damage, healing (including self-healing), Cleanse, Restoration, support, control, AoE, persistent zones, and any otherwise permitted melee- or touch-range Spell. The restriction applies to the **Casting Roll**, not to subsequent Damage or Healing Dice. It does not forbid casting, alter Spell TNs, or permit otherwise illegal Spell delivery.
+
+Determine the threat when the Attack or Spell is **declared**, using the enemy's actual Melee Reach. Several threatening enemies still impose **one Disadvantage**, not additional stacking penalties. A persistent Spell effect does not make a new Casting Roll or receive a new threatened check merely because it ticks or affects a new creature.
+
+After declaration, each enemy **whose Melee Reach includes you** may use an available **legal Reaction** if its printed trigger and other requirements are satisfied. Threatened status creates no new Reaction type, waives no requirements, and does not change the normal rules for Reactions on Reactions. Normal Melee Martial Attacks do not gain this Disadvantage merely for being within reach.
 
 ---
 :
@@ -9487,7 +9516,7 @@ Focus entirely on movement.
 
 Move up to **double your normal Speed**.
 
-You forfeit your base Attack Action this Turn; additional Attack Actions gained through Stones or another explicit source may still be used. If Preparation already committed that base Attack Action to an Active Buff, you cannot Dash by forfeiting it again.
+This requires an **available base Attack Action** to forfeit for this Turn. If it was already spent or committed to an Active Buff during Preparation, you **cannot Dash**. Legal additional Attack Actions remain usable, but cannot pay this base-Action forfeit.
 
 This movement provokes movement-triggered Reactions normally.
 
@@ -9497,7 +9526,7 @@ Withdraw carefully.
 
 Move up to your normal Speed without provoking movement-triggered Reactions.
 
-You forfeit your base Attack Action this Turn; additional Attack Actions gained through Stones or another explicit source may still be used. If Preparation already committed that base Attack Action to an Active Buff, you cannot Disengage by forfeiting it again.
+This requires an **available base Attack Action** to forfeit for this Turn. If it was already spent or committed to an Active Buff during Preparation, you **cannot Disengage**. Legal additional Attack Actions remain usable, but cannot pay this base-Action forfeit.
 
 #### Quick Load
 
@@ -9589,48 +9618,6 @@ This Evade is added to your existing Evade and applies only against the triggeri
 
 ---
 
-#### Counterattack
-
-**Trigger:** A creature hits you with an Attack.
-
-**Requirement:** The triggering creature must be a valid target for the weapon or Natural Weapon used for the Counterattack.
-
-**Effect:** Immediately make a normal Attack against the triggering creature.
-
-On hit, deal:
-
-**Weapon Damage + MR × 2d8 Damage**
-
-Counterattack is a Basic Reaction, not an Active Power.
-
-It does not add Active Power damage, Specials, AoE, control effects, or other Power-only effects.
-
-Normal properties belonging to the weapon itself still apply when appropriate.
-
----
-
-#### Aid
-
-**Trigger:** An ally makes a Skill Check that you can meaningfully assist.
-
-**Requirement:** You must have the same Skill used for the Check and meet that Skill's Full Pool Requirement:
-
-Skill Rating ≥ 2 × your Mastery Rank
-
-**Effect:** The ally gains +4 to the Final Result of that Skill Check.
-
-Only one Aid may affect the same Skill Check.
-
-Aid does not spend Skill Points from the assisting character.
-
-During combat or another structured round sequence, using Aid spends 1 Reaction.
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 #### Dive for Cover
 
 **Trigger:** You would be hit by an AoE Attack after its shared Attack Roll or Casting Roll has been compared to your defense, but before its damage or payload is applied.
@@ -9698,10 +9685,22 @@ Normal situational rules such as Advantage, Disadvantage, terrain, movement mode
 {{wide
 
 
-### Rest & Recovery 
+### Healing Sources at a Glance
 
-The Mastery System is balanced around **combat rounds** as the main resource economy.  
-Outside of combat, recovery is **slow, deliberate, and story-driven**.
+| **Source** | **Recovery** | **Resource** |
+|:--|:--|:--|
+| **Resolve: Healing** | Rolled HP in the active Bar | Prepaid Stone application, used during the current Round |
+| **Damage Transfer** | HP equal to real HP lost by its target | Its successful damage instance |
+| **Restoration Actives** | Fully refilled Scarred Bars on eligible recipients | Power-specific pool per Safe Haven Rest |
+| **Passive: Regeneration** | Fully refilled Scarred Bars on Self | Limited pool per Tyhran Day |
+| **Vitality: Remove Scar** | Fully refilled Scarred Bars on Self | Sealed Vitality Stones, Rank limits |
+| **Natural / Safe Haven Recovery** | Printed active-Bar HP and Scarred-Bar recovery | Time and rest conditions |
+
+---
+
+### Rest & Recovery
+
+The Mastery System is balanced around **combat rounds** as the main resource economy. Outside of combat, recovery is **slow, deliberate, and story-driven**.
 
 ---
 #### End of Combat
@@ -9710,13 +9709,16 @@ When combat ends, all remaining Specials end.
 
 ---
 
-#### Healing Core Rules
-- **Health Bars** are your injury levels (Healthy → … → Wounded → Incapacitated).  
-- A Bar becomes **Scarred** when **all boxes in that Bar are filled with damage**.  
-- **Normal healing** (spells, powers, potions, medicine, auras) can remove damage **only inside your current active Health Bar**. It cannot restore or erase a fully filled (**Scarred**) Health Bar unless a rule explicitly says it restores a Scarred Bar.
+#### How Recovery Works
 
-- **Single-focus beta catalogue:** New Active and Active Buff selections must use the current published catalogue entries. Mixed-effect Active Powers (such as Heal + Cleanse, Damage + Special, or combinations of multiple control effects) and mixed-axis Active Buffs remain retired in v0.9.9.5; their old profiles are not selectable. Attack, Range and area are delivery/coverage, not an additional purchased effect by themselves. Reactions and explicitly defined Artifact-only functions follow their own source rules. **Damage Transfer (Vampyr)** is a dedicated, fixed-price exception: its self-healing equals only real HP actually removed by the same successful attack, not a separately bought Healing effect or freely combinable second axis.
-- **Restoration Powers** reopen Scarred Health Bars but do not restore HP. Healing restores HP only; Cleanse removes eligible negative Specials only. One reopened Scarred Health Bar costs one point from that Power's Health Level Recovery pool. The pool may be distributed across legal uses and eligible creatures; a healer must separately learn an HP Healing Power to restore HP through Active Powers. Each Health Level Recovery point costs **40 PP** in the Power's construction. The Health Level Recovery pool refreshes **once per Safe Haven Rest**.
+- **Bars and Scars:** Normal Health Bars progress through Healthy, Bruised, Injured, Wounded and Broken; a depleted Bar becomes **Scarred**. Scarred-Bar recovery makes that Bar available again at **full HP**.
+- **Ordinary HP:** **Resolve Healing** rolls 4/8/12/16d8 according to Rank. **Damage Transfer** provides its dedicated damage-linked self-heal. Combat-end and rest effects refill the available active Bar at the times stated below.
+- **Restoration Actives:** Each Power has a finite pool refreshed once per **Safe Haven Rest**; spend **1 point per Scarred Bar restored to full HP**. Single Target Restoration restores Bars on one eligible recipient; AoE Restoration divides **one shared pool** among selected eligible recipients. The applicable delivery, action cost, Casting Roll and once-per-Round power-use rules govern each activation.
+- **Regeneration:** This Self-only Passive supplies **floor(PL / 2)** Scarred-Bar points per **Tyhran Day** (first available at PL 2). The character consciously activates it at a legal action boundary, spending no Attack Action, Reaction or Casting Roll. A capable character may distribute uses throughout the day. An Incapacitated character receives recovery from an external legal source.
+- **Other Scar recovery:** **Vitality: Remove Scar** and printed Natural, Ritual and Artifact recovery preserve their own costs and limits and restore the selected eligible Bar at full HP.
+- **Safe Haven Rest:** The rest naturally restores **exactly one** Scarred Bar, refills the current active Bar, clears Fear and renews resources with a Safe-Haven cycle. Renewing a Restoration pool makes its points available for later deliberate use; the rest itself spends none of them.
+- **Prepared Resolve Healing:** Pay the Stone cost during the Preparation Phase, then choose the legal target and trigger once later in the Round, including before incoming HP damage is applied. Its Healing Dice are rolled on triggering, optionally using **Maximization**. The pending application expires at Round End.
+
 
 
 > *You can patch a wound, but you cannot undo a battle without time.*
@@ -9730,6 +9732,11 @@ When combat ends, all remaining Specials end.
 - **End of Combat:** The current available Health Bar is restored to full HP; Scarred Health Bars stay Scarred. All remaining Exhausted permanent Stones (Attribute or Colorless) return Ready; Initiative Colorless Stones and **all Absorption Colorless Stones (Ready, Exhausted, or pending payout)** disappear. Absorption trigger counts reset only when the next combat begins; no damage remainder is tracked. Sealed / Bound Stones are unaffected. Other granted Colorless Stones expire on their source's normal schedule.
 
 ---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 
 ### Rests
 
@@ -9738,7 +9745,7 @@ When combat ends, all remaining Specials end.
 A Night Rest is **1 Watch (10 Tyhran Hours)** of downtime (sleep + light activity).
 
 **Benefits**
-- A Night Rest restores HP in your current active Health Bar to full. Scarred Bars retain their status.
+- A Night Rest restores HP in your current active Health Bar to full. Scarred Bars retain their status; Night Rest alone restores no Scarred Bar.
 - A Safe Haven Rest also refreshes rest-based resources and clears Fear, as detailed below.  
 
 ---
@@ -9746,16 +9753,12 @@ A Night Rest is **1 Watch (10 Tyhran Hours)** of downtime (sleep + light activit
 #### 2) Day of Rest (4 Watches / 40 Tyhran Hours) — Natural Recovery
 Without magic, your body and spirit heal over **days**, not minutes.
 
-- Each full **day of rest** restores **1 Scarred Health Bar**.  
-- Light activity (traveling, hunting, etc.) halves this rate (2 days for 1 Bar). A Day of Rest does not remove accumulated **Fear**.  
+- Each full **day of rest** restores **exactly 1 Scarred Health Bar**, which returns unscarred at full HP.  
+- Light activity (traveling, hunting, etc.) halves this rate (2 days for 1 Bar). A Day of Rest does not remove accumulated **Fear**.
+- The same period of recovery cannot grant an additional separate Day of Rest Bar on top of a Safe Haven Rest's natural recovery benefit.  
 
 ---
 
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 #### 3) Safe Haven Rest
 A Safe Haven Rest is a **Night Rest (1 Watch)** taken in a **Safe Haven** (secure + comfortable + uninterrupted).
@@ -9765,7 +9768,7 @@ A Safe Haven Rest is a **Night Rest (1 Watch)** taken in a **Safe Haven** (secur
    - Any Stones **lost until Safe Haven Rest** return (e.g., Stones burned for Safe Haven Rest effects).
    - Ritual Stones that were **Sealed** become available again.
 2) **Form Release:** Stones bound by **Stone-Bound Form** are released.
-3) **Counts as Natural Recovery:** you restore **1 Scarred Health Bar** (as a Day of Rest).
+3) **Natural Recovery:** restore **exactly 1 Scarred Health Bar at full HP**. This fulfills the natural Scarred-Bar recovery for the same rest period. Restoration Power pools refresh and become available for later deliberate use.
 4) **Restores** your current active Health Bar to full (boxes only).
 5) **Clears Fear:** all accumulated Fear is removed; set Fear to **0**.
 
@@ -9927,7 +9930,6 @@ No Attribute can normally exceed **40**. The cap limits dice-pool growth only; i
 ### Lifetime Experience & Stone Progression
 
 Stones are **not purchased** and are **not generated by Attribute thresholds**. Every character begins with **2 permanent Stones** and gains **1 additional permanent Stone every 20 Lifetime XP**. Spending XP never lowers Lifetime Experience or removes earned progression.
-
 At an **Upgrade Step**, assign any unassigned permanent Stones earned **after the 2 starting Attribute Stones** to Attributes, up to **MR × 2 Stones per Attribute**. Instead, each such Stone may be chosen as **1 Permanent Colorless Stone at a 1:1 ratio**. There is **no additional Stone cost and no MR cap** on Permanent Colorless Stones. They are not assigned to an Attribute and do not count against Attribute Stone limits; however, only Attribute Stones unlock Attribute Stone Abilities.
 
 Stone progression and Mastery Rank progression both use **Lifetime XP**, but they are separate tracks:
@@ -9949,7 +9951,6 @@ Stone progression and Mastery Rank progression both use **Lifetime XP**, but the
 | **1000** | **52** | **MR8** |
 
 Between these milestones, continue gaining one permanent Stone every 20 Lifetime XP normally.
-
 The character sheet should display at least the first **1000 Lifetime XP** of the progression track, with visible Stone ticks every **20 XP** and Mastery Rank milestones at **100 / 200 / 400 / 600 / 800 / 1000 XP**. A full divine progression track may continue to **2200 Lifetime XP**.
 
 **MR 1–8 allow 2 / 4 / 6 / 8 / 10 / 12 / 14 / 16 assigned Stones per Attribute.** Permanent Colorless Stones have **no separate MR cap**; only permanent Stones earned **after the 2 starting Attribute Stones** may be chosen as Colorless.
@@ -9959,7 +9960,11 @@ At **2200 Lifetime XP**, the normal permanent Stone progression reaches **112 ea
 Initiative Colorless Stones and other source-granted temporary Stones never increase Lifetime XP, never grant permanent Stone progression, and never affect Mastery Rank.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Power Costs
 
 Power Level cost equals twice the new Power Level.
@@ -9986,11 +9991,7 @@ Power Level cost equals twice the new Power Level.
 A Power may only be increased by one Level during the same Upgrade Step.
 
 ---
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 ### Power Level Cap by Mastery Rank
 
 | **Mastery Rank** | **Maximum Power Level** |
@@ -10191,7 +10192,7 @@ A creature can receive a maximum of:
 
 new points of the same Diminishing Special during a single Round.
 
-For a numeric Diminishing Special, determine the **new points applied** in this order: printed Special value, successful Raise Special Increase, Intellect Special Boost, applicable target Vulnerability, target Special Negation, then this target's remaining per-Round application allowance. If that allowance is already exhausted, the newly applied amount is 0. Apply the surviving amount to stored stacks. **Special Aura** modifies an existing stack's effective value only while in range; it is not a new application.
+For a numeric Diminishing Special, determine the **new points applied** in this order: printed Special value, successful Raise Special Increase, eligible Intellect Stone Special Boost, eligible **Passive: Special Amplification** on the owner's attack-delivered Special, target Vulnerability, target Special Negation, then the target's remaining per-Round application allowance. If that allowance is already exhausted, the newly applied amount is 0. Apply the surviving amount to stored stacks. **Special Aura** modifies an existing stack's effective value only while in range; it is not a new application.
 
 This limit counts all applications of that Special from all sources combined. Any amount beyond this limit is ignored. This is an application limit, not a maximum stack value. Special points already present from previous Rounds do not count against the limit.
 
@@ -10204,7 +10205,11 @@ At the start of its Turn, after resolving all Ticks, a creature reduces one or m
 
 **Root is excluded from Natural Special Recovery.** Root follows its own Until Broken recovery rule instead.
 
----
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 #### Cleanse(X)
 
 Choose one creature. Remove up to **X total points** from one or more ongoing negative Specials affecting that creature that list **Cleanse: Yes**.
@@ -10214,11 +10219,7 @@ You may distribute the Cleanse value freely between those eligible Specials. If 
 **Single-focus Cleanse:** Cleanse only reduces eligible negative Specials. It does not grant Damage, Armor, Evade, Speed, Healing, Restoration, Temporary HP, or Absorption Stones. A character needs separate legal Powers for any such additional effects.
 
 ---
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 #### Diminishing Effects
 
 > **Diminishing (X→0):**  
@@ -10236,14 +10237,18 @@ You may distribute the Cleanse value freely between those eligible Specials. If 
 | **Lacerate(X)** | Every separate **Movement Event** that changes your position deals **X damage once**. Move, Dash, Reposition, a Movement Power, Push, Pull, and Teleport all count. Distance and whether the movement is voluntary do not change the damage. | Yes | Yes |
 | **Mark(X)** | For a later hit against a marked target, after rolling Damage Dice but before Damage-Trigger Reactions, spend any amount of Mark present **before that hit** as the Damage Floor of each die; then reduce stored Mark by that amount. Mark applied by this same hit becomes usable on the next hit. | Yes | Yes |
 | **Ruin(X)** | At Tick, take **X** damage. | Yes | Yes |
-| **Slow(X)** | Each Slow point reduces your **Speed** by **1 m**, to a minimum of 0 m. At the start-of-Turn Tick, take **max(0, X - Speed before Slow)** damage, ignoring Armor. **Speed before Slow** includes genuine Speed modifiers but ignores separate movement prohibitions setting effective Movement to 0 (such as **Root or Brace**). Reaching exactly 0 m from Slow causes no Tick damage. Resolve before Natural Special Recovery and decay, regardless of actual movement. | Yes | Yes |
+| **Slow(X)** | Each point reduces Speed by 1 m, minimum 0 m. At the start-of-Turn Tick, if Speed is 0 m or voluntary movement is prevented by another effect, take X damage, ignoring Armor. Otherwise, Slow deals no damage. Resolve before Natural Special Recovery and decay. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X** (minimum 0 dice). | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up, counting stacks **already present before this hit**. | Yes | Yes |
 | **Weaken(X)** | All dice pools based on **Might**, **Agility**, or **Intellect** are reduced by **X** (minimum 0 dice). | Yes | Yes |
 
 ---
 ::
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 #### Timed and Fixed Control Effects
 
 > Timed effects do **not stack** unless explicitly stated otherwise.  
@@ -10256,18 +10261,11 @@ You may distribute the Cleanse value freely between those eligible Specials. If 
 | **Brace(X)** | Your **Speed becomes 0 m**. While Braced, your **Shield value is doubled** for Armor calculation. At the end of each of your turns, reduce **Brace by 1**. | Until X reaches 0 | No | No |
 | **Prone** | You are knocked down and helpless until you stand. Your normal Evade still applies. Spend **1 Attack Action** to stand; then other actions and Reactions become available. Standing does not consume Movement. | Until you stand | No | No |
 
----
-::
 
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 #### Until Broken / Until Used Effects
 
-**Critical is not a general Special.** **Critical(X)** designates X qualifying Attack or Casting Pools to explode on 7–8 as defined in Core Terms, with the source determining the available combat or Round allowance. It may be granted through the dedicated **Active Buff: Critical**, the **Agility Ability: Crit** Stone Ability, or **Passive: Critical** (per-Combat free charges while slotted). Artifact Stone Power Support may pre-fill named Ranks of the Crit Stone Ability, but it never grants Critical directly. Before a roll, choose exactly one available source; two sources on the same roll neither strengthen explosions nor consume two charges.
+**Critical is not a general Special.** **Critical(X)** designates X qualifying Attack or Casting Pools to explode on 7–8 as defined in Core Terms, with the source determining the available combat or Round allowance. It may be granted through **Passive: Critical**, **Active Buff: Critical**, or **Agility Ability: Crit**; choose only one source per eligible roll. Artifact Stone Power Support may pre-fill named Ranks of the Crit Stone Ability, but it never grants Critical directly.
 
 | **Effect** | **What It Does** | **Duration** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|:--:|
@@ -10292,9 +10290,10 @@ They do not grant an automatic Attribute Check.
 | **Pull(X)** | Pull the target **X m** immediately. | No | No |
 | **Disarm** | On hit, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires **1 Movement** or **1 Attack Action** and makes the item ready to use again. | No | No |
 | **Stunned** | On application, the target loses **1 available Attack Action in the current Round**. Resolve the Action loss immediately. | No | No |
-
----
-::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 #### Support Effects
 
@@ -10636,7 +10635,7 @@ A Ranged Active with one or more Specials may use Spell delivery normally.
 
 A character may also possess a limited number of **Special-less Spell Powers**. The number of character-owned Spell Powers that contain **no Special** cannot exceed the character's **Mastery Rank**.
 
-This means a character may use Spell delivery for ordinary structures such as a damage-only Single Target Attack, Split Attack, healing Power, or another legal Ranged Active without a Special, but only up to that Mastery Rank limit.
+This means a character may use Spell delivery for ordinary structures such as a damage-only Single Target Attack, Split Attack, **Restoration Power**, or another legal Ranged Active without a Special, but only up to that Mastery Rank limit.
 
 Spell Powers that already contain at least one Special do **not** count against the Special-less Spell limit.
 
@@ -10644,7 +10643,12 @@ A source may explicitly grant a Spell without counting against this limit.
 
 
 ---
+---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Catalogue Delivery Conversion
 
 Ranged Active catalogue entries may be written using a **Martial baseline** even when the same Technical Reference can use Spell delivery. When a legal Ranged Active changes from Martial to Spell delivery:
@@ -10697,6 +10701,8 @@ This choice is part of the Spell's design and is fixed for that Spell.
 {{wide
 ### Casting Roll
 
+**Casting while threatened:** If the caster is within any enemy's **Melee Reach at declaration**, every legal **Spell Casting Roll** is made with **Disadvantage**, whether the Spell damages, restores Scarred Health Bars, cleanses, supports, controls, creates a zone, or otherwise resolves through Casting. This includes any otherwise legal melee-/touch-range Spell and any self-targeted legal Spell. It does **not** reduce Healing Dice, change the Spell Base TN, or make prohibited deliveries legal. Multiple enemies do not stack this Disadvantage. See *Threatened Ranged Attacks* for the common timing and Reaction rules.
+
 When casting a Spell, roll:
 
 ---
@@ -10726,7 +10732,7 @@ For a Spell that affects a creature, determine that creature's **Final Spell TN*
 
 `Final Spell TN = Spell Base TN + Target Spell Resistance`
 
-Apply any explicitly permitted Spell Resistance reduction before calculating the Final Spell TN. Spell Resistance cannot be reduced below 0 and the Spell Base TN is unchanged.
+Apply eligible reductions first, including **Passive: Spell Resistance Piercing** (`ceil(PL / 2)`) for that caster's own Spells. Count no less than 0 remaining Spell Resistance; the target's actual resistance and Spell Base TN remain unchanged.
 
 For a direct Spell, compare the Casting Roll against the target's Final Spell TN.
 
@@ -10748,6 +10754,11 @@ The **Spell Base TN** determines whether the caster successfully produces the Sp
 
 A Spell that creates or places an effect without directly affecting a creature must reach **Spell Base TN** to be created.
 
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Willing Spell Targets
 
 A creature that is aware of a Spell and willingly accepts it may choose to treat its **Spell Resistance as 0** against that Spell. The choice is made before the Casting Roll. Spell Base TN is never reduced this way.
@@ -10756,7 +10767,7 @@ This allows willing healing, support, and beneficial Spells to function without 
 
 ### Persistent Spell Zones
 
-When Spell delivery creates a **Persistent Diminishing Zone**, make one Casting Roll when the zone is created and record the final result.
+When Spell delivery creates a **Persistent Diminishing Zone**, make one Casting Roll when the zone is created (including threatened Disadvantage if applicable at that declaration) and record the final result. Later zone applications use the stored result and do not cause new Casting Rolls or new threatened Disadvantage.
 
 - If the result is below Spell Base TN, the zone is not created. There is no additional penalty.
 - If the result reaches Spell Base TN, the zone is created for its normal Duration.
@@ -10776,168 +10787,16 @@ A Spell may therefore be damage-only, healing-only, utility-oriented, or Special
 
 ---
 
-## Mental Powers
-
-Mental Powers offer a complete character path for players who want to communicate mind-to-mind, attack thought directly, create personal hallucinations, search memories, or influence weaker minds outside combat.
-
-### Telepathy and Mind Link
-
-**Telepathy** is a Passive. It grants Telepathic Access and includes voluntary **Mind Links** at no additional Power cost.
-
-Mind Link is not purchased separately. Its communication, linked-creature limit, range, shared impressions, shared senses, and willing memory sharing improve with **Passive: Telepathy** Power Level.
-
-Telepathy alone does not read an unwilling creature's thoughts or memories. It only opens the mental path. Hostile information gathering requires **Mind Probe**.
-
-Mental Attack, Mind Illusion, Mind Probe, and Mental Control cannot normally be used at a higher Power Level than the character's **Passive: Telepathy** Power Level.
-
----
-
-### Mental Power Difficulty
-
-Mental Powers are harder to execute than normal Spells.
-
-Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like Spells, but their **Spell Base TN is increased by +4**.
-
-This represents the difficulty of reaching, piercing, shaping, searching, or controlling another creature's mind.
-
-Mental Powers do not count as one Power Level higher. They use their normal Power Level for scaling, requirements, limits, and Power construction.
-
-### Mental Power TN
-
-First determine the user's normal **Spell Base TN** from Mastery Rank, then increase it by **+4**:
-
-`Mental Power Base TN = Spell Base TN + 4`
-
-For a Mental Power that affects another creature, add that creature's Spell Resistance:
-
-`Final Mental Power TN = Mental Power Base TN + Target Spell Resistance`
-
-Spell Resistance therefore applies normally to Mental Powers unless a specific Power explicitly says otherwise.
-
-When a Mental Power affects more than one creature, make **one** roll and compare that same result separately against each creature's Final Mental Power TN.
-
-A creature that knowingly accepts the Mental Power may treat its Spell Resistance as **0** against it, as with a willingly accepted Spell. Mental Power Base TN is never reduced this way.
-
-If the roll is below **Mental Power Base TN**, the Power fizzles. If the roll reaches Mental Power Base TN but does not reach a creature's Final Mental Power TN, the Power was successfully executed but that creature resists it. If the roll reaches a creature's Final Mental Power TN, the listed effect resolves for that creature.
-
-The target does not make an automatic second roll.
-
 }}
+
 \page
 {{pageNumber,auto}}
 {{wide
-### Mental Attack
-
-Mental Attack is a premium damage axis.
-
-Mental Attack requires **Telepathic Access** unless the Power explicitly says otherwise.
-
-Mental Attack does not target Evade, and its Mental Damage ignores Armor.
-
-Mental Attack damage costs **30 PP per +1d8 Mental Damage**.
-
-On a successful Mental Power roll, the target takes the full listed Mental Damage and suffers any paid Special or rider.
-
-Mental Attack does not grant an automatic Intellect or Wits Check after the Power succeeds.
-
----
-
-### Mind Illusion
-
-Mind Illusion creates false perceptions inside the target's mind.
-
-Mind Illusion requires **Telepathic Access** unless the Power explicitly says otherwise.
-
-If the Power succeeds, the illusion applies without an automatic resistance roll.
-
-A creature may attempt to disbelieve a Mind Illusion only when:
-
-- it spends **1 Attack Action** to inspect or test the illusion,
-- it physically interacts with something the illusion cannot support,
-- it receives clear contradictory evidence,
-- or the Power explicitly grants another attempt.
-
-The generic Mind Illusion uses **Wits** as its Disbelief Attribute. A specifically analytical, memory-based, or logically constructed Power may state **Intellect** instead.
-
-Roll the named Attribute and keep dice equal to Mastery Rank against the original Final Mental Power TN. On a success, the illusion ends for that creature.
-
-Mind Illusions do not create real objects, terrain, cover, barriers, creatures, or line-of-sight blockers. They do not control actions. The affected creature still chooses how to respond to what it perceives.
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-### Mind Probe
-
-Mind Probe searches a creature's thoughts and memories.
-
-It requires Telepathic Access and uses the normal **Final Mental Power TN**.
-
-On a success, the user learns the kind of information allowed by the Power's current Power Level. Lower Power Levels reveal emotions, surface thoughts, and immediate intentions. Higher Power Levels reach increasingly old, fragmented, suppressed, or protected memories.
-
-Mind Probe reads the target's remembered understanding rather than objective truth. It cannot discover knowledge the target never possessed, and it cannot make an incorrect belief become correct.
-
-Mind Probe does not alter memories or control behavior.
-
-An unwilling target knows that its mind was probed after the Power resolves, but it does not automatically know exactly what was learned.
-
-> **Telepathy connects. Mind Probe searches.**
-
-A willing creature may share thoughts, impressions, senses, and memories through Telepathy within the Passive's limits. Mind Probe is the Active used when the character deliberately searches or extracts information from an unwilling mind.
-
----
-
-### Mental Control
-
-Mental Control imposes temporary noncombat instructions, attitudes, relationships, beliefs, or behavioral programs.
-
-It requires Telepathic Access and uses the normal **Final Mental Power TN**.
-
-Mental Control can affect only creatures whose **Mastery Rank is lower than the user's Mastery Rank**.
-
-It cannot be activated during combat and cannot be used to create allied combatants. If a controlled creature becomes a participant in combat, the control ends before it takes its first combat action.
-
-Mental Control may make a weaker creature cooperate, leave an area, ignore an intrusion, open a door, deliver a message, accept a temporary relationship, or pursue another noncombat purpose allowed by the Power's Power Level.
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-### Mental Control Limits
-
-Mental Control cannot:
-
-- order attacks or offensive Powers,
-- create an allied combatant,
-- force direct self-harm, obvious suicide, or clearly lethal danger,
-- force the expenditure of Stones, Charges, or other limited combat resources,
-- grant knowledge the target does not possess,
-- rewrite or erase memories,
-- permanently change personality, loyalty, love, identity, or conviction,
-- or affect a creature of equal or higher Mastery Rank.
-
-The effect ends immediately if the controller or one of the controller's obvious allies directly harms the target.
-
-A target gains a later **Wits Attribute Check** against the original Final Mental Power TN only when the control directly collides with a defining conviction, a deeply held bond, or clear evidence that obedience would cause severe harm to someone it is committed to protect. This is not an automatic resistance roll when the Power is applied.
-
-Mental Control may make a target speak or cooperate, but it does not guarantee complete or objectively truthful information. Mind Probe is used to search thoughts and memories directly.
-
----
-
-### Mental Effects Not Used as Core Powers
-
-**Frightened**, **Charmed**, and **Confused** are not separate core Specials. Their useful functions are already covered by Mental Control, Mind Illusion, or existing combat Specials such as Disoriented, Weaken, and Soulburn.
-
-**Silence**, **Null Field**, and **Power Lock** are not standard player Powers or universal core systems. A particular place, Artifact, creature, or adventure may explicitly prohibit a named Power, Special, or Power tag when the story requires it.
-
 
 ## Powers
 
 Powers are the mechanical building blocks of character abilities.
-
-This chapter does not explain every Special again.  
-Specials are defined in their own rules chapter.
-
+This chapter does not explain every Special again. Specials are defined in their own rules chapter.
 Instead, this chapter explains the main Power types and points to the dedicated Power catalogues.
 
 A Power belongs to one of the following categories:
@@ -10950,19 +10809,12 @@ A Power belongs to one of the following categories:
 
 Each category has its own design rules, limits, timing, and pricing logic.
 
----
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 
 ### Power Use Limit
 
 A specific Power can be used only **once per round**.
-
 After you use a Power, that Power is considered **spent** until the start of the next round.
-
 The Power's identity is its base **Technical Reference**, not its character-facing name, source, or current PL. Changing between Martial and Spell delivery does not create a second Power identity; delivery method is not a way to bypass duplicate rules or the once-per-Round Power Use Limit.
 
 This applies to all Power Types:
@@ -10973,24 +10825,13 @@ This applies to all Power Types:
 - Movement Powers
 - other named Power effects
 
-Passive Powers are not “used” each round unless they contain a specific activated or triggered effect.
-
-If you gain extra Attack Actions, extra Reactions, or extra Movement, you may use them only with Powers that have not already been used this round.
-
-Additional Attack Actions from multiple sources do **not** stack unless a rule explicitly says otherwise; use the highest single grant of additional Attack Actions.
-
+Passive Powers are not “used” each round unless they contain a specific activated or triggered effect. If you gain extra Attack Actions, extra Reactions, or extra Movement, you may use them only with Powers that have not already been used this round. Additional Attack Actions from multiple sources do **not** stack unless a rule explicitly says otherwise; use the highest single grant of additional Attack Actions.
 You cannot use the same Active Power multiple times in the same round.
-
 You cannot use the same Reaction multiple times in the same round unless that Reaction explicitly allows repeated uses. Each repeated use still costs **1 Reaction** and does not grant additional Reactions.
-
 You cannot use the same Active Buff multiple times in the same round.
-
 To attack multiple times with Powers in the same round, you need multiple different Active Powers.
-
 To react multiple times in the same round, you need multiple different valid Reactions and enough Reaction uses.
-
 To move with multiple Movement Powers in the same round, you need multiple different Movement Powers and enough Movement uses.
-
 Basic Attacks are not Powers and may be repeated if you have enough Attack Actions.
 
 
@@ -11010,18 +10851,14 @@ Basic Attacks are not Powers and may be repeated if you have enough Attack Actio
 \page
 {{pageNumber,auto}}
 {{wide
-## Mechanical Powers and Character Expression
+### Mechanical Powers and Character Expression
 
 > **You pay for what your character can do, not for what your character looks like.**
 
-Powers in this system are written as mechanical templates.
-
+Powers in this system are written as mechanical templates. 
 A Power's listed name describes what the Power does mechanically.
-
 It does not define what the Power looks like, sounds like, feels like, or means for the character.
-
 Players are encouraged to rename, describe, and flavor their Powers to match their character.
-
 The same mechanical Power may look completely different for different characters.
 
 Examples:
@@ -11105,22 +10942,9 @@ Passives are reliable, always-on character identity. They do not require an acti
 Every current Passive belongs to exactly one Passive Category. Combined Passives are not available in this release.  
 A Passive Category is a mechanical classification, not flavour text.
 
-Passives are used for stable identity such as:
+The authoritative **28-Passive catalogue** includes defenses such as Armor, Evade, Health/Fortitude, Temporary HP, Parry and Damage Negation; offensive choices such as Damage, Armor Reduction, Critical, Maximization, Enemy Evade Reduction, Spell Resistance Piercing and Special Amplification; plus Self Cleanse, Regeneration, Speed and other support Powers. **Passive: Regeneration**, not a generic "Healing" Passive, handles its printed Scarred-Bar recovery.
 
-- Armor,
-- Evade,
-- Damage,
-- Health (additional Bars or **Fortitude** for larger Bars),
-- Temporary HP,
-- Healing,
-- Damage Reduction,
-- Phasing,
-- Special Negation,
-- Invisibility,
-- Parry,
-- Absorption,
-- Damage Negation,
-- or approved Summon, Special Aura, or Special support.
+Offensive / Defensive / Utility & Mobility selection groups are for display only; **mechanical Passive Categories** still determine slot compatibility.
 
 Passives may not hide Active effects inside always-on features.
 They may not grant free attacks, extra actions, Movement Powers, Reactions, Spell effects, full Persistent Zones, or casual hard control.
@@ -11133,29 +10957,29 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 {{wide
 ### Active Buffs
 
-Active Buffs are temporary combat enhancements.
+Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins.
 
-They represent a character entering a stance, invoking protection, empowering their body, reinforcing allies, or activating a short-lived combat state.
+**Activation Cost:** Activating an Active Buff consumes the character's **base Attack Action** for the upcoming Round. This Action is committed during Preparation and cannot be used during that character's Turn, whether for a Basic Attack, an Active Power, or another action requiring it.
 
-An Active Buff is activated exclusively during the **Preparation Phase** before the upcoming Combat Round. Activation commits the character's **base Attack Action** for that Round (not merely the Basic Attack maneuver). That base Attack Action is unavailable during the character's Turn and cannot also pay for Dash, Disengage, or Parry. Additional Attack Actions from Stones or other legal sources remain available — including, when Preparation already committed the base Action, spending one such additional Attack Action to enter Parry. Maintaining an already-active Buff costs no Attack Action.
+Additional Attack Actions granted by Stones or other legal sources remain available. The same base Attack Action cannot be spent or forfeited a second time to pay for another effect.
 
-An Active Buff normally lasts **Mastery Rank complete Combat Rounds**. The Round for which it is activated during Preparation counts as the **first Round** of its duration. It applies throughout that Round regardless of Initiative and expires at **Round End** of its final Round:
+**Activation and Duration:** The Active Buff becomes effective at the beginning of the upcoming Round, before any creature takes its Turn. It normally lasts **Mastery Rank complete Rounds**.
 
-`lastActiveRound = activationRound + effectiveDuration − 1`
+The activation Round counts as the first Round. At **Round End** of the final Round, the Buff expires. Its duration is independent of the activating character's Initiative or Turn.
 
-**Example (MR1):** Activated during Preparation for Round 1 → active through all of Round 1 → expires at Round End of Round 1.
+**Maintenance and Replacement:** A character may normally maintain only one Active Buff and may activate or replace an Active Buff only during a Preparation Phase. Replacing an existing Buff ends the previous Buff. Active Buffs cannot stack with themselves.
 
-**Example (MR2):** Activated during Preparation for Round 1 → active through Rounds 1 and 2 → expires at Round End of Round 2.
+**Round-Based Resources:** Resources granted by an Active Buff for each Round become available during the activation Preparation Phase and refresh once during each subsequent Preparation Phase while the Buff remains active. Unused Round-based resources expire at Round End.
 
-Ordinary Active Buff activation or replacement is not permitted during a character's Turn.
+Other effects with explicitly defined triggers, such as Start of Turn or End of Turn, retain those triggers unless the specific Buff states otherwise.
+
+Active Buffs cannot be activated or replaced during a creature's Turn or through an ordinary Attack Action. Explicit exceptions must be stated in their own rules.
 
 ---
 
 #### Active Buff Limits
 
-A character may activate or replace **at most one Active Buff per Preparation Phase**. A character may normally maintain only **one Active Buff** at a time.
-
-If a character activates a new Active Buff while already maintaining another Active Buff, the previous Active Buff ends immediately unless a rule explicitly allows both to coexist. Active Buffs cannot be stacked with themselves. Reactivation does not refresh once-per-Combat resources unless an explicit rule permits it.
+Apply the **Preparation Phase activation and replacement rules above**: at most one activation or replacement each Round, one maintained Buff, and no self-stacking. Only an explicit written exception may override a limit.
 
 ---
 
@@ -11170,12 +10994,15 @@ Combined Active Buffs are not selectable in this beta release.
 
 Active Buffs do not apply Specials by default.
 
-Active Buffs do not apply or increase numeric Specials. **Intellect Stone Ability: Special Boost** is a separate Stone Ability and follows its own rules. The **Special Increase Raise Effect** remains distinct and legal where Raises are allowed; neither is a retired Active Buff or Reaction.
+Active Buffs in this catalogue do not apply or increase numeric Specials. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
 
 See: <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs</a>
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Reactions
 
 Reactions are immediate answers to a specific trigger.
@@ -11204,10 +11031,7 @@ Reactions do not apply or increase Specials by default.
 See: <a href="https://homebrewery.naturalcrit.com/share/mnNMj2Jj--vp" target="_blank" rel="noopener noreferrer">Reactions</a>
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Movement Powers
 
 Movement Powers replace your normal Movement for the round.
@@ -11280,7 +11104,10 @@ Growth grants its explicitly defined, purchased mechanical benefits. The charact
 **Push/Pull:** Subtract **Growth × the transformed character's Mastery Rank in meters** from each incoming Push or Pull distance, to a minimum of **0 m**. Other effects of the hit resolve normally.
 
 **Space and targeting:** Every occupied Hex must remain traversable through movement and fit when transforming. Growth leaves nearby creatures and obstacles in place. An AoE affecting several of a creature's occupied Hexes still resolves **once against that creature**. Growth changes the footprint, Reach, Range and Health Bars specified here; other combat values are those purchased on the character sheet.
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Growth Health Bars
 
 A size-changing **Transformation with Growth G** provides **G additional 0-penalty Health Bars** before the character's regular Healthy Bar. Each Growth Bar has **Vitality × 4 HP** and is damaged **before normal Health Bars**. All Growth Bars must become Scarred before damage progresses into the normal bars. Growth Bars do not increase the size of normal bars and grant no inherent Armor or Temporary HP.
@@ -11288,17 +11115,12 @@ A size-changing **Transformation with Growth G** provides **G additional 0-penal
 **Each Growth Bar keeps its own damage and Scarred state across transformations.** Returning to original size merely hides the Growth Bars; it does not heal, restore, or reset them. Transforming to Growth again makes the corresponding bars available in precisely their previous state. A Scarred Growth Bar remains Scarred and is skipped as usual until restored by the existing recovery rules. **A hidden Scarred Growth Bar remains eligible for Safe Haven Rest, Natural Recovery, Remove Scar or Restoration**; the player may choose it whenever that recovery permits choosing an eligible Scarred Health Bar. Reopening a hidden Growth Bar does not change the character's current size. Partially damaged Growth Bars likewise retain that damage. Changing size leaves normal Health Bars unchanged.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Defensive Effects
 
-Armor, Evade, Health Bars, Temporary HP, Healing, Damage Reduction, Phasing, and Anti-Displacement are defensive Power effects.
+Armor, Evade, Health Bars, Temporary HP, Damage Reduction, Phasing, Anti-Displacement and the different forms of recovery belong to distinct defensive or restorative mechanics.
 
-They are not Specials by default.
-
-They appear in the relevant Power category:
+Use the relevant Power or Stone Ability for the listed effect:
 
 | **Effect** | **Usually Found In** |
 |---|---|
@@ -11306,9 +11128,11 @@ They appear in the relevant Power category:
 | Evade | Passives, Active Buffs, Reactions |
 | Health Bars | Passives |
 | Temporary HP | Passives, Active Buffs, Reactions |
-| Healing | Passives, Active Buffs |
-| Damage Reduction | Dedicated Passive, Active Buff, and Reaction entries only |
-| Phasing | Dedicated Passive, Active Buff, and Reaction entries only |
+| Ordinary HP Healing | Resolve: Healing (Stone Ability); Damage Transfer |
+| Scarred-Bar Restoration | Restoration Actives and Artifact-granted Restoration |
+| Self Regeneration | Passive: Regeneration |
+| Damage Reduction | Dedicated Passive, Active Buff, and Reaction entries |
+| Phasing | Dedicated Passive, Active Buff, and Reaction entries |
 | Anti-Displacement | Passives, Active Buffs, Reactions, or specific Tree exceptions |
 
 These effects are explained in the relevant catalogue entries, not in this chapter.
@@ -11389,8 +11213,7 @@ A Mastery Rank 2 character may choose **2 Minor Expressions total**. These may b
 
 ### Attribute Tiers
 
-Minor Expressions grow automatically with the Attribute that unlocks them.
-
+Minor Expressions grow automatically with the Attribute that unlocks them. 
 Each Minor Expression has five possible tiers:
 
 | Current Attribute Value | Expression Tier |
@@ -12226,7 +12049,7 @@ The GM may apply a fitting consequence, especially if the Ritual involved danger
 
 Possible consequences include:
 
-- the caster faces a Fear Check (Resolve k1; TN 8, or TN 12 for extreme terror),
+- the caster faces a Fear Check (Resolve k1; fixed bands: below 8 → +2 Fear, 8–15 → +1 Fear, 16+ → +0 Fear),
 - the result is incomplete or misleading,
 - something notices the caster,
 - the target becomes harder to affect again,
@@ -12502,7 +12325,7 @@ Learn Artifact does not force an intelligent Artifact, divine relic, or demonic 
 | **Raise 1** | You receive one sensory fragment connected to that residue: sound, smell, touch, color, pressure, taste, or a single image. |
 | **Raise 2** | You witness a brief sequence of events around the memory. The sequence is emotional and symbolic, but it shows what kind of event created the residue. |
 | **Raise 3** | You identify one important person, symbol, object, phrase, direction, or relationship connected to the memory. |
-| **Raise 4** | You step into the memory for a brief moment and experience it from within. If the memory is violent, demonic, death-bound, or horrific, the GM may call for a **Fear Check (Resolve k1, TN 12)**. |
+| **Raise 4** | You step into the memory for a brief moment and experience it from within. If the memory is violent, demonic, death-bound, or horrific, the GM may call for a **Fear Check (Resolve k1; fixed Fear result bands)**. |
 }}
 \page
 {{pageNumber,auto}}
@@ -12578,7 +12401,7 @@ Word of Recall cannot target a place you have never reached. It cannot create sa
 | **Raise 1** | You may interact with elements of the dream, reshape minor symbols, calm a nightmare scene, or create a safe image for conversation. |
 | **Raise 2** | You can communicate directly with the dreamer's subconscious. A simple message, warning, apology, or promise may persist after waking. |
 | **Raise 3** | You glimpse buried memories or truths the target hides even from themselves. These are emotional and symbolic, not guaranteed factual records. |
-| **Raise 4** | You risk full immersion, walking the dream as if real. The dreamer may see you clearly. If the dream is hostile, demonic, cursed, or traumatic, the GM may call for a **Fear Check (Resolve k1, TN 12)**. |
+| **Raise 4** | You risk full immersion, walking the dream as if real. The dreamer may see you clearly. If the dream is hostile, demonic, cursed, or traumatic, the GM may call for a **Fear Check (Resolve k1; fixed Fear result bands)**. |
 
 #### Limits
 Dreamwalk cannot rewrite a mind. It cannot cure trauma by itself. It cannot force a protected target to reveal secrets without appropriate MR, Raise Level, and GM approval. It cannot control the dreamer. It cannot replace Social Skills, therapy, confession, or player choice.
@@ -13200,7 +13023,7 @@ If the stored Power is granted by an Item or Artifact, use the values currently 
 
 The stored Active Power must have an **Instant** duration. A Power with a persistent or duration-based effect cannot be stored, including a persistent zone, barrier, construct, terrain effect, image, aura, or similar ongoing effect.
 
-Minor Magic Items cannot store or reproduce Health Level Recovery, Stone Refresh, Safe Haven Rest resources or uses, or any other resource recovery tied to a Safe Haven Rest. If an otherwise eligible Active Power includes both an allowed immediate effect and one of these excluded effects, the excluded effect is not stored.
+Minor Magic Items cannot store or reproduce **Restoration of Scarred Health Bars**, Health Level Recovery, Stone Refresh, Safe Haven Rest resources or uses, or any other resource recovery tied to a Safe Haven Rest. Restoration instead follows its dedicated Safe Haven recovery resource. If an otherwise eligible Active Power includes both an allowed immediate effect and one of these excluded effects, the excluded effect is not stored.
 
 Creating a Minor Magic Item requires no Stones, currency, or special materials. Any object or weapon included in its description must be present, but provides no mechanical benefits. An empty place within this limit can only be filled during a Safe Haven Rest. Existing Minor Magic Items may be retained and continue to count against the creator’s limit, even if they are carried by another character.
 
@@ -13212,7 +13035,7 @@ The Minor Magic Item records the Power at the moment of its creation, including:
 * Its purchased Effects and Specials.
 * The creator’s relevant Attack Pool.
 * The creator's relevant Keep value.
-* Its Damage, Healing, Area, Targets, and other Power values.
+* Its Damage, Area, Targets, and other Power values. (Restoration uses dedicated Safe Haven recovery resources and is outside Minor Magic Item storage.)
 
 Later changes to the character or Power do not alter an existing Minor Magic Item.
 
@@ -14049,7 +13872,7 @@ At the start of each Round, you normally have:
 - **1 Attack Action**
 - **1 Reaction**
 
-On your Turn, you may use Movement and Attack Action in either order.
+On your Turn, use Movement and uncommitted Attack Actions in either order. A base Action paid for a Buff in Preparation is unavailable; legal extra Attack Actions remain.
 
 A Reaction is used outside your Turn when its trigger happens.
 
@@ -14153,15 +13976,15 @@ Attack sequence:
 10. Apply remaining damage.
 
 ---
-**Direct Attack TN:** Target Evade + paid Raises × 4
-**Direct Spell TN:** Spell Base TN + Target Spell Resistance + paid Raises × 4
-**Martial AoE:** Roll once. For each valid creature in the area, compare the same result against **that creature's Evade + paid Raises × 4**.
-**Spell AoE:** Roll once. For each valid creature in the area, compare the same result against **that creature's Final Spell TN + paid Raises × 4**.
-A Casting Roll below Spell Base TN fizzles with no additional penalty. Reaching Spell Base TN but missing Final Spell TN means the target resists the Spell.
-If your result is equal or higher than a creature's applicable TN, that creature is hit. Other creatures are checked independently.
+**Direct Attack TN:** Effective Evade + paid Raises × 4
+**Direct Spell TN:** Spell Base TN + effective Spell Resistance + paid Raises × 4
+**Martial AoE:** Roll once; check each target's **effective Evade + paid Raises × 4**.
+**Spell AoE:** Roll once; check each target's **Final Spell TN + paid Raises × 4**.
+**Attacker-only Passives:** Evade Reduction applies to your Martial attacks, and Spell Resistance Piercing to your Spells (neither effective defense below 0). A roll below Spell Base TN fizzles; otherwise each target checks its Final TN.
+If you meet the target TN, it is hit. Numeric Specials: printed + Raises + Stone Boost + eligible **Passive Amplification** + Vulnerability - Negation, then Round cap.
 
 ---
-The raised TN is the sole hit/effect TN for each target. AoE compares each target separately and applies the full Power to every target whose raised TN is met. Choose successful Raise effects after the roll; there are no Raise Costs or refunds.
+The raised TN is the sole threshold. AoE targets meeting it receive the full Power. Choose successful Raise effects after the roll; there is no Raise Cost or refund.
 
 ---
 
@@ -14224,29 +14047,25 @@ Evade may be modified by:
 
 - Each normal Health Bar has `Vitality × 4` boxes by default; **Passive: Fortitude** can raise the multiplier to ×5/×6/×7/×8 at Levels 4/8/12/16.
 - Filled Health Bars become **Scarred**.
-- Healing restores damage only inside your current active Health Bar.
-- Scarred Bars are not restored by normal healing.
+- Resolve Stone Healing and Damage Transfer restore ordinary HP within the current Active Health Bar; the explicit Incapacitated exception still applies.
+- **Restoration and Regeneration** recover Scarred Bars at full HP, while **Resolve Healing** and **Damage Transfer** replenish ordinary HP.
 - While Incapacitated, make a **Death Check** at the end of your turn.
 - Use the higher of **Vitality** or **Resolve** against `TN (8 × MR) − 2`.
 
 **Fear**
 
 - Fear begins at **0** and accumulates across scenes and combats.
-- Fear Check: roll **Resolve k1** against **TN 8** (ordinary fear) or **TN 12** (extreme terror).
-- Failed Check: gain **1 Fear**; success: gain none. Each Fear removes **1 die from Attribute-based roll pools**, before percentage Health Penalties; a final Pool that may reach **0 dice**.
+- Fear Check: roll **Resolve k1** and apply **fixed bands** (no TN, Challenge MR or adjustable Difficulty): **below 8 = +2 Fear**, **8–15 = +1 Fear**, **16+ = +0 Fear**.
+- Each Fear removes **1 die from Attribute-based roll pools**, before percentage Health Penalties; a final Pool may reach **0 dice**.
 - Only a **Safe Haven Rest** clears all accumulated Fear under the current rules.
 
 ---
 
 #### **12) Active Buffs**
 
-An Active Buff usually costs **1 Attack Action**.
-It lasts **MR rounds**.
-The activation round counts as the first round of duration.
-You may activate only **one Active Buff per round**.
-You may normally maintain only **one Active Buff** at a time.
-If you activate a new Active Buff, the previous one ends unless a rule explicitly allows both.
-Active Buffs cannot be stacked with themselves.
+Activate or replace an Active Buff **only during Preparation**; commit that Round's **base Attack Action** (no base Attack on your Turn). Keeping the current Buff costs nothing.
+The Buff lasts **MR complete Rounds**, counting its activation Round, and expires at its final **Round End**. Only one activation/replacement per Round; normally maintain one Buff.
+Buff Temporary HP and Damage Negation pools initialize/refresh once per active **Preparation Phase**. Additional legal Attack Actions remain available. No self-stacking.
 
 
 #### **13) Stones**
@@ -14636,6 +14455,7 @@ If Root reaches **0**, it ends.
 
 #### Slow(X)
 
+
 **Type:** Diminishing (X→0)
 
 ---
@@ -14645,11 +14465,18 @@ If Root reaches **0**, it ends.
 **Cleanse:** Yes
 
 ---
-**Effect:** Each point of **Slow(X)** reduces your **Speed** by **1 m**, to a minimum of **0 m**. Only Slow points that exceed your full **Speed before Slow** deal damage. At the **start of your Turn**, before Natural Special Recovery and decay, take **max(0, X - Speed before Slow)** damage at Tick, ignoring Armor like Ruin. If Slow reduces your Speed to exactly **0 m**, it deals **no damage**. Use adjusted Speed before Slow, including genuine Speed bonuses/penalties but ignoring separate restrictions that prohibit movement or set effective Movement to 0 (such as **Root or Brace**). This is a Speed snapshot, not the metres of Movement already spent. Whether you actually move is irrelevant. After the Tick, apply Natural Special Recovery and reduce Slow by **1**. At 0, Slow ends.
+**Effect:** Each point of **Slow(X)** reduces your **Speed** by **1 m**, to a minimum of **0 m**. At the **start of your Turn**, before Natural Special Recovery and decay, if your Speed is **0 m** or another effect prevents you from moving voluntarily (such as **Root or Brace**), take **X damage**, ignoring Armor like Ruin.
 
-**Example:** A creature with **10 m Speed** and Slow(5) has **5 m Speed** and takes **0** Slow damage; with Slow(10), it has **0 m Speed** and still takes **0** Slow damage; with Slow(15), it has **0 m Speed** and takes **5** Slow damage at Tick. The values in this example assume no recovery between applications.
+If you are still able to move voluntarily, Slow deals no damage. Choosing not to move or having already spent your available Movement does not count as being unable to move.
+
+Slow deals no immediate damage when applied. Damage occurs only at the regular start-of-Turn Tick.
+
+After the Tick, apply Natural Special Recovery and reduce Slow by **1**. At 0, Slow ends.
+
+**Example:** A creature with **10 m Speed** and Slow(5) has **5 m Speed** and takes **0 damage**. With Slow(10), its Speed becomes **0 m** and it takes **10 damage** at Tick. If the creature has Slow(5) and is also affected by Root, it cannot move voluntarily and therefore takes **5 damage** at Tick, even though Slow alone would leave it with 5 m Speed. The values in this example assume no recovery between applications.
 
 ---
+
 
 #### Soulburn(X)
 
@@ -14973,7 +14800,7 @@ A Power is **not eligible** if it has no own purchased printed Damage Dice, even
 
 **Spend one use when declaring the damaging Instant Active**, before its Attack Roll or Casting Roll; a failed roll still spends the use. An Instant damaging AoE spends **one** use for the whole declared area attack, not one per target, and follows the normal AoE damage rules. Mark each use on that named Power's Safe Haven Rest counter. Once its uses are spent, the Limited Power cannot be used until the next **Safe Haven Rest** (recharging once per Safe Haven Rest). It does not become a normal, repeatable Power. The once-per-Round named Power use limit and normal Attack Action costs remain unchanged.
 
-**Interaction with Vitality: Damage Maximization:** A Limited damaging Instant Active may consume one prepared Damage Maximization use on its combined Damage Roll. First double **only its printed Power Damage Dice**, build the complete legal Damage Pool, and then maximize eligible remaining Damage Dice. The Limited modifier never doubles weapon dice or any healing component. This spends one Limited use and one Damage Maximization use; it never produces a second activation or an additional Damage Roll.
+**Interaction with Vitality: Maximization:** A Limited damaging Instant Active may consume one prepared Maximization use on its combined Damage Roll. First double **only its printed Power Damage Dice**, build the complete legal Damage Pool, and then maximize eligible remaining Damage Dice. The Limited modifier never doubles weapon dice or any healing component. This spends one Limited use and one Maximization use; it never produces a second activation or an additional Damage Roll.
 
 **Pricing:** Limited is an explicit construction choice, not a generic PP discount. The printed Power Damage Dice are doubled on use; the Power's PP budget, XP cost and Power Level stay unchanged. No Special(X) magnitude or Special cost is altered.
 }}

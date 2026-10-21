@@ -1,0 +1,17 @@
+{
+  "_id": "v7fXECAVHPDCPssG",
+  "name": "Stones Quick Reference",
+  "pages": [],
+  "folder": null,
+  "sort": 100000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!v7fXECAVHPDCPssG"
+}

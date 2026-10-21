@@ -1,0 +1,21 @@
+{
+  "_id": "a3D2ZBLgcAbB6I1I",
+  "name": "Overview",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Overview</h1></header>\n<h3>Humans</h3>\n<div style=\"width:60%; margin:left;\">\nHumans are the most widespread people in the shattered world of Destroyed Faith. They are adaptable, resilient, and painfully easy to use. Where other Echoes fade into legend, withdraw behind old walls, or carry the burden of stranger blood, humans remain everywhere: in ruined villages, demon-held cities, broken shrines, prison caravans, and forgotten roads.\n\n<p>Once, they lived beneath the order of the gods, serving as priests, soldiers, builders, and keepers of daily life. Now they endure among ruins, rituals, and the weight of things that no longer answer. The cities they built have become strongholds of demons, tyrants, and false faith. Those who are not made into guards, laborers, vessels, or sacrifices learn to hide, flee, obey, or die.</p>\n<p>Yet humanity is not easily erased. Again and again, humans gather in hidden enclaves, rebel cells, smuggler camps, and wandering caravans. They keep fires lit where they should have gone out long ago. They bury their dead, pass on forbidden names, and teach their children how to survive one more winter, one more patrol, one more night.</p>\n<p>Many humans bear a demonic mark, burned into flesh by pact, force, punishment, or inheritance. Some marks whisper. Some wound. Some tempt. A mark may offer strength, but never freely. It is always also a claim a presence that presses closer with every moment of weakness, fear, or surrender.</p>\n</div>\n\n<p>Humans endure because they change. Some become willing servants of hell. Some search for lost rites, hidden truths, and fragments of dead faith. Others fight for smaller, fiercer things: family, warmth, loyalty, and the simple refusal to let the darkness take everything.</p>\n<table class=\"df-rules-table\">\n<thead>\n<tr>\n<th align=\"left\"><strong>Echo</strong></th>\n<th align=\"left\"><strong>Creature Type</strong></th>\n<th align=\"center\"><strong>Size</strong></th>\n<th align=\"center\"><strong>Speed</strong></th>\n<th align=\"center\"><strong>Required Echo Artifacts at Character Creation</strong></th>\n<th align=\"center\"><strong>Maximum Echo Artifacts at Character Creation</strong></th>\n<th align=\"center\"><strong>Free Artifact Capacity Left</strong></th>\n</tr>\n</thead>\n<tbody><tr>\n<td align=\"left\"><strong>Human</strong></td>\n<td align=\"left\">Humanoid</td>\n<td align=\"center\">Medium</td>\n<td align=\"center\">8 m</td>\n<td align=\"center\">0</td>\n<td align=\"center\">0</td>\n<td align=\"center\">4</td>\n</tr>\n</tbody></table>\n<hr>\n<hr>\n</div>"
+  },
+  "sort": 0,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!f4yuMEuRamLEBKmB.a3D2ZBLgcAbB6I1I"
+}

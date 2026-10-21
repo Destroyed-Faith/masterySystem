@@ -1,0 +1,21 @@
+{
+  "_id": "ZWMviotxmh3GZegI",
+  "name": "Advantage and Disadvantage",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Advantage and Disadvantage</h1></header>\n<h2>Advantage and Disadvantage</h2>\n<p>Some effects grant Advantage or impose Disadvantage.</p>\n<p>Advantage and Disadvantage modify how dice behave.</p>\n<p>They do not change Pool or Keep values.</p>\n<hr>\n<h3>Advantage</h3>\n<p>When rolling with Advantage, any <strong>1</strong> rolled in the basic dice pool may be rerolled once.</p>\n<p>This applies only to the initial dice pool.</p>\n<p>It does not apply to explosion dice.</p>\n<p>The new result replaces the 1, even if the new result is another 1.</p>\n<p>Explosions are then resolved normally.</p>\n<hr>\n<h3>Disadvantage</h3>\n<p>When rolling with Disadvantage, only <strong>one eligible die</strong> from the Pool may explode. Normally this is a natural <strong>8</strong>; on a designated <strong>Critical</strong> roll, natural <strong>7s and 8s</strong> qualify. All other eligible dice retain their face value without exploding.</p>\n</div>"
+  },
+  "sort": 900000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!WAuygHnI7h0u6hel.ZWMviotxmh3GZegI"
+}

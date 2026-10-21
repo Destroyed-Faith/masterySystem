@@ -1,0 +1,17 @@
+{
+  "_id": "djQw0Ds61nzD9yDD",
+  "name": "Advanced & Optional",
+  "pages": [],
+  "folder": null,
+  "sort": 500000,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!djQw0Ds61nzD9yDD"
+}

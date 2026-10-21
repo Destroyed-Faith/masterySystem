@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.757] - 2026-10-21
+
+### Added
+
+- **Rules Journals:** Three system Compendium packs — Core Rules, World & Echoes, and Quick Reference — generated from the corrected Player's Guide (`npm run build:rules-journals`).
+- **Rules Index:** GM setting / `game.mastery.ensureRulesIndexJournal()` creates an idempotent world Journal linking into those packs.
+
+### Changed
+
+- **Player's Guide:** Updated `docs/Rules/players-guide.md` to the Oct-21 corrected rules text used as the journal source.
+
 ## [0.9.756] - 2026-10-20
 
 ### Changed

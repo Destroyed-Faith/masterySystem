@@ -1,0 +1,21 @@
+{
+  "_id": "aO1rJEL1P0KE48Db",
+  "name": "Finished Character: Alaris",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Finished Character: Alaris</h1></header>\n<h2>The Finished Character: Alaris</h2>\n<p>The final character should read as one connected plan rather than a collection of unrelated high values.</p>\n<table class=\"df-rules-table\">\n<thead>\n<tr>\n<th align=\"left\"><strong>Final element</strong></th>\n<th align=\"left\"><strong>Alaris</strong></th>\n</tr>\n</thead>\n<tbody><tr>\n<td align=\"left\"><strong>Mastery Rank</strong></td>\n<td align=\"left\">2</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Core role</strong></td>\n<td align=\"left\">Mobile melee skirmisher</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Total Evade</strong></td>\n<td align=\"left\">17 from the MR baseline and her artifacts</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Armor</strong></td>\n<td align=\"left\">2 from Mastery Rank soak</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Health per Bar</strong></td>\n<td align=\"left\">16 from Vitality 4 × 4</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Fear</strong></td>\n<td align=\"left\">Starts at 0; accumulated Fear remains until Safe Haven Rest.</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Main weapon</strong></td>\n<td align=\"left\">Moonlight Greatsword: 5d8, Finesse, Precision(2)</td>\n</tr>\n<tr>\n<td align=\"left\"><strong>Assigned Stones</strong></td>\n<td align=\"left\">Agility 1 and Vitality 1</td>\n</tr>\n</tbody></table>\n<h3>Her combat rhythm</h3>\n<ol>\n<li>Reach a useful melee position through normal movement, Bounding Leap, or an Agility Stone option.</li>\n<li>Choose between direct damage and applying Sundered for the group.</li>\n<li>Let high Evade answer ordinary direct attacks.</li>\n<li>Reserve Phasing for the most dangerous hits.</li>\n<li>Spend Stones when movement, survival, or Special removal cannot wait.</li>\n</ol>\n<!-- v0.9.9.0: legacy numeric finished-character image removed; regenerate the asset with the compressed Attribute scale before restoring it. -->\n\n<h5>What the complete example teaches</h5>\n<p>A strong Mastery character does not need to cover every role. Alaris has a clear offensive purpose, a clear defensive plan, and several supporting choices that express the same identity.</p>\n</div>"
+  },
+  "sort": 1500000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!59olICKXQdHCbPc2.aO1rJEL1P0KE48Db"
+}

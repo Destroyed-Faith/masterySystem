@@ -1,0 +1,937 @@
+{
+  "generatedAt": "2026-10-21T15:50:13.544Z",
+  "source": "docs\\Rules\\players-guide.md",
+  "sourceBytes": 682938,
+  "chapterSpecs": 93,
+  "matched": 93,
+  "missing": [],
+  "excluded": [
+    {
+      "journal": "_excluded",
+      "page": "Minor Expressions Catalogue",
+      "startLine": 11296
+    },
+    {
+      "journal": "_excluded",
+      "page": "ME Might",
+      "startLine": 11300
+    },
+    {
+      "journal": "_excluded",
+      "page": "ME Agility",
+      "startLine": 11389
+    },
+    {
+      "journal": "_excluded",
+      "page": "ME Intellect",
+      "startLine": 11478
+    },
+    {
+      "journal": "_excluded",
+      "page": "ME Resolve",
+      "startLine": 11569
+    },
+    {
+      "journal": "_excluded",
+      "page": "ME Influence",
+      "startLine": 11658
+    },
+    {
+      "journal": "_excluded",
+      "page": "ME Wits",
+      "startLine": 11747
+    }
+  ],
+  "packs": {
+    "rules-core": {
+      "label": "Destroyed Faith: Core Rules",
+      "journals": 6,
+      "pages": 47,
+      "sourceDocs": 53,
+      "srcDir": "src\\packs\\rules-core",
+      "packDir": "packs\\rules-core"
+    },
+    "rules-world": {
+      "label": "Destroyed Faith: World & Echoes",
+      "journals": 11,
+      "pages": 31,
+      "sourceDocs": 42,
+      "srcDir": "src\\packs\\rules-world",
+      "packDir": "packs\\rules-world"
+    },
+    "rules-quickref": {
+      "label": "Destroyed Faith: Quick Reference",
+      "journals": 4,
+      "pages": 8,
+      "sourceDocs": 12,
+      "srcDir": "src\\packs\\rules-quickref",
+      "packDir": "packs\\rules-quickref"
+    }
+  },
+  "pages": [
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Mastery System",
+      "startLine": 1758,
+      "endLine": 1801,
+      "chars": 2606,
+      "htmlChars": 3069,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "The Spirit of Mastery",
+      "startLine": 1802,
+      "endLine": 1848,
+      "chars": 1721,
+      "htmlChars": 1928,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Attributes",
+      "startLine": 1970,
+      "endLine": 2008,
+      "chars": 1771,
+      "htmlChars": 2370,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Starting Attributes",
+      "startLine": 2009,
+      "endLine": 2071,
+      "chars": 1964,
+      "htmlChars": 2370,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Example: Attributes",
+      "startLine": 2072,
+      "endLine": 2101,
+      "chars": 1530,
+      "htmlChars": 2507,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Skills",
+      "startLine": 2102,
+      "endLine": 3131,
+      "chars": 32116,
+      "htmlChars": 37084,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Example: Skills",
+      "startLine": 3132,
+      "endLine": 3152,
+      "chars": 901,
+      "htmlChars": 1061,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Choosing Powers",
+      "startLine": 3153,
+      "endLine": 3275,
+      "chars": 4719,
+      "htmlChars": 5601,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Example: Powers",
+      "startLine": 3276,
+      "endLine": 3297,
+      "chars": 1357,
+      "htmlChars": 2077,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Languages",
+      "startLine": 3298,
+      "endLine": 3339,
+      "chars": 1435,
+      "htmlChars": 2012,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Schticks",
+      "startLine": 3340,
+      "endLine": 3493,
+      "chars": 7196,
+      "htmlChars": 10624,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Example: Languages and Schticks",
+      "startLine": 3494,
+      "endLine": 3523,
+      "chars": 1113,
+      "htmlChars": 1290,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Social Combat",
+      "startLine": 6977,
+      "endLine": 7171,
+      "chars": 5369,
+      "htmlChars": 7995,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Disadvantages",
+      "startLine": 7172,
+      "endLine": 7625,
+      "chars": 15284,
+      "htmlChars": 21228,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Example: Disadvantages",
+      "startLine": 7626,
+      "endLine": 7649,
+      "chars": 1036,
+      "htmlChars": 1489,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Character Creation",
+      "page": "Finished Character: Alaris",
+      "startLine": 7650,
+      "endLine": 7684,
+      "chars": 1393,
+      "htmlChars": 2161,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Stones & Progression",
+      "page": "Stone Abilities",
+      "startLine": 7685,
+      "endLine": 8004,
+      "chars": 27714,
+      "htmlChars": 39466,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Stones & Progression",
+      "page": "Types of Powers",
+      "startLine": 8005,
+      "endLine": 8050,
+      "chars": 2758,
+      "htmlChars": 3367,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Stones & Progression",
+      "page": "Progression (XP)",
+      "startLine": 9804,
+      "endLine": 10038,
+      "chars": 8996,
+      "htmlChars": 15574,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Stones & Progression",
+      "page": "Mastery Rank Progression",
+      "startLine": 10039,
+      "endLine": 10143,
+      "chars": 4977,
+      "htmlChars": 7456,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Combat Core",
+      "startLine": 8051,
+      "endLine": 8138,
+      "chars": 1703,
+      "htmlChars": 2770,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Raises",
+      "startLine": 8139,
+      "endLine": 8165,
+      "chars": 2342,
+      "htmlChars": 2888,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Combat Senses",
+      "startLine": 8166,
+      "endLine": 8233,
+      "chars": 5772,
+      "htmlChars": 6819,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Stealth, Hidden, and Invisibility",
+      "startLine": 8234,
+      "endLine": 8415,
+      "chars": 11218,
+      "htmlChars": 13082,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Round Structure",
+      "startLine": 8416,
+      "endLine": 8562,
+      "chars": 6501,
+      "htmlChars": 8061,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Initiative",
+      "startLine": 8563,
+      "endLine": 8621,
+      "chars": 3184,
+      "htmlChars": 4211,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Attacks",
+      "startLine": 8622,
+      "endLine": 8821,
+      "chars": 19156,
+      "htmlChars": 21855,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Armor and Shields",
+      "startLine": 8822,
+      "endLine": 8863,
+      "chars": 997,
+      "htmlChars": 2349,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Opposed Attribute Contests",
+      "startLine": 8864,
+      "endLine": 9086,
+      "chars": 9971,
+      "htmlChars": 12265,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Advantage and Disadvantage",
+      "startLine": 9087,
+      "endLine": 9121,
+      "chars": 796,
+      "htmlChars": 1008,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Health & Fear",
+      "startLine": 9122,
+      "endLine": 9389,
+      "chars": 13018,
+      "htmlChars": 15999,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Combat Maneuvers",
+      "startLine": 9390,
+      "endLine": 9700,
+      "chars": 11672,
+      "htmlChars": 13789,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Rest & Recovery",
+      "startLine": 9701,
+      "endLine": 9803,
+      "chars": 5758,
+      "htmlChars": 6886,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Combat Core",
+      "page": "Special Effects Reference",
+      "startLine": 10144,
+      "endLine": 10314,
+      "chars": 10252,
+      "htmlChars": 15719,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Equipment, Magic & Powers",
+      "page": "Equipment",
+      "startLine": 10315,
+      "endLine": 10545,
+      "chars": 6938,
+      "htmlChars": 5329,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Equipment, Magic & Powers",
+      "page": "Weapons",
+      "startLine": 10546,
+      "endLine": 10600,
+      "chars": 5189,
+      "htmlChars": 7295,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Equipment, Magic & Powers",
+      "page": "Magic",
+      "startLine": 10601,
+      "endLine": 10795,
+      "chars": 9279,
+      "htmlChars": 11076,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Equipment, Magic & Powers",
+      "page": "Powers",
+      "startLine": 10796,
+      "endLine": 11172,
+      "chars": 20023,
+      "htmlChars": 23778,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Equipment, Magic & Powers",
+      "page": "Minor Expressions",
+      "startLine": 11173,
+      "endLine": 11295,
+      "chars": 3817,
+      "htmlChars": 4727,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Rituals, Summons & Artifacts",
+      "page": "Rituals",
+      "startLine": 11835,
+      "endLine": 12444,
+      "chars": 31828,
+      "htmlChars": 38798,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Rituals, Summons & Artifacts",
+      "page": "Summons",
+      "startLine": 12445,
+      "endLine": 12849,
+      "chars": 14089,
+      "htmlChars": 19770,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Rituals, Summons & Artifacts",
+      "page": "Summon Examples",
+      "startLine": 12850,
+      "endLine": 13009,
+      "chars": 4185,
+      "htmlChars": 6445,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Rituals, Summons & Artifacts",
+      "page": "Minor Magic Items",
+      "startLine": 13010,
+      "endLine": 13087,
+      "chars": 6299,
+      "htmlChars": 6683,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Rituals, Summons & Artifacts",
+      "page": "Artifacts",
+      "startLine": 13088,
+      "endLine": 13227,
+      "chars": 6818,
+      "htmlChars": 8382,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Advanced & Optional",
+      "page": "Building Encounters",
+      "startLine": 13228,
+      "endLine": 13786,
+      "chars": 27388,
+      "htmlChars": 33860,
+      "gmOnly": true
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Advanced & Optional",
+      "page": "Game System Details",
+      "startLine": 14127,
+      "endLine": 14781,
+      "chars": 22021,
+      "htmlChars": 37161,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-core",
+      "journal": "Advanced & Optional",
+      "page": "Limited Power Modifier",
+      "startLine": 14782,
+      "endLine": 14808,
+      "chars": 3520,
+      "htmlChars": 4441,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "Tyhra",
+      "startLine": 218,
+      "endLine": 413,
+      "chars": 14320,
+      "htmlChars": 14063,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The Eight Laws",
+      "startLine": 414,
+      "endLine": 570,
+      "chars": 5163,
+      "htmlChars": 6600,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The Three Moons",
+      "startLine": 571,
+      "endLine": 927,
+      "chars": 11459,
+      "htmlChars": 16239,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The Veil Days",
+      "startLine": 928,
+      "endLine": 979,
+      "chars": 1444,
+      "htmlChars": 1867,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The Triune Alignment",
+      "startLine": 980,
+      "endLine": 1020,
+      "chars": 790,
+      "htmlChars": 1137,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The Archangels of Creation",
+      "startLine": 1021,
+      "endLine": 1077,
+      "chars": 3311,
+      "htmlChars": 5487,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The History of Tyhra",
+      "startLine": 1078,
+      "endLine": 1347,
+      "chars": 19608,
+      "htmlChars": 19296,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "World & Setting",
+      "page": "The Realms of the Nine",
+      "startLine": 1348,
+      "endLine": 1757,
+      "chars": 16615,
+      "htmlChars": 15230,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Playable Echoes",
+      "page": "Overview",
+      "startLine": 3524,
+      "endLine": 3564,
+      "chars": 2711,
+      "htmlChars": 3168,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Playable Echoes",
+      "page": "Example: Choosing an Echo",
+      "startLine": 3565,
+      "endLine": 3583,
+      "chars": 963,
+      "htmlChars": 906,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Playable Echoes",
+      "page": "Echo Artifacts",
+      "startLine": 3584,
+      "endLine": 3700,
+      "chars": 4589,
+      "htmlChars": 6955,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Humans",
+      "page": "Overview",
+      "startLine": 3701,
+      "endLine": 3740,
+      "chars": 2239,
+      "htmlChars": 2591,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Humans",
+      "page": "Echo Deck",
+      "startLine": 3741,
+      "endLine": 3894,
+      "chars": 3156,
+      "htmlChars": 3792,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Halflings",
+      "page": "Overview",
+      "startLine": 3895,
+      "endLine": 3938,
+      "chars": 3512,
+      "htmlChars": 3910,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Halflings",
+      "page": "Artifacts",
+      "startLine": 3939,
+      "endLine": 4021,
+      "chars": 6857,
+      "htmlChars": 9450,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Halflings",
+      "page": "Echo Deck",
+      "startLine": 4022,
+      "endLine": 4177,
+      "chars": 2975,
+      "htmlChars": 3617,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Dwarves",
+      "page": "Overview",
+      "startLine": 4178,
+      "endLine": 4225,
+      "chars": 2879,
+      "htmlChars": 3298,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Dwarves",
+      "page": "Artifacts",
+      "startLine": 4226,
+      "endLine": 4314,
+      "chars": 7492,
+      "htmlChars": 10931,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Dwarves",
+      "page": "Echo Deck",
+      "startLine": 4315,
+      "endLine": 4469,
+      "chars": 2995,
+      "htmlChars": 3455,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Elorians",
+      "page": "Overview",
+      "startLine": 4470,
+      "endLine": 4510,
+      "chars": 2941,
+      "htmlChars": 3543,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Elorians",
+      "page": "Artifacts",
+      "startLine": 4511,
+      "endLine": 4746,
+      "chars": 7666,
+      "htmlChars": 11384,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Sentinels",
+      "page": "Overview",
+      "startLine": 4747,
+      "endLine": 4805,
+      "chars": 3524,
+      "htmlChars": 4208,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Sentinels",
+      "page": "Echo Artifacts",
+      "startLine": 4806,
+      "endLine": 5106,
+      "chars": 14656,
+      "htmlChars": 19968,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Titanborn",
+      "page": "Overview",
+      "startLine": 5107,
+      "endLine": 5169,
+      "chars": 3499,
+      "htmlChars": 3933,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Titanborn",
+      "page": "Artifacts",
+      "startLine": 5170,
+      "endLine": 5241,
+      "chars": 5511,
+      "htmlChars": 7965,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Titanborn",
+      "page": "Echo Deck",
+      "startLine": 5242,
+      "endLine": 5398,
+      "chars": 2688,
+      "htmlChars": 3321,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Dragonborn",
+      "page": "Overview",
+      "startLine": 5399,
+      "endLine": 5751,
+      "chars": 23220,
+      "htmlChars": 35193,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Dragonborn",
+      "page": "Echo Deck",
+      "startLine": 5752,
+      "endLine": 5906,
+      "chars": 2660,
+      "htmlChars": 3295,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Unbound",
+      "page": "Overview",
+      "startLine": 5907,
+      "endLine": 6619,
+      "chars": 49218,
+      "htmlChars": 65982,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Unbound",
+      "page": "Echo Deck",
+      "startLine": 6620,
+      "endLine": 6774,
+      "chars": 2565,
+      "htmlChars": 3200,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-world",
+      "journal": "Deathless",
+      "page": "Overview",
+      "startLine": 6775,
+      "endLine": 6976,
+      "chars": 13465,
+      "htmlChars": 18205,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Core Terms",
+      "page": "Core Terms",
+      "startLine": 1849,
+      "endLine": 1969,
+      "chars": 6020,
+      "htmlChars": 8327,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Stones Quick Reference",
+      "page": "Stone Abilities",
+      "startLine": 7685,
+      "endLine": 8004,
+      "chars": 27714,
+      "htmlChars": 39466,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Combat Quick Reference",
+      "page": "Raises",
+      "startLine": 8139,
+      "endLine": 8165,
+      "chars": 2342,
+      "htmlChars": 2888,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Combat Quick Reference",
+      "page": "Round Structure",
+      "startLine": 8416,
+      "endLine": 8562,
+      "chars": 6501,
+      "htmlChars": 8061,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Combat Quick Reference",
+      "page": "Health & Fear",
+      "startLine": 9122,
+      "endLine": 9389,
+      "chars": 13018,
+      "htmlChars": 15999,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Combat Quick Reference",
+      "page": "Special Effects Reference",
+      "startLine": 10144,
+      "endLine": 10314,
+      "chars": 10252,
+      "htmlChars": 15719,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Player Cheat Sheets",
+      "page": "Core Flow",
+      "startLine": 13787,
+      "endLine": 13954,
+      "chars": 5457,
+      "htmlChars": 7255,
+      "gmOnly": false
+    },
+    {
+      "pack": "rules-quickref",
+      "journal": "Player Cheat Sheets",
+      "page": "Defense & Resources",
+      "startLine": 13955,
+      "endLine": 14126,
+      "chars": 7042,
+      "htmlChars": 8843,
+      "gmOnly": false
+    }
+  ],
+  "emptyPages": [],
+  "issues": [],
+  "powerCatalogueLinksInSourceToc": true,
+  "excludedMinorExpressionsCatalogue": true
+}

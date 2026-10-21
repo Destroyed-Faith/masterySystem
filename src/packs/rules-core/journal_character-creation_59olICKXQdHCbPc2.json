@@ -1,0 +1,17 @@
+{
+  "_id": "59olICKXQdHCbPc2",
+  "name": "Character Creation",
+  "pages": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!59olICKXQdHCbPc2"
+}

@@ -1,0 +1,113 @@
+/**
+ * Destroyed Faith — Rules Journal presentation (system-scoped).
+ * Native Foundry Journal UI; lightweight readability only.
+ */
+
+.df-rules-journal {
+  max-width: 52rem;
+  margin: 0 auto;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+
+.df-rules-journal .df-rules-page-header {
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--color-border-light-primary, rgba(0, 0, 0, 0.2));
+}
+
+.df-rules-journal .df-rules-page-header h1 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.df-rules-journal h2,
+.df-rules-journal h3,
+.df-rules-journal h4 {
+  margin-top: 1.15em;
+  margin-bottom: 0.4em;
+  line-height: 1.25;
+}
+
+.df-rules-journal p {
+  margin: 0.55em 0;
+}
+
+.df-rules-journal hr {
+  margin: 1.1em 0;
+  border: none;
+  border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.15));
+}
+
+.df-rules-journal blockquote.df-rules-note,
+.df-rules-journal blockquote {
+  margin: 0.85em 0;
+  padding: 0.55em 0.85em;
+  border-left: 3px solid var(--color-border-highlight-1, #7a5c2e);
+  background: var(--color-bg-option, rgba(127, 127, 127, 0.08));
+}
+
+.df-rules-journal table.df-rules-table,
+.df-rules-journal table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 0.85em 0;
+  font-size: 0.88rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.df-rules-journal table th,
+.df-rules-journal table td {
+  border: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.18));
+  padding: 0.35em 0.5em;
+  vertical-align: top;
+  text-align: left;
+}
+
+.df-rules-journal table th {
+  font-weight: 700;
+  background: var(--color-bg-option, rgba(127, 127, 127, 0.1));
+}
+
+.df-rules-journal code {
+  font-size: 0.9em;
+  padding: 0.05em 0.25em;
+  border-radius: 3px;
+  background: var(--color-bg-option, rgba(127, 127, 127, 0.12));
+}
+
+.df-rules-journal ul,
+.df-rules-journal ol {
+  margin: 0.45em 0 0.45em 1.25em;
+}
+
+/* World Rules Index (world Journal, not pack) */
+.df-rules-index {
+  max-width: 40rem;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.df-rules-index h1 {
+  margin-top: 0;
+}
+
+.df-rules-index .df-rules-index-pack {
+  margin: 1rem 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border-light-primary, rgba(0, 0, 0, 0.2));
+  border-radius: 6px;
+}
+
+.df-rules-index .df-rules-index-pack h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.df-rules-index ul {
+  margin: 0.35em 0 0 1.1em;
+}

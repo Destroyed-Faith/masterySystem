@@ -1,0 +1,17 @@
+{
+  "_id": "f4yuMEuRamLEBKmB",
+  "name": "Humans",
+  "pages": [],
+  "folder": null,
+  "sort": 200000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!f4yuMEuRamLEBKmB"
+}

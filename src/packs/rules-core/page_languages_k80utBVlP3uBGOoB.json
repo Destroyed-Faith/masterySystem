@@ -1,0 +1,21 @@
+{
+  "_id": "k80utBVlP3uBGOoB",
+  "name": "Languages",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Languages</h1></header>\n<h2>Choose a Language</h2>\n<blockquote class=\"df-rules-note\">\n<p>All souls share the <strong>Common Tongue</strong>, born from the Echoes of the First War.<br>Every character also learns <strong>one additional language</strong>. For some Echoes, this language is fixed by their origin and cannot be chosen freely.</p>\n</blockquote>\n<ul>\n<li><strong>Dwarves</strong> automatically learn <strong>Dwarvish</strong>.</li>\n<li><strong>Dragonborn</strong> automatically learn <strong>Draconic</strong>.</li>\n<li><strong>Sentinels</strong> automatically learn <strong>Mustelic</strong>.</li>\n<li><strong>Elorians</strong> automatically learn <strong>Elvish</strong>.</li>\n<li>Characters of <strong>all other Echoes</strong> choose their additional language freely to reflect their origin, training, culture, or story.</li>\n</ul>\n<hr>\n<p>::</p>\n<h4>Languages of the Known Realms</h4>\n<ul>\n<li><strong>Common Tongue</strong> – spoken by all civilized nations  </li>\n<li><strong>Arcane</strong> – language of runes, sigils, and scholars of the old world  </li>\n<li><strong>Infernal</strong> – the whispered bargains of hell  </li>\n<li><strong>Celestial</strong> – hymns of the divine and long-fallen angels  </li>\n<li><strong>Dwarvish</strong> – forged words of stone and steel  </li>\n<li><strong>The First</strong> – ancient tongue of the Titan-born  </li>\n<li><strong>Elvish</strong> – fluid and timeless, carried by wind and memory  </li>\n<li><strong>Draconic</strong> – the primal roar of flame, wave, and storm  </li>\n<li><strong>Mustelic</strong> – the precise command-tongue of Sentinels and divine law</li>\n</ul>\n<hr>\n<h4>Example</h4>\n<p>A Human with a demonic mark might choose <strong>Infernal</strong>.<br>Their languages are: <strong>Common Tongue, Infernal</strong>.</p>\n<p>An Elorian wanderer automatically learns <strong>Elvish</strong>.<br>Their languages are: <strong>Common Tongue, Elvish</strong>.</p>\n</div>"
+  },
+  "sort": 900000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!59olICKXQdHCbPc2.k80utBVlP3uBGOoB"
+}

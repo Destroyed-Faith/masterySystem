@@ -1,0 +1,17 @@
+{
+  "_id": "IEGYCC3qegDCoT3o",
+  "name": "Sentinels",
+  "pages": [],
+  "folder": null,
+  "sort": 600000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!IEGYCC3qegDCoT3o"
+}

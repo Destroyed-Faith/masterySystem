@@ -1,0 +1,17 @@
+{
+  "_id": "753lEBMTfdDBbqGV",
+  "name": "Playable Echoes",
+  "pages": [],
+  "folder": null,
+  "sort": 100000,
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "mastery-system": {
+      "rulesJournal": true,
+      "generatedFrom": "docs/Rules/players-guide.md"
+    }
+  },
+  "_key": "!journal!753lEBMTfdDBbqGV"
+}

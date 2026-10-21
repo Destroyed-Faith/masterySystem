@@ -1,0 +1,21 @@
+{
+  "_id": "ml2oWDXORxXDI1p5",
+  "name": "Echo Deck",
+  "type": "text",
+  "title": {
+    "show": true,
+    "level": 1
+  },
+  "text": {
+    "format": 1,
+    "content": "<div class=\"df-rules-journal\"><header class=\"df-rules-page-header\"><h1>Echo Deck</h1></header>\n<h4>Dwarves Echo Deck</h4>\n<p><em>&quot;Stone does not kneel. Neither do we.&quot;</em><br><strong>Theme:</strong> Last bastions of a broken war incorruptible, stubborn, and built to hold the line when everything else falls.</p>\n<div class=\"card-center\">\n\n<h6>UNBREAKABLE TERMS</h6>\n<p>  <em>Trigger: A deal, order, or demand would corner you or your people.</em>  </p>\n<hr>\n<p><strong>I — DRAW THE LINE</strong></p>\n<hr>\n<p><em>Skill: Negotiation</em><br>You set a boundary that cannot be “misunderstood” and force the other side to answer it.</p>\n<p><strong>II — MAKE IT COSTLY</strong></p>\n<hr>\n<p><em>Skill: Intimidation</em><br>You remind them what refusal will cost. Not loudly. Clearly.</p>\n<p><strong>III — RALLY THE ROOM</strong></p>\n<hr>\n<p><em>Skill: Leadership</em><br>You rally your comrades, lock in their resolve and turn doubt into a united stance.</p>\n<p><strong>IV — THE OLD RULES APPLY</strong></p>\n<hr>\n<p><em>Skill: Etiquette</em><br>You invoke rank, rite, and precedent. The room remembers how to behave.</p>\n<h6>GRUDGE LEDGER</h6>\n<p>  <em>Trigger: Someone betrays you, breaks an oath, desecrates what matters, or escapes justice.</em>  </p>\n<hr>\n<p><strong>I — FIND THE CRACK</strong></p>\n<hr>\n<p><em>Skill: Investigation</em><br>You pick at details until the weak point shows. A name, a pattern, a mistake.</p>\n<p><strong>II — ASK THE RIGHT ALLEY</strong></p>\n<hr>\n<p><em>Skill: Streetwise</em><br>You know where rumors are born and who sells truth for cheap.</p>\n<p><strong>III — PUT IT IN WORDS</strong></p>\n<hr>\n<p><em>Skill: Persuasion</em><br>You turn anger into a case that others can follow.</p>\n<p><strong>IV — SET A TRAP WITH TRUTH</strong></p>\n<hr>\n<p><em>Skill: Deception</em><br>You bait them with what they want and watch them walk into it.</p>\n<h6>STONE REMEMBERS</h6>\n<p>  <em>Trigger: You study old stonework, ruins, tunnels, or carved halls to learn what happened and what still matters.</em>  </p>\n<hr>\n<p><strong>I — ANCESTRAL TALES</strong></p>\n<hr>\n<p><em>Skill: Lore</em><br>You recognize names, symbols, and patterns that most have forgotten.</p>\n<p><strong>II — SEE THE STRUCTURE</strong></p>\n<hr>\n<p><em>Skill: Engineering</em><br>You read weight, stress, and design. You know what holds and what will fail.</p>\n<p><strong>III — HANDS OF THE FORGE</strong></p>\n<hr>\n<p><em>Skill: Crafting</em><br>You judge materials and work. You can repair, reinforce, or reshape what is there.</p>\n<p><strong>IV — RUNE UNDER THE DUST</strong></p>\n<hr>\n<p><em>Skill: Occultism</em><br>You sense the hidden layer. Wards, bindings, curses, old divine traces.</p>\n<h6>ANCHOR STANCE</h6>\n<p>  <em>Trigger: You refuse to yield when pressure hits, physically or socially, and you hold the line.</em>  </p>\n<hr>\n<p><strong>I — PLANT YOUR FEET</strong></p>\n<hr>\n<p><em>Skill: Athletics</em><br>You brace, push back, and stay where you are meant to be.</p>\n<p><strong>II — BECOME PART OF THE WALL</strong></p>\n<hr>\n<p><em>Skill: Concealment</em><br>You go still and unreadable. Hard to notice, harder to move.</p>\n<p><strong>III — QUIET FOOTING</strong></p>\n<hr>\n<p><em>Skill: Stealth</em><br>You reposition without giving them a clean angle on you.</p>\n<p><strong>IV — NEVER OFF BALANCE</strong></p>\n<hr>\n<p><em>Skill: Acrobatics</em><br>You keep control of your center. You do not get thrown, tripped, or panicked.</p>\n</div>\n</div>"
+  },
+  "sort": 200000,
+  "ownership": {},
+  "flags": {
+    "mastery-system": {
+      "rulesJournalPage": true
+    }
+  },
+  "_key": "!journal.pages!pk3CaE47e4YEJVGw.ml2oWDXORxXDI1p5"
+}
