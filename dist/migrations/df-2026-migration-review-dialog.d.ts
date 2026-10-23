@@ -5,8 +5,8 @@
  * reachable later from the Actors directory header / `module.api`.
  *
  * Per character it lists:
- *  - Specialization suggestions derived from legacy Skill names (suggestions
- *    only — nothing is converted to a Rank; the GM sets name / Field / scope / Rank)
+ *  - Legacy Skills the character had (name + rating) for reference
+ *  - Exactly five Specializations at Rank 2 (no Rank picker — same as creation)
  *  - Unmapped Minor Expressions (need a manual Echo Imprint pick)
  *  - Echo Imprint trim warnings when the proposal exceeds Mastery Rank
  *

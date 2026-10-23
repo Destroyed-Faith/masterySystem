@@ -4,9 +4,9 @@
  * The review dialog (`df-2026-migration-review-dialog.ts`) is a thin UI on top
  * of these functions so the rules stay unit-testable:
  *
- * - Legacy Skill names become Specialization *suggestions* only. No Rank is
- *   ever auto-assigned (no Rank 2 conversion); the GM types the name, Field,
- *   scope and Rank.
+ * - Legacy Skills (name + rating) are listed for reference; names can be copied
+ *   into five new Specializations. Every saved Spec is forced to Rank 2
+ *   (starting budget: five × Rank 2). Legacy ratings are never converted.
  * - Minor Expressions with no exact Echo Imprint mapping are listed as
  *   "unmapped" so the GM can pick an Imprint by hand.
  * - Imprint proposals exceeding Mastery Rank are flagged for trimming.
@@ -23,7 +23,8 @@ import {
   validateEchoImprintSelections,
   validateSpecializationList,
   readSpecializations,
-  SPECIALIZATION_MAX_RANK,
+  STARTING_SPECIALIZATION_COUNT,
+  STARTING_SPECIALIZATION_RANK,
   type EchoImprintAttribute,
   type SkillField,
   type SpecializationRecord,
@@ -58,6 +59,16 @@ const CATEGORY_TO_FIELD: Record<string, SkillField> = {
   [SKILL_CATEGORIES.SURVIVAL]: 'survival',
 };
 
+/** One rated legacy Skill from the migration snapshot (display / copy only). */
+export interface LegacySkillRow {
+  skillKey: string;
+  name: string;
+  field: SkillField;
+  /** Legacy rating — never converted to a Specialization Rank. */
+  rating: number;
+  categoryLabel: string;
+}
+
 export interface SpecSuggestion {
   /** Legacy skill key (e.g. `stealth`). */
   skillKey: string;
@@ -78,7 +89,9 @@ export interface Df2026ReviewPlan {
   actorId: string;
   actorName: string;
   masteryRank: number;
-  /** Suggestions only; excludes names the character already has as a Specialization. */
+  /** All rated legacy Skills from the snapshot (always shown in the review UI). */
+  legacySkills: LegacySkillRow[];
+  /** Copy-as-Spec chips; excludes names the character already has as a Specialization. */
   specSuggestions: SpecSuggestion[];
   currentSpecializations: SpecializationRecord[];
   unmappedExpressions: UnmappedExpression[];
@@ -179,21 +192,31 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
   const currentSpecs = readSpecializations(system);
   const haveNames = new Set(currentSpecs.map((s) => normalizeSpecializationName(s.name)));
 
+  const legacySkillsList: LegacySkillRow[] = [];
   const specSuggestions: SpecSuggestion[] = [];
   if (legacySkills && typeof legacySkills === 'object') {
     for (const [skillKey, value] of Object.entries(legacySkills as Record<string, unknown>)) {
       const rating = legacyRating(value);
       if (rating <= 0) continue;
       const def = SKILLS[skillKey];
-      const suggestedName = def?.name ?? titleCase(skillKey);
-      if (haveNames.has(normalizeSpecializationName(suggestedName))) continue;
+      const name = def?.name ?? titleCase(skillKey);
+      const field: SkillField = (def && CATEGORY_TO_FIELD[def.category]) || 'physical';
+      legacySkillsList.push({
+        skillKey,
+        name,
+        field,
+        rating,
+        categoryLabel: def?.category ? String(def.category) : '',
+      });
+      if (haveNames.has(normalizeSpecializationName(name))) continue;
       specSuggestions.push({
         skillKey,
-        suggestedName,
-        suggestedField: (def && CATEGORY_TO_FIELD[def.category]) || 'physical',
+        suggestedName: name,
+        suggestedField: field,
         legacyRating: rating,
       });
     }
+    legacySkillsList.sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
     specSuggestions.sort((a, b) => b.legacyRating - a.legacyRating || a.suggestedName.localeCompare(b.suggestedName));
   }
 
@@ -223,8 +246,10 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
     : null;
 
   const warnings: string[] = [];
-  if (specSuggestions.length && !currentSpecs.length) {
-    warnings.push('No Specializations yet. Legacy Skills are suggestions only — Ranks are not converted.');
+  if (legacySkillsList.length && currentSpecs.length < STARTING_SPECIALIZATION_COUNT) {
+    warnings.push(
+      `Pick exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK}. Legacy Skill ratings are not converted.`,
+    );
   }
   for (const u of unmappedExpressions) {
     warnings.push(`Minor Expression "${u.name}" needs a manual Echo Imprint choice.`);
@@ -234,12 +259,16 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
   const alreadyReviewed = !!readFlag(actor, DF_2026_REVIEWED_FLAG);
   const needsReview =
     !alreadyReviewed &&
-    (specSuggestions.length > 0 || unmappedExpressions.length > 0 || !!imprintTrimWarning);
+    (legacySkillsList.length > 0 ||
+      currentSpecs.length < STARTING_SPECIALIZATION_COUNT ||
+      unmappedExpressions.length > 0 ||
+      !!imprintTrimWarning);
 
   return {
     actorId: String(actor?.id ?? ''),
     actorName: String(actor?.name ?? ''),
     masteryRank: mr,
+    legacySkills: legacySkillsList,
     specSuggestions,
     currentSpecializations: currentSpecs,
     unmappedExpressions,
@@ -273,7 +302,11 @@ export function listDf2026ReviewPlans(
   return plans;
 }
 
-/** Normalize one GM-entered Specialization row (identity id, clamped rank). */
+/**
+ * Normalize one GM-entered Specialization row.
+ * Migration starter Specs are always Rank 2 (starting budget) — legacy ratings
+ * and any typed Rank are ignored.
+ */
 export function normalizeReviewSpecialization(
   raw: Partial<SpecializationRecord>,
 ): SpecializationRecord | null {
@@ -285,13 +318,14 @@ export function normalizeReviewSpecialization(
     name,
     field,
     scope: String(raw?.scope ?? '').trim(),
-    rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(raw?.rank) || 0))),
+    rank: STARTING_SPECIALIZATION_RANK,
   };
 }
 
 /**
  * Validate GM input and build the actor update. Touches ONLY
  * `system.specializations`, `system.echoImprints` and the review stamp flag.
+ * Specializations must be exactly five at Rank 2 (same as character creation).
  */
 export function buildDf2026ReviewUpdate(
   actor: any,
@@ -307,7 +341,7 @@ export function buildDf2026ReviewUpdate(
   const imprintIds = [...new Set((input?.echoImprints ?? []).map((v) => String(v ?? '').trim()).filter(Boolean))];
 
   const errors: string[] = [];
-  errors.push(...validateSpecializationList(specs).errors);
+  errors.push(...validateSpecializationList(specs, { requireStartingBudget: true }).errors);
 
   const attributes = {} as Partial<Record<EchoImprintAttribute, number>>;
   for (const attr of IMPRINT_ATTRIBUTES) {

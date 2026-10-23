@@ -5,8 +5,8 @@
  * reachable later from the Actors directory header / `module.api`.
  *
  * Per character it lists:
- *  - Specialization suggestions derived from legacy Skill names (suggestions
- *    only — nothing is converted to a Rank; the GM sets name / Field / scope / Rank)
+ *  - Legacy Skills the character had (name + rating) for reference
+ *  - Exactly five Specializations at Rank 2 (no Rank picker — same as creation)
  *  - Unmapped Minor Expressions (need a manual Echo Imprint pick)
  *  - Echo Imprint trim warnings when the proposal exceeds Mastery Rank
  *
@@ -17,7 +17,8 @@
 import {
   SKILL_FIELDS,
   SKILL_FIELD_LABELS,
-  SPECIALIZATION_MAX_RANK,
+  STARTING_SPECIALIZATION_COUNT,
+  STARTING_SPECIALIZATION_RANK,
   findEchoImprint,
   type SkillField,
 } from '../rules/index.js';
@@ -27,6 +28,7 @@ import {
   imprintsByAttribute,
   listDf2026ReviewPlans,
   type Df2026ReviewPlan,
+  type LegacySkillRow,
 } from './df-2026-migration-review-plan.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 
@@ -50,7 +52,7 @@ function cap(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
-function specRowHtml(row: { name?: string; field?: string; scope?: string; rank?: number }): string {
+function specRowHtml(row: { name?: string; field?: string; scope?: string }): string {
   const fieldOptions = SKILL_FIELDS.map(
     (f) =>
       `<option value="${f}" ${row.field === f ? 'selected' : ''}>${esc(SKILL_FIELD_LABELS[f as SkillField])}</option>`,
@@ -60,22 +62,56 @@ function specRowHtml(row: { name?: string; field?: string; scope?: string; rank?
       <input type="text" class="dfr-spec-name" placeholder="Name" maxlength="60" value="${esc(row.name ?? '')}" />
       <select class="dfr-spec-field">${fieldOptions}</select>
       <input type="text" class="dfr-spec-scope" placeholder="Scope (one sentence)" maxlength="200" value="${esc(row.scope ?? '')}" />
-      <input type="number" class="dfr-spec-rank" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${Math.max(1, Math.floor(Number(row.rank) || 1))}" title="Rank" />
+      <span class="dfr-spec-rank-fixed" title="Starting Specializations are always Rank ${STARTING_SPECIALIZATION_RANK}">Rank ${STARTING_SPECIALIZATION_RANK}</span>
       <button type="button" data-action="remove-spec" title="Remove"><i class="fas fa-trash"></i></button>
     </div>`;
 }
 
-function planHtml(plan: Df2026ReviewPlan, attrValue: (attr: string) => number): string {
-  const suggestions = plan.specSuggestions
+function legacySkillsTable(skills: LegacySkillRow[]): string {
+  if (!skills.length) {
+    return `<p class="dfr-none">${esc(
+      masteryLocalize(
+        'MASTERY.df2026.migrationReview.noLegacySkills',
+        'No rated legacy Skills were found on this character.',
+      ),
+    )}</p>`;
+  }
+  const rows = skills
     .map(
-      (s) =>
-        `<button type="button" class="dfr-suggest" data-action="add-suggestion"
-          data-name="${esc(s.suggestedName)}" data-field="${esc(s.suggestedField)}"
-          title="Legacy ${esc(s.suggestedName)} rating ${s.legacyRating} — not converted to a Rank">
-          <i class="fas fa-plus"></i> ${esc(s.suggestedName)}
-          <small>(${esc(SKILL_FIELD_LABELS[s.suggestedField])}; legacy ${s.legacyRating})</small></button>`,
+      (s) => `
+      <tr>
+        <td>${esc(s.name)}</td>
+        <td class="dfr-legacy-rating">${s.rating}</td>
+        <td>${esc(SKILL_FIELD_LABELS[s.field])}${s.categoryLabel ? ` <small>(${esc(s.categoryLabel)})</small>` : ''}</td>
+        <td>
+          <button type="button" class="dfr-suggest" data-action="add-suggestion"
+            data-name="${esc(s.name)}" data-field="${esc(s.field)}"
+            title="Add as Rank ${STARTING_SPECIALIZATION_RANK} Specialization">
+            <i class="fas fa-plus"></i>
+          </button>
+        </td>
+      </tr>`,
     )
     .join('');
+  return `
+    <table class="dfr-legacy-table">
+      <thead>
+        <tr>
+          <th>${esc(masteryLocalize('MASTERY.df2026.migrationReview.legacyName', 'Skill'))}</th>
+          <th>${esc(masteryLocalize('MASTERY.df2026.migrationReview.legacyRating', 'Rating'))}</th>
+          <th>${esc(masteryLocalize('MASTERY.df2026.specializations.field', 'Field'))}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function planHtml(plan: Df2026ReviewPlan, attrValue: (attr: string) => number): string {
+  const starterSpecs = (plan.currentSpecializations ?? [])
+    .slice(0, STARTING_SPECIALIZATION_COUNT)
+    .map((s) => specRowHtml(s));
+  const count = Math.min(plan.currentSpecializations.length, STARTING_SPECIALIZATION_COUNT);
 
   const unmapped = plan.unmappedExpressions.length
     ? `<ul class="dfr-unmapped">${plan.unmappedExpressions
@@ -125,11 +161,32 @@ function planHtml(plan: Df2026ReviewPlan, attrValue: (attr: string) => number): 
       }</summary>
 
       <section class="dfr-section">
-        <h4>${esc(masteryLocalize('MASTERY.df2026.migrationReview.suggestions', 'Specialization suggestions'))}</h4>
-        <p class="dfr-hint">Suggestions come from legacy Skill names only. Ratings are <strong>not</strong> converted — set each Rank yourself.</p>
-        ${suggestions ? `<div class="dfr-suggestions">${suggestions}</div>` : ''}
-        <div class="dfr-spec-rows">${plan.currentSpecializations.map((s) => specRowHtml(s)).join('')}</div>
-        <button type="button" data-action="add-spec"><i class="fas fa-plus"></i> Add Specialization</button>
+        <h4>${esc(masteryLocalize('MASTERY.df2026.migrationReview.legacySkills', 'Legacy Skills'))}</h4>
+        <p class="dfr-hint">${esc(
+          masteryLocalize(
+            'MASTERY.df2026.migrationReview.legacySkillsHint',
+            'These are the Skills this character had before DF 2026. Ratings are for reference only — they do not become Spec Ranks. Use + to copy a name into the Rank-2 list below.',
+          ),
+        )}</p>
+        ${legacySkillsTable(plan.legacySkills)}
+      </section>
+
+      <section class="dfr-section">
+        <h4>${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecs', 'Starting Specializations'))}
+          <small>(<span class="dfr-spec-count">${count}</span> / ${STARTING_SPECIALIZATION_COUNT} × Rank ${STARTING_SPECIALIZATION_RANK})</small>
+        </h4>
+        <p class="dfr-hint">${esc(
+          masteryLocalize(
+            'MASTERY.df2026.migrationReview.startingSpecsHint',
+            'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation).',
+          ),
+        )}</p>
+        <div class="dfr-spec-rows">${starterSpecs.join('')}</div>
+        <button type="button" data-action="add-spec" ${
+          count >= STARTING_SPECIALIZATION_COUNT ? 'disabled' : ''
+        }><i class="fas fa-plus"></i> ${esc(
+          masteryLocalize('MASTERY.df2026.specializations.add', 'Add Specialization'),
+        )}</button>
       </section>
 
       <section class="dfr-section">
@@ -154,7 +211,7 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
   static DEFAULT_OPTIONS = {
     id: APP_ID,
     classes: ['mastery-system', 'df2026-migration-review'],
-    position: { width: 760, height: 640 },
+    position: { width: 780, height: 680 },
     window: { title: df2026ReviewTitle(), icon: 'fa-solid fa-clipboard-check', resizable: true },
   };
 
@@ -208,8 +265,12 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
       .join('');
     return `
       <div class="dfr-root">
-        <p class="dfr-intro">Review characters migrated to the DF 2026 rules. Saving only changes
-          Specializations and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.</p>
+        <p class="dfr-intro">${esc(
+          masteryLocalize(
+            'MASTERY.df2026.migrationReview.intro',
+            'Review characters migrated to DF 2026. Pick five Rank-2 Specializations (legacy Skills are listed for reference). Saving only changes Specializations and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.',
+          ),
+        )}</p>
         ${body}
         <style>
           .dfr-root { padding: 8px; overflow-y: auto; max-height: 100%; }
@@ -218,8 +279,11 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
           .dfr-section h4 { margin: 0 0 4px; }
           .dfr-hint, .dfr-none { opacity: .75; font-size: .9em; margin: 2px 0 6px; }
           .dfr-warning { color: var(--color-level-warning, #c80); margin: 4px 0; }
-          .dfr-suggestions { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-          .dfr-spec-row { display: grid; grid-template-columns: 1.2fr 1fr 2fr 60px 32px; gap: 4px; margin-bottom: 4px; }
+          .dfr-legacy-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: .92em; }
+          .dfr-legacy-table th, .dfr-legacy-table td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--color-border-dark-4, #444); }
+          .dfr-legacy-rating { font-weight: 700; font-variant-numeric: tabular-nums; }
+          .dfr-spec-row { display: grid; grid-template-columns: 1.2fr 1fr 2fr 72px 32px; gap: 4px; margin-bottom: 4px; align-items: center; }
+          .dfr-spec-rank-fixed { opacity: .85; font-size: .85em; white-space: nowrap; }
           .dfr-imprint-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
           .dfr-imprint-group { border: 1px solid var(--color-border-dark-4, #555); border-radius: 4px; padding: 2px 6px; }
           .dfr-imprint { display: flex; gap: 4px; align-items: center; }
@@ -250,11 +314,11 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
           this.#appendSpecRow(actorEl, {});
           break;
         case 'add-suggestion':
-          // Suggestion → empty draft row at Rank 1 (never Rank 2); GM fills scope / Rank.
-          this.#appendSpecRow(actorEl, { name: btn.dataset.name, field: btn.dataset.field, rank: 1 });
+          this.#appendSpecRow(actorEl, { name: btn.dataset.name, field: btn.dataset.field });
           break;
         case 'remove-spec':
           btn.closest('.dfr-spec-row')?.remove();
+          this.#refreshSpecCount(actorEl);
           break;
         case 'save-actor':
           void this.#save(actorEl);
@@ -279,13 +343,37 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
     });
   }
 
+  #specCount(actorEl: HTMLElement | null): number {
+    return actorEl?.querySelectorAll('.dfr-spec-row').length ?? 0;
+  }
+
+  #refreshSpecCount(actorEl: HTMLElement | null): void {
+    if (!actorEl) return;
+    const n = this.#specCount(actorEl);
+    const counter = actorEl.querySelector('.dfr-spec-count');
+    if (counter) counter.textContent = String(n);
+    const addBtn = actorEl.querySelector('[data-action="add-spec"]') as HTMLButtonElement | null;
+    if (addBtn) addBtn.disabled = n >= STARTING_SPECIALIZATION_COUNT;
+  }
+
   #appendSpecRow(
     actorEl: HTMLElement | null,
-    row: { name?: string; field?: string; scope?: string; rank?: number },
+    row: { name?: string; field?: string; scope?: string },
   ): void {
-    const host = actorEl?.querySelector('.dfr-spec-rows');
+    if (!actorEl) return;
+    if (this.#specCount(actorEl) >= STARTING_SPECIALIZATION_COUNT) {
+      (globalThis as any).ui?.notifications?.warn?.(
+        masteryLocalize(
+          'MASTERY.df2026.migrationReview.maxSpecs',
+          `Choose at most ${STARTING_SPECIALIZATION_COUNT} Specializations (all Rank ${STARTING_SPECIALIZATION_RANK}).`,
+        ),
+      );
+      return;
+    }
+    const host = actorEl.querySelector('.dfr-spec-rows');
     if (!host) return;
     host.insertAdjacentHTML('beforeend', specRowHtml(row));
+    this.#refreshSpecCount(actorEl);
   }
 
   async #save(actorEl: HTMLElement | null): Promise<void> {
@@ -304,7 +392,7 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
       name: (row.querySelector('.dfr-spec-name') as HTMLInputElement).value,
       field: (row.querySelector('.dfr-spec-field') as HTMLSelectElement).value as SkillField,
       scope: (row.querySelector('.dfr-spec-scope') as HTMLInputElement).value,
-      rank: Number((row.querySelector('.dfr-spec-rank') as HTMLInputElement).value),
+      rank: STARTING_SPECIALIZATION_RANK,
     }));
     const echoImprints = Array.from(actorEl.querySelectorAll('.dfr-imprint-pick:checked')).map(
       (el) => (el as HTMLInputElement).value,

@@ -9,6 +9,11 @@ export declare function showSpecializationEditDialog(actor: any, opts?: {
     allowRankEdit?: boolean;
     /** Post-creation: a new Specialization is learned at Rank 1 for 4 XP instead of a free edit. */
     learnWithXp?: boolean;
+    /**
+     * Character creation / migration starter: Rank is fixed at 2, no Rank picker.
+     * Adding is capped at five Specs.
+     */
+    fixedStartingRank?: boolean;
 }): Promise<boolean>;
 export declare function deleteSpecializationWithConfirm(actor: any, specId: string): Promise<boolean>;
 export interface SpecializationRollChoice {

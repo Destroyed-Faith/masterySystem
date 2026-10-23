@@ -63,17 +63,19 @@ function migrated(actor: any) {
 }
 
 describe('DF 2026 migration review plan', () => {
-  it('lists legacy Skills as Spec suggestions only — no Rank is assigned', () => {
+  it('lists legacy Skills for reference and as Spec copy chips — no Rank conversion', () => {
     const plan = buildDf2026ReviewPlan(migrated(legacyActor()));
+    expect(plan.legacySkills.map((s) => s.name)).toEqual(['Stealth', 'Medicine']);
+    expect(plan.legacySkills[0]).toMatchObject({ rating: 12, field: 'physical' });
     expect(plan.specSuggestions.map((s) => s.suggestedName)).toEqual(['Stealth', 'Medicine']);
     for (const s of plan.specSuggestions) {
       expect(s).not.toHaveProperty('rank');
       expect(s).not.toHaveProperty('suggestedRank');
     }
     expect(plan.specSuggestions[0].legacyRating).toBe(12);
-    // Zero-rated skills are not suggested.
-    expect(plan.specSuggestions.some((s) => s.skillKey === 'athletics')).toBe(false);
-    // Nothing was written as a Specialization (and certainly no Rank 2).
+    // Zero-rated skills are not listed.
+    expect(plan.legacySkills.some((s) => s.skillKey === 'athletics')).toBe(false);
+    // Nothing was written as a Specialization (and certainly no auto Rank).
     expect(plan.currentSpecializations).toEqual([]);
     expect(plan.needsReview).toBe(true);
   });
@@ -99,12 +101,16 @@ describe('DF 2026 migration review plan', () => {
     expect(listDf2026ReviewPlans([done], { includeReviewed: true })).toHaveLength(1);
   });
 
-  it('save writes only specializations + echoImprints + review stamp', async () => {
+  it('save forces five Rank-2 Specs and writes only specializations + echoImprints + review stamp', async () => {
     const actor = migrated(legacyActor());
+    const five = Array.from({ length: 5 }, (_, i) => ({
+      name: `Spec ${i + 1}`,
+      field: 'survival' as const,
+      scope: `Scope ${i + 1}`,
+      rank: 8, // ignored — migration starter Specs are always Rank 2
+    }));
     const result = await applyDf2026Review(actor, {
-      specializations: [
-        { name: 'Stealth', field: 'survival', scope: 'Moving unseen', rank: 1 },
-      ],
+      specializations: five,
       echoImprints: ['mage-hand'],
     });
     expect(result.ok).toBe(true);
@@ -118,25 +124,43 @@ describe('DF 2026 migration review plan', () => {
       ].sort(),
     );
     const specs = update['system.specializations'] as any[];
-    expect(specs).toHaveLength(1);
-    expect(specs[0].rank).toBe(1);
+    expect(specs).toHaveLength(5);
+    expect(specs.every((s) => s.rank === 2)).toBe(true);
     // XP / Stones / Powers / Artifacts keys are never part of the review update.
     for (const key of Object.keys(update)) {
       expect(key).not.toMatch(/xp|stone|power|artifact|items/i);
     }
   });
 
-  it('rejects invalid input (missing scope, Imprints over MR) without writing', async () => {
+  it('rejects invalid input (not five Specs, missing scope, Imprints over MR) without writing', async () => {
     const actor = migrated(legacyActor());
+    const oneSpec = buildDf2026ReviewUpdate(actor, {
+      specializations: [{ name: 'Stealth', field: 'survival', scope: 'Moving unseen', rank: 2 }],
+      echoImprints: [],
+    });
+    expect(oneSpec.ok).toBe(false);
+    expect(oneSpec.errors.join(' ')).toMatch(/five Specializations/i);
+    expect(oneSpec.update).toBeNull();
+
     const noScope = buildDf2026ReviewUpdate(actor, {
-      specializations: [{ name: 'Stealth', field: 'survival', scope: '', rank: 1 }],
+      specializations: Array.from({ length: 5 }, (_, i) => ({
+        name: `Spec ${i + 1}`,
+        field: 'survival',
+        scope: i === 0 ? '' : `Scope ${i + 1}`,
+        rank: 2,
+      })),
       echoImprints: [],
     });
     expect(noScope.ok).toBe(false);
     expect(noScope.update).toBeNull();
 
     const tooMany = await applyDf2026Review(actor, {
-      specializations: [],
+      specializations: Array.from({ length: 5 }, (_, i) => ({
+        name: `Spec ${i + 1}`,
+        field: 'survival',
+        scope: `Scope ${i + 1}`,
+        rank: 2,
+      })),
       echoImprints: ['mage-hand', 'catfall', 'message'],
     });
     expect(tooMany.ok).toBe(false);

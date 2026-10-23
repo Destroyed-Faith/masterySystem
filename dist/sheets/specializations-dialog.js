@@ -2,7 +2,7 @@
  * Specializations dialogs for the character sheet (DF Players Guide 2026-10-23).
  * Add / Edit / Delete a free-named Specialization and the pre-roll option picker.
  */
-import { SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, SPEC_ATTRIBUTE_KEYS, findSpecializationById, getSkillRaiseAllowance, isSkillField, planSpecializationRoll, readSpecializations, removeSpecialization, skillTaskBaseTn, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, SPEC_ATTRIBUTE_KEYS, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, getSkillRaiseAllowance, isSkillField, planSpecializationRoll, readSpecializations, removeSpecialization, skillTaskBaseTn, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 function escapeHtml(value) {
     return String(value ?? '')
@@ -38,10 +38,27 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         globalThis.ui?.notifications?.warn?.('Specialization not found.');
         return false;
     }
+    const fixedStartingRank = !!opts.fixedStartingRank;
+    if (fixedStartingRank && !existing && specs.length >= STARTING_SPECIALIZATION_COUNT) {
+        globalThis.ui?.notifications?.warn?.(masteryLocalize('MASTERY.df2026.creation.finalizeNeedSpecs', `Starting characters pick exactly ${STARTING_SPECIALIZATION_COUNT} Rank ${STARTING_SPECIALIZATION_RANK} Specializations.`));
+        return false;
+    }
     const learnWithXp = !!opts.learnWithXp && !existing;
-    const allowRankEdit = !learnWithXp && (opts.allowRankEdit !== false || !existing);
-    const startRank = existing?.rank ?? 1;
+    const allowRankEdit = !fixedStartingRank && !learnWithXp && (opts.allowRankEdit !== false || !existing);
+    const startRank = fixedStartingRank
+        ? STARTING_SPECIALIZATION_RANK
+        : (existing?.rank ?? 1);
     const fieldOptions = SKILL_FIELDS.map((f) => `<option value="${f}" ${existing?.field === f ? 'selected' : ''}>${escapeHtml(SKILL_FIELD_LABELS[f])}</option>`).join('');
+    const rankBlock = fixedStartingRank
+        ? `<div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.specializations.rank', 'Rank')}</label>
+        <p class="md-sublabel">Rank ${STARTING_SPECIALIZATION_RANK} — ${masteryLocalize('MASTERY.df2026.creation.specsHeaderTitle', 'five Rank 2 at creation (20 Creation Points)')}</p>
+        <input type="hidden" name="rank" value="${STARTING_SPECIALIZATION_RANK}" />
+      </div>`
+        : `<div class="md-group">
+        <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'})</span></label>
+        <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${allowRankEdit ? '' : 'disabled'} />
+      </div>`;
     const content = `
     <form class="mastery-dialog-form spec-edit-form">
       <div class="md-group">
@@ -56,10 +73,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         <label class="md-label">Scope <span class="md-sublabel">(one sentence)</span></label>
         <input type="text" name="scope" class="md-input" value="${escapeHtml(existing?.scope ?? '')}" maxlength="200" />
       </div>
-      <div class="md-group">
-        <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'})</span></label>
-        <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${allowRankEdit ? '' : 'disabled'} />
-      </div>
+      ${rankBlock}
     </form>`;
     return new Promise((resolve) => {
         let settled = false;
@@ -82,9 +96,11 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                         const name = readValue(root, 'name').trim();
                         const fieldRaw = readValue(root, 'field');
                         const scope = readValue(root, 'scope').trim();
-                        const rank = allowRankEdit
-                            ? Math.floor(Number(readValue(root, 'rank')) || 0)
-                            : (existing?.rank ?? 1);
+                        const rank = fixedStartingRank
+                            ? STARTING_SPECIALIZATION_RANK
+                            : allowRankEdit
+                                ? Math.floor(Number(readValue(root, 'rank')) || 0)
+                                : (existing?.rank ?? 1);
                         if (!isSkillField(fieldRaw)) {
                             globalThis.ui?.notifications?.warn?.('Choose a Field.');
                             return done(false);
@@ -107,6 +123,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             return done(true);
                         }
                         const next = upsertSpecialization(specs, record, existing?.id);
+                        // Creation allows 1–4 Specs until finalize; full five×R2 is checked on finalize.
                         const check = validateSpecializationList(next);
                         if (!check.ok) {
                             globalThis.ui?.notifications?.warn?.(check.errors.join(' '));

@@ -90,7 +90,7 @@
       <h3>{{copy.identity.specializations.heading}}</h3>
       <p class="tower-wizard-prose">{{copy.identity.specializations.body}}</p>
       <table class="tower-wizard-identity-table">
-        <thead><tr><th>{{copy.identity.specializations.nameLabel}}</th><th>{{copy.identity.specializations.fieldLabel}}</th><th>{{copy.identity.specializations.scopeLabel}}</th><th>{{copy.identity.specializations.rankLabel}}</th></tr></thead>
+        <thead><tr><th>{{copy.identity.specializations.nameLabel}}</th><th>{{copy.identity.specializations.fieldLabel}}</th><th>{{copy.identity.specializations.scopeLabel}}</th></tr></thead>
         <tbody>
           {{#each identity.specRows}}
           <tr class="js-tw-spec-row" data-index="{{this.index}}">
@@ -101,7 +101,6 @@
               </select>
             </td>
             <td><input type="text" class="js-tw-spec-input" data-prop="scope" maxlength="200" value="{{this.scope}}" /></td>
-            <td>{{this.rank}}</td>
           </tr>
           {{/each}}
         </tbody>

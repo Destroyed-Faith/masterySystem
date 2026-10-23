@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.765] - 2026-10-23
+
+### Changed
+
+- **DF 2026 Migration Review:** Shows the character’s legacy Skills (name + rating) for reference; starting Specs are exactly five at Rank 2 with no Rank picker.
+- **Character creation / Spec dialog / Tower Wizard:** Starting Specializations are always Rank 2 — no Rank selection; Wizard Spec table drops the Rank column.
+
 ## [0.9.764] - 2026-10-23
 
 ### Fixed

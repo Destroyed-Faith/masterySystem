@@ -8,6 +8,8 @@ import {
   SKILL_FIELD_LABELS,
   SPECIALIZATION_MAX_RANK,
   SPEC_ATTRIBUTE_KEYS,
+  STARTING_SPECIALIZATION_COUNT,
+  STARTING_SPECIALIZATION_RANK,
   findSpecializationById,
   getSkillRaiseAllowance,
   isSkillField,
@@ -55,6 +57,11 @@ export async function showSpecializationEditDialog(
     allowRankEdit?: boolean;
     /** Post-creation: a new Specialization is learned at Rank 1 for 4 XP instead of a free edit. */
     learnWithXp?: boolean;
+    /**
+     * Character creation / migration starter: Rank is fixed at 2, no Rank picker.
+     * Adding is capped at five Specs.
+     */
+    fixedStartingRank?: boolean;
   } = {},
 ): Promise<boolean> {
   const Dialog: any = (globalThis as any).Dialog;
@@ -65,14 +72,45 @@ export async function showSpecializationEditDialog(
     (globalThis as any).ui?.notifications?.warn?.('Specialization not found.');
     return false;
   }
+  const fixedStartingRank = !!opts.fixedStartingRank;
+  if (fixedStartingRank && !existing && specs.length >= STARTING_SPECIALIZATION_COUNT) {
+    (globalThis as any).ui?.notifications?.warn?.(
+      masteryLocalize(
+        'MASTERY.df2026.creation.finalizeNeedSpecs',
+        `Starting characters pick exactly ${STARTING_SPECIALIZATION_COUNT} Rank ${STARTING_SPECIALIZATION_RANK} Specializations.`,
+      ),
+    );
+    return false;
+  }
   const learnWithXp = !!opts.learnWithXp && !existing;
-  const allowRankEdit = !learnWithXp && (opts.allowRankEdit !== false || !existing);
-  const startRank = existing?.rank ?? 1;
+  const allowRankEdit =
+    !fixedStartingRank && !learnWithXp && (opts.allowRankEdit !== false || !existing);
+  const startRank = fixedStartingRank
+    ? STARTING_SPECIALIZATION_RANK
+    : (existing?.rank ?? 1);
 
   const fieldOptions = SKILL_FIELDS.map(
     (f) =>
       `<option value="${f}" ${existing?.field === f ? 'selected' : ''}>${escapeHtml(SKILL_FIELD_LABELS[f])}</option>`,
   ).join('');
+
+  const rankBlock = fixedStartingRank
+    ? `<div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.specializations.rank', 'Rank')}</label>
+        <p class="md-sublabel">Rank ${STARTING_SPECIALIZATION_RANK} — ${masteryLocalize(
+          'MASTERY.df2026.creation.specsHeaderTitle',
+          'five Rank 2 at creation (20 Creation Points)',
+        )}</p>
+        <input type="hidden" name="rank" value="${STARTING_SPECIALIZATION_RANK}" />
+      </div>`
+    : `<div class="md-group">
+        <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${
+          allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'
+        })</span></label>
+        <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${
+          allowRankEdit ? '' : 'disabled'
+        } />
+      </div>`;
 
   const content = `
     <form class="mastery-dialog-form spec-edit-form">
@@ -88,14 +126,7 @@ export async function showSpecializationEditDialog(
         <label class="md-label">Scope <span class="md-sublabel">(one sentence)</span></label>
         <input type="text" name="scope" class="md-input" value="${escapeHtml(existing?.scope ?? '')}" maxlength="200" />
       </div>
-      <div class="md-group">
-        <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${
-          allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'
-        })</span></label>
-        <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${
-          allowRankEdit ? '' : 'disabled'
-        } />
-      </div>
+      ${rankBlock}
     </form>`;
 
   return new Promise<boolean>((resolve) => {
@@ -119,9 +150,11 @@ export async function showSpecializationEditDialog(
               const name = readValue(root, 'name').trim();
               const fieldRaw = readValue(root, 'field');
               const scope = readValue(root, 'scope').trim();
-              const rank = allowRankEdit
-                ? Math.floor(Number(readValue(root, 'rank')) || 0)
-                : (existing?.rank ?? 1);
+              const rank = fixedStartingRank
+                ? STARTING_SPECIALIZATION_RANK
+                : allowRankEdit
+                  ? Math.floor(Number(readValue(root, 'rank')) || 0)
+                  : (existing?.rank ?? 1);
               if (!isSkillField(fieldRaw)) {
                 (globalThis as any).ui?.notifications?.warn?.('Choose a Field.');
                 return done(false);
@@ -144,6 +177,7 @@ export async function showSpecializationEditDialog(
                 return done(true);
               }
               const next = upsertSpecialization(specs, record, existing?.id);
+              // Creation allows 1–4 Specs until finalize; full five×R2 is checked on finalize.
               const check = validateSpecializationList(next);
               if (!check.ok) {
                 (globalThis as any).ui?.notifications?.warn?.(check.errors.join(' '));

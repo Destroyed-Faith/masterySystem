@@ -5735,8 +5735,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
         const creation = this.actor.system?.creation?.complete === false;
         const saved = await showSpecializationEditDialog(this.actor, {
-            allowRankEdit: creation || !!game.user?.isGM,
+            // Creation: always Rank 2, no Rank picker. After creation GM may edit Ranks.
+            allowRankEdit: !creation && !!game.user?.isGM,
             learnWithXp: !creation && !game.user?.isGM,
+            fixedStartingRank: creation,
         });
         if (saved)
             this.render(false);
@@ -5752,7 +5754,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const creation = this.actor.system?.creation?.complete === false;
         const saved = await showSpecializationEditDialog(this.actor, {
             specId,
-            allowRankEdit: creation || !!game.user?.isGM,
+            allowRankEdit: !creation && !!game.user?.isGM,
+            fixedStartingRank: creation,
         });
         if (saved)
             this.render(false);

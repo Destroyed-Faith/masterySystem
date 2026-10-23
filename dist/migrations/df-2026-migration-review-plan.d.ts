@@ -4,9 +4,9 @@
  * The review dialog (`df-2026-migration-review-dialog.ts`) is a thin UI on top
  * of these functions so the rules stay unit-testable:
  *
- * - Legacy Skill names become Specialization *suggestions* only. No Rank is
- *   ever auto-assigned (no Rank 2 conversion); the GM types the name, Field,
- *   scope and Rank.
+ * - Legacy Skills (name + rating) are listed for reference; names can be copied
+ *   into five new Specializations. Every saved Spec is forced to Rank 2
+ *   (starting budget: five × Rank 2). Legacy ratings are never converted.
  * - Minor Expressions with no exact Echo Imprint mapping are listed as
  *   "unmapped" so the GM can pick an Imprint by hand.
  * - Imprint proposals exceeding Mastery Rank are flagged for trimming.
@@ -16,6 +16,15 @@
 import { type EchoImprintAttribute, type SkillField, type SpecializationRecord } from '../rules/index.js';
 /** Flag key stamped on an actor once the GM saved its review. */
 export declare const DF_2026_REVIEWED_FLAG = "df2026ReviewedAt";
+/** One rated legacy Skill from the migration snapshot (display / copy only). */
+export interface LegacySkillRow {
+    skillKey: string;
+    name: string;
+    field: SkillField;
+    /** Legacy rating — never converted to a Specialization Rank. */
+    rating: number;
+    categoryLabel: string;
+}
 export interface SpecSuggestion {
     /** Legacy skill key (e.g. `stealth`). */
     skillKey: string;
@@ -34,7 +43,9 @@ export interface Df2026ReviewPlan {
     actorId: string;
     actorName: string;
     masteryRank: number;
-    /** Suggestions only; excludes names the character already has as a Specialization. */
+    /** All rated legacy Skills from the snapshot (always shown in the review UI). */
+    legacySkills: LegacySkillRow[];
+    /** Copy-as-Spec chips; excludes names the character already has as a Specialization. */
     specSuggestions: SpecSuggestion[];
     currentSpecializations: SpecializationRecord[];
     unmappedExpressions: UnmappedExpression[];
@@ -71,11 +82,16 @@ export declare function listDf2026ReviewPlans(actors: Iterable<any> | null | und
     includeReviewed?: boolean;
     onlyIds?: string[];
 }): Df2026ReviewPlan[];
-/** Normalize one GM-entered Specialization row (identity id, clamped rank). */
+/**
+ * Normalize one GM-entered Specialization row.
+ * Migration starter Specs are always Rank 2 (starting budget) — legacy ratings
+ * and any typed Rank are ignored.
+ */
 export declare function normalizeReviewSpecialization(raw: Partial<SpecializationRecord>): SpecializationRecord | null;
 /**
  * Validate GM input and build the actor update. Touches ONLY
  * `system.specializations`, `system.echoImprints` and the review stamp flag.
+ * Specializations must be exactly five at Rank 2 (same as character creation).
  */
 export declare function buildDf2026ReviewUpdate(actor: any, input: Df2026ReviewInput, now?: Date): Df2026ReviewUpdateResult;
 /** Validate and write one character's review. */

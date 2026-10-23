@@ -113,7 +113,7 @@ export declare const TOWER_WIZARD_COPY: {
         };
         readonly specializations: {
             readonly heading: "SPECIALIZATIONS";
-            readonly body: "Name exactly five Rank 2 Specializations (20 Creation Points). Each has a free name, a Field and a one-sentence scope. Examples are suggestions, not a closed list.";
+            readonly body: "Name exactly five Specializations — each is Rank 2 (20 Creation Points). Free name, Field, and one-sentence scope. There is no Rank picker.";
             readonly nameLabel: "Name";
             readonly fieldLabel: "Field";
             readonly scopeLabel: "Scope (one sentence)";

@@ -114,7 +114,7 @@ export const TOWER_WIZARD_COPY = {
         },
         specializations: {
             heading: 'SPECIALIZATIONS',
-            body: 'Name exactly five Rank 2 Specializations (20 Creation Points). Each has a free name, a Field and a one-sentence scope. Examples are suggestions, not a closed list.',
+            body: 'Name exactly five Specializations — each is Rank 2 (20 Creation Points). Free name, Field, and one-sentence scope. There is no Rank picker.',
             nameLabel: 'Name',
             fieldLabel: 'Field',
             scopeLabel: 'Scope (one sentence)',
