@@ -163,7 +163,8 @@ function renderCardPreview(def, cardId) {
   `;
 }
 /**
- * Show the full Echo creation dialog (Echo \u2192 sub-choice \u2192 veiled \u2192 start card).
+ * Show the full Echo creation dialog (Echo → sub-choice → veiled → artifacts).
+ * Echo Cards / Writer are retired from the live sheet (DF 2026).
  */
 export async function showEchoCreationDialog(actor) {
     const system = actor.system;
@@ -210,12 +211,6 @@ export async function showEchoCreationDialog(actor) {
         <div id="ec-artifact-options" class="echo-form-checks echo-pick-list"></div>
         <div class="echo-artifact-preview" id="ec-artifact-preview"></div>
       </div>
-
-      <div class="echo-form-group" id="ec-card-group" style="display:none;">
-        <label class="echo-form-label">Start Card <span class="echo-form-hint">(choose 1 from the deck)</span></label>
-        <div id="ec-card-options" class="echo-pick-list"></div>
-        <div class="echo-card-preview-container" id="ec-card-preview"></div>
-      </div>
     </form>
   `;
     return new Promise((resolve) => {
@@ -259,12 +254,6 @@ export async function showEchoCreationDialog(actor) {
                             ui.notifications?.warn('Please choose a Veiled Form.');
                             return false;
                         }
-                        const startCardId = String($html.find('input[name="startCardId"]:checked').val() || '');
-                        const startCard = getEchoCard(echoKey, startCardId);
-                        if (!startCard) {
-                            ui.notifications?.warn('Please choose a start card.');
-                            return false;
-                        }
                         // Echo Artifact validation + creation
                         const selectedArtifactKeys = [];
                         if (echoKey === 'unbound') {
@@ -285,6 +274,10 @@ export async function showEchoCreationDialog(actor) {
                             return false;
                         }
                         const traitUses = buildFreshTraitUses(echoKey, subChoiceKey || null, masteryRank);
+                        // Preserve any archived card ids; live sheet no longer uses Echo Cards.
+                        const priorCards = Array.isArray(currentEcho.selectedCardIds)
+                            ? currentEcho.selectedCardIds.filter((id) => typeof id === 'string')
+                            : [];
                         const inCreation = actor.system?.creation?.complete === false;
                         const nextLanguages = normalizeKnownLanguages(actor.system?.languages?.known, echoKey, { replaceExtras: inCreation }).cleaned;
                         await actor.update({
@@ -292,7 +285,7 @@ export async function showEchoCreationDialog(actor) {
                                 key: echoKey,
                                 subChoiceKey: subChoiceKey || '',
                                 veiledFormKey: veiledFormKey || '',
-                                selectedCardIds: [startCardId],
+                                selectedCardIds: priorCards,
                                 cardUses: {},
                                 traitUses,
                                 unboundShape: unboundShape || '',
@@ -422,9 +415,6 @@ export async function showEchoCreationDialog(actor) {
                 const $unboundGroup = html.find('#ec-unbound-group');
                 const $unboundIdentities = html.find('#ec-unbound-identities');
                 const $unboundExtras = html.find('#ec-unbound-extras');
-                const $cardGroup = html.find('#ec-card-group');
-                const $cardOptions = html.find('#ec-card-options');
-                const $cardPreview = html.find('#ec-card-preview');
                 const renderWyrmVariantTable = (defs) => {
                     const variants = listEchoArtifactsInVariantGroup(WYRM_SCALES_VARIANT_GROUP).filter((v) => defs.some((d) => d.key === v.key));
                     if (variants.length === 0)
@@ -573,9 +563,6 @@ export async function showEchoCreationDialog(actor) {
                     $artifactGroup.hide();
                     $artifactOptions.empty();
                     $artifactPreview.empty();
-                    $cardGroup.hide();
-                    $cardOptions.empty();
-                    $cardPreview.empty();
                     if (!def)
                         return;
                     $preview.html(renderTraitsPreview(def));
@@ -629,23 +616,6 @@ export async function showEchoCreationDialog(actor) {
                     else {
                         $artifactGroup.hide();
                     }
-                    const currentCard = currentEcho.key === def.key
-                        ? String((Array.isArray(currentEcho.selectedCardIds) ? currentEcho.selectedCardIds[0] : '') || '')
-                        : '';
-                    $cardOptions.html(renderCardPickRows(def, currentCard, 'startCardId'));
-                    $cardOptions.off('change.echoCard').on('change.echoCard', 'input[name="startCardId"]', refreshCardPreview);
-                    $cardGroup.show();
-                    refreshCardPreview();
-                };
-                const refreshCardPreview = () => {
-                    const key = String($echo.val() || '');
-                    const def = getEcho(key);
-                    const cardId = String($cardOptions.find('input[name="startCardId"]:checked').val() || '');
-                    if (!def || !cardId) {
-                        $cardPreview.empty();
-                        return;
-                    }
-                    $cardPreview.html(renderCardPreview(def, cardId));
                 };
                 $echo.on('change', () => {
                     refreshForEcho();

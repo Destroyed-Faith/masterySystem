@@ -294,7 +294,21 @@
       "licensedSlots": "licensed",
       "unlicensedSlot": "No licensed slot",
       "unlicensedUse": "This card has no licensed slot at the current Mastery Rank. The GM must remove it.",
-      "overflowHint": "Extra cards from a higher starting Mastery Rank stay until the GM removes them. They cannot be used."
+      "overflowHint": "Extra cards from a higher starting Mastery Rank stay until the GM removes them. They cannot be used.",
+      "info": {
+        "title": "Echo",
+        "choose": "Choose Echo",
+        "change": "Change Echo",
+        "close": "Close",
+        "noneChosen": "No Echo chosen yet.",
+        "pickHint": "Use Change Echo to pick an ancestry. Short blurbs:",
+        "artifacts": "Echo Artifacts",
+        "availableArtifacts": "Available Echo Artifacts",
+        "noEquippedArtifacts": "No Echo Artifacts equipped yet.",
+        "noArtifactsForEcho": "This Echo has no Echo Artifacts.",
+        "artifactRules": "Creation requirements apply in the Echo picker.",
+        "veiledAs": "veiled as"
+      }
     },
     "xp": {
       "regularLabel": "Regular XP",
@@ -575,6 +589,13 @@
       "gmMenu": "GM Tools",
       "refreshXp": "Refresh XP",
       "refreshXpHint": "Recompute available XP from the current build (attributes, skills, powers, artifacts).",
+      "notesSection": "Notes",
+      "notes": "Notes",
+      "languages": "Languages",
+      "pickLanguages": "Pick Languages",
+      "bloodColor": "Blood Color",
+      "concept": "Concept",
+      "appearance": "Appearance",
       "tabs": {
         "nav": "Character sheet sections",
         "attributes": "Attributes",

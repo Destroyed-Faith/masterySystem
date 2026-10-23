@@ -390,7 +390,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Open the Echo Creation Dialog (Echo + sub-choice + veiled form + start card).
+     * Header Echo button — info dialog (summary + artifacts); Change Echo from there.
+     */
+    async #onEchoInfoOpen(event) {
+        event.preventDefault();
+        try {
+            const { showEchoInfoDialog } = await import('./echo-info-dialog.js');
+            const result = await showEchoInfoDialog(this.actor);
+            if (result.changed)
+                this.render(false);
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open Echo info dialog', error);
+            ui.notifications?.error('Failed to open Echo info');
+        }
+    }
+    /**
+     * Open the Echo Creation Dialog (Echo + sub-choice + veiled form + artifacts).
      */
     async #onEchoChoose(event) {
         event.preventDefault();
@@ -961,10 +977,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 };
             })
             : [];
+        // DF 2026: Echo Cards / Writer retired from the sheet — ancestry + artifacts only.
         const echoCreationValid = !!echoDef
             && (!echoDef.subChoices?.length || !!rawEcho.subChoiceKey)
-            && (!echoDef.veiledForm || !!rawEcho.veiledFormKey)
-            && selectedCardIds.length >= 1;
+            && (!echoDef.veiledForm || !!rawEcho.veiledFormKey);
         const echoView = echoDef
             ? {
                 key: echoKey,
@@ -1090,7 +1106,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.creationGuideTabs = creationGuideFlags({
             creationComplete: context.creationComplete,
             attributesDone: attributeDistributionValid,
-            echoDone: echoCreationValid && context.languagesView?.creationValid !== false,
+            echoDone: echoCreationValid,
             skillsDone: specializationsValid,
             powersDone: categoriesValid,
             equipmentReviewed: context.system.creation?.equipmentReviewed === true,
@@ -2913,7 +2929,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onProfileShow(e, String(imgType));
             });
         }, 100);
-        html.find('.remove-echo-card-btn').on('click', this.#onEchoCardRemove.bind(this));
         // Everything below here is only needed if the sheet is editable
         if (!this.isEditable)
             return;
@@ -2926,9 +2941,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.add-power-btn, .gm-add-power-btn', this.#onAddPower.bind(this));
         bindReliableControlClick(html, '.power-replace-btn', this.#onReplacePower.bind(this));
         // Echo creation / deck interactions
+        bindReliableControlClick(html, '.sheet-echo-btn, [data-action="openEchoInfo"]', this.#onEchoInfoOpen.bind(this));
         bindReliableControlClick(html, '.choose-echo-btn', this.#onEchoChoose.bind(this));
-        bindReliableControlClick(html, '.add-echo-card-btn', this.#onEchoCardAdd.bind(this));
-        bindReliableControlClick(html, '.echo-card-use-btn', this.#onEchoRoll.bind(this));
         html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
         html
             .off('change', '.power-radial-checkbox')
@@ -7655,13 +7669,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         if (echoDef.veiledForm && !rawEcho.veiledFormKey) {
             ui.notifications?.error('Choose a Veiled Form for your Dragonborn before finalizing.');
-            return;
-        }
-        const startCards = Array.isArray(rawEcho.selectedCardIds)
-            ? rawEcho.selectedCardIds.filter((id) => typeof id === 'string')
-            : [];
-        if (startCards.length < 1) {
-            ui.notifications?.error('Pick at least one Echo start card before finalizing.');
             return;
         }
         const langNorm = normalizeKnownLanguages(system.languages?.known, system.echo?.key);

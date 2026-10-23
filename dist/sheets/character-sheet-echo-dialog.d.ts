@@ -12,7 +12,8 @@
  * All writes land on the Actor under `system.echo.*` \u2014 no Item type involved.
  */
 /**
- * Show the full Echo creation dialog (Echo \u2192 sub-choice \u2192 veiled \u2192 start card).
+ * Show the full Echo creation dialog (Echo → sub-choice → veiled → artifacts).
+ * Echo Cards / Writer are retired from the live sheet (DF 2026).
  */
 export declare function showEchoCreationDialog(actor: Actor): Promise<void>;
 /**

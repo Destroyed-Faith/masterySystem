@@ -294,7 +294,21 @@
       "licensedSlots": "lizenziert",
       "unlicensedSlot": "Kein lizenzierter Slot",
       "unlicensedUse": "Diese Karte hat bei diesem Mastery Rank keinen lizenzierten Slot. Der GM muss sie entfernen.",
-      "overflowHint": "Zusätzliche Karten von einem höheren Start-Mastery-Rank bleiben, bis der GM sie entfernt. Sie können nicht benutzt werden."
+      "overflowHint": "Zusätzliche Karten von einem höheren Start-Mastery-Rank bleiben, bis der GM sie entfernt. Sie können nicht benutzt werden.",
+      "info": {
+        "title": "Echo",
+        "choose": "Echo wählen",
+        "change": "Echo ändern",
+        "close": "Schließen",
+        "noneChosen": "Noch kein Echo gewählt.",
+        "pickHint": "Über Echo ändern eine Herkunft wählen. Kurztexte:",
+        "artifacts": "Echo-Artefakte",
+        "availableArtifacts": "Verfügbare Echo-Artefakte",
+        "noEquippedArtifacts": "Noch keine Echo-Artefakte ausgerüstet.",
+        "noArtifactsForEcho": "Dieses Echo hat keine Echo-Artefakte.",
+        "artifactRules": "Erstellungsregeln gelten im Echo-Dialog.",
+        "veiledAs": "verschleiert als"
+      }
     },
     "xp": {
       "regularLabel": "Regular XP",
@@ -575,6 +589,13 @@
       "gmMenu": "SL-Werkzeuge",
       "refreshXp": "XP neu berechnen",
       "refreshXpHint": "Verfügbare XP aus dem aktuellen Build neu berechnen (Attribute, Skills, Powers, Artefakte).",
+      "notesSection": "Notizen",
+      "notes": "Notizen",
+      "languages": "Sprachen",
+      "pickLanguages": "Sprachen wählen",
+      "bloodColor": "Blutfarbe",
+      "concept": "Konzept",
+      "appearance": "Aussehen",
       "tabs": {
         "nav": "Charakterbogen-Bereiche",
         "attributes": "Attribute",

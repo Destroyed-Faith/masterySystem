@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.766] - 2026-10-23
+
+### Changed
+
+- **Echo on the sheet:** Header button next to the name opens an Echo info dialog (summary + artifacts / Change Echo). Echo tab, deck, and start-card requirement removed from the live sheet.
+- **Notes:** Languages, blood color, concept, appearance, and notes live in a Notes panel on the Attributes tab (above Schticks).
+
 ## [0.9.765] - 2026-10-23
 
 ### Changed

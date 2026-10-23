@@ -120,6 +120,10 @@
       {{/if}}
       
       <div class="character-name-box">
+        <button type="button" class="sheet-echo-btn{{#if creationGuideTabs.echo}} creation-tab-hint{{/if}}{{#unless echoView}} is-missing{{/unless}}" data-action="openEchoInfo" title="{{#if echoView}}{{echoView.def.name}}{{#if echoView.subChoice}} · {{echoView.subChoice.name}}{{/if}}{{else}}{{localize 'MASTERY.echo.info.choose'}}{{/if}}">
+          <i class="fas fa-mask" aria-hidden="true"></i>
+          <span class="sheet-echo-btn-label">{{#if echoView}}{{echoView.def.name}}{{else}}{{localize "MASTERY.echo.info.choose"}}{{/if}}</span>
+        </button>
         {{#if editable}}
           <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
         {{else}}
@@ -206,10 +210,6 @@
       <a class="item{{#if creationGuideTabs.attributes}} creation-tab-hint{{/if}}" data-tab="attributes" aria-label="{{localize 'MASTERY.sheet.tabs.attributes'}}">
         <i class="fas fa-fist-raised" aria-hidden="true"></i>
         <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.attributes"}}</span>
-      </a>
-      <a class="item{{#if creationGuideTabs.echo}} creation-tab-hint{{/if}}" data-tab="echo" aria-label="{{localize 'MASTERY.sheet.tabs.echo'}}">
-        <i class="fas fa-mask" aria-hidden="true"></i>
-        <span class="sheet-tab-label">{{localize "MASTERY.sheet.tabs.echo"}}</span>
       </a>
       <a class="item{{#if creationGuideTabs.skills}} creation-tab-hint{{/if}}" data-tab="skills" aria-label="{{localize 'MASTERY.sheet.tabs.skills'}}">
         <i class="fas fa-list-check" aria-hidden="true"></i>
@@ -368,181 +368,6 @@
 
   <!-- Sheet Body -->
   <section class="sheet-body">
-
-    <!-- ECHO TAB -->
-    <div class="tab echo" data-group="primary" data-tab="echo">
-      <div class="echo-tab-content">
-
-        <!-- Echo Selection (always available; change at any time) -->
-        <div class="creation-echo-section">
-          <div class="creation-echo-header">
-            <h4><i class="fas fa-mask"></i> Echo</h4>
-            <button type="button" class="choose-echo-btn">
-              <i class="fas fa-mask"></i> {{#if echoView}}Change Echo{{else}}Choose Echo{{/if}}
-            </button>
-            {{#if echoView}}
-            <span class="echo-status {{#if echoView.creationValid}}echo-status-ok{{else}}echo-status-partial{{/if}}">
-              {{echoView.def.name}}{{#if echoView.subChoice}} · {{echoView.subChoice.name}}{{/if}}{{#if echoView.veiled}} · veiled as {{echoView.veiled.name}}{{/if}}{{#if echoView.creationValid}} ✓{{else}} (incomplete){{/if}}
-            </span>
-            {{else}}
-            <span class="echo-status echo-status-missing">Not chosen</span>
-            {{/if}}
-          </div>
-        </div>
-
-        {{#if echoView}}
-        <!-- Echo Deck (moved from Biography tab) -->
-        <div class="form-group echo-deck-block">
-          <label><i class="fas fa-mask"></i> Echo Deck</label>
-          <div class="echo-deck-summary">
-            <div class="echo-deck-title">
-              <strong>{{echoView.def.name}}</strong>
-              {{#if echoView.subChoice}}· {{echoView.subChoice.name}}{{/if}}
-              {{#if echoView.veiled}}· veiled as {{echoView.veiled.name}}{{/if}}
-            </div>
-            <details class="echo-deck-details">
-              <summary>Race details</summary>
-              <div class="echo-deck-meta">
-                <em>{{echoView.def.tagline}}</em>
-                <span class="echo-deck-type-meta">Type: {{echoView.def.creatureType}} · Size: {{echoView.def.size}} · Speed: {{echoView.def.speed}} m</span>
-              </div>
-              {{#if echoView.def.veiledForm}}
-              <div class="echo-veiled-callout">
-                <strong>Veiled Form:</strong>
-                {{#if echoView.veiled}}appears as <em>{{echoView.veiled.name}}</em>{{else}}not chosen yet — pick in Echo dialog{{/if}}.
-                Appearance only; you remain Dragonborn mechanically.
-              </div>
-              {{/if}}
-            </details>
-          </div>
-
-          <div class="echo-deck-cards">
-            <div class="echo-deck-cards-header">
-              <h4>Cards <span class="echo-deck-slots">({{echoView.unlockedCardSlots}} {{localize "MASTERY.echo.licensedSlots"}} / {{echoView.selectedCardIds.length}})</span></h4>
-              {{#if echoView.canAddCard}}
-              <button type="button" class="add-echo-card-btn" title="Add another Echo card from your deck">
-                <i class="fas fa-plus"></i> Add Card
-              </button>
-              {{/if}}
-            </div>
-            {{#if echoView.overflowCardCount}}
-            <p class="echo-deck-overflow-hint">{{localize "MASTERY.echo.overflowHint"}}</p>
-            {{/if}}
-            {{#each echoView.deck}}
-            {{#if this.selected}}
-            <div class="echo-card {{#if this.used}}echo-card-used{{/if}} {{#if this.overflow}}echo-card-overflow{{/if}}" data-card-id="{{this.id}}">
-              <div class="echo-card-header">
-                <span class="echo-card-name"><strong>{{this.name}}</strong></span>
-                <span class="echo-card-header-actions">
-                  {{#if this.overflow}}<span class="echo-card-overflow-label" title="{{localize 'MASTERY.echo.unlicensedSlot'}}">{{localize "MASTERY.echo.unlicensedSlot"}}</span>{{/if}}
-                  {{#if this.used}}<span class="echo-card-used-label">Used today</span>{{/if}}
-                  {{#if (userIsGM)}}
-                  <button type="button" class="remove-echo-card-btn" data-card-id="{{this.id}}" title="{{localize 'MASTERY.echo.removeCard'}}">
-                    <i class="fas fa-times"></i> {{localize "MASTERY.echo.removeCard"}}
-                  </button>
-                  {{/if}}
-                </span>
-              </div>
-              <div class="echo-card-blurb">{{this.trigger}}</div>
-              <ol class="echo-card-options">
-                {{#each this.options}}
-                <li class="echo-card-option">
-                  <div class="echo-card-option-head">
-                    <strong>{{this.label}}</strong>
-                    <span class="echo-card-option-skill">Skill: {{this.skill}}</span>
-                    <button type="button"
-                      class="echo-card-use-btn"
-                      data-card-id="{{../id}}"
-                      data-option-id="{{this.id}}"
-                      {{#if ../used}}disabled{{/if}}
-                      {{#if ../overflow}}disabled{{/if}}
-                      title="{{#if ../overflow}}{{localize 'MASTERY.echo.unlicensedUse'}}{{else}}Roll the skill for this option (spends the card for today){{/if}}">
-                      <i class="fas fa-dice-d20"></i> Use
-                    </button>
-                  </div>
-                  <div class="echo-card-option-desc">{{this.description}}</div>
-                </li>
-                {{/each}}
-              </ol>
-            </div>
-            {{/if}}
-            {{/each}}
-          </div>
-        </div>
-        {{/if}}
-
-        <!-- Languages (Players Guide 3100–3127) -->
-        <div class="form-group languages-section">
-          <label>Languages:</label>
-          <div class="languages-row">
-            <span class="languages-list">
-              {{#if languagesView.list}}
-                {{#each languagesView.list}}<span class="language-tag">{{this.name}}</span>{{/each}}
-              {{else}}
-                <span class="language-empty">Common Tongue</span>
-              {{/if}}
-            </span>
-            <button type="button" class="open-languages-btn{{#unless languagesView.creationValid}} needs-pick{{/unless}}">
-              <i class="fas fa-language"></i> Pick Languages
-            </button>
-          </div>
-          {{#unless languagesView.creationValid}}
-          <p class="hint hint-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            Pick at least 1 additional language at character creation.
-          </p>
-          {{/unless}}
-        </div>
-
-        <!-- Echo Notes (moved from Biography tab's Echo freetext) -->
-        <div class="form-group">
-          <label>Echo Notes:</label>
-          {{#if editable}}
-          <prose-mirror name="system.bio.echo" value="{{system.bio.echo}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.echo}}}</prose-mirror>
-          {{else}}
-          {{{enrichedBio.echo}}}
-          {{/if}}
-        </div>
-
-        <!-- Biography fields (merged from former Bio tab) -->
-        <div class="form-group">
-          <label>Blood Color (Blutfarbe):</label>
-          <div class="blood-color-input-group">
-            <input type="color" name="system.bloodColor" id="blood-color-picker" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this character takes damage"/>
-            <input type="text" class="blood-color-text" id="blood-color-text" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)"/>
-          </div>
-          <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this character takes damage.</p>
-        </div>
-
-        <div class="form-group">
-          <label>Concept:</label>
-          {{#if editable}}
-          <prose-mirror name="system.bio.concept" value="{{system.bio.concept}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.concept}}}</prose-mirror>
-          {{else}}
-          {{{enrichedBio.concept}}}
-          {{/if}}
-        </div>
-
-        <div class="form-group">
-          <label>Appearance:</label>
-          {{#if editable}}
-          <prose-mirror name="system.bio.appearance" value="{{system.bio.appearance}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.appearance}}}</prose-mirror>
-          {{else}}
-          {{{enrichedBio.appearance}}}
-          {{/if}}
-        </div>
-
-        <div class="form-group">
-          <label>Notes:</label>
-          {{#if editable}}
-          <prose-mirror name="system.bio.notes" value="{{system.bio.notes}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.notes}}}</prose-mirror>
-          {{else}}
-          {{{enrichedBio.notes}}}
-          {{/if}}
-        </div>
-
-      </div>
-    </div>
 
     <!-- ATTRIBUTES TAB -->
     <div class="tab attributes" data-group="primary" data-tab="attributes">
@@ -1274,6 +1099,69 @@
         </div>
       </div>
       
+      <!-- Notes (bio / languages / blood — character settings) -->
+      <details class="sheet-notes-section">
+        <summary><i class="fas fa-book-open"></i> {{localize "MASTERY.sheet.notesSection"}}</summary>
+        <div class="sheet-notes-body">
+          <div class="form-group languages-section">
+            <label>{{localize "MASTERY.sheet.languages"}}</label>
+            <div class="languages-row">
+              <span class="languages-list">
+                {{#if languagesView.list}}
+                  {{#each languagesView.list}}<span class="language-tag">{{this.name}}</span>{{/each}}
+                {{else}}
+                  <span class="language-empty">Common Tongue</span>
+                {{/if}}
+              </span>
+              <button type="button" class="open-languages-btn{{#unless languagesView.creationValid}} needs-pick{{/unless}}">
+                <i class="fas fa-language"></i> {{localize "MASTERY.sheet.pickLanguages"}}
+              </button>
+            </div>
+            {{#unless languagesView.creationValid}}
+            <p class="hint hint-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              Pick at least 1 additional language at character creation.
+            </p>
+            {{/unless}}
+          </div>
+
+          <div class="form-group">
+            <label>{{localize "MASTERY.sheet.bloodColor"}}</label>
+            <div class="blood-color-input-group">
+              <input type="color" name="system.bloodColor" id="blood-color-picker" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this character takes damage"/>
+              <input type="text" class="blood-color-text" id="blood-color-text" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{localize "MASTERY.sheet.concept"}}</label>
+            {{#if editable}}
+            <prose-mirror name="system.bio.concept" value="{{system.bio.concept}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.concept}}}</prose-mirror>
+            {{else}}
+            {{{enrichedBio.concept}}}
+            {{/if}}
+          </div>
+
+          <div class="form-group">
+            <label>{{localize "MASTERY.sheet.appearance"}}</label>
+            {{#if editable}}
+            <prose-mirror name="system.bio.appearance" value="{{system.bio.appearance}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.appearance}}}</prose-mirror>
+            {{else}}
+            {{{enrichedBio.appearance}}}
+            {{/if}}
+          </div>
+
+          <div class="form-group">
+            <label>{{localize "MASTERY.sheet.notes"}}</label>
+            {{#if editable}}
+            <prose-mirror name="system.bio.notes" value="{{system.bio.notes}}" toggled document-uuid="{{actor.uuid}}">{{{enrichedBio.notes}}}</prose-mirror>
+            {{else}}
+            {{{enrichedBio.notes}}}
+            {{/if}}
+          </div>
+        </div>
+      </details>
+
       <!-- Schticks (editable during and after character creation) -->
       <div class="schticks-section">
         <h3><i class="fas fa-star"></i> Schticks</h3>
