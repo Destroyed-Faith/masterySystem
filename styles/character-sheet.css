@@ -1282,6 +1282,127 @@
   font-style: italic;
 }
 
+/* Echo Imprints dialog (Foundry window) */
+.mastery-system.echo-imprints-dialog-app .window-content {
+  overflow-y: auto;
+  max-height: min(75vh, 640px);
+}
+
+.echo-imprints-dialog-inner .ei-slots-summary {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.echo-imprints-dialog-inner .ei-hint {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.echo-imprints-dialog-inner .ei-attr-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.echo-imprints-dialog-inner .ei-attr-section--focus {
+  outline: 1px solid #c9a227;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.echo-imprints-dialog-inner .ei-attr-heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.echo-imprints-dialog-inner .ei-attr-value,
+.echo-imprints-dialog-inner .ei-attr-tier {
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.echo-imprints-dialog-inner .ei-attr-locked {
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0 0 0.5rem;
+}
+
+.echo-imprints-dialog-inner .ei-row-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.echo-imprints-dialog-inner .ei-row-wrap:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.echo-imprints-dialog-inner .ei-row {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.echo-imprints-dialog-inner .ei-row--disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.echo-imprints-dialog-inner .ei-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.echo-imprints-dialog-inner .ei-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.echo-imprints-dialog-inner .ei-tagline {
+  font-size: 0.82rem;
+  opacity: 0.88;
+}
+
+.echo-imprints-dialog-inner .ei-limit-note {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  font-style: italic;
+  color: #8a5a00;
+}
+
+.echo-imprints-dialog-inner .ei-tier-text {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  opacity: 0.92;
+}
+
+.echo-imprints-dialog-inner .ei-pick {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.echo-imprints-dialog-inner .ei-use {
+  flex: 0 0 auto;
+  width: auto;
+  align-self: center;
+  padding: 0.2rem 0.6rem;
+  line-height: 1.4;
+}
+
 /* ========== Attribute Controls ========== */
 .mastery-system.sheet.actor.character .attribute-controls {
   display: flex;
@@ -13598,3 +13719,19 @@ aside#tooltip,
 .mastery-system.mastery-roll-dialog .mastery-dialog-form .ms-mode-option input[type="radio"] {
   margin: 0;
 }
+
+/* DF 2026 Specializations (live path) */
+.mastery-system .specializations-panel { margin-bottom: 0.75rem; }
+.mastery-system .specializations-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+.mastery-system .specializations-header h3 { margin: 0; }
+.mastery-system .specializations-header-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.mastery-system .specializations-list { display: flex; flex-direction: column; gap: 0.3rem; margin: 0.5rem 0; }
+.mastery-system .spec-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.45rem; border: 1px solid rgba(128, 128, 128, 0.35); border-radius: 4px; }
+.mastery-system .spec-row .spec-main { flex: 1 1 auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.5rem; min-width: 0; }
+.mastery-system .spec-row .spec-name { font-weight: 700; }
+.mastery-system .spec-row .spec-scope { opacity: 0.85; font-size: 0.9em; }
+.mastery-system .spec-row .spec-hint { flex-basis: 100%; opacity: 0.7; font-size: 0.8em; }
+.mastery-system .spec-row .spec-rank { font-weight: 700; white-space: nowrap; }
+.mastery-system .spec-row .spec-controls { display: flex; gap: 0.25rem; }
+.mastery-system .legacy-skills-archive { margin-top: 0.75rem; opacity: 0.9; }
+.mastery-system .legacy-skills-archive > summary { cursor: pointer; font-weight: 600; }

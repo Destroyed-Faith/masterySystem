@@ -33,8 +33,12 @@ export declare const INITIATIVE_PER_COLORLESS_STONE = 4;
 export declare const CREATION: {
     ATTRIBUTE_DISTRIBUTION: readonly number[];
     ATTRIBUTE_ALLOWED_VALUES: readonly number[];
+    /** DF 2026: 20 Creation Points → five Rank-2 Specializations (2 pts per Rank). */
     SKILL_POINTS: number;
+    STARTING_SPECIALIZATION_COUNT: number;
+    STARTING_SPECIALIZATION_RANK: number;
     MAX_ATTRIBUTE_AT_CREATION: number;
+    /** @deprecated Legacy fixed-skill creation. */
     MAX_SKILL_AT_CREATION: number;
     MIN_DISADVANTAGE_POINTS: number;
     MAX_DISADVANTAGE_POINTS: number;

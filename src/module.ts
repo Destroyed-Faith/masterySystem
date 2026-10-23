@@ -35,6 +35,10 @@ import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dial
 import { showEncounterForgeDialog } from './creation/encounter-forge/encounter-forge-dialog.js';
 import { showCharacterImportDialog } from './import/character-import-dialog.js';
 import {
+  downloadMasteryCharacterJson,
+  exportMasteryCharacterJson,
+} from './import/character-export.js';
+import {
   importMasteryCharacter,
   importMasteryCharacterFromJson,
   validateCharacterImportDocument,
@@ -395,6 +399,27 @@ Hooks.once('init', async function() {
       });
       host.appendChild(importBtn);
     }
+
+    if (!root.querySelector('.ms-open-df2026-review')) {
+      const reviewBtn = document.createElement('button');
+      reviewBtn.type = 'button';
+      reviewBtn.className = 'ms-open-df2026-review';
+      reviewBtn.innerHTML = '<i class="fas fa-clipboard-check"></i> DF 2026 Migration Review';
+      reviewBtn.title = 'Review Specialization suggestions and Echo Imprints after the DF 2026 migration';
+      reviewBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        try {
+          const { showDf2026MigrationReview } = await import(
+            './migrations/df-2026-migration-review-dialog.js'
+          );
+          await showDf2026MigrationReview({ includeReviewed: true });
+        } catch (err) {
+          console.error('Mastery System | DF 2026 migration review failed', err);
+          ui.notifications?.error('DF 2026 Migration Review failed - see console');
+        }
+      });
+      host.appendChild(reviewBtn);
+    }
   });
   
   // Initialize stone powers flow system
@@ -673,15 +698,8 @@ Hooks.once('init', async function() {
 
     // Hide all initiative roll buttons
     $html.find('button[data-action="rollInitiative"]').css('display', 'none');
-    if (game.user?.isGM && $html.find('.ms-pursuit-open').length === 0) {
-      const pursuitButton = $(`<button type="button" class="ms-pursuit-open">Pursuit</button>`);
-      pursuitButton.on('click', () => {
-        void import('./combat/pursuit-dialog.js').then((mod) => mod.openPursuitDialog(game.combat));
-      });
-      const header = $html.find('.combat-tracker-header, .encounter-controls, header').first();
-      if (header.length) header.append(pursuitButton);
-      else $html.prepend(pursuitButton);
-    }
+    // DF 2026: Pursuit Track meter retired — no GM Pursuit button. Flee uses combat/flee.ts.
+    $html.find('.ms-pursuit-open').remove();
     const trackerCombat = game.combat as Combat | null | undefined;
     const trackerPreparing = !!(
       trackerCombat &&
@@ -1094,9 +1112,8 @@ Hooks.once('init', async function() {
         await announceStatusTick(endingActor, endSummary);
         const { pulseActiveBuffAuras } = await import('./combat/aura-pulse.js');
         await pulseActiveBuffAuras(endingActor);
-        // Incapacitated PCs roll a Death Check at the end of each of their turns.
-        const { maybeRollDeathCheck } = await import('./combat/death-check.js');
-        await maybeRollDeathCheck(endingActor);
+        // DF 2026: Death Checks retired (Incapacitated is not automatic death).
+        // `combat/death-check.ts` is retained but no longer invoked here.
         // Absorption stones expire at the end of the character's next turn.
         const { expireAbsorptionStonesAtTurnEnd } = await import('./combat/absorption.js');
         await expireAbsorptionStonesAtTurnEnd(endingActor, combat);
@@ -1406,6 +1423,15 @@ Hooks.once('init', async function() {
       importCharacter: importMasteryCharacter,
       importCharacterFromJson: importMasteryCharacterFromJson,
       showCharacterImportDialog,
+      exportCharacterJson: exportMasteryCharacterJson,
+      downloadCharacterJson: downloadMasteryCharacterJson,
+      exportMasteryCharacterJson,
+      showDf2026MigrationReview: async (opts?: { includeReviewed?: boolean }) => {
+        const { showDf2026MigrationReview } = await import(
+          './migrations/df-2026-migration-review-dialog.js'
+        );
+        return showDf2026MigrationReview(opts ?? {});
+      },
       requestEpicMasteryRoll,
       getActiveEpicMasteryRollSession,
     };
@@ -2574,9 +2600,14 @@ function registerConfigConstants() {
   (CONFIG as any).MASTERY.creation = {
     schticksAllowed: 2,
     attributeDistribution: [4, 4, 3, 3, 2, 2, 2],
-    skillPoints: 40,
+    /** @deprecated DF 2026 — use startingSpecializationCount / Rank instead. */
+    skillPoints: 20,
     maxAttributeAtCreation: 4,
+    /** @deprecated Legacy fixed-skill creation cap. */
     maxSkillAtCreation: 4,
+    startingSpecializationCount: 5,
+    startingSpecializationRank: 2,
+    startingSpecializationCreationPoints: 20,
     // Players Guide ~5158–5164: only the maximum (8) is canonical; the
     // minimum defaults to 0 so a character may take no disadvantages.
     minDisadvantagePoints: 0,
@@ -3586,6 +3617,30 @@ Hooks.once('ready', async function() {
     await runV099CoreMigration(migrationActors);
   } catch (error) {
     console.warn('Mastery System | v0.9.9 core migration failed', error);
+  }
+
+  // Migration: DF 2026-10-23 rules schema — archive legacy Skills/Expressions/Cards,
+  // enable universal Rituals; does not invent Specialization Ranks.
+  try {
+    const { runDf2026RulesMigration } = await import('./migrations/df-2026-rules-migration.js');
+    const summaries = await runDf2026RulesMigration(migrationActors);
+    const changed = summaries.filter((s) => s.changed).length;
+    if (changed > 0) {
+      console.log(`Mastery System | DF 2026 rules migration: ${changed} character(s) updated.`);
+    }
+    // GM follow-up: review Spec suggestions / unmapped Expressions / Imprint trims.
+    if (game.user?.isGM && summaries.some((s) => s.changed && s.warnings.length > 0)) {
+      try {
+        const { showDf2026MigrationReview } = await import(
+          './migrations/df-2026-migration-review-dialog.js'
+        );
+        await showDf2026MigrationReview({ summaries });
+      } catch (reviewError) {
+        console.warn('Mastery System | DF 2026 migration review failed to open', reviewError);
+      }
+    }
+  } catch (error) {
+    console.warn('Mastery System | DF 2026 rules migration failed', error);
   }
 
   // Migration: removed combat Skills — refund invested Ratings as unspent Skill Points.

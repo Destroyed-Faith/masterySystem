@@ -37,6 +37,12 @@ import {
   sanitizeSpendNumbers,
 } from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
+import {
+  normalizeSummonTaskSpecMap,
+  readActorSpecializations,
+  validateSummonTaskSpecMap,
+  type SummonTaskSpecMap,
+} from '../rules/specializations.js';
 
 export const DISSOLVE_BOND_CONFIRM =
   'Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.';
@@ -103,6 +109,12 @@ export type SummonBondRecord = {
   specialValue: number;
   selectedSkills: SummonSkillId[];
   skillDiceAlloc: Partial<Record<SummonSkillId, number>>;
+  /**
+   * DF 2026: SUMMON_TASKS mapped to owner Specialization ids (slots =
+   * `summonTaskSlotCount(boundStoneCount)`). Dice caps via `summonSkillDiceCap`.
+   * Summons never receive Free Raises.
+   */
+  taskSpecMap?: SummonTaskSpecMap;
   spend: SummonBondUpgradeSpend;
   bodies: SummonBodyRecord[];
   activationTiming: 'before' | 'after';
@@ -186,6 +198,7 @@ export function createEmptyBond(opts: {
     specialValue: 0,
     selectedSkills: [],
     skillDiceAlloc: {},
+    taskSpecMap: {},
     spend,
     bodies: [body],
     activationTiming: 'after',
@@ -428,7 +441,11 @@ export function validateBondRitual(
   bond: SummonBondRecord,
   ownerSkillRatings: Record<string, number> = {},
   ownerMasteryRank = 1,
-  extras?: { maxBonusTokens?: number },
+  extras?: {
+    maxBonusTokens?: number;
+    /** Owner Specializations (DF 2026 task mapping). When omitted, mapping ids are not cross-checked. */
+    ownerSpecs?: ReturnType<typeof readActorSpecializations>;
+  },
 ): BondRitualValidation {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -484,6 +501,17 @@ export function validateBondRitual(
   errors.push(...inspect.reasons);
   errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank));
   errors.push(...validateBondPowers(bond, ownerMasteryRank));
+  if (bond.taskSpecMap && Object.keys(bond.taskSpecMap).length > 0) {
+    const map = normalizeSummonTaskSpecMap(bond.taskSpecMap);
+    errors.push(
+      ...validateSummonTaskSpecMap({
+        map,
+        boundStones: bond.boundStoneCount,
+        // Without owner specs, only the slot limit is checked.
+        ownerSpecs: extras?.ownerSpecs ?? Object.values(map).map((id) => ({ id })),
+      }),
+    );
+  }
 
   if (bond.spend.specialAccess && !bond.specialKey) {
     errors.push('Special Access requires selecting an eligible Special.');
@@ -618,7 +646,11 @@ export async function applyBondRitual(
     draft.specialKey = null;
     draft.spend.specialValuePurchases = 0;
   }
-  const validation = validateBondRitual(draft, ownerSkillRatings, mr, { maxBonusTokens: maxBonus });
+  draft.taskSpecMap = normalizeSummonTaskSpecMap(draft.taskSpecMap);
+  const validation = validateBondRitual(draft, ownerSkillRatings, mr, {
+    maxBonusTokens: maxBonus,
+    ownerSpecs: readActorSpecializations(actor?.system),
+  });
   const inspect = inspectBondSpend(draft.spend, {
     boundStoneCount: draft.boundStoneCount,
     bonusTokens: draft.bonusTokens,

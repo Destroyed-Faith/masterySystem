@@ -2,11 +2,11 @@
  * What a character's current sheet is worth under today's XP tables.
  *
  * This ignores granted XP, history, and migrations. The free start is not
- * XP: the Attribute package, up to 40 Character Creation Skill Points (max 4
- * per Skill), creation Power ranks, and Artifact level 1. Ranks paid with
- * unspent Skill Points are Skill Points, not XP. Artifact activation costs
- * nothing beyond the level table, and level 1 is free. Echo Artifacts use that
- * same level table: the granted level 1 costs nothing, later levels cost XP.
+ * XP: the Attribute package, five Rank-2 Specializations (20 Creation Points),
+ * creation Power ranks, and Artifact level 1. Spec Ranks above 2 cost XP
+ * (4 XP per Rank). Artifact activation costs nothing beyond the level table,
+ * and level 1 is free. Echo Artifacts use that same level table: the granted
+ * level 1 costs nothing, later levels cost XP.
  */
 export interface BuildValue {
     attributes: number;

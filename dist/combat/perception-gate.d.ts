@@ -41,11 +41,11 @@ export declare function ensureCanTargetWithPerception(observer: any, target: any
     targetToken?: any;
 }): Promise<boolean>;
 /**
- * After the observer's final Perception result is known, the invisible creature
- * may spend Stealth Skill Points (min = MR, steps of MR, All-in ok) to raise TN.
- * Returns points actually spent this prompt (already added to stealthSpentThisRound).
+ * @deprecated DF 2026-10-23: Retroactive Stealth Points are retired.
+ * Stealth is a setup-first opposition (the Stealth Final Result is the TN); no post-roll spend.
+ * Always returns 0 and changes nothing.
  */
-export declare function promptRetroactiveStealthSpend(invisibleActor: any, observerResult: number, currentTn: number): Promise<number>;
+export declare function promptRetroactiveStealthSpend(_invisibleActor: any, _observerResult: number, _currentTn: number): Promise<number>;
 /** For conditional passives: target perceived through non-sight sense? */
 export declare function targetPerceivedByNonSightSense(observer: any, target: any): boolean;
 /** For ambusher passive: target unseen by observer? */

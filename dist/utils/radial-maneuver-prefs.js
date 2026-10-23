@@ -13,7 +13,6 @@ export const RADIAL_STANDARD_MANEUVER_IDS = [
     'weapon-attack',
     'parry-stance',
     'grapple',
-    'aid',
 ];
 /** Maneuver IDs hidden by default; only appear when the player opts in. */
 export const OPT_IN_RADIAL_MANEUVER_IDS = [];
@@ -48,7 +47,6 @@ const RADIAL_PREFS_ROWS = [
     { id: 'weapon-attack', name: 'Basic Attack', group: 'Angriff' },
     { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
     { id: 'grapple', name: 'Grapple', group: 'Angriff' },
-    { id: 'aid', name: 'Aid', group: 'Reaktion' },
 ];
 /**
  * Data for the character sheet collapsible panel (checkbox = hide from radial).

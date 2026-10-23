@@ -1,4 +1,10 @@
 /**
+ * @deprecated Minor Expressions are replaced by Echo Imprints (DF Guide 2026-10-23).
+ * The floating bar is retired from live paths: it never renders (see
+ * LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED) and the scene-control entry opens the
+ * Echo Imprints dialog instead. Kept only for rollback / archive review.
+ *
+ * Original description:
  * Floating player panel listing the character's chosen Minor Expressions
  * (same chrome as the Important NPCs bar): draggable, collapsible, hover
  * shows the current-tier text, "Use" posts the expression to chat and ticks
@@ -42,8 +48,15 @@ export declare class MinorExpressionsBar extends BaseBar {
     _onRender(context: any, options: any): Promise<void>;
     applyStoredPosition(): void;
 }
-/** Show the floating panel from the Mastery scene-control menu (players). */
+/**
+ * @deprecated Delegates to the Echo Imprints dialog; the floating bar is retired.
+ */
 export declare function showMinorExpressionsBarFromMenu(): Promise<void>;
+/**
+ * @deprecated Legacy floating-panel opener (only works when
+ * LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED is true). Not called from live paths.
+ */
+export declare function showLegacyMinorExpressionsBarFromMenu(): Promise<void>;
 export declare function initializeMinorExpressionsBar(): void;
 export {};
 //# sourceMappingURL=minor-expressions-bar.d.ts.map

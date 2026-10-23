@@ -68,6 +68,19 @@ export interface ProgressionHubContext {
             value: number;
         }>;
     }>;
+    /** DF 2026 Specializations — Rank-up costs SPECIALIZATION_XP_PER_RANK (4 XP) each. */
+    specializations: Array<{
+        id: string;
+        name: string;
+        field: string;
+        fieldLabel: string;
+        scope: string;
+        rank: number;
+        cost: number;
+        canRankUp: boolean;
+        bumpedThisStep: boolean;
+    }>;
+    specializationXpPerRank: number;
     powers: Array<{
         id: string;
         name: string;
@@ -90,6 +103,22 @@ export declare function applyAttributePendingChanges(actor: Actor, pendingMap: R
 export declare function applySkillPendingChanges(actor: Actor, pendingMap: Record<string, number>): Promise<{
     ok: boolean;
     error?: string;
+}>;
+/** Raise an existing Specialization by one Rank for 4 XP. */
+export declare function applySpecializationRankUp(actor: Actor, specId: string): Promise<{
+    ok: boolean;
+    error?: string;
+    newRank?: number;
+}>;
+/** Learn a new Specialization at Rank 1 for 4 XP. */
+export declare function applySpecializationLearn(actor: Actor, input: {
+    name: string;
+    field: string;
+    scope: string;
+}): Promise<{
+    ok: boolean;
+    error?: string;
+    id?: string;
 }>;
 export declare function applyPowerPendingChanges(actor: Actor, pendingMap: Record<string, number>): Promise<{
     ok: boolean;

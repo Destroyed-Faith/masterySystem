@@ -137,13 +137,13 @@ const handleHealingBar = onceAtATime(async () => {
   }
 });
 
-const handleMinorExpressionsBar = onceAtATime(async () => {
+const handleEchoImprints = onceAtATime(async () => {
   try {
-    const { showMinorExpressionsBarFromMenu } = await import('./minor-expressions-bar.js');
-    await showMinorExpressionsBarFromMenu();
+    const { showEchoImprintsFromMenu } = await import('./echo-imprints-menu.js');
+    await showEchoImprintsFromMenu();
   } catch (err) {
-    console.error('Mastery System | [ERROR] Minor Expressions menu failed', err);
-    ui.notifications?.error('Minor Expressions menu failed - see console');
+    console.error('Mastery System | [ERROR] Echo Imprints menu failed', err);
+    ui.notifications?.error('Echo Imprints menu failed - see console');
   }
 });
 
@@ -154,7 +154,7 @@ const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
   unluckMenu: handleUnluckMenu,
   knownNpcsMenu: handleKnownNpcsMenu,
   firstAid: handleFirstAid,
-  minorExpressionsBar: handleMinorExpressionsBar,
+  echoImprints: handleEchoImprints,
   healingBar: handleHealingBar,
 };
 
@@ -252,12 +252,12 @@ export function initializeSceneControls(): void {
           onClick: handleFirstAid,
         },
         {
-          name: 'minorExpressionsBar',
-          title: 'Minor Expressions',
+          name: 'echoImprints',
+          title: 'Echo Imprints',
           icon: 'fas fa-wand-sparkles',
           visible: true,
           button: true,
-          onClick: handleMinorExpressionsBar,
+          onClick: handleEchoImprints,
         },
         {
           name: 'healingBar',

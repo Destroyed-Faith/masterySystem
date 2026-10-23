@@ -451,6 +451,25 @@
     {{/if}}
   </details>
 
+  <details class="sb-fold sb-fold-card" data-fold="taskspecs" {{#if taskSpecsOpen}}open{{/if}}>
+    <summary>Summon Tasks → Owner Specializations <span class="sb-meta">{{taskMapped}} / {{taskSlots}} slots</span></summary>
+    <p class="sb-hint">Map up to {{taskSlots}} task(s) (1 Bound Stone → 2, 2 → 3, 3+ → 4) to one of your Specializations. A task's dice cap is 2 × the mapped Spec Rank; Perception uses 2 × your Mastery Rank. Summons never receive Free Raises.</p>
+    <div class="sb-skill-list">
+      {{#each taskRows}}
+      <div class="sb-skill-row">
+        <label class="sb-field">{{this.label}}
+          <select class="js-sb-task-spec" data-task="{{this.task}}" {{#if this.locked}}disabled title="No free task slots"{{/if}}>
+            {{#each this.options}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        {{#if this.mapped}}<span class="sb-meta">Dice cap {{this.cap}}</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </details>
+
   {{#if ritualErrors.length}}
   <ul class="sb-errors">{{#each ritualErrors}}<li>{{this}}</li>{{/each}}</ul>
   {{/if}}

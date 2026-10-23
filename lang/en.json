@@ -4,6 +4,65 @@
       "name": "Mastery System / Destroyed Faith",
       "version": "0.0.2"
     },
+    "df2026": {
+      "creation": {
+        "specsShortLabel": "Specs",
+        "specsHeaderTitle": "Specializations — five Rank 2 at creation (20 Creation Points)",
+        "bannerSpecs": "Name exactly five Rank 2 Specializations before you finalize creation.",
+        "finalizeNeedSpecs": "Complete five Rank 2 Specializations before finishing character creation.",
+        "legacySkillsRetired": "Legacy skill allocation is retired. Use Specializations (five Rank 2 at creation).",
+        "legacyRedistributeRetired": "Legacy skill redistribute is retired. Raise Specializations with XP (4 XP per Rank)."
+      },
+      "specializations": {
+        "title": "Specializations",
+        "add": "Add Specialization",
+        "edit": "Edit Specialization",
+        "delete": "Delete Specialization",
+        "rankUp": "Raise one Rank for {cost} XP",
+        "untrainedRoll": "Untrained Roll",
+        "field": "Field",
+        "scope": "Scope",
+        "rank": "Rank",
+        "raisePaid": "Paid Raises",
+        "raiseFree": "Free Raises",
+        "finalTn": "Final TN",
+        "taskLevel": "Task Level"
+      },
+      "imprints": {
+        "title": "Echo Imprints",
+        "save": "Save",
+        "use": "Use",
+        "hollowEchoNote": "Hollow Echo only suggests where to investigate. Finding a concealed seam, trap or mechanism still requires an appropriate Skill.",
+        "catfallNote": "Catfall softens a controlled landing; resolve dangerous heights with the normal falling rules. Lethal falls remain lethal.",
+        "maxAtMr": "At most {mr} Echo Imprint(s) at Mastery Rank {mr}.",
+        "attrLocked": "Echo Imprints for this attribute are available from value {min}."
+      },
+      "rituals": {
+        "approach": "Approach",
+        "taskLevel": "Task Level",
+        "namedTier": "Named Tier",
+        "genericRaises": "Generic Raises",
+        "specialization": "Specialization (Free Raises)",
+        "sealedStones": "Sealed Stones",
+        "finalTn": "Final TN",
+        "sealPassageAlt": "Tier 4 is an alternate mode: open an existing sealed passage instead of sealing one. Declare before rolling."
+      },
+      "migrationReview": {
+        "title": "DF 2026 Migration Review",
+        "suggestions": "Specialization suggestions",
+        "unmapped": "Unmapped Minor Expressions",
+        "trimWarning": "Echo Imprint trim",
+        "save": "Save"
+      },
+      "progression": {
+        "specializationsSection": "Specializations",
+        "rankUpXp": "+ {cost} XP"
+      },
+      "archive": {
+        "minorExpressionsRetired": "Minor Expressions were replaced by Echo Imprints.",
+        "skillSpendRetired": "Skill Spend is retired (DF 2026). Raise Specializations in Progression."
+      }
+    },
     "attributes": {
       "might": "Might",
       "agility": "Agility",
@@ -494,14 +553,14 @@
       "drag": "Drag to move"
     },
     "minorExpressionsBar": {
-      "title": "Minor Expressions",
-      "expand": "Show Minor Expressions",
-      "collapse": "Hide Minor Expressions",
+      "title": "Echo Imprints (replaces Minor Expressions)",
+      "expand": "Show Echo Imprints",
+      "collapse": "Hide Echo Imprints",
       "drag": "Drag to move",
       "use": "Use (post to chat)",
       "undo": "Undo last use",
       "sheet": "Open character sheet",
-      "uses": "Uses until Safe Haven Rest"
+      "uses": "Archive — Echo Imprints have no charge pool"
     },
     "sheet": {
       "gmMenu": "GM Tools",
@@ -511,7 +570,7 @@
         "nav": "Character sheet sections",
         "attributes": "Attributes",
         "echo": "Echo",
-        "skills": "Skills",
+        "skills": "Specializations",
         "powers": "Powers",
         "equipment": "Equipment",
         "disadvantages": "Disadvantages",

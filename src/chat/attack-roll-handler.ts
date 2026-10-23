@@ -5,10 +5,12 @@
  */
 
 import {
+  isRaiseAllocationComplete,
   parseDeclaredRaises,
   resolveRaiseOutcome,
   successfulRaiseSlotCount,
   type DeclaredRaise,
+  type RaiseOption,
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
@@ -149,6 +151,42 @@ export async function executeAttackRollFromCard(
         (ChatMessage as any).getSpeakerActor?.(message.speaker) ??
         (game as any).actors?.get(attacker.id) ??
         attacker;
+
+      // DF 2026: Spell Raises (Paid + Free) allocate their effects BEFORE the
+      // casting roll. Refuse to roll until every declared Raise has an effect.
+      {
+        const isSpellCard = (flags as any).powerIsSpell === true || (flags as any).npcIsSpell === true;
+        const spellOptions: RaiseOption[] = Array.isArray((flags as any).raiseOptions)
+          ? ((flags as any).raiseOptions as RaiseOption[])
+          : [];
+        if (isSpellCard && spellOptions.length > 0) {
+          const spellSlots =
+            Math.max(
+              Math.max(0, Math.floor(Number((flags as any).declaredRaiseSlots) || 0)),
+              readAttackButtonDataInt(button, 'raise-slots', 0),
+            ) +
+            Math.max(
+              Math.max(0, Math.floor(Number((flags as any).freeRaiseSlots) || 0)),
+              readAttackButtonDataInt(button, 'free-raises', 0),
+            );
+          if (spellSlots > 0) {
+            let plan = parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
+            if (!plan.length && Array.isArray((flags as any).preRollRaisePlan)) {
+              plan = (flags as any).preRollRaisePlan as DeclaredRaise[];
+            }
+            if (!isRaiseAllocationComplete(plan, spellSlots, spellOptions)) {
+              ui.notifications?.warn(
+                `Allocate all ${spellSlots} Spell Raise${spellSlots === 1 ? '' : 's'} before casting.`,
+              );
+              resetRollButton();
+              return;
+            }
+            if (!parseDeclaredRaises(button.attr('data-raise-plan') || '[]').length) {
+              button.attr('data-raise-plan', JSON.stringify(plan));
+            }
+          }
+        }
+      }
 
       // Faith reroll: the original roll already spent the action.
       const costsAction = !isFaithReroll && flags.costsAction !== false;

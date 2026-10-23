@@ -1,32 +1,35 @@
 import { describe, it, expect } from 'vitest';
 import {
+    castingBaseTnForPowerLevel,
     castingBaseTnForMasteryRank,
     canCastSpellAtLevel,
     inferResolutionFromItem,
+    mentalFinalTnSurchargeForTemplate,
 } from '../src/combat/spell-roll-handler';
 
 describe('Spell maths (Active-as-Spell)', () => {
-    it('computes the Spell Base TN as (8 × caster Mastery Rank) − 2', () => {
-        expect(castingBaseTnForMasteryRank(1)).toBe(6);
-        expect(castingBaseTnForMasteryRank(2)).toBe(14);
-        expect(castingBaseTnForMasteryRank(3)).toBe(22);
-        expect(castingBaseTnForMasteryRank(4)).toBe(30);
-        expect(castingBaseTnForMasteryRank(5)).toBe(38);
-        expect(castingBaseTnForMasteryRank(6)).toBe(46);
-        expect(castingBaseTnForMasteryRank(7)).toBe(54);
-        expect(castingBaseTnForMasteryRank(8)).toBe(62);
+    it('computes Spell Base TN as used Power Level × 4', () => {
+        expect(castingBaseTnForPowerLevel(1)).toBe(4);
+        expect(castingBaseTnForPowerLevel(2)).toBe(8);
+        expect(castingBaseTnForPowerLevel(3)).toBe(12);
+        expect(castingBaseTnForPowerLevel(4)).toBe(16);
+        expect(castingBaseTnForPowerLevel(6)).toBe(24);
+        expect(castingBaseTnForPowerLevel(10)).toBe(40);
+        expect(castingBaseTnForPowerLevel(16)).toBe(64);
     });
 
-    it('clamps out-of-range Mastery Ranks', () => {
-        expect(castingBaseTnForMasteryRank(0)).toBe(6);
-        expect(castingBaseTnForMasteryRank(-3)).toBe(6);
-        expect(castingBaseTnForMasteryRank(99)).toBe(62);
+    it('legacy mastery-rank helper maps MR as temporary PL stand-in', () => {
+        expect(castingBaseTnForMasteryRank(2)).toBe(8);
+        expect(castingBaseTnForMasteryRank(8)).toBe(32);
     });
 
-    it('adds +4 for Mental Powers (Mental Power Base TN)', () => {
-        expect(castingBaseTnForMasteryRank(2, { mental: true })).toBe(18);
-        expect(castingBaseTnForMasteryRank(5, { mental: true })).toBe(42);
-        expect(castingBaseTnForMasteryRank(5, { mental: false })).toBe(38);
+    it('applies Final Mental TN +4 only for Mind Probe / Mental Control', () => {
+        expect(mentalFinalTnSurchargeForTemplate('active-mind-probe')).toBe(4);
+        expect(mentalFinalTnSurchargeForTemplate('active-mental-control')).toBe(4);
+        expect(mentalFinalTnSurchargeForTemplate('active-mental-attack')).toBe(0);
+        expect(mentalFinalTnSurchargeForTemplate('active-fireball')).toBe(0);
+        expect(castingBaseTnForPowerLevel(5) + mentalFinalTnSurchargeForTemplate('active-mind-probe')).toBe(24);
+        expect(castingBaseTnForPowerLevel(5)).toBe(20);
     });
 
     it('enforces the Power Level cap by Mastery Rank (MR × 2)', () => {

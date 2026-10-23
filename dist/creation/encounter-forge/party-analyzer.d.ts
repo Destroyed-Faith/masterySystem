@@ -31,9 +31,10 @@ export interface PcAttackProfile {
     penetration: number;
     specials: PcSpecialOnHit[];
     spellPowerLevel: number | null;
-    /** Caster MR for spell TN ((8 × MR) − 2). */
+    /** Caster MR (Keep). Spell Base TN uses spellPowerLevel × 4. */
     casterMr: number;
-    isMental: boolean;
+    /** Printed Mind Probe / Mental Control Final TN surcharge (+4) or 0. */
+    mentalFinalTnSurcharge: number;
     notes: string[];
 }
 export interface DefenseBand {

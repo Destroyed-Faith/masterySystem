@@ -50,8 +50,12 @@ export const INITIATIVE_PER_COLORLESS_STONE = 4;
 export const CREATION = {
     ATTRIBUTE_DISTRIBUTION: [4, 4, 3, 3, 2, 2, 2],
     ATTRIBUTE_ALLOWED_VALUES: [2, 3, 4],
-    SKILL_POINTS: 40,
+    /** DF 2026: 20 Creation Points → five Rank-2 Specializations (2 pts per Rank). */
+    SKILL_POINTS: 20,
+    STARTING_SPECIALIZATION_COUNT: 5,
+    STARTING_SPECIALIZATION_RANK: 2,
     MAX_ATTRIBUTE_AT_CREATION: 4,
+    /** @deprecated Legacy fixed-skill creation. */
     MAX_SKILL_AT_CREATION: 4,
     // Players Guide ~5158–5164: only the *maximum* of 8 Disadvantage Points
     // is canonical. Any minimum is a house rule and ships as 0 by default.

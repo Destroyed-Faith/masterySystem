@@ -2,6 +2,8 @@
  * Type definitions for Mastery System Actors
  */
 
+import type { SpecializationRecord } from '../rules/specializations.js';
+
 export interface MasteryActorData {
   type: 'character' | 'npc' | 'summon' | 'divine';
   system: CharacterData | NpcData | SummonData | DivineData;
@@ -318,6 +320,8 @@ export interface CharacterData {
   resources: ResourcesData;
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
+  /** DF 2026 free-named Specializations (replaces fixed purchasable Skills). */
+  specializations?: SpecializationRecord[];
   /**
    * Unspent Skill Points after creation (e.g. refunded when Skills were removed
    * from the rules). One point buys one Skill Rating point in the progression UI;
@@ -328,7 +332,10 @@ export interface CharacterData {
     placed?: Record<string, number>;
   };
   /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 2 */
+  /** @deprecated Replaced by `echoImprints` (DF 2026); kept for legacy data / migration. */
   minorExpressions?: string[];
+  /** Chosen Echo Imprint ids (see src/rules/echo-imprints.ts); max length = mastery.rank; each needs its attribute ≥ 4 */
+  echoImprints?: string[];
   /** Optional: default attribute pool per generic stone power; auto-filled each round when useDefaultsEachRound is true */
   stonePowersPrefs?: {
     useDefaultsEachRound?: boolean;
@@ -625,6 +632,8 @@ export interface SummonBondLink {
   specialValue?: number;
   selectedSkills?: string[];
   skillDiceAlloc?: Record<string, number>;
+  /** DF 2026: Summon task → owner Specialization id (no Free Raises for summons). */
+  taskSpecMap?: Record<string, string>;
   powers?: SummonPowerRef[];
 }
 
@@ -728,6 +737,8 @@ export interface SummonBondRecord {
   specialValue: number;
   selectedSkills: string[];
   skillDiceAlloc: Record<string, number>;
+  /** DF 2026: Summon task → owner Specialization id. */
+  taskSpecMap?: Record<string, string>;
   spend: Record<string, unknown>;
   bodies: SummonBodyRecord[];
   activationTiming: 'before' | 'after';

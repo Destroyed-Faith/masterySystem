@@ -4,6 +4,7 @@
  */
 import type { BoundFamiliarRecord } from '../types/actor.js';
 import { computeSummonBond, type BondValidityStatus, type SharedSenseGroup, type SummonBondUpgradeSpend, type SummonMovementMode, type SummonSkillId } from './summon-bond-rules.js';
+import { readActorSpecializations, type SummonTaskSpecMap } from '../rules/specializations.js';
 export declare const DISSOLVE_BOND_CONFIRM = "Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.";
 export type StonePoolAttr = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 export declare const STONE_POOL_ATTRS: StonePoolAttr[];
@@ -48,6 +49,12 @@ export type SummonBondRecord = {
     specialValue: number;
     selectedSkills: SummonSkillId[];
     skillDiceAlloc: Partial<Record<SummonSkillId, number>>;
+    /**
+     * DF 2026: SUMMON_TASKS mapped to owner Specialization ids (slots =
+     * `summonTaskSlotCount(boundStoneCount)`). Dice caps via `summonSkillDiceCap`.
+     * Summons never receive Free Raises.
+     */
+    taskSpecMap?: SummonTaskSpecMap;
     spend: SummonBondUpgradeSpend;
     bodies: SummonBodyRecord[];
     activationTiming: 'before' | 'after';
@@ -98,6 +105,8 @@ export type BondRitualValidation = {
 export declare function validateBondPowers(bond: SummonBondRecord, ownerMasteryRank?: number): string[];
 export declare function validateBondRitual(bond: SummonBondRecord, ownerSkillRatings?: Record<string, number>, ownerMasteryRank?: number, extras?: {
     maxBonusTokens?: number;
+    /** Owner Specializations (DF 2026 task mapping). When omitted, mapping ids are not cross-checked. */
+    ownerSpecs?: ReturnType<typeof readActorSpecializations>;
 }): BondRitualValidation;
 /** Create a new Summon Bond, debit Bound Stones from the owner's pool, clear legacy familiars. */
 export declare function createSummonBondWithStones(actor: any, opts: {

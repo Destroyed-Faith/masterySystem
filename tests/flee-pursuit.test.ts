@@ -262,10 +262,10 @@ describe('P1.6 Flee and Pursuit', () => {
     expect(readPursuit(combat)?.exchanges).toHaveLength(2);
     const panel = renderPursuitHtml(readPursuit(combat));
     const chat = pursuitChatHtml(readPursuit(combat)!, escape.exchange!);
-    expect(panel).toContain('Track <strong>2</strong>');
+    expect(panel).not.toContain('Track <strong>');
     expect(panel).toContain(chat);
     expect((globalThis as any).ChatMessage.created.at(-1).content).toBe(chat);
-    expect(pursuitDialogContent(combat)).toContain('data-track="2"');
+    expect(pursuitDialogContent(combat)).not.toContain('data-track');
 
     combat.flags['mastery-system'].pursuit = undefined;
     await startPursuit({ combat, fleeing, pursuer });

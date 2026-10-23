@@ -39,12 +39,21 @@ export interface DeathCheckResult {
     state?: DeathState;
 }
 /**
+ * @deprecated DF 2026 retired Death Checks; `module.ts` no longer calls this.
  * Roll one Death Check for an Incapacitated creature and update its state.
  * Posts a GM-whispered chat card. No-op if the creature is not incapacitated,
  * already Stabilized, or already dead.
  */
 export declare function maybeRollDeathCheck(actor: any): Promise<DeathCheckResult>;
 /**
+ * DF 2026 Emergency Medicine Base TN for an Incapacitated patient
+ * (patient Mastery Rank × 4). No Medicine healing UI exists yet — call this
+ * wherever a Medicine roll targets an Incapacitated creature.
+ */
+export declare function emergencyMedicineTnForPatient(patient: any): number;
+/**
+ * @deprecated DF 2026 retired Death Checks (see `module.ts`). Kept for legacy tests / data.
+ *
  * Ally stabilization (Medicine, 1 Attack Action): on success the patient
  * counts as having 4 Successes. TN = 12 × patient Mastery Rank (handled by
  * the Medicine roll itself — this helper only records the result).

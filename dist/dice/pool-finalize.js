@@ -16,6 +16,7 @@
 import { evaluateAutoFail } from '../system/auto-fail.js';
 import { attributePoolReduction, challengePoolReduction, normalizeTargetRefs, } from '../system/pool-reduction.js';
 import { getFear } from '../combat/fear.js';
+import { diceAfterFear } from '../rules/fear-health.js';
 import { applyHealthAndEncumbrancePenalties } from '../utils/encumbrance.js';
 /** Whether Fear dice come off this pool (after flat specials, before Health %). */
 export function shouldApplyFearToPool(options = {}) {
@@ -71,15 +72,22 @@ export function finalizeRolledPool(actor, basePool, keepDice, options = {}) {
         flatReduction += challenge.reduction;
         notes.push(...challenge.notes);
     }
-    if (shouldApplyFearToPool(options)) {
-        const fearReduction = getFear(actor);
-        if (fearReduction > 0) {
-            flatReduction += fearReduction;
-            notes.push(`Fear: −${fearReduction} dice`);
-        }
-    }
     if (flatReduction > 0) {
         numDice = Math.max(0, numDice - flatReduction);
+    }
+    // DF 2026: Fear removes dice but protects a floor of two rolled dice when
+    // the pool (before Fear) had at least two.
+    if (shouldApplyFearToPool(options)) {
+        const fear = getFear(actor);
+        if (fear > 0) {
+            const afterFear = diceAfterFear(numDice, fear);
+            const applied = numDice - afterFear;
+            if (applied > 0)
+                notes.push(`Fear: −${applied} dice`);
+            else if (numDice >= 2)
+                notes.push('Fear: floor of 2 dice');
+            numDice = afterFear;
+        }
     }
     // (b) Percentage Health penalty (encumbrance affects Movement only).
     if (options.applyPoolPenalties !== false) {

@@ -663,7 +663,11 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             resolvedPowerSnapshot = null;
             raiseAllocSlots = 0;
         }
-        else if (raiseAllocSlots > 0 && !isRaiseAllocationComplete(declaredRaises, raiseAllocSlots, raiseAllocOptions)) {
+        else if (
+        // DF 2026: Spell Raises are allocated pre-roll; never offer post-roll allocation for Spells.
+        !isSpell &&
+            raiseAllocSlots > 0 &&
+            !isRaiseAllocationComplete(declaredRaises, raiseAllocSlots, raiseAllocOptions)) {
             // Hit — wait for post-roll allocation on this card.
             raiseAllocPreset = declaredRaises;
             resolvedPowerSnapshot = cloneBaseForDisplay(baseSnap);
@@ -1153,7 +1157,9 @@ export function attachDamageCardHandlers(messageId) {
             const shared = shareKey ? peekSharedRaiseAllocation(shareKey) : null;
             if (shared?.length)
                 allocatedPlan = shared;
-            if (needSlots > 0 && flags.raiseOutcome === 'full' && flags.basePowerSnapshot) {
+            // DF 2026: Spells never allocate Raises post-roll — their plan was fixed pre-roll.
+            const spellPlanComplete = !flags.powerIsSpell || isRaiseAllocationComplete(allocatedPlan, needSlots, raiseOptions);
+            if (needSlots > 0 && flags.raiseOutcome === 'full' && flags.basePowerSnapshot && spellPlanComplete) {
                 if (!isRaiseAllocationComplete(allocatedPlan, needSlots, raiseOptions)) {
                     const fromUi = [];
                     messageElement.find('.raise-alloc-select').each((_i, el) => {

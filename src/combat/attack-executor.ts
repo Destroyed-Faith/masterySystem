@@ -31,7 +31,7 @@ import {
 } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { getRulesMasteryRank } from "../utils/mastery-rank-sync.js";
-import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
+import { castingBaseTnForPowerLevel, mentalFinalTnSurchargeForTemplate } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import {
   getTargetEvade,
@@ -50,7 +50,10 @@ import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import {
   buildAvailableRaiseOptions,
   computeRaiseTns,
+  declaredRaiseFromOptionId,
+  isRaiseAllocationComplete,
   formatHitBreakdown,
+  type DeclaredRaise,
   loadPowerSnapshotForArtifactOption,
   loadPowerSnapshotForItem,
   snapshotToDamageFormula,
@@ -719,22 +722,17 @@ export async function createAttackCard(
 
     if (powerSystem.isSpell === true || artifactIsSpell) {
       tnKind = 'casting';
-      // Spell Base TN = (8 × caster Mastery Rank) − 2 (Players Guide "Casting
-      // Roll"); Mental Powers add +4. The Power Level does NOT set the TN.
-      const powerTags: string[] = Array.isArray(powerSystem.tags)
-        ? powerSystem.tags.map((t: unknown) => String(t))
-        : [];
-      const isMentalPower =
-        powerTags.includes('mental') ||
-        /mental/i.test(String(powerSystem.templateId ?? '')) ||
-        /mind-illusion|mind-probe|mental-control/i.test(String(powerSystem.templateId ?? ''));
-      spellBaseTnValue = castingBaseTnForMasteryRank(masteryRank, { mental: isMentalPower });
+      // Spell Base TN = used Power Level × 4. Mind Probe / Mental Control add
+      // printed Final TN +4 via mentalFinalTnSurchargeForTemplate.
+      const usedPl = Math.max(1, Math.floor(Number(selectedPowerLevel) || 1));
+      const templateId = String(powerSystem.templateId ?? '');
+      spellBaseTnValue =
+        castingBaseTnForPowerLevel(usedPl) + mentalFinalTnSurchargeForTemplate(templateId);
       castingBaseTn = spellBaseTnValue + spellResistanceAfterPenetration(target, attacker);
     }
   }
 
-  // NPC Spell attacks use Spell Base TN (8 × Mastery Rank − 2),
-  // not Evade and not PC power-level Casting TN.
+  // NPC Spell attacks: prefer printed attack PL when present, else MR stand-in.
   const npcIsSpell =
     isNpcAttack && (!!(option as any).npcIsSpell || !!npcAttackRow?.npcIsSpell);
   const npcCrit =
@@ -742,7 +740,17 @@ export async function createAttackCard(
     (npcAttackExplodesOn7(option as any) || npcAttackExplodesOn7(npcAttackRow));
   if (npcIsSpell) {
     tnKind = 'casting';
-    spellBaseTnValue = castingBaseTnForMasteryRank(Math.max(1, masteryRank));
+    const npcPl = Math.max(
+      1,
+      Math.floor(
+        Number(
+          (option as any).npcSpellPowerLevel
+            ?? (npcAttackRow as any)?.powerLevel
+            ?? (npcAttackRow as any)?.level,
+        ) || masteryRank || 1,
+      ),
+    );
+    spellBaseTnValue = castingBaseTnForPowerLevel(npcPl);
     castingBaseTn = spellBaseTnValue + spellResistanceAfterPenetration(target, attacker);
   }
 
@@ -1671,6 +1679,86 @@ function setupRaisesHandler(
     }
   };
 
+  // DF 2026: Spell Raises allocate their effects BEFORE the casting roll.
+  // Renders one effect select per declared Raise; the plan is mirrored into
+  // `data-raise-plan` (+ message flag) and the Roll button stays locked until complete.
+  const syncSpellPreRollAllocation = (slots: number): void => {
+    if (!raiseContext!.isSpell) return;
+    const options = raiseContext!.raiseOptions || [];
+    let host = panel.find('.spell-raise-alloc');
+    if (!host.length) {
+      panel.append('<div class="spell-raise-alloc raise-alloc-panel"></div>');
+      host = panel.find('.spell-raise-alloc');
+    }
+    if (slots <= 0 || options.length === 0) {
+      host.empty();
+      messageElement.find('.roll-attack-btn').prop('disabled', false);
+      messageElement.find('.roll-attack-btn').each((_: number, el: HTMLElement) => {
+        (globalThis as any).$(el).attr('data-raise-plan', '[]');
+      });
+      void (async () => {
+        try {
+          await gameAny?.messages?.get?.(messageId)?.setFlag?.('mastery-system', 'preRollRaisePlan', []);
+        } catch {
+          /* best-effort */
+        }
+      })();
+      return;
+    }
+    const prior: string[] = host
+      .find('.raise-alloc-select')
+      .toArray()
+      .map((el: HTMLElement) => String((globalThis as any).$(el).val() || ''));
+    const savedPlan: DeclaredRaise[] = Array.isArray(msFlags.preRollRaisePlan) ? msFlags.preRollRaisePlan : [];
+    const optionIdOf = (r: DeclaredRaise | undefined): string =>
+      r?.effect === 'damage'
+        ? 'damage'
+        : r?.effect === 'specialPlus' && r.targetSpecialKey
+          ? `special:${String(r.targetSpecialKey).toLowerCase()}`
+          : '';
+    const esc = (raw: string): string =>
+      String(raw || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const rows: string[] = [];
+    for (let i = 0; i < slots; i++) {
+      const preId = prior[i] ?? optionIdOf(savedPlan[i]);
+      const opts = options
+        .map((o) => `<option value="${esc(o.id)}"${o.id === preId ? ' selected' : ''}>${esc(o.label)}</option>`)
+        .join('');
+      rows.push(
+        `<div class="raise-alloc-row"><span class="raise-alloc-index">${i + 1}.</span>` +
+          `<select class="raise-alloc-select" data-slot="${i}"><option value="">— choose effect —</option>${opts}</select></div>`,
+      );
+    }
+    host.html(
+      `<p class="raises-description"><strong>Allocate ${slots} Spell Raise${slots === 1 ? '' : 's'} before casting</strong> (Damage or existing Special).</p>` +
+        `<div class="raise-alloc-rows">${rows.join('')}</div>`,
+    );
+    const applyPlan = (): void => {
+      const plan: DeclaredRaise[] = [];
+      host.find('.raise-alloc-select').each((_i: number, el: HTMLElement) => {
+        const id = String((globalThis as any).$(el).val() || '');
+        if (!id) return;
+        const dr = declaredRaiseFromOptionId(id, options);
+        if (dr) plan.push(dr);
+      });
+      const complete = isRaiseAllocationComplete(plan, slots, options);
+      messageElement.find('.roll-attack-btn').each((_: number, el: HTMLElement) => {
+        const $el = (globalThis as any).$(el);
+        $el.attr('data-raise-plan', complete ? JSON.stringify(plan) : '[]');
+        $el.prop('disabled', !complete);
+      });
+      void (async () => {
+        try {
+          await gameAny?.messages?.get?.(messageId)?.setFlag?.('mastery-system', 'preRollRaisePlan', complete ? plan : []);
+        } catch {
+          /* best-effort */
+        }
+      })();
+    };
+    host.find('.raise-alloc-select').off('change.msSpellAlloc').on('change.msSpellAlloc', applyPlan);
+    applyPlan();
+  };
+
   const updatePreview = (broadcast = false): void => {
     let { paid, free } = readCounts();
     const pool = freeRaisePool();
@@ -1713,6 +1801,14 @@ function setupRaisesHandler(
       $btn.removeAttr('data-raise-cost-waived');
       $btn.removeAttr('data-spell-cost');
     });
+    if (raiseContext!.isSpell) {
+      syncSpellPreRollAllocation(paid + free);
+      panel.find('.raise-plan-live').text(
+        paid + free > 0
+          ? `Paid ${paid} · Free ${free} → Final TN ${finalTn}. Spell Raises: Effekte VOR dem Wurf zuweisen.`
+          : `Keine Raises — TN ${finalTn}.`,
+      );
+    }
     void persistCounts(paid, free, finalTn);
     if (broadcast && !applyingRemote) broadcastRaisePlan(messageId, { paid, free }, summary);
   };

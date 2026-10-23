@@ -6,6 +6,8 @@ import { SKILLS } from './skills.js';
 import { buildFreshTraitUses } from './echos/index.js';
 import { beginMinorMagicRest } from './minor-magic-items.js';
 import { clearLastBreathOnRest } from '../stones/last-breath.js';
+import { safeHavenScarBarsRecovered } from '../rules/fear-health.js';
+import { medicineSpecializationRank } from '../rules/specializations.js';
 import { calculateDisadvantagePoints, } from '../system/disadvantages.js';
 import { STONE_POOL_ATTRIBUTE_KEYS } from '../combat/action-economy.js';
 import { forceReadyStonePoolsOnCharacter, stonePoolReadyMax, } from '../stones/stone-pool-sync.js';
@@ -48,13 +50,17 @@ export function buildRestHealthBarUpdates(system, opts) {
     if (activeIdx < 0)
         activeIdx = bars.length - 1;
     bars[activeIdx] = { ...bars[activeIdx], current: Number(bars[activeIdx]?.max) || 0 };
-    // One Scarred Bar: the most recent one (directly before the active bar).
-    if (opts.restoreOneScarredBar) {
-        for (let i = activeIdx - 1; i >= 0; i--) {
-            if ((Number(src[i]?.current) || 0) === 0) {
-                bars[i] = { ...bars[i], current: Number(bars[i]?.max) || 0 };
-                break;
-            }
+    // Scarred Bars: the most recent ones (directly before the active bar).
+    const toRestore = opts.scarBarsToRestore != null
+        ? Math.max(0, Math.floor(Number(opts.scarBarsToRestore) || 0))
+        : opts.restoreOneScarredBar
+            ? 1
+            : 0;
+    let restored = 0;
+    for (let i = activeIdx - 1; i >= 0 && restored < toRestore; i--) {
+        if ((Number(src[i]?.current) || 0) === 0) {
+            bars[i] = { ...bars[i], current: Number(bars[i]?.max) || 0 };
+            restored += 1;
         }
     }
     const newActive = bars.findIndex((b) => (Number(b?.current) || 0) > 0);
@@ -101,10 +107,14 @@ export function buildSafeHavenRestUpdates(system, opts) {
         updates['system.faithFractures.current'] = faithMax;
         updates['system.faithFractures.maximum'] = faithMax;
     }
-    // Health: restore the active Health Bar to full and reopen ONE Scarred Bar
-    // (Players Guide "Safe Haven Rest" benefits 3 + 4). No full-track reset,
-    // and Stress is not part of the documented Safe Haven refresh list.
-    Object.assign(updates, buildRestHealthBarUpdates(system, { restoreOneScarredBar: true }));
+    // Health: restore the active Health Bar to full and reopen Scarred Bars:
+    // 1 base + Medicine aftercare (DF 2026: Rank 4–7 → +1, Rank 8 → +2).
+    // No full-track reset; Stress is not part of the documented refresh list.
+    const medicineRank = opts?.medicineRank != null ? opts.medicineRank : medicineSpecializationRank(system);
+    Object.assign(updates, buildRestHealthBarUpdates(system, {
+        restoreOneScarredBar: true,
+        scarBarsToRestore: safeHavenScarBarsRecovered(medicineRank),
+    }));
     if (system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges')) {
         updates['system.mastery.charges'] = masteryRank;
     }
@@ -156,7 +166,7 @@ export function buildSafeHavenRestUpdates(system, opts) {
     }
     return updates;
 }
-export async function applySafeHavenRest(actor) {
+export async function applySafeHavenRest(actor, opts) {
     if (!actor)
         return;
     // Word of Recall: Stones stay Sealed while the mark exists.
@@ -171,7 +181,10 @@ export async function applySafeHavenRest(actor) {
         /* mark module unavailable */
     }
     const sealedBefore = Math.max(0, Math.floor(Number(actor?.system?.stonePools?.vitality?.sealed) || 0));
-    const updates = buildSafeHavenRestUpdates(actor.system, { sealHold });
+    const updates = buildSafeHavenRestUpdates(actor.system, {
+        sealHold,
+        medicineRank: opts?.medicineRank ?? null,
+    });
     try {
         if (actor.getFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat') != null) {
             await actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat');

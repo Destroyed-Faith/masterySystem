@@ -9,6 +9,8 @@ export declare class TowerWizardDialog extends BaseDialog {
     private step;
     private selection;
     private secondPassiveNeedsReselect;
+    /** Early-step edits since Powers were chosen (drives the reconciliation preview). */
+    private earlyChanges;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

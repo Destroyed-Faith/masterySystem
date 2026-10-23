@@ -5,6 +5,13 @@ import { masteryRoll } from '../dice/roll-handler.js';
 import { defaultThreePhaseEncounter, resolveLeadRollOutcome, resolvePhase, computeFinalOutcome, phaseRaiseTn, } from '../system/social-combat.js';
 import { SKILLS } from '../utils/skills.js';
 export async function showSocialCombatDialog(participantActors) {
+    // DF Guide 2026-10-23: Social Combat (Setup Pool / phases) is retired.
+    // Use ordinary Skill Checks / Skill Oppositions as Social Challenges.
+    ui.notifications?.warn('Social Combat is retired. Use Social Challenges: ordinary Skill Checks or Skill Oppositions (no Setup Pool).');
+    void participantActors;
+    return;
+}
+async function _legacyShowSocialCombatDialog(participantActors) {
     if (participantActors.length < 1) {
         ui.notifications?.warn('Select at least one PC for Social Combat.');
         return;

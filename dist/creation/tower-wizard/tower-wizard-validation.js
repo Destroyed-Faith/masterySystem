@@ -4,7 +4,129 @@
 import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_TOTAL, creationPowerRequirementsForMasteryRank, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, deriveDefenseIdFromPassive1, getDefaultPassive1TemplateId, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidReplacementActiveBuffId, isValidWizardPassive1, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { getPassiveCategoryConflictMessage, isAllowedSecondPassive, } from './tower-wizard-passive-categories.js';
+import { validateEchoImprintSelections } from '../../rules/echo-imprints.js';
+import { validateSpecializationList } from '../../rules/specializations.js';
+import { ATTRIBUTE_KEYS, permanentStonesFromLifetimeXp, startingPackageIsValid } from '../../progression/v099-rules.js';
 import { collectEchoAdvisorWarnings, } from './tower-wizard-echo-advisor.js';
+/* ------------------------------------------------------------------ */
+/* DF 2026 early identity steps — shared by Guided and Quick (manual) */
+/* ------------------------------------------------------------------ */
+/** Starting Attribute Stones (permanent; independent of Attribute scores). */
+export const TOWER_WIZARD_STARTING_STONES = permanentStonesFromLifetimeXp(0);
+/** Starting Specializations: five at Rank 2 (20 Creation Points). */
+export const TOWER_WIZARD_STARTING_SPECIALIZATIONS = 5;
+/** Standard starting Mastery Rank. */
+export const TOWER_WIZARD_DEFAULT_MASTERY_RANK = 2;
+export function resolveWizardMasteryRank(selection, ctx = {}) {
+    const raw = Number(ctx.masteryRank ?? selection.masteryRank ?? TOWER_WIZARD_DEFAULT_MASTERY_RANK);
+    return Math.max(1, Math.floor(raw) || TOWER_WIZARD_DEFAULT_MASTERY_RANK);
+}
+/** Attribute Stone concentration cap: Mastery Rank × 2 on one Attribute. */
+export function wizardStoneCap(masteryRank) {
+    return Math.max(1, Math.floor(masteryRank) || 1) * 2;
+}
+/** Starting Attribute package (4,4,3,3,2,2,2) + 2 Stones (≤ MR × 2 each). */
+export function validateWizardAttributesAndStones(selection, ctx = {}) {
+    const errors = [];
+    if (selection.attributeValues) {
+        const values = selection.attributeValues;
+        if (!startingPackageIsValid(values)) {
+            errors.push('Assign your Attributes as 4, 4, 3, 3, 2, 2, 2 (one value per Attribute).');
+        }
+    }
+    if (selection.stoneAssignments) {
+        const cap = wizardStoneCap(resolveWizardMasteryRank(selection, ctx));
+        let total = 0;
+        for (const key of ATTRIBUTE_KEYS) {
+            const n = Math.floor(Number(selection.stoneAssignments[key]) || 0);
+            if (n < 0)
+                errors.push(`${key} cannot have negative Stones.`);
+            if (n > cap)
+                errors.push(`${key} exceeds the Mastery Rank × 2 Stone limit (${cap}).`);
+            total += Math.max(0, n);
+        }
+        if (total !== TOWER_WIZARD_STARTING_STONES) {
+            errors.push(`Place exactly ${TOWER_WIZARD_STARTING_STONES} starting Attribute Stones (placed ${total}).`);
+        }
+    }
+    return errors;
+}
+/** Echo Imprints: ≤ MR, unique, linked Attribute ≥ 4 (shared rules validator). */
+export function validateWizardEchoImprints(selection, ctx = {}) {
+    const ids = selection.echoImprintIds;
+    if (!ids)
+        return [];
+    const errors = [];
+    if (new Set(ids).size !== ids.length)
+        errors.push('Duplicate Echo Imprints selected.');
+    const result = validateEchoImprintSelections({
+        selectedIds: ids,
+        masteryRank: resolveWizardMasteryRank(selection, ctx),
+        attributes: (selection.attributeValues ?? ctx.actorAttributes ?? {}),
+    });
+    errors.push(...result.errors);
+    return errors;
+}
+/** Starting Specializations: exactly five Rank 2 (shared rules validator). */
+export function validateWizardSpecializations(selection) {
+    if (!selection.specializations)
+        return [];
+    return validateSpecializationList(selection.specializations, { requireStartingBudget: true }).errors;
+}
+/**
+ * Validate the early identity DTO. Fields are only checked when present, so
+ * legacy callers (imports, tests) keep working; set `requireComplete` for the
+ * dialog gate where every early step must be finished.
+ */
+export function validateTowerWizardIdentity(selection, ctx = {}, opts = {}) {
+    const errors = [];
+    if (opts.requireComplete) {
+        if (!ctx.hasEcho && !String(selection.echoKey || '').trim())
+            errors.push('Choose your Echo.');
+        if (!selection.attributeValues)
+            errors.push('Assign your Attributes.');
+        if (!selection.stoneAssignments)
+            errors.push('Place your starting Stones.');
+        if (!selection.specializations)
+            errors.push('Choose your five Specializations.');
+    }
+    errors.push(...validateWizardAttributesAndStones(selection, ctx));
+    errors.push(...validateWizardEchoImprints(selection, ctx));
+    errors.push(...validateWizardSpecializations(selection));
+    return errors.length ? errors.join(' ') : null;
+}
+/**
+ * Per-step gate for the dialog's early steps. Attributes/Stones and Specializations are
+ * required to continue; Echo Imprints are optional ("up to MR") but must be legal.
+ */
+export function validateWizardIdentityStep(step, selection, ctx = {}) {
+    let errors = [];
+    switch (step) {
+        case 'echo':
+            if (!ctx.hasEcho && !String(selection.echoKey || '').trim())
+                errors.push('Choose your Echo.');
+            break;
+        case 'attributesStones':
+            errors = validateWizardAttributesAndStones({
+                ...selection,
+                attributeValues: selection.attributeValues ?? {},
+                stoneAssignments: selection.stoneAssignments ?? {},
+            }, ctx);
+            break;
+        case 'echoImprints':
+            errors = validateWizardEchoImprints(selection, ctx);
+            break;
+        case 'specializations':
+            errors = validateWizardSpecializations({
+                ...selection,
+                specializations: selection.specializations ?? [],
+            });
+            break;
+        default:
+            break;
+    }
+    return errors.length ? errors.join(' ') : null;
+}
 export function isValidSecondPassiveForDefense(_defenseId, templateId, passive1TemplateId, actorEchoKey, actorSubChoiceKey) {
     const passive1 = passive1TemplateId;
     if (!passive1)
@@ -99,7 +221,11 @@ export function validateManualWizardSelection(selection) {
     }
     return null;
 }
-export function validateTowerWizardSelection(selection) {
+export function validateTowerWizardSelection(selection, identityCtx) {
+    // Guided and Quick share the same identity DTO validation (Imprints / Specs / Stones).
+    const identityErr = validateTowerWizardIdentity(selection, identityCtx);
+    if (identityErr)
+        return identityErr;
     if (isManualBuildMode(selection)) {
         return validateManualWizardSelection(selection);
     }
@@ -219,8 +345,11 @@ export function validateTowerWizardCreation(actor) {
     }
     return null;
 }
-export function validatePackageSpecs(selection) {
+export function validatePackageSpecs(selection, identityCtx) {
     if (isManualBuildMode(selection)) {
+        const identityErr = validateTowerWizardIdentity(selection, identityCtx);
+        if (identityErr)
+            return identityErr;
         const specs = buildPackageGrantSpecsFromOverrides(selection);
         if (!specs || specs.length !== TOWER_WIZARD_POWER_TOTAL) {
             return `Internal package error: expected ${TOWER_WIZARD_POWER_TOTAL} grants from manual picks.`;
@@ -231,7 +360,7 @@ export function validatePackageSpecs(selection) {
     if (specs.length !== TOWER_WIZARD_POWER_TOTAL) {
         return `Internal package error: expected ${TOWER_WIZARD_POWER_TOTAL} grants, got ${specs.length}.`;
     }
-    return validateTowerWizardSelection(selection);
+    return validateTowerWizardSelection(selection, identityCtx);
 }
 export function collectRelevantWarnings(selection, echoContext) {
     const out = [];

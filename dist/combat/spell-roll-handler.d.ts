@@ -6,8 +6,9 @@
  * standard attack:
  *
  *   Casting Roll → pool = casting attribute, keep = mastery rank.
- *   Spell Base TN = (8 × caster Mastery Rank) − 2. Mental Powers add +4.
- *   Final Spell TN = Spell Base TN + target Spell Resistance.
+ *   Spell Base TN = used Power Level × 4.
+ *   Final Spell TN = Spell Base TN + effective SR + 4×Paid Combat Raises
+ *   (+4 only for printed Mind Probe / Mental Control Final TN surcharge).
  *   Spell Penetration reduces only the Spell Resistance part, never the base.
  *
  *   Below the Spell Base TN (or Mental Power Base TN): the Spell fizzles and
@@ -30,18 +31,22 @@ import { type RaiseOutcome } from './raise-resolution.js';
  */
 export declare function canCastSpellAtLevel(masteryRank: number, spellLevel: number): boolean;
 /**
- * Spell Base TN (Players Guide "Casting Roll"): **(8 × caster Mastery Rank) − 2**,
- * independent of the Power Level of the spell being cast.
- *
- *   MR 1 → 6, MR 2 → 14, … MR 8 → 62.
- *
- * Mental Powers (Mental Attack, Mind Illusion, Mind Probe, Mental Control)
- * use `Mental Power Base TN = Spell Base TN + 4`. That mental base is the
- * fizzle line. Final TN adds the target's Spell Resistance after Penetration.
+ * Spell Base TN = used Power Level × 4 (DF Guide 2026-10-23).
+ * Mastery Rank sets Keep / legal PL cap, not this TN.
+ * There is NO generic +4 for “Mental” Spells.
  */
-export declare function castingBaseTnForMasteryRank(masteryRank: number, opts?: {
-    mental?: boolean;
-}): number;
+export declare function castingBaseTnForPowerLevel(powerLevel: number): number;
+/**
+ * Printed Final Mental Power TN surcharge (+4) for Mind Probe / Mental Control only
+ * (Power catalogue technical text). Not applied to Mental Attack or other Spells.
+ */
+export declare const MENTAL_FINAL_TN_SURCHARGE_TEMPLATE_IDS: Set<string>;
+export declare function mentalFinalTnSurchargeForTemplate(templateId: string | null | undefined): number;
+/**
+ * @deprecated Prefer {@link castingBaseTnForPowerLevel}. Legacy MR-based Spell TN
+ * is retired; this wrapper maps an unknown PL by treating MR as a temporary stand-in.
+ */
+export declare function castingBaseTnForMasteryRank(masteryRank: number): number;
 /**
  * Deduct `amount` HP from the actor, bypassing armor (blood magic). Records
  * the amount lost so it cannot be healed until combat ends.
@@ -95,8 +100,10 @@ export interface SpellRollParams {
     flavor?: string;
     /** Support spell: no target required — only the Casting Roll must succeed. */
     supportMode?: boolean;
-    /** Mental Power: Base TN = Spell Base TN + 4. */
+    /** @deprecated Ignored — generic Mental +4 removed. Use template surcharge helper. */
     mentalPower?: boolean;
+    /** Power templateId for printed Mind Probe / Mental Control Final TN +4. */
+    templateId?: string | null;
 }
 export interface SpellRollResult {
     /** Casting / spell-attack roll result. */

@@ -148,17 +148,8 @@ export const COMBAT_MANEUVERS = [
     },
     // ========================================
     // SUPPORT REACTIONS
-    // (Players Guide 6888–6892)
+    // Aid retired (DF 2026 Guide: not a Basic Reaction; no +4 Final Result).
     // ========================================
-    {
-        id: "aid",
-        name: "Aid",
-        description: "Assist an ally's Skill Check: +4 to its Final Result.",
-        slot: "reaction",
-        category: "support-reaction",
-        tags: ["reaction", "support", "basic", "basic-reaction"],
-        effect: "Trigger: an ally makes a **Skill Check** you can meaningfully assist. Requirement: you have the **same Skill** at **Rating ≥ 2 × your Mastery Rank** (Full Pool Requirement). Effect: the ally gains **+4 to the Final Result** of that Skill Check. Only **one Aid** may affect the same Check. Aid does not spend your Skill Points. In combat, using Aid spends **1 Reaction**.",
-    },
     {
         id: "interpose",
         name: "Interpose",

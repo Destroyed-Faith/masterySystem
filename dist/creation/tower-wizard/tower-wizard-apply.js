@@ -7,11 +7,13 @@ import { grantPowerSpecs } from '../../utils/power-item-builder.js';
 import { calculatePowersUpgradeRefund } from '../../utils/power-xp-refund.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildPackageReview, isManualBuildMode, } from './tower-wizard-packages.js';
 import { validatePackageSpecs } from './tower-wizard-validation.js';
+import { buildIdentityUpdateData } from './tower-wizard-identity.js';
 function isCreationMode(actor) {
     return actor.system?.creation?.complete === false;
 }
 export async function applyTowerWizardPackage(actor, selection, options) {
-    const err = validatePackageSpecs(selection);
+    const actorMr = Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 2));
+    const err = validatePackageSpecs(selection, { masteryRank: actorMr });
     if (err) {
         ui.notifications?.error(err);
         return false;
@@ -66,6 +68,11 @@ export async function applyTowerWizardPackage(actor, selection, options) {
     const updateData = {
         'system.creation.towerWizardPackageId': review.packageId,
     };
+    // DF 2026: Specializations / Echo Imprints (and creation Attributes + Stones) are written only
+    // during creation. Legacy skill ratings are left untouched (no new primary skill data).
+    if (inCreation && selection.skipIdentitySteps !== true) {
+        Object.assign(updateData, buildIdentityUpdateData(selection));
+    }
     if (refundXp > 0) {
         const xpState = getXpState(actor);
         const acct = applyXpCost(xpState, -refundXp);

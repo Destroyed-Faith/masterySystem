@@ -245,6 +245,7 @@ export async function resetCharacterForRecreation(actor, options) {
     updates['system.disadvantages'] = [];
     updates['system.schticks.ranks'] = [];
     updates['system.minorExpressions'] = [];
+    updates['system.echoImprints'] = [];
     updates['system.conditions'] = [];
     // Faith Fractures reset to 0 / 0 — finalize repopulates from disadvantage points.
     updates['system.faithFractures.current'] = 0;

@@ -91,15 +91,6 @@
           {{/if}}
         </div>
       </div>
-      {{#if skillsRedistributing}}
-      <div class="points-box creation-points" title="Skill Points Remaining (+ sets a skill to 4; only 0 or 4 allowed)">
-        <label>SP</label>
-        <div class="points-display">
-          <span class="points-value {{#if (eq creation.skillPointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.skillPointsRemaining}}</span>
-          <span class="points-label">/ {{creation.skillPointsConfig}}</span>
-        </div>
-      </div>
-      {{/if}}
       {{else}}
       <!-- Attribute Distribution Counter -->
       <div class="points-box creation-points creation-points-attr" title="Attribute Distribution: 2×4, 2×3, 3×2">
@@ -111,11 +102,11 @@
         </div>
       </div>
       
-      <div class="points-box creation-points" title="Skill Points Remaining (+ sets a skill to 4; only 0 or 4 allowed)">
-        <label>SP</label>
+      <div class="points-box creation-points" title="{{localize 'MASTERY.df2026.creation.specsHeaderTitle'}}">
+        <label>{{localize "MASTERY.df2026.creation.specsShortLabel"}}</label>
         <div class="points-display">
-          <span class="points-value {{#if (eq creation.skillPointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.skillPointsRemaining}}</span>
-          <span class="points-label">/ {{creation.skillPointsConfig}}</span>
+          <span class="points-value {{#if creation.specializationsValid}}complete{{else}}remaining{{/if}}">{{creation.specializationRank2Count}}</span>
+          <span class="points-label">/ {{creation.startingSpecializationCount}}</span>
         </div>
       </div>
       
@@ -283,7 +274,7 @@
     <div class="creation-banner-content">
       <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
       <p>Distribute attributes: <strong>2×4, 2×3, 3×2</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}). 
-      <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
+      Specializations: <strong>{{creation.specializationRank2Count}}</strong> / {{creation.startingSpecializationCount}} at Rank {{creation.startingSpecializationRank}} ({{creation.specializationBudgetHint}}). 
       <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / {{creation.disadvantagePointsMax}} pts — <strong>at least {{creation.disadvantagePointsMin}} pts required</strong> to finalize.</p>
       <button type="button" class="reset-creation-attributes" title="Set all attributes to 2 so you can redistribute (fixes hidden dropdown options)">
         <i class="fas fa-undo"></i> Reset attributes
@@ -294,7 +285,7 @@
       </button>
       {{else}}
       <span class="creation-status">
-        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}), Specs ({{#if creation.specializationsValid}}done{{else}}{{creation.specializationRank2Count}}/{{creation.startingSpecializationCount}} Rank {{creation.startingSpecializationRank}}{{/if}}), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
       </span>
       {{/if}}
     </div>
@@ -659,11 +650,11 @@
               
               {{#if ../creationComplete}}
               <div class="minor-expressions-card minor-expressions-card--button-only">
-                <button type="button" class="minor-expressions-open" data-attribute="might" title="Minor Expressions (Might)">Minor Expressions</button>
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="might" title="Echo Imprints (Might)">Echo Imprints</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions after character creation is finished</span>
+                <span>Echo Imprints after character creation is finished</span>
               </div>
               {{/if}}
               
@@ -709,11 +700,11 @@
               
               {{#if ../creationComplete}}
               <div class="minor-expressions-card minor-expressions-card--button-only">
-                <button type="button" class="minor-expressions-open" data-attribute="agility" title="Minor Expressions (Agility)">Minor Expressions</button>
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="agility" title="Echo Imprints (Agility)">Echo Imprints</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions after character creation is finished</span>
+                <span>Echo Imprints after character creation is finished</span>
               </div>
               {{/if}}
               
@@ -756,9 +747,15 @@
                 </div>
               </div>
               
-              <div class="minor-expressions-card minor-expressions-card--none">
-                <span class="minor-expressions-muted">Vitality has no Minor Expressions.</span>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="vitality" title="Echo Imprints (Vitality)">Echo Imprints</button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Echo Imprints after character creation is finished</span>
+              </div>
+              {{/if}}
               
               <button type="button" class="attribute-roll" data-attribute="vitality">
                 <i class="fas fa-dice-d20"></i> Roll Vitality
@@ -801,11 +798,11 @@
               
               {{#if ../creationComplete}}
               <div class="minor-expressions-card minor-expressions-card--button-only">
-                <button type="button" class="minor-expressions-open" data-attribute="wits" title="Minor Expressions (Wits)">Minor Expressions</button>
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="wits" title="Echo Imprints (Wits)">Echo Imprints</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions after character creation is finished</span>
+                <span>Echo Imprints after character creation is finished</span>
               </div>
               {{/if}}
               
@@ -855,11 +852,11 @@
               
               {{#if ../creationComplete}}
               <div class="minor-expressions-card minor-expressions-card--button-only">
-                <button type="button" class="minor-expressions-open" data-attribute="intellect" title="Minor Expressions (Intellect)">Minor Expressions</button>
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="intellect" title="Echo Imprints (Intellect)">Echo Imprints</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions after character creation is finished</span>
+                <span>Echo Imprints after character creation is finished</span>
               </div>
               {{/if}}
               
@@ -904,11 +901,11 @@
               
               {{#if ../creationComplete}}
               <div class="minor-expressions-card minor-expressions-card--button-only">
-                <button type="button" class="minor-expressions-open" data-attribute="resolve" title="Minor Expressions (Resolve)">Minor Expressions</button>
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="resolve" title="Echo Imprints (Resolve)">Echo Imprints</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions after character creation is finished</span>
+                <span>Echo Imprints after character creation is finished</span>
               </div>
               {{/if}}
               
@@ -953,11 +950,11 @@
               
               {{#if ../creationComplete}}
               <div class="minor-expressions-card minor-expressions-card--button-only">
-                <button type="button" class="minor-expressions-open" data-attribute="influence" title="Minor Expressions (Influence)">Minor Expressions</button>
+                <button type="button" class="echo-imprints-open minor-expressions-open" data-attribute="influence" title="Echo Imprints (Influence)">Echo Imprints</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions after character creation is finished</span>
+                <span>Echo Imprints after character creation is finished</span>
               </div>
               {{/if}}
               
@@ -1421,48 +1418,65 @@
 
     </div>
     
-    <!-- SKILLS TAB -->
+    <!-- SKILLS TAB (DF 2026: Specializations; legacy fixed Skills archived below) -->
     <div class="tab skills" data-group="primary" data-tab="skills">
-      
-      <div class="skills-overview">
+
+      <section class="specializations-panel">
+        <header class="specializations-header">
+          <h3><i class="fas fa-graduation-cap"></i> Specializations</h3>
+          <div class="specializations-header-actions">
+            <button type="button" class="spec-roll spec-roll-untrained" data-spec-id="" title="Untrained roll: full Attribute pool with Disadvantage, 0 Raises.">
+              <i class="fas fa-dice-d20"></i> Untrained Roll
+            </button>
+            {{#if canEditSpecializations}}
+            <button type="button" class="spec-add" title="{{#if creationComplete}}Learn a new Specialization at Rank 1 ({{specializationXpPerRank}} XP){{else}}Add a Specialization{{/if}}">
+              <i class="fas fa-plus"></i> Add Specialization{{#if creationComplete}}{{#unless isGM}} ({{specializationXpPerRank}} XP){{/unless}}{{/if}}
+            </button>
+            {{/if}}
+          </div>
+        </header>
+        <p class="stat-summary-hint specializations-hint">
+          Roll <strong>Attribute dice, keep Mastery Rank</strong>. Base TN = Task Level × 4; each Paid Raise adds +4 TN, Free Raises add 0. Rank sets your Raise allowance. Passive Skill Value = 2 × Attribute. No post-roll point spending.
+        </p>
         {{#if system.combat.physicalSkillPenaltyDisplay}}
-        <p class="stat-summary-hint skills-equipment-penalty-hint"><i class="fas fa-shield-alt" aria-hidden="true"></i> {{system.combat.physicalSkillPenaltyDisplay}} from equipped armor / shield / body artifact.</p>
+        <p class="stat-summary-hint skills-equipment-penalty-hint"><i class="fas fa-shield-alt" aria-hidden="true"></i> {{system.combat.physicalSkillPenaltyDisplay}} from equipped armor / shield / body artifact (Physical Field rolls).</p>
         {{/if}}
-        {{#if skillsRedistributing}}
-        <div class="skills-redistribute-banner">
-          <p><i class="fas fa-rotate"></i> <strong>Redistribute Skills</strong> — distribute {{creation.skillPointsConfig}} points in steps of <strong>{{creation.skillStep}}</strong> (only 0 or {{creation.maxSkillAtCreation}} per skill). Remaining: <strong>{{creation.skillPointsRemaining}}</strong>.</p>
-          <div class="skills-redistribute-actions">
-            <button type="button" class="finish-skills-redistribute" {{#unless canFinishSkillsRedistribute}}disabled{{/unless}} title="Save the new 40-point allocation">
-              <i class="fas fa-check"></i> Finish Redistribute
+
+        {{#if hasSpecializations}}
+        <div class="specializations-list">
+          {{#each specializations}}
+          <div class="spec-row" data-spec-id="{{this.id}}">
+            <button type="button" class="spec-roll" data-spec-id="{{this.id}}" title="Roll {{this.name}} (Rank {{this.rank}}: {{this.allowanceLabel}} Raises)">
+              <i class="fas fa-dice-d20"></i>
             </button>
-            <button type="button" class="cancel-skills-redistribute" title="Restore the previous skill ranks">
-              <i class="fas fa-times"></i> Cancel
-            </button>
+            <div class="spec-main">
+              <span class="spec-name">{{this.name}}</span>
+              <span class="spec-field attr-badge">{{this.fieldLabel}}</span>
+              <span class="spec-scope">{{this.scope}}</span>
+              <span class="spec-hint" title="{{this.passiveHint}}">{{this.allowanceLabel}} · {{this.passiveHint}}</span>
+            </div>
+            <div class="spec-rank" title="Rank {{this.rank}} of 8">Rank {{this.rank}}</div>
+            {{#if @root.canEditSpecializations}}
+            <div class="spec-controls">
+              {{#if @root.showSpecializationRankUp}}
+              <button type="button" class="spec-rank-up" data-spec-id="{{this.id}}" title="Raise one Rank ({{@root.specializationXpPerRank}} XP, once per Upgrade Step)" {{#if (gte this.rank 8)}}disabled{{/if}}>
+                <i class="fas fa-arrow-up"></i> {{@root.specializationXpPerRank}} XP
+              </button>
+              {{/if}}
+              <button type="button" class="spec-edit" data-spec-id="{{this.id}}" title="Edit Specialization"><i class="fas fa-edit"></i></button>
+              <button type="button" class="spec-delete" data-spec-id="{{this.id}}" title="Delete Specialization"><i class="fas fa-trash"></i></button>
+            </div>
+            {{/if}}
           </div>
+          {{/each}}
         </div>
-        {{else if creationComplete}}
-        {{#if skillPointsUnspent}}
-        <div class="skill-points-refund-banner" title="Unspent Skill Points. Each + on a skill places one of them (no XP, no once-per-session limit) until they are used up. Removing a rank placed this way gives the Skill Point back; Skill Points never turn into XP.">
-          <p><i class="fas fa-coins"></i> <strong>Starting Skill Points: <span id="remaining-skill-points">{{skillPointsUnspent}}</span> remaining</strong> — these are still Character Creation Skill Points. Place them on legal Skills with the <i class="fas fa-plus"></i> buttons (1 point = +1 Rating, up to Mastery Rank × 4 per skill), then Confirm. They are not general XP.</p>
-        </div>
+        {{else}}
+        <p class="stat-summary-hint specializations-empty">No Specializations yet. Starting characters pick five Rank&nbsp;2 Specializations (20 Creation Points).</p>
         {{/if}}
-        <div class="attribute-xp-distribution-controls skill-xp-toolbar">
-          <div class="pending-skill-changes-info">
-            <span class="remaining-xp-text">After pending: <span id="remaining-skill-xp">0</span> XP</span>
-            <span class="pending-changes-text">Steps: <span id="pending-skill-changes-count">0</span></span>
-            <span class="pending-skill-xp-net-wrap">Net: <span id="pending-skill-xp-net">0</span> XP</span>
-          </div>
-          <div class="skill-xp-toolbar-actions">
-            <button type="button" class="confirm-skill-changes" id="confirm-skill-changes-btn" disabled>
-              <i class="fas fa-check"></i> Confirm Changes
-            </button>
-            <button type="button" class="cancel-skill-changes" id="cancel-skill-changes-btn" disabled>
-              <i class="fas fa-times"></i> Cancel
-            </button>
-          </div>
-        </div>
+
+        {{#if creationComplete}}{{#unless skillsRedistributing}}
         <div class="safe-haven-rest-row">
-          <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Skill Points, Vitality save uses, and Reroll Points">
+          <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Vitality save uses and Reroll Points">
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
           {{#if regenerationPassive.show}}
@@ -1473,101 +1487,57 @@
           <button type="button" class="social-combat-btn" title="Run a 3-phase Social Combat encounter">
             <i class="fas fa-comments"></i> Social Combat
           </button>
-          {{#if canStartSkillsRedistribute}}
-          <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and redistribute the 40 creation points in steps of 4 (only 0 or 4). Only when the character has no XP yet.">
-            <i class="fas fa-rotate"></i> Redistribute Skills
-          </button>
-          {{/if}}
           {{#if (userIsGM)}}
           <button type="button" class="gm-award-faith-fracture" title="Reward playing out disadvantages (+1 Reroll Point, up to maximum)">
             <i class="fas fa-plus-circle"></i> GM: +1 Reroll Point
           </button>
           {{/if}}
         </div>
-        {{/if}}
-      </div>
-      
-      {{#each skills}}
-        <div class="skill-category-compact{{#if (eq this.category "Perception")}} skill-category-compact--perception{{/if}}">
-          <h4 class="category-header-compact">
-            {{#if (eq this.category "Perception")}}<i class="fas fa-eye"></i>{{/if}}
-            {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
-            {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
-            {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
-            {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-            {{this.category}}
-          </h4>
-          <div class="skills-list-compact">
-            {{#each this.skills}}
-              <div class="skill-row-compact">
-                <div class="skill-roll-lead-group{{#if (gt this.rollPools.length 1)}} skill-roll-lead-group--multi{{/if}}">
-                  {{#each this.rollPools}}
-                  <button
-                    type="button"
-                    class="skill-roll-compact skill-roll-pool-btn {{#if halfPool}}half-pool{{else}}full-pool{{/if}}"
-                    data-skill="{{../key}}"
-                    data-attribute="{{attributeKey}}"
-                    title="{{tooltip}}{{#if (gt ../rollPools.length 1)}} · {{capitalize attributeKey}}{{/if}}"
-                  >
-                    {{rollLabel}}
-                  </button>
-                  {{/each}}
-                </div>
-                <span class="skill-name-compact skill-name-tooltip-wrap" tabindex="0">
-                  {{this.name}}
-                  {{#if this.description}}
-                  <span class="skill-name-tooltip" role="tooltip">{{this.description}}</span>
-                  {{/if}}
-                </span>
-                <div class="skill-attrs-compact">
-                  {{#each this.attributes}}
-                    <span class="attr-badge">{{capitalize this}}</span>
-                  {{/each}}
-                </div>
-                <div class="skill-value-display-compact">
-                  <div class="skill-rank-block">
-                    <span class="skill-value-compact">{{default this.value 0}}</span>
-                    {{#if @root.creationComplete}}{{#unless @root.skillsRedistributing}}
-                    <span class="skill-rank-pending-badge" data-skill="{{this.key}}" title="Rank after pending changes"></span>
-                    {{/unless}}{{/if}}
+        {{/unless}}{{/if}}
+      </section>
+
+      <details class="legacy-skills-archive">
+        <summary><i class="fas fa-archive"></i> Legacy Skills (archive)</summary>
+        <p class="stat-summary-hint">Fixed Skills are retired in DF 2026 and kept read-only for migration review. Character creation uses five Rank-2 Specializations. Skill Spend / Redistribute no longer apply.</p>
+
+        {{#each skills}}
+          <div class="skill-category-compact{{#if (eq this.category "Perception")}} skill-category-compact--perception{{/if}}">
+            <h4 class="category-header-compact">
+              {{#if (eq this.category "Perception")}}<i class="fas fa-eye"></i>{{/if}}
+              {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
+              {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
+              {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
+              {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
+              {{this.category}}
+            </h4>
+            <div class="skills-list-compact">
+              {{#each this.skills}}
+                <div class="skill-row-compact skill-row-legacy">
+                  <span class="skill-name-compact skill-name-tooltip-wrap" tabindex="0">
+                    {{this.name}}
+                    {{#if this.description}}
+                    <span class="skill-name-tooltip" role="tooltip">{{this.description}}</span>
+                    {{/if}}
+                  </span>
+                  <div class="skill-attrs-compact">
+                    {{#each this.attributes}}
+                      <span class="attr-badge">{{capitalize this}}</span>
+                    {{/each}}
                   </div>
-                  {{#if @root.skillsAllocationMode}}
-                  <div class="creation-controls">
-                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Clear this skill (refund {{@root.creation.skillStep}} points)" {{#if (lte this.value 0)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Set this skill to {{@root.creation.maxSkillAtCreation}} (costs {{@root.creation.skillStep}} points)" {{#if (gte this.value @root.creation.maxSkillAtCreation)}}disabled{{/if}} {{#if (lt @root.creation.skillPointsRemaining @root.creation.skillStep)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
+                  <div class="skill-value-display-compact">
+                    <div class="skill-rank-block">
+                      <span class="skill-value-compact">{{default this.value 0}}</span>
+                    </div>
                   </div>
-                  {{else}}
-                  <span class="skill-pool-display">{{default this.remaining 0}} / {{default this.value 0}} uses</span>
-                  <span class="skill-pending-xp" data-skill="{{this.key}}" title="XP reserved on this skill until Confirm"></span>
-                  <div class="skill-progress-controls">
-                    <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Increase Skill (Spend XP)">
-                      <i class="fas fa-plus"></i>
-                    </button>
-                    <button type="button" class="skill-refund-point" data-skill="{{this.key}}" title="Decrease Skill (Refund XP)">
-                      <i class="fas fa-minus"></i>
-                    </button>
-                  </div>
-                  {{/if}}
                 </div>
-                {{#if @root.creationComplete}}{{#unless @root.skillsRedistributing}}
-                <div class="skill-use-boxes" title="4 uses / Safe Haven Rest — each use spends {{this.pointsPerUse}} (Mastery Rank). All four boxes fill only at {{this.pointsPerUse}} × 4 points.">
-                  {{#each this.useBoxes}}
-                  <span class="skill-use-box {{this.state}}" title="{{#if this.unavailable}}No points reach this box{{else}}{{#if this.spent}}Spent ({{this.size}}){{else}}{{this.remaining}} left — spend {{this.size}}{{/if}}{{/if}}">{{#unless this.unavailable}}{{#if this.spent}}0{{else}}{{this.remaining}}{{/if}}{{/unless}}</span>
-                  {{/each}}
-                </div>
-                {{/unless}}{{/if}}
-              </div>
-            {{/each}}
+              {{/each}}
+            </div>
           </div>
-        </div>
-      {{/each}}
-      
+        {{/each}}
+      </details>
+
     </div>
-    
+
     <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
 

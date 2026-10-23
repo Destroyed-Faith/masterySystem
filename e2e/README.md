@@ -10,8 +10,9 @@ Put Forge URL, game link, and passwords **only** in your local `e2e/.env`. Commi
 
 ## Prerequisites
 
-1. **Foundry V13** with Mastery System installed (local or Forge).
+1. **Foundry V14** with Mastery System installed (local or Forge).
 2. A dedicated **E2E test world** (do not use your live campaign).
+3. For DF 2026 smoke (`e2e/df-2026-smoke.spec.ts`): set `FOUNDRY_ISOLATED_TEST=1` only when `FOUNDRY_GAME_URL` points at that isolated world.
 3. On the **active scene**: at least **two tokens** with actors (e.g. one PC + one NPC).
 4. Log in as **GM** (combat setup and actor updates require GM permissions).
 

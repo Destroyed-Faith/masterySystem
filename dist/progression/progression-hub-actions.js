@@ -8,6 +8,7 @@ import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE } from 
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, SPECIALIZATION_XP_PER_RANK, isSkillField, readSpecializations, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import * as stepRule from '../utils/xp-step-rule.js';
 import { appendXpHistory, buildBandedStepEntries, currentXpUser, } from '../utils/xp-history.js';
 import { allocateSkillPending, readSkillPointPool, skillPointPoolUpdate, } from './skill-point-pool.js';
@@ -272,6 +273,18 @@ export function buildProgressionHubContext(actor) {
         },
         attributes,
         skillGroups,
+        specializations: readSpecializations(actor.system).map((s) => ({
+            id: s.id,
+            name: s.name,
+            field: s.field,
+            fieldLabel: SKILL_FIELD_LABELS[s.field] ?? s.field,
+            scope: s.scope,
+            rank: s.rank,
+            cost: SPECIALIZATION_XP_PER_RANK,
+            canRankUp: s.rank < SPECIALIZATION_MAX_RANK,
+            bumpedThisStep: hasFreeXp(actor) ? false : stepRule.isBumped(stepRule.readStep(actor), 'skill', s.id),
+        })),
+        specializationXpPerRank: SPECIALIZATION_XP_PER_RANK,
         powers: powers.sort((a, b) => a.name.localeCompare(b.name)),
         artifactCards: buildArtifactEvolutionCards(actor),
         unwiredArtifacts: unwired.map((e) => ({ id: e.id, name: e.name })),
@@ -410,6 +423,98 @@ export async function applySkillPendingChanges(actor, pendingMap) {
     }
     await actor.update(updates);
     return { ok: true };
+}
+/**
+ * DF 2026: spend SPECIALIZATION_XP_PER_RANK XP to raise one Specialization by one Rank
+ * (or learn a new one at Rank 1 via learn). One increase per Specialization per Upgrade Step.
+ */
+async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, toRank, name) {
+    const xpState = getXpState(actor);
+    const cost = SPECIALIZATION_XP_PER_RANK;
+    if (cost > xpState.available) {
+        return { ok: false, error: `Not enough XP (need ${cost}, have ${xpState.available}).` };
+    }
+    let stepAfter = stepRule.readStep(actor);
+    const unrestricted = hasFreeXp(actor);
+    if (!unrestricted) {
+        if (stepRule.isBumped(stepAfter, 'skill', specId)) {
+            return { ok: false, error: `${name} was already increased this Upgrade Step.` };
+        }
+        stepAfter = stepRule.recordBump(stepAfter, 'skill', specId);
+    }
+    const acct = applyXpCost(xpState, cost);
+    const user = currentXpUser();
+    const entry = {
+        ts: Date.now(),
+        userId: user.userId,
+        userName: user.userName,
+        kind: 'spend',
+        category: 'skill',
+        amount: cost,
+        note,
+        details: { key: specId, name, from: fromRank, to: toRank, cost, specialization: true },
+        before: {
+            available: xpState.available,
+            totalEarned: xpState.totalEarned,
+            totalSpent: xpState.totalSpent,
+        },
+        after: {
+            available: acct.pointsXp + acct.pointsXpFree,
+            totalEarned: xpState.totalEarned,
+            totalSpent: acct.totalSpent,
+        },
+    };
+    await actor.update({
+        'system.specializations': nextSpecs,
+        'system.points.xp': acct.pointsXp,
+        'system.points.xpFree': acct.pointsXpFree,
+        'system.xp.totalSpent': acct.totalSpent,
+        'system.xp.freeSpent': acct.freeSpent,
+        'system.xp.currentStep.attributes': [...stepAfter.attributes],
+        'system.xp.currentStep.skills': [...stepAfter.skills],
+        'system.xp.currentStep.powers': [...stepAfter.powers],
+        'system.xp.currentStep.artifacts': [...stepAfter.artifacts],
+        'system.xp.history': appendXpHistory(actor, [entry]),
+    });
+    return { ok: true };
+}
+/** Raise an existing Specialization by one Rank for 4 XP. */
+export async function applySpecializationRankUp(actor, specId) {
+    const specs = readSpecializations(actor.system);
+    const spec = specs.find((s) => s.id === specId);
+    if (!spec)
+        return { ok: false, error: 'Specialization not found.' };
+    if (spec.rank >= SPECIALIZATION_MAX_RANK) {
+        return { ok: false, error: `${spec.name} is already at Rank ${SPECIALIZATION_MAX_RANK}.` };
+    }
+    const to = spec.rank + 1;
+    const next = specs.map((s) => (s.id === specId ? { ...s, rank: to } : s));
+    const res = await spendSpecializationXp(actor, specId, next, `${spec.name} ${spec.rank} → ${to} (Specialization)`, spec.rank, to, spec.name);
+    return res.ok ? { ok: true, newRank: to } : res;
+}
+/** Learn a new Specialization at Rank 1 for 4 XP. */
+export async function applySpecializationLearn(actor, input) {
+    const name = String(input.name || '').trim();
+    if (!isSkillField(input.field))
+        return { ok: false, error: 'Choose a Field.' };
+    const field = input.field;
+    const specs = readSpecializations(actor.system);
+    const record = {
+        id: specializationIdentityKey(name, field),
+        name,
+        field,
+        scope: String(input.scope || '').trim(),
+        rank: 1,
+    };
+    const next = upsertSpecialization(specs, record);
+    const check = validateSpecializationList(next);
+    if (!check.ok)
+        return { ok: false, error: check.errors.join(' ') };
+    if (specs.some((s) => s.id === record.id)) {
+        return { ok: false, error: `${name} already exists — use Rank-up.` };
+    }
+    const res = await spendSpecializationXp(actor, record.id, next, `${name} 0 → 1 (new Specialization)`, 0, 1, name);
+    return res.ok ? { ok: true, id: record.id } : res;
 }
 export async function applyPowerPendingChanges(actor, pendingMap) {
     const xpState = getXpState(actor);

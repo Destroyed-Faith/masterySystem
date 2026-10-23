@@ -66,6 +66,16 @@ export interface CharacterImportDisadvantage {
     /** Override points; otherwise calculated from `details`. */
     points?: number;
 }
+export interface CharacterImportSpecialization {
+    id?: string;
+    name: string;
+    /** One of the seven Fields, e.g. `physical`, `science-craft`. */
+    field: string;
+    /** One-sentence scope. */
+    scope: string;
+    /** Rank 1–8. */
+    rank: number;
+}
 export interface CharacterImportPayload {
     name: string;
     img?: string;
@@ -75,11 +85,20 @@ export interface CharacterImportPayload {
     /** Plain attribute totals (not `{ value, stones }` objects). */
     attributes: Partial<Record<CharacterImportAttributeKey, number>>;
     masteryRank?: number;
+    /**
+     * DF 2026 free-named Specializations → `system.specializations`.
+     * `id` is optional (derived from name + Field).
+     */
+    specializations?: CharacterImportSpecialization[];
+    /** DF 2026 Echo Imprint ids → `system.echoImprints` (max = masteryRank). */
+    echoImprints?: string[];
+    /** @deprecated Legacy fixed Skills — archive only, never converted to Specialization Ranks. */
     skills?: Record<string, number>;
+    /** @deprecated Legacy archive field. */
     skillsSpent?: Record<string, number>;
     /** Catalog ids or full disadvantage entries (see schema doc). */
     disadvantages?: Array<string | CharacterImportDisadvantage>;
-    /** Minor Expression catalog ids, e.g. `might-hold-fast`. Max = masteryRank. */
+    /** @deprecated Legacy Minor Expression ids (e.g. `might-hold-fast`) — archive only; use `echoImprints`. */
     minorExpressions?: string[];
     languages?: {
         known?: string[];

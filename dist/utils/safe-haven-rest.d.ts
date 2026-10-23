@@ -19,6 +19,8 @@ export declare const SAFE_HAVEN_REST_INFO = "Safe Haven Rest: active Health Bar 
  */
 export declare function buildRestHealthBarUpdates(system: any, opts: {
     restoreOneScarredBar: boolean;
+    /** DF 2026: Scarred Bars to reopen (overrides `restoreOneScarredBar` when set). */
+    scarBarsToRestore?: number;
 }): Record<string, unknown>;
 /** Sealed stones a Word of Recall mark keeps out of the refresh. */
 export interface SafeHavenSealHold {
@@ -30,8 +32,15 @@ export interface SafeHavenSealHold {
 /** Actor updates for one Safe Haven Rest (no flags / side effects). */
 export declare function buildSafeHavenRestUpdates(system: any, opts?: {
     sealHold?: SafeHavenSealHold | null;
+    /**
+     * Medicine Specialization Rank used for aftercare scar recovery. Defaults to the
+     * best Medicine-like Spec found on `system.specializations`.
+     */
+    medicineRank?: number | null;
 }): Record<string, unknown>;
-export declare function applySafeHavenRest(actor: any): Promise<void>;
+export declare function applySafeHavenRest(actor: any, opts?: {
+    medicineRank?: number | null;
+}): Promise<void>;
 /**
  * Night Rest (8 h, anywhere): restores the current active Health Bar to full
  * (boxes only). No Scarred Bars, no daily/Sealed refresh.

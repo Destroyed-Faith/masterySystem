@@ -191,7 +191,8 @@ describe('runFearCheck', () => {
   });
 
   it('treats pool 0 as total 0 → +2 Fear', async () => {
-    const actor = actorWithFear(10, { resolve: 8 });
+    // DF 2026: pools of 2+ keep a floor of 2 dice; a 1-die pool can still hit 0.
+    const actor = actorWithFear(10, { resolve: 1 });
     const result = await runFearCheck(actor);
     expect(result.success).toBe(false);
     expect(result.poolDice).toBe(0);

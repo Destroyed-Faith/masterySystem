@@ -138,6 +138,24 @@
     </div>
   </section>
 
+  {{#if showEchoImprints}}
+  {{#if hasEchoImprints}}
+  <section class="qp-block qp-minors qp-imprints">
+    <h2>Echo Imprints</h2>
+    <div class="qp-tiles qp-minor-tiles">
+      {{#each echoImprints}}
+      <article class="qp-tile qp-tile-Minor">
+        <header>
+          <strong>{{name}}</strong>
+          <span>Echo Imprint · {{attribute}} {{attributeValue}} · Tier {{tier}}</span>
+        </header>
+        {{#if effect}}<p>{{effect}}</p>{{/if}}
+      </article>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+  {{else}}
   {{#if hasMinorExpressions}}
   <section class="qp-block qp-minors">
     <h2>Minor Expressions</h2>
@@ -154,7 +172,31 @@
     </div>
   </section>
   {{/if}}
+  {{/if}}
 
+  {{#if showSpecializations}}
+  {{#if hasSpecializations}}
+  <section class="qp-block qp-specializations">
+    <h2>Specializations</h2>
+    {{#each specializationGroups}}
+    <div class="qp-skill-category">
+      <h3 class="qp-skill-cat-title">{{label}}</h3>
+      <ul class="qp-skills">
+        {{#each specs}}
+        <li>
+          <span class="qp-sk-name">{{name}} <span class="qp-sk-attrs">({{scope}})</span></span>
+          <span class="qp-sk-keep">R{{rank}} · {{raises}}</span>
+          <span class="qp-sk-boxes">
+            {{#each pips}}<i class="qp-sk-box{{#if filled}} is-spent{{/if}}"></i>{{/each}}
+          </span>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
+  {{else}}
   {{#if hasSkills}}
   <section class="qp-block">
     <h2>Skills</h2>
@@ -188,6 +230,7 @@
     </div>
     {{/each}}
   </section>
+  {{/if}}
   {{/if}}
 
   {{#if hasWeaponSets}}

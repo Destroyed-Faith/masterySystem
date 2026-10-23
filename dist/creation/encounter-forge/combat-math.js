@@ -37,19 +37,19 @@ export const HEALTH_PENALTY_FRACTIONS = [0, 0.1, 0.2, 0.4, 0.5, 1];
 export function baseEvadeForMr(mr) {
     return Math.max(1, Math.floor(mr)) * 4;
 }
-/** NPC spell attack Casting TN: (8 × MR) − 2 (+ target Spell Resistance). */
-export function npcSpellCastingTn(mr, targetSpellResistance = 0) {
-    const rank = Math.max(1, Math.floor(mr));
-    return 8 * rank - 2 + Math.max(0, Math.floor(targetSpellResistance));
+/** NPC spell attack Casting TN: used Power Level × 4 (+ target Spell Resistance). */
+export function npcSpellCastingTn(powerLevel, targetSpellResistance = 0) {
+    const pl = Math.max(0, Math.floor(Number(powerLevel) || 0));
+    return pl * 4 + Math.max(0, Math.floor(targetSpellResistance));
 }
 /**
- * PC spell Casting TN vs an NPC: (8 × caster Mastery Rank) − 2
- * (`castingBaseTnForMasteryRank`), +4 if Mental, plus target Spell Resistance.
- * Power Level does not set the TN.
+ * PC spell Casting TN: used Power Level × 4 + target Spell Resistance.
+ * Optional `mentalFinalTnSurcharge` is only for printed Mind Probe / Mental Control (+4).
  */
-export function pcSpellCastingTn(casterMr, targetSpellResistance = 0, opts) {
-    const mr = Math.max(1, Math.min(8, Math.floor(Number(casterMr) || 1)));
-    return 8 * mr - 2 + (opts?.mental ? 4 : 0) + Math.max(0, Math.floor(targetSpellResistance));
+export function pcSpellCastingTn(powerLevel, targetSpellResistance = 0, opts) {
+    const pl = Math.max(0, Math.floor(Number(powerLevel) || 0));
+    const surcharge = Math.max(0, Math.floor(Number(opts?.mentalFinalTnSurcharge) || 0));
+    return pl * 4 + surcharge + Math.max(0, Math.floor(targetSpellResistance));
 }
 /** Melee flat damage bonus from Might: 2 × floor(Might / 8) (calculations.ts). */
 export function mightMeleeBonus(might) {

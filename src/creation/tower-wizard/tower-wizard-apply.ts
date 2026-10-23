@@ -14,6 +14,7 @@ import {
     isManualBuildMode,
 } from './tower-wizard-packages.js';
 import { validatePackageSpecs } from './tower-wizard-validation.js';
+import { buildIdentityUpdateData } from './tower-wizard-identity.js';
 import type { TowerWizardSelection } from './tower-wizard-types.js';
 
 function isCreationMode(actor: Actor): boolean {
@@ -25,7 +26,8 @@ export async function applyTowerWizardPackage(
     selection: TowerWizardSelection,
     options?: { skipConfirm?: boolean },
 ): Promise<boolean> {
-    const err = validatePackageSpecs(selection);
+    const actorMr = Math.max(1, Math.floor(Number((actor.system as any)?.mastery?.rank) || 2));
+    const err = validatePackageSpecs(selection, { masteryRank: actorMr });
     if (err) {
         ui.notifications?.error(err);
         return false;
@@ -87,6 +89,11 @@ export async function applyTowerWizardPackage(
     const updateData: Record<string, unknown> = {
         'system.creation.towerWizardPackageId': review.packageId,
     };
+    // DF 2026: Specializations / Echo Imprints (and creation Attributes + Stones) are written only
+    // during creation. Legacy skill ratings are left untouched (no new primary skill data).
+    if (inCreation && selection.skipIdentitySteps !== true) {
+        Object.assign(updateData, buildIdentityUpdateData(selection));
+    }
 
     if (refundXp > 0) {
         const xpState = getXpState(actor);

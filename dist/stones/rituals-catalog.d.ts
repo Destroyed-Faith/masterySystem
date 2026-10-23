@@ -1,6 +1,7 @@
 /**
- * Stone-Powers Rituals tab — same catalog as Perform Ritual.
- * Any Stone color may pay; slots accept every pool attribute.
+ * Stone-Powers Rituals tab — Core Rituals catalogue (DF 2026).
+ * Built from the 16 universal Core Rituals; any Stone color may pay and
+ * slots accept every pool attribute.
  */
 export type RitualPoolAttr = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 export type RitualSlotRule = {

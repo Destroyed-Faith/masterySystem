@@ -264,7 +264,7 @@ export function buildOpportunityAttackReactionItem(actor: any): any {
  */
 export function isThreatenedDeclarationLegalReaction(item: any): boolean {
   // All Basic Reactions trigger off being hit/targeted (Guard, Evade,
-  // Interpose, Dive for Cover, optional Counterattack) or a Skill Check (Aid).
+  // Interpose, Dive for Cover, optional Counterattack). Aid is retired.
   if (String(item?.basicReaction || '')) return false;
   if (isThreatenedRangedOffensiveReaction(item)) return false;
   const trig = String(item?.system?.trigger ?? '').toLowerCase();

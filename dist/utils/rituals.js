@@ -1,16 +1,13 @@
 /**
  * Ritual System — out-of-combat Skill Checks.
  *
- * Base Ritual TN = (8 × Ritual MR) − 2 (target / creator / artifact / power / scene).
- * Player declares Raise Level before the roll.
- * Ritual Raise TN = Base + declared Raises × 4.
- * Fail below Base. Meet Base but miss Raise TN → Raise 0 only.
- * Meet Raise TN → declared level and all lower Raise effects.
- * Stones are Sealed on the attempt (success or failure) until Safe Haven Rest.
- * Any Stone color may pay the cost.
+ * Base Ritual TN = 4 × max(3, Task Level) (DF Guide 2026-10-23).
+ * Final Ritual TN = Base + 4 × Paid Raises (one final TN; no partial named tier).
+ * Stones Sealed by total Raises (Paid+Free): 0–1→1, 2–3→2, 4–8→3.
+ * All 16 Core Rituals are universally available — see `src/rules/core-rituals.ts`.
  */
-import { resolveDeclaredRaiseBands } from '../combat/raise-resolution.js';
-import { standardTnForMasteryRank } from './constants.js';
+import { ritualBaseTn as canonicalRitualBaseTn, ritualSealedStoneCost, } from '../rules/ritual-tn.js';
+import { CORE_RITUALS } from '../rules/core-rituals.js';
 export const RITUAL_CATEGORY_LABELS = {
     physical: 'Physical',
     knowledge: 'Knowledge & Craft',
@@ -49,10 +46,20 @@ export const RITUAL_SKILLS_BY_CATEGORY = {
     ],
     survival: ['Survival', 'Animal Handling', 'Tracking', 'Herbalism', 'Weather Sense'],
 };
-export function calculateRitualTN(ritualMR, modifier = 0) {
-    const mr = Math.max(1, Math.floor(Number(ritualMR) || 1));
+/**
+ * Base Ritual TN from Task Level (minimum 3 → TN 12).
+ * The first argument is the Task Level / source level, not caster MR.
+ */
+export function calculateRitualTN(taskLevel, modifier = 0) {
     const mod = Math.floor(Number(modifier) || 0);
-    return standardTnForMasteryRank(mr) + mod;
+    return canonicalRitualBaseTn(taskLevel) + mod;
+}
+/** Universal Core Ritual catalogue (16). Prefer this over legacy RITUALS for new UI. */
+export function listUniversalCoreRituals() {
+    return CORE_RITUALS;
+}
+export function sealedStonesForRitualRaises(totalRaises) {
+    return ritualSealedStoneCost(totalRaises);
 }
 export function calculateRitualRaiseTN(baseTn, declaredRaises) {
     const base = Math.max(0, Math.floor(Number(baseTn) || 0));
@@ -71,14 +78,16 @@ export function ritualMaxRaise(ritual) {
     const cap = Math.max(0, Math.floor(Number(ritual.maxRaise ?? 4) || 4));
     return Math.min(listed, cap);
 }
-/** Declared-raise resolution: fail / Raise 0 only / full declared level. */
+/**
+ * One final Ritual TN: Base + 4×Paid Raises.
+ * Missing the final TN fails the entire declared attempt (no partial named tier).
+ */
 export function resolveRitualDeclaredOutcome(opts) {
     const declared = Math.max(0, Math.floor(Number(opts.declaredRaises) || 0));
-    const outcome = resolveDeclaredRaiseBands(opts.rollTotal, opts.baseTn, declared);
-    if (outcome === 'fail')
+    const finalTn = calculateRitualRaiseTN(opts.baseTn, declared);
+    const total = Math.floor(Number(opts.rollTotal) || 0);
+    if (total < finalTn)
         return { success: false, appliedRaise: 0, kind: 'fail' };
-    if (outcome === 'partial')
-        return { success: true, appliedRaise: 0, kind: 'raise0' };
     return { success: true, appliedRaise: declared, kind: 'full' };
 }
 export function appliedRitualEffects(ritual, appliedRaise) {

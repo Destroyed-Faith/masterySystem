@@ -194,100 +194,13 @@ export async function ensureCanTargetWithPerception(observer, target, opts) {
     globalThis.ui?.notifications?.info?.(`Perception failed (TN ${finalTn}). Choose another target or action — your action is not spent.`);
     return false;
 }
-function stealthPoolRemaining(actor) {
-    const rating = Math.max(0, Math.floor(Number(actor?.system?.skills?.stealth) || 0));
-    const spent = Math.max(0, Math.floor(Number(actor?.system?.skillsSpent?.stealth) || 0));
-    return Math.max(0, rating - spent);
-}
 /**
- * After the observer's final Perception result is known, the invisible creature
- * may spend Stealth Skill Points (min = MR, steps of MR, All-in ok) to raise TN.
- * Returns points actually spent this prompt (already added to stealthSpentThisRound).
+ * @deprecated DF 2026-10-23: Retroactive Stealth Points are retired.
+ * Stealth is a setup-first opposition (the Stealth Final Result is the TN); no post-roll spend.
+ * Always returns 0 and changes nothing.
  */
-export async function promptRetroactiveStealthSpend(invisibleActor, observerResult, currentTn) {
-    if (!invisibleActor)
-        return 0;
-    const inv = effectiveInvisibilityBonusForActor(invisibleActor);
-    if (inv <= 0)
-        return 0;
-    // Already failing the check — no need to spend.
-    if (observerResult < currentTn)
-        return 0;
-    const mr = Math.max(1, targetMasteryRank(invisibleActor));
-    const remaining = stealthPoolRemaining(invisibleActor);
-    if (remaining < mr && remaining <= 0)
-        return 0;
-    const needed = observerResult - currentTn + 1; // must exceed result
-    const Dialog = globalThis.Dialog;
-    if (!Dialog)
-        return 0;
-    const name = String(invisibleActor.name || 'Invisible');
-    return new Promise((resolve) => {
-        try {
-            new Dialog({
-                title: `Retroactive Stealth — ${name}`,
-                content: `<p>Observer Perception result: <strong>${observerResult}</strong> vs TN <strong>${currentTn}</strong>.</p>
-          <p>Spend Stealth Skill Points to raise the Invisibility TN for the rest of this Round (min ${mr}, steps of ${mr}, All-in allowed). Need at least <strong>${needed}</strong> to prevent detection.</p>
-          <p>Stealth pool remaining: <strong>${remaining}</strong></p>
-          <div class="form-group"><label>Points to spend</label>
-            <input type="number" name="spend" value="${Math.min(remaining, Math.max(mr, needed))}" min="0" max="${remaining}" step="${mr}"/></div>`,
-                buttons: {
-                    spend: {
-                        label: 'Spend',
-                        callback: async (html) => {
-                            const root = html?.jquery ? html[0] : html;
-                            const el = root?.querySelector?.('input[name="spend"]') ||
-                                (typeof html?.find === 'function' ? html.find('input[name="spend"]')[0] : null);
-                            let spend = Math.max(0, Math.floor(Number(el?.value) || 0));
-                            if (spend > remaining)
-                                spend = remaining;
-                            if (spend > 0 && spend < mr && spend !== remaining) {
-                                // Enforce min MR unless All-in (spend === remaining).
-                                globalThis.ui?.notifications?.warn?.(`Minimum Stealth spend is ${mr} (or All-in remaining ${remaining}).`);
-                                resolve(0);
-                                return;
-                            }
-                            if (spend > 0 && spend !== remaining && spend % mr !== 0) {
-                                globalThis.ui?.notifications?.warn?.(`Stealth spend must be in steps of ${mr} (or All-in).`);
-                                resolve(0);
-                                return;
-                            }
-                            if (spend <= 0) {
-                                resolve(0);
-                                return;
-                            }
-                            try {
-                                const curSpent = Math.max(0, Math.floor(Number(invisibleActor.system?.skillsSpent?.stealth) || 0));
-                                await invisibleActor.update?.({
-                                    'system.skillsSpent.stealth': curSpent + spend,
-                                });
-                                const st = getPerceptionCombatState(invisibleActor);
-                                const prev = Math.max(0, Math.floor(Number(st.stealthSpentThisRound) || 0));
-                                await setPerceptionCombatState(invisibleActor, {
-                                    stealthSpentThisRound: prev + spend,
-                                });
-                                globalThis.ui?.notifications?.info?.(`${name} spends ${spend} Stealth — Invisibility TN +${spend} this Round.`);
-                                resolve(spend);
-                            }
-                            catch (err) {
-                                console.warn('Mastery System | retroactive Stealth spend failed', err);
-                                resolve(0);
-                            }
-                        },
-                    },
-                    skip: {
-                        label: 'No spend',
-                        callback: () => resolve(0),
-                    },
-                },
-                default: 'spend',
-                close: () => resolve(0),
-            }).render(true);
-        }
-        catch {
-            resolve(0);
-        }
-    });
+export async function promptRetroactiveStealthSpend(_invisibleActor, _observerResult, _currentTn) {
+    return 0;
 }
 async function promptPerceptionCheck(observer, target, tn) {
     const Dialog = globalThis.Dialog;
@@ -299,7 +212,7 @@ async function promptPerceptionCheck(observer, target, tn) {
     const mr = targetMasteryRank(target);
     const lost = lostHealthBarsForInvis(target);
     const formulaNote = inv > 0
-        ? `(4×MR ${mr}) + Invis ${inv} − (${lost}×MR) + Stealth spent`
+        ? `(4×MR ${mr}) + Invis ${inv} − (${lost}×MR) `
         : `(4×MR ${mr}) + Stealth`;
     return new Promise((resolve) => {
         try {
@@ -307,7 +220,7 @@ async function promptPerceptionCheck(observer, target, tn) {
                 title: `Perception — ${obsName}`,
                 content: `<p>Locate <strong>${tgtName}</strong>?</p>
           <p>Perception TN: <strong>${tn}</strong> <span class="notes">${formulaNote}</span></p>
-          <p class="notes">One attempt per target per Round. Success → located until end of this Round. Failure → cannot target this Turn (action not spent). Invisible targets may spend Stealth after the roll.</p>`,
+          <p class="notes">One attempt per target per Round. Success → located until end of this Round. Failure → cannot target this Turn (action not spent). Stealth is setup-first (no retroactive Stealth Points).</p>`,
                 buttons: {
                     roll: {
                         label: 'Roll Perception',
@@ -342,13 +255,8 @@ async function promptPerceptionCheck(observer, target, tn) {
                                     skipChat: false,
                                 });
                                 const total = Math.max(0, Math.floor(Number(result?.total ?? result?.rollTotal) || 0));
-                                // Observer finished normal Skill Point spending inside masteryRoll chat flow;
-                                // then invisible target may respond.
-                                let effectiveTn = tn;
-                                if (inv > 0 && total > 0) {
-                                    await promptRetroactiveStealthSpend(target, total, effectiveTn);
-                                    effectiveTn = computePerceptionTn(target, observer);
-                                }
+                                // DF 2026: no retroactive Stealth spend; TN is fixed before the observer rolls.
+                                const effectiveTn = tn;
                                 // Equal to TN succeeds.
                                 const success = total >= effectiveTn;
                                 resolve({ success, total, tn: effectiveTn });

@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.763] - 2026-10-23
+
+### Added
+
+- **DF 2026 rules layer:** Shared calculators and catalogues under `src/rules/` (Specializations, Skill Raises, Echo Imprints ×28, Core Rituals ×16, Spell/Ritual TN, Fear/Health helpers).
+- **Specializations live path:** Sheet Specs, Rank-up (4 XP), creation gate of five Rank-2 Specs (20 Creation Points); Tower Wizard early steps Echo → Attributes/Stones → Imprints → Specs → Powers.
+- **Echo Imprints UI:** Sheet/scene picker replaces live Minor Expressions bar.
+- **Ritual Workshop:** Wired to the 16 Core Rituals with `planRitualRaises`.
+- **Migration:** Idempotent schema `2026.10.23` with legacySnapshot; GM Spec/Imprint review dialog; Specs/Imprints in import/export/print.
+
+### Changed
+
+- **Spell Base TN:** Used Power Level × 4 (no generic Mental +4; printed Final Mental surcharge only for Mind Probe / Mental Control).
+- **Character creation:** Specs replace the 40-point fixed-skill finalize gate.
+- **Localization:** `MASTERY.df2026.*` EN/DE for Specs, Imprints, Rituals, migration review, creation.
+
+### Removed
+
+- **Aid:** Undocumented Aid (+4) / 2×MR eligibility retired from chat, radial, and combat maneuvers (Guide Basic Reactions remain Guard / Evade / Dive for Cover). Historical chat cards are stripped of active Aid buttons on render.
+- **Legacy live paths:** Skill spend / Epic skill spend UI, Death Check turn hook, Pursuit track-meter button, retroactive Stealth spend; Social Combat dialog remains gated.
+
 ## [0.9.762] - 2026-10-21
 
 ### Changed

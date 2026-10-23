@@ -29,6 +29,7 @@ export declare class SummonBondDialog extends BaseDialog {
     private powersOpen;
     private specialOpen;
     private skillsOpen;
+    private taskSpecsOpen;
     private restoreUiAfterRender;
     static DEFAULT_OPTIONS: {
         id: string;

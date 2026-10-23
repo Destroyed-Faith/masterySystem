@@ -7,6 +7,8 @@ import { SKILLS } from './skills.js';
 import { buildFreshTraitUses } from './echos/index.js';
 import { beginMinorMagicRest } from './minor-magic-items.js';
 import { clearLastBreathOnRest } from '../stones/last-breath.js';
+import { safeHavenScarBarsRecovered } from '../rules/fear-health.js';
+import { medicineSpecializationRank } from '../rules/specializations.js';
 import {
   calculateDisadvantagePoints,
 } from '../system/disadvantages.js';
@@ -56,7 +58,11 @@ interface HealthBarLike {
  */
 export function buildRestHealthBarUpdates(
   system: any,
-  opts: { restoreOneScarredBar: boolean },
+  opts: {
+    restoreOneScarredBar: boolean;
+    /** DF 2026: Scarred Bars to reopen (overrides `restoreOneScarredBar` when set). */
+    scarBarsToRestore?: number;
+  },
 ): Record<string, unknown> {
   const src: HealthBarLike[] = Array.isArray(system?.health?.bars) ? system.health.bars : [];
   if (src.length === 0) return {};
@@ -69,13 +75,18 @@ export function buildRestHealthBarUpdates(
 
   bars[activeIdx] = { ...bars[activeIdx], current: Number(bars[activeIdx]?.max) || 0 };
 
-  // One Scarred Bar: the most recent one (directly before the active bar).
-  if (opts.restoreOneScarredBar) {
-    for (let i = activeIdx - 1; i >= 0; i--) {
-      if ((Number(src[i]?.current) || 0) === 0) {
-        bars[i] = { ...bars[i], current: Number(bars[i]?.max) || 0 };
-        break;
-      }
+  // Scarred Bars: the most recent ones (directly before the active bar).
+  const toRestore =
+    opts.scarBarsToRestore != null
+      ? Math.max(0, Math.floor(Number(opts.scarBarsToRestore) || 0))
+      : opts.restoreOneScarredBar
+        ? 1
+        : 0;
+  let restored = 0;
+  for (let i = activeIdx - 1; i >= 0 && restored < toRestore; i--) {
+    if ((Number(src[i]?.current) || 0) === 0) {
+      bars[i] = { ...bars[i], current: Number(bars[i]?.max) || 0 };
+      restored += 1;
     }
   }
 
@@ -102,7 +113,14 @@ export interface SafeHavenSealHold {
 /** Actor updates for one Safe Haven Rest (no flags / side effects). */
 export function buildSafeHavenRestUpdates(
   system: any,
-  opts?: { sealHold?: SafeHavenSealHold | null },
+  opts?: {
+    sealHold?: SafeHavenSealHold | null;
+    /**
+     * Medicine Specialization Rank used for aftercare scar recovery. Defaults to the
+     * best Medicine-like Spec found on `system.specializations`.
+     */
+    medicineRank?: number | null;
+  },
 ): Record<string, unknown> {
   const skillsSpent: Record<string, number> = {};
   for (const skillKey of Object.keys(SKILLS)) {
@@ -142,10 +160,18 @@ export function buildSafeHavenRestUpdates(
     updates['system.faithFractures.maximum'] = faithMax;
   }
 
-  // Health: restore the active Health Bar to full and reopen ONE Scarred Bar
-  // (Players Guide "Safe Haven Rest" benefits 3 + 4). No full-track reset,
-  // and Stress is not part of the documented Safe Haven refresh list.
-  Object.assign(updates, buildRestHealthBarUpdates(system, { restoreOneScarredBar: true }));
+  // Health: restore the active Health Bar to full and reopen Scarred Bars:
+  // 1 base + Medicine aftercare (DF 2026: Rank 4–7 → +1, Rank 8 → +2).
+  // No full-track reset; Stress is not part of the documented refresh list.
+  const medicineRank =
+    opts?.medicineRank != null ? opts.medicineRank : medicineSpecializationRank(system);
+  Object.assign(
+    updates,
+    buildRestHealthBarUpdates(system, {
+      restoreOneScarredBar: true,
+      scarBarsToRestore: safeHavenScarBarsRecovered(medicineRank),
+    }),
+  );
 
   if (system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges')) {
     updates['system.mastery.charges'] = masteryRank;
@@ -202,7 +228,10 @@ export function buildSafeHavenRestUpdates(
   return updates;
 }
 
-export async function applySafeHavenRest(actor: any): Promise<void> {
+export async function applySafeHavenRest(
+  actor: any,
+  opts?: { medicineRank?: number | null },
+): Promise<void> {
   if (!actor) return;
   // Word of Recall: Stones stay Sealed while the mark exists.
   let sealHold: SafeHavenSealHold | null = null;
@@ -217,7 +246,10 @@ export async function applySafeHavenRest(actor: any): Promise<void> {
     0,
     Math.floor(Number(actor?.system?.stonePools?.vitality?.sealed) || 0),
   );
-  const updates = buildSafeHavenRestUpdates(actor.system, { sealHold });
+  const updates = buildSafeHavenRestUpdates(actor.system, {
+    sealHold,
+    medicineRank: opts?.medicineRank ?? null,
+  });
   try {
     if (actor.getFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat') != null) {
       await actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat');

@@ -3,7 +3,7 @@
  * Handles clicks on .roll-attack-btn buttons in chat messages
  * Moved from module.ts to avoid circular dependencies
  */
-import { parseDeclaredRaises, resolveRaiseOutcome, successfulRaiseSlotCount, } from '../combat/raise-resolution.js';
+import { isRaiseAllocationComplete, parseDeclaredRaises, resolveRaiseOutcome, successfulRaiseSlotCount, } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -124,6 +124,32 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             const freshAttacker = ChatMessage.getSpeakerActor?.(message.speaker) ??
                 game.actors?.get(attacker.id) ??
                 attacker;
+            // DF 2026: Spell Raises (Paid + Free) allocate their effects BEFORE the
+            // casting roll. Refuse to roll until every declared Raise has an effect.
+            {
+                const isSpellCard = flags.powerIsSpell === true || flags.npcIsSpell === true;
+                const spellOptions = Array.isArray(flags.raiseOptions)
+                    ? flags.raiseOptions
+                    : [];
+                if (isSpellCard && spellOptions.length > 0) {
+                    const spellSlots = Math.max(Math.max(0, Math.floor(Number(flags.declaredRaiseSlots) || 0)), readAttackButtonDataInt(button, 'raise-slots', 0)) +
+                        Math.max(Math.max(0, Math.floor(Number(flags.freeRaiseSlots) || 0)), readAttackButtonDataInt(button, 'free-raises', 0));
+                    if (spellSlots > 0) {
+                        let plan = parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
+                        if (!plan.length && Array.isArray(flags.preRollRaisePlan)) {
+                            plan = flags.preRollRaisePlan;
+                        }
+                        if (!isRaiseAllocationComplete(plan, spellSlots, spellOptions)) {
+                            ui.notifications?.warn(`Allocate all ${spellSlots} Spell Raise${spellSlots === 1 ? '' : 's'} before casting.`);
+                            resetRollButton();
+                            return;
+                        }
+                        if (!parseDeclaredRaises(button.attr('data-raise-plan') || '[]').length) {
+                            button.attr('data-raise-plan', JSON.stringify(plan));
+                        }
+                    }
+                }
+            }
             // Faith reroll: the original roll already spent the action.
             const costsAction = !isFaithReroll && flags.costsAction !== false;
             if (costsAction) {

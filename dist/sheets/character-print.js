@@ -47,6 +47,7 @@ import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collecti
 import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
 import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
+import { DF_2026_RULES_SCHEMA_VERSION, ECHO_IMPRINT_MIN_ATTRIBUTE, SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, echoImprintTierFromAttribute, findEchoImprint, getSkillRaiseAllowance, readSpecializations, } from '../rules/index.js';
 /**
  * Short table-sheet blurb for a Stone Power (Quick Play style).
  * Linear tiers → "+N per Tier"; irregular → values listed at the end.
@@ -244,6 +245,75 @@ function buildPrintSkillRow(actor, key, rating, spent, masteryRank) {
         ...poolFields,
         rating,
         boxes,
+    };
+}
+/** Pips printed per Specialization (Rank 1–8). */
+const PRINT_SPEC_PIPS = Array.from({ length: SPECIALIZATION_MAX_RANK }, (_, i) => i + 1);
+/** Write-in lines padded under the Specialization list (starting characters have five). */
+const PRINT_SPEC_MIN_ROWS = 5;
+/** DF 2026 Specializations grouped by Field, with Rank pips and Raise allowance. */
+function buildPrintSpecializations(system) {
+    const specs = readSpecializations(system);
+    const groups = SKILL_FIELDS.map((field) => ({
+        key: field,
+        label: SKILL_FIELD_LABELS[field],
+        specs: specs
+            .filter((s) => s.field === field)
+            .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
+            .map((s) => {
+            const allowance = getSkillRaiseAllowance(s.rank);
+            return {
+                name: s.name,
+                scope: s.scope,
+                rank: s.rank,
+                raises: allowance.maxTotal
+                    ? `${allowance.maxPaid} paid${allowance.maxFree ? ` + ${allowance.maxFree} free` : ''}`
+                    : 'no Raises',
+                pips: PRINT_SPEC_PIPS.map((n) => ({ filled: n <= s.rank })),
+            };
+        }),
+    })).filter((g) => g.specs.length > 0);
+    const usesDf2026 = String(system?.progression?.rulesSchemaVersion ?? '') === DF_2026_RULES_SCHEMA_VERSION;
+    return {
+        specializationGroups: groups,
+        specializationCount: specs.length,
+        specializationBlankRows: Array.from({ length: usesDf2026 ? Math.max(0, PRINT_SPEC_MIN_ROWS - specs.length) : 0 }, (_, i) => i + 1),
+        hasSpecializations: specs.length > 0,
+        showSpecializations: specs.length > 0 || usesDf2026,
+    };
+}
+/** DF 2026 Echo Imprints with the effect text for the character's current Attribute tier. */
+function buildPrintEchoImprints(system) {
+    const mr = Math.max(1, num(system?.mastery?.rank, 1));
+    const ids = Array.isArray(system?.echoImprints) ? system.echoImprints : [];
+    const seen = new Set();
+    const rows = ids
+        .map((rawId) => String(rawId ?? '').trim())
+        .filter((id) => id && !seen.has(id) && (seen.add(id), true))
+        .map((id) => {
+        const def = findEchoImprint(id);
+        if (!def)
+            return null;
+        const attrVal = num(system?.attributes?.[def.attribute]?.value, 0);
+        const tier = echoImprintTierFromAttribute(attrVal);
+        return {
+            name: def.name,
+            attribute: cap(def.attribute),
+            attributeValue: attrVal,
+            tier,
+            effect: def.tiers[tier],
+            echoMemory: def.echoMemory,
+            locked: attrVal < ECHO_IMPRINT_MIN_ATTRIBUTE,
+        };
+    })
+        .filter((r) => !!r);
+    const usesDf2026 = String(system?.progression?.rulesSchemaVersion ?? '') === DF_2026_RULES_SCHEMA_VERSION;
+    return {
+        echoImprints: rows,
+        hasEchoImprints: rows.length > 0,
+        showEchoImprints: rows.length > 0 || usesDf2026,
+        echoImprintSlots: mr,
+        echoImprintBlankRows: Array.from({ length: Math.max(0, mr - rows.length) }, (_, i) => i + 1),
     };
 }
 function powerPhaseLabel(category) {
@@ -1267,6 +1337,11 @@ export function buildCharacterPrintContext(actor, options = {}) {
         disadvantagePoints,
         // One strike-off square per Disadvantage point (rerolls earned).
         rerollBoxes: Array.from({ length: Math.max(0, disadvantagePoints) }, () => true),
+        // DF 2026 Specializations / Echo Imprints. Legacy skill + Minor Expression
+        // fields stay in the context (tooling / tests) but templates print them
+        // only when the character has not moved to the DF 2026 model.
+        ...buildPrintSpecializations(system),
+        ...buildPrintEchoImprints(system),
         minorExpressions,
         hasMinorExpressions: minorExpressions.length > 0,
         // One strike-off square per Minor Expression use per Safe Haven Rest
@@ -2108,6 +2183,8 @@ export function buildCharacterCompactPrintContext(actor) {
         hasDefenseSpecial,
         phasingBoxes,
         hasPhasing: hasDefenseSpecial && defenseSpecialLabel === 'Phasing',
+        ...buildPrintSpecializations(system),
+        ...buildPrintEchoImprints(system),
         minorExpressionTiles,
         hasMinorExpressions: minorExpressionTiles.length > 0,
         healthBars,

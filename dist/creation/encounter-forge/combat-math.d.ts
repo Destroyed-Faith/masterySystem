@@ -31,15 +31,14 @@ export declare const SPECIAL_DECAY_PER_TURN = 1;
 export declare const HEALTH_PENALTY_FRACTIONS: readonly [0, 0.1, 0.2, 0.4, 0.5, 1];
 /** Base PC evade: MR × 4 (calculations.ts calculateBaseEvade). */
 export declare function baseEvadeForMr(mr: number): number;
-/** NPC spell attack Casting TN: (8 × MR) − 2 (+ target Spell Resistance). */
-export declare function npcSpellCastingTn(mr: number, targetSpellResistance?: number): number;
+/** NPC spell attack Casting TN: used Power Level × 4 (+ target Spell Resistance). */
+export declare function npcSpellCastingTn(powerLevel: number, targetSpellResistance?: number): number;
 /**
- * PC spell Casting TN vs an NPC: (8 × caster Mastery Rank) − 2
- * (`castingBaseTnForMasteryRank`), +4 if Mental, plus target Spell Resistance.
- * Power Level does not set the TN.
+ * PC spell Casting TN: used Power Level × 4 + target Spell Resistance.
+ * Optional `mentalFinalTnSurcharge` is only for printed Mind Probe / Mental Control (+4).
  */
-export declare function pcSpellCastingTn(casterMr: number, targetSpellResistance?: number, opts?: {
-    mental?: boolean;
+export declare function pcSpellCastingTn(powerLevel: number, targetSpellResistance?: number, opts?: {
+    mentalFinalTnSurcharge?: number;
 }): number;
 /** Melee flat damage bonus from Might: 2 × floor(Might / 8) (calculations.ts). */
 export declare function mightMeleeBonus(might: number): number;

@@ -109,7 +109,8 @@ describe('tower-wizard-packages', () => {
     });
 
     it('guided step order uses free Passive 1 then Passive 2', () => {
-        expect(WIZARD_STEP_ORDER[0]).toBe('passive1');
+        expect(WIZARD_STEP_ORDER[0]).toBe('echo');
+        expect(WIZARD_STEP_ORDER[4]).toBe('passive1');
         expect(WIZARD_STEP_ORDER).not.toContain('defense');
         expect(WIZARD_STEP_ORDER).not.toContain('defensePassiveVariant');
         expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).not.toContain(

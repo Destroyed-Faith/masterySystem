@@ -347,6 +347,7 @@ export function buildSummonActorDataFromBond(
         specialValue: bond.specialValue,
         selectedSkills: bond.selectedSkills ?? [],
         skillDiceAlloc: bond.skillDiceAlloc ?? {},
+        taskSpecMap: bond.taskSpecMap ?? {},
         powers: body.powers ?? [],
       },
       health: {

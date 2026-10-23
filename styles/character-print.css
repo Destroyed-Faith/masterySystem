@@ -1283,6 +1283,13 @@
   color: #777;
 }
 
+/* DF 2026 write-in lines for Specializations / Echo Imprints */
+.cp-specializations .cp-spec-blank > li,
+.cp-echo-imprints .cp-minor-blank {
+  min-height: 14px;
+  border-bottom: 1px solid #aaa;
+}
+
 /* Compact disadvantages */
 .cp-disadvantages-compact .cp-disadv-compact-list {
   list-style: none;

@@ -1145,3 +1145,11 @@
 .tower-wizard-power-picker-dialog .tower-wizard-offense-special-title {
   font-family: var(--df-font-head, 'Laviossa', 'Cinzel Decorative', serif);
 }
+
+/* DF 2026 early identity steps */
+.tower-wizard-identity-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+.tower-wizard-identity-table th, .tower-wizard-identity-table td { padding: 0.25rem 0.4rem; text-align: left; }
+.tower-wizard-identity-table input[type="text"] { width: 100%; }
+.tower-wizard-identity-table input[type="number"] { width: 4rem; }
+.tower-wizard-imprint-row { display: block; margin-bottom: 0.4rem; cursor: pointer; }
+.tower-wizard-reconcile ul { margin: 0.25rem 0 0 1.1rem; padding: 0; }

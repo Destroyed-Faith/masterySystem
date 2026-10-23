@@ -4,6 +4,13 @@
 
 import type { CastingAttribute, SpellResolution } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
+import type { SpecializationRecord } from '../../rules/specializations.js';
+
+/** Attribute key → integer value / Stone count (creation DTO). */
+export type TowerWizardAttributeMap = Partial<Record<
+    'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits',
+    number
+>>;
 
 export type DefensePackageId =
     | 'armor'
@@ -31,7 +38,14 @@ export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 /** Attack style on guided Step 4. Legacy `melee` / `ranged` map to Martial. */
 export type GuidedAttackDelivery = 'martial' | 'spell' | 'natural' | 'melee' | 'ranged';
 
+/** DF 2026 early identity steps (Echo → Attributes/Stones → Imprints → Specializations). */
+export type TowerWizardIdentityStep = 'echo' | 'attributesStones' | 'echoImprints' | 'specializations';
+
 export type TowerWizardStep =
+    | 'echo'
+    | 'attributesStones'
+    | 'echoImprints'
+    | 'specializations'
     | 'passive1'
     | 'defense'
     | 'defensePassiveVariant'
@@ -148,6 +162,24 @@ export interface TowerWizardSelection {
     guidedAttackDelivery?: GuidedAttackDelivery;
     /** Skip guided steps; configure all six Powers on the review page. */
     manualBuildMode?: boolean;
+
+    /* ---- DF 2026 early identity steps (shared DTO for Guided and Quick) ---- */
+    /** Echo identity — mirrors `actor.system.echo` (the Echo dialog is the writer). */
+    echoKey?: string;
+    subChoiceKey?: string;
+    veiledFormKey?: string;
+    /** Creation Attribute scores (starting package 4,4,3,3,2,2,2). */
+    attributeValues?: TowerWizardAttributeMap;
+    /** Permanent Attribute Stone placement (2 starting Stones; cap MR × 2 each). */
+    stoneAssignments?: TowerWizardAttributeMap;
+    /** Chosen Echo Imprint ids (max MR; linked Attribute ≥ 4). */
+    echoImprintIds?: string[];
+    /** Starting Specializations (exactly five Rank 2). */
+    specializations?: SpecializationRecord[];
+    /** Mastery Rank used for validation (defaults to 2 at creation). */
+    masteryRank?: number;
+    /** Hide the early identity steps (mature characters rebuilding Powers only). */
+    skipIdentitySteps?: boolean;
 }
 
 export interface GuidedDeliveryOption {

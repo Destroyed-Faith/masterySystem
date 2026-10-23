@@ -10,6 +10,7 @@ import { evaluateSummonPower, listSummonPowerCatalog } from './summon-power-allo
 import { createSummonActorForBondBody, deleteSummonActor, getLiveSummonActor, placeFamiliarToken, updateSummonActorForBondBody, } from './familiar-actor-factory.js';
 import { getActorPoolSpendable } from './familiar-bind.js';
 import { addBoundStonesToBond, applyBondRitual, createSummonBondWithStones, DISSOLVE_BOND_CONFIRM, dissolveSummonBond, getSummonBondsFromActor, ownerSkillRatingsFromActor, removeBoundStonesFromBond, recomputeBondDerived, setBondBonusTokens, syncBodiesFromSpend, tokensSummary, upsertSummonBond, validateBondRitual, STONE_POOL_ATTRS, } from './summon-bond-bind.js';
+import { SUMMON_TASKS, normalizeSummonTaskSpecMap, readActorSpecializations, summonTaskDiceCaps, summonTaskSlotCount, isSummonTask, } from '../rules/specializations.js';
 import { SHARED_SENSE_GROUPS, SUMMON_CAPS, SUMMON_ELIGIBLE_SPECIALS, SUMMON_MOVEMENT_MODES, SUMMON_SKILL_IDS, baseMovementM, computeSummonBond, emptyBondSpend, isSummonSkillEligible, maxMovementPurchases, maxSummonPowerLevel, normalizeMovementMode, summonSkillMinRating, summonTokensFromStones, } from './summon-bond-rules.js';
 import { applyBondFieldDelta, applyBodyFieldDelta, applyBonusTokenDelta, applySkillDiceAllocDelta, bodyStepperView, bondStepperView, inspectBondSpend, isIllegalBonusTokens, maxAssignableArtifactBonusTokens, resetIllegalPurchases, safePurchaseInt, sanitizeBonusTokens, sanitizeSpendNumbers, } from './summon-bond-spend.js';
 const ATTR_LABELS = {
@@ -20,6 +21,18 @@ const ATTR_LABELS = {
     resolve: 'Resolve',
     influence: 'Influence',
     wits: 'Wits',
+};
+const SUMMON_TASK_LABELS = {
+    perception: 'Perception',
+    tracking: 'Tracking',
+    navigation: 'Navigation',
+    'weather-sense': 'Weather Sense',
+    stealth: 'Stealth',
+    concealment: 'Concealment',
+    athletics: 'Athletics',
+    acrobatics: 'Acrobatics',
+    search: 'Search',
+    survival: 'Survival',
 };
 const SKILL_LABELS = {
     perception: 'Perception',
@@ -56,6 +69,7 @@ export class SummonBondDialog extends BaseDialog {
     powersOpen = false;
     specialOpen = false;
     skillsOpen = false;
+    taskSpecsOpen = false;
     restoreUiAfterRender = false;
     static DEFAULT_OPTIONS = {
         id: 'mastery-summon-bond',
@@ -112,6 +126,7 @@ export class SummonBondDialog extends BaseDialog {
                 specialValue: 0,
                 selectedSkills: [],
                 skillDiceAlloc: {},
+                taskSpecMap: {},
                 spend: emptyBondSpend(1),
                 bodies: [],
                 activationTiming: 'after',
@@ -248,7 +263,42 @@ export class SummonBondDialog extends BaseDialog {
             bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens),
             spend: sanitizeSpendNumbers(this.draft.spend),
         });
-        const validation = validateBondRitual(this.draft, ratings, mr, { maxBonusTokens });
+        const ownerSpecs = readActorSpecializations(this.actor.system);
+        const validation = validateBondRitual(this.draft, ratings, mr, { maxBonusTokens, ownerSpecs });
+        const taskMap = normalizeSummonTaskSpecMap(this.draft.taskSpecMap);
+        const taskSlots = summonTaskSlotCount(this.draft.boundStoneCount);
+        const taskMapped = Object.keys(taskMap).length;
+        const taskCaps = summonTaskDiceCaps({ map: taskMap, ownerSpecs, ownerMasteryRank: mr });
+        const taskRows = SUMMON_TASKS.map((task) => {
+            const current = taskMap[task] ?? '';
+            const options = [
+                { value: '', label: '— not mapped —', selected: !current },
+            ];
+            if (task === 'perception') {
+                options.push({
+                    value: 'owner-mr',
+                    label: 'Owner Mastery Rank (cap 2 × MR)',
+                    selected: current === 'owner-mr',
+                });
+            }
+            else {
+                for (const s of ownerSpecs) {
+                    options.push({
+                        value: String(s.id),
+                        label: `${s.name} (Rank ${s.rank})`,
+                        selected: current === String(s.id),
+                    });
+                }
+            }
+            return {
+                task,
+                label: SUMMON_TASK_LABELS[task] ?? task,
+                options,
+                mapped: !!current,
+                cap: taskCaps[task] ?? 0,
+                locked: !current && taskMapped >= taskSlots,
+            };
+        });
         const selectedSkills = new Set(this.draft.selectedSkills);
         const purchasedDice = computed.skillDiceTotal;
         const skillMinRating = summonSkillMinRating(mr);
@@ -401,6 +451,10 @@ export class SummonBondDialog extends BaseDialog {
             powersOpen: this.powersOpen,
             specialOpen: this.specialOpen,
             skillsOpen: this.skillsOpen,
+            taskSpecsOpen: this.taskSpecsOpen,
+            taskRows,
+            taskSlots,
+            taskMapped,
             multiBody: computed.bodyCount > 1,
             previewStats: {
                 attack: `${computed.attackDice}d8`,
@@ -481,6 +535,7 @@ export class SummonBondDialog extends BaseDialog {
         this.powersOpen = !!root.querySelector('.sb-fold[data-fold="powers"][open]');
         this.specialOpen = !!root.querySelector('.sb-fold[data-fold="special"][open]');
         this.skillsOpen = !!root.querySelector('.sb-fold[data-fold="skills"][open]');
+        this.taskSpecsOpen = !!root.querySelector('.sb-fold[data-fold="taskspecs"][open]');
     }
     #restoreUi() {
         const root = this.element;
@@ -731,6 +786,30 @@ export class SummonBondDialog extends BaseDialog {
                     delete this.draft.skillDiceAlloc[skill];
                 }
                 this.draft.selectedSkills = [...set];
+                void this.#refresh();
+            });
+        });
+        root.querySelectorAll('.js-sb-task-spec').forEach((el) => {
+            el.addEventListener('change', () => {
+                readIdentity();
+                const task = String(el.dataset.task || '');
+                const value = String(el.value || '').trim();
+                if (!isSummonTask(task))
+                    return;
+                const next = normalizeSummonTaskSpecMap(this.draft.taskSpecMap);
+                if (!value) {
+                    delete next[task];
+                }
+                else {
+                    const slots = summonTaskSlotCount(this.draft.boundStoneCount);
+                    if (!next[task] && Object.keys(next).length >= slots) {
+                        el.value = '';
+                        ui.notifications?.warn(`This Bond has ${slots} task slot${slots === 1 ? '' : 's'} (Bound Stones). Unmap another task first.`);
+                        return;
+                    }
+                    next[task] = value;
+                }
+                this.draft.taskSpecMap = next;
                 void this.#refresh();
             });
         });

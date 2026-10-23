@@ -21,7 +21,10 @@
     <div class="rw-meta">
       <span class="rw-chip" title="{{meta.castingTime}}"><span class="rw-chip-k">Time</span> {{meta.castingTime}}</span>
       <span class="rw-chip" title="{{meta.duration}}"><span class="rw-chip-k">Duration</span> {{meta.duration}}</span>
-      <span class="rw-chip" title="{{meta.categoryLabel}}"><span class="rw-chip-k">Skills</span> {{meta.categoryLabel}}</span>
+      <span class="rw-chip" title="{{meta.baseTnNote}}"><span class="rw-chip-k">Base TN</span> {{meta.baseTnNote}}</span>
+      {{#if meta.exampleApproaches}}
+      <span class="rw-chip rw-chip-hover"><span class="rw-chip-k">Approaches</span><span class="rw-tip-pop">{{meta.exampleApproaches}}</span></span>
+      {{/if}}
       {{#if meta.requirement}}
       <span class="rw-chip rw-chip-hover" title="{{meta.requirement}}"><span class="rw-chip-k">Requirement</span><span class="rw-tip-pop">{{meta.requirement}}</span></span>
       {{/if}}
@@ -39,15 +42,15 @@
     <table class="rw-raises">
       <thead>
         <tr>
-          <th>Raise</th>
+          <th>Tier</th>
           <th>Effect</th>
           <th>Stones</th>
         </tr>
       </thead>
       <tbody>
         {{#each ritual.raises}}
-        <tr>
-          <td>Raise {{this.level}}</td>
+        <tr{{#if this.selected}} class="is-selected"{{/if}}>
+          <td>Tier {{this.level}}</td>
           <td>{{this.text}}</td>
           <td>{{this.cost}}</td>
         </tr>
@@ -57,22 +60,35 @@
 
     <div class="rw-perform">
       <div class="rw-controls">
-        <label class="rw-field">Ritual MR
-          <input type="number" class="js-rw-mr" min="1" step="1" value="{{ritualMR}}" placeholder="GM" />
+        <label class="rw-field">{{localize "MASTERY.df2026.rituals.approach"}}
+          <input type="text" class="js-rw-approach" value="{{approach}}" placeholder="How do you perform it?" />
+        </label>
+        {{#if approachChips.length}}
+        <div class="rw-approach-chips">
+          {{#each approachChips}}
+          <button type="button" class="js-rw-approach-chip rw-chip" data-text="{{this.text}}" title="{{this.text}}">{{this.label}}</button>
+          {{/each}}
+        </div>
+        {{/if}}
+        <label class="rw-field">{{localize "MASTERY.df2026.rituals.taskLevel"}}
+          <input type="number" class="js-rw-task-level" min="1" step="1" value="{{taskLevel}}" />
         </label>
         <label class="rw-field">Situational TN
           <input type="number" class="js-rw-gm-mod" step="4" value="{{gmMod}}" />
         </label>
-        <label class="rw-field">Declared Raise
-          <select class="js-rw-raise">
-            {{#each raiseOptions}}
+        <label class="rw-field">{{localize "MASTERY.df2026.rituals.namedTier"}}
+          <select class="js-rw-tier">
+            {{#each tierOptions}}
             <option value="{{this.level}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
         </label>
-        <label class="rw-field">Skill
-          <select class="js-rw-skill">
-            {{#each skillOptions}}
+        <label class="rw-field">{{localize "MASTERY.df2026.rituals.genericRaises"}}
+          <input type="number" class="js-rw-generic" min="0" max="{{maxGenericRaises}}" step="1" value="{{genericRaises}}" />
+        </label>
+        <label class="rw-field">{{localize "MASTERY.df2026.rituals.specialization"}}
+          <select class="js-rw-spec">
+            {{#each specOptions}}
             <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
@@ -87,9 +103,11 @@
       </div>
 
       <div class="rw-tn">
-        <span>Base <strong>{{#if baseTn}}{{baseTn}}{{else}}—{{/if}}</strong></span>
-        <span>Raise TN <strong>{{#if raiseTn}}{{raiseTn}}{{else}}—{{/if}}</strong></span>
-        <span>Stones <strong>{{stoneCost}}</strong></span>
+        <span>Base <strong>{{baseTn}}</strong></span>
+        <span>Raises <strong>{{totalRaises}}</strong> ({{paidRaises}} paid / {{freeRaises}} free)</span>
+        <span>{{localize "MASTERY.df2026.rituals.finalTn"}} <strong>{{finalTn}}</strong></span>
+        <span>{{localize "MASTERY.df2026.rituals.sealedStones"}} <strong>{{stoneCost}}</strong></span>
+        {{#if planError}}<span class="rw-error">{{planError}}</span>{{/if}}
       </div>
 
       <div class="rw-pools" aria-label="Available stones">

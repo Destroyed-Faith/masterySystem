@@ -6,6 +6,7 @@ import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { findCatalogEntry, CREATION_POWER_TOTAL } from '../utils/power-catalog.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS, CHARACTER_IMPORT_EXPORT_KIND, CHARACTER_IMPORT_SCHEMA_VERSION, CHARACTER_IMPORT_SYSTEM_ID, FOUNDRY_ACTOR_IMPORT_EXPORT_KIND, } from './character-import-types.js';
 import { disadvantagePointsTotal, expectedPowerCount, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, validateArtifactImportSpec, } from './character-import-build.js';
+import { validateEchoImprintSelections, validateSpecializationList, } from '../rules/index.js';
 import { ECHO_ARTIFACTS, validateEchoArtifactSelection } from '../utils/echo-artifacts.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
@@ -46,7 +47,8 @@ function validatePowerGrantSpecs(specs) {
     }
     return errors;
 }
-const CREATION_SKILL_POINTS = 40;
+/** @deprecated Legacy archive ceiling only — Specs are the creation budget. */
+const LEGACY_SKILL_ARCHIVE_CAP = 40;
 const MAX_DISADVANTAGE_POINTS = 8;
 function validateSkillsAndExpressions(payload) {
     const errors = [];
@@ -65,8 +67,8 @@ function validateSkillsAndExpressions(payload) {
                 spent += Math.floor(rank);
             }
         }
-        if (spent > CREATION_SKILL_POINTS) {
-            errors.push(`Skills total ${spent} exceeds creation budget (${CREATION_SKILL_POINTS}).`);
+        if (spent > LEGACY_SKILL_ARCHIVE_CAP) {
+            errors.push(`Legacy archive skills total ${spent} exceeds historical cap (${LEGACY_SKILL_ARCHIVE_CAP}).`);
         }
     }
     const mr = Math.max(1, Math.min(8, Math.floor(Number(payload.masteryRank) || 4)));
@@ -113,6 +115,77 @@ function validateSkillsAndExpressions(payload) {
         }
     }
     return errors;
+}
+const IMPRINT_ATTRIBUTE_KEYS = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence',
+    'wits',
+];
+/** DF 2026 Specializations + Echo Imprints (shared by payload and actor-document imports). */
+function validateSpecsAndImprints(opts) {
+    const errors = [];
+    if (opts.specializations !== undefined && opts.specializations !== null) {
+        if (!Array.isArray(opts.specializations)) {
+            errors.push('`specializations` must be an array.');
+        }
+        else {
+            const rows = opts.specializations;
+            const bad = rows.findIndex((r) => !isPlainObject(r));
+            if (bad >= 0) {
+                errors.push(`specializations[${bad}] must be an object.`);
+            }
+            else {
+                errors.push(...validateSpecializationList(rows, {
+                    requireStartingBudget: opts.requireStartingBudget === true,
+                }).errors);
+            }
+        }
+    }
+    else if (opts.requireStartingBudget) {
+        errors.push('Starting characters need exactly five Specializations at Rank 2.');
+    }
+    if (opts.echoImprints !== undefined && opts.echoImprints !== null) {
+        if (!Array.isArray(opts.echoImprints)) {
+            errors.push('`echoImprints` must be an array of Echo Imprint ids.');
+        }
+        else {
+            errors.push(...validateEchoImprintSelections({
+                selectedIds: opts.echoImprints.map((v) => String(v ?? '').trim()),
+                masteryRank: opts.masteryRank,
+                attributes: opts.attributes,
+            }).errors);
+        }
+    }
+    return errors;
+}
+function validateDf2026Fields(payload) {
+    const mr = Math.max(1, Math.min(8, Math.floor(Number(payload.masteryRank) || 4)));
+    const attributes = {};
+    for (const key of IMPRINT_ATTRIBUTE_KEYS) {
+        attributes[key] = Math.floor(Number(payload.attributes?.[key]) || 0);
+    }
+    // Complete characters (default) must ship the starting Spec budget; incomplete
+    // imports may carry a partial Spec list for sheet finalize.
+    const requireStartingBudget = payload.creationComplete !== false;
+    const errors = validateSpecsAndImprints({
+        specializations: payload.specializations,
+        echoImprints: payload.echoImprints,
+        masteryRank: mr,
+        attributes,
+        requireStartingBudget,
+    });
+    const warnings = [];
+    if (payload.skills && Object.keys(payload.skills).length > 0) {
+        warnings.push('Legacy `skills` are archive-only — define `specializations` instead; Ratings are not converted.');
+    }
+    if (Array.isArray(payload.minorExpressions) && payload.minorExpressions.length > 0) {
+        warnings.push('Legacy `minorExpressions` are archive-only — define `echoImprints` instead.');
+    }
+    return { errors, warnings };
 }
 function validateCharacterPayload(payload) {
     const errors = [];
@@ -178,6 +251,9 @@ function validateCharacterPayload(payload) {
         }
     }
     errors.push(...validateSkillsAndExpressions(payload));
+    const df2026 = validateDf2026Fields(payload);
+    errors.push(...df2026.errors);
+    warnings.push(...df2026.warnings);
     return {
         ok: errors.length === 0,
         errors,
@@ -197,6 +273,22 @@ function validateFoundryActorDocument(doc) {
     if (actor.type && actor.type !== 'character') {
         errors.push('Only `type: "character"` actors can be imported.');
     }
+    const system = isPlainObject(actor.system) ? actor.system : {};
+    const attrBlock = isPlainObject(system.attributes) ? system.attributes : {};
+    const attributes = {};
+    for (const key of IMPRINT_ATTRIBUTE_KEYS) {
+        const node = attrBlock[key];
+        attributes[key] = Math.floor(Number(isPlainObject(node) ? node.value : node) || 0);
+    }
+    const mastery = isPlainObject(system.mastery) ? system.mastery : {};
+    // Full actor dumps may carry in-play data that is stricter than creation rules
+    // (e.g. a trimmed Imprint list); report problems as warnings so round-trips never fail.
+    warnings.push(...validateSpecsAndImprints({
+        specializations: system.specializations,
+        echoImprints: system.echoImprints,
+        masteryRank: Math.max(1, Math.min(8, Math.floor(Number(mastery.rank) || 4))),
+        attributes,
+    }));
     const items = Array.isArray(actor.items) ? actor.items : [];
     const powers = items.filter((i) => i?.type === 'power');
     if (powers.length > 0 && powers.length !== expectedPowerCount()) {

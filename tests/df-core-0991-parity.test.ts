@@ -139,10 +139,11 @@ describe('Extra Attack sources do not stack', () => {
 });
 
 describe('Spell resolution helpers', () => {
-  it('uses Spell Base TN and Mental Power Base TN = Spell Base + 4', () => {
-    expect(castingBaseTnForMasteryRank(1)).toBe(6);
-    expect(castingBaseTnForMasteryRank(8)).toBe(62);
-    expect(castingBaseTnForMasteryRank(3, { mental: true })).toBe(26);
+  it('uses Spell Base TN = Power Level × 4 (no generic Mental +4)', () => {
+    // Deprecated helper treats MR as temporary PL stand-in.
+    expect(castingBaseTnForMasteryRank(1)).toBe(4);
+    expect(castingBaseTnForMasteryRank(8)).toBe(32);
+    expect(castingBaseTnForMasteryRank(3)).toBe(12);
   });
 
   it('willing targets contribute 0 Spell Resistance and leave the base TN', () => {
@@ -370,7 +371,7 @@ describe('Stored Mastery Rank is mechanical; Lifetime XP only suggests', () => {
   it('keeps stored MR2 even when Lifetime XP suggests MR3', () => {
     expect(getRulesMasteryRank(mismatched)).toBe(2);
     expect(masteryRankFromLifetimeXp(100)).toBe(3);
-    expect(castingBaseTnForMasteryRank(getRulesMasteryRank(mismatched))).toBe(14);
+    expect(castingBaseTnForMasteryRank(getRulesMasteryRank(mismatched))).toBe(8);
     expect(speciallessSpellLimit(getRulesMasteryRank(mismatched))).toBe(2);
     expect(stoneConcentrationCap(2, 2, 100)).toBe(6);
     expect(permanentColorlessCap(2)).toBe(0);

@@ -19,6 +19,97 @@
     </div>
     {{/if}}
 
+    {{#if isIdentityStep}}
+    <div class="tower-wizard-reconcile tower-wizard-warn js-tw-reconcile"{{#unless identity.reconciliation.length}} style="display:none"{{/unless}}>
+      <strong>{{copy.identity.reconcileHeading}}</strong>
+      <ul>
+        {{#each identity.reconciliation}}<li>{{this}}</li>{{/each}}
+      </ul>
+    </div>
+    {{/if}}
+
+    {{#if isEcho}}
+    <section class="tower-wizard-step tower-wizard-identity-step tower-wizard-echo-step">
+      <h3>{{copy.identity.echo.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.identity.echo.body}}</p>
+      <p class="tower-wizard-prose"><strong>{{copy.identity.echo.current}}:</strong> {{#if identity.hasEcho}}{{identity.echoLabel}}{{else}}{{copy.identity.echo.none}}{{/if}}</p>
+      <button type="button" class="tower-wizard-btn is-primary js-tw-choose-echo">{{copy.identity.echo.choose}}</button>
+      <p class="tower-wizard-warn js-tw-identity-status"{{#unless identity.stepError}} style="display:none"{{/unless}}>{{identity.stepError}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isAttributesStones}}
+    <section class="tower-wizard-step tower-wizard-identity-step tower-wizard-attributes-step">
+      <h3>{{copy.identity.attributesStones.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.identity.attributesStones.body}}</p>
+      <p class="tower-wizard-prose">{{copy.identity.attributesStones.stonesLabel}}: <strong><span class="js-tw-stones-placed">{{identity.attributeSummary.stonesPlaced}}</span> / {{identity.attributeSummary.stonesTotal}}</strong> (max {{identity.attributeSummary.stoneCap}} per Attribute)</p>
+      <table class="tower-wizard-identity-table">
+        <thead><tr><th>Attribute</th><th>Value</th><th>Stones</th></tr></thead>
+        <tbody>
+          {{#each identity.attributeRows}}
+          <tr>
+            <td>{{this.label}}</td>
+            <td>
+              <select class="js-tw-attr-value" data-attr="{{this.key}}">
+                <option value=""{{#unless this.value}} selected{{/unless}}>—</option>
+                {{#each this.options}}<option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.value}}</option>{{/each}}
+              </select>
+            </td>
+            <td><input type="number" class="js-tw-stone-value" data-attr="{{this.key}}" min="0" max="{{../identity.attributeSummary.stoneCap}}" step="1" value="{{this.stones}}" /></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <p class="tower-wizard-warn js-tw-identity-status"{{#unless identity.stepError}} style="display:none"{{/unless}}>{{identity.stepError}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isEchoImprints}}
+    <section class="tower-wizard-step tower-wizard-identity-step tower-wizard-imprints-step">
+      <h3>{{copy.identity.echoImprints.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.identity.echoImprints.body}}</p>
+      <p class="tower-wizard-prose">{{copy.identity.echoImprints.pickedLabel}}: <strong><span class="js-tw-imprint-count">{{identity.imprintCount}}</span> / {{identity.imprintMax}}</strong></p>
+      {{#each identity.imprintGroups}}
+      <h4 class="tower-wizard-passive-group-label">{{this.candidateSummary}}</h4>
+      {{#each this.imprints}}
+      <label class="tower-wizard-card tower-wizard-imprint-row{{#if this.selected}} is-selected{{/if}}">
+        <input type="checkbox" class="js-tw-imprint-pick" value="{{this.id}}"{{#if this.selected}} checked{{/if}} />
+        <span class="tower-wizard-card-title">{{this.name}}</span>
+        <span class="tower-wizard-card-text">{{this.tagline}}</span>
+        <span class="tower-wizard-card-detail">{{this.tierText}}</span>
+        <span class="tower-wizard-card-meta">{{this.echoMemory}}</span>
+      </label>
+      {{/each}}
+      {{/each}}
+      <p class="tower-wizard-warn js-tw-identity-status"{{#unless identity.stepError}} style="display:none"{{/unless}}>{{identity.stepError}}</p>
+    </section>
+    {{/if}}
+
+    {{#if isSpecializations}}
+    <section class="tower-wizard-step tower-wizard-identity-step tower-wizard-specs-step">
+      <h3>{{copy.identity.specializations.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.identity.specializations.body}}</p>
+      <table class="tower-wizard-identity-table">
+        <thead><tr><th>{{copy.identity.specializations.nameLabel}}</th><th>{{copy.identity.specializations.fieldLabel}}</th><th>{{copy.identity.specializations.scopeLabel}}</th><th>{{copy.identity.specializations.rankLabel}}</th></tr></thead>
+        <tbody>
+          {{#each identity.specRows}}
+          <tr class="js-tw-spec-row" data-index="{{this.index}}">
+            <td><input type="text" class="js-tw-spec-input" data-prop="name" maxlength="60" value="{{this.name}}" /></td>
+            <td>
+              <select class="js-tw-spec-input" data-prop="field">
+                {{#each this.fieldOptions}}<option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>{{/each}}
+              </select>
+            </td>
+            <td><input type="text" class="js-tw-spec-input" data-prop="scope" maxlength="200" value="{{this.scope}}" /></td>
+            <td>{{this.rank}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <p class="tower-wizard-warn js-tw-identity-status"{{#unless identity.stepError}} style="display:none"{{/unless}}>{{identity.stepError}}</p>
+    </section>
+    {{/if}}
+
     {{#if isPassive1}}
     <section class="tower-wizard-step tower-wizard-passive-select-step">
       <h3>{{copy.passive1.heading}}</h3>
@@ -270,6 +361,13 @@
       <p class="tower-wizard-prose">{{copy.review.manualIntro}}</p>
       {{/if}}
 
+      {{#if identity.reconciliation.length}}
+      <div class="tower-wizard-reconcile tower-wizard-warn">
+        <strong>{{copy.identity.reconcileHeading}}</strong>
+        <ul>{{#each identity.reconciliation}}<li>{{this}}</li>{{/each}}</ul>
+      </div>
+      {{/if}}
+
       {{#if warnings.length}}
       <ul class="tower-wizard-warnings">
         {{#each warnings}}
@@ -445,7 +543,7 @@
   </div>
 
   <footer class="tower-wizard-footer">
-    {{#if showBack}}<button type="button" class="tower-wizard-btn js-tw-back">{{#if manualBuildMode}}{{copy.review.manualBack}}{{else}}{{copy.buttons.back}}{{/if}}</button>{{/if}}
+    {{#if showBack}}<button type="button" class="tower-wizard-btn js-tw-back">{{#if isReview}}{{#if manualBuildMode}}{{copy.review.manualBack}}{{else}}{{copy.buttons.back}}{{/if}}{{else}}{{copy.buttons.back}}{{/if}}</button>{{/if}}
     {{#if showNext}}<button type="button" class="tower-wizard-btn is-primary js-tw-next" {{#unless canAdvance}}disabled{{/unless}}>{{copy.buttons.next}}</button>{{/if}}
     {{#if isReview}}
     <button type="button" class="tower-wizard-btn js-tw-restart">{{#if manualBuildMode}}{{copy.review.manualRestart}}{{else}}{{copy.review.back}}{{/if}}</button>

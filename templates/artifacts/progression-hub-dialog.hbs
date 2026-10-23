@@ -40,33 +40,22 @@
     </details>
 
     <details class="ph-section" data-section="skills" {{#if expandSkills}}open{{/if}}>
-      <summary><i class="fas fa-book"></i> Skills</summary>
-      {{#each hub.skillGroups}}
-      <h4 class="ph-subhead">{{this.category}}</h4>
+      <summary><i class="fas fa-graduation-cap"></i> {{localize "MASTERY.df2026.progression.specializationsSection"}}</summary>
+      <p class="ph-cost">Each Rank costs {{hub.specializationXpPerRank}} XP (max Rank 8, one increase per Specialization per Upgrade Step).</p>
       <div class="ph-grid">
-        {{#each this.skills}}
+        {{#each hub.specializations}}
         <div class="ph-row">
-          <span class="ph-label">{{this.name}}</span>
-          <span class="ph-value">{{this.value}}{{#if (lookup ../../pendingSkills this.key)}} <em class="ph-pending">({{lookup ../../pendingSkills this.key}})</em>{{/if}}</span>
+          <span class="ph-label">{{this.name}} <em>({{this.fieldLabel}})</em></span>
+          <span class="ph-value">Rank {{this.rank}}</span>
           <div class="ph-controls">
-            <button type="button" class="ph-btn" data-action="ph-skill-dec" data-skill="{{this.key}}">−</button>
-            <button type="button" class="ph-btn" data-action="ph-skill-inc" data-skill="{{this.key}}">+</button>
+            <button type="button" class="ph-btn" data-action="ph-spec-rankup" data-spec-id="{{this.id}}" title="Raise one Rank for {{this.cost}} XP" {{#unless this.canRankUp}}disabled{{/unless}} {{#if this.bumpedThisStep}}disabled{{/if}}>+ {{this.cost}} XP</button>
           </div>
         </div>
+        {{else}}
+        <p class="ph-cost">No Specializations yet. Add one from the Skills tab of the character sheet.</p>
         {{/each}}
       </div>
-      {{/each}}
-      <div class="ph-confirm-row">
-        {{#if skillPointsUnspent}}
-        <span class="ph-cost" title="Starting Skill Points pay for ranks before XP (1 point = +1 Rating). They never turn into XP.">Starting Skill Points: {{skillPointsAfterPending}} remaining</span>
-        {{/if}}
-        <span class="ph-cost">Net cost: {{skillNet}} XP</span>
-        <button type="button" class="ae-btn ae-btn-primary" data-action="ph-confirm-skills" {{#unless hasPendingSkills}}disabled{{/unless}}>
-          Confirm Skills
-        </button>
-      </div>
     </details>
-
     <details class="ph-section" data-section="powers" {{#if expandPowers}}open{{/if}}>
       <summary><i class="fas fa-bolt"></i> Powers</summary>
       <div class="ph-grid">

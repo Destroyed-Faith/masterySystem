@@ -275,7 +275,7 @@ describe('Epic Mastery Roll session helpers', () => {
 });
 
 describe('Epic skill spend helpers', () => {
-  it('offers MR-step spend options when pool allows', () => {
+  it('offers no spend options (DF 2026: Skill Spend retired)', () => {
     const actor = mockActor({
       system: {
         mastery: { rank: 4 },
@@ -296,9 +296,8 @@ describe('Epic skill spend helpers', () => {
       exploded: [],
     };
     const { options, remainingPool } = getSkillSpendOptions(actor, 'athletics', rollResult);
-    expect(remainingPool).toBe(4);
-    expect(options.length).toBeGreaterThan(0);
-    expect(options[0]!.amount).toBe(4);
+    expect(remainingPool).toBe(0);
+    expect(options).toEqual([]);
   });
 
   it('builds MR packets like the skill sheet (max four, MR-sized chunks)', () => {

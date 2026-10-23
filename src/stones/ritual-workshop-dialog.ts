@@ -1,24 +1,27 @@
 /**
- * Ritual Workshop — catalog + declared-raise Skill Check UI.
+ * Ritual Workshop — Core Ritual catalogue + Named Tier / Raise Skill Check UI (DF 2026).
  * Lives on the character sheet Rituals tab (no extra window).
  */
 
 import { performRitualRoll } from '../combat/ritual-roll-handler.js';
-import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import {
-  RITUALS,
-  RITUAL_STONE_COST_BY_RAISE,
-  calculateRitualRaiseTN,
-  calculateRitualTN,
-  eligibleSkillsForRitual,
-  getRitualById,
-  ritualCategoryLabels,
-  ritualMaxRaise,
-  ritualStoneCost,
-  type RitualDefinition,
-} from '../utils/rituals.js';
-import { SKILLS } from '../utils/skills.js';
+  CORE_RITUALS,
+  coreRitualTierText,
+  getCoreRitualById,
+  isSealPassage,
+  stripRitualMarkdown,
+  type CoreRitualDefinition,
+} from '../rules/core-rituals.js';
+import {
+  RITUAL_MAX_NAMED_TIER,
+  RITUAL_MAX_TOTAL_RAISES,
+  planRitualRaises,
+  ritualFreeRaisesFromSpecialization,
+  ritualSealedStoneCost,
+} from '../rules/ritual-tn.js';
+import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+import { masteryLocalize } from '../utils/mastery-localize.js';
 
 const POOL_ATTRS = [
   'might',
@@ -42,23 +45,51 @@ const ATTR_LABELS: Record<PoolAttr, string> = {
   wits: 'Wits',
 };
 
-function skillKeyFromDisplayName(name: string): string | null {
-  const entry = Object.entries(SKILLS).find(([, def]) => def.name.toLowerCase() === name.toLowerCase());
-  return entry ? entry[0] : null;
-}
-
 function attrLabel(key: string): string {
   return ATTR_LABELS[key as PoolAttr] ?? key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+type ActorSpecialization = {
+  id?: string;
+  name: string;
+  field?: string;
+  scope?: string;
+  rank: number;
+};
+
+function specKeyOf(spec: ActorSpecialization, index: number): string {
+  return String(spec.id || `${spec.field ?? ''}:${spec.name}` || `spec-${index}`);
+}
+
+/** Split `exampleApproaches` ("Occult (…), Science & Craft (…).") into individual chips. */
+function parseExampleApproaches(text: string): { label: string; text: string }[] {
+  const cleaned = stripRitualMarkdown(text).replace(/\.\s*$/, '');
+  if (!cleaned) return [];
+  return cleaned
+    .split(/(?<=\))\s*,\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const m = part.match(/^(.*?)\s*\((.*)\)$/);
+      return m ? { label: m[1].trim(), text: part } : { label: part, text: part };
+    });
 }
 
 export class RitualWorkshopController {
   actor: Actor;
   selectedId: string;
-  declaredRaise = 0;
-  ritualMR: number;
+  /** Free-text description of how the Ritual is performed. */
+  approach = '';
+  /** Named tier 0–4 (Seal Passage Tier 4 = opening mode). */
+  namedTier = 0;
+  /** Extra generic Raises beyond the named tier. */
+  genericRaises = 0;
+  /** Source / task level; Base TN = 4 × max(3, level). */
+  taskLevel = 3;
   gmMod = 0;
-  skillKey = '';
-  attributeKey = '';
+  attributeKey: PoolAttr = POOL_ATTRS[0];
+  /** Selected Specialization key ('' = none). */
+  specKey = '';
   placed: string[] = [];
   uiScrollTop = 0;
   private onRefresh: () => void | Promise<void>;
@@ -66,90 +97,113 @@ export class RitualWorkshopController {
   constructor(actor: Actor, opts: { onRefresh: () => void | Promise<void>; ritualId?: string }) {
     this.actor = actor;
     this.onRefresh = opts.onRefresh;
-    /* PG "Determining the Ritual MR": the character's own MR does NOT set the
-     * TN — the Ritual MR comes from the target/creator/artifact/scene and must
-     * be entered by the GM. Starts unset (0) and blocks the roll. */
-    this.ritualMR = 0;
-    const initial = (opts.ritualId && getRitualById(opts.ritualId)) || RITUALS[0];
+    const initial = (opts.ritualId && getCoreRitualById(opts.ritualId)) || CORE_RITUALS[0];
     this.selectedId = initial?.id ?? '';
-    this.#applyRitualDefaults(initial, true);
   }
 
   select(ritualId: string): void {
-    const ritual = getRitualById(ritualId);
+    const ritual = getCoreRitualById(ritualId);
     if (!ritual) return;
     this.selectedId = ritual.id;
-    this.declaredRaise = 0;
-    this.#applyRitualDefaults(ritual, true);
+    this.namedTier = 0;
+    this.genericRaises = 0;
+    this.placed = [];
   }
 
-  #selectedRitual(): RitualDefinition | undefined {
-    return getRitualById(this.selectedId) ?? RITUALS[0];
+  #selectedRitual(): CoreRitualDefinition | undefined {
+    return getCoreRitualById(this.selectedId) ?? CORE_RITUALS[0];
   }
 
-  #eligibleSkillKeys(ritual: RitualDefinition | undefined): string[] {
-    if (!ritual) return [];
-    const keys: string[] = [];
-    for (const display of eligibleSkillsForRitual(ritual)) {
-      const key = skillKeyFromDisplayName(display);
-      if (key && SKILLS[key]) keys.push(key);
-    }
-    return keys;
+  #specializations(): ActorSpecialization[] {
+    const raw = (this.actor as any)?.system?.specializations;
+    const list: any[] = Array.isArray(raw) ? raw : raw && typeof raw === 'object' ? Object.values(raw) : [];
+    return list
+      .filter((s) => s && String(s.name ?? '').trim())
+      .map((s) => ({
+        id: s.id,
+        name: String(s.name),
+        field: s.field,
+        scope: s.scope,
+        rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
+      }));
   }
 
-  #applyRitualDefaults(ritual: RitualDefinition | undefined, resetPlaced: boolean): void {
-    if (resetPlaced) this.placed = [];
-    const keys = this.#eligibleSkillKeys(ritual);
-    this.skillKey = keys.includes(this.skillKey) ? this.skillKey : (keys[0] ?? '');
-    const attrs = SKILLS[this.skillKey]?.attributes ?? [];
-    this.attributeKey = attrs.includes(this.attributeKey) ? this.attributeKey : (attrs[0] ?? '');
-    const max = ritual ? ritualMaxRaise(ritual) : 4;
-    this.declaredRaise = Math.max(0, Math.min(max, this.declaredRaise));
-    this.#trimPlacedToCost(ritual);
+  #selectedSpec(): ActorSpecialization | null {
+    if (!this.specKey) return null;
+    const specs = this.#specializations();
+    const idx = specs.findIndex((s, i) => specKeyOf(s, i) === this.specKey);
+    return idx >= 0 ? specs[idx] : null;
   }
 
-  #trimPlacedToCost(ritual: RitualDefinition | undefined): void {
-    if (!ritual) {
-      this.placed = [];
-      return;
-    }
-    const cost = ritualStoneCost(ritual, this.declaredRaise);
+  #clampRaises(): void {
+    this.namedTier = Math.max(0, Math.min(RITUAL_MAX_NAMED_TIER, Math.floor(Number(this.namedTier) || 0)));
+    const maxGeneric = Math.max(0, RITUAL_MAX_TOTAL_RAISES - this.namedTier);
+    this.genericRaises = Math.max(0, Math.min(maxGeneric, Math.floor(Number(this.genericRaises) || 0)));
+    this.taskLevel = Math.max(1, Math.floor(Number(this.taskLevel) || 1));
+    if (!POOL_ATTRS.includes(this.attributeKey)) this.attributeKey = POOL_ATTRS[0];
+    if (this.specKey && !this.#selectedSpec()) this.specKey = '';
+  }
+
+  #plan() {
+    return planRitualRaises({
+      taskLevel: this.taskLevel,
+      namedTier: this.namedTier,
+      genericRaises: this.genericRaises,
+      specializationRank: this.#selectedSpec()?.rank ?? 0,
+    });
+  }
+
+  #trimPlacedToCost(): void {
+    const cost = this.#plan().sealedStones;
     if (this.placed.length > cost) this.placed = this.placed.slice(0, cost);
   }
 
-  #canRoll(ritual: RitualDefinition | undefined, stoneCost: number): boolean {
+  #canRoll(plan: ReturnType<typeof planRitualRaises>): boolean {
     return (
-      !!ritual &&
-      this.ritualMR >= 1 &&
-      this.placed.length === stoneCost &&
-      !!this.skillKey &&
-      !!this.attributeKey
+      !!this.#selectedRitual() &&
+      plan.ok &&
+      this.placed.length === plan.sealedStones &&
+      POOL_ATTRS.includes(this.attributeKey)
     );
   }
 
   prepareContext(): Record<string, unknown> {
     const ritual = this.#selectedRitual();
-    const maxRaise = ritual ? ritualMaxRaise(ritual) : 0;
-    this.declaredRaise = Math.max(0, Math.min(maxRaise, this.declaredRaise));
-    this.#trimPlacedToCost(ritual);
+    this.#clampRaises();
+    this.#trimPlacedToCost();
 
-    const categoryLabel = ritual ? ritualCategoryLabels(ritual) : '';
-    const stoneCost = ritual ? ritualStoneCost(ritual, this.declaredRaise) : 1;
-    const mrSet = this.ritualMR >= 1;
-    const baseTn = mrSet ? calculateRitualTN(this.ritualMR, this.gmMod) : null;
-    const raiseTn = mrSet && baseTn != null ? calculateRitualRaiseTN(baseTn, this.declaredRaise) : null;
+    const plan = this.#plan();
+    const spec = this.#selectedSpec();
+    const stoneCost = plan.sealedStones;
+    const baseTn = plan.baseTn + this.gmMod;
+    const finalTn = plan.finalTn + this.gmMod;
+    const sealPassage = !!ritual && isSealPassage(ritual);
 
-    const skillKeys = this.#eligibleSkillKeys(ritual);
-    const skillOptions = skillKeys.map((key) => ({
-      key,
-      label: SKILLS[key]?.name ?? key,
-      selected: key === this.skillKey,
-    }));
-    const attrKeys = SKILLS[this.skillKey]?.attributes ?? [];
-    const attrOptions = attrKeys.map((key) => ({
+    const specs = this.#specializations();
+    const specOptions = [
+      { key: '', label: 'None', selected: !this.specKey },
+      ...specs.map((s, i) => {
+        const key = specKeyOf(s, i);
+        const free = ritualFreeRaisesFromSpecialization(s.rank);
+        return {
+          key,
+          label: `${s.name} (Rank ${s.rank}${free ? `, ${free} Free` : ''})`,
+          selected: key === this.specKey,
+        };
+      }),
+    ];
+
+    const attrOptions = POOL_ATTRS.map((key) => ({
       key,
       label: attrLabel(key),
       selected: key === this.attributeKey,
+    }));
+
+    const tierOptions = Array.from({ length: RITUAL_MAX_NAMED_TIER + 1 }, (_, level) => ({
+      level,
+      label:
+        sealPassage && level === 4 ? 'Tier 4 — Open passage (alternate)' : `Tier ${level}`,
+      selected: level === this.namedTier,
     }));
 
     const placedCount: Record<string, number> = {};
@@ -185,72 +239,91 @@ export class RitualWorkshopController {
       };
     });
 
-    const raises = (ritual?.raises ?? []).map((text, level) => ({
-      level,
-      text,
-      cost: ritual ? ritualStoneCost(ritual, level) : RITUAL_STONE_COST_BY_RAISE[level] ?? 1,
-    }));
+    const raises = ritual
+      ? ([0, 1, 2, 3, 4] as const).map((level) => ({
+          level,
+          text: coreRitualTierText(ritual, level),
+          cost: ritualSealedStoneCost(level),
+          selected: level === this.namedTier,
+        }))
+      : [];
+
+    const approachChips = ritual ? parseExampleApproaches(ritual.exampleApproaches) : [];
 
     return {
-      tabs: RITUALS.map((r) => ({
+      tabs: CORE_RITUALS.map((r) => ({
         id: r.id,
         name: r.name,
         active: r.id === this.selectedId,
       })),
       ritual: ritual
         ? {
-            ...ritual,
-            categoryLabel,
+            id: ritual.id,
+            name: ritual.name,
+            description: ritual.tagline,
             raises,
           }
         : null,
       meta: ritual
         ? {
-            castingTime: ritual.castingTime,
-            duration: ritual.duration,
+            castingTime: ritual.time,
+            duration: stripRitualMarkdown(ritual.effectDuration),
             requirement: ritual.requirement ?? '',
-            categoryLabel,
+            baseTnNote: stripRitualMarkdown(ritual.baseTnNote),
+            exampleApproaches: stripRitualMarkdown(ritual.exampleApproaches),
             danger: ritual.danger ?? '',
-            limits: ritual.limits ?? '',
-            specialCostNote: ritual.specialCostNote ?? '',
+            limits: stripRitualMarkdown(ritual.limits ?? ''),
+            specialCostNote: sealPassage
+              ? masteryLocalize(
+                  'MASTERY.df2026.rituals.sealPassageAlt',
+                  'Tier 4 is an alternate mode: open an existing sealed passage instead of sealing one. Declare before rolling.',
+                )
+              : '',
           }
         : null,
-      ritualMR: mrSet ? this.ritualMR : '',
+      approach: this.approach,
+      approachChips,
+      taskLevel: this.taskLevel,
       gmMod: this.gmMod,
-      declaredRaise: this.declaredRaise,
-      raiseOptions: Array.from({ length: maxRaise + 1 }, (_, level) => ({
-        level,
-        label: `Raise ${level}`,
-        selected: level === this.declaredRaise,
-      })),
+      namedTier: this.namedTier,
+      genericRaises: this.genericRaises,
+      maxGenericRaises: Math.max(0, RITUAL_MAX_TOTAL_RAISES - this.namedTier),
+      tierOptions,
+      specOptions,
+      hasSpecializations: specs.length > 0,
+      specRank: spec?.rank ?? 0,
+      freeRaises: plan.freeRaises,
+      paidRaises: plan.paidRaises,
+      totalRaises: plan.totalRaises,
+      planError: plan.ok ? '' : (plan.error ?? ''),
       baseTn,
-      raiseTn,
+      raiseTn: finalTn,
+      finalTn,
       stoneCost,
-      skillOptions,
       attrOptions,
       pools,
       slots,
-      canRoll: this.#canRoll(ritual, stoneCost),
+      canRoll: this.#canRoll(plan),
       ruleTips: [
         {
           label: 'Skill Check',
-          text: 'Rituals are normal Skill Checks. Choose a Skill from an allowed category that matches how you perform the Ritual. The GM has final approval. Skill Points may be spent after the roll.',
-        },
-        {
-          label: 'Ritual MR',
-          text: 'The MR of the thing affected (target, creator/owner, Artifact level, Power tier, or scene). Not your own MR. Your MR only decides how many dice you keep.',
+          text: 'Rituals are Skill Checks. Describe your Approach (free text or an example), pick any Attribute pool, and optionally a relevant Specialization. The GM has final approval.',
         },
         {
           label: 'TN',
-          text: 'Base Ritual TN = 8 x Ritual MR. Declare Raise before rolling. Raise TN = Base + declared Raises x 4. Below Base = fail. Base met but Raise TN missed = Raise 0 only. Extra margin does not unlock undeclared Raises.',
+          text: 'Base Ritual TN = 4 × max(3, Task Level) — minimum 12. Final TN = Base + 4 × Paid Raises. Missing the Final TN fails the whole attempt.',
+        },
+        {
+          label: 'Raises',
+          text: `Named Tier (0–4) plus generic Raises, max ${RITUAL_MAX_TOTAL_RAISES} total. A relevant Specialization at Rank 4 / 6 / 8 makes 1 / 2 / 3 Raises Free (+0 TN).`,
         },
         {
           label: 'Stones',
-          text: `Cost by declared Raise: 0-1 = ${RITUAL_STONE_COST_BY_RAISE[0]} Stone, 2-3 = ${RITUAL_STONE_COST_BY_RAISE[2]}, 4 = ${RITUAL_STONE_COST_BY_RAISE[4]}. Any color. Paid Stones become Sealed on the attempt, even on failure or Raise 0 only. They return after a Safe Haven Rest.`,
+          text: 'Sealed Stones by total Raises (Paid + Free): 0–1 = 1, 2–3 = 2, 4+ = 3. Any color. They stay Sealed on the attempt, even on failure, until a Safe Haven Rest.',
         },
         {
           label: 'Time',
-          text: 'Standard Ritual takes 1 Tyhran Hour. A rushed Ritual (GM) takes 1 Forearm and at least +4 TN.',
+          text: `${ritual?.time ?? '1 Tyhran Hour'}. A rushed Ritual (GM) takes 1 Forearm and at least +4 TN.`,
         },
       ],
     };
@@ -283,9 +356,24 @@ export class RitualWorkshopController {
       });
     });
 
-    root.querySelector('.js-rw-mr')?.addEventListener('change', (ev) => {
-      // 0 = unset ("empty"); the roll stays blocked until a Ritual MR is entered.
-      this.ritualMR = Math.max(0, Math.floor(Number((ev.target as HTMLInputElement).value) || 0));
+    root.querySelector('.js-rw-approach')?.addEventListener('input', (ev) => {
+      this.approach = (ev.target as HTMLInputElement).value;
+    });
+    root.querySelector('.js-rw-approach')?.addEventListener('change', (ev) => {
+      this.approach = (ev.target as HTMLInputElement).value;
+    });
+
+    root.querySelectorAll('.js-rw-approach-chip').forEach((el) => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.approach = (el as HTMLElement).dataset.text ?? '';
+        refresh();
+      });
+    });
+
+    root.querySelector('.js-rw-task-level')?.addEventListener('change', (ev) => {
+      this.taskLevel = Math.max(1, Math.floor(Number((ev.target as HTMLInputElement).value) || 1));
       refresh();
     });
 
@@ -294,23 +382,28 @@ export class RitualWorkshopController {
       refresh();
     });
 
-    root.querySelector('.js-rw-raise')?.addEventListener('change', (ev) => {
-      const ritual = this.#selectedRitual();
-      const max = ritual ? ritualMaxRaise(ritual) : 4;
-      this.declaredRaise = Math.max(0, Math.min(max, Math.floor(Number((ev.target as HTMLSelectElement).value) || 0)));
-      this.#trimPlacedToCost(ritual);
+    root.querySelector('.js-rw-tier')?.addEventListener('change', (ev) => {
+      this.namedTier = Math.floor(Number((ev.target as HTMLSelectElement).value) || 0);
+      this.#clampRaises();
+      this.#trimPlacedToCost();
       refresh();
     });
 
-    root.querySelector('.js-rw-skill')?.addEventListener('change', (ev) => {
-      this.skillKey = (ev.target as HTMLSelectElement).value;
-      const attrs = SKILLS[this.skillKey]?.attributes ?? [];
-      if (!attrs.includes(this.attributeKey)) this.attributeKey = attrs[0] ?? '';
+    root.querySelector('.js-rw-generic')?.addEventListener('change', (ev) => {
+      this.genericRaises = Math.floor(Number((ev.target as HTMLInputElement).value) || 0);
+      this.#clampRaises();
+      this.#trimPlacedToCost();
+      refresh();
+    });
+
+    root.querySelector('.js-rw-spec')?.addEventListener('change', (ev) => {
+      this.specKey = (ev.target as HTMLSelectElement).value;
+      this.#trimPlacedToCost();
       refresh();
     });
 
     root.querySelector('.js-rw-attr')?.addEventListener('change', (ev) => {
-      this.attributeKey = (ev.target as HTMLSelectElement).value;
+      this.attributeKey = (ev.target as HTMLSelectElement).value as PoolAttr;
       refresh();
     });
 
@@ -318,9 +411,7 @@ export class RitualWorkshopController {
       el.addEventListener('click', (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        const ritual = this.#selectedRitual();
-        if (!ritual) return;
-        const cost = ritualStoneCost(ritual, this.declaredRaise);
+        const cost = this.#plan().sealedStones;
         if (this.placed.length >= cost) return;
         const attr = (el as HTMLElement).dataset.attr;
         if (!attr) return;
@@ -350,23 +441,24 @@ export class RitualWorkshopController {
   async #roll(): Promise<void> {
     const ritual = this.#selectedRitual();
     if (!ritual) return;
-    const stoneCost = ritualStoneCost(ritual, this.declaredRaise);
-    if (!this.#canRoll(ritual, stoneCost)) {
-      if (this.ritualMR < 1) {
-        (ui as any).notifications?.warn(
-          'Enter the Ritual MR first (target / creator / artifact / scene — not your own MR).',
-        );
-      }
+    this.#clampRaises();
+    const plan = this.#plan();
+    if (!plan.ok) {
+      (ui as any).notifications?.warn(plan.error ?? 'Invalid Ritual Raises.');
       return;
     }
-    const baseTn = calculateRitualTN(this.ritualMR, this.gmMod);
+    if (!this.#canRoll(plan)) return;
+    const spec = this.#selectedSpec();
     await performRitualRoll(this.actor, ritual, {
-      skillKey: this.skillKey,
       attributeKey: this.attributeKey,
-      baseTn,
-      ritualMR: this.ritualMR,
+      taskLevel: this.taskLevel,
+      approach: this.approach,
+      specialization: spec
+        ? { id: spec.id, name: spec.name, field: spec.field, rank: spec.rank }
+        : null,
+      namedTier: this.namedTier,
+      genericRaises: this.genericRaises,
       gmMod: this.gmMod,
-      declaredRaises: this.declaredRaise,
       placedAttrs: [...this.placed],
     });
     this.placed = [];

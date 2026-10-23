@@ -1,4 +1,10 @@
 /**
+ * @deprecated Minor Expressions are replaced by Echo Imprints (DF Guide 2026-10-23).
+ * The floating bar is retired from live paths: it never renders (see
+ * LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED) and the scene-control entry opens the
+ * Echo Imprints dialog instead. Kept only for rollback / archive review.
+ *
+ * Original description:
  * Floating player panel listing the character's chosen Minor Expressions
  * (same chrome as the Important NPCs bar): draggable, collapsible, hover
  * shows the current-tier text, "Use" posts the expression to chat and ticks
@@ -26,6 +32,9 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseBar = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 const APP_ID = 'mastery-minor-expressions-bar';
+
+/** Retired: Echo Imprints replace Minor Expressions. Flip only for rollback. */
+const LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED = false;
 
 function loc(key: string, fallback: string): string {
   const raw = (globalThis as any).game?.i18n?.localize?.(key);
@@ -111,7 +120,11 @@ export class MinorExpressionsBar extends BaseBar {
     const actor = MinorExpressionsBar.resolveActor();
     const model = actor ? buildMinorExpressionsBarModel(actor) : null;
     const existing = foundry.applications.instances.get(APP_ID) as MinorExpressionsBar | undefined;
-    const show = !!model && model.rows.length > 0 && !readMinorExpressionsBarHidden();
+    const show =
+      LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED &&
+      !!model &&
+      model.rows.length > 0 &&
+      !readMinorExpressionsBarHidden();
     if (!show) {
       if (existing) await (existing as any).close();
       MinorExpressionsBar._instance = null;
@@ -325,8 +338,23 @@ export class MinorExpressionsBar extends BaseBar {
   }
 }
 
-/** Show the floating panel from the Mastery scene-control menu (players). */
+/**
+ * @deprecated Delegates to the Echo Imprints dialog; the floating bar is retired.
+ */
 export async function showMinorExpressionsBarFromMenu(): Promise<void> {
+  const { showEchoImprintsFromMenu } = await import('./echo-imprints-menu.js');
+  await showEchoImprintsFromMenu();
+}
+
+/**
+ * @deprecated Legacy floating-panel opener (only works when
+ * LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED is true). Not called from live paths.
+ */
+export async function showLegacyMinorExpressionsBarFromMenu(): Promise<void> {
+  if (!LEGACY_MINOR_EXPRESSIONS_BAR_ENABLED) {
+    await showMinorExpressionsBarFromMenu();
+    return;
+  }
   const actor = MinorExpressionsBar.resolveActor();
   if (!actor) {
     if ((game as any).user?.isGM) {

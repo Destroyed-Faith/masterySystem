@@ -1351,7 +1351,23 @@ export function getSecondPassiveIntentGroups(
     return getGuidedSecondPassiveIntentGroups(passive1TemplateId, actorEchoKey, actorSubChoiceKey);
 }
 
+/** DF 2026 early steps: Echo → Attributes + Stones → Echo Imprints → Specializations. */
+export const WIZARD_IDENTITY_STEPS: readonly TowerWizardStep[] = [
+    'echo',
+    'attributesStones',
+    'echoImprints',
+    'specializations',
+];
+
+export function isIdentityWizardStep(step: TowerWizardStep): boolean {
+    return WIZARD_IDENTITY_STEPS.includes(step);
+}
+
 export const WIZARD_STEP_ORDER: TowerWizardStep[] = [
+    'echo',
+    'attributesStones',
+    'echoImprints',
+    'specializations',
     'passive1',
     'passive2',
     'activeBuffChoice',
@@ -1368,8 +1384,13 @@ export function packageNeedsReplacementBuffStep(selection: Partial<TowerWizardSe
 }
 
 export function getVisibleWizardSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[] {
-    if (isManualBuildMode(selection)) return ['review'];
+    const showIdentity = selection.skipIdentitySteps !== true;
+    // Quick (manual) still walks the identity steps, then jumps to review for power customization.
+    if (isManualBuildMode(selection)) {
+        return showIdentity ? [...WIZARD_IDENTITY_STEPS, 'review'] : ['review'];
+    }
     return WIZARD_STEP_ORDER.filter((step) => {
+        if (isIdentityWizardStep(step)) return showIdentity;
         if (step === 'offensiveBuff' && !packageNeedsReplacementBuffStep(selection)) return false;
         if (step === 'offense' && !isManualBuildMode(selection)) return false;
         if (step === 'weakenSave' && !packageNeedsWeakenSaveStep(selection)) return false;

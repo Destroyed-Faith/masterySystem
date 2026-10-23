@@ -1,6 +1,8 @@
 /**
- * Tower Wizard — player-facing copy (English).
+ * Tower Wizard — player-facing copy (English fallbacks when i18n is unavailable).
  */
+
+import { masteryLocalize } from '../../utils/mastery-localize.js';
 
 export const TOWER_WIZARD_COPY = {
     title: 'Combat Package Wizard',
@@ -112,6 +114,35 @@ export const TOWER_WIZARD_COPY = {
             'Options that duplicate your Echo Artifact Active Buff are hidden. Consider an offensive or support Active Buff, or a different defensive path (Phasing, Damage Reduction, Conditional Passives).',
     },
 
+    identity: {
+        echo: {
+            heading: 'CHOOSE YOUR ECHO',
+            body: 'Your Echo is who you were before the Fall. Open the Echo dialog to choose it (and any sub-choice or Veiled Form).',
+            current: 'Current Echo',
+            none: 'No Echo chosen yet.',
+            choose: 'Choose / change Echo',
+        },
+        attributesStones: {
+            heading: 'ATTRIBUTES & STONES',
+            body: 'Assign the starting Attributes 4, 4, 3, 3, 2, 2, 2 (one per Attribute), then place your 2 starting Attribute Stones. Stones are independent of Attribute scores and may stack on one Attribute up to Mastery Rank × 2.',
+            stonesLabel: 'Stones placed',
+        },
+        echoImprints: {
+            heading: 'ECHO IMPRINTS',
+            body: 'Choose up to your Mastery Rank in Echo Imprints (two at the usual start). Each needs its Attribute at 4+. Choosing costs no Stones, XP, Rerolls or charges.',
+            pickedLabel: 'Imprints chosen',
+        },
+        specializations: {
+            heading: 'SPECIALIZATIONS',
+            body: 'Name exactly five Rank 2 Specializations (20 Creation Points). Each has a free name, a Field and a one-sentence scope. Examples are suggestions, not a closed list.',
+            nameLabel: 'Name',
+            fieldLabel: 'Field',
+            scopeLabel: 'Scope (one sentence)',
+            rankLabel: 'Rank',
+        },
+        reconcileHeading: 'Powers already chosen — re-check later steps',
+    },
+
     review: {
         heading: 'Your Combat Package',
         whatYouBuilt: 'What you built',
@@ -148,3 +179,38 @@ export const TOWER_WIZARD_COPY = {
         back: 'Back',
     },
 } as const;
+
+/** Identity-step headings/labels resolved through `MASTERY.df2026` when Foundry i18n is ready. */
+export function localizedTowerWizardCopy(): typeof TOWER_WIZARD_COPY {
+    const base = TOWER_WIZARD_COPY;
+    return {
+        ...base,
+        identity: {
+            ...base.identity,
+            echoImprints: {
+                ...base.identity.echoImprints,
+                heading: masteryLocalize(
+                    'MASTERY.df2026.imprints.title',
+                    base.identity.echoImprints.heading,
+                ) as typeof base.identity.echoImprints.heading,
+            },
+            specializations: {
+                ...base.identity.specializations,
+                heading: masteryLocalize(
+                    'MASTERY.df2026.creation.specsHeaderTitle',
+                    base.identity.specializations.heading,
+                ) as typeof base.identity.specializations.heading,
+                fieldLabel: masteryLocalize(
+                    'MASTERY.df2026.specializations.field',
+                    base.identity.specializations.fieldLabel,
+                ) as typeof base.identity.specializations.fieldLabel,
+                scopeLabel: (masteryLocalize('MASTERY.df2026.specializations.scope', 'Scope') +
+                    ' (one sentence)') as typeof base.identity.specializations.scopeLabel,
+                rankLabel: masteryLocalize(
+                    'MASTERY.df2026.specializations.rank',
+                    base.identity.specializations.rankLabel,
+                ) as typeof base.identity.specializations.rankLabel,
+            },
+        },
+    };
+}

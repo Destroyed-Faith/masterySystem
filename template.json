@@ -206,6 +206,7 @@
       },
       "skills": {},
       "skillsSpent": {},
+      "specializations": [],
       "skillPoints": {
         "unspent": 0,
         "placed": {}
@@ -236,6 +237,7 @@
       },
       "disadvantages": [],
       "minorExpressions": [],
+      "echoImprints": [],
       "languages": {
         "known": ["common"]
       },

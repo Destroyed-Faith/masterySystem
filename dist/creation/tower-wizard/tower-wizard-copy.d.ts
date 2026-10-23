@@ -1,5 +1,5 @@
 /**
- * Tower Wizard — player-facing copy (English).
+ * Tower Wizard — player-facing copy (English fallbacks when i18n is unavailable).
  */
 export declare const TOWER_WIZARD_COPY: {
     readonly title: "Combat Package Wizard";
@@ -93,6 +93,34 @@ export declare const TOWER_WIZARD_COPY: {
         readonly defenseRecommended: "Complements your Echo";
         readonly activeBuffPickerNote: "Options that duplicate your Echo Artifact Active Buff are hidden. Consider an offensive or support Active Buff, or a different defensive path (Phasing, Damage Reduction, Conditional Passives).";
     };
+    readonly identity: {
+        readonly echo: {
+            readonly heading: "CHOOSE YOUR ECHO";
+            readonly body: "Your Echo is who you were before the Fall. Open the Echo dialog to choose it (and any sub-choice or Veiled Form).";
+            readonly current: "Current Echo";
+            readonly none: "No Echo chosen yet.";
+            readonly choose: "Choose / change Echo";
+        };
+        readonly attributesStones: {
+            readonly heading: "ATTRIBUTES & STONES";
+            readonly body: "Assign the starting Attributes 4, 4, 3, 3, 2, 2, 2 (one per Attribute), then place your 2 starting Attribute Stones. Stones are independent of Attribute scores and may stack on one Attribute up to Mastery Rank × 2.";
+            readonly stonesLabel: "Stones placed";
+        };
+        readonly echoImprints: {
+            readonly heading: "ECHO IMPRINTS";
+            readonly body: "Choose up to your Mastery Rank in Echo Imprints (two at the usual start). Each needs its Attribute at 4+. Choosing costs no Stones, XP, Rerolls or charges.";
+            readonly pickedLabel: "Imprints chosen";
+        };
+        readonly specializations: {
+            readonly heading: "SPECIALIZATIONS";
+            readonly body: "Name exactly five Rank 2 Specializations (20 Creation Points). Each has a free name, a Field and a one-sentence scope. Examples are suggestions, not a closed list.";
+            readonly nameLabel: "Name";
+            readonly fieldLabel: "Field";
+            readonly scopeLabel: "Scope (one sentence)";
+            readonly rankLabel: "Rank";
+        };
+        readonly reconcileHeading: "Powers already chosen — re-check later steps";
+    };
     readonly review: {
         readonly heading: "Your Combat Package";
         readonly whatYouBuilt: "What you built";
@@ -127,4 +155,6 @@ export declare const TOWER_WIZARD_COPY: {
         readonly back: "Back";
     };
 };
+/** Identity-step headings/labels resolved through `MASTERY.df2026` when Foundry i18n is ready. */
+export declare function localizedTowerWizardCopy(): typeof TOWER_WIZARD_COPY;
 //# sourceMappingURL=tower-wizard-copy.d.ts.map

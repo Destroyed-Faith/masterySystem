@@ -11,7 +11,7 @@
  * fair Attack Dice, Damage Dice and Special magnitude so the encounter's
  * expected pressure matches the central tuning target. Martial attacks
  * resolve vs each PC's Evade (+ expected defensive reactions); Spells vs the
- * NPC Casting TN ((8 × MR) − 2) + that PC's Spell Resistance. AoE evaluates
+ * NPC Casting TN (Power Level × 4) + that PC's Spell Resistance. AoE evaluates
  * explicit occupancy cases instead of a hidden fixed target count.
  */
 
@@ -201,7 +201,9 @@ function npcConnectChance(
   const reactionShare =
     (ENCOUNTER_TUNING.reactionUsageRate * (2 * pc.mr)) / Math.max(1, totalHostileAttacks);
   if (isSpell) {
-    const tn = npcSpellCastingTn(npcMr, pc.spellResistance);
+    // Encounter-forge NPC spells default used PL ≈ 2×MR (max learned PL band).
+    const usedPl = Math.max(1, 2 * Math.max(1, Math.floor(npcMr)));
+    const tn = npcSpellCastingTn(usedPl, pc.spellResistance);
     return rawHitChance(pool, npcMr, tn);
   }
   return rawHitChance(pool, npcMr, pc.evade + reactionShare);

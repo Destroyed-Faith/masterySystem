@@ -2,14 +2,16 @@
  * Tower Wizard — guided combat package dialog.
  */
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
-import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, deriveDefenseIdFromPassive1, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getFirstPassiveIntentGroups, getSecondPassiveIntentGroups, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
+import { TOWER_WIZARD_COPY, localizedTowerWizardCopy } from './tower-wizard-copy.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, deriveDefenseIdFromPassive1, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getFirstPassiveIntentGroups, getSecondPassiveIntentGroups, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isIdentityWizardStep, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
 import { isAllowedSecondPassive } from './tower-wizard-passive-categories.js';
 import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
 import { findCatalogEntry } from '../../utils/power-catalog.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
-import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
+import { collectRelevantWarnings, validateTowerWizardIdentity, validateTowerWizardSelection, validateWizardIdentityStep, } from './tower-wizard-validation.js';
+import { buildReconciliationPreview, buildWizardAttributeRows, buildWizardAttributeSummary, buildWizardImprintGroups, buildWizardSpecRows, readActorIdentityPrefill, specRecordsFromDraft, } from './tower-wizard-identity.js';
+import { ATTRIBUTE_KEYS } from '../../progression/v099-rules.js';
 import { buildDefensePackagesWithEcho, buildTowerWizardEchoContext, collectArtifactActiveBuffIdentityKeys, buildEchoAdvisorSummary, collectEchoAdvisorWarnings, validateEchoRequiredForTowerWizard, } from './tower-wizard-echo-advisor.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -31,11 +33,25 @@ function defaultSelection() {
         powerOverrides: undefined,
     };
 }
+/** Identity (early-step) fields that survive a power restart. */
+const IDENTITY_SELECTION_KEYS = [
+    'echoKey',
+    'subChoiceKey',
+    'veiledFormKey',
+    'attributeValues',
+    'stoneAssignments',
+    'echoImprintIds',
+    'specializations',
+    'masteryRank',
+    'skipIdentitySteps',
+];
 export class TowerWizardDialog extends BaseDialog {
     actor;
-    step = 'passive1';
+    step = 'echo';
     selection = defaultSelection();
     secondPassiveNeedsReselect = false;
+    /** Early-step edits since Powers were chosen (drives the reconciliation preview). */
+    earlyChanges = new Set();
     static DEFAULT_OPTIONS = {
         id: 'tower-wizard-dialog',
         classes: ['mastery-system', 'tower-wizard-app'],
@@ -51,17 +67,69 @@ export class TowerWizardDialog extends BaseDialog {
     constructor(actor, options = {}) {
         super(foundry.utils.mergeObject(TowerWizardDialog.DEFAULT_OPTIONS, options));
         this.actor = actor;
-        if (options.manualBuildMode === true) {
-            this.selection = {
-                ...defaultSelection(),
-                manualBuildMode: true,
-            };
-            this.step = 'review';
+        const sys = actor.system ?? {};
+        // Identity steps only run during creation; mature characters rebuild Powers only.
+        const inCreation = sys?.creation?.complete === false;
+        this.selection = {
+            ...defaultSelection(),
+            ...readActorIdentityPrefill(sys),
+            masteryRank: Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 2)),
+            skipIdentitySteps: !inCreation,
+            ...(options.manualBuildMode === true ? { manualBuildMode: true } : {}),
+        };
+        // Quick (manual) walks echo → attributes → imprints → specs, then jumps to review.
+        this.step = getVisibleWizardSteps(this.selection)[0] ?? 'review';
+    }
+    #identityCtx() {
+        const sys = this.actor.system ?? {};
+        const attrs = {};
+        for (const key of ATTRIBUTE_KEYS) {
+            attrs[key] = Math.max(0, Math.floor(Number(sys?.attributes?.[key]?.value) || 0));
         }
+        return {
+            masteryRank: this.selection.masteryRank,
+            actorAttributes: attrs,
+            hasEcho: !!String(sys?.echo?.key || '').trim(),
+        };
+    }
+    /** Mirror `actor.system.echo` into the selection DTO (the Echo dialog is the writer). */
+    #syncEchoFromActor() {
+        const echo = (this.actor.system?.echo ?? {});
+        this.selection.echoKey = echo.key ? String(echo.key) : undefined;
+        this.selection.subChoiceKey = echo.subChoiceKey ? String(echo.subChoiceKey) : undefined;
+        this.selection.veiledFormKey = echo.veiledFormKey ? String(echo.veiledFormKey) : undefined;
+    }
+    #identityStepError(step) {
+        return validateWizardIdentityStep(step, this.selection, this.#identityCtx());
+    }
+    #reconciliationLines() {
+        const echo = (this.actor.system?.echo ?? {});
+        return buildReconciliationPreview(this.selection, this.earlyChanges, {
+            echoKey: echo.key ?? null,
+            subChoiceKey: echo.subChoiceKey ?? null,
+        });
+    }
+    /** Update status text / Next button / counters without re-rendering (keeps input focus). */
+    #refreshIdentityStatus() {
+        const root = $(this.element);
+        const err = this.#identityStepError(this.step);
+        root.find('.js-tw-identity-status').text(err ?? '').toggle(!!err);
+        root.find('.js-tw-next').prop('disabled', !!err);
+        const summary = buildWizardAttributeSummary(this.selection, this.#identityCtx());
+        root.find('.js-tw-stones-placed').text(String(summary.stonesPlaced));
+        root.find('.js-tw-imprint-count').text(String(this.selection.echoImprintIds?.length ?? 0));
+        const lines = this.#reconciliationLines();
+        const box = root.find('.js-tw-reconcile');
+        box.toggle(lines.length > 0);
+        box.find('ul').empty().append(lines.map((l) => $('<li>').text(l)));
+    }
+    #recordEarlyChange(kind) {
+        this.earlyChanges.add(kind);
+        this.#refreshIdentityStatus();
     }
     #fullSelection() {
         if (isManualBuildMode(this.selection)) {
-            const err = validateTowerWizardSelection(this.selection);
+            const err = validateTowerWizardSelection(this.selection, this.#identityCtx());
             if (err)
                 return null;
             const specs = buildPackageGrantSpecsFromOverrides(this.selection);
@@ -107,9 +175,12 @@ export class TowerWizardDialog extends BaseDialog {
         return sel;
     }
     async _prepareContext(_options) {
+        this.#syncEchoFromActor();
+        const identityCtx = this.#identityCtx();
         const visibleSteps = getVisibleWizardSteps(this.selection);
+        const firstStep = visibleSteps[0];
         const stepIndex = Math.max(1, visibleSteps.indexOf(this.step) + 1);
-        const copy = TOWER_WIZARD_COPY;
+        const copy = localizedTowerWizardCopy();
         const echoSys = this.actor.system;
         const echoKey = echoSys?.echo?.key ?? null;
         const echoSubChoiceKey = echoSys?.echo?.subChoiceKey ?? null;
@@ -162,10 +233,30 @@ export class TowerWizardDialog extends BaseDialog {
             ? collectRelevantWarnings(fullSelection, echoContext)
             : collectEchoAdvisorWarnings(this.selection, echoContext);
         const echoRequiredError = validateEchoRequiredForTowerWizard(echoContext);
+        const identityError = this.selection.skipIdentitySteps
+            ? validateTowerWizardIdentity(this.selection, identityCtx)
+            : validateTowerWizardIdentity(this.selection, identityCtx, { requireComplete: true });
         const validationError = echoRequiredError
+            || identityError
             || (manualMode || fullSelection
-                ? validateTowerWizardSelection(this.selection)
+                ? validateTowerWizardSelection(this.selection, identityCtx)
                 : null);
+        const echoSystem = (this.actor.system?.echo ?? {});
+        const identityView = {
+            echoLabel: echoContext.echoLabel,
+            hasEcho: echoContext.hasEcho,
+            echoKey: echoSystem.key ?? '',
+            attributeRows: buildWizardAttributeRows(this.selection),
+            attributeSummary: buildWizardAttributeSummary(this.selection, identityCtx),
+            imprintGroups: this.step === 'echoImprints'
+                ? buildWizardImprintGroups(this.selection, identityCtx)
+                : [],
+            imprintCount: this.selection.echoImprintIds?.length ?? 0,
+            imprintMax: Math.max(1, Math.floor(Number(this.selection.masteryRank) || 2)),
+            specRows: this.step === 'specializations' ? buildWizardSpecRows(this.selection) : [],
+            stepError: isIdentityWizardStep(this.step) ? this.#identityStepError(this.step) : null,
+            reconciliation: this.#reconciliationLines(),
+        };
         const roleRating = this.step === 'review' && review.allOk
             ? computeBuildRoleRating(review.reviewPowerRows)
             : null;
@@ -187,7 +278,13 @@ export class TowerWizardDialog extends BaseDialog {
             roleRating,
             warnings,
             validationError,
-            canApply: echoContext.hasEcho && (manualMode
+            identity: identityView,
+            isEcho: this.step === 'echo',
+            isAttributesStones: this.step === 'attributesStones',
+            isEchoImprints: this.step === 'echoImprints',
+            isSpecializations: this.step === 'specializations',
+            isIdentityStep: isIdentityWizardStep(this.step),
+            canApply: echoContext.hasEcho && !identityError && (manualMode
                 ? review.allOk && !validationError
                 : !!fullSelection && review.allOk && !validationError),
             manualBuildMode: manualMode,
@@ -217,8 +314,8 @@ export class TowerWizardDialog extends BaseDialog {
             isWeakenSave: this.step === 'weakenSave',
             isDelivery: this.step === 'delivery',
             isReview: this.step === 'review',
-            showBack: this.step !== 'passive1' && (this.step !== 'review' || manualMode),
-            showNext: this.step === 'offense',
+            showBack: this.step === 'review' ? manualMode : this.step !== firstStep,
+            showNext: this.step === 'offense' || isIdentityWizardStep(this.step),
             canAdvance: this.#canAdvance(),
         };
     }
@@ -261,6 +358,11 @@ export class TowerWizardDialog extends BaseDialog {
     }
     #canAdvance() {
         switch (this.step) {
+            case 'echo':
+            case 'attributesStones':
+            case 'echoImprints':
+            case 'specializations':
+                return !this.#identityStepError(this.step);
             case 'passive1':
                 return !!resolvePassive1TemplateId(this.selection);
             case 'defense':
@@ -284,9 +386,17 @@ export class TowerWizardDialog extends BaseDialog {
         }
     }
     #nextStep(from) {
+        if (isManualBuildMode(this.selection)) {
+            const visible = getVisibleWizardSteps(this.selection);
+            return visible[visible.indexOf(from) + 1] ?? 'review';
+        }
         const idx = STEP_ORDER.indexOf(from);
         let next = STEP_ORDER[idx + 1];
         while (next) {
+            if (isIdentityWizardStep(next) && this.selection.skipIdentitySteps) {
+                next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
+                continue;
+            }
             if (next === 'offensiveBuff' && !packageNeedsReplacementBuffStep(this.selection)) {
                 next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
                 continue;
@@ -304,9 +414,17 @@ export class TowerWizardDialog extends BaseDialog {
         return next ?? 'review';
     }
     #prevStep(from) {
+        if (isManualBuildMode(this.selection)) {
+            const visible = getVisibleWizardSteps(this.selection);
+            return visible[Math.max(0, visible.indexOf(from) - 1)] ?? 'review';
+        }
         const idx = STEP_ORDER.indexOf(from);
         let prev = STEP_ORDER[idx - 1];
         while (prev) {
+            if (isIdentityWizardStep(prev) && this.selection.skipIdentitySteps) {
+                prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
+                continue;
+            }
             if (prev === 'offensiveBuff' && !packageNeedsReplacementBuffStep(this.selection)) {
                 prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
                 continue;
@@ -321,7 +439,7 @@ export class TowerWizardDialog extends BaseDialog {
             }
             break;
         }
-        return prev ?? 'passive1';
+        return prev ?? getVisibleWizardSteps(this.selection)[0] ?? 'passive1';
     }
     #advanceAfterSelection() {
         if (!this.#canAdvance())
@@ -465,6 +583,71 @@ export class TowerWizardDialog extends BaseDialog {
     async _onRender(context, options) {
         await super._onRender(context, options);
         const root = $(this.element);
+        /* ---- DF 2026 early identity steps ---- */
+        root.find('.js-tw-choose-echo').on('click', async () => {
+            const before = JSON.stringify(this.actor.system?.echo?.key ?? '')
+                + JSON.stringify(this.actor.system?.echo?.subChoiceKey ?? '');
+            const { showEchoCreationDialog } = await import('../../sheets/character-sheet-echo-dialog.js');
+            await showEchoCreationDialog(this.actor);
+            const after = JSON.stringify(this.actor.system?.echo?.key ?? '')
+                + JSON.stringify(this.actor.system?.echo?.subChoiceKey ?? '');
+            if (before !== after)
+                this.earlyChanges.add('echo');
+            this.render();
+        });
+        root.find('.js-tw-attr-value').on('change', (ev) => {
+            const key = String($(ev.currentTarget).data('attr') || '');
+            if (!ATTRIBUTE_KEYS.includes(key))
+                return;
+            const raw = String($(ev.currentTarget).val() ?? '');
+            const next = { ...(this.selection.attributeValues ?? {}) };
+            if (raw === '')
+                delete next[key];
+            else
+                next[key] = Math.floor(Number(raw) || 0);
+            this.selection.attributeValues = next;
+            this.#recordEarlyChange('attributes');
+        });
+        root.find('.js-tw-stone-value').on('change input', (ev) => {
+            const key = String($(ev.currentTarget).data('attr') || '');
+            if (!ATTRIBUTE_KEYS.includes(key))
+                return;
+            const n = Math.max(0, Math.floor(Number($(ev.currentTarget).val()) || 0));
+            this.selection.stoneAssignments = { ...(this.selection.stoneAssignments ?? {}), [key]: n };
+            this.#recordEarlyChange('stones');
+        });
+        root.find('.js-tw-imprint-pick').on('change', (ev) => {
+            const id = String($(ev.currentTarget).val() || '');
+            const max = Math.max(1, Math.floor(Number(this.selection.masteryRank) || 2));
+            const ids = new Set(this.selection.echoImprintIds ?? []);
+            if ($(ev.currentTarget).is(':checked')) {
+                if (ids.size >= max) {
+                    $(ev.currentTarget).prop('checked', false);
+                    ui.notifications?.warn(`At most ${max} Echo Imprint${max === 1 ? '' : 's'} at Mastery Rank ${max}.`);
+                    return;
+                }
+                ids.add(id);
+            }
+            else {
+                ids.delete(id);
+            }
+            this.selection.echoImprintIds = [...ids];
+            this.#recordEarlyChange('imprints');
+        });
+        root.find('.js-tw-spec-input').on('change input', () => {
+            const rows = [];
+            root.find('.js-tw-spec-row').each((_i, el) => {
+                const row = $(el);
+                rows.push({
+                    name: String(row.find('[data-prop="name"]').val() ?? ''),
+                    field: String(row.find('[data-prop="field"]').val() ?? ''),
+                    scope: String(row.find('[data-prop="scope"]').val() ?? ''),
+                });
+            });
+            const records = specRecordsFromDraft(rows);
+            this.selection.specializations = records.length ? records : undefined;
+            this.#recordEarlyChange('specializations');
+        });
         root.find('.js-tw-select-passive1').on('click', (ev) => {
             const el = $(ev.currentTarget);
             el.addClass('is-picked');
@@ -688,7 +871,9 @@ export class TowerWizardDialog extends BaseDialog {
             });
         });
         root.find('.js-tw-back').on('click', () => {
-            if (isManualBuildMode(this.selection) && this.step === 'review') {
+            if (isManualBuildMode(this.selection)
+                && this.step === 'review'
+                && getVisibleWizardSteps(this.selection)[0] === 'review') {
                 this.close();
                 return;
             }
@@ -708,8 +893,13 @@ export class TowerWizardDialog extends BaseDialog {
         });
         root.find('.js-tw-restart').on('click', () => {
             if (isManualBuildMode(this.selection)) {
+                // Restart Powers only — keep the identity steps already completed.
+                const identity = {};
+                for (const key of IDENTITY_SELECTION_KEYS)
+                    identity[key] = this.selection[key];
                 this.selection = {
                     ...defaultSelection(),
+                    ...identity,
                     manualBuildMode: true,
                 };
                 this.step = 'review';

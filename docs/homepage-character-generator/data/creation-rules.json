@@ -13,7 +13,10 @@
     3,
     4
   ],
-  "skillPoints": 40,
+  "startingSpecializationCount": 5,
+  "startingSpecializationRank": 2,
+  "startingSpecializationCreationPoints": 20,
+  "skillPoints": 20,
   "maxAttributeAtCreation": 4,
   "maxSkillAtCreation": 4,
   "minDisadvantagePoints": 0,

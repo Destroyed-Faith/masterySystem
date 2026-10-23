@@ -7,6 +7,7 @@ import { applySustainedDelta, getActorPoolSpendable, } from './familiar-bind.js'
 import { BASE_SUMMON, BOND_STATUS_LABEL, MAX_ARTIFACT_BONUS_TOKENS, classifyBondStatus, computeSummonBond, emptyBondSpend, isSummonSkillEligible, legacyMovementTypeToMode, normalizeMovementMode, summonSkillMinRating, summonSkillSlots, summonTokensFromStones, } from './summon-bond-rules.js';
 import { inspectBondSpend, isIllegalBonusTokens, maxAssignableArtifactBonusTokens, safePurchaseInt, sanitizeBonusTokens, sanitizeSpendNumbers, } from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
+import { normalizeSummonTaskSpecMap, readActorSpecializations, validateSummonTaskSpecMap, } from '../rules/specializations.js';
 export const DISSOLVE_BOND_CONFIRM = 'Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.';
 export const STONE_POOL_ATTRS = [
     'might',
@@ -83,6 +84,7 @@ export function createEmptyBond(opts) {
         specialValue: 0,
         selectedSkills: [],
         skillDiceAlloc: {},
+        taskSpecMap: {},
         spend,
         bodies: [body],
         activationTiming: 'after',
@@ -339,6 +341,15 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
     errors.push(...inspect.reasons);
     errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank));
     errors.push(...validateBondPowers(bond, ownerMasteryRank));
+    if (bond.taskSpecMap && Object.keys(bond.taskSpecMap).length > 0) {
+        const map = normalizeSummonTaskSpecMap(bond.taskSpecMap);
+        errors.push(...validateSummonTaskSpecMap({
+            map,
+            boundStones: bond.boundStoneCount,
+            // Without owner specs, only the slot limit is checked.
+            ownerSpecs: extras?.ownerSpecs ?? Object.values(map).map((id) => ({ id })),
+        }));
+    }
     if (bond.spend.specialAccess && !bond.specialKey) {
         errors.push('Special Access requires selecting an eligible Special.');
     }
@@ -451,7 +462,11 @@ export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) 
         draft.specialKey = null;
         draft.spend.specialValuePurchases = 0;
     }
-    const validation = validateBondRitual(draft, ownerSkillRatings, mr, { maxBonusTokens: maxBonus });
+    draft.taskSpecMap = normalizeSummonTaskSpecMap(draft.taskSpecMap);
+    const validation = validateBondRitual(draft, ownerSkillRatings, mr, {
+        maxBonusTokens: maxBonus,
+        ownerSpecs: readActorSpecializations(actor?.system),
+    });
     const inspect = inspectBondSpend(draft.spend, {
         boundStoneCount: draft.boundStoneCount,
         bonusTokens: draft.bonusTokens,

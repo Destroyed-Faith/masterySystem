@@ -221,15 +221,14 @@ describe('action economy: extra actions only in Burst', () => {
   });
 });
 
-describe('spell TN from caster MR', () => {
-  it('is 8 × caster MR (+4 Mental), not Power Level', () => {
-    expect(pcSpellCastingTn(2)).toBe(14);
-    expect(pcSpellCastingTn(3)).toBe(22);
-    expect(pcSpellCastingTn(3, 4)).toBe(26);
-    expect(pcSpellCastingTn(3, 0, { mental: true })).toBe(26);
-    expect(pcSpellCastingTn(3, 2, { mental: true })).toBe(28);
-    // Old PL formula 8×ceil(PL/2) for PL 4 would be 16 — must differ at MR 3.
-    expect(pcSpellCastingTn(3)).not.toBe(8 * Math.ceil(4 / 2));
+describe('spell TN from used Power Level', () => {
+  it('is Power Level × 4 + SR (Final Mental surcharge opt-in)', () => {
+    expect(pcSpellCastingTn(2)).toBe(8);
+    expect(pcSpellCastingTn(3)).toBe(12);
+    expect(pcSpellCastingTn(4)).toBe(16);
+    expect(pcSpellCastingTn(4, 4)).toBe(20);
+    expect(pcSpellCastingTn(4, 0, { mentalFinalTnSurcharge: 4 })).toBe(20);
+    expect(pcSpellCastingTn(4, 2, { mentalFinalTnSurcharge: 4 })).toBe(22);
   });
 
   it('stores caster MR on the Spell profile', () => {
@@ -238,8 +237,9 @@ describe('spell TN from caster MR', () => {
     ]).members[0];
     const spell = profile.attacks.find((a) => a.role === 'spell')!;
     expect(spell.casterMr).toBe(3);
-    expect(spell.isMental).toBe(true);
-    expect(spell.notes.some((n) => /8×MR/.test(n))).toBe(true);
+    expect(spell.mentalFinalTnSurcharge).toBe(0);
+    expect(spell.spellPowerLevel).toBe(4);
+    expect(spell.notes.some((n) => /PL×4/.test(n))).toBe(true);
   });
 });
 

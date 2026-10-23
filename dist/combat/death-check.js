@@ -13,6 +13,7 @@
  * the creature has any HP again (healing wakes it immediately).
  */
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import { emergencyMedicineBaseTn } from '../rules/fear-health.js';
 export const DEATH_STATE_FLAG = 'deathState';
 export function emptyDeathState() {
     return { successes: 0, marks: 0, stabilized: false, dead: false };
@@ -64,6 +65,7 @@ export function deathCheckPool(actor) {
     };
 }
 /**
+ * @deprecated DF 2026 retired Death Checks; `module.ts` no longer calls this.
  * Roll one Death Check for an Incapacitated creature and update its state.
  * Posts a GM-whispered chat card. No-op if the creature is not incapacitated,
  * already Stabilized, or already dead.
@@ -119,6 +121,16 @@ export async function maybeRollDeathCheck(actor) {
     return { rolled: true, total, tn: pool.tn, success, state: next };
 }
 /**
+ * DF 2026 Emergency Medicine Base TN for an Incapacitated patient
+ * (patient Mastery Rank × 4). No Medicine healing UI exists yet — call this
+ * wherever a Medicine roll targets an Incapacitated creature.
+ */
+export function emergencyMedicineTnForPatient(patient) {
+    return emergencyMedicineBaseTn(getRulesMasteryRank(patient));
+}
+/**
+ * @deprecated DF 2026 retired Death Checks (see `module.ts`). Kept for legacy tests / data.
+ *
  * Ally stabilization (Medicine, 1 Attack Action): on success the patient
  * counts as having 4 Successes. TN = 12 × patient Mastery Rank (handled by
  * the Medicine roll itself — this helper only records the result).

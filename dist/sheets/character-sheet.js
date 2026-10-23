@@ -3,6 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { buildSpecializationSheetRows, findSpecializationById, planSpecializationRoll, readSpecializations, SPECIALIZATION_XP_PER_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
@@ -38,8 +39,9 @@ import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { creationGuideFlags } from '../utils/creation-tab-guide.js';
 import { findLegacyDialogRoot, scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
+import { masteryLocalize } from '../utils/mastery-localize.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
-import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, nextCreationSkillValue, prevCreationSkillValue, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
+import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, isSkillsRedistributing, } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
@@ -819,9 +821,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.creationComplete = creationCompleteRaw !== false;
         // Calculate creation point counters (always calculate, but only show if not complete)
         const masteryRank = context.system.mastery?.rank || 2;
-        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
         const maxDisadvantagePoints = CONFIG.MASTERY?.creation?.maxDisadvantagePoints ?? 8;
         const minDisadvantagePoints = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
+        const startingSpecCount = CONFIG.MASTERY?.creation?.startingSpecializationCount ?? STARTING_SPECIALIZATION_COUNT;
+        const startingSpecRank = CONFIG.MASTERY?.creation?.startingSpecializationRank ?? STARTING_SPECIALIZATION_RANK;
         // Calculate attribute distribution status (2×4, 2×3, 3×2 model)
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || 2);
@@ -867,11 +870,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const used = assignedValues.filter((v) => v === cur).length;
             attrCreationOk[ex] = max > 0 && used <= max;
         }
-        // Calculate skill points spent
-        let skillPointsSpent = 0;
-        for (const skillValue of Object.values(context.system.skills || {})) {
-            skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
-        }
+        // DF 2026: starting budget = five Rank-2 Specializations (20 Creation Points).
+        const creationSpecs = readSpecializations(context.system);
+        const specBudget = validateSpecializationList(creationSpecs, { requireStartingBudget: true });
+        const specializationsValid = specBudget.ok;
+        const specializationCount = creationSpecs.length;
+        const specializationRank2Count = creationSpecs.filter((s) => s.rank === startingSpecRank).length;
         // Calculate disadvantage points
         const disadvantagePoints = (context.system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
         const disadvantagesValid = disadvantagePoints >= minDisadvantagePoints && disadvantagePoints <= maxDisadvantagePoints;
@@ -1039,20 +1043,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         };
         // Always provide creation data for template (even if complete)
-        const { maxPerSkill: maxSkillAtCreation, step: skillStep } = getCreationSkillBudget();
         context.creation = {
             masteryRank,
-            skillPointsConfig,
-            maxSkillAtCreation,
-            skillStep,
+            startingSpecializationCount: startingSpecCount,
+            startingSpecializationRank: startingSpecRank,
+            specializationCount,
+            specializationRank2Count,
+            specializationsValid,
+            specializationBudgetHint: `${startingSpecCount}× Rank ${startingSpecRank} (20 Creation Points)`,
             attrCount4: count4,
             attrCount3: count3,
             attrCount2: count2,
             attrCreationSelect,
             attrCreationOk,
             attributeDistributionValid,
-            skillPointsRemaining: skillPointsConfig - skillPointsSpent,
-            skillPointsSpent,
             disadvantagePoints,
             disadvantagePointsMin: minDisadvantagePoints,
             disadvantagePointsMax: maxDisadvantagePoints,
@@ -1077,8 +1081,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             echoCreationValid,
             languagesCreationValid: context.languagesView?.creationValid !== false,
             canFinalize: attributeDistributionValid &&
-                skillPointsSpent === skillPointsConfig &&
-                validateCreationSkillAllocation(context.system).ok &&
+                specializationsValid &&
                 categoriesValid &&
                 disadvantagesValid &&
                 echoCreationValid &&
@@ -1088,8 +1091,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             creationComplete: context.creationComplete,
             attributesDone: attributeDistributionValid,
             echoDone: echoCreationValid && context.languagesView?.creationValid !== false,
-            skillsDone: skillPointsSpent === skillPointsConfig &&
-                validateCreationSkillAllocation(context.system).ok,
+            skillsDone: specializationsValid,
             powersDone: categoriesValid,
             equipmentReviewed: context.system.creation?.equipmentReviewed === true,
             disadvantagesDone: disadvantagesValid,
@@ -1099,20 +1101,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             context.isGM || (!context.creationComplete && this.actor.isOwner);
         context.defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
         context.attributeScaling = attributeScalingEnabled();
-        // Post-creation skill redistribute (40 pts, max 4) when no XP yet.
+        // Legacy skill redistribute retired for DF 2026 (Specializations replace 40-pt skills).
         const skillsRedistributing = isSkillsRedistributing(this.actor);
         context.skillsRedistributing = skillsRedistributing;
-        context.skillsAllocationMode = !context.creationComplete || skillsRedistributing;
-        const startGate = canStartSkillsRedistribute(this.actor);
-        context.canStartSkillsRedistribute =
-            !!context.creationComplete &&
-                !skillsRedistributing &&
-                startGate.ok &&
-                (!!this.actor.isOwner || context.isGM);
+        context.skillsAllocationMode = false;
+        context.canStartSkillsRedistribute = false;
         context.canFinishSkillsRedistribute =
-            skillsRedistributing &&
-                skillPointsSpent === skillPointsConfig &&
-                (!!this.actor.isOwner || context.isGM);
+            skillsRedistributing && (!!this.actor.isOwner || context.isGM);
         // Unspent Skill Points (refunds) — placed through the progression +/- buttons.
         context.skillPointsUnspent = readSkillPointPool(context.system).unspent;
         // Add configuration data
@@ -1131,6 +1126,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // No need to calculate here - just use the derived values from system.combat
         // Add skills list (sorted alphabetically)
         context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
+        // DF 2026 Specializations (live path); legacy fixed Skills stay as archive.
+        this.#prepareSpecializations(context);
         // Prepare disadvantages (named-card layout for physical / mental limitations)
         const rawDisadvantages = context.system.disadvantages || [];
         context.disadvantages = rawDisadvantages.map((d) => {
@@ -2452,17 +2449,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         this.#armSheetButtonsAgainstTooltipSteal(html);
         this.#bindMasteryRankSelect(html);
-        html.find('.minor-expressions-open').on('click', async (ev) => {
+        // Echo Imprints (DF 2026) replace Minor Expressions. The legacy
+        // `.minor-expressions-open` class is kept as an alias for old markup.
+        html.find('.echo-imprints-open, .minor-expressions-open').on('click', async (ev) => {
             ev.preventDefault();
-            if (!this.actor.isOwner) {
-                ui.notifications?.warn('Only the owner can choose Minor Expressions.');
-                return;
-            }
             const attr = ev.currentTarget.dataset.attribute;
-            if (!attr)
-                return;
-            const { showMinorExpressionsDialog } = await import('./minor-expressions-dialog.js');
-            await showMinorExpressionsDialog(this.actor, { focusAttribute: attr });
+            const { showEchoImprintsDialog } = await import('./echo-imprints-dialog.js');
+            // Non-owners get a read-only view (no save controls).
+            await showEchoImprintsDialog(this.actor, { focusAttribute: attr });
             this.render(false);
         });
         /**
@@ -2482,6 +2476,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Roll buttons work for everyone
         bindReliableControlClick(html, '.attribute-roll', this.#onAttributeRoll.bind(this));
         bindReliableControlClick(html, '.skill-roll, .skill-roll-compact', this.#onSkillRoll.bind(this));
+        bindReliableControlClick(html, '.spec-roll', this.#onSpecializationRoll.bind(this));
+        bindReliableControlClick(html, '.spec-add', this.#onSpecializationAdd.bind(this));
+        bindReliableControlClick(html, '.spec-edit', this.#onSpecializationEdit.bind(this));
+        bindReliableControlClick(html, '.spec-delete', this.#onSpecializationDelete.bind(this));
+        bindReliableControlClick(html, '.spec-rank-up', this.#onSpecializationRankUp.bind(this));
         bindReliableControlClick(html, '.safe-haven-rest', this.#onSafeHavenRest.bind(this));
         bindReliableControlClick(html, '.passive-regeneration-activate', this.#onPassiveRegeneration.bind(this));
         bindReliableControlClick(html, '.health-fallback-restoration', this.#onPassiveRegeneration.bind(this));
@@ -2501,8 +2500,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
         // the only attribute spend path is now the pending/confirm flow via
         // `.attr-increase-xp` (which respects the once-per-step rule).
-        html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
-        html.find('.skill-refund-point').on('click', this.#onSkillRefundPoint.bind(this));
+        // DF 2026: Skill Spend / XP skill buttons retired — Spec Ranks advance in the Progression Hub (4 XP per Rank).
+        html.find('.skill-spend-point, .skill-refund-point').on('click', (ev) => {
+            ev.preventDefault();
+            ui.notifications?.info(masteryLocalize('MASTERY.df2026.archive.skillSpendRetired', 'Skill Spend is retired (DF 2026). Raise Specializations in Progression.'));
+        });
         html.find('.confirm-skill-changes').on('click', this.#onConfirmSkillChanges.bind(this));
         html.find('.cancel-skill-changes').on('click', this.#onCancelSkillChanges.bind(this));
         // New attribute XP distribution system (with confirmation)
@@ -5705,6 +5707,159 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
     }
     /**
+     * DF 2026: prepare the Specializations list (Field labels, raise allowance, passive hint).
+     */
+    #prepareSpecializations(context) {
+        const system = context.system ?? {};
+        const specs = readSpecializations(system);
+        const attrValues = {};
+        for (const [key, data] of Object.entries(system.attributes ?? {})) {
+            attrValues[key] = Number(data?.value) || 0;
+        }
+        context.specializations = buildSpecializationSheetRows(specs, attrValues);
+        context.hasSpecializations = specs.length > 0;
+        context.specializationCount = specs.length;
+        const isOwner = !!this.actor.isOwner || !!context.isGM;
+        context.canEditSpecializations = isOwner;
+        // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
+        context.canEditSpecializationRank = !!context.isGM || context.creationComplete === false;
+        context.specializationXpPerRank = SPECIALIZATION_XP_PER_RANK;
+        context.showSpecializationRankUp = isOwner && context.creationComplete !== false;
+    }
+    async #onSpecializationAdd(event) {
+        event.preventDefault();
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner (or GM) can edit Specializations.');
+            return;
+        }
+        const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
+        const creation = this.actor.system?.creation?.complete === false;
+        const saved = await showSpecializationEditDialog(this.actor, {
+            allowRankEdit: creation || !!game.user?.isGM,
+            learnWithXp: !creation && !game.user?.isGM,
+        });
+        if (saved)
+            this.render(false);
+    }
+    async #onSpecializationEdit(event) {
+        event.preventDefault();
+        if (!this.actor.isOwner && !game.user?.isGM)
+            return;
+        const specId = String(event.currentTarget.dataset.specId || '');
+        if (!specId)
+            return;
+        const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
+        const creation = this.actor.system?.creation?.complete === false;
+        const saved = await showSpecializationEditDialog(this.actor, {
+            specId,
+            allowRankEdit: creation || !!game.user?.isGM,
+        });
+        if (saved)
+            this.render(false);
+    }
+    async #onSpecializationDelete(event) {
+        event.preventDefault();
+        if (!this.actor.isOwner && !game.user?.isGM)
+            return;
+        const specId = String(event.currentTarget.dataset.specId || '');
+        if (!specId)
+            return;
+        const { deleteSpecializationWithConfirm } = await import('./specializations-dialog.js');
+        const removed = await deleteSpecializationWithConfirm(this.actor, specId);
+        if (removed)
+            this.render(false);
+    }
+    /** Spend 4 XP to raise one Specialization by one Rank (once per Upgrade Step). */
+    async #onSpecializationRankUp(event) {
+        event.preventDefault();
+        if (!this.actor.isOwner && !game.user?.isGM)
+            return;
+        const specId = String(event.currentTarget.dataset.specId || '');
+        if (!specId)
+            return;
+        const { applySpecializationRankUp } = await import('../progression/progression-hub-actions.js');
+        const res = await applySpecializationRankUp(this.actor, specId);
+        if (!res.ok) {
+            ui.notifications?.warn(res.error || 'Could not raise Specialization.');
+            return;
+        }
+        ui.notifications?.info(`Specialization raised to Rank ${res.newRank} (${SPECIALIZATION_XP_PER_RANK} XP).`);
+        this.render(false);
+    }
+    /**
+     * DF 2026 Specialization roll.
+     * Trained: Attribute dice, Keep = MR; Task Level × 4 = Base TN; Paid Raises +4 TN each.
+     * Untrained (no Spec): full Attribute pool + Disadvantage, 0 Raises.
+     * Raises are validated BEFORE the roll. No post-roll spend buttons.
+     */
+    async #onSpecializationRoll(event) {
+        event.preventDefault();
+        const el = event.currentTarget;
+        const specId = String(el.dataset.specId || '').trim();
+        const specs = readSpecializations(this.actor.system);
+        const spec = specId ? findSpecializationById(specs, specId) : null;
+        if (specId && !spec) {
+            ui.notifications?.warn('Specialization not found.');
+            return;
+        }
+        const { promptSpecializationRollOptions } = await import('./specializations-dialog.js');
+        const choice = await promptSpecializationRollOptions(this.actor, spec);
+        if (!choice)
+            return;
+        const system = this.actor.system;
+        const attributeValue = Number(system?.attributes?.[choice.attributeKey]?.value) || 0;
+        const masteryRank = getRulesMasteryRank(this.actor);
+        const plan = planSpecializationRoll({
+            rank: spec?.rank ?? 0,
+            attributeValue,
+            masteryRank,
+            taskLevel: choice.taskLevel,
+            paidRaises: choice.paidRaises,
+            freeRaises: choice.freeRaises,
+        });
+        if (!plan.ok) {
+            ui.notifications?.warn(plan.error || 'Invalid Raises for this Specialization Rank.');
+            return;
+        }
+        const attrLabel = choice.attributeKey.charAt(0).toUpperCase() + choice.attributeKey.slice(1);
+        const label = spec ? `${spec.name} Check` : 'Untrained Check';
+        const flavor = spec
+            ? `Specialization ${spec.name} (Rank ${plan.rank}) · ${attrLabel} ${attributeValue}d8 keep ${plan.keepDice} · Task Level ${plan.taskLevel} (Base TN ${plan.baseTn}) · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Free ${plan.freeRaises} · Final TN ${plan.finalTn}.`
+            : `Untrained · ${attrLabel} ${attributeValue}d8 keep ${plan.keepDice} with Disadvantage · Task Level ${plan.taskLevel} · Final TN ${plan.finalTn} · 0 Raises.`;
+        let equipPenalty = 0;
+        if (spec?.field === 'physical') {
+            equipPenalty = Math.max(0, Number(getEquippedPhysicalSkillPenaltyDice(this.actor)) || 0);
+        }
+        const normalizedName = spec ? spec.name.trim().toLowerCase() : '';
+        const { masteryRoll } = await import('../dice/roll-handler.js');
+        await masteryRoll({
+            numDice: Math.max(0, plan.numDice - equipPenalty),
+            keepDice: plan.keepDice,
+            skill: 0,
+            tn: plan.baseTn,
+            normalTn: plan.baseTn,
+            raiseTn: plan.finalTn,
+            declaredRaiseSlots: plan.paidRaises,
+            stoneBonusRaises: plan.freeRaises,
+            raiseModel: 'skill',
+            rollDisadvantage: plan.rollDisadvantage,
+            label,
+            flavor: equipPenalty > 0
+                ? `${flavor} Equipped armor/shield physical penalty: −${equipPenalty}d8.`
+                : flavor,
+            actorId: this.actor.id,
+            // Only Stealth keeps its legacy key so the Stealth setup result is recorded.
+            ...(normalizedName === 'stealth' ? { skillKey: 'stealth' } : {}),
+            isSkillRoll: true,
+            baseModifier: 0,
+            rollKind: 'skill',
+            poolAttribute: choice.attributeKey,
+            applyPoolPenalties: true,
+            autoFailIntent: 'skill',
+            checkContext: { skillKey: normalizedName || undefined },
+        });
+    }
+    /**
      * Add a new skill
      */
     async #onSkillAdd(event) {
@@ -6458,10 +6613,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         $scope.find('input[name="name"], textarea').prop('disabled', true);
         $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.spec-add):not(.spec-edit):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .spec-add, .spec-edit, .spec-delete, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         $scope.find('.power-rank-select').prop('disabled', false);
@@ -7023,117 +7178,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onCreationSkillIncrease(event) {
         event.preventDefault();
-        const skill = $(event.currentTarget).data('skill');
-        if (!skill)
-            return;
-        const creationComplete = this.actor.system?.creation?.complete !== false;
-        const redistributing = isSkillsRedistributing(this.actor);
-        if (creationComplete && !redistributing)
-            return;
-        if (!this.actor.isOwner && !game.user?.isGM) {
-            ui.notifications?.warn('Only the owner or GM can allocate skill points.');
-            return;
-        }
-        // Save scroll position
-        const skillsTab = $(this.element).find('.tab.skills');
-        const scrollTop = skillsTab.scrollTop();
-        const system = this.actor.system;
-        const currentValue = Math.max(0, Math.floor(Number(system.skills?.[skill]) || 0));
-        const { total: skillPointsConfig } = getCreationSkillBudget();
-        // Calculate current points spent
-        let skillPointsSpent = 0;
-        for (const skillValue of Object.values(system.skills || {})) {
-            skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
-        }
-        const remaining = skillPointsConfig - skillPointsSpent;
-        const next = nextCreationSkillValue(currentValue, remaining);
-        if (!next.ok || next.value == null) {
-            ui.notifications?.warn(next.reason || 'Cannot raise this skill.');
-            return;
-        }
-        await this.actor.update({
-            [`system.skills.${skill}`]: next.value,
-        });
-        await this.render();
-        // Restore scroll position
-        const newSkillsTab = $(this.element).find('.tab.skills');
-        if (newSkillsTab.length) {
-            newSkillsTab.scrollTop(scrollTop ?? 0);
-        }
+        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacySkillsRetired', 'Legacy skill allocation is retired. Use Specializations (five Rank 2 at creation).'));
     }
     /**
      * Character Creation / Redistribute: clear skill chunk back to 0.
      */
     async #onCreationSkillDecrease(event) {
         event.preventDefault();
-        const skill = $(event.currentTarget).data('skill');
-        if (!skill)
-            return;
-        const creationComplete = this.actor.system?.creation?.complete !== false;
-        const redistributing = isSkillsRedistributing(this.actor);
-        if (creationComplete && !redistributing)
-            return;
-        if (!this.actor.isOwner && !game.user?.isGM) {
-            ui.notifications?.warn('Only the owner or GM can allocate skill points.');
-            return;
-        }
-        // Save scroll position
-        const skillsTab = $(this.element).find('.tab.skills');
-        const scrollTop = skillsTab.scrollTop();
-        const system = this.actor.system;
-        const currentValue = Math.max(0, Math.floor(Number(system.skills?.[skill]) || 0));
-        const prev = prevCreationSkillValue(currentValue);
-        if (!prev.ok || prev.value == null) {
-            ui.notifications?.warn(prev.reason || 'Skill cannot go below 0.');
-            return;
-        }
-        await this.actor.update({
-            [`system.skills.${skill}`]: prev.value,
-        });
-        await this.render();
-        // Restore scroll position
-        const newSkillsTab = $(this.element).find('.tab.skills');
-        if (newSkillsTab.length) {
-            newSkillsTab.scrollTop(scrollTop ?? 0);
-        }
+        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacySkillsRetired', 'Legacy skill allocation is retired. Use Specializations (five Rank 2 at creation).'));
     }
     async #onStartSkillsRedistribute() {
-        if (!this.actor.isOwner && !game.user?.isGM) {
-            ui.notifications?.warn('Only the owner or GM can redistribute skills.');
-            return;
-        }
-        const gate = canStartSkillsRedistribute(this.actor);
-        if (!gate.ok) {
-            ui.notifications?.warn(gate.reason || 'Cannot redistribute skills.');
-            return;
-        }
-        const { total, maxPerSkill } = getCreationSkillBudget();
-        const confirmed = await new Promise((resolve) => {
-            new Dialog({
-                title: 'Redistribute Skills',
-                content: `<p>Reset all skills to <strong>0</strong> and distribute <strong>${total}</strong> points in steps of <strong>${maxPerSkill}</strong> (each click sets a skill to ${maxPerSkill}; only 0 or ${maxPerSkill}).</p>
-<p><em>Only available when the character has no XP yet. Cancel restores the previous allocation.</em></p>`,
-                buttons: {
-                    yes: {
-                        icon: '<i class="fas fa-check"></i>',
-                        label: 'Reset & Redistribute',
-                        callback: () => resolve(true),
-                    },
-                    no: {
-                        icon: '<i class="fas fa-times"></i>',
-                        label: 'Cancel',
-                        callback: () => resolve(false),
-                    },
-                },
-                default: 'no',
-                close: () => resolve(false),
-            }).render(true);
-        });
-        if (!confirmed)
-            return;
-        await this.actor.update(buildStartSkillsRedistributeUpdates(this.actor));
-        ui.notifications?.info(`Skills cleared — distribute ${total} points freely (max ${maxPerSkill} per skill), then Finish.`);
-        this.render();
+        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacyRedistributeRetired', 'Legacy skill redistribute is retired. Raise Specializations with XP (4 XP per Rank).'));
     }
     async #onFinishSkillsRedistribute() {
         if (!this.actor.isOwner && !game.user?.isGM) {
@@ -7544,13 +7599,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onFinalizeCreation(event) {
         event.preventDefault();
         const system = this.actor.system;
-        const masteryRank = system.mastery?.rank || 2;
-        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
+        const masteryRank = Math.max(1, Math.floor(Number(system.mastery?.rank) || 2));
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-        let skillPointsSpent = 0;
-        for (const skillValue of Object.values(system.skills || {})) {
-            skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
-        }
         const disadvantagePoints = (system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
         const maxDisadvantagePts = CONFIG.MASTERY?.creation?.maxDisadvantagePoints ?? 8;
         const minDisadvantagePts = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
@@ -7566,13 +7616,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Attributes must be 2×4, 2×3, 3×2. Currently: ${c4}×4, ${c3}×3, ${c2}×2`);
             return;
         }
-        if (skillPointsSpent !== skillPointsConfig) {
-            ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
-            return;
-        }
-        const skillAlloc = validateCreationSkillAllocation(system);
-        if (!skillAlloc.ok) {
-            ui.notifications?.error(skillAlloc.reason || 'Invalid skill allocation.');
+        const specAlloc = validateSpecializationList(readSpecializations(system), {
+            requireStartingBudget: true,
+        });
+        if (!specAlloc.ok) {
+            ui.notifications?.error(specAlloc.errors[0] ||
+                `Starting characters need exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK}.`);
             return;
         }
         const towerErr = validateTowerWizardCreation(this.actor);

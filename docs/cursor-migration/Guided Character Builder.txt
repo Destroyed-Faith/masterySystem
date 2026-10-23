@@ -1,0 +1,1140 @@
+Du hast völlig recht. Der aktuelle erste Screen ist falsch gedacht.
+
+Er mischt gerade:
+
+- Fantasy-Konzept
+- Kampfstil
+- Defense
+- Skills
+- Powers
+- Actives
+- Active Buffs
+- Passives
+
+alles in eine Auswahl. Das ist nicht führend, sondern verwirrend.
+
+Wir müssen den Wizard nicht fragen:
+
+> „Was bist du für ein Archetyp?“
+
+Sondern:
+
+> „Welche mechanische Grundstruktur hat dein Charakter?“
+
+Und die entsteht in einer sehr klaren Reihenfolge.
+
+# Neuer sinnvoller Wizard-Ablauf
+
+## 1. Echo zuerst
+
+Ja. Ich würde auch mit **Echo** starten.
+
+Warum?
+
+Weil Echo direkt entscheiden kann:
+
+- Welche Slots sind blockiert?
+- Gibt es Echo Artifacts?
+- Ist Body frei?
+- Sind Hände frei?
+- Gibt es natürliche Waffen?
+- Kann der Charakter normale Armor tragen?
+- Muss der Build um Dragon Scales, Claws, Titan Form oder Sentinel-Struktur herum gebaut werden?
+
+Gerade Dragonborn ist das beste Beispiel:
+
+Wenn der Body schon durch Scales belegt ist, ist „Willst du schwere Rüstung tragen?“ keine freie Frage mehr.
+
+Also:
+
+```text id="ikd4jo"
+Schritt 1: Was bist du?
+Human, Dwarf, Elf, Sentinel, Titanborn, Dragonborn, Unbound
+```
+
+Danach zeigt der Wizard sofort:
+
+```text id="3saec1"
+Deine Startstruktur:
+Body: blockiert durch Dragon Scales
+Main Hand / Off Hand: frei oder blockiert durch Claws
+Artifact Capacity: X / 4 benutzt
+Besonderheiten: ...
+```
+
+---
+
+## 2. Echo-Unterentscheidung
+
+Direkt danach:
+
+- Elf: Welcher Stride?
+- Titanborn: Welche Titan Scar?
+- Sentinel: Judicator, Sentinel, Oracle?
+- Dragonborn: Welche Echo Artifact Struktur?
+
+Bei Dragonborn wäre die wichtige Folgefrage:
+
+```text id="78zmzv"
+Wie soll dein Dragonborn kämpfen?
+```
+
+Optionen:
+
+1. **Mit Klauen**
+   - Main Hand + Off Hand blockiert
+   - du kämpfst über Natural Weapon / Claws
+   - kein Schild, keine normale Waffe
+
+2. **Mit Waffe und Schild**
+   - keine Claws als Hauptwaffe
+   - Main Hand Waffe, Off Hand Schild
+   - Body bleibt durch Scales blockiert
+
+3. **Mit Zweihandwaffe**
+   - Main Hand + Off Hand durch Waffe blockiert
+   - Body bleibt durch Scales blockiert
+
+4. **Als Caster / Fokus-Nutzer**
+   - Hände je nach Fokus/Staff frei oder blockiert
+   - Body bleibt durch Scales blockiert
+
+Das ist viel sinnvoller als „Verfluchter Krieger“.
+
+---
+
+## 3. Kampfstruktur: Wie kämpfst du?
+
+Erst jetzt kommt Kampfstil.
+
+Nicht „Frontliner oder Schaden“, sondern harte Equipment/Kampfstruktur:
+
+```text id="req2rd"
+Wie kämpft dein Charakter hauptsächlich?
+```
+
+Optionen:
+
+| Auswahl | Mechanische Folge |
+|---|---|
+| Einhandwaffe + Schild | Main Hand Waffe, Off Hand Schild, defensiver |
+| Einhandwaffe ohne Schild | eine Hand frei, flexibler |
+| Zweihandwaffe | beide Hände blockiert, offensiver |
+| Zwei Waffen / Klauen | beide Hände offensiv, kein Schild |
+| Fernkampfwaffe | Ranged Actives empfohlen |
+| Spellcasting / Fokus | Spell Actives empfohlen |
+| Natural Weapon / Echo Weapon | Echo bestimmt Waffe |
+
+Diese Frage entscheidet später:
+
+- Welche Actives angeboten werden
+- Ob Shield-Reactions sinnvoll sind
+- Ob Artifact Slots legal sind
+- Ob der Charakter eine starke Armor-Struktur oder eher Evade braucht
+- Ob die Rotation melee, ranged oder spell-lastig ist
+
+---
+
+## 4. Hauptdefense wählen
+
+Jetzt kommt Defense.
+
+Und hier müssen wir sauber sein:
+
+# Hauptdefenses sind nur:
+
+1. **Armor**
+2. **Evade**
+3. **Damage Reduction**
+4. **Phasing**
+
+Das sind die defensiven Identitäten, weil sie vor allem über **Passives** getragen werden.
+
+Temporary HP ist keine Hauptdefense, sondern ein Zusatzpuffer.
+
+Healing ist Sustain, aber keine primäre Treffervermeidung oder Minderung.
+
+Reactions sind Antworten auf einzelne Momente.
+
+Active Buffs sind temporäre Verstärker.
+
+Also Wizard-Frage:
+
+```text id="xwwhz0"
+Was ist deine Hauptdefense?
+```
+
+Optionen:
+
+## Armor
+
+```text id="jk2ezl"
+Du wirst getroffen, aber reduzierst Schaden.
+Empfohlen für: Schild, schwere Rüstung, Frontliner, Dragon Scales, robuste Builds.
+Empfohlene Passive: Fortified Frame.
+Empfohlener Active Buff: Active Buff: Armor.
+Empfohlene Reaction: Reaction: Armor.
+```
+
+## Evade
+
+```text id="vrdcdz"
+Du willst schwer getroffen werden.
+Empfohlen für: leichte Kämpfer, Duellanten, mobile Charaktere, No-Armor Builds.
+Empfohlene Passive: Evade.
+Empfohlener Active Buff: Active Buff: Evade.
+Empfohlene Reaction: Reaction: Evade.
+```
+
+## Damage Reduction
+
+```text id="q3eb47"
+Du willst prozentuale Minderung.
+Empfohlen für: spezialisierte Tanks.
+Komplexer, weil es ein geschlossenes Premium-Subsystem ist.
+Empfohlene Passive: Damage Reduction.
+Empfohlener Active Buff: Unyielding Shell.
+Empfohlene Reaction: Unyielding Intercept.
+```
+
+## Phasing
+
+```text id="2dcka8"
+Du willst einzelne Treffer ignorieren.
+Empfohlen für: komplexe, seltene, übernatürliche Defensivbuilds.
+Empfohlene Passive: Ghostform.
+Empfohlener Active Buff: Ghost Mantle.
+Empfohlene Reaction: Ghost Slip.
+```
+
+Wichtig: Der Wizard sollte danach sagen:
+
+```text id="b4tuzf"
+Wir empfehlen dir, deine Passive, deinen Active Buff und deine Reaction auf dieselbe Hauptdefense auszurichten.
+Du kannst später davon abweichen.
+```
+
+Das ist genau der Punkt, den du beschreibst.
+
+---
+
+## 5. Defensive Package vorschlagen
+
+Nach der Hauptdefense sollte der Wizard direkt ein Paket vorschlagen:
+
+Beispiel Armor:
+
+```text id="798oua"
+Empfohlenes Defense Package:
+
+Passive:
+Fortified Frame
+
+Active Buff:
+Active Buff: Armor
+
+Reaction:
+Reaction: Armor
+```
+
+Dann zwei Buttons:
+
+```text id="1yv6xw"
+Empfehlung übernehmen
+Ich möchte Buff oder Reaction anders nutzen
+```
+
+Wenn der Spieler sagt „anders nutzen“, fragt der Wizard:
+
+```text id="7lfxa2"
+Willst du deinen Active Buff offensiv oder unterstützend verwenden?
+```
+
+Optionen:
+
+- Offensive Buff
+- Support Buff
+- Mobility/Utility
+- Manuell wählen
+
+Und bei Reaction:
+
+- defensive Reaction behalten
+- Counter Reaction
+- Ally Protection
+- Reactive Cleanse
+- manuell wählen
+
+Das ist sauber, weil der Wizard nicht alles auf einmal zeigt.
+
+---
+
+## 6. Offensive / Actives
+
+Erst wenn Echo, Slots, Kampfstruktur und Defense stehen, fragt man:
+
+```text id="mgl691"
+Wie greifst du an?
+```
+
+Aber jetzt kann der Wizard filtern.
+
+Wenn Zweihandwaffe:
+
+- Melee Actives
+- Melee Special-first
+- Heavy Weapon Flavor
+
+Wenn Schild:
+
+- Melee One-Handed
+- Shield Strike
+- Guard/Protect
+- weniger reine Zweihand-Offense
+
+Wenn Fernkampf:
+
+- Ranged Actives
+- Ranged Special-first
+
+Wenn Spellcasting:
+
+- Spell Actives
+- Cleanse/Healing/Control
+- Spell Resistance relevant
+
+Wenn Claws:
+
+- Natural Weapon Actives
+- melee special-first
+- bleed/slow/poison/ruin style
+
+Frage:
+
+```text id="oy8bv6"
+Was soll deine Haupt-Active tun?
+```
+
+Optionen:
+
+1. Schaden
+2. Special aufbauen
+3. AoE treffen
+4. Heilen / Support
+5. Cleanse / Utility
+6. Spellcasting
+
+Danach wählt der Wizard die erste Active.
+
+---
+
+## 7. Zweite Active oder Utility
+
+Dann:
+
+```text id="5mxj3c"
+Was soll deine zweite aktive Option sein?
+```
+
+Optionen abhängig vom Build:
+
+- zweiter Angriff
+- anderes Special
+- AoE
+- Healing
+- Cleanse
+- Support
+- Spell
+- Defensive Active, falls kein Active Buff defensiv ist
+
+Damit sind die Actives sauber.
+
+---
+
+## 8. Movement
+
+Dann erst Movement:
+
+```text id="b9lyii"
+Wie bewegst du dich im Kampf?
+```
+
+Optionen:
+
+- Ground Dash: einfach und schnell
+- Safe Movement: sicher an Gegnern vorbei
+- Teleport: premium, kurz, taktisch
+- Leap: mobil, physisch
+- Flight: falls verfügbar
+- Echo/Artifact Movement
+
+Das ist unabhängig genug, aber sollte Echo und Kampfstruktur berücksichtigen.
+
+---
+
+## 9. Attribute nach Build
+
+Da stimme ich dir auch zu: Attribute nicht am Anfang optimieren.
+
+Erst nachdem klar ist:
+
+- Echo
+- Kampfstruktur
+- Hauptdefense
+- Offensive
+- Movement
+- Stone-Nutzung
+
+soll der Wizard Attribute vorschlagen.
+
+```text id="1ucy61"
+Basierend auf deinem Build empfehlen wir:
+Might X
+Agility X
+Vitality X
+Resolve X
+...
+```
+
+Und dann erklärt er:
+
+```text id="oofj7z"
+Diese Attribute geben dir Stones für:
+- Armor Buff
+- Melee Attacks
+- Movement
+- Echo Powers
+```
+
+Also Attribute sind nicht „Rollenspielwerte zuerst“, sondern werden im Wizard als **Ressourcenbasis für Stones und Minor Expressions** erklärt.
+
+---
+
+## 10. Skills
+
+Danach Skills.
+
+Skills sollten nach Konzept und Kampfstruktur empfohlen werden:
+
+```text id="42msx5"
+Du hast einen melee Armor Frontliner gebaut.
+Empfohlene Skills:
+Melee Weapons
+Defensive Combat
+Athletics
+Combat Reflexes
+Perception
+Intimidation oder Survival
+```
+
+Dann Skill-Pakete:
+
+- Kampf
+- Wildnis
+- Sozial
+- Wissen
+- Handwerk
+- Schatten
+- Custom
+
+---
+
+## 11. Minor Expressions
+
+Danach Minor Expressions, weil sie von Attributen abhängen.
+
+```text id="hhcpgs"
+Diese Minor Expressions sind verfügbar, weil deine Attribute hoch genug sind.
+```
+
+---
+
+## 12. Nachteile zum Schluss
+
+Ja, Nachteile würde ich auch spät machen.
+
+Warum?
+
+Weil der Spieler dann seinen Charakter schon kennt.
+
+Dann kann er bessere Nachteile wählen:
+
+- Hunted passt zu verfluchtem Krieger
+- Vulnerability passt zu Dragonborn
+- Physical Limitation passt zu Titanborn
+- Mental Restriction passt zu Sentinel/Oracle
+- Unluck passt fast überall
+
+---
+
+## 13. Rotation am Ende
+
+Zum Schluss:
+
+```text id="tnqp40"
+So spielst du deinen Charakter.
+```
+
+Beispiel:
+
+```text id="p9eqo0"
+Start:
+Aktiviere Active Buff: Armor.
+
+Dein Standardzug:
+Gehe in den Nahkampf und nutze deine Melee Active.
+
+Wenn du getroffen wirst:
+Nutze Reaction: Armor.
+
+Wenn du Distanz schließen musst:
+Nutze Ground Dash.
+
+Deine Passives:
+Fortified Frame + zweite Passive.
+```
+
+Das ist dann das eigentliche Ziel.
+
+---
+
+# Der neue Wizard in Kurzform
+
+```text id="xdwf19"
+1. Echo wählen
+2. Echo-Unterwahl / Echo Artifact Struktur
+3. Kampfstruktur wählen: Schild, Zweihand, Fernkampf, Spell, Natural Weapon
+4. Hauptdefense wählen: Armor, Evade, Damage Reduction, Phasing
+5. Defense Package übernehmen oder anpassen: Passive, Active Buff, Reaction
+6. Haupt-Offensive wählen: Damage, Special-first, AoE, Support, Spell
+7. Zweite Active / Utility wählen
+8. Movement wählen
+9. Attribute anhand von Stones und Build vorschlagen
+10. Skills anhand von Rolle und Konzept verteilen
+11. Minor Expressions wählen
+12. Nachteile wählen
+13. Rotation bestätigen
+14. Review, Printable Sheet, Foundry Export
+```
+
+Das ist viel sauberer.
+
+---
+
+# Cursor Prompt dafür
+
+```text id="3xgg6l"
+Refactor the Guided Wizard flow. The current first screen is wrong because it mixes fantasy archetypes, combat role, defense, skills, actives, passives and active buffs into one confusing choice.
+
+The Guided Wizard must not start with "Verfluchter Krieger", "Frontliner", "Damage", "Survival", "Spell" or similar mixed archetype cards.
+
+The Wizard must start with hard mechanical structure decisions in the correct order.
+
+Core principle:
+Do not mix Echo, combat style, defense, active powers, active buffs, passives and skills in the same question.
+
+The Wizard should progressively determine:
+1. What Echo are you?
+2. What slots and Echo artifacts does that create?
+3. How do you fight?
+4. What is your main defense?
+5. Which passive, active buff and reaction support that defense?
+6. What are your actives?
+7. What movement do you use?
+8. Which attributes support your stones and build?
+9. Which skills fit?
+10. Which minor expressions are available?
+11. Which disadvantages fit?
+12. What is your final rotation?
+
+============================================================
+NEW GUIDED WIZARD FLOW
+============================================================
+
+Replace the current guided flow with this order:
+
+1. echoChoice
+2. echoStructureChoice
+3. combatStructure
+4. mainDefense
+5. defensePackage
+6. offenseStyle
+7. activeSelection
+8. secondActiveOrUtility
+9. movementChoice
+10. attributeRecommendation
+11. skillPackage
+12. minorExpressions
+13. disadvantages
+14. rotationReview
+15. finalReviewExport
+
+Quick Build may keep the old form-like access, but Guided Build must use this new flow.
+
+============================================================
+1. ECHO CHOICE
+============================================================
+
+First question:
+"Was bist du?"
+
+Choices:
+- Human
+- Dwarf
+- Elf
+- Sentinel
+- Titanborn
+- Dragonborn
+- Unbound
+
+Each Echo card must show:
+- fantasy identity
+- mechanical identity
+- whether it grants or requires Echo Artifacts
+- occupied slots if known
+- beginner friendliness
+- warning if the Echo changes equipment choices
+
+Do not ask about combat role on this screen.
+
+After selecting an Echo, show an immediate "Startstruktur" preview:
+- Artifact Capacity used
+- Main Hand status
+- Off Hand status
+- Body status
+- Head status
+- Feet status
+- Amulet status
+- Ring status
+- Echo artifact notes
+
+Example Dragonborn:
+Body may be blocked by Dragon Scales.
+Claws may block Main Hand and Off Hand if selected.
+This means normal armor or weapon/shield choices may be restricted.
+
+============================================================
+2. ECHO STRUCTURE CHOICE
+============================================================
+
+Only show this if the selected Echo needs a subchoice or structural choice.
+
+Elf:
+Question:
+"Welcher Elven Stride prägt dich?"
+Choices:
+- Fire
+- Earth
+- Water
+- Air
+
+Titanborn:
+Question:
+"Welche Titan Scar prägt dich?"
+Choices:
+- Might
+- Agility
+- Vitality
+- Intellect
+- Resolve
+- Influence
+- Wits
+
+Sentinel:
+Question:
+"Welche Sentinel Form bist du?"
+Choices:
+- Judicator
+- Sentinel
+- Oracle
+
+Dragonborn:
+Question:
+"Wie zeigt sich dein drakonisches Erbe im Kampf?"
+
+Choices:
+1. "Klauen als Hauptwaffe"
+   Consequence:
+   Main Hand and Off Hand are blocked by Dragon Claws.
+   You will use Natural Weapon / Claw based melee actives.
+   You cannot use a shield or normal hand weapon while using this structure.
+
+2. "Waffe und Schild"
+   Consequence:
+   Main Hand is available for a weapon.
+   Off Hand is available for a shield.
+   Body remains affected by Dragon Scales if applicable.
+
+3. "Zweihandwaffe"
+   Consequence:
+   Main Hand and Off Hand will be occupied by the two-handed weapon.
+   No shield.
+
+4. "Spellcasting oder Fokus"
+   Consequence:
+   Hands depend on focus or staff.
+   Spell actives will be recommended later.
+
+The selected structure must update occupied slots and later recommendations.
+
+============================================================
+3. COMBAT STRUCTURE
+============================================================
+
+Question:
+"Wie kämpft dein Charakter hauptsächlich?"
+
+This is not a role fantasy question. It is an equipment and action structure question.
+
+Choices:
+- Einhandwaffe + Schild
+- Einhandwaffe ohne Schild
+- Zweihandwaffe
+- Zwei Waffen oder Klauen
+- Fernkampfwaffe
+- Spellcasting oder Fokus
+- Natural Weapon / Echo Weapon
+
+Filter choices based on Echo slot restrictions.
+
+Each card must show:
+- occupied slots
+- whether shield is possible
+- recommended active type
+- recommended defensive style
+- warning if unavailable
+
+Examples:
+If Main Hand + Off Hand are blocked by Dragon Claws, disable:
+- Einhandwaffe + Schild
+- Zweihandwaffe
+unless the user changes Dragonborn structure.
+
+============================================================
+4. MAIN DEFENSE
+============================================================
+
+Question:
+"Was ist deine Hauptdefense?"
+
+Important:
+Main defenses are only:
+- Armor
+- Evade
+- Damage Reduction
+- Phasing
+
+Do not list Temporary HP as a main defense.
+Do not list Healing as a main defense.
+Do not list Reactions as a main defense.
+Do not list Active Buffs as a main defense.
+
+Explain:
+"Deine Hauptdefense ist die defensive Achse, die deinen Charakter dauerhaft trägt. Sie wird vor allem über deine Passive bestimmt. Active Buffs und Reactions können diese Hauptdefense verstärken."
+
+Choices:
+
+Armor:
+Fantasy:
+"Du wirst getroffen, aber hältst den Schaden aus."
+Mechanics:
+"Empfiehlt Fortified Frame, Active Buff: Armor und Reaction: Armor."
+Good for:
+"Schild, schwere Rüstung, Dragon Scales, Frontliner."
+
+Evade:
+Fantasy:
+"Du willst gar nicht erst sauber getroffen werden."
+Mechanics:
+"Empfiehlt Evade Passive, Active Buff: Evade und Reaction: Evade."
+Good for:
+"leichte Kämpfer, Duellanten, mobile Builds."
+
+Damage Reduction:
+Fantasy:
+"Du reduzierst Schaden prozentual."
+Mechanics:
+"Premium-Subsystem. Empfiehlt Damage Reduction Passive, Unyielding Shell und Unyielding Intercept."
+Good for:
+"spezialisierte Tanks."
+Warning:
+"Komplexer."
+
+Phasing:
+Fantasy:
+"Du ignorierst einzelne Treffer vollständig."
+Mechanics:
+"Premium-Subsystem. Empfiehlt Ghostform, Ghost Mantle und Ghost Slip."
+Good for:
+"übernatürliche, komplexe Defensivbuilds."
+Warning:
+"Komplexer."
+
+============================================================
+5. DEFENSE PACKAGE
+============================================================
+
+Question:
+"Willst du deine Hauptdefense als Paket übernehmen?"
+
+Based on selected main defense, propose:
+- 1 Passive
+- 1 Active Buff
+- 1 Reaction
+
+Armor Package:
+Passive: Fortified Frame
+Active Buff: Active Buff: Armor
+Reaction: Reaction: Armor
+
+Evade Package:
+Passive: Evade
+Active Buff: Active Buff: Evade
+Reaction: Reaction: Evade
+
+Damage Reduction Package:
+Passive: Damage Reduction
+Active Buff: Unyielding Shell
+Reaction: Unyielding Intercept
+
+Phasing Package:
+Passive: Ghostform
+Active Buff: Ghost Mantle
+Reaction: Ghost Slip
+
+Show explanation:
+"Diese drei Picks sorgen dafür, dass deine Defensive zusammenhängend funktioniert. Du kannst Buff oder Reaction später anders nutzen, aber für neue Spieler ist ein geschlossenes Defense Package deutlich einfacher."
+
+Choices:
+- Paket übernehmen
+- Passive übernehmen, Buff anders nutzen
+- Passive übernehmen, Reaction anders nutzen
+- Alles manuell wählen
+
+If user changes buff or reaction:
+Ask whether the slot should be:
+- offensive
+- support
+- cleanse / utility
+- ally protection
+- counter
+- manual
+
+============================================================
+6. OFFENSE STYLE
+============================================================
+
+Question:
+"Wie soll deine Haupt-Active funktionieren?"
+
+Filter based on combatStructure.
+
+Choices:
+- Direkter Schaden
+- Special-first, Zustand aufbauen
+- AoE, mehrere Ziele treffen
+- Healing / Support
+- Cleanse / Utility
+- Spellcasting
+
+Do not show options that conflict with combat structure unless advanced mode is opened.
+
+Explain:
+"Special-first bedeutet: Diese Power ist nicht primär für Schaden gedacht. Ihr Wert liegt darin, einen Zustand wie Slow, Ruin, Poisoned, Hex oder Corrode aufzubauen."
+
+============================================================
+7. ACTIVE SELECTION
+============================================================
+
+Question:
+"Welche Haupt-Active nutzt du meistens?"
+
+Show 3 to 5 recommended actives based on:
+- combatStructure
+- offenseStyle
+- Echo
+- selected weapon structure
+- complexity
+
+Examples:
+Melee + Special-first:
+- Melee Special-first Strike
+- Melee Ruin Strike
+- Melee Slow Strike
+- Melee Poison Strike
+
+Ranged:
+- Ranged Damage Shot
+- Ranged Special-first Shot
+
+Spellcasting:
+- Spell Attack
+- Spell Special
+- Healing Spell
+- Cleanse Spell
+
+Natural Weapon:
+- Claw Strike
+- Bite Strike
+- Breath if applicable
+
+Each active card must show:
+- attack type
+- range
+- damage role
+- special role if any
+- why it fits
+
+============================================================
+8. SECOND ACTIVE OR UTILITY
+============================================================
+
+Question:
+"Was ist deine zweite aktive Option?"
+
+Choices:
+- Zweiter Angriff
+- Anderes Special
+- AoE
+- Healing
+- Cleanse
+- Support
+- Defensive Utility
+- Überspringen und später wählen
+
+This fills another Active slot if available.
+
+============================================================
+9. MOVEMENT CHOICE
+============================================================
+
+Question:
+"Wie bewegst du dich im Kampf?"
+
+Choices:
+- Ground Dash
+- Safe Movement
+- Teleport
+- Leap
+- Flight if available
+- Echo / Artifact Movement if available
+
+Explain:
+Movement is not an attack and not a reaction. It defines how you reposition during your turn.
+
+Recommend:
+- Melee: Ground Dash or Leap
+- Shield/Tank: Ground Dash
+- Mobile/Evade: Safe Movement or Teleport
+- Caster/Ranged: Safe Movement or Teleport
+
+============================================================
+10. ATTRIBUTE RECOMMENDATION
+============================================================
+
+Question:
+"Welche Attribute versorgen deinen Build mit Stones?"
+
+Do not ask attributes at the beginning.
+Now that Echo, combat style, defense and powers are known, recommend attributes.
+
+Show 3 presets:
+- Empfohlen
+- Ausgewogen
+- Manuell
+
+The recommended preset should explain:
+- which Stones the build needs
+- which Attribute support them
+- which Minor Expressions become available
+
+Example:
+Armor Melee Frontliner:
+Recommended:
+Might, Vitality, Resolve
+Reason:
+Might supports melee and physical actions.
+Vitality supports durability.
+Resolve supports resistance and certain defensive or will-based choices.
+
+Allow advanced fine tuning.
+
+============================================================
+11. SKILL PACKAGE
+============================================================
+
+Question:
+"Welche Skills passen zu deinem Charakter?"
+
+Recommend based on previous choices.
+
+Example:
+Melee Armor:
+- Melee Weapons
+- Defensive Combat
+- Athletics
+- Combat Reflexes
+- Perception
+- Intimidation or Survival
+
+Ranged:
+- Ranged Weapons
+- Perception
+- Tracking
+- Survival
+- Stealth
+
+Spellcasting:
+- Occultism
+- Lore
+- Investigation
+- Defensive Combat
+- Perception
+
+Support:
+- Medicine
+- Empathy
+- Leadership
+- Perception
+- Defensive Combat
+
+Show:
+- skill points spent out of 40
+- missing category warnings
+- fine tune option
+
+============================================================
+12. MINOR EXPRESSIONS
+============================================================
+
+Question:
+"Welche kleinen Tricks kann dein Charakter?"
+
+Only show Minor Expressions that are legal based on attributes >= 8.
+Group by attribute.
+Show maximum uses / picks based on Mastery Rank.
+
+Do not show illegal options by default. Put them into advanced view with disabled reason.
+
+============================================================
+13. DISADVANTAGES
+============================================================
+
+Question:
+"Welche Schwäche macht deinen Charakter interessant?"
+
+Explain:
+"You need 2 to 8 Disadvantage Points."
+
+Show disadvantages late, because now the player understands the character.
+
+Choices:
+- Hunted
+- Physical Limitations
+- Mental Restrictions
+- Unluck
+- Vulnerability
+- Addiction
+- Berserker's Curse
+- Custom
+
+Each card should show:
+- story use
+- point range
+- fields needed
+
+============================================================
+14. ROTATION REVIEW
+============================================================
+
+Question:
+"So spielst du deinen Charakter im Kampf. Passt das?"
+
+Generate rotation from choices:
+
+- Start of combat
+- Default turn
+- Main Active
+- Active Buff
+- Reaction trigger
+- Movement use
+- Passive loadout
+- Emergency option
+
+Example:
+"Start: Aktiviere Active Buff: Armor.
+Standardzug: Gehe in den Nahkampf und nutze deine Melee Active.
+Wenn du getroffen wirst: Nutze Reaction: Armor.
+Wenn du Distanz schließen musst: Nutze Ground Dash.
+Passives: Fortified Frame plus deine zweite Passive."
+
+Choices:
+- Passt, übernehmen
+- Offensiver machen
+- Defensiver machen
+- Einfacher machen
+- Manuell bearbeiten
+
+============================================================
+15. FINAL REVIEW EXPORT
+============================================================
+
+Show:
+- character overview
+- Echo and occupied slots
+- combat structure
+- main defense
+- offense
+- powers
+- artifacts
+- attributes
+- skills
+- disadvantages
+- minor expressions
+- final rotation
+- validation
+- printable sheet preview
+- Foundry export
+- builder save export
+- printable HTML export
+
+============================================================
+IMPORTANT UI RULES
+============================================================
+
+Guided mode:
+- one question per screen
+- only 2 to 6 recommended cards per screen
+- advanced options hidden behind "Fortgeschrittene Auswahl"
+- no giant all-in-one archetype screen
+- no mixing of Skills, Defense, Actives and Echo in one choice
+- no glossary dump
+
+Quick Build:
+May still show broader forms and direct lists.
+
+============================================================
+ACCEPTANCE CRITERIA
+============================================================
+
+This refactor is done when:
+
+1. The first Guided Wizard screen asks for Echo.
+2. The first screen does not show archetypes like Verfluchter Krieger or Frontliner.
+3. Dragonborn and other Echoes can affect slot availability before combat choices.
+4. Combat structure is asked before active selection.
+5. Main Defense contains only Armor, Evade, Damage Reduction and Phasing.
+6. Temporary HP is not treated as a main defense.
+7. Healing is not treated as a main defense.
+8. Active Buff and Reaction are recommended after main defense, not mixed into the defense choice.
+9. Actives are selected only after Echo, combat structure and main defense are known.
+10. Attributes are recommended after build structure is known, based on Stones and build needs.
+11. Skills come after the build has an identity.
+12. Disadvantages come late.
+13. Rotation is generated at the end.
+14. Foundry export and printable sheet generation still work.
+```
+
+Damit bekommt Cursor eine klare Ansage: Der Wizard muss von **Struktur → Defense → Powers → Ressourcen → Feinschliff** laufen.
+
+Nicht von „Archetyp-Fantasie → Mischmasch“.

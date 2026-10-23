@@ -62,6 +62,9 @@ export declare function getPassive1VariantOptions(defenseId: DefensePackageId): 
 export declare function buildDefensePackagePreview(selection: Partial<TowerWizardSelection>): DefensePackagePreview | null;
 export declare function getFirstPassiveIntentGroups(actorEchoKey?: string | null, actorSubChoiceKey?: string | null): SecondPassiveIntentGroup[];
 export declare function getSecondPassiveIntentGroups(_defenseId: DefensePackageId | undefined, passive1TemplateId?: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): SecondPassiveIntentGroup[];
+/** DF 2026 early steps: Echo → Attributes + Stones → Echo Imprints → Specializations. */
+export declare const WIZARD_IDENTITY_STEPS: readonly TowerWizardStep[];
+export declare function isIdentityWizardStep(step: TowerWizardStep): boolean;
 export declare const WIZARD_STEP_ORDER: TowerWizardStep[];
 export declare function packageNeedsReplacementBuffStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function getVisibleWizardSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[];

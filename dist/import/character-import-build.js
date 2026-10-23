@@ -15,6 +15,7 @@ import { calculateDisadvantagePoints, getDisadvantageDefinition, } from '../syst
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { SKILLS } from '../utils/skills.js';
 import { MAX_ATTRIBUTE } from '../utils/constants.js';
+import { DF_2026_RULES_SCHEMA_VERSION, SPECIALIZATION_MAX_RANK, findEchoImprint, isSkillField, specializationIdentityKey, } from '../rules/index.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS } from './character-import-types.js';
 export function normalizeImportAttributes(raw) {
     const out = {};
@@ -181,6 +182,49 @@ export function normalizeMinorExpressionIds(raw, masteryRank) {
     }
     return out;
 }
+/** Normalize import Specializations (identity id, valid Field, clamped Rank, de-duplicated). */
+export function normalizeImportSpecializations(raw) {
+    if (!Array.isArray(raw))
+        return [];
+    const out = [];
+    const seen = new Set();
+    for (const entry of raw) {
+        const name = String(entry?.name ?? '').trim();
+        if (!name)
+            continue;
+        const field = isSkillField(String(entry?.field ?? ''))
+            ? entry.field
+            : 'physical';
+        const id = specializationIdentityKey(name, field);
+        if (seen.has(id))
+            continue;
+        seen.add(id);
+        out.push({
+            id,
+            name,
+            field,
+            scope: String(entry?.scope ?? '').trim(),
+            rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(entry?.rank) || 0))),
+        });
+    }
+    return out;
+}
+/** Known, de-duplicated Echo Imprint ids capped at Mastery Rank. */
+export function normalizeImportEchoImprintIds(raw, masteryRank) {
+    if (!Array.isArray(raw))
+        return [];
+    const cap = Math.max(0, Math.floor(masteryRank));
+    const out = [];
+    for (const rawId of raw) {
+        const id = String(rawId ?? '').trim();
+        if (!id || out.includes(id) || !findEchoImprint(id))
+            continue;
+        if (out.length >= cap)
+            break;
+        out.push(id);
+    }
+    return out;
+}
 export function buildActorSystemFromPayload(payload) {
     const attrs = normalizeImportAttributes(payload.attributes);
     const masteryRank = Math.max(1, Math.min(8, Math.floor(Number(payload.masteryRank) || CREATION_MASTERY_RANK)));
@@ -195,6 +239,11 @@ export function buildActorSystemFromPayload(payload) {
     const skillsSpent = normalizeSkillRanks(payload.skillsSpent);
     const disadvantages = normalizeDisadvantageEntries(payload.disadvantages);
     const minorExpressions = normalizeMinorExpressionIds(payload.minorExpressions, masteryRank);
+    // DF 2026 data model. Legacy `skills` / `minorExpressions` above remain
+    // archive-only fields and are never converted into Specialization Ranks.
+    const specializations = normalizeImportSpecializations(payload.specializations);
+    const echoImprints = normalizeImportEchoImprintIds(payload.echoImprints, masteryRank);
+    const isDf2026Payload = Array.isArray(payload.specializations) || Array.isArray(payload.echoImprints);
     const faithPts = disadvantagePointsTotal(disadvantages);
     // Same derivations as the in-game Echo dialog: display name (incl. Unbound
     // identity), fresh trait uses, and echo-locked languages.
@@ -231,12 +280,17 @@ export function buildActorSystemFromPayload(payload) {
         stonePools,
         progression: {
             rulesVersion: DF_CORE_RULES_VERSION,
+            // Stamp DF 2026-shaped imports so the world-load migration does not re-run on them.
+            ...(isDf2026Payload ? { rulesSchemaVersion: DF_2026_RULES_SCHEMA_VERSION } : {}),
             v099Prepared: true,
             v099Stones: true,
             earnedAttributeXp: 0,
             stoneAssignments: emptyAssignments,
         },
         mastery: { rank: masteryRank, points: 0, experience: 0 },
+        specializations,
+        echoImprints,
+        // Legacy archive fields (optional input; not used by DF 2026 rules).
         skills,
         skillsSpent,
         disadvantages,

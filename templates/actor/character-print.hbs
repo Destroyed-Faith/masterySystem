@@ -192,6 +192,27 @@
         </div>
       </div>
 
+      {{#if showEchoImprints}}
+      <div class="cp-block cp-minor-expressions cp-echo-imprints">
+        <div class="cp-minor-header">
+          <h3 class="cp-block-title">Echo Imprints</h3>
+          <span class="cp-minor-uses">
+            <span class="cp-minor-uses-label">{{echoImprints.length}} / {{echoImprintSlots}} (MR)</span>
+          </span>
+        </div>
+        <ul class="cp-minor-list">
+          {{#each echoImprints}}
+          <li class="cp-minor-item">
+            <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}} {{attributeValue}} · Tier {{tier}}{{#if locked}} · needs 4+{{/if}}</em></span>
+            <span class="cp-minor-body">{{effect}}</span>
+          </li>
+          {{/each}}
+          {{#each echoImprintBlankRows}}
+          <li class="cp-minor-item cp-minor-blank"><span class="cp-minor-name">&nbsp;</span></li>
+          {{/each}}
+        </ul>
+      </div>
+      {{else}}
       {{#if hasMinorExpressions}}
       <div class="cp-block cp-minor-expressions">
         <div class="cp-minor-header">
@@ -213,8 +234,37 @@
         </ul>
       </div>
       {{/if}}
+      {{/if}}
     </div>
 
+    {{#if showSpecializations}}
+    <div class="cp-block cp-learned-skills cp-learned-skills-full cp-specializations">
+      <h3 class="cp-block-title">Specializations</h3>
+      {{#each specializationGroups}}
+      <div class="cp-skill-category">
+        <h4 class="cp-skill-cat-title">{{label}}</h4>
+        <ul class="cp-learned-list">
+          {{#each specs}}
+          <li>
+            <span class="cp-sk-name">{{name}} <span class="cp-sk-attrs">({{scope}})</span></span>
+            <span class="cp-sk-keep" title="Raise allowance">R{{rank}} · {{raises}}</span>
+            <span class="cp-sk-boxes">
+              {{#each pips}}<i class="cp-sk-box{{#if filled}} is-spent{{/if}}"></i>{{/each}}
+            </span>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/each}}
+      {{#each specializationBlankRows}}
+      <ul class="cp-learned-list cp-spec-blank"><li><span class="cp-sk-name">&nbsp;</span></li></ul>
+      {{/each}}
+      {{#unless hasSpecializations}}
+      <p class="cp-learned-empty">No Specializations yet.</p>
+      {{/unless}}
+      <p class="cp-skill-reminder">Pool = Attribute dice, keep Mastery Rank. Base TN = Task Level × 4; each Paid Raise +4 TN. Untrained rolls have Disadvantage and no Raises.</p>
+    </div>
+    {{else}}
     <div class="cp-block cp-learned-skills cp-learned-skills-full">
       <h3 class="cp-block-title">Skills</h3>
 
@@ -256,6 +306,7 @@
       {{/unless}}
       <p class="cp-skill-reminder">Unlearned Skills use half the relevant Attribute. Full pool requires skill rating ≥ 2× Mastery Rank.</p>
     </div>
+    {{/if}}
   </div>
 
   <div class="cp-page-footer">Character Sheet · 1 of 3</div>

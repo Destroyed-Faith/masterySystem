@@ -12,6 +12,14 @@ import {
   validateCharacterImportJson,
 } from '../src/import/character-import-validation.js';
 
+const startingSpecializations = [
+  { name: 'Acrobatics', field: 'finesse', scope: 'Balance and tumbling', rank: 2 },
+  { name: 'Athletics', field: 'physical', scope: 'Climbing and swimming', rank: 2 },
+  { name: 'Stealth', field: 'finesse', scope: 'Moving unseen', rank: 2 },
+  { name: 'Investigation', field: 'investigation', scope: 'Searching scenes', rank: 2 },
+  { name: 'Persuasion', field: 'social', scope: 'Convincing others', rank: 2 },
+];
+
 const alarisPayload = {
   name: 'Alaris',
   attributes: {
@@ -24,9 +32,11 @@ const alarisPayload = {
     wits: 10,
   },
   masteryRank: 4,
+  specializations: startingSpecializations,
   skills: { acrobatics: 2, athletics: 1 },
   disadvantages: [{ id: 'hunted', points: 2, details: { hunter: 'The Pale Court' } }],
   minorExpressions: ['might-set-your-feet', 'agility-soft-step'],
+  echoImprints: ['mage-hand', 'catfall', 'message', 'arcane-spark'],
   powers: [
     { templateId: 'passive-evade', rank: 4 },
     { templateId: 'passive-temp-hp', rank: 4 },

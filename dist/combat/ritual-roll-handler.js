@@ -1,12 +1,29 @@
 /**
- * Ritual skill-check flow: declared Raises, Base TN = (8 × Ritual MR) − 2,
- * stones Sealed on the attempt (success or failure).
+ * Core Ritual skill-check flow (DF 2026): Base TN = 4 × max(3, Task Level),
+ * Final TN = Base + 4 × Paid Raises, Stones Sealed by total Raises (Paid + Free)
+ * on the attempt (success or failure).
  */
 import { masteryRoll } from '../dice/roll-handler.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-import { appliedRitualEffects, calculateRitualRaiseTN, resolveRitualDeclaredOutcome, ritualStoneCost, } from '../utils/rituals.js';
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { coreRitualTierText, isSealPassage, } from '../rules/core-rituals.js';
+import { planRitualRaises } from '../rules/ritual-tn.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
+const ATTRIBUTE_KEYS = new Set([
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence',
+    'wits',
+]);
+function escapeHtml(text) {
+    return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 function availableStones(system) {
     const ready = Math.max(0, Number(system.stones?.ready) || 0);
     const exhausted = Math.max(0, Number(system.stones?.exhausted) || 0);
@@ -50,12 +67,25 @@ export async function showRitualRollDialog(actor, ritualId) {
 export async function performRitualRoll(actor, ritual, opts) {
     const system = actor.system;
     const masteryRank = getRulesMasteryRank(actor);
-    const skillDef = SKILLS[opts.skillKey];
-    if (!skillDef) {
-        ui.notifications?.error('Invalid ritual skill.');
+    if (!ATTRIBUTE_KEYS.has(opts.attributeKey)) {
+        ui.notifications?.error('Choose an Attribute for the Ritual.');
         return;
     }
-    const cost = ritualStoneCost(ritual, opts.declaredRaises);
+    const specRank = Math.max(0, Math.floor(Number(opts.specialization?.rank) || 0));
+    const plan = planRitualRaises({
+        taskLevel: opts.taskLevel,
+        namedTier: opts.namedTier,
+        genericRaises: opts.genericRaises,
+        specializationRank: specRank,
+    });
+    if (!plan.ok) {
+        ui.notifications?.warn(plan.error ?? 'Invalid Ritual Raises.');
+        return;
+    }
+    const gmMod = Math.floor(Number(opts.gmMod) || 0);
+    const baseTn = plan.baseTn + gmMod;
+    const finalTn = plan.finalTn + gmMod;
+    const cost = plan.sealedStones;
     const placed = Array.isArray(opts.placedAttrs) ? opts.placedAttrs.filter(Boolean) : [];
     if (placed.length && placed.length !== cost) {
         ui.notifications?.warn(`Place exactly ${cost} stone(s) for ${ritual.name} before rolling.`);
@@ -74,47 +104,53 @@ export async function performRitualRoll(actor, ritual, opts) {
         return;
     }
     let numDice = Number(system.attributes?.[opts.attributeKey]?.value) || 0;
-    if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
+    const specField = String(opts.specialization?.field ?? '');
+    if (specField === 'physical' || specField === 'finesse') {
         const pen = getEquippedPhysicalSkillPenaltyDice(actor);
         if (pen > 0)
             numDice = Math.max(1, numDice - pen);
     }
-    const raiseTn = calculateRitualRaiseTN(opts.baseTn, opts.declaredRaises);
+    const approach = String(opts.approach ?? '').trim();
+    const specLabel = opts.specialization?.name
+        ? ` Specialization: ${opts.specialization.name} (Rank ${specRank}, ${plan.freeRaises} Free).`
+        : '';
     const result = await masteryRoll({
         numDice,
         keepDice: masteryRank,
         skill: 0,
-        tn: raiseTn,
-        normalTn: opts.baseTn,
-        declaredRaiseSlots: opts.declaredRaises,
+        tn: finalTn,
+        normalTn: baseTn,
+        declaredRaiseSlots: plan.paidRaises,
         label: `Ritual: ${ritual.name}`,
-        flavor: `Ritual MR ${opts.ritualMR}, Base TN ${opts.baseTn}, Raise ${opts.declaredRaises} (TN ${raiseTn})${opts.gmMod ? ` · situational ${opts.gmMod >= 0 ? '+' : ''}${opts.gmMod}` : ''}. Skill: ${skillDef.name}.`,
+        flavor: `Base TN ${baseTn}, ${plan.totalRaises} Raise(s) (${plan.paidRaises} Paid, ${plan.freeRaises} Free) → Final TN ${finalTn}` +
+            `${gmMod ? ` · situational ${gmMod >= 0 ? '+' : ''}${gmMod}` : ''}.${specLabel}` +
+            `${approach ? ` Approach: ${approach}.` : ''}`,
         actorId: actor.id,
-        skillKey: opts.skillKey,
         isSkillRoll: true,
         rollKind: 'skill',
         raiseModel: 'power',
         autoFailIntent: 'skill',
-        checkContext: { skillKey: opts.skillKey },
+        poolAttribute: opts.attributeKey,
     });
-    const resolved = resolveRitualDeclaredOutcome({
-        rollTotal: result.total,
-        baseTn: opts.baseTn,
-        declaredRaises: opts.declaredRaises,
-    });
-    const effects = resolved.success ? appliedRitualEffects(ritual, resolved.appliedRaise) : [];
-    const heading = resolved.success
-        ? resolved.kind === 'raise0' && opts.declaredRaises > 0
-            ? `${ritual.name} — Success (Raise 0 only)`
-            : `${ritual.name} — Success (Raise ${resolved.appliedRaise})`
+    const success = Math.floor(Number(result.total) || 0) >= finalTn;
+    const sealOpenMode = isSealPassage(ritual) && plan.namedTier >= 4;
+    const effects = success
+        ? sealOpenMode
+            ? [coreRitualTierText(ritual, 4)]
+            : Array.from({ length: plan.namedTier + 1 }, (_, i) => coreRitualTierText(ritual, i))
+        : [];
+    const heading = success
+        ? `${ritual.name} — Success (Tier ${plan.namedTier}${sealOpenMode ? ', opening mode' : ''})`
         : `${ritual.name} — Failure`;
     const effectHtml = effects.length
-        ? `<ol class="ritual-raise-effects">${effects.map((t, i) => `<li><strong>Raise ${i}:</strong> ${t}</li>`).join('')}</ol>`
+        ? `<ol class="ritual-raise-effects" start="${sealOpenMode ? 4 : 0}">${effects
+            .map((t, i) => `<li><strong>Tier ${sealOpenMode ? 4 : i}:</strong> ${escapeHtml(t)}</li>`)
+            .join('')}</ol>`
         : '';
     // PG "Word of Recall" Special Cost Rule: while the mark exists the Stones
     // stay Sealed even across Safe Haven Rests. Track the mark on the actor.
     let wordOfRecallHtml = '';
-    if (ritual.id === 'ritual-word-of-recall' && resolved.success) {
+    if (ritual.id === 'word-of-recall' && success) {
         try {
             const { setWordOfRecallMark } = await import('../stones/word-of-recall-mark.js');
             const attrCounts = {};
@@ -123,7 +159,7 @@ export async function performRitualRoll(actor, ritual, opts) {
             await setWordOfRecallMark(actor, {
                 attrCounts,
                 generic: placed.length ? 0 : cost,
-                raise: resolved.appliedRaise,
+                raise: plan.namedTier,
             });
             wordOfRecallHtml =
                 `<p><em>The mark is bound — these Stones stay Sealed while it exists.</em></p>` +
@@ -138,12 +174,13 @@ export async function performRitualRoll(actor, ritual, opts) {
         speaker: ChatMessage.getSpeaker({ actor }),
         content: `
       <div class="ritual-roll-outcome">
-        <h4>${heading}</h4>
-        <p>Base TN ${opts.baseTn} · declared Raise ${opts.declaredRaises} (TN ${raiseTn}) · roll ${result.total}</p>
+        <h4>${escapeHtml(heading)}</h4>
+        ${approach ? `<p><em>Approach: ${escapeHtml(approach)}</em></p>` : ''}
+        <p>Base TN ${baseTn} · Named Tier ${plan.namedTier} + ${plan.genericRaises} generic = ${plan.totalRaises} Raise(s) (${plan.paidRaises} Paid, ${plan.freeRaises} Free) · Final TN ${finalTn} · roll ${result.total}</p>
         ${effectHtml}
-        <p><em>${cost} stone(s) Sealed until Safe Haven Rest${ritual.id === 'ritual-word-of-recall' ? ' (or until the mark is used or dismissed, then a Safe Haven Rest)' : ''}.</em></p>
+        <p><em>${cost} stone(s) Sealed until Safe Haven Rest${ritual.id === 'word-of-recall' ? ' (or until the mark is used or dismissed, then a Safe Haven Rest)' : ''}.</em></p>
         ${wordOfRecallHtml}
-        ${!resolved.success ? '<p><em>The Ritual does not produce its intended effect. The GM may apply a fitting consequence.</em></p>' : ''}
+        ${!success ? '<p><em>The Ritual does not produce its intended effect. The GM may apply a fitting consequence.</em></p>' : ''}
       </div>
     `,
     });

@@ -6,8 +6,9 @@
  * standard attack:
  *
  *   Casting Roll → pool = casting attribute, keep = mastery rank.
- *   Spell Base TN = (8 × caster Mastery Rank) − 2. Mental Powers add +4.
- *   Final Spell TN = Spell Base TN + target Spell Resistance.
+ *   Spell Base TN = used Power Level × 4.
+ *   Final Spell TN = Spell Base TN + effective SR + 4×Paid Combat Raises
+ *   (+4 only for printed Mind Probe / Mental Control Final TN surcharge).
  *   Spell Penetration reduces only the Spell Resistance part, never the base.
  *
  *   Below the Spell Base TN (or Mental Power Base TN): the Spell fizzles and
@@ -23,10 +24,11 @@
  */
 import { masteryRoll } from '../dice/roll-handler.js';
 import { computeRaiseTns, resolveRaiseOutcome } from './raise-resolution.js';
-import { RAISE_INCREMENT, standardTnForMasteryRank } from '../utils/constants.js';
+import { RAISE_INCREMENT } from '../utils/constants.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { spellResistanceAfterPenetration } from './target-defenses.js';
 import { applyDamage, calculateMaxPowerLevel, } from '../utils/calculations.js';
+import { spellBaseTnFromPowerLevel } from '../rules/spell-tn.js';
 /** Flag scope used for persistent spell-related state on actors. */
 const FLAG_SCOPE = 'mastery-system';
 /** Boolean flag: any HP lost to Blood Raises that is still outstanding. */
@@ -46,18 +48,32 @@ export function canCastSpellAtLevel(masteryRank, spellLevel) {
     return spellLevel <= calculateMaxPowerLevel(Math.max(1, Math.floor(masteryRank)));
 }
 /**
- * Spell Base TN (Players Guide "Casting Roll"): **(8 × caster Mastery Rank) − 2**,
- * independent of the Power Level of the spell being cast.
- *
- *   MR 1 → 6, MR 2 → 14, … MR 8 → 62.
- *
- * Mental Powers (Mental Attack, Mind Illusion, Mind Probe, Mental Control)
- * use `Mental Power Base TN = Spell Base TN + 4`. That mental base is the
- * fizzle line. Final TN adds the target's Spell Resistance after Penetration.
+ * Spell Base TN = used Power Level × 4 (DF Guide 2026-10-23).
+ * Mastery Rank sets Keep / legal PL cap, not this TN.
+ * There is NO generic +4 for “Mental” Spells.
  */
-export function castingBaseTnForMasteryRank(masteryRank, opts) {
+export function castingBaseTnForPowerLevel(powerLevel) {
+    return spellBaseTnFromPowerLevel(powerLevel);
+}
+/**
+ * Printed Final Mental Power TN surcharge (+4) for Mind Probe / Mental Control only
+ * (Power catalogue technical text). Not applied to Mental Attack or other Spells.
+ */
+export const MENTAL_FINAL_TN_SURCHARGE_TEMPLATE_IDS = new Set([
+    'active-mind-probe',
+    'active-mental-control',
+]);
+export function mentalFinalTnSurchargeForTemplate(templateId) {
+    const id = String(templateId || '').trim();
+    return MENTAL_FINAL_TN_SURCHARGE_TEMPLATE_IDS.has(id) ? 4 : 0;
+}
+/**
+ * @deprecated Prefer {@link castingBaseTnForPowerLevel}. Legacy MR-based Spell TN
+ * is retired; this wrapper maps an unknown PL by treating MR as a temporary stand-in.
+ */
+export function castingBaseTnForMasteryRank(masteryRank) {
     const mr = Math.max(1, Math.min(8, Math.floor(Number(masteryRank) || 1)));
-    return standardTnForMasteryRank(mr) + (opts?.mental ? 4 : 0);
+    return castingBaseTnForPowerLevel(mr);
 }
 // ──────────────────────────────────────────────────────────────────────────
 // Casting-cost mutators (HP for Blood Raises, Stress for fizzle)
@@ -147,7 +163,8 @@ export async function clearBloodRaiseHpFlagForCombat(combat) {
  *      apply damage/effects.
  */
 export async function rollSpell(params) {
-    const { actor, target = null, spellLevel, castingAttribute, resolution, declaredRaises = 0, declaredRaiseSlots, bloodRaises = 0, gmModifier = 0, masteryRankOverride, spellName = 'Spell', flavor, supportMode = false, mentalPower = false, } = params;
+    const { actor, target = null, spellLevel, castingAttribute, resolution, declaredRaises = 0, declaredRaiseSlots, bloodRaises = 0, gmModifier = 0, masteryRankOverride, spellName = 'Spell', flavor, supportMode = false, mentalPower: _mentalPowerIgnored = false, templateId = null, } = params;
+    void _mentalPowerIgnored;
     const system = actor?.system ?? {};
     const attrValue = Number(system.attributes?.[castingAttribute]?.value ?? 0);
     const masteryRank = Number(masteryRankOverride ?? getRulesMasteryRank(actor));
@@ -157,7 +174,8 @@ export async function rollSpell(params) {
     const keepDice = numDice <= 0 ? 0 : Math.max(1, masteryRank);
     const bloodApplied = Math.max(0, Math.floor(bloodRaises));
     const raiseSlots = Math.max(0, Math.floor(declaredRaiseSlots ?? declaredRaises ?? 0));
-    const spellBase = castingBaseTnForMasteryRank(masteryRank, { mental: mentalPower }) +
+    const spellBase = castingBaseTnForPowerLevel(spellLevel) +
+        mentalFinalTnSurchargeForTemplate(templateId) +
         (Number(gmModifier) || 0);
     const effectiveSr = target && !supportMode ? spellResistanceAfterPenetration(target, actor) : 0;
     const baseTn = spellBase + effectiveSr;

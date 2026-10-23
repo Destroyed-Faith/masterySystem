@@ -621,54 +621,7 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
         if (actorId && game.actors) {
             actor = game.actors.get(actorId);
         }
-        // For skill rolls, calculate spending options (MR increments)
-        let remainingPool = 0;
-        let skillSpendOptions = [];
-        if (isSkillRoll && skillKey && actor) {
-            const actorData = actor.system;
-            const skillRating = actorData.skills?.[skillKey] || 0;
-            const skillsSpent = actorData.skillsSpent?.[skillKey] || 0;
-            remainingPool = Math.max(0, skillRating - skillsSpent);
-            const MR = getRulesMasteryRank(actor);
-            const diceTotal = result.kept.reduce((sum, d) => sum + d, 0) + (baseModifier || 0);
-            // Stone bonus raises count only on full raise success; include in spend previews when applicable.
-            const stoneBonusRaises = Math.max(0, result.stoneBonusRaises ?? 0);
-            const fullRaiseSuccess = result.raiseOutcome === 'full';
-            // Players Guide ~1836–1838: spend either 0, an MR-step (MR / 2MR / 3MR …)
-            // *or* the entire remaining pool (the all-in option, only valid when the
-            // pool is at least one MR-step). When the remaining pool is < MR the
-            // only legal spend is 0, so we expose no buttons.
-            if (remainingPool >= MR) {
-                const added = new Set();
-                for (let amount = MR; amount <= remainingPool; amount += MR) {
-                    const newTotal = diceTotal + amount;
-                    const success = result.tn > 0 ? newTotal >= result.tn : true;
-                    const raises = result.tn > 0 && success ? countMarginRaises(newTotal, result.tn) : 0;
-                    const stoneExtra = fullRaiseSuccess && stoneBonusRaises > 0 ? stoneBonusRaises : 0;
-                    skillSpendOptions.push({
-                        amount,
-                        newTotal,
-                        success,
-                        raises: raises + stoneExtra,
-                        label: `${amount}`,
-                    });
-                    added.add(amount);
-                }
-                if (!added.has(remainingPool)) {
-                    const newTotal = diceTotal + remainingPool;
-                    const success = result.tn > 0 ? newTotal >= result.tn : true;
-                    const raises = result.tn > 0 && success ? countMarginRaises(newTotal, result.tn) : 0;
-                    const stoneExtra = fullRaiseSuccess && stoneBonusRaises > 0 ? stoneBonusRaises : 0;
-                    skillSpendOptions.push({
-                        amount: remainingPool,
-                        newTotal,
-                        success,
-                        raises: raises + stoneExtra,
-                        label: `All-in (${remainingPool})`,
-                    });
-                }
-            }
-        }
+        // DF 2026: post-roll Skill Point spend is retired. Skill rolls use Specialization Raises before the roll.
         const diceSum = result.total - result.skill;
         const keptIndices = result.keptIndices || [];
         const roll = buildMasteryDisplayRoll(result, result.skill);
@@ -759,28 +712,6 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
           ` : ''}
         </div>
         
-        ${isSkillRoll && skillKey && actorId && skillSpendOptions.length > 0 ? `
-          <div class="skill-spend-panel">
-            <div class="skill-spend-header">
-              <h4>Spend Skill Points</h4>
-              <span class="skill-pool-info">Pool: ${remainingPool}/${actor.system?.skills?.[skillKey] || 0}</span>
-            </div>
-            <div class="skill-spend-buttons">
-              ${skillSpendOptions.map(opt => `
-                <button type="button" class="skill-spend-btn ${opt.success && !result.success ? 'skill-spend-success' : ''}" data-action="spend-skill-success" data-spend="${opt.amount}" data-skill-key="${skillKey}" data-actor-id="${actorId}">
-                  +${opt.label} → ${opt.newTotal}${result.tn > 0 ? (opt.success ? ` ✓${opt.raises > 0 ? ` (${opt.raises} raise${opt.raises > 1 ? 's' : ''})` : ''}` : ' ✗') : ''}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
-        ${isSkillRoll && skillKey && actorId ? `
-          <div class="skill-aid-panel" style="margin-top:0.35em;">
-            <button type="button" class="skill-spend-btn" data-action="aid-skill-check" data-skill-key="${skillKey}" data-actor-id="${actorId}" title="Basic Reaction: an ally with the same Skill at Rating ≥ 2 × their Mastery Rank grants +4 to the Final Result (1 Reaction in combat, one Aid per check).">
-              <i class="fas fa-hands-helping"></i> Aid (+4)
-            </button>
-          </div>
-        ` : ''}
         ${isRerollResult ? '' : `
         <div class="mastery-faith-reroll-bar">
           <button type="button" class="faith-fracture-reroll-btn" title="Spend 1 Reroll Point. Once per roll.">

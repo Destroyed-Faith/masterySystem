@@ -124,12 +124,13 @@ async function rollSide(actor: any, attribute: PursuitAttribute, name: string) {
 }
 
 export function pursuitChatHtml(pursuit: PursuitRecord, exchange: PursuitExchange): string {
+  // DF 2026: Track meter retired from the UI — report only who won the contest.
   const change =
     exchange.winner === 'tie'
-      ? 'Tie — track unchanged'
+      ? 'Tie'
       : exchange.winner === 'fleeing'
-        ? `${pursuit.fleeingName} wins — track ${exchange.trackBefore} → ${exchange.trackAfter}`
-        : `${pursuit.pursuerName} wins — track ${exchange.trackBefore} → ${exchange.trackAfter}`;
+        ? `${pursuit.fleeingName} wins`
+        : `${pursuit.pursuerName} wins`;
   const end =
     exchange.ended === 'escape'
       ? '<p><strong>Escape.</strong> The fleeing creature gets away.</p>'
@@ -139,7 +140,7 @@ export function pursuitChatHtml(pursuit: PursuitRecord, exchange: PursuitExchang
   return `<div class="mastery-pursuit">
     <h3>Pursuit</h3>
     <p>${pursuit.fleeingName} (${exchange.fleeingAttribute}) ${exchange.fleeingTotal} [${exchange.fleeingDice.join(', ')}] vs ${pursuit.pursuerName} (${exchange.pursuerAttribute}) ${exchange.pursuerTotal} [${exchange.pursuerDice.join(', ')}]</p>
-    <p>${change}. Track ${exchange.trackAfter}.</p>
+    <p>${change}.</p>
     ${end}
   </div>`;
 }
@@ -147,10 +148,11 @@ export function pursuitChatHtml(pursuit: PursuitRecord, exchange: PursuitExchang
 export function renderPursuitHtml(pursuit: PursuitRecord | null): string {
   if (!pursuit) return '<div class="mastery-pursuit"><p>No Pursuit.</p></div>';
   const last = pursuit.exchanges[pursuit.exchanges.length - 1];
-  const lastLine = last ? pursuitChatHtml(pursuit, last) : '<p>Track 0. No exchange yet.</p>';
-  return `<div class="mastery-pursuit" data-pursuit-id="${pursuit.id}" data-track="${pursuit.track}" data-status="${pursuit.status}">
+  const lastLine = last ? pursuitChatHtml(pursuit, last) : '<p>No exchange yet.</p>';
+  // DF 2026: Track meter display retired; internal `track` stays on the record for flee resolution.
+  return `<div class="mastery-pursuit" data-pursuit-id="${pursuit.id}" data-status="${pursuit.status}">
     <p><strong>${pursuit.fleeingName}</strong> flees. <strong>${pursuit.pursuerName}</strong> pursues.</p>
-    <p>Track <strong>${pursuit.track}</strong>. Status <strong>${pursuit.status}</strong>.</p>
+    <p>Status <strong>${pursuit.status}</strong>.</p>
     <p>Attributes: ${pursuit.allowedAttributes.join(', ')}.</p>
     ${lastLine}
   </div>`;

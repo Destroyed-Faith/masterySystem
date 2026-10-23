@@ -2,17 +2,18 @@
  * What a character's current sheet is worth under today's XP tables.
  *
  * This ignores granted XP, history, and migrations. The free start is not
- * XP: the Attribute package, up to 40 Character Creation Skill Points (max 4
- * per Skill), creation Power ranks, and Artifact level 1. Ranks paid with
- * unspent Skill Points are Skill Points, not XP. Artifact activation costs
- * nothing beyond the level table, and level 1 is free. Echo Artifacts use that
- * same level table: the granted level 1 costs nothing, later levels cost XP.
+ * XP: the Attribute package, five Rank-2 Specializations (20 Creation Points),
+ * creation Power ranks, and Artifact level 1. Spec Ranks above 2 cost XP
+ * (4 XP per Rank). Artifact activation costs nothing beyond the level table,
+ * and level 1 is free. Echo Artifacts use that same level table: the granted
+ * level 1 costs nothing, later levels cost XP.
  */
 import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE, deriveLifetimeXp, earnedAttributeXpInvestment, usesV099Stones, } from './v099-rules.js';
 import { actorHasPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { attributeBandCost, powerLevelCost, skillBandCost, totalArtifactXpToLevel } from '../utils/constants.js';
 import { CREATION_DEFENSIVE_RANK, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, resolvePowerCategoryFromItem, } from '../utils/power-catalog.js';
 import { readSkillPointPool } from './skill-point-pool.js';
+import { readSpecializations, SPECIALIZATION_XP_PER_RANK, STARTING_SPECIALIZATION_RANK, } from '../rules/index.js';
 function n(value) {
     const v = Math.floor(Number(value) || 0);
     return v > 0 ? v : 0;
@@ -52,15 +53,26 @@ export function attributeXpAboveFreePackage(values) {
     return { xp, belowPackage };
 }
 function skillXp(system) {
+    const specs = readSpecializations(system);
+    if (specs.length > 0) {
+        let xp = 0;
+        const startRank = STARTING_SPECIALIZATION_RANK;
+        for (const spec of specs) {
+            const rank = Math.max(0, Math.floor(Number(spec.rank) || 0));
+            if (rank > startRank) {
+                xp += (rank - startRank) * SPECIALIZATION_XP_PER_RANK;
+            }
+        }
+        return {
+            xp,
+            basis: 'creation-cap',
+            note: `Specialization-Start: Rank ${startRank} free; +${SPECIALIZATION_XP_PER_RANK} XP per Rank above.`,
+        };
+    }
+    // Legacy archive fallback (pre-DF-2026 sheets without Specs).
     const skills = system?.skills && typeof system.skills === 'object' ? system.skills : {};
     const placed = readSkillPointPool(system).placed;
-    const cfg = globalThis.CONFIG?.MASTERY?.creation;
-    const budget = {
-        total: Math.max(1, Math.floor(Number(cfg?.skillPoints) || 40)),
-        maxPerSkill: Math.max(1, Math.floor(Number(cfg?.maxSkillAtCreation) || 4)),
-    };
-    // Always the current ratings. A creation snapshot is not the price:
-    // migrated characters still have the same 40 free starting points.
+    const budget = { total: 40, maxPerSkill: 4 };
     let remaining = budget.total;
     let xp = 0;
     for (const key of Object.keys(skills).sort()) {
@@ -74,7 +86,7 @@ function skillXp(system) {
     return {
         xp,
         basis: 'creation-cap',
-        note: `Skill-Start: ${budget.total} Punkte, höchstens ${budget.maxPerSkill} pro Skill, vom aktuellen Bogen abgezogen.`,
+        note: `Legacy Skill-Start archive: ${budget.total} Punkte (pre-DF-2026).`,
     };
 }
 function grantedForFree(item) {

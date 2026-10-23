@@ -4,6 +4,65 @@
       "name": "Mastery System / Destroyed Faith",
       "version": "0.0.2"
     },
+    "df2026": {
+      "creation": {
+        "specsShortLabel": "Spez.",
+        "specsHeaderTitle": "Spezialisierungen — fünf Rang 2 bei der Erstellung (20 Erstellungspunkte)",
+        "bannerSpecs": "Lege genau fünf Spezialisierungen auf Rang 2 fest, bevor du die Erstellung abschließt.",
+        "finalizeNeedSpecs": "Schließe zuerst fünf Spezialisierungen auf Rang 2 ab.",
+        "legacySkillsRetired": "Die alte Fertigkeitsverteilung entfällt. Nutze Spezialisierungen (fünf Rang 2 bei der Erstellung).",
+        "legacyRedistributeRetired": "Die alte Fertigkeits-Umverteilung entfällt. Steigere Spezialisierungen mit EP (4 EP pro Rang)."
+      },
+      "specializations": {
+        "title": "Spezialisierungen",
+        "add": "Spezialisierung hinzufügen",
+        "edit": "Spezialisierung bearbeiten",
+        "delete": "Spezialisierung löschen",
+        "rankUp": "Einen Rang für {cost} EP steigern",
+        "untrainedRoll": "Ungeübter Wurf",
+        "field": "Feld",
+        "scope": "Anwendungsbereich",
+        "rank": "Rang",
+        "raisePaid": "Bezahlte Raises",
+        "raiseFree": "Freie Raises",
+        "finalTn": "Finaler ZW",
+        "taskLevel": "Aufgabenstufe"
+      },
+      "imprints": {
+        "title": "Echo-Abdrücke",
+        "save": "Speichern",
+        "use": "Nutzen",
+        "hollowEchoNote": "Hohles Echo weist nur auf mögliche Untersuchungsstellen hin. Eine verborgene Naht, Falle oder Mechanismus erfordert weiterhin eine passende Fertigkeitsprobe.",
+        "catfallNote": "Katzenfall mildert eine kontrollierte Landung; gefährliche Stürze folgen den normalen Sturzregeln. Tödliche Stürze bleiben tödlich.",
+        "maxAtMr": "Höchstens {mr} Echo-Abdruck/Abdrücke bei Meisterschaftsrang {mr}.",
+        "attrLocked": "Echo-Abdrücke für dieses Attribut sind ab Wert {min} verfügbar."
+      },
+      "rituals": {
+        "approach": "Vorgehen",
+        "taskLevel": "Aufgabenstufe",
+        "namedTier": "Benannte Stufe",
+        "genericRaises": "Allgemeine Raises",
+        "specialization": "Spezialisierung (freie Raises)",
+        "sealedStones": "Versiegelte Steine",
+        "finalTn": "Finaler ZW",
+        "sealPassageAlt": "Stufe 4 ist ein alternativer Modus: eine bestehende versiegelte Passage öffnen statt eine zu versiegeln. Vor dem Wurf ankündigen."
+      },
+      "migrationReview": {
+        "title": "DF-2026-Migrations-Review",
+        "suggestions": "Vorschläge für Spezialisierungen",
+        "unmapped": "Nicht zugeordnete Minor Expressions",
+        "trimWarning": "Echo-Abdruck-Kürzung",
+        "save": "Speichern"
+      },
+      "progression": {
+        "specializationsSection": "Spezialisierungen",
+        "rankUpXp": "+ {cost} EP"
+      },
+      "archive": {
+        "minorExpressionsRetired": "Minor Expressions wurden durch Echo-Abdrücke ersetzt.",
+        "skillSpendRetired": "Fertigkeitspunkte-Ausgabe entfällt (DF 2026). Steigere Spezialisierungen in der Progression."
+      }
+    },
     "attributes": {
       "might": "Macht",
       "agility": "Agilität",
@@ -494,14 +553,14 @@
       "drag": "Ziehen zum Verschieben"
     },
     "minorExpressionsBar": {
-      "title": "Minor Expressions",
-      "expand": "Minor Expressions einblenden",
-      "collapse": "Minor Expressions ausblenden",
+      "title": "Echo-Imprints (ersetzt Minor Expressions)",
+      "expand": "Echo-Imprints einblenden",
+      "collapse": "Echo-Imprints ausblenden",
       "drag": "Ziehen zum Verschieben",
       "use": "Einsetzen (in den Chat posten)",
       "undo": "Letzten Einsatz zurücknehmen",
       "sheet": "Charakterbogen öffnen",
-      "uses": "Einsätze bis zur Safe-Haven-Rast"
+      "uses": "Archiv — Echo-Imprints haben keinen Einsatz-Pool"
     },
     "sheet": {
       "gmMenu": "SL-Werkzeuge",
@@ -511,7 +570,7 @@
         "nav": "Charakterbogen-Bereiche",
         "attributes": "Attribute",
         "echo": "Echo",
-        "skills": "Skills",
+        "skills": "Spezialisierungen",
         "powers": "Powers",
         "equipment": "Equipment",
         "disadvantages": "Nachteile",

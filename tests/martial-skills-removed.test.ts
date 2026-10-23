@@ -68,7 +68,7 @@ describe('Martial Skills are gone from the active Skill system', () => {
     }
   });
 
-  it('normal non-combat Skill Point spending still works', async () => {
+  it('Skill Point spending is retired (DF 2026): no options, no actor update', async () => {
     const updates: Record<string, unknown>[] = [];
     const actor: any = {
       system: { skills: { perception: 8 }, skillsSpent: { perception: 2 }, mastery: { rank: 2 } },
@@ -78,11 +78,10 @@ describe('Martial Skills are gone from the active Skill system', () => {
     };
     const roll: any = { kept: [5, 6], tn: 14, success: false, raises: 0 };
     const { remainingPool, options } = getSkillSpendOptions(actor, 'perception', roll);
-    expect(remainingPool).toBe(6);
-    expect(options.map((o) => o.amount)).toEqual([2, 4, 6]);
-    expect(options.find((o) => o.amount === 4)?.success).toBe(true);
+    expect(remainingPool).toBe(0);
+    expect(options).toEqual([]);
     await applySkillSpendToActor(actor, 'perception', 4);
-    expect(updates[0]).toEqual({ 'system.skillsSpent.perception': 6 });
+    expect(updates).toEqual([]);
   });
 });
 
@@ -100,8 +99,8 @@ describe('combat resolves without Skill Points', () => {
       expect(src).not.toMatch(/isSkillRoll\s*:\s*true/);
       expect(src).not.toMatch(/skillKey\s*:/);
     }
-    // The chat card only renders the "Spend Skill Points" panel for Skill rolls.
-    expect(rollHandler).toMatch(/isSkillRoll && skillKey && actorId && skillSpendOptions\.length > 0/);
+    // DF 2026: the chat card no longer renders any post-roll Skill spend panel.
+    expect(rollHandler).not.toMatch(/spend-skill-success|skillSpendOptions|skill-spend-panel/);
     expect(rollHandler).not.toMatch(LEGACY_PATTERN);
   });
 

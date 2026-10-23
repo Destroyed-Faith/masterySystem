@@ -14,7 +14,7 @@ import {
   allocateActorSkillPending,
   applyAttributePendingChanges,
   applyPowerPendingChanges,
-  applySkillPendingChanges,
+  applySpecializationRankUp,
   buildProgressionHubContext,
   calculateAttributePendingNetCost,
   calculatePowerPendingNetCost,
@@ -183,32 +183,20 @@ export class ProgressionHubDialog extends BaseDialog {
       };
     });
 
-    root.querySelectorAll<HTMLElement>('[data-action="ph-skill-dec"]').forEach((btn) => {
-      btn.onclick = (ev) => {
+    // DF 2026: Skill XP retired — Specializations rank up for SPECIALIZATION_XP_PER_RANK (4 XP) each.
+    root.querySelectorAll<HTMLElement>('[data-action="ph-spec-rankup"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
         ev.preventDefault();
-        const key = String(btn.dataset.skill);
-        this.#bumpPending(this.pendingSkills, key, -1);
-      };
-    });
-
-    root.querySelectorAll<HTMLElement>('[data-action="ph-skill-inc"]').forEach((btn) => {
-      btn.onclick = (ev) => {
-        ev.preventDefault();
-        const key = String(btn.dataset.skill);
-        const masteryRank = (this.actor.system as any)?.mastery?.rank ?? 2;
-        const maxSkill = calculateMaxSkillRank(masteryRank);
-        const current = Number((this.actor.system as any).skills?.[key] ?? 0) || 0;
-        const pending = this.pendingSkills[key] || 0;
-        if (current + pending >= maxSkill) {
-          ui.notifications?.warn(
-            `Skill cap ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
-          );
+        const id = String(btn.dataset.specId);
+        const res = await applySpecializationRankUp(this.actor, id);
+        if (!res.ok) {
+          ui.notifications?.error(res.error || 'Could not raise Specialization.');
           return;
         }
-        this.#bumpPending(this.pendingSkills, key, 1);
+        this.#captureScroll();
+        await this.render({ force: true });
       };
     });
-
     root.querySelectorAll<HTMLElement>('[data-action="ph-power-dec"]').forEach((btn) => {
       btn.onclick = (ev) => {
         ev.preventDefault();
@@ -233,18 +221,6 @@ export class ProgressionHubDialog extends BaseDialog {
         return;
       }
       this.pendingAttributes = {};
-      this.#captureScroll();
-      await this.render({ force: true });
-    };
-
-    root.querySelector<HTMLElement>('[data-action="ph-confirm-skills"]')!.onclick = async (ev) => {
-      ev.preventDefault();
-      const res = await applySkillPendingChanges(this.actor, this.pendingSkills);
-      if (!res.ok) {
-        ui.notifications?.error(res.error || 'Could not apply skill changes.');
-        return;
-      }
-      this.pendingSkills = {};
       this.#captureScroll();
       await this.render({ force: true });
     };

@@ -1,5 +1,6 @@
 /**
- * Skill spend helpers for Epic Mastery Roll overlay (mirrors chat skill-spend flow).
+ * Skill spend helpers for Epic Mastery Roll overlay.
+ * DF 2026: Skill Spend is retired — option builders return empty / no-op.
  */
 import { countMarginRaises } from '../dice/roll-handler.js';
 /** Distribute remaining skill pool across four MR-sized packets (skill sheet style). */
@@ -21,54 +22,16 @@ export function buildSkillSpendPackets(remainingPool, masteryRank) {
 export function sumSelectedPacketSpend(packets, selected) {
     return packets.reduce((sum, pkt, i) => sum + (selected[i] && pkt.clickable ? pkt.amount : 0), 0);
 }
-export function getSkillSpendOptions(actor, skillKey, rollResult, baseModifier = 0) {
-    const system = actor.system;
-    const skillRating = Number(system.skills?.[skillKey] ?? 0);
-    const skillsSpent = Number(system.skillsSpent?.[skillKey] ?? 0);
-    const remainingPool = Math.max(0, skillRating - skillsSpent);
-    const MR = Number(system.mastery?.rank ?? 2);
-    const diceTotal = rollResult.kept.reduce((sum, die) => sum + die, 0) + baseModifier;
-    const stoneBonusRaises = Math.max(0, rollResult.stoneBonusRaises ?? 0);
-    const fullRaiseSuccess = rollResult.raiseOutcome === 'full';
-    const options = [];
-    if (remainingPool >= MR) {
-        const added = new Set();
-        for (let amount = MR; amount <= remainingPool; amount += MR) {
-            const newTotal = diceTotal + amount;
-            const success = rollResult.tn > 0 ? newTotal >= rollResult.tn : true;
-            const raises = rollResult.tn > 0 && success ? countMarginRaises(newTotal, rollResult.tn) : 0;
-            const stoneExtra = fullRaiseSuccess && stoneBonusRaises > 0 ? stoneBonusRaises : 0;
-            options.push({
-                amount,
-                newTotal,
-                success,
-                raises: raises + stoneExtra,
-                label: String(amount),
-            });
-            added.add(amount);
-        }
-        if (!added.has(remainingPool)) {
-            const newTotal = diceTotal + remainingPool;
-            const success = rollResult.tn > 0 ? newTotal >= rollResult.tn : true;
-            const raises = rollResult.tn > 0 && success ? countMarginRaises(newTotal, rollResult.tn) : 0;
-            const stoneExtra = fullRaiseSuccess && stoneBonusRaises > 0 ? stoneBonusRaises : 0;
-            options.push({
-                amount: remainingPool,
-                newTotal,
-                success,
-                raises: raises + stoneExtra,
-                label: `All-in (${remainingPool})`,
-            });
-        }
-    }
-    return { remainingPool, skillRating, options };
+/**
+ * @deprecated DF 2026-10-23: post-roll Skill Spend is retired.
+ * Always returns no options so Epic Roll never offers spend UI.
+ */
+export function getSkillSpendOptions(_actor, _skillKey, _rollResult, _baseModifier = 0) {
+    return { remainingPool: 0, skillRating: 0, options: [] };
 }
-export async function applySkillSpendToActor(actor, skillKey, amount) {
-    const system = actor.system;
-    const skillRating = Number(system.skills?.[skillKey] ?? 0);
-    const currentSpent = Number(system.skillsSpent?.[skillKey] ?? 0);
-    const newSpent = Math.min(skillRating, currentSpent + amount);
-    await actor.update({ [`system.skillsSpent.${skillKey}`]: newSpent });
+/** @deprecated DF 2026 — Skill Spend retired; does nothing. */
+export async function applySkillSpendToActor(_actor, _skillKey, _amount) {
+    console.info('Mastery System | applySkillSpendToActor is deprecated (DF 2026: Skill Spend retired).');
 }
 export function totalsAfterSkillSpend(rollResult, spendAmount, baseModifier = 0) {
     const diceSum = rollResult.kept.reduce((sum, die) => sum + die, 0);

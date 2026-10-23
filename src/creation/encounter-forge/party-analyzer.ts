@@ -56,9 +56,10 @@ export interface PcAttackProfile {
   penetration: number;
   specials: PcSpecialOnHit[];
   spellPowerLevel: number | null;
-  /** Caster MR for spell TN ((8 × MR) − 2). */
+  /** Caster MR (Keep). Spell Base TN uses spellPowerLevel × 4. */
   casterMr: number;
-  isMental: boolean;
+  /** Printed Mind Probe / Mental Control Final TN surcharge (+4) or 0. */
+  mentalFinalTnSurcharge: number;
   notes: string[];
 }
 
@@ -190,14 +191,10 @@ function statusEffectValue(system: any, specialId: string): number {
   return total;
 }
 
-function isMentalPower(sys: any): boolean {
-  const tags: string[] = Array.isArray(sys?.tags) ? sys.tags.map((t: unknown) => String(t).toLowerCase()) : [];
+/** Printed Final Mental Power TN +4 — Mind Probe / Mental Control only. */
+function mentalFinalTnSurcharge(sys: any): number {
   const tid = String(sys?.templateId ?? '').toLowerCase();
-  return (
-    tags.includes('mental') ||
-    /mental/i.test(tid) ||
-    /mind-illusion|mind-probe|mental-control/i.test(tid)
-  );
+  return tid === 'active-mind-probe' || tid === 'active-mental-control' ? 4 : 0;
 }
 
 function isSpellPower(sys: any): boolean {
@@ -478,7 +475,7 @@ export function analyzePc(actor: any): PcCombatProfile {
     specials: weaponSpecials.filter((s) => s.id !== 'penetration' && s.id !== 'finesse'),
     spellPowerLevel: null,
     casterMr: mr,
-    isMental: false,
+    mentalFinalTnSurcharge: 0,
     notes: [
       `Basic Attack: ${weaponDamage.dice}d8 Waffe + ${basicMrDice}d8 (MR×2)`,
       mechAttackDice ? `Passive/Buff Attack-Dice +${mechAttackDice}` : '',
@@ -506,7 +503,7 @@ export function analyzePc(actor: any): PcCombatProfile {
     const limited = isLimitedPower(sys);
     const spell = isSpellPower(sys);
     const ignoreWeapon = sys.ignoreWeaponDamage === true || spell;
-    const mental = isMentalPower(sys);
+    const mentalSurcharge = mentalFinalTnSurcharge(sys);
     let castAttr = Math.max(
       num(attributes.intellect?.value, 2),
       num(attributes.resolve?.value, 2),
@@ -532,9 +529,9 @@ export function analyzePc(actor: any): PcCombatProfile {
         specials,
         spellPowerLevel: level,
         casterMr: mr,
-        isMental: mental,
+        mentalFinalTnSurcharge: mentalSurcharge,
         notes: [
-          `Spell ${dice}d8 · TN = (8×MR)−2${mental ? '+4 Mental' : ''} (nicht Power Level)`,
+          `Spell ${dice}d8 · TN = PL×4 (${level}→${level * 4})${mentalSurcharge ? `+${mentalSurcharge} Final Mental` : ''}`,
           ignoreWeapon ? 'Ohne Waffe' : '',
         ].filter(Boolean),
       };
@@ -552,7 +549,7 @@ export function analyzePc(actor: any): PcCombatProfile {
         specials,
         spellPowerLevel: null,
         casterMr: mr,
-        isMental: false,
+        mentalFinalTnSurcharge: 0,
         notes: [`Unabhängige Power ${dice}d8 (ignoreWeaponDamage)`],
       };
     } else {
@@ -572,7 +569,7 @@ export function analyzePc(actor: any): PcCombatProfile {
         ],
         spellPowerLevel: null,
         casterMr: mr,
-        isMental: false,
+        mentalFinalTnSurcharge: 0,
         notes: [`Power-Rider: Waffe ${weaponDamage.dice}d8 + Power ${dice}d8 (kein MR×2)`],
       };
     }

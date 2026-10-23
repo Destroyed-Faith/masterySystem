@@ -129,9 +129,11 @@ function evaluateAttack(
   );
   const tn =
     attack.kind === 'spell'
-      ? pcSpellCastingTn(attack.casterMr ?? member.mr, body.defenses.spellResistance, {
-          mental: attack.isMental,
-        })
+      ? pcSpellCastingTn(
+          attack.spellPowerLevel ?? attack.casterMr ?? member.mr,
+          body.defenses.spellResistance,
+          { mentalFinalTnSurcharge: attack.mentalFinalTnSurcharge },
+        )
       : Math.max(1, body.defenses.evade + evadeDelta(stacks));
   let connect = attackConnectChance({
     pool,
