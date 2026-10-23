@@ -4,7 +4,7 @@
  * only Skill Checks and Rituals still spend Skill Points.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { SKILLS, SKILL_CATEGORIES, getSkillsByCategory } from '../src/utils/skills';
 import {
@@ -134,11 +134,18 @@ describe('no player-facing surface mentions the removed Skills', () => {
     resolve('src/migrations/martial-skills-refund-migration.ts'),
     resolve('src/progression/xp-consistency.ts'),
   ]);
+  // Embedded DF 2026 catalogs may use plain English like "defensive combat effect"
+  // in imprint/ritual flavor — not the retired Martial Skill keys.
+  const skipDirs = [resolve('src/rules/data')];
 
   it('runtime sources', () => {
     const offenders: string[] = [];
     for (const file of walk(resolve('src'), ['.ts'])) {
       if (allowed.has(file)) continue;
+      if (skipDirs.some((d) => {
+        const rel = relative(d, file);
+        return rel !== '' && !rel.startsWith('..') && !rel.startsWith(`..${sep}`);
+      })) continue;
       if (LEGACY_PATTERN.test(readFileSync(file, 'utf8'))) offenders.push(file);
     }
     expect(offenders).toEqual([]);

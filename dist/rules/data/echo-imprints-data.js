@@ -1,0 +1,396 @@
+/** Auto-generated from echo-imprints.json — do not edit by hand; re-run: node scripts/embed-rules-json.mjs */
+export default [
+    {
+        "id": "anchor-touch",
+        "attribute": "might",
+        "name": "Anchor Touch",
+        "tagline": "By touching an unattended object, steady it briefly: a rattling shutter, loose door or unstable stack. The effect holds ordinary objects in place for seconds, giving someone time to secure them.",
+        "tiers": {
+            "4": "A light object remains steady for a single breath.",
+            "8": "A loose door, shutter, or small stack remains stable for a moment.",
+            "12": "A larger everyday object stops shifting for a few seconds.",
+            "16": "A sizable but ordinary unstable structure becomes briefly still, allowing someone to secure it by normal means.",
+            "20": "Several connected, uncontested parts of a local obstacle can be steadied for a few seconds; lasting repairs still require appropriate work."
+        },
+        "echoMemory": "Cold iron presses into your palms. In another lifetime, a storm rattled a strange front door while a child wept behind you."
+    },
+    {
+        "id": "burdens-mercy",
+        "attribute": "might",
+        "name": "Burden's Mercy",
+        "tagline": "Make a load you can already lift feel lighter while carrying it at an unhurried pace. Normal lifting limits and combat encumbrance still apply.",
+        "tiers": {
+            "4": "A small heavy bag or toolkit feels lighter for about a minute.",
+            "8": "An ordinary pack feels lighter for several minutes.",
+            "12": "A chest or load you can already lift becomes more comfortable to carry over a short distance.",
+            "16": "A bulky but portable load remains easier to carry along a longer safe path.",
+            "20": "An exceptionally heavy yet still carryable everyday load becomes bearable for part of a short journey."
+        },
+        "echoMemory": "The weight of a house beam rests on your shoulder. When you look up, the street belongs to a long-vanished harbor town."
+    },
+    {
+        "id": "stoneprint",
+        "attribute": "might",
+        "name": "Stoneprint",
+        "tagline": "Press a small lasting decorative mark into ordinary inert material with your fingertips. Marks remain ornamental; functional craftwork and structural changes require the relevant methods.",
+        "tiers": {
+            "4": "Leave a fingerprint or tiny symbol in stone, wood, or soft metal.",
+            "8": "Emboss one clear palm-sized mark or a few rough characters.",
+            "12": "Leave a short line of simple, coarsely pressed characters.",
+            "16": "Form a distinct, palm-sized relief with a recognizable motif.",
+            "20": "Create a small, simple commemorative relief without tools, but never precise craftsmanship or structural alterations."
+        },
+        "echoMemory": "Your fingers remember a farewell sign pressed into a gray city wall. You no longer know its language, only the grief."
+    },
+    {
+        "id": "hollow-echo",
+        "attribute": "might",
+        "name": "Hollow Echo",
+        "tagline": "Tap a reachable surface to sense broad differences in its resonance. A hollow response suggests where to investigate; finding a concealed seam, trap or mechanism still requires an appropriate Skill.",
+        "tiers": {
+            "4": "Hear whether the spot beneath your hand sounds broadly hollow or solid.",
+            "8": "Follow changes in that sound across a small reachable surface.",
+            "12": "Sense a vague resonance pattern along one connected, ordinary wall or floor section.",
+            "16": "Distinguish several broad resonance differences within the same accessible surface.",
+            "20": "Feel a clearer local pattern of pressure and hollow space; it can suggest where to search, but precise discovery remains a Skill task."
+        },
+        "echoMemory": "The vibration becomes another hammer striking another stone. For a heartbeat you stand in a mine abandoned centuries ago."
+    },
+    {
+        "id": "feather-step",
+        "attribute": "agility",
+        "name": "Feather Step",
+        "tagline": "Cross ordinary ground slowly with unnaturally light footsteps, leaving faint pressure or disturbance. Resolve Stealth, hazards and Movement Powers through their normal rules.",
+        "tiers": {
+            "4": "One or two gentle steps disturb dust, leaves, or creaking boards less than expected.",
+            "8": "Cross a few paces of an everyday delicate surface carefully and quietly.",
+            "12": "Leave only a faint shift in pressure along a short, unhurried passage.",
+            "16": "Your slow steps leave unusually light traces on ordinary soft ground.",
+            "20": "Cross a small room or courtyard with minimal pressure from careful footsteps; Stealth and hazards still require normal resolution."
+        },
+        "echoMemory": "The cold grass beneath your feet becomes thin snow upon a bridge. Your feet were far smaller in that life."
+    },
+    {
+        "id": "catfall",
+        "attribute": "agility",
+        "name": "Catfall",
+        "tagline": "Recall a practiced landing from a former life: roll, brace and soften a controlled descent. Resolve dangerous heights through the normal falling rules.",
+        "tiers": {
+            "4": "Land cleanly from a low wall or ledge.",
+            "8": "Turn an ordinary short drop or awkward small jump into a soft roll.",
+            "12": "Find a natural controlled landing motion during a planned descent.",
+            "16": "Appear almost unnaturally light when landing from a higher but still manageable position.",
+            "20": "Land almost silently after an impressive but still realistically survivable descent; lethal falls remain lethal."
+        },
+        "echoMemory": "You roll across cobblestones. Yet the memory shows red dust, a narrow alley, and a body in which you fell long ago."
+    },
+    {
+        "id": "dancing-thread",
+        "attribute": "agility",
+        "name": "Dancing Thread",
+        "tagline": "With a gesture, make loose threads, ribbons or very light fabric follow a graceful movement. The threads remain delicate and cannot restrain or manipulate solid objects.",
+        "tiers": {
+            "4": "One loose thread or ribbon end follows your gesture for several seconds.",
+            "8": "Two small ribbons follow a slow motion.",
+            "12": "Several very light scraps of fabric briefly move together.",
+            "16": "A light veil or several loose ribbons trace simple patterns for seconds.",
+            "20": "Create a brief graceful choreography of lightweight cloth, with no strength to bind or manipulate solid objects."
+        },
+        "echoMemory": "The fabric rises, and your fingers recall a stage above water. Applause falls around you in a language you do not speak."
+    },
+    {
+        "id": "needle-balance",
+        "attribute": "agility",
+        "name": "Needle Balance",
+        "tagline": "Keep a small unattended object poised in an improbable balance for a brief moment. The delicate effect supports only the listed objects, not weight, mechanisms or living creatures.",
+        "tiers": {
+            "4": "A coin or needle balances on an unlikely edge for seconds.",
+            "8": "Two small objects briefly maintain unusual balance.",
+            "12": "One delicate small object stands unnaturally still for about a minute.",
+            "16": "A handful of tiny light objects briefly hold an intricate arrangement.",
+            "20": "Build a fleeting miniature display of impossible balance; it supports no weight and offers no physical resistance."
+        },
+        "echoMemory": "A coin stands upon its edge. You remember a tightrope over a brightly lit city and the hands of an unfamiliar performer."
+    },
+    {
+        "id": "living-warmth",
+        "attribute": "vitality",
+        "name": "Living Warmth",
+        "tagline": "Your palms radiate gentle warmth to hands, clothing or small everyday objects. The effect provides comfort; Health, healing, cold exposure and damage use their own rules.",
+        "tiers": {
+            "4": "Warm your fingertips or a small object briefly.",
+            "8": "Keep a cup, cloth, or willing hand pleasantly warm for several minutes.",
+            "12": "Gently warm a small bundle of fabric or a bowl.",
+            "16": "Spread mild comfort through a cloak or bedroll for a little while.",
+            "20": "Make a small campsite briefly cozy without protecting against lethal exposure."
+        },
+        "echoMemory": "Warmth returns to your hands. You recall cradling a sleeping child while heavy snow fell outside a strange window."
+    },
+    {
+        "id": "seed-whisper",
+        "attribute": "vitality",
+        "name": "Seed Whisper",
+        "tagline": "Coax modest natural growth from an existing healthy bud or viable seed. The effect accelerates a small natural change; sustained growth still needs ordinary conditions.",
+        "tiers": {
+            "4": "A ready bud opens a little.",
+            "8": "A viable seed shows its first moment of germination.",
+            "12": "Several existing buds on a small twig open.",
+            "16": "A small potted plant unfolds existing leaves or flowers unusually quickly.",
+            "20": "A handful of viable seeds or a small branch show modest new growth; real maturity still requires time and suitable conditions."
+        },
+        "echoMemory": "A seed cracks open. You recall a garden between white walls and a name called from the far end of its path."
+    },
+    {
+        "id": "pulse-touch",
+        "attribute": "vitality",
+        "name": "Pulse Touch",
+        "tagline": "With a willing creature’s direct skin contact, feel its pulse, breath and warmth as a subjective impression. Interpreting illness or injury remains a Medicine task.",
+        "tiers": {
+            "4": "Sense whether one willing creature's living rhythm feels broadly calm or restless.",
+            "8": "Notice subtle shifts in that rhythm.",
+            "12": "Experience its rhythm as a brief inner image, still medically indefinite.",
+            "16": "Hold that subjective sense of life for several quiet breaths.",
+            "20": "With calm consent, briefly distinguish the rhythms of two willing living creatures; diagnose or heal neither."
+        },
+        "echoMemory": "A heart beats beneath your palm. Another lifetime shows an old patient on a cot and a pulse strangely familiar to you."
+    },
+    {
+        "id": "preserve",
+        "attribute": "vitality",
+        "name": "Preserve",
+        "tagline": "Slow the ordinary spoilage of a small amount of wholesome food or cut flowers. It preserves their existing condition; purifying contaminants and crafting ingredients require appropriate rules.",
+        "tiers": {
+            "4": "Keep one piece of fruit or a flower fresh for several extra hours.",
+            "8": "Keep a small meal good overnight, provided it was safe to begin with.",
+            "12": "Slow the aging of a small basket of ordinary food for one day.",
+            "16": "Keep a small bag of simple perishables fresh for a few additional days.",
+            "20": "Preserve a modest box of everyday perishable food for up to a week, without purifying or enhancing it."
+        },
+        "echoMemory": "The fruit keeps its scent. You remember baskets aboard a fishing boat and the dread of a winter arriving too soon."
+    },
+    {
+        "id": "mage-hand",
+        "attribute": "intellect",
+        "name": "Mage Hand",
+        "tagline": "Summon a small spectral hand to move a light unattended object. Fine toolwork, locks, traps and Artifacts still require the appropriate capability.",
+        "tiers": {
+            "4": "Move a tiny everyday object within reach.",
+            "8": "Carry a light cup, feather, or key a few steps.",
+            "12": "Carefully lift and shift one light object from several paces away.",
+            "16": "Perform a sequence of simple, careful motions with the spectral hand.",
+            "20": "Handle one light, unattended object within a modest room almost like your own hand, but without strength or specialist knowledge."
+        },
+        "echoMemory": "The key rises into the air. Suddenly you sit at a table of brass instruments, wearing old hands and unfamiliar rings."
+    },
+    {
+        "id": "message",
+        "attribute": "intellect",
+        "name": "Message",
+        "tagline": "Send a brief private mental whisper to a nearby visible or familiar recipient. It carries a short message rather than sustained telepathy or mind reading.",
+        "tiers": {
+            "4": "Send one brief sentence to a person in the same room.",
+            "8": "Deliver a short message to someone nearby even through ordinary noise.",
+            "12": "Receive one brief reply.",
+            "16": "Exchange a few quiet thoughts across a large hall or courtyard.",
+            "20": "Hold a brief private conversation with one person within a small building area, but not through powerful seals or to an unknown distant target."
+        },
+        "echoMemory": "The whispered name lingers in your mind. You recall speaking into darkness while unfamiliar bells tolled."
+    },
+    {
+        "id": "arcane-spark",
+        "attribute": "intellect",
+        "name": "Arcane Spark",
+        "tagline": "Shape harmless sparks, dim floating lights or momentary visible glyphs. These are signs and ambient light, distinct from ignition, damaging light and functional ritual sigils.",
+        "tiers": {
+            "4": "Create a fingertip-sized spark or glimmering dot for seconds.",
+            "8": "Hold a tiny light or simple suspended sign for a moment.",
+            "12": "Arrange several tiny lights into a slowly moving pattern.",
+            "16": "Display a short readable line of light-written text for a few minutes.",
+            "20": "Create a small gentle scene of lights and glyphs for minutes; they remain decorative and visibly magical."
+        },
+        "echoMemory": "Letters of light float before you. In another life you studied in a tall tower, reading a script you can no longer decipher."
+    },
+    {
+        "id": "fleeting-conjuration",
+        "attribute": "intellect",
+        "name": "Fleeting Conjuration",
+        "tagline": "Conjure a fragile, visibly magical ornament that dissolves shortly afterward. Its value and function are purely decorative; useful goods follow ordinary crafting and equipment rules.",
+        "tiers": {
+            "4": "A tiny glasslike pebble or decorative mote appears for seconds.",
+            "8": "A fingernail-sized ornament lasts a little longer.",
+            "12": "A simple palm-sized decoration exists for up to one minute.",
+            "16": "Its surface becomes more intricate and it lasts a few minutes.",
+            "20": "A detailed yet fragile hand-sized ornamental shape persists for several minutes, clearly unreal and unsuitable for practical use."
+        },
+        "echoMemory": "A glass bird rests in your palm. You remember gifting one to someone in a different life, but their face has vanished."
+    },
+    {
+        "id": "still-mind",
+        "attribute": "resolve",
+        "name": "Still Mind",
+        "tagline": "Enter an unnatural moment of inner quiet. The effect changes the character’s perception of their own thoughts; Fear, conditions and resistance retain their normal mechanics.",
+        "tiers": {
+            "4": "One breath makes it easier to gather yourself before speaking.",
+            "8": "Find the start of a calming ritual even during a tense pause.",
+            "12": "Let distracting feelings pass for a few quiet moments.",
+            "16": "Recover a clear sense of inward composure during a safe break.",
+            "20": "Carry this brief inner calm for a few minutes into a difficult conversation, without bypassing emotion or mental mechanics."
+        },
+        "echoMemory": "You close your eyes. Salt wind touches your face, and you sit on a cliff you have never visited in this lifetime."
+    },
+    {
+        "id": "sense-taint",
+        "attribute": "resolve",
+        "name": "Sense Taint",
+        "tagline": "While calmly observing, feel a vague spiritual disturbance from a clearly present tainted place or object. Read Resonance determines the source and nature of such traces.",
+        "tiers": {
+            "4": "A strong and outwardly present corruption may feel uncomfortable.",
+            "8": "Distinguish that vague discomfort from everyday fear, subjectively.",
+            "12": "Feel an obvious difference between ordinary unease and manifest spiritual heaviness.",
+            "16": "A persistent, unmistakable disturbance may register as an oppressive pressure.",
+            "20": "Recognize clearly manifest spiritual unease consistently, yet never determine its type, source, strength, or rules."
+        },
+        "echoMemory": "The air turns bitter. You remember a chapel where every candle went out at once, centuries before your birth."
+    },
+    {
+        "id": "echo-whisper",
+        "attribute": "resolve",
+        "name": "Echo Whisper",
+        "tagline": "Deliberately recall one brief emotional impression from a former life. It is a subjective experience; historical facts, hidden knowledge and trained techniques follow their normal rules.",
+        "tiers": {
+            "4": "Conjure a brief emotion or single sensory trace from another life.",
+            "8": "Associate the feeling with a vague place or sound.",
+            "12": "Experience one small subjective image from an unidentified past life.",
+            "16": "See a short linked sequence of subjective past-life impressions.",
+            "20": "In peace, experience a brief emotionally complete memory scene, without a guarantee of objective truth or secret knowledge."
+        },
+        "echoMemory": "You see the hands of someone you once loved. You carried a different name then, but immediately know their laugh."
+    },
+    {
+        "id": "oath-ember",
+        "attribute": "resolve",
+        "name": "Oath Ember",
+        "tagline": "When you make a personal promise, a harmless symbolic light briefly marks your words. Binding Oath is the separate Ritual for a lasting, mutually witnessed agreement.",
+        "tiers": {
+            "4": "A faint spark accompanies a sincerely spoken promise.",
+            "8": "The light briefly forms a personal emblem.",
+            "12": "The symbol remains for a moment after the promise is spoken.",
+            "16": "A little sign glows on your skin for several minutes.",
+            "20": "A clear personal oath-light lasts through one calm scene; the oath gains no supernatural enforcement."
+        },
+        "echoMemory": "The sign flickers. You remember swearing fealty before a foreign crown, and the ache of knowing you broke that oath."
+    },
+    {
+        "id": "glamour",
+        "attribute": "influence",
+        "name": "Glamour",
+        "tagline": "Cast a cosmetic illusion over clothing, hair or superficial details. Successful impersonation still depends on the normal Social or Stealth rules.",
+        "tiers": {
+            "4": "Shift the perceived color of a minor item of clothing.",
+            "8": "Briefly change fabric colors, hair highlights, or surface ornaments.",
+            "12": "Give an entire outfit a slightly different appearance for a few minutes.",
+            "16": "Portray a plausible costume or social style briefly, but not a specific person.",
+            "20": "Maintain a coherent cosmetic appearance through a scene; a serious identity check still uses ordinary Skill Opposition."
+        },
+        "echoMemory": "The mirror fills with a glittering hall. The face inside belongs to someone else, and yet you recognize it as your own."
+    },
+    {
+        "id": "mirror-shade",
+        "attribute": "influence",
+        "name": "Mirror Shade",
+        "tagline": "Manifest a fleeting, clearly unreal reflection or afterimage of yourself. It is a visible flourish rather than a second creature or a defensive combat effect.",
+        "tiers": {
+            "4": "See a displaced trace of your reflection for a heartbeat.",
+            "8": "Show a second fleeting outline in glass or water.",
+            "12": "An unmistakable afterimage follows one of your movements.",
+            "16": "A silent spectral outline repeats a small gesture near you.",
+            "20": "A fragile double copies part of your posture for several seconds; physical contact immediately reveals it is unreal."
+        },
+        "echoMemory": "Your reflection smiles a fraction too late. You recall an older face marked by scars in a bronze mirror."
+    },
+    {
+        "id": "borrowed-voice",
+        "attribute": "influence",
+        "name": "Borrowed Voice",
+        "tagline": "Alter the pitch, accent or apparent age of your voice. Using that change to impersonate someone is a Deception attempt when opposition matters.",
+        "tiers": {
+            "4": "Briefly make your voice deeper, brighter, or rougher.",
+            "8": "Keep an unusual tone through several sentences.",
+            "12": "Suggest a general age or vocal persona without copying a specific speaker.",
+            "16": "Briefly evoke a recognizable remembered timbre, still imperfectly.",
+            "20": "Maintain a detailed imitation through a short conversation; impersonation remains an ordinary Skill Opposition."
+        },
+        "echoMemory": "Your voice catches on one syllable. You remember a lullaby you once sang from another mouth."
+    },
+    {
+        "id": "emotional-hue",
+        "attribute": "influence",
+        "name": "Emotional Hue",
+        "tagline": "Express your chosen mood through a faint aura of color, scent or soft light. Observers perceive this display according to their own feelings and judgment.",
+        "tiers": {
+            "4": "A subtle shimmer accompanies a mood you deliberately show.",
+            "8": "Add a matching color or faint sensory note.",
+            "12": "Create a short visible atmospheric pattern expressing your mood.",
+            "16": "Let a gentle expressive aura accompany you for several calm minutes.",
+            "20": "Sustain a beautiful but harmless personal atmosphere through one scene; listeners decide how they feel."
+        },
+        "echoMemory": "The air turns amber for a moment. You recall bidding farewell to a crowd without knowing who would return."
+    },
+    {
+        "id": "ghost-sound",
+        "attribute": "wits",
+        "name": "Ghost Sound",
+        "tagline": "Produce a brief simple nonverbal sound nearby: a tap, scrape, bell note or rustle. If used to mislead a listener, resolve that deception normally.",
+        "tiers": {
+            "4": "Make one soft knock, click, or rustle within sight.",
+            "8": "Place a short recognizable everyday sound slightly away from yourself.",
+            "12": "Arrange two or three simple little sounds in a short sequence.",
+            "16": "Reproduce one simple familiar sound pattern for a few seconds.",
+            "20": "Make a brief harmless soundscape of several basic tones, but not human speech or complex music."
+        },
+        "echoMemory": "You hear footsteps no one has taken. An old staircase appears in your memory; every third step once creaked."
+    },
+    {
+        "id": "waymark",
+        "attribute": "wits",
+        "name": "Waymark",
+        "tagline": "Leave a temporary personal magical route mark on an inert surface; you and deliberately included companions can see it. Navigation and protected passages retain their normal rules.",
+        "tiers": {
+            "4": "One personal mark remains visible for roughly an hour.",
+            "8": "Leave two or three signs along the same route back.",
+            "12": "Mark a short path through a building you already know.",
+            "16": "Mark one small local route through an evening.",
+            "20": "Temporarily mark a connected route across a small area; Navigation and finding new routes remain Skills."
+        },
+        "echoMemory": "You place a sign on a stone. Suddenly you remember the same mark on trees in a forest you have never seen."
+    },
+    {
+        "id": "second-glance",
+        "attribute": "wits",
+        "name": "Second Glance",
+        "tagline": "Recall a recently noticed moment as a subjective afterimage; advanced tiers let you share it with one willing witness. The recollection contains only impressions you actually perceived.",
+        "tiers": {
+            "4": "Replay one simple just-experienced impression inwardly for seconds.",
+            "8": "Hold one subjective mental still image for a moment.",
+            "12": "Share one fleeting subjective still image with a nearby consenting person.",
+            "16": "Show yourself and one willing person a brief consciously seen motion.",
+            "20": "Share several just-experienced seconds with one willing person as a fleeting subjective scene; it cannot prove objective facts."
+        },
+        "echoMemory": "A falling cup briefly seems to stop. You recall a silver vessel on another table and a hand that arrived too late."
+    },
+    {
+        "id": "lucky-flicker",
+        "attribute": "wits",
+        "name": "Lucky Flicker",
+        "tagline": "Prompt a harmless coincidence nearby: a brief candle flicker, a dancing leaf or a rattling button. The sign adds atmosphere while outcomes and dice remain unchanged.",
+        "tiers": {
+            "4": "A tiny irrelevant coincidence accompanies one moment.",
+            "8": "Make a harmless little coincidence answer your chosen gesture.",
+            "12": "Two harmless coincidences appear to line up for seconds.",
+            "16": "A short sequence of beautiful or eerie micro-coincidences accompanies your story.",
+            "20": "For a few minutes, trivial details seem strangely synchronized without changing any meaningful result or chance."
+        },
+        "echoMemory": "The candle flame leans toward your voice. You remember a long, dark corridor, a stranger holding a lamp, and an omen that once seemed terribly important."
+    }
+];
+//# sourceMappingURL=echo-imprints-data.js.map

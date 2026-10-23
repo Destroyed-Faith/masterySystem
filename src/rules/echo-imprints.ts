@@ -3,7 +3,7 @@
  * Replaces Minor Expressions. Selection costs no Stones / XP / charges.
  */
 
-import imprintData from './data/echo-imprints.json';
+import imprintData from './data/echo-imprints-data.js';
 
 export const ECHO_IMPRINT_TIERS = [4, 8, 12, 16, 20] as const;
 export type EchoImprintTier = (typeof ECHO_IMPRINT_TIERS)[number];

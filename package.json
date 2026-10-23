@@ -1,10 +1,10 @@
 {
   "name": "mastery-system",
-  "version": "0.9.763",
+  "version": "0.9.764",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
-    "build": "tsc && node scripts/fix-imports.js",
+    "build": "node scripts/embed-rules-json.mjs && tsc && node scripts/fix-imports.js",
     "build:packs": "node scripts/build-echo-artifact-pack.mjs",
     "build:rules-journals": "node scripts/build-rules-journals.mjs",
     "watch": "tsc --watch",

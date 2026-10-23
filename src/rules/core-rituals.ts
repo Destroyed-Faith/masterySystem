@@ -2,7 +2,7 @@
  * Sixteen Core Rituals — universal access from character creation.
  */
 
-import ritualData from './data/core-rituals.json';
+import ritualData from './data/core-rituals-data.js';
 
 export interface CoreRitualDefinition {
   id: string;

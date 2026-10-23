@@ -19,11 +19,13 @@ function fixImportsInFile(filePath) {
     
     for (const pattern of importPatterns) {
       const newContent = content.replace(pattern, (match, p1) => {
-        if (!p1.endsWith('.js')) {
-          modified = true;
-          return match.replace(p1, `${p1}.js`);
+        // JSON modules must stay `.json` — Foundry/browsers resolve the real file,
+        // not a fictional `.json.js` sibling (broke DF 2026 echo/ritual catalogs).
+        if (p1.endsWith('.json') || p1.endsWith('.js')) {
+          return match;
         }
-        return match;
+        modified = true;
+        return match.replace(p1, `${p1}.js`);
       });
       if (newContent !== content) {
         content = newContent;
@@ -38,11 +40,11 @@ function fixImportsInFile(filePath) {
     
     for (const pattern of exportStarPatterns) {
       const newContent = content.replace(pattern, (match, p1) => {
-        if (!p1.endsWith('.js')) {
-          modified = true;
-          return `export * from '${p1}.js'`;
+        if (p1.endsWith('.json') || p1.endsWith('.js')) {
+          return match;
         }
-        return match;
+        modified = true;
+        return `export * from '${p1}.js'`;
       });
       if (newContent !== content) {
         content = newContent;
@@ -57,11 +59,11 @@ function fixImportsInFile(filePath) {
     
     for (const pattern of exportNamedPatterns) {
       const newContent = content.replace(pattern, (match, p1) => {
-        if (!p1.endsWith('.js')) {
-          modified = true;
-          return match.replace(p1, `${p1}.js`);
+        if (p1.endsWith('.json') || p1.endsWith('.js')) {
+          return match;
         }
-        return match;
+        modified = true;
+        return match.replace(p1, `${p1}.js`);
       });
       if (newContent !== content) {
         content = newContent;
@@ -76,15 +78,25 @@ function fixImportsInFile(filePath) {
     
     for (const pattern of exportTypePatterns) {
       const newContent = content.replace(pattern, (match, p1) => {
-        if (!p1.endsWith('.js')) {
-          modified = true;
-          return match.replace(p1, `${p1}.js`);
+        if (p1.endsWith('.json') || p1.endsWith('.js')) {
+          return match;
         }
-        return match;
+        modified = true;
+        return match.replace(p1, `${p1}.js`);
       });
       if (newContent !== content) {
         content = newContent;
       }
+    }
+
+    // Repair prior builds that already rewrote `foo.json` → `foo.json.js`.
+    const repairedJson = content.replace(
+      /(from\s+['"])(\.\.?\/[^'"]+?)\.json\.js(['"])/g,
+      '$1$2.json$3',
+    );
+    if (repairedJson !== content) {
+      content = repairedJson;
+      modified = true;
     }
     
     if (modified) {

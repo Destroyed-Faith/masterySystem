@@ -1,7 +1,7 @@
 /**
  * Sixteen Core Rituals — universal access from character creation.
  */
-import ritualData from './data/core-rituals.json.js';
+import ritualData from './data/core-rituals-data.js';
 export const CORE_RITUALS = ritualData;
 export function findCoreRitual(id) {
     return CORE_RITUALS.find((r) => r.id === id);

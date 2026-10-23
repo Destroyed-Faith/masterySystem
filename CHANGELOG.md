@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.764] - 2026-10-23
+
+### Fixed
+
+- **Character sheet blank (name only):** DF 2026 Echo Imprint / Core Ritual JSON catalogs are embedded as JS modules so `fix-imports` no longer rewrites them to missing `*.json.js` paths; the Mastery sheet loads again instead of Foundry’s default name field.
+
+### Changed
+
+- **Build:** `embed-rules-json.mjs` runs before `tsc`; `fix-imports` skips/repairs `.json` import paths.
+
 ## [0.9.763] - 2026-10-23
 
 ### Added

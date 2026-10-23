@@ -2,7 +2,7 @@
  * Echo Imprints — 28 catalogue entries, tiers 4/8/12/16/20.
  * Replaces Minor Expressions. Selection costs no Stones / XP / charges.
  */
-import imprintData from './data/echo-imprints.json.js';
+import imprintData from './data/echo-imprints-data.js';
 export const ECHO_IMPRINT_TIERS = [4, 8, 12, 16, 20];
 export const ECHO_IMPRINTS = imprintData;
 export const ECHO_IMPRINT_MIN_ATTRIBUTE = 4;
