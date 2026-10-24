@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.777] - 2026-10-24
+
+### Fixed
+
+- **Import / CI:** Free Perception Spec is stamped only on DF 2026 imports; legacy-only payloads stay empty for migration.
+- **Combat Wizard:** Recommended chips limited to Armor, Evade, Damage Reduction, Phasing, and Temporary HP (Passive 1 and 2). Tile hover tips use fixed positioning so they are not clipped.
+
 ## [0.9.776] - 2026-10-24
 
 ### Changed
