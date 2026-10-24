@@ -19,7 +19,7 @@ import { getTargetEvade, getCasterSpellPenetration } from '../src/combat/target-
 const ROOT = join(__dirname, '..');
 const JSON_PATH = join(
   ROOT,
-  'docs/rules/Destroyed_Faith_Offensive_Active_Buff_Progressions_2026-10-24.json',
+  'docs/Rules/Destroyed_Faith_Offensive_Active_Buff_Progressions_2026-10-24.json',
 );
 
 const NEW_IDS = [

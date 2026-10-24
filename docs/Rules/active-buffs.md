@@ -8,8 +8,8 @@
 }}
 
 <!-- 2026-10-24 Offensive Expansion: seven new Active Buffs are authored in
-     docs/rules/Destroyed_Faith_Active_Buffs_Offensive_Expansion_2026-10-24.*
-     and docs/rules/Destroyed_Faith_Offensive_Active_Buff_Progressions_2026-10-24.json.
+     docs/Rules/Destroyed_Faith_Active_Buffs_Offensive_Expansion_2026-10-24.*
+     and docs/Rules/Destroyed_Faith_Offensive_Active_Buff_Progressions_2026-10-24.json.
      Live catalogue = 25 (prior 18 unchanged + 7 offensive). Product version remains v0.9.9.5. -->
 
 
