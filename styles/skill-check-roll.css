@@ -5,6 +5,29 @@
 
 .mastery-system.ms-skill-check-dialog .window-content {
   min-width: 0;
+  overflow: visible;
+}
+
+.mastery-system.ms-skill-check-dialog .ms-skill-check-form .md-select {
+  width: 100%;
+  min-height: 2.5rem;
+  line-height: 1.35;
+  padding: 0.55rem 2rem 0.55rem 0.7rem;
+  box-sizing: border-box;
+  white-space: normal;
+  text-overflow: clip;
+  overflow: visible;
+  font-size: 0.95rem;
+}
+
+.mastery-system.ms-skill-check-dialog .ms-skill-check-form .md-select option {
+  white-space: normal;
+  padding: 0.35rem 0.5rem;
+  line-height: 1.35;
+}
+
+.mastery-system.ms-skill-check-dialog .ms-sc-paid-group[hidden] {
+  display: none !important;
 }
 
 .ms-skill-check-form,

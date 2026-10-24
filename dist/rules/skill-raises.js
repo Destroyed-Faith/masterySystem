@@ -71,7 +71,7 @@ export function paidRaiseSelectOptions(rank, baseTn) {
     for (let paid = 0; paid <= cap; paid++) {
         const tn = finalSkillTn(base, paid);
         const noun = paid === 1 ? 'Raise' : 'Raises';
-        out.push({ paid, finalTn: tn, label: `${paid} Paid ${noun} — Final TN ${tn}` });
+        out.push({ paid, finalTn: tn, label: `${paid} Paid → TN ${tn}` });
     }
     return out;
 }

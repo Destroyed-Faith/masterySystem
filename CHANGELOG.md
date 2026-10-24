@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.769] - 2026-10-24
+
+### Changed
+
+- **NPC Skill Check dialog:** Attribute removed (pool is already on the situational entry). Paid Raises hidden at Rank 0; clearer optional GM copy when Rank > 0. Shorter TN / Paid labels and CSS so dropdowns are readable.
+
 ## [0.9.768] - 2026-10-24
 
 ### Added

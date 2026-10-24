@@ -97,15 +97,9 @@ export async function promptSkillCheckRollDialog(opts) {
             ? masteryLocalize('MASTERY.df2026.skillCheck.sourceGm', 'GM REQUEST · VERIFIED')
             : masteryLocalize('MASTERY.df2026.skillCheck.sourceVerbal', 'GM-ANNOUNCED (local record)');
     const tnAuthority = masteryLocalize('MASTERY.df2026.skillCheck.tnLocked', 'SET BY GM');
+    // NPC situational pools already include dice — Attribute is PC-only context.
     const attrBlock = npcSit
-        ? `<div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.attributeOptional', 'Attribute (flavor, optional)')}</label>
-        <select name="attribute" class="md-select ms-sc-attr">
-          <option value="">—</option>
-          ${SPEC_ATTRIBUTE_KEYS.map((k) => `<option value="${k}" ${k === ctxAttr ? 'selected' : ''}>${cap(k)} (${attrVal(k)})</option>`).join('')}
-        </select>
-        <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.npcPoolHint', 'Pool comes from the situational entry, not from Attribute.')}</small>
-      </div>`
+        ? ''
         : lockGmFields
             ? `<div class="md-group">
         <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.attribute', 'Attribute')}</label>
@@ -120,6 +114,12 @@ export async function promptSkillCheckRollDialog(opts) {
         </select>
         <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.gmAnnouncedAttr', 'GM-vorgegeben / vom SL genannt — not a player choice.')}</small>
       </div>`;
+    const paidLabel = npcSit
+        ? masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesNpc', 'Paid Raises (optional)')
+        : masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesPlayer', 'Paid Raises (your decision)');
+    const paidHint = npcSit
+        ? masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesNpcHint', 'Optional. Each Paid Raise adds +4 to Final TN before the roll (cap = Skill Rank). Leave at 0 to roll vs Base TN only. Rank 0 = no Raises.')
+        : masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesPlayerHint', 'Your only pre-roll choice. Each Paid Raise adds +4 to Final TN (cap = Skill Rank).');
     const mrForNpc = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
     const skillReadOnly = npcSit
         ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(npcSit.skillName)} · Rank ${npcSit.skillRank} · Pool ${npcSit.poolDice}k${Math.min(npcSit.poolDice, mrForNpc)}</div>
@@ -144,10 +144,14 @@ export async function promptSkillCheckRollDialog(opts) {
         ? `<input type="number" name="baseTn" class="md-input ms-sc-base" value="${ctxBase}" disabled />
        <input type="hidden" name="baseTnLocked" value="${ctxBase}" />
        <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.baseTnLockedHint', 'Base TN is fixed by the GM. Paid Raises only raise your personal Final TN.')}</small>`
-        : `<select name="baseTn" class="md-select ms-sc-base">
+        : `<select name="baseTn" class="md-select ms-sc-base" title="${escapeHtml(masteryLocalize('MASTERY.df2026.skillCheck.baseTn', 'Base Target Number (TN)'))}">
          <option value="">${escapeHtml(masteryLocalize('MASTERY.df2026.skillCheck.pickGmTn', '— record GM Base TN —'))}</option>
          ${baseTnPresets()
-            .map((tn) => `<option value="${tn}" ${tn === ctxBase && ctxBase > 0 ? 'selected' : ''}>${tn} — ${escapeHtml(taskLevelHint(tn))}</option>`)
+            .map((tn) => {
+            const level = taskLevelFromBaseTn(tn);
+            const short = taskLevelHint(tn).split(' · ')[0] || taskLevelHint(tn);
+            return `<option value="${tn}" title="${escapeHtml(taskLevelHint(tn))}" ${tn === ctxBase && ctxBase > 0 ? 'selected' : ''}>${tn} · ${escapeHtml(short)} (TL${level})</option>`;
+        })
             .join('')}
          <option value="custom">Custom…</option>
        </select>
@@ -185,9 +189,10 @@ export async function promptSkillCheckRollDialog(opts) {
           <small>${masteryLocalize('MASTERY.df2026.skillCheck.freeHint', 'Available automatically after a successful roll — not chosen now.')}</small>
         </div>
       </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesPlayer', 'Paid Raises (your decision)')}</label>
+      <div class="md-group ms-sc-paid-group">
+        <label class="md-label">${escapeHtml(paidLabel)}</label>
         <select name="paid" class="md-select ms-sc-paid"></select>
+        <small class="md-sublabel">${escapeHtml(paidHint)}</small>
         <small class="md-sublabel ms-sc-paid-ladder"></small>
       </div>
       <details class="ms-sc-help">
@@ -229,8 +234,10 @@ export async function promptSkillCheckRollDialog(opts) {
             const task = String(root?.querySelector('[name="task"]')?.value ?? ctxTask).trim();
             const skill = parseSkillRef(String(root?.querySelector('[name="skill"]')
                 ?.value ?? skillOptionValue(ctxSkill)));
-            let attributeKey = String(root?.querySelector('[name="attribute"]')
-                ?.value ?? ctxAttr);
+            let attributeKey = npcSit
+                ? ''
+                : String(root?.querySelector('[name="attribute"]')
+                    ?.value ?? ctxAttr);
             let baseTn = ctxBase;
             if (lockGmFields) {
                 attributeKey = ctxAttr;
@@ -365,23 +372,27 @@ export async function promptSkillCheckRollDialog(opts) {
                                 ? 'On success: 1 Free Raise available'
                                 : `On success: ${n} Free Raises available`;
                     }
+                    const paidGroup = root.querySelector('.ms-sc-paid-group');
                     const paidSel = root.querySelector('.ms-sc-paid');
+                    const noPaid = plan.allowance.maxPaid <= 0 || plan.rank === 0;
+                    if (paidGroup) {
+                        // Rank 0 (default NPC Perception): hide — GM only needs Base TN.
+                        paidGroup.hidden = noPaid;
+                    }
                     if (paidSel) {
                         const prev = Math.max(0, Math.floor(Number(paidSel.value) || 0));
                         paidSel.innerHTML = plan.paidOptions
-                            .map((o) => `<option value="${o.paid}">${escapeHtml(o.label)}</option>`)
+                            .map((o) => `<option value="${o.paid}" title="${escapeHtml(o.label)}">${escapeHtml(o.label)}</option>`)
                             .join('');
-                        const next = Math.min(prev, plan.allowance.maxPaid);
+                        const next = noPaid ? 0 : Math.min(prev, plan.allowance.maxPaid);
                         paidSel.value = String(Number.isFinite(next) ? next : 0);
-                        paidSel.disabled = plan.allowance.maxPaid <= 0 && !plan.ok && !!plan.missing?.length
-                            ? true
-                            : plan.allowance.maxPaid <= 0 && plan.rank === 0;
+                        paidSel.disabled = noPaid;
                     }
                     const ladder = root.querySelector('.ms-sc-paid-ladder');
                     if (ladder) {
-                        ladder.textContent = plan.paidOptions
-                            .map((o) => `${o.paid} → TN${o.finalTn}`)
-                            .join(' · ');
+                        ladder.textContent = noPaid
+                            ? ''
+                            : plan.paidOptions.map((o) => `${o.paid} → TN${o.finalTn}`).join(' · ');
                     }
                     const liveDraft = readDraft(root);
                     const livePlan = planSkillCheckDraft({ system, draft: liveDraft });
@@ -413,7 +424,9 @@ export async function promptSkillCheckRollDialog(opts) {
                     }
                     if (subEl) {
                         subEl.textContent = livePlan.ok
-                            ? `${livePlan.skillName} · Rank ${livePlan.rank} · ${cap(livePlan.attributeKey)} ${livePlan.attributeValue} · MR ${livePlan.masteryRank}`
+                            ? npcSit
+                                ? `${livePlan.skillName} · Rank ${livePlan.rank} · Pool ${livePlan.numDice}k${livePlan.keepDice} · MR ${livePlan.masteryRank}`
+                                : `${livePlan.skillName} · Rank ${livePlan.rank} · ${cap(livePlan.attributeKey)} ${livePlan.attributeValue} · MR ${livePlan.masteryRank}`
                             : '';
                     }
                     const rollBtn = root
@@ -438,7 +451,11 @@ export async function promptSkillCheckRollDialog(opts) {
                 refresh();
             },
             close: () => done(null),
-        }, { width: 480, classes: ['mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog'] }).render(true);
+        }, {
+            width: 560,
+            height: 'auto',
+            classes: ['mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog'],
+        }).render(true);
     });
 }
 //# sourceMappingURL=skill-check-roll-dialog.js.map
