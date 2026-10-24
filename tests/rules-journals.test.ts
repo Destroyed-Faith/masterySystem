@@ -90,14 +90,15 @@ describe('Rules Journals — Homebrewery cleanup', () => {
 });
 
 describe('Rules Journals — chapter extraction', () => {
-  it('matches every chapter spec and excludes Minor Expressions Catalogue', () => {
+  it('matches every chapter spec (Minor Expressions Catalogue retired from PG)', () => {
     const md = readFileSync(SOURCE, 'utf8');
     const { chapters, missing } = extractChapters(md, CHAPTER_SPECS);
     expect(missing).toEqual([]);
     expect(chapters.length).toBe(CHAPTER_SPECS.length);
 
-    const excluded = chapters.filter((c) => c.exclude);
-    expect(excluded.some((c) => /Minor Expressions Catalogue/i.test(c.page))).toBe(true);
+    // PG no longer ships a Minor Expressions Catalogue chapter — nothing to exclude.
+    expect(chapters.filter((c) => c.exclude)).toEqual([]);
+    expect(md).not.toMatch(/^# Minor Expressions Catalogue/m);
 
     const included = chapters.filter((c) => !c.exclude);
     const grouped = groupChapters(included);
@@ -109,6 +110,8 @@ describe('Rules Journals — chapter extraction', () => {
     expect(corePages.some((p) => p.page === 'Combat Core')).toBe(true);
     expect(corePages.some((p) => p.page === 'Stone Abilities')).toBe(true);
     expect(corePages.some((p) => p.page === 'Round Structure')).toBe(true);
+    expect(corePages.some((p) => p.page === 'Social Challenges')).toBe(true);
+    expect(corePages.some((p) => p.page === 'Raises')).toBe(true);
 
     const worldPages = [...(grouped.get('rules-world')?.values() ?? [])].flat();
     expect(worldPages.some((p) => p.journal === 'Humans')).toBe(true);
@@ -124,7 +127,6 @@ describe('Rules Journals — chapter extraction', () => {
     const md = readFileSync(SOURCE, 'utf8');
     const { chapters } = extractChapters(md, CHAPTER_SPECS);
     const includedBodies = chapters.filter((c) => !c.exclude).map((c) => c.body).join('\n');
-    // TOC may mention catalogues in excluded regions only
     expect(includedBodies).not.toMatch(/# Minor Expressions Catalogue/);
     for (const ch of chapters.filter((c) => !c.exclude)) {
       expect(ch.page).not.toMatch(/Actives Catalogue|Passives Catalogue|Active Buffs Catalogue/i);

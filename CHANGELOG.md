@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.773] - 2026-10-24
+
+### Fixed
+
+- **Rules Journals CI:** Update chapter-extraction test for the refreshed Player's Guide (Minor Expressions Catalogue no longer in source).
+
 ## [0.9.772] - 2026-10-24
 
 ### Changed
