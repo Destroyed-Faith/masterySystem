@@ -33,40 +33,34 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-core', journal: 'Character Creation', page: 'Starting Attributes', start: /^## Starting Attributes/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Attributes', start: /^## Example: Alaris Chooses Her Attributes/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Skills', start: /^## Skills\s*$/ },
-  { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Skills', start: /^## Example: Alaris Selects Her Skills/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Choosing Powers', start: /^## Choose your Powers/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Powers', start: /^## Example: Alaris Chooses Her Powers/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Languages', start: /^## Choose a Language/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Schticks', start: /^## Schticks/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Languages and Schticks', start: /^## Example: Alaris Chooses Languages and Schticks/ },
-  { pack: 'rules-core', journal: 'Character Creation', page: 'Social Combat', start: /^## Social Combat/ },
+  { pack: 'rules-core', journal: 'Character Creation', page: 'Social Challenges', start: /^## Social Challenges\s*$/ },
+  { pack: 'rules-core', journal: 'Character Creation', page: 'Social Challenges — Worked Scenes', start: /^## Social Challenges - Worked Scenes/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Disadvantages', start: /^## Disadvantages/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Disadvantages', start: /^## Example: Alaris Chooses Disadvantages/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Finished Character: Alaris', start: /^## The Finished Character: Alaris/ },
 
-  // ── Echoes (World) — intro + each Echo ──────────────────────────
+  // ── Echoes (World) — intro + each Echo (Echo Decks retired from PG) ──
   { pack: 'rules-world', journal: 'Playable Echoes', page: 'Overview', start: /^## Playable Echoes/ },
   { pack: 'rules-world', journal: 'Playable Echoes', page: 'Example: Choosing an Echo', start: /^## Example: Alaris Chooses Her Echo/ },
   { pack: 'rules-world', journal: 'Playable Echoes', page: 'Echo Artifacts', start: /^### Echo Artifacts/ },
   { pack: 'rules-world', journal: 'Humans', page: 'Overview', start: /^### Humans\s*$/ },
-  { pack: 'rules-world', journal: 'Humans', page: 'Echo Deck', start: /^#### Human Echo Deck/ },
   { pack: 'rules-world', journal: 'Halflings', page: 'Overview', start: /^### Halflings\s*$/ },
   { pack: 'rules-world', journal: 'Halflings', page: 'Artifacts', start: /^#### Ringchain of Kept Names/ },
-  { pack: 'rules-world', journal: 'Halflings', page: 'Echo Deck', start: /^#### Halfling Echo Deck/ },
   { pack: 'rules-world', journal: 'Dwarves', page: 'Overview', start: /^### Dwarves\s*$/ },
   { pack: 'rules-world', journal: 'Dwarves', page: 'Artifacts', start: /^#### Stonebound Soles/ },
-  { pack: 'rules-world', journal: 'Dwarves', page: 'Echo Deck', start: /^#### Dwarves Echo Deck/ },
   { pack: 'rules-world', journal: 'Elorians', page: 'Overview', start: /^### \*\*Elorians\*\*/ },
   { pack: 'rules-world', journal: 'Elorians', page: 'Artifacts', start: /^#### Elorian Stride/ },
   { pack: 'rules-world', journal: 'Sentinels', page: 'Overview', start: /^### \*\*Sentinels\*\*/ },
   { pack: 'rules-world', journal: 'Sentinels', page: 'Echo Artifacts', start: /^## Sentinel Echo Artifacts/ },
   { pack: 'rules-world', journal: 'Titanborn', page: 'Overview', start: /^### \*\*Titanborn\*\*/ },
   { pack: 'rules-world', journal: 'Titanborn', page: 'Artifacts', start: /^#### Titan Scars/ },
-  { pack: 'rules-world', journal: 'Titanborn', page: 'Echo Deck', start: /^#### Titanborn Echo Deck/ },
   { pack: 'rules-world', journal: 'Dragonborn', page: 'Overview', start: /^### Dragonborn\s*$/ },
-  { pack: 'rules-world', journal: 'Dragonborn', page: 'Echo Deck', start: /^#### Dragonborn Echo Deck/ },
   { pack: 'rules-world', journal: 'Unbound', page: 'Overview', start: /^### Unbound\s*$/ },
-  { pack: 'rules-world', journal: 'Unbound', page: 'Echo Deck', start: /^#### Unbound Echo Deck/ },
   { pack: 'rules-world', journal: 'Deathless', page: 'Overview', start: /^## Deathless\s*$/ },
 
   // ── Stones & Progression ────────────────────────────────────────
@@ -77,7 +71,7 @@ export const CHAPTER_SPECS = [
 
   // ── Combat Core ─────────────────────────────────────────────────
   { pack: 'rules-core', journal: 'Combat Core', page: 'Combat Core', start: /^## Combat Core\s*$/ },
-  { pack: 'rules-core', journal: 'Combat Core', page: 'Raises', start: /^## Raises - Universal Combat Raise Catalog/ },
+  { pack: 'rules-core', journal: 'Combat Core', page: 'Raises', start: /^### Raises\s*$/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Combat Senses', start: /^## Combat Senses/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Stealth, Hidden, and Invisibility', start: /^## Stealth, Hidden, and Invisibility/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Round Structure', start: /^### Round Structure/ },
@@ -97,26 +91,15 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Weapons', start: /^## Weapons\s*$/ },
   { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Magic', start: /^## Magic\s*$/ },
   { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Powers', start: /^## Powers\s*$/ },
-  { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Minor Expressions', start: /^## Minor Expressions\s*$/ },
-
-  // EXCLUDE Minor Expressions Catalogue and attribute ME chapters
-  { pack: 'rules-core', journal: '_excluded', page: 'Minor Expressions Catalogue', start: /^# Minor Expressions Catalogue/, exclude: true },
-  { pack: 'rules-core', journal: '_excluded', page: 'ME Might', start: /^## Might\s*$/, exclude: true },
-  { pack: 'rules-core', journal: '_excluded', page: 'ME Agility', start: /^## Agility\s*$/, exclude: true },
-  { pack: 'rules-core', journal: '_excluded', page: 'ME Intellect', start: /^## Intellect\s*$/, exclude: true },
-  { pack: 'rules-core', journal: '_excluded', page: 'ME Resolve', start: /^## Resolve\s*$/, exclude: true },
-  { pack: 'rules-core', journal: '_excluded', page: 'ME Influence', start: /^## Influence\s*$/, exclude: true },
-  { pack: 'rules-core', journal: '_excluded', page: 'ME Wits', start: /^## Wits\s*$/, exclude: true },
 
   // ── Rituals, Summons, Artifacts ─────────────────────────────────
   { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Rituals', start: /^## Rituals\s*$/ },
   { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Summons', start: /^## Summons\s*$/ },
   { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Summon Examples', start: /^## Summon Examples/ },
   { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Minor Magic Items', start: /^## Minor Magic Items/ },
-  { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Artifacts', start: /^### Artifacts\s*$/ },
+  { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Artifacts', start: /^## Artifacts\s*$/ },
 
   // ── Advanced (GM-leaning) ───────────────────────────────────────
-  { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Building Encounters', start: /^## Building Encounters/, gmOnly: true },
   { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Game System Details', start: /^## Game System Details/ },
   { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Limited Power Modifier', start: /^## Limited Power Modifier/ },
 
@@ -128,7 +111,7 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Round Structure', start: /^### Round Structure/ },
   { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Health & Fear', start: /^### Health & Fear/ },
   { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Special Effects Reference', start: /^### Special Effects Reference/ },
-  { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Raises', start: /^## Raises - Universal Combat Raise Catalog/ },
+  { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Raises', start: /^### Raises\s*$/ },
   { pack: 'rules-quickref', journal: 'Stones Quick Reference', page: 'Stone Abilities', start: /^## Stone Abilities/ },
   { pack: 'rules-quickref', journal: 'Core Terms', page: 'Core Terms', start: /^>\s*## Core Terms/ },
 ];

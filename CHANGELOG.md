@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.772] - 2026-10-24
+
+### Changed
+
+- **Player's Guide refresh:** Replaced `docs/Rules/players-guide.md` with the latest Homebrewery export and rebuilt Foundry Rules Journals (`rules-core`, `rules-world`, `rules-quickref`). Chapter map updated for Social Challenges, Raises, Artifacts; retired Echo Deck / Minor Expressions / Building Encounters journal pages where those sections left the guide.
+
 ## [0.9.771] - 2026-10-24
 
 ### Added
