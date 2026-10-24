@@ -1402,7 +1402,7 @@
   page: cp-landscape;
   display: flex;
   flex-direction: column;
-  padding-bottom: 5mm; /* room for absolute footer */
+  padding-bottom: 4mm; /* room for absolute footer; title removed → more for rows */
   overflow: hidden;
   box-sizing: border-box;
   background: #ffffff;
@@ -1619,7 +1619,7 @@
   display: none;
 }
 
-/* 3. Stone Powers — fill remaining page */
+/* 3. Stone Powers — fill remaining page (section title removed) */
 .cp-sd-powers {
   flex: 1 1 auto;
   min-height: 0;
@@ -1628,29 +1628,21 @@
   border: none;
   border-radius: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .cp-sd-powers-title {
-  margin: 0 0 2px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-align: center;
-  border-bottom: 1px solid #bbb;
-  padding-bottom: 1px;
-  flex: 0 0 auto;
+  display: none;
 }
 
 /* Eight full-width attribute rows (General → Wits), never a 4×2 squeeze. */
 .cp-sd-power-groups {
   display: flex;
   flex-direction: column;
-  gap: 1.5px;
+  gap: 2px;
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   justify-content: space-between;
 }
 
@@ -1662,7 +1654,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   flex: 1 1 0;
   page-break-inside: avoid;
   break-inside: avoid;
@@ -1710,11 +1702,15 @@
 .cp-sd-power-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2px 4px;
+  gap: 2px 3px;
   flex: 1 1 auto;
   min-height: 0;
   overflow: visible;
   align-items: stretch;
+}
+
+.cp-sd-power-list > .cp-sd-power {
+  min-height: 14mm; /* room for fully visible 6 mm write-in grids */
 }
 
 .cp-sd-power {
@@ -1815,20 +1811,23 @@
 }
 
 /*
- * T1–T3 side-by-side, left-aligned. Higher tiers use two-row grids so 6 mm
- * write-in boxes (same as Attribute pool cubes) fit in the card width:
- *   n1 → single, n2 → one row of 2, n4 → 2×2, n6 → 3×2.
+ * Tier write-ins (6 mm = Attribute pool cubes), tighter gaps:
+ *   Normal T1 (n1) — single, vertically centered beside T2 stack
+ *   Normal T2 (n2) — two boxes stacked
+ *   Normal T3 (n4) — 2×2
+ *   Normal T4 (n8) — 4×2 (fits ~58 mm of ~66 mm card; Premium omits T4)
+ *   Premium T1 (n2) — stacked; T2 (n4) 2×2; T3 (n6) 3×2
  */
 .cp-sd-power-tiers {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: flex-end;
+  align-items: center; /* T1 sits midway between T2's stacked boxes */
   justify-content: flex-start;
-  gap: 1mm 2.5mm;
+  gap: 0.6mm 1.4mm;
   flex: 1 1 auto;
   width: 100%;
-  padding-top: 1px;
+  padding: 0.6mm 0 0.4mm;
   align-self: stretch;
   min-height: 0;
 }
@@ -1836,39 +1835,40 @@
 .cp-sd-tg {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
-  gap: 0.8mm;
+  align-items: center;
+  gap: 0.5mm;
   flex: 0 0 auto;
 }
 
+.cp-sd-tg.is-t1 {
+  align-items: center;
+}
+
+.cp-sd-tg.is-t2,
+.cp-sd-tg.is-t3,
+.cp-sd-tg.is-t4 {
+  align-items: flex-start;
+}
+
 .cp-sd-tl {
-  font-size: 6.5px;
+  font-size: 6px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #555;
   margin-right: 0;
   line-height: 1;
-  min-width: 1.4em;
+  min-width: 1.25em;
   text-align: left;
   align-self: flex-start;
-  padding-top: 0.5mm;
+  padding-top: 0.3mm;
 }
 
 .cp-sd-boxes {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0.5mm;
+  gap: 0.35mm;
   align-items: center;
-}
-
-/* Default T2/T3: compact 2-wide grid (overridden by count classes below). */
-.cp-sd-boxes.is-t2,
-.cp-sd-boxes.is-t3 {
-  display: grid;
-  grid-template-columns: repeat(2, 6mm);
-  grid-auto-rows: 6mm;
-  gap: 0.5mm;
 }
 
 .cp-sd-boxes.is-t1,
@@ -1876,30 +1876,43 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0.5mm;
+  gap: 0.35mm;
 }
 
-.cp-sd-boxes.is-n2 {
-  display: grid;
-  grid-template-columns: repeat(2, 6mm);
-  grid-auto-rows: 6mm;
-  gap: 0.5mm;
-}
-
-/* Two rows: 2×2 (Normal T3 / Premium T2) */
+/* Default / n4: 2×2 (Normal T3, Premium T2) */
+.cp-sd-boxes.is-t2,
+.cp-sd-boxes.is-t3,
 .cp-sd-boxes.is-n4 {
   display: grid;
   grid-template-columns: repeat(2, 6mm);
   grid-auto-rows: 6mm;
-  gap: 0.5mm;
+  gap: 0.35mm;
 }
 
-/* Two rows: 3×2 (Premium T3) */
+/* Normal T2 / Premium T1: stack vertically (1×2) — after t2 default */
+.cp-sd-boxes.is-t2.is-n2,
+.cp-sd-boxes.is-t1.is-n2 {
+  display: grid;
+  grid-template-columns: 6mm;
+  grid-auto-rows: 6mm;
+  gap: 0.35mm;
+}
+
+/* Premium T3: 3×2 */
 .cp-sd-boxes.is-n6 {
   display: grid;
   grid-template-columns: repeat(3, 6mm);
   grid-auto-rows: 6mm;
-  gap: 0.5mm;
+  gap: 0.35mm;
+}
+
+/* Normal T4: 4×2 — eight write-ins in two rows */
+.cp-sd-boxes.is-t4,
+.cp-sd-boxes.is-n8 {
+  display: grid;
+  grid-template-columns: repeat(4, 6mm);
+  grid-auto-rows: 6mm;
+  gap: 0.35mm;
 }
 
 .cp-sd-cost {

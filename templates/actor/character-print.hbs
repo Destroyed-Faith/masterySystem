@@ -330,9 +330,8 @@
     {{/each}}
   </section>
 
-  {{!-- 3. Stone Powers — fill remaining page --}}
+  {{!-- 3. Stone Powers — fill remaining page (no section title — saves height for boxes) --}}
   <section class="cp-sd-powers" aria-label="Stone Powers">
-    <h2 class="cp-sd-powers-title">Stone Powers</h2>
     {{#if stoneDashboard.hasStonePowers}}
     <div class="cp-sd-power-groups">
       {{#each stoneDashboard.powerGroups}}
@@ -345,7 +344,7 @@
         </div>
         <div class="cp-sd-power-list">
           {{#each powers}}
-          <article class="cp-sd-power{{#if supported}} is-supported{{/if}}">
+          <article class="cp-sd-power{{#if supported}} is-supported{{/if}}{{#if premium}} is-premium{{/if}}">
             <header class="cp-sd-power-head">
               <span class="cp-sd-power-name">{{name}}</span>
               <span class="cp-sd-power-cat">{{categoryUpper}}</span>
@@ -358,7 +357,7 @@
             {{!-- Effect copy omitted: stone write-in boxes take the space. --}}
             <div class="cp-sd-power-tiers" aria-label="Stone cost tiers">
               {{#each paymentTiers}}
-              <span class="cp-sd-tg">
+              <span class="cp-sd-tg is-{{layout}}">
                 <span class="cp-sd-tl">{{label}}</span>
                 <span class="cp-sd-boxes is-{{layout}} is-n{{count}}">
                   {{#each boxes}}<i class="cp-sd-cost{{#if filled}} is-filled{{/if}}"></i>{{/each}}

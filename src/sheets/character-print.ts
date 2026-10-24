@@ -151,17 +151,20 @@ export function summarizeStonePowerPrint(power: {
 }
 
 /**
- * Print shows Tiers 1–3 only (T4 omitted for write-in stone boxes).
- * Labels are T1/T2/T3. Support-prefilled tiers print filled.
+ * Print write-in lanes: Normal Abilities show T1–T4 (1/2/4/8);
+ * Premium stays T1–T3 (2/4/6) — T4 would not fit beside the larger Premium grids.
+ * Support-prefilled tiers print filled.
  */
-const STONE_PRINT_TIER_LAYOUTS = ['t1', 't2', 't3'] as const;
-
 function stonePowerPaymentTiersForPrint(
   powerId: string,
   supportTier: number,
 ): { label: string; tier: number; layout: string; count: number; boxes: { filled: boolean }[] }[] {
   const prefill = effectiveStoneSupportPrefillTier(powerId, supportTier);
-  return STONE_PRINT_TIER_LAYOUTS.map((layout, i) => {
+  const premium = isPremiumStonePower(powerId);
+  const layouts: readonly ('t1' | 't2' | 't3' | 't4')[] = premium
+    ? ['t1', 't2', 't3']
+    : ['t1', 't2', 't3', 't4'];
+  return layouts.map((layout, i) => {
     const tier = i + 1;
     const count = stonePowerRankCost(powerId, tier);
     return {

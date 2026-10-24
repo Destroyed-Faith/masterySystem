@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.781] - 2026-10-25
+
+### Changed
+
+- **Table character print:** Stone Powers title removed. T2 stacks vertically with T1 centered beside it. Normal Abilities print T1–T4 (1/2/4/8 as 4×2); Premium stays T1–T3 so write-in boxes stay fully visible.
+
 ## [0.9.780] - 2026-10-24
 
 ### Changed

@@ -231,12 +231,13 @@ describe('character print table sheet', () => {
     expect(mightGroup).toBeTruthy();
     const melee = mightGroup.powers.find((p: any) => p.name === 'Damage');
     expect(melee.summary).toMatch(/2\/4\/8\/16/);
-    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
-    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3']);
-    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4]);
+    // Normal Ability: T1–T4 (1/2/4/8) — T4 fits as a 4×2 write-in grid.
+    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3', 'T4']);
+    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3', 't4']);
+    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
     const parry = mightGroup.powers.find((p: any) => /parry/i.test(p.name));
     expect(parry.summary).toMatch(/\+2 per Rank/i);
-    // Premium Ability: T1–T3 lane counts 2 / 4 / 6 (T4 omitted on print).
+    // Premium Ability: T1–T3 only (2/4/6) — T4 omitted so boxes stay placeable.
     expect(parry.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
     expect(parry.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6]);
     expect(parry.oncePerCombat).toBe(false);
@@ -442,7 +443,10 @@ describe('character print table sheet', () => {
     expect(css).toMatch(/\.cp-sd-power-tiers\s*\{[^}]*flex-direction:\s*row/s);
     expect(css).toMatch(/\.cp-sd-boxes\.is-n4\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*6mm\)/s);
     expect(css).toMatch(/\.cp-sd-boxes\.is-n6\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*6mm\)/s);
+    expect(css).toMatch(/\.cp-sd-boxes\.is-n8\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*6mm\)/s);
+    expect(css).toMatch(/\.cp-sd-boxes\.is-t2\.is-n2\s*,[\s\S]*?\{[^}]*grid-template-columns:\s*6mm/);
     expect(css).toMatch(/\.cp-sd-power-summary\s*\{[^}]*display:\s*none/s);
+    expect(css).toMatch(/\.cp-sd-powers-title\s*\{[^}]*display:\s*none/s);
     expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-echo-imprints\s*,\s*\.print-page-1\.print-page-table \.cp-perception-block\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s);
   });
 

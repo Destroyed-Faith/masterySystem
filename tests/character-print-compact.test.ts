@@ -320,8 +320,9 @@ describe('Quick Play character print', () => {
 
     const vitality = ctx.attributeModules.find((m: any) => m.key === 'vitality');
     const tempHp = vitality.powers.find((p: any) => p.name === 'Temporary HP');
-    expect(tempHp.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
-    expect(tempHp.tiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4]);
+    // Normal Ability: T1–T4 (1/2/4/8).
+    expect(tempHp.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3', 'T4']);
+    expect(tempHp.tiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
     expect(tempHp.tiers.find((t: any) => t.label === 'T1').layout).toBe('t1');
 
     const influence = ctx.attributeModules.find((m: any) => m.key === 'influence');
