@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.780] - 2026-10-24
+
+### Changed
+
+- **Table character print:** Stone Power effect text dropped so write-in boxes can grow. T1–T3 use two-row grids (2×2 / 3×2) at 6 mm — same size as Attribute pool cubes.
+
 ## [0.9.779] - 2026-10-24
 
 ### Changed

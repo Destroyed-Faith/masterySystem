@@ -346,28 +346,26 @@
         <div class="cp-sd-power-list">
           {{#each powers}}
           <article class="cp-sd-power{{#if supported}} is-supported{{/if}}">
-            <div class="cp-sd-power-main">
-              <header class="cp-sd-power-head">
-                <span class="cp-sd-power-name">{{name}}</span>
-                <span class="cp-sd-power-cat">{{categoryUpper}}</span>
-                {{#if premium}}<span class="cp-sd-power-premium">Premium</span>{{/if}}
-                {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
-              </header>
-              {{#if summary}}<p class="cp-sd-power-summary">{{summary}}</p>{{/if}}
-            </div>
+            <header class="cp-sd-power-head">
+              <span class="cp-sd-power-name">{{name}}</span>
+              <span class="cp-sd-power-cat">{{categoryUpper}}</span>
+              {{#if premium}}<span class="cp-sd-power-premium">Premium</span>{{/if}}
+              {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
+              {{#if oncePerCombat}}
+              <span class="cp-sd-power-once">Once <span class="cp-sd-power-once-box" aria-hidden="true"></span></span>
+              {{/if}}
+            </header>
+            {{!-- Effect copy omitted: stone write-in boxes take the space. --}}
             <div class="cp-sd-power-tiers" aria-label="Stone cost tiers">
               {{#each paymentTiers}}
               <span class="cp-sd-tg">
                 <span class="cp-sd-tl">{{label}}</span>
-                <span class="cp-sd-boxes is-{{layout}}">
+                <span class="cp-sd-boxes is-{{layout}} is-n{{count}}">
                   {{#each boxes}}<i class="cp-sd-cost{{#if filled}} is-filled{{/if}}"></i>{{/each}}
                 </span>
               </span>
               {{/each}}
             </div>
-            {{#if oncePerCombat}}
-            <p class="cp-sd-power-once">Once per combat <span class="cp-sd-power-once-box" aria-hidden="true"></span></p>
-            {{/if}}
           </article>
           {{/each}}
         </div>
