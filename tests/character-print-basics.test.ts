@@ -439,7 +439,7 @@ describe('character print table sheet', () => {
     const css = readFileSync(join(process.cwd(), 'styles/character-print.css'), 'utf8');
     expect(css).toMatch(/\.cp-sd-power-groups\s*\{[^}]*flex-direction:\s*column/s);
     expect(css).toMatch(/\.cp-sd-power-list\s*\{[^}]*grid-template-columns:\s*repeat\(4/s);
-    expect(css).toMatch(/\.cp-sd-power-tiers\s*\{[^}]*flex-direction:\s*column/s);
+    expect(css).toMatch(/\.cp-sd-power-tiers\s*\{[^}]*flex-direction:\s*row/s);
     expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-echo-imprints\s*,\s*\.print-page-1\.print-page-table \.cp-perception-block\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s);
   });
 

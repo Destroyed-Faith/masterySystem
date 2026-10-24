@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.779] - 2026-10-24
+
+### Changed
+
+- **Table character print:** Stone Power T1–T3 sit side-by-side under each power (left-aligned, 5.5 mm write-in boxes). Regeneration is right-aligned on the Initiative row. Powers & Combat bottom strip fills leftover page height to close the white margin.
+
 ## [0.9.778] - 2026-10-24
 
 ### Changed

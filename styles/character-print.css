@@ -1405,9 +1405,10 @@
   padding-bottom: 5mm; /* room for absolute footer */
   overflow: hidden;
   box-sizing: border-box;
+  background: #ffffff;
 }
 
-/* ~6 mm physical cube slots (room to nudge ~8 mm cubes) */
+/* ~6 mm physical cube slots (room to nudge ~8 mm cubes). Power cost boxes are 5.5mm. */
 .cp-sd-cube {
   display: inline-block;
   width: 6mm;
@@ -1470,7 +1471,7 @@
   display: inline-block;
   width: 0;
   height: 5mm;
-  margin: 0 4px 0 8px;
+  margin: 0 6px 0 auto; /* push Regeneration to the trailing edge */
   border-left: 1.5px solid #888;
   flex: 0 0 auto;
   align-self: center;
@@ -1479,6 +1480,15 @@
 .cp-sd-ini-seg-regen {
   flex: 0 0 auto;
   margin-left: 0;
+  margin-right: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+
+.cp-sd-ini-seg-regen b {
+  font-weight: 800;
 }
 
 .cp-sd-ini-k,
@@ -1708,12 +1718,10 @@
 }
 
 .cp-sd-power {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  align-items: start;
-  column-gap: 2mm;
-  row-gap: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1px;
   padding: 2px 3px 3px;
   border: 1px solid #ddd;
   border-radius: 2px;
@@ -1722,8 +1730,7 @@
 }
 
 .cp-sd-power-main {
-  grid-column: 1;
-  grid-row: 1;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -1789,10 +1796,8 @@
   overflow-wrap: break-word;
 }
 
-/* Once-per-combat under the name/summary (powers with this flag also sort last in the row). */
+/* Once-per-combat under tiers (powers with this flag also sort last in the row). */
 .cp-sd-power-once {
-  grid-column: 1;
-  grid-row: 2;
   display: inline-flex;
   align-items: center;
   gap: 1mm;
@@ -1817,19 +1822,21 @@
   background: transparent;
 }
 
-/* T1–T3 stacked vertically on the right — write-in boxes sized for tokens. */
+/*
+ * T1–T3 side-by-side under the power text (Fynn-style), left-aligned.
+ * Premium 2+4+6 at 5.5mm is ~80mm; card ~66mm → T3 wraps to the next line.
+ * Pool cubes are 6mm; 5.5mm (+1.3 from prior 4.2) still fits with that wrap.
+ */
 .cp-sd-power-tiers {
-  grid-column: 2;
-  grid-row: 1 / span 2;
   display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-start;
-  gap: 0.7mm;
+  gap: 0.8mm 2mm;
   flex: 0 0 auto;
-  width: auto;
-  padding-top: 0;
+  width: 100%;
+  padding-top: 1px;
   align-self: stretch;
 }
 
@@ -1837,7 +1844,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1mm;
+  gap: 0.8mm;
+  flex: 0 0 auto;
 }
 
 .cp-sd-tl {
@@ -1847,8 +1855,8 @@
   color: #555;
   margin-right: 0;
   line-height: 1;
-  min-width: 1.6em;
-  text-align: right;
+  min-width: 1.5em;
+  text-align: left;
 }
 
 /* Straight horizontal row of equal cubes per tier — never a skewed grid. */
@@ -1859,14 +1867,14 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0.5mm;
+  gap: 0.45mm;
   align-items: center;
 }
 
 .cp-sd-cost {
   display: inline-block;
-  width: 4.2mm;
-  height: 4.2mm;
+  width: 5.5mm;
+  height: 5.5mm;
   border: 1.25px solid #222;
   border-radius: 1px;
   background: #fff;
@@ -1888,14 +1896,15 @@
 
 /* ── Powers & Combat extras ───────────────────────────────────────────── */
 .cp-specials-tray {
-  min-height: 38mm;
+  min-height: 42mm;
   width: 100%;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
 }
 
 .cp-specials-tray .cp-status-tray-drop {
-  min-height: 32mm;
-  height: 32mm;
+  min-height: 36mm;
+  height: auto;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1957,10 +1966,10 @@
   font-size: 13px;
   display: flex;
   flex-direction: column;
-  padding-bottom: 5mm; /* room for absolute footer */
+  padding-bottom: 4mm; /* room for absolute footer */
   overflow: hidden;
   box-sizing: border-box;
-  background: inherit;
+  background: #ffffff;
 }
 
 .print-page-battle .cp-use-box {
@@ -2314,15 +2323,17 @@
   font-style: italic;
 }
 
-/* Passives + Specials — one bottom strip (⅓ / ⅔), pinned to page end */
+/* Passives + Specials — one bottom strip (⅓ / ⅔), fills leftover page height */
 .cp-battle-bottom {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   gap: 3mm;
   align-items: stretch;
   margin-top: auto;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-height: 42mm;
   padding-top: 1.5mm;
+  padding-bottom: 0;
   width: 100%;
 }
 
@@ -2342,15 +2353,17 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 
-/* Specials ~⅓ width; keep tall token-drop height */
+/* Specials ~⅓ width; grow with leftover page height */
 .cp-status-tray.cp-specials-tray,
 .cp-battle-bottom .cp-specials-tray {
   width: auto;
   max-width: none;
-  flex: 0 0 auto;
-  min-height: 38mm;
+  flex: 1 1 auto;
+  min-height: 42mm;
+  height: 100%;
   grid-column: 1;
 }
 
@@ -2380,8 +2393,9 @@
 }
 
 .cp-battle-bottom .cp-status-tray-drop {
-  min-height: 32mm;
-  height: 32mm;
+  flex: 1 1 auto;
+  min-height: 36mm;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4112,6 +4126,7 @@ body.mastery-print.is-dark:not(.is-compact) {
 .mastery-print.is-dark:not(.is-compact) .print-page-stones,
 .mastery-print.is-dark:not(.is-compact) .print-page-battle {
   page: cp-landscape-dark;
+  background: #141210;
 }
 
 .mastery-print.is-dark:not(.is-compact) .print-page + .print-page {
