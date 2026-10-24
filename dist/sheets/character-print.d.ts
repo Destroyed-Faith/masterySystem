@@ -3,7 +3,7 @@
  *
  * Builds a flat, print-friendly context from a `character` actor and renders the
  * standard **Table Character Sheet** (`templates/actor/character-print.hbs`):
- *   1. Portrait Character Sheet (attributes, core combat, HP/Stress, skills)
+ *   1. Portrait Character Sheet (attributes, core combat, HP, skills)
  *   2. Landscape Stone Dashboard (physical cube zones + initiative)
  *   3. Landscape Powers & Combat (precomputed attack/damage, specials tray)
  * Optional Equipment / Summons modules print only when `includeModules` is set.
