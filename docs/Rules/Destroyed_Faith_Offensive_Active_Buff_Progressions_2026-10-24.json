@@ -1,0 +1,805 @@
+{
+  "catalogue": "Active Buffs",
+  "playtest_revision": "2026-10-24",
+  "product_version_unchanged": "v0.9.9.5",
+  "powers": {
+    "Armor Reduction": [
+      {
+        "PL": 1,
+        "available": true,
+        "value": 5,
+        "radius": null,
+        "used_pp": 37.5
+      },
+      {
+        "PL": 2,
+        "available": true,
+        "value": 9,
+        "radius": null,
+        "used_pp": 67.5
+      },
+      {
+        "PL": 3,
+        "available": true,
+        "value": 13,
+        "radius": null,
+        "used_pp": 97.5
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 17,
+        "radius": null,
+        "used_pp": 127.5
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 21,
+        "radius": null,
+        "used_pp": 157.5
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 25,
+        "radius": null,
+        "used_pp": 187.5
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 29,
+        "radius": null,
+        "used_pp": 217.5
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 33,
+        "radius": null,
+        "used_pp": 247.5
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 37,
+        "radius": null,
+        "used_pp": 277.5
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 41,
+        "radius": null,
+        "used_pp": 307.5
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 45,
+        "radius": null,
+        "used_pp": 337.5
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 49,
+        "radius": null,
+        "used_pp": 367.5
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 53,
+        "radius": null,
+        "used_pp": 397.5
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 57,
+        "radius": null,
+        "used_pp": 427.5
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 61,
+        "radius": null,
+        "used_pp": 457.5
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 65,
+        "radius": null,
+        "used_pp": 487.5
+      }
+    ],
+    "Enemy Evade Reduction": [
+      {
+        "PL": 1,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 30
+      },
+      {
+        "PL": 2,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 60
+      },
+      {
+        "PL": 3,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 90
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 4,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 5,
+        "radius": null,
+        "used_pp": 150
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 6,
+        "radius": null,
+        "used_pp": 180
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 7,
+        "radius": null,
+        "used_pp": 210
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 8,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 9,
+        "radius": null,
+        "used_pp": 270
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 10,
+        "radius": null,
+        "used_pp": 300
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 11,
+        "radius": null,
+        "used_pp": 330
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 12,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 13,
+        "radius": null,
+        "used_pp": 390
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 14,
+        "radius": null,
+        "used_pp": 420
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 15,
+        "radius": null,
+        "used_pp": 450
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 16,
+        "radius": null,
+        "used_pp": 480
+      }
+    ],
+    "Spell Resistance Piercing": [
+      {
+        "PL": 1,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 30
+      },
+      {
+        "PL": 2,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 60
+      },
+      {
+        "PL": 3,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 90
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 4,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 5,
+        "radius": null,
+        "used_pp": 150
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 6,
+        "radius": null,
+        "used_pp": 180
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 7,
+        "radius": null,
+        "used_pp": 210
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 8,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 9,
+        "radius": null,
+        "used_pp": 270
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 10,
+        "radius": null,
+        "used_pp": 300
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 11,
+        "radius": null,
+        "used_pp": 330
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 12,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 13,
+        "radius": null,
+        "used_pp": 390
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 14,
+        "radius": null,
+        "used_pp": 420
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 15,
+        "radius": null,
+        "used_pp": 450
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 16,
+        "radius": null,
+        "used_pp": 480
+      }
+    ],
+    "Maximization": [
+      {
+        "PL": 1,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 2,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 3,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 4,
+        "radius": null,
+        "used_pp": 480
+      }
+    ],
+    "Armor Reduction Aura": [
+      {
+        "PL": 1,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 2,
+        "available": true,
+        "value": 1,
+        "radius": 2,
+        "used_pp": 70
+      },
+      {
+        "PL": 3,
+        "available": true,
+        "value": 2,
+        "radius": 2,
+        "used_pp": 90
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 4,
+        "radius": 2,
+        "used_pp": 130
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 5,
+        "radius": 2,
+        "used_pp": 150
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 6,
+        "radius": 2,
+        "used_pp": 170
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 7,
+        "radius": 2,
+        "used_pp": 190
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 8,
+        "radius": 3,
+        "used_pp": 250
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 9,
+        "radius": 3,
+        "used_pp": 270
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 10,
+        "radius": 3,
+        "used_pp": 290
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 11,
+        "radius": 3,
+        "used_pp": 310
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 12,
+        "radius": 4,
+        "used_pp": 370
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 13,
+        "radius": 4,
+        "used_pp": 390
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 14,
+        "radius": 4,
+        "used_pp": 410
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 15,
+        "radius": 4,
+        "used_pp": 430
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 15,
+        "radius": 5,
+        "used_pp": 480
+      }
+    ],
+    "Allied Damage Aura": [
+      {
+        "PL": 1,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 2,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 3,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 1,
+        "radius": 2,
+        "used_pp": 120
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 1,
+        "radius": 2,
+        "used_pp": 120
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 1,
+        "radius": 2,
+        "used_pp": 120
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 2,
+        "radius": 2,
+        "used_pp": 200
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 2,
+        "radius": 3,
+        "used_pp": 240
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 2,
+        "radius": 3,
+        "used_pp": 240
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 2,
+        "radius": 3,
+        "used_pp": 240
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 3,
+        "radius": 3,
+        "used_pp": 320
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 3,
+        "radius": 3,
+        "used_pp": 320
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 3,
+        "radius": 4,
+        "used_pp": 370
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 3,
+        "radius": 4,
+        "used_pp": 370
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 4,
+        "radius": 4,
+        "used_pp": 450
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 4,
+        "radius": 4,
+        "used_pp": 450
+      }
+    ],
+    "Area Expansion": [
+      {
+        "PL": 1,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 2,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 3,
+        "available": false,
+        "value": null,
+        "radius": null,
+        "used_pp": 0
+      },
+      {
+        "PL": 4,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 5,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 6,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 7,
+        "available": true,
+        "value": 1,
+        "radius": null,
+        "used_pp": 120
+      },
+      {
+        "PL": 8,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 9,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 10,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 11,
+        "available": true,
+        "value": 2,
+        "radius": null,
+        "used_pp": 240
+      },
+      {
+        "PL": 12,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 13,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 14,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 15,
+        "available": true,
+        "value": 3,
+        "radius": null,
+        "used_pp": 360
+      },
+      {
+        "PL": 16,
+        "available": true,
+        "value": 4,
+        "radius": null,
+        "used_pp": 480
+      }
+    ]
+  }
+}

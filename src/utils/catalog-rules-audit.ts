@@ -139,6 +139,14 @@ export const RULES_EXPECTED_ACTIVE_BUFFS: ReadonlyArray<{ rulesName: string; id:
     { rulesName: 'Damage Negation Pool', id: 'ab-reinforced-damage-negation' },
     // Documented in Rules/actives.md as Active Buff — Immovable + Temporary HP
     { rulesName: 'Immovable + Temporary HP', id: 'ab-immovable-temp-hp' },
+    // Offensive expansion 2026-10-24
+    { rulesName: 'Armor Reduction', id: 'ab-armor-reduction' },
+    { rulesName: 'Enemy Evade Reduction', id: 'ab-enemy-evade-reduction' },
+    { rulesName: 'Spell Resistance Piercing', id: 'ab-spell-resistance-piercing' },
+    { rulesName: 'Maximization', id: 'ab-maximization' },
+    { rulesName: 'Armor Reduction Aura', id: 'ab-armor-reduction-aura' },
+    { rulesName: 'Allied Damage Aura', id: 'ab-allied-damage-aura' },
+    { rulesName: 'Area Expansion', id: 'ab-area-expansion' },
 ];
 
 /** Expected Rules Reaction names → Foundry templateId. */

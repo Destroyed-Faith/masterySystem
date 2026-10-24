@@ -120,6 +120,15 @@ export interface RoundState {
         remaining: number;
     };
     /**
+     * Active Buff Maximization per-combat uses.
+     * Same anti-refresh rules as Critical quota.
+     */
+    maximizationQuota?: {
+        roundKey: string;
+        granted: number;
+        remaining: number;
+    };
+    /**
      * Passive Parry stance for this round — spend pool 1:1 to strip Attack Dice
      * before the roll (0 dice = Fully Parried → Riposte / Reflection).
      */

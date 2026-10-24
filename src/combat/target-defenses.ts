@@ -8,6 +8,11 @@
  * bonuses still stack on top via `*FromActiveBuffs`.
  */
 
+import {
+  getActiveBuffEnemyEvadeReduction,
+  getActiveBuffSpellResistancePiercing,
+} from './offensive-active-buff-effects.js';
+
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
 export function getTargetEvade(targetActor: any, attacker?: any): number {
   if (!targetActor || !targetActor.system) return 6;
@@ -25,7 +30,8 @@ export function getTargetEvade(targetActor: any, attacker?: any): number {
         0,
         Math.floor(Number(attacker.system?.derived?.mechanicsBreakdown?.totals?.enemyEvadeReduction) || 0),
       );
-      const cut = stoneCut + passiveCut;
+      const buffCut = getActiveBuffEnemyEvadeReduction(attacker);
+      const cut = stoneCut + passiveCut + buffCut;
       if (cut > 0) evade = Math.max(0, evade - cut);
     } catch {
       /* ignore */
@@ -71,6 +77,7 @@ export function getCasterSpellPenetration(caster: any): number {
   if (!caster) return 0;
   let stone = 0;
   let passive = 0;
+  let buff = 0;
   try {
     const rs = caster.getFlag?.('mastery-system', 'roundState');
     stone = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellPenetration ?? 0) || 0));
@@ -85,7 +92,12 @@ export function getCasterSpellPenetration(caster: any): number {
   } catch {
     /* ignore */
   }
-  return stone + passive;
+  try {
+    buff = getActiveBuffSpellResistancePiercing(caster);
+  } catch {
+    buff = 0;
+  }
+  return stone + passive + buff;
 }
 
 /**

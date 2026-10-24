@@ -249,10 +249,18 @@ export interface PowerMechanics {
   /** Flat Armor bonus/malus (before equipment scaling). */
   armor?: number;
   /**
-   * Attacker-side Armor Reduction for this Passive holder's eligible damaging
-   * Attacks/Spells (Passive: Armor Reduction). Never lowers listed Armor.
+   * Attacker-side Armor Reduction for this Passive / Active Buff holder's
+   * eligible damaging Attacks/Spells. Never lowers listed Armor on the sheet.
    */
   armorReduction?: number;
+  /** Active Buff: Armor Reduction Aura — hostile targets in radius. */
+  armorReductionAura?: { reduction: number; radiusM: number };
+  /** Active Buff: Allied Damage Aura — other allied non-Summons in radius. */
+  alliedDamageAura?: { dice: number; radiusM: number };
+  /** Active Buff: Maximization uses per combat while maintained. */
+  maximization?: number;
+  /** Active Buff: Area Expansion — extra meters on instant circular AoE. */
+  areaExpansionM?: number;
   /** Flat Evade bonus/malus. */
   evade?: number;
   /** Flat Initiative bonus added to the initial Initiative Score (before the Initiative Shop). */

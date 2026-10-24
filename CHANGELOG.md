@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.770] - 2026-10-24
+
+### Added
+
+- **Offensive Active Buff expansion (2026-10-24 playtest):** seven new catalogue entries — Armor Reduction, Enemy Evade Reduction, Spell Resistance Piercing, Maximization, Armor Reduction Aura, Allied Damage Aura, Area Expansion. Active Buff catalogue 18 → 25. Focus Offensive lists 12; Defensive stays 14 (Thorns overlap). Runtime wired into attack Evade/SR, armor mitigation, allied damage dice, Maximization source picker, and circular AoE radius (anti-stack vs Intellect Stone AoE).
+
 ## [0.9.769] - 2026-10-24
 
 ### Changed

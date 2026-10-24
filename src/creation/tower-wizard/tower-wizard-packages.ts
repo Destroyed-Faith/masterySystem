@@ -784,26 +784,81 @@ const OFFENSIVE_ACTIVE_BUFF_META: Record<
         label: 'Active Buff: Critical',
         explanation: 'Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.',
     },
+    'ab-maximization': {
+        groupLabel: 'Critical hits',
+        label: 'Active Buff: Maximization',
+        explanation: 'Spend combat-wide uses to maximize one Damage or Healing Roll (artificial 8s). Independent of Passive/Stone Maximization.',
+    },
     'ab-damage-aura': {
         groupLabel: 'Auras',
         label: 'Active Buff: Damage Aura',
         explanation: 'End-of-turn damage pulse against nearby enemies while maintained.',
+    },
+    'ab-summon-damage-aura': {
+        groupLabel: 'Auras',
+        label: 'Active Buff: Summon Damage Aura',
+        explanation: 'Your own Summons deal extra damage while fighting inside your bonded aura.',
+    },
+    'ab-allied-damage-aura': {
+        groupLabel: 'Auras',
+        label: 'Active Buff: Allied Damage Aura',
+        explanation: 'Other allied non-Summons in your aura gain bonus damage dice on their attacks — not you or Summons.',
+    },
+    'ab-armor-reduction-aura': {
+        groupLabel: 'Auras',
+        label: 'Active Buff: Armor Reduction Aura',
+        explanation: 'Hostile creatures in your aura take Armor reduction against your and your allies\' eligible attacks.',
     },
     'ab-thorns': {
         groupLabel: 'Retaliation',
         label: 'Active Buff: Thorns',
         explanation: 'When you take final HP damage, retaliate with Thorns dice (capped by the loss).',
     },
+    'ab-armor-reduction': {
+        groupLabel: 'Defense piercing',
+        label: 'Active Buff: Armor Reduction',
+        explanation: 'Your own eligible attacks ignore printed Armor (not Damage Reduction, not Corrode).',
+    },
+    'ab-enemy-evade-reduction': {
+        groupLabel: 'Defense piercing',
+        label: 'Active Buff: Enemy Evade Reduction',
+        explanation: 'Your Martial Attack Rolls treat each target\'s Evade as lower — does not change stored Evade or Spell TN.',
+    },
+    'ab-spell-resistance-piercing': {
+        groupLabel: 'Defense piercing',
+        label: 'Active Buff: Spell Resistance Piercing',
+        explanation: 'Your Spells ignore a portion of target Spell Resistance. Base Spell TN and Paid Raises stay intact.',
+    },
+    'ab-area-expansion': {
+        groupLabel: 'Area',
+        label: 'Active Buff: Area Expansion',
+        explanation: 'Expand your instantaneous circular AoE radius. Anti-stacks with Intellect Stone AoE radius (take the larger).',
+    },
 };
 
 const OFFENSIVE_ACTIVE_BUFF_ORDER = [
     'ab-damage',
     'ab-critical',
+    'ab-maximization',
     'ab-damage-aura',
+    'ab-summon-damage-aura',
+    'ab-allied-damage-aura',
+    'ab-armor-reduction-aura',
     'ab-thorns',
+    'ab-armor-reduction',
+    'ab-enemy-evade-reduction',
+    'ab-spell-resistance-piercing',
+    'ab-area-expansion',
 ] as const;
 
-const OFFENSIVE_BUFF_GROUP_ORDER = ['Raw damage', 'Critical hits', 'Auras', 'Retaliation'] as const;
+const OFFENSIVE_BUFF_GROUP_ORDER = [
+    'Raw damage',
+    'Critical hits',
+    'Auras',
+    'Retaliation',
+    'Defense piercing',
+    'Area',
+] as const;
 
 function stripMarkdown(text: string): string {
     return text.replace(/\*\*/g, '').trim();

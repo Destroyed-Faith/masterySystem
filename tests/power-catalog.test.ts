@@ -93,7 +93,7 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(grant[0].templateName).toBe('Mobility Extension');
     });
 
-    it('offers exactly the final 18 Active Buffs with canonical rulebook labels', () => {
+    it('offers exactly the final 25 Active Buffs with canonical rulebook labels', () => {
         const buffs = filterCatalog({ category: 'activeBuff' });
         expect(buffs).toHaveLength(FINAL_ACTIVE_BUFF_TEMPLATE_IDS.length);
         expect(buffs.map((e) => e.templateId)).toEqual([...FINAL_ACTIVE_BUFF_TEMPLATE_IDS]);

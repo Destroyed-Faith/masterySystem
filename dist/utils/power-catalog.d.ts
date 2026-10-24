@@ -31,13 +31,13 @@ export { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId };
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
 /**
- * Final Active Buff catalogue (`docs/Rules/active-buffs.md` TOC order).
- * New-Power pickers may only offer these 18; legacy templates remain in
+ * Final Active Buff catalogue (`docs/Rules/active-buffs.md` TOC + Offensive Expansion 2026-10-24).
+ * New-Power pickers may only offer these 25; legacy templates remain in
  * `ACTIVE_BUFF_TEMPLATES` for owned items and direct `templateId` grants.
  */
-export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-armor-aura", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-damage-aura", "ab-summon-damage-aura", "ab-thorns", "ab-summon-armor-aura", "ab-intensified-absorption"];
+export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-armor-aura", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-damage-aura", "ab-summon-damage-aura", "ab-thorns", "ab-summon-armor-aura", "ab-intensified-absorption", "ab-armor-reduction", "ab-enemy-evade-reduction", "ab-spell-resistance-piercing", "ab-maximization", "ab-armor-reduction-aura", "ab-allied-damage-aura", "ab-area-expansion"];
 export type FinalActiveBuffTemplateId = (typeof FINAL_ACTIVE_BUFF_TEMPLATE_IDS)[number];
-/** True when `templateId` is in the official 18-buff selection catalogue. */
+/** True when `templateId` is in the official 25-buff selection catalogue. */
 export declare function isSelectableActiveBuffTemplateId(templateId: string | null | undefined): boolean;
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export declare const SUBFAMILY_LABELS: Record<string, string>;

@@ -2707,6 +2707,22 @@ damageRollOpts) {
         if (auraRoll.roll)
             damageChatRolls.push(auraRoll.roll);
     }
+    let alliedAuraRolled = 0;
+    try {
+        const { getAlliedDamageAuraBonusDice } = await import('../combat/offensive-active-buff-effects.js');
+        const alliedAuraDice = getAlliedDamageAuraBonusDice(attacker);
+        if (alliedAuraDice > 0) {
+            const auraRoll = await rollDiceWithDetail(`${alliedAuraDice}d8`, 'Allied Damage Aura');
+            alliedAuraRolled = auraRoll.total;
+            if (auraRoll.line)
+                rollDetails.push(auraRoll.line);
+            if (auraRoll.roll)
+                damageChatRolls.push(auraRoll.roll);
+        }
+    }
+    catch (err) {
+        console.debug?.('Mastery System | Allied Damage Aura skipped', err);
+    }
     const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive', undefined, poolFaces);
     const passiveDamageRolled = passiveRoll.total;
     if (passiveRoll.line)
@@ -2945,6 +2961,7 @@ damageRollOpts) {
         + mightMeleeBonus
         + powerDamageRolled
         + summonAuraRolled
+        + alliedAuraRolled
         + passiveDamageRolled
         + raiseDamage
         + conditionalDamageRolled
@@ -3053,6 +3070,24 @@ damageRollOpts) {
         }
         catch (err) {
             console.debug?.('Mastery System | [CALCULATE DAMAGE] Passive Armor Reduction skipped', err);
+        }
+        try {
+            const { getActiveBuffArmorReduction, getArmorReductionAuraBonus, } = await import('../combat/offensive-active-buff-effects.js');
+            const personal = getActiveBuffArmorReduction(attacker);
+            if (personal > 0) {
+                hitArmorPenetration += personal;
+                rollDetails.push(`Active Buff Armor Reduction ${personal}`);
+            }
+            if (target) {
+                const aura = getArmorReductionAuraBonus(attacker, target);
+                if (aura > 0) {
+                    hitArmorPenetration += aura;
+                    rollDetails.push(`Armor Reduction Aura ${aura}`);
+                }
+            }
+        }
+        catch (err) {
+            console.debug?.('Mastery System | [CALCULATE DAMAGE] Active Buff Armor Reduction skipped', err);
         }
     }
     if (hitArmorPenetration > 0) {

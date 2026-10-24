@@ -1,7 +1,7 @@
 /**
  * Active Buff Power Templates
  *
- * Source: docs/Rules/active-buffs.md — Final Playtest catalogue (18 Buffs), Levels 1..16.
+ * Source: docs/Rules/active-buffs.md + Offensive Expansion 2026-10-24 (25 Buffs), Levels 1..16.
  * Duration: Mastery Rank complete Rounds (Round-End expiry) unless noted.
  * Active Buff PP curve = 40 / 70 / 100 / 130 PP, then +30 per level (cap L16 = 490 PP).
  */
@@ -48,6 +48,23 @@ const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 3
 const REINFORCED_PARRY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /** Active Buff: Absorption Stone Increase — extra Temporary Colorless Stones on first harvest/Round. */
 const INTENSIFIED_ABSORPTION = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
+// --- Offensive expansion 2026-10-24 (canonical JSON progressions) ---
+/** Personal Armor Reduction — same numeric curve as Armor (7.5 PP/pt floored). */
+const AB_ARMOR_REDUCTION = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
+/** Enemy Evade Reduction — PL1..16 = 1..16. */
+const AB_ENEMY_EVADE_REDUCTION = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Spell Resistance Piercing — PL1..16 = 1..16. */
+const AB_SR_PIERCING = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Maximization combat uses — L1–3 unavailable; L4–7:1; L8–11:2; L12–15:3; L16:4. */
+const AB_MAXIMIZATION_USES = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4];
+/** Armor Reduction Aura — value / radius; L1 unavailable. */
+const AB_AR_AURA_VALUE = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15];
+const AB_AR_AURA_RADIUS = [0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5];
+/** Allied Damage Aura — +Nd8 / radius; L1–3 unavailable. */
+const AB_ALLIED_DMG_DICE = [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4];
+const AB_ALLIED_DMG_RADIUS = [0, 0, 0, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4];
+/** Area Expansion — extra meters on instant circular AoE; L1–3 unavailable. */
+const AB_AREA_EXPANSION_M = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4];
 /** Size-stage package per Growth Form level (footprint / reach / stability / prone band). */
 function growthStageForLevel(lvl) {
     const pushReductionM = lvl >= 4 ? lvl : 0;
@@ -711,6 +728,176 @@ export const ACTIVE_BUFF_TEMPLATES = [
                 duration: 'masteryRankRounds',
             },
         })),
+    },
+    // ─── Offensive expansion 2026-10-24 ───────────────────────────────────
+    {
+        templateId: 'ab-armor-reduction',
+        templateName: 'Armor Reduction',
+        name: 'Active Buff: Armor Reduction',
+        subfamily: 'offensive',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Your own eligible damaging Martial and Spell Attacks ignore printed Armor. Not Damage Reduction, not Corrode, and not the group Armor Reduction Aura.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const amount = AB_ARMOR_REDUCTION[lvl - 1];
+            return activeBuffRow({
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Your eligible damaging Martial and Spell Attacks ignore **${amount} Armor** (effective Armor floors at 0).`,
+                mechanics: { armorReduction: amount, duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-enemy-evade-reduction',
+        templateName: 'Enemy Evade Reduction',
+        name: 'Active Buff: Enemy Evade Reduction',
+        subfamily: 'offensive',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Only against your own eligible Martial Attack Rolls: reduce the Evade counted for each target. Does not change the target\'s stored Evade or Spell TNs.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const amount = AB_ENEMY_EVADE_REDUCTION[lvl - 1];
+            return activeBuffRow({
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Against your eligible Martial Attack Rolls, each target\'s effective Evade is reduced by **${amount}** (floor 0). No effect on Spell TN.`,
+                mechanics: { enemyEvadeReduction: amount, duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-spell-resistance-piercing',
+        templateName: 'Spell Resistance Piercing',
+        name: 'Active Buff: Spell Resistance Piercing',
+        subfamily: 'offensive',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Your own Spells ignore a portion of target Spell Resistance. Does not lower Base Spell TN, Paid Raises, or other casters\' TNs.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const amount = AB_SR_PIERCING[lvl - 1];
+            return activeBuffRow({
+                duration: DURATION_MR_ROUNDS,
+                effectText: `Your Spells ignore **${amount} Spell Resistance** on each target (SR floors at 0). Base Spell TN and Paid Raises are unchanged.`,
+                mechanics: { spellResistancePiercing: amount, duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-maximization',
+        templateName: 'Maximization',
+        name: 'Active Buff: Maximization',
+        subfamily: 'offensive',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'While maintained, spend combat-wide Maximization uses to set every die of one eligible Damage or Healing Roll to artificial 8s (never explode). Independent of Passive and Vitality Stone Maximization; reactivation does not refill spent uses.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const uses = AB_MAXIMIZATION_USES[lvl - 1];
+            return activeBuffRow({
+                duration: DURATION_MR_ROUNDS,
+                effectText: uses === 0
+                    ? 'No effect at this PL; unavailable for selection.'
+                    : `While maintained, you may Maximization **${uses}** eligible Damage or Healing Roll${uses === 1 ? '' : 's'} per combat (entire shared roll becomes artificial 8s; no explosions).`,
+                mechanics: uses === 0
+                    ? { duration: 'masteryRankRounds' }
+                    : { maximization: uses, duration: 'masteryRankRounds' },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-armor-reduction-aura',
+        templateName: 'Armor Reduction Aura',
+        name: 'Active Buff: Armor Reduction Aura',
+        subfamily: 'offensive-aura',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Hostile creatures inside your aura have reduced effective Armor when you or an ally hits them with an eligible damaging Martial or Spell Attack. No cast roll, no Corrode, no end-of-turn pulse. Same-name auras take the highest reduction.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const reduction = AB_AR_AURA_VALUE[lvl - 1];
+            const radiusM = AB_AR_AURA_RADIUS[lvl - 1];
+            return activeBuffRow({
+                aoe: reduction > 0
+                    ? { shape: 'aura', radiusM, targetFilter: 'enemies', center: 'self' }
+                    : { shape: 'none' },
+                duration: DURATION_MR_ROUNDS,
+                effectText: reduction === 0
+                    ? 'No effect at this PL; unavailable for selection.'
+                    : `Hostile creatures within **${radiusM} m** have **${reduction}** less effective Armor against eligible damaging Martial/Spell Attacks by you or your allies (highest same-name aura wins).`,
+                mechanics: reduction === 0
+                    ? { duration: 'masteryRankRounds' }
+                    : {
+                        armorReductionAura: { reduction, radiusM },
+                        duration: 'masteryRankRounds',
+                    },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-allied-damage-aura',
+        templateName: 'Allied Damage Aura',
+        name: 'Active Buff: Allied Damage Aura',
+        subfamily: 'offensive-aura',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Other allied non-Summon creatures standing in your aura add bonus damage dice to their own eligible damaging Martial/Spell Attacks. Never benefits you or any Summon. Distinct from Damage Aura and Summon Damage Aura.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const dice = AB_ALLIED_DMG_DICE[lvl - 1];
+            const radiusM = AB_ALLIED_DMG_RADIUS[lvl - 1];
+            return activeBuffRow({
+                aoe: dice > 0
+                    ? {
+                        shape: 'aura',
+                        radiusM,
+                        targetFilter: 'allies',
+                        center: 'self',
+                        note: 'other allied non-summons only',
+                    }
+                    : { shape: 'none' },
+                duration: DURATION_MR_ROUNDS,
+                effectText: dice === 0
+                    ? 'No effect at this PL; unavailable for selection.'
+                    : `Other allied non-Summon creatures within **${radiusM} m** gain **+${dice}d8** on their eligible damaging Martial/Spell Attacks (highest same-name aura wins; not you or Summons).`,
+                mechanics: dice === 0
+                    ? { duration: 'masteryRankRounds' }
+                    : {
+                        alliedDamageAura: { dice, radiusM },
+                        duration: 'masteryRankRounds',
+                    },
+            });
+        }),
+    },
+    {
+        templateId: 'ab-area-expansion',
+        templateName: 'Area Expansion',
+        name: 'Active Buff: Area Expansion',
+        subfamily: 'offensive',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'Expands your own eligible instantaneous circular AoE radius. Does not affect lines, cones, walls, auras, persistent zones, or single-target attacks. Anti-stack: take the larger of this bonus or Intellect Stone Range & AoE Boost radius — never sum them.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const meters = AB_AREA_EXPANSION_M[lvl - 1];
+            return activeBuffRow({
+                duration: DURATION_MR_ROUNDS,
+                effectText: meters === 0
+                    ? 'No effect at this PL; unavailable for selection.'
+                    : `Your eligible instantaneous circular AoEs gain **+${meters} m** radius (larger of this or Intellect Stone AoE radius bonus; do not stack).`,
+                mechanics: meters === 0
+                    ? { duration: 'masteryRankRounds' }
+                    : { areaExpansionM: meters, duration: 'masteryRankRounds' },
+            });
+        }),
     },
 ];
 //# sourceMappingURL=activeBuffs.js.map

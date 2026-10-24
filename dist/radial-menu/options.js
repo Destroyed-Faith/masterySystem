@@ -7,6 +7,7 @@ import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getAvailableAttackActions, getMovementRangeBonusMeters, getStoneAreaBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { movementReductionActive } from '../stones/stone-combat-effects.js';
 import { movementActionMeters } from '../combat/movement-allowance.js';
 import { readGrowthFormRider } from '../combat/growth-form.js';
@@ -22,6 +23,12 @@ import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
 import { getActiveAmmoPair, quiverAmmunitionLabel } from '../utils/ammunition.js';
 function meleeReachBonusMeters(actor) {
     return getStoneAreaBonusMeters(actor, 'reach') + (readGrowthFormRider(actor)?.reachBonusM ?? 0);
+}
+/** Instant circular AoE: printed radius + max(Stone AoE, Area Expansion). */
+function withCircularAoeBonus(actor, radiusM) {
+    if (radiusM == null || !(radiusM > 0))
+        return radiusM;
+    return radiusM + getEffectiveCircularAoeRadiusBonusMeters(actor);
 }
 /** Attack-slot maneuvers the radial shows (Basic Attack is injected separately). */
 export const RADIAL_ATTACK_MANEUVER_IDS = [
@@ -814,7 +821,7 @@ export async function getAllCombatOptionsForActor(actor) {
             const rad = parseAoERadius(aoeStr);
             if (shape === 'radius' && rad !== undefined && rad > 0) {
                 aoeShape = 'radius';
-                aoeRadiusMeters = rad;
+                aoeRadiusMeters = withCircularAoeBonus(actor, rad);
                 // Melee / Self / center:self AoE is an aura around the caster — no placement.
                 // (Touch/Melee still parses to ~2 m reach; that must not open the green place-cursor.)
                 const aoeCenter = isAoeSpecObject(aoeStr) ? String(aoeStr.center || '') : '';
@@ -847,7 +854,7 @@ export async function getAllCombatOptionsForActor(actor) {
                 const rad = parseAoERadius(aoeStr);
                 if (shape === 'radius' && rad !== undefined && rad > 0) {
                     aoeShape = 'radius';
-                    aoeRadiusMeters = rad;
+                    aoeRadiusMeters = withCircularAoeBonus(actor, rad);
                     rangeMeters = range;
                     if (!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) {
                         rangeMeters = 0;
@@ -865,12 +872,13 @@ export async function getAllCombatOptionsForActor(actor) {
                 const radM = parseAoERadius(aoeStrMelee || '');
                 if (shapeM === 'radius' && radM !== undefined && radM > 0) {
                     burstMeleeAoE = true;
-                    burstMeleeRadiusMeters = radM;
+                    const boosted = withCircularAoeBonus(actor, radM) ?? radM;
+                    burstMeleeRadiusMeters = boosted;
                     aoeShape = 'radius';
-                    aoeRadiusMeters = radM;
+                    aoeRadiusMeters = boosted;
                     // Preview / burst collection use the printed radius, not weapon reach.
-                    range = radM;
-                    rangeMeters = radM;
+                    range = boosted;
+                    rangeMeters = boosted;
                 }
             }
         }

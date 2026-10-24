@@ -1,8 +1,8 @@
 {
-  "version": "0.9.769",
-  "generatedAt": "2026-10-24T11:33:22.902Z",
+  "version": "0.9.770",
+  "generatedAt": "2026-10-24T13:29:59.319Z",
   "summary": {
-    "correct": 196,
+    "correct": 203,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -459,6 +459,20 @@
     },
     {
       "category": "activeBuff",
+      "id": "ab-allied-damage-aura",
+      "name": "Active Buff: Allied Damage Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-area-expansion",
+      "name": "Active Buff: Area Expansion",
+      "status": "correct",
+      "notes": "Matches curated RULES_EXPECTED manifest"
+    },
+    {
+      "category": "activeBuff",
       "id": "ab-armor",
       "name": "Active Buff: Armor",
       "status": "correct",
@@ -468,6 +482,20 @@
       "category": "activeBuff",
       "id": "ab-armor-aura",
       "name": "Active Buff: Armor Aura",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-armor-reduction",
+      "name": "Active Buff: Armor Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-armor-reduction-aura",
+      "name": "Active Buff: Armor Reduction Aura",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -522,6 +550,13 @@
     },
     {
       "category": "activeBuff",
+      "id": "ab-enemy-evade-reduction",
+      "name": "Active Buff: Enemy Evade Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
       "id": "ab-growth-form",
       "name": "Active Buff: Growth Form",
       "status": "correct",
@@ -564,6 +599,13 @@
     },
     {
       "category": "activeBuff",
+      "id": "ab-maximization",
+      "name": "Active Buff: Maximization",
+      "status": "correct",
+      "notes": "Matches curated RULES_EXPECTED manifest"
+    },
+    {
+      "category": "activeBuff",
       "id": "ab-penetration",
       "name": "Active Buff: Penetration",
       "status": "correct",
@@ -601,6 +643,13 @@
       "category": "activeBuff",
       "id": "ab-spell-resistance",
       "name": "Active Buff: Spell Resistance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "activeBuff",
+      "id": "ab-spell-resistance-piercing",
+      "name": "Active Buff: Spell Resistance Piercing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },

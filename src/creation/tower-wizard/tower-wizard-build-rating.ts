@@ -71,7 +71,15 @@ const OFFENSIVE_ACTIVE_BUFFS = new Set([
     'ab-damage',
     'ab-critical',
     'ab-damage-aura',
+    'ab-summon-damage-aura',
     'ab-thorns',
+    'ab-armor-reduction',
+    'ab-enemy-evade-reduction',
+    'ab-spell-resistance-piercing',
+    'ab-maximization',
+    'ab-armor-reduction-aura',
+    'ab-allied-damage-aura',
+    'ab-area-expansion',
 ]);
 
 const OFFENSIVE_SPECIALS = new Set([

@@ -2,6 +2,7 @@
  * Combat resolution for Stone Abilities that outlive the Preparation click:
  * Reaction Denial, Movement Reduction, Not a Target, Maximization.
  */
+import { getActiveBuffMaximizationUses } from '../combat/offensive-active-buff-effects.js';
 export const REACTION_DENIAL_FLAG = 'reactionDenial';
 export const MOVEMENT_REDUCTION_FLAG = 'movementReduction';
 export const NOT_A_TARGET_FLAG = 'notATarget';
@@ -167,18 +168,66 @@ function readPassiveMaximizationRemainingSync(actor) {
         return 0;
     return Math.max(0, Math.floor(Number(raw.remaining) || 0));
 }
-/** Total Maximizations (stone + Passive) available for UI enablement. */
+function syncActiveBuffMaximizationQuota(actor) {
+    const combat = liveCombat();
+    if (!combat?.id || !actor)
+        return null;
+    const granted = getActiveBuffMaximizationUses(actor);
+    if (granted <= 0)
+        return null;
+    const roundKey = String(combat.id);
+    let rs = null;
+    try {
+        rs = actor.getFlag?.('mastery-system', 'roundState');
+    }
+    catch {
+        rs = null;
+    }
+    const existing = rs?.maximizationQuota;
+    if (!existing || String(existing.roundKey || '') !== roundKey) {
+        return { roundKey, granted, remaining: granted };
+    }
+    if (granted > Number(existing.granted || 0)) {
+        const delta = granted - Math.floor(Number(existing.granted) || 0);
+        return {
+            roundKey,
+            granted,
+            remaining: Math.max(0, Math.floor(Number(existing.remaining) || 0)) + delta,
+        };
+    }
+    if (granted < Number(existing.granted || 0)) {
+        return {
+            roundKey,
+            granted,
+            remaining: Math.min(Math.max(0, Math.floor(Number(existing.remaining) || 0)), granted),
+        };
+    }
+    return {
+        roundKey,
+        granted: Math.floor(Number(existing.granted) || 0),
+        remaining: Math.max(0, Math.floor(Number(existing.remaining) || 0)),
+    };
+}
+export function remainingActiveBuffMaximizations(actor) {
+    return syncActiveBuffMaximizationQuota(actor)?.remaining ?? 0;
+}
+/** Total Maximizations (stone + Passive + Active Buff) available for UI enablement. */
 export function remainingMaximizations(actor) {
-    return remainingStoneMaximizations(actor) + readPassiveMaximizationRemainingSync(actor);
+    return (remainingStoneMaximizations(actor) +
+        readPassiveMaximizationRemainingSync(actor) +
+        remainingActiveBuffMaximizations(actor));
 }
 export function listAvailableMaximizationSources(actor) {
     const out = [];
     const stone = remainingStoneMaximizations(actor);
     const passive = readPassiveMaximizationRemainingSync(actor);
+    const buff = remainingActiveBuffMaximizations(actor);
     if (stone > 0)
         out.push({ source: 'stone', remaining: stone, label: `Vitality Stone Maximization (${stone})` });
     if (passive > 0)
         out.push({ source: 'passive', remaining: passive, label: `Passive: Maximization (${passive})` });
+    if (buff > 0)
+        out.push({ source: 'activeBuff', remaining: buff, label: `Active Buff: Maximization (${buff})` });
     return out;
 }
 /**
@@ -199,15 +248,21 @@ export async function spendMaximization(actor, preferred) {
     catch {
         passiveLeft = 0;
     }
+    const buffQuota = syncActiveBuffMaximizationQuota(actor);
+    const buffLeft = buffQuota?.remaining ?? 0;
     let pick = null;
     if (preferred === 'stone' && stoneLeft > 0)
         pick = 'stone';
     else if (preferred === 'passive' && passiveLeft > 0)
         pick = 'passive';
+    else if (preferred === 'activeBuff' && buffLeft > 0)
+        pick = 'activeBuff';
     else if (stoneLeft > 0)
         pick = 'stone';
     else if (passiveLeft > 0)
         pick = 'passive';
+    else if (buffLeft > 0)
+        pick = 'activeBuff';
     if (!pick)
         return false;
     if (pick === 'stone' && stoneLive) {
@@ -220,6 +275,23 @@ export async function spendMaximization(actor, preferred) {
     if (pick === 'passive') {
         const { spendPassiveMaximizationCharge } = await import('../combat/passive-combat-charges.js');
         return spendPassiveMaximizationCharge(actor, liveCombat());
+    }
+    if (pick === 'activeBuff' && buffQuota) {
+        try {
+            const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
+            const combat = liveCombat();
+            const rs = getRoundState(actor, combat);
+            rs.maximizationQuota = {
+                roundKey: buffQuota.roundKey,
+                granted: buffQuota.granted,
+                remaining: Math.max(0, buffQuota.remaining - 1),
+            };
+            await setRoundState(actor, rs);
+            return true;
+        }
+        catch {
+            return false;
+        }
     }
     return false;
 }

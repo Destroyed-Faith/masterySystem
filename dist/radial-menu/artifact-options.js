@@ -19,7 +19,7 @@
  * points to the artifact item, with a synthetic `system.artifactPowerKey`
  * attached so downstream consumers can identify the row.
  */
-import { getStoneAreaBonusMeters } from '../combat/action-economy.js';
+import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
@@ -353,7 +353,8 @@ export function buildArtifactRadialOptions(actor) {
             }
             if (aoe.shape !== 'none' && (aoe.radiusM ?? 0) > 0) {
                 option.aoeShape = aoe.shape;
-                option.aoeRadiusMeters = (aoe.radiusM ?? 0) + getStoneAreaBonusMeters(actor, 'aoe');
+                option.aoeRadiusMeters =
+                    (aoe.radiusM ?? 0) + getEffectiveCircularAoeRadiusBonusMeters(actor);
                 option.defaultTargetGroup = 'enemy';
                 // Melee / Self AoE: self-centered burst. Everything else with a
                 // cast range (incl. type "Active" + "68 m" + Radius 7 m) is a

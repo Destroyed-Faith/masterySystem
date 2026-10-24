@@ -72,10 +72,11 @@ export declare function markMovementReductionTargets(targets: Array<{
     id?: string;
     round?: number;
 } | null | undefined): Promise<number>;
-export type MaximizationSource = 'stone' | 'passive';
+export type MaximizationSource = 'stone' | 'passive' | 'activeBuff';
 /** Remaining stone Maximizations for the current combat. */
 export declare function remainingStoneMaximizations(actor: any): number;
-/** Total Maximizations (stone + Passive) available for UI enablement. */
+export declare function remainingActiveBuffMaximizations(actor: any): number;
+/** Total Maximizations (stone + Passive + Active Buff) available for UI enablement. */
 export declare function remainingMaximizations(actor: any): number;
 export declare function listAvailableMaximizationSources(actor: any): Array<{
     source: MaximizationSource;

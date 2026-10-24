@@ -27,7 +27,8 @@ export type ActiveBuffUiFocus = (typeof ACTIVE_BUFF_UI_FOCI)[number];
 export declare const ACTIVE_BUFF_UI_FOCUS_LABELS: Record<ActiveBuffUiFocus, string>;
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Covers the final 18 only; retired Combined / Penetration / Healing stay omitted.
+ * Covers the final 25; retired Combined / Penetration / Healing stay omitted.
+ * Offensive = 12 (5 prior + 7 expansion); Defensive = 14 (Thorns overlap).
  */
 export declare const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<Record<string, readonly ActiveBuffUiFocus[]>>;
 /**

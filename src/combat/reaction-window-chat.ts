@@ -1022,7 +1022,7 @@ async function executeReactionSpend(params: {
         if (remainingMaximizations(actor) > 0 && /\d*d8/i.test(flat)) {
           const sources = listAvailableMaximizationSources(actor);
           const DialogCtor = (globalThis as any).Dialog;
-          let preferred: 'stone' | 'passive' | null = null;
+          let preferred: import('../stones/stone-combat-effects.js').MaximizationSource | null = null;
           let wantMax = false;
           if (typeof DialogCtor?.confirm === 'function') {
             const srcHint = sources.map((s) => s.label).join(' · ') || 'Maximization';
@@ -1037,7 +1037,9 @@ async function executeReactionSpend(params: {
           if (wantMax) {
             if (sources.length === 1) preferred = sources[0]!.source;
             else if (sources.length > 1 && typeof DialogCtor === 'function') {
-              preferred = await new Promise<'stone' | 'passive' | null>((resolve) => {
+              preferred = await new Promise<
+                import('../stones/stone-combat-effects.js').MaximizationSource | null
+              >((resolve) => {
                 const buttons: Record<string, any> = {};
                 for (const s of sources) {
                   buttons[s.source] = {

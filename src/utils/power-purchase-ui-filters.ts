@@ -68,7 +68,8 @@ export const ACTIVE_BUFF_UI_FOCUS_LABELS: Record<ActiveBuffUiFocus, string> = {
 
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Covers the final 18 only; retired Combined / Penetration / Healing stay omitted.
+ * Covers the final 25; retired Combined / Penetration / Healing stay omitted.
+ * Offensive = 12 (5 prior + 7 expansion); Defensive = 14 (Thorns overlap).
  */
 export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<
   Record<string, readonly ActiveBuffUiFocus[]>
@@ -92,6 +93,13 @@ export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<
   'ab-summon-damage-aura': ['offensive'],
   // Retaliation: defensive posture with offensive payload — discoverable in both.
   'ab-thorns': ['defensive', 'offensive'],
+  'ab-armor-reduction': ['offensive'],
+  'ab-enemy-evade-reduction': ['offensive'],
+  'ab-spell-resistance-piercing': ['offensive'],
+  'ab-maximization': ['offensive'],
+  'ab-armor-reduction-aura': ['offensive'],
+  'ab-allied-damage-aura': ['offensive'],
+  'ab-area-expansion': ['offensive'],
 };
 
 /**
