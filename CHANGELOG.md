@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.782] - 2026-10-25
+
+### Fixed
+
+- **Damage Raises:** Successful Damage Raises (+MR d8 each) roll as their own chat line instead of silently folding into Power. Allocation preview shows the bonus dice before you roll.
+
+### Docs
+
+- Homepage Character Sheet print handoff (`docs/homepage-character-sheet-print-handoff.md`) for aligning the website blank sheet with the DF 2026 table print.
+
 ## [0.9.781] - 2026-10-25
 
 ### Changed

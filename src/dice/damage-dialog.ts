@@ -85,8 +85,10 @@ function buildRaiseAllocPanelHtml(
   options: RaiseOption[],
   preset: DeclaredRaise[],
   locked: boolean,
+  masteryRank: number = 2,
 ): string {
   if (slots <= 0 || !options.length) return '';
+  const mr = Math.max(1, Math.floor(Number(masteryRank) || 2));
   const rows: string[] = [];
   for (let i = 0; i < slots; i++) {
     const pre = preset[i];
@@ -112,8 +114,8 @@ function buildRaiseAllocPanelHtml(
       </div>`);
   }
   return `
-    <div class="raises-section raise-alloc-panel" data-raise-alloc-slots="${slots}" data-raise-alloc-locked="${locked ? '1' : '0'}">
-      <p class="raises-description"><strong>Allocate ${slots} Raise${slots === 1 ? '' : 's'}</strong> (Damage or existing Special). Same Special may receive multiple Raises.</p>
+    <div class="raises-section raise-alloc-panel" data-raise-alloc-slots="${slots}" data-raise-alloc-locked="${locked ? '1' : '0'}" data-mastery-rank="${mr}">
+      <p class="raises-description"><strong>Allocate ${slots} Raise${slots === 1 ? '' : 's'}</strong> (Damage or existing Special). Each Damage Raise adds <strong>+${mr}d8</strong> (MR; AoE uses ⌈MR/2⌉). Same Special may receive multiple Raises.</p>
       <div class="raise-alloc-rows">${rows.join('')}</div>
       <p class="raise-alloc-preview md-sublabel"></p>
     </div>`;
@@ -1027,6 +1029,9 @@ export async function showDamageDialog(
         options: raiseAllocOptions,
         preset: raiseAllocPreset,
         locked: raiseAllocLocked,
+        masteryRank: actorToUse
+          ? getRulesMasteryRank(actorToUse)
+          : Math.max(1, Math.floor(Number(flags?.masteryRank) || 2)),
       },
     );
     
@@ -1143,6 +1148,7 @@ function createDamageCardContent(
     options?: RaiseOption[];
     preset?: DeclaredRaise[];
     locked?: boolean;
+    masteryRank?: number;
   } = {},
 ): string {
   const allocPanel = buildRaiseAllocPanelHtml(
@@ -1150,6 +1156,7 @@ function createDamageCardContent(
     Array.isArray(raiseAlloc.options) ? raiseAlloc.options : [],
     Array.isArray(raiseAlloc.preset) ? raiseAlloc.preset : [],
     !!raiseAlloc.locked,
+    Math.max(1, Math.floor(Number(raiseAlloc.masteryRank) || 2)),
   );
   const raisesSection = [
     raiseOutcomeLine
@@ -1250,14 +1257,10 @@ function createDamageCardContent(
           <span class="damage-label">Power:</span>
           <span class="damage-value">${hitSplit.power || powerDamage || '0'}</span>
         </div>
-        ${
-          hitSplit.raise
-            ? `<div class="damage-row">
+        <div class="damage-row damage-row-raise-live" style="${hitSplit.raise ? '' : 'display:none;'}">
           <span class="damage-label">Raise:</span>
-          <span class="damage-value">${damageCardHtmlEsc(hitSplit.raise)}</span>
-        </div>`
-            : ''
-        }
+          <span class="damage-value">${damageCardHtmlEsc(hitSplit.raise || '')}</span>
+        </div>
         ${
           hitSplit.specials
             ? `<div class="damage-row">
@@ -1333,11 +1336,46 @@ export function attachDamageCardHandlers(messageId: string): void {
   if (allocPanel.length && allocPanel.attr('data-raise-alloc-locked') !== '1') {
     const refreshAllocPreview = () => {
       const slots = Math.max(0, Math.floor(Number(allocPanel.attr('data-raise-alloc-slots')) || 0));
-      const chosen = allocPanel.find('.raise-alloc-select').toArray().map((el) => String($(el).val() || ''));
+      const chosen = allocPanel
+        .find('.raise-alloc-select')
+        .toArray()
+        .map((el) => String($(el).val() || ''));
       const filled = chosen.filter(Boolean).length;
-      allocPanel
-        .find('.raise-alloc-preview')
-        .text(filled >= slots ? 'Allocation complete.' : `Choose ${slots - filled} more Raise effect${slots - filled === 1 ? '' : 's'}.`);
+      const damagePicks = chosen.filter((id) => id === 'damage').length;
+      const msg = (game as any).messages?.get(messageId);
+      const fl = (msg?.flags?.['mastery-system'] ?? {}) as Record<string, any>;
+      const mr = Math.max(
+        1,
+        Math.floor(
+          Number(fl?.masteryRank) || Number(allocPanel.attr('data-mastery-rank')) || 2,
+        ),
+      );
+      const aoe = !!fl?.basePowerSnapshot?.hasAoe;
+      const perRaise = aoe ? Math.ceil(mr / 2) : mr;
+      const bonusDice = damagePicks * perRaise;
+      const parts: string[] = [];
+      if (filled < slots) {
+        parts.push(
+          `Choose ${slots - filled} more Raise effect${slots - filled === 1 ? '' : 's'}.`,
+        );
+      } else {
+        parts.push('Allocation complete.');
+      }
+      if (bonusDice > 0) {
+        parts.push(
+          `→ +${bonusDice}d8 Damage Raises (${damagePicks}× +${perRaise}d8 @ MR ${mr}) — rolled separately from Power.`,
+        );
+      }
+      allocPanel.find('.raise-alloc-preview').text(parts.join(' '));
+      // Live-update Raise row on the card when Damage Raises are picked.
+      const $raiseRow = messageElement.find('.damage-row-raise-live');
+      if ($raiseRow.length) {
+        if (bonusDice > 0) {
+          $raiseRow.show().find('.damage-value').text(`+${bonusDice}d8`);
+        } else {
+          $raiseRow.hide();
+        }
+      }
     };
     allocPanel.find('.raise-alloc-select').off('change.msRaiseAlloc').on('change.msRaiseAlloc', refreshAllocPreview);
     refreshAllocPreview();
@@ -1433,14 +1471,26 @@ export function attachDamageCardHandlers(messageId: string): void {
       const mr = attacker
         ? getRulesMasteryRank(attacker)
         : Math.max(1, Math.floor(Number(flags.masteryRank) || 2));
+      const baseSnap = flags.basePowerSnapshot as PowerSnapshot;
       const resolved = resolvePowerSnapshot({
-        base: flags.basePowerSnapshot as PowerSnapshot,
+        base: baseSnap,
         declaredRaises: allocatedPlan,
         outcome: 'full',
         masteryRank: mr,
         isSpell: !!flags.powerIsSpell,
       });
       const resolvedSpecials = snapshotToSpecialStrings(resolved);
+      // Keep Power at base dice; Damage Raises roll as their own chat line (+MR d8 each).
+      const basePowerDice = Math.max(0, Math.floor(Number(baseSnap.damageDice) || 0));
+      const raiseBonusDice = Math.max(
+        0,
+        Math.floor(Number(resolved.damageDice) || 0) - basePowerDice,
+      );
+      const damageRaiseCount = allocatedPlan.filter((r) => r.effect === 'damage').length;
+      const raiseBonusLabel =
+        raiseBonusDice > 0
+          ? `Damage Raises (+${raiseBonusDice}d8 · ${damageRaiseCount}× @ MR ${mr})`
+          : '';
       // On-hit application reads `effect` / `name` strings (e.g. "Lacerate(5)"),
       // not bare numeric `value` — keep labels in sync with allocated Raises.
       const avail = Array.isArray(flags.availableSpecials)
@@ -1477,13 +1527,16 @@ export function attachDamageCardHandlers(messageId: string): void {
       flags = {
         ...flags,
         declaredRaises: allocatedPlan,
-        powerDamage: snapshotToDamageFormula(resolved),
+        powerDamage: snapshotToDamageFormula(baseSnap),
+        raiseBonusDice,
+        raiseBonusLabel,
         resolvedPowerSnapshot: resolved,
         availableSpecials: avail,
       };
       try {
         await message.setFlag?.('mastery-system', 'declaredRaises', allocatedPlan);
         await message.setFlag?.('mastery-system', 'powerDamage', flags.powerDamage);
+        await message.setFlag?.('mastery-system', 'raiseBonusDice', raiseBonusDice);
         await message.setFlag?.('mastery-system', 'resolvedPowerSnapshot', resolved);
       } catch {
         /* best-effort */
@@ -1545,6 +1598,8 @@ export function attachDamageCardHandlers(messageId: string): void {
       {
         useId: autofireSession?.useId ?? null,
         spendMaximizationAfterNegation: deferredMaximization,
+        raiseBonusDice: Math.max(0, Math.floor(Number(flags.raiseBonusDice) || 0)),
+        raiseBonusLabel: String(flags.raiseBonusLabel || ''),
       },
     );
     // Mechanical npcStressD8 / Stress on hit retired.
@@ -2997,6 +3052,12 @@ export async function calculateDamageResult(
     useId?: string | null;
     /** Spends one Maximization charge AFTER Negation, before dice are revealed. */
     spendMaximizationAfterNegation?: () => Promise<boolean>;
+    /**
+     * DF 2026 Damage Raises already resolved to bonus d8 (N × MR, or ceil(MR/2) on AoE).
+     * Rolled as a separate chat line so they are not silently folded into Power.
+     */
+    raiseBonusDice?: number;
+    raiseBonusLabel?: string;
   },
 ): Promise<DamageResult> {
   // Rulebook attack sequence step 7: Phasing resolves after the hit is
@@ -3052,12 +3113,17 @@ export async function calculateDamageResult(
       for (let i = 0; i < raises; i++) {
         if (raiseSelections.get(i)?.type === 'damage') raiseDamagePicks++;
       }
+      const resolvedRaiseBonusDice = Math.max(
+        0,
+        Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0),
+      );
       const originalDice =
         countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
         Math.max(0, Math.floor(stoneDamageBonusDice)) +
         countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
         countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
         raiseDamagePicks +
+        resolvedRaiseBonusDice +
         Math.max(0, Math.floor(npcAutoDamageDice));
       if (sharedSession) {
         // Shared Autofire roll: collect every hit's Negation now (dice not revealed yet).
@@ -3111,12 +3177,17 @@ export async function calculateDamageResult(
       if (raiseSelections.get(i)?.type === 'damage') raiseDamagePicksLeft++;
     }
     raiseDamagePicksLeft = Math.max(0, raiseDamagePicksLeft - negationSkipRaiseDice);
+    const remainingRaiseBonus = Math.max(
+      0,
+      Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice,
+    );
     const remainingDice =
       countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
       Math.max(0, Math.floor(stoneDamageBonusDice)) +
       countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
       countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
       raiseDamagePicksLeft +
+      remainingRaiseBonus +
       Math.max(0, Math.floor(npcAutoDamageDice));
     const { shouldSpendMaximizationAfterNegation } = await import('../combat/maximization-order.js');
     if (shouldSpendMaximizationAfterNegation({ wantMaximization: true, remainingDice })) {
@@ -3218,6 +3289,31 @@ export async function calculateDamageResult(
   let raiseDamage = 0;
   const specialsUsed: string[] = [];
   let raiseDiceCount = 0;
+
+  // DF 2026 Damage Raises — separate from Power so the table sees +MR d8 per Raise.
+  let raiseBonusDiceLeft = Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0));
+  if (negationSkipRaiseDice > 0 && raiseBonusDiceLeft > 0) {
+    const strip = Math.min(negationSkipRaiseDice, raiseBonusDiceLeft);
+    raiseBonusDiceLeft -= strip;
+    negationSkipRaiseDice -= strip;
+    rollDetails.push(
+      `Damage Raises: ${strip}d8 removed by Damage Negation` +
+        (damageRollOpts?.raiseBonusLabel ? ` (${damageRollOpts.raiseBonusLabel})` : ''),
+    );
+  }
+  if (raiseBonusDiceLeft > 0) {
+    const raiseLabel =
+      damageRollOpts?.raiseBonusLabel || `Damage Raises (+${raiseBonusDiceLeft}d8)`;
+    const raiseRoll = await rollDiceWithDetail(
+      `${raiseBonusDiceLeft}d8`,
+      raiseLabel,
+      undefined,
+      poolFaces,
+    );
+    raiseDamage += raiseRoll.total;
+    if (raiseRoll.line) rollDetails.push(raiseRoll.line);
+    if (raiseRoll.roll) damageChatRolls.push(raiseRoll.roll);
+  }
 
   // Only Specials the Raise resolution put on the power snapshot apply.
   // A printed weapon Special stays off until that Raise is chosen.
