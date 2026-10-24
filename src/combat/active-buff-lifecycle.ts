@@ -184,6 +184,25 @@ export async function clearPrepBaseAttackCommitment(actor: any, combat: any): Pr
 }
 
 /**
+ * Full rollback of a Preparation Active Buff activation cost:
+ * clears prepBaseAttackCommitted and activeBuffUsedThisRound.
+ * Call only when the base Attack was committed for that activation.
+ */
+export async function refundPrepActiveBuffActivation(
+  actor: any,
+  combat: any,
+): Promise<boolean> {
+  if (!actor || !combat) return false;
+  const rs = getRoundState(actor, combat);
+  if (!rs.prepBaseAttackCommitted && !rs.activeBuffUsedThisRound) return false;
+  const hadCommit = !!rs.prepBaseAttackCommitted;
+  rs.prepBaseAttackCommitted = false;
+  rs.activeBuffUsedThisRound = false;
+  await setRoundState(actor, rs);
+  return hadCommit;
+}
+
+/**
  * Expire Active Buffs whose lastActiveRound is strictly before the new Round
  * (i.e. Round End of lastActiveRound has passed). Call when advancing to `newRound`.
  */

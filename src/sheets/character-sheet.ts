@@ -6615,31 +6615,61 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Toggle power details expansion
    */
-  #onActiveBuffRemove(event: JQuery.ClickEvent) {
+  async #onActiveBuffRemove(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     const element = event.currentTarget;
     const effectId = element.dataset.effectId;
-    
+
     if (!effectId) {
       ui.notifications?.warn('No effect ID found.');
       return;
     }
-    
+
     const effect = this.actor.effects.get(effectId);
     if (!effect) {
       ui.notifications?.warn('Effect not found.');
       return;
     }
-    
-    effect.delete().then(() => {
+
+    const combat = (game as any).combat ?? null;
+    const isGM = !!(game as any).user?.isGM;
+    try {
+      const {
+        getTrueActiveBuffs,
+        canRetractActiveBuffActivation,
+        retractActiveBuffActivation,
+      } = await import('../utils/active-buffs.js');
+      const isTrueBuff = getTrueActiveBuffs(this.actor as any).some(
+        (e: any) => e?.id === effectId || e === effect,
+      );
+      if (isTrueBuff) {
+        const canRetract = await canRetractActiveBuffActivation(this.actor as any, combat);
+        if (canRetract) {
+          const result = await retractActiveBuffActivation(this.actor as any);
+          if (result.ok) this.render();
+          return;
+        }
+        if (!isGM) {
+          ui.notifications?.warn(
+            'You can only retract an Active Buff during Preparation (GM may retract anytime).',
+          );
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Mastery System | Active Buff retract via sheet failed', err);
+    }
+
+    try {
+      await effect.delete();
       this.render();
       ui.notifications?.info(`${effect.name} removed.`);
-    }).catch((error: any) => {
+    } catch (error: any) {
       console.error('Mastery System | Failed to remove active buff', error);
       ui.notifications?.error('Failed to remove active buff.');
-    });
+    }
   }
 
   async #onPowerDisplayNameChange(event: JQuery.ChangeEvent) {

@@ -57,6 +57,9 @@
       <span class="active-buff-prep-note">Optional — activate one for the upcoming Round (costs your base Attack Action).</span>
       {{/if}}
       <span class="active-buff-prep-hint">{{activeBuffPrep.hint}}</span>
+      {{#if activeBuffPrep.pendingEmpowerment}}
+      <span class="active-buff-prep-empower">{{activeBuffPrep.pendingEmpowerment}}</span>
+      {{/if}}
       {{#if activeBuffPrep.unavailableReason}}
       <span class="active-buff-prep-unavailable">{{activeBuffPrep.unavailableReason}}</span>
       {{/if}}
@@ -74,6 +77,18 @@
       {{/each}}
     </div>
     {{/unless}}
+    {{#if activeBuffPrep.canRetract}}
+    <div class="active-buff-prep-retract">
+      <button type="button"
+              class="dialog-btn js-retract-active-buff"
+              title="{{activeBuffPrep.retractHint}}">
+        Retract Active Buff
+      </button>
+      {{#if activeBuffPrep.retractHint}}
+      <span class="active-buff-prep-retract-hint">{{activeBuffPrep.retractHint}}</span>
+      {{/if}}
+    </div>
+    {{/if}}
   </div>
   {{/if}}
 

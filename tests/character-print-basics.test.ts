@@ -258,7 +258,14 @@ describe('character print table sheet', () => {
       .map((p: any) => p.name)
       .sort();
     expect(onceNames).toEqual(
-      ['Colorless Recovery', 'Maximization', 'Initiative Boost', 'Phasing', 'Temporary HP'].sort(),
+      [
+        'Active Buff Empowerment',
+        'Colorless Recovery',
+        'Maximization',
+        'Initiative Boost',
+        'Phasing',
+        'Temporary HP',
+      ].sort(),
     );
     expect(ctx.stoneDashboard.combatReflexes).toBeUndefined();
   });

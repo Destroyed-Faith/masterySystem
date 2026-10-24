@@ -11,6 +11,8 @@ import {
   expireActiveBuffsAtRoundEnd,
   preparationTargetRound,
   refreshActiveBuffTempHPAtPreparation,
+  refundPrepActiveBuffActivation,
+  isActiveBuffPreparationWindow,
 } from '../src/combat/active-buff-lifecycle';
 import {
   getAvailableAttackActions,
@@ -25,6 +27,10 @@ import { STONE_POWERS, stonePowerRankCost } from '../src/stones/stone-powers';
 import { damageNegationReserveForLevel } from '../src/combat/damage-negation';
 import { MS_INNER_SEGMENTS } from '../src/radial-menu/types';
 import { getSegmentIdForOption } from '../src/radial-menu/options';
+import {
+  canRetractActiveBuffFromFlags,
+  retractActiveBuffActivation,
+} from '../src/utils/active-buffs';
 
 function makeActor() {
   const flagStore: Record<string, any> = {};
@@ -301,5 +307,221 @@ describe('getSegmentIdForOption still classifies buffs (for filter)', () => {
       item: { system: { powerType: 'active-buff', cost: { action: 'attack' } } },
     };
     expect(getSegmentIdForOption(opt)).toBe('active-buff');
+  });
+});
+
+describe('Active Buff retract', () => {
+  beforeEach(() => {
+    vi.stubGlobal('game', {
+      combat: { id: 'c1', round: 1, turn: 0, started: false },
+      user: { id: 'u1', isGM: false },
+    });
+    vi.stubGlobal('canvas', { tokens: { placeables: [] } });
+    vi.stubGlobal('Hooks', { callAll: () => undefined });
+    vi.stubGlobal('ui', {
+      notifications: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+    });
+  });
+
+  function pushBuff(actor: any, name = 'Armor') {
+    const effect: any = {
+      id: 'eff1',
+      name,
+      flags: {
+        'mastery-system': {
+          activeBuff: true,
+          activationRound: 1,
+          effectiveDuration: 1,
+          lastActiveRound: 1,
+          durationMode: 'round-end',
+          combatId: 'c1',
+        },
+      },
+      delete: async () => {
+        actor.effects = actor.effects.filter((e: any) => e !== effect);
+      },
+    };
+    actor.effects.push(effect);
+    return effect;
+  }
+
+  it('refundPrepActiveBuffActivation clears commit and used flags', async () => {
+    const actor = makeActor();
+    const combat = { id: 'c1', round: 1, turn: 0 } as any;
+    await setRoundState(actor, {
+      combatId: 'c1',
+      round: 1,
+      isPC: true,
+      movementActions: { total: 1, used: 0 },
+      attackActions: { total: 1, used: 0 },
+      reactionActions: { total: 1, used: 0 },
+      moveBonusMeters: 0,
+      usedPowerIdsThisRound: [],
+      npcAttackUsesThisRound: {},
+      stoneBonuses: { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 },
+      prepBaseAttackCommitted: true,
+      activeBuffUsedThisRound: true,
+    });
+    expect(await refundPrepActiveBuffActivation(actor, combat)).toBe(true);
+    const rs = getRoundState(actor, combat);
+    expect(rs.prepBaseAttackCommitted).toBe(false);
+    expect(rs.activeBuffUsedThisRound).toBe(false);
+    expect(getAvailableAttackActions(actor, combat)).toBe(1);
+  });
+
+  it('Prep activate commit → retract restores Attack and removes effect', async () => {
+    const actor = makeActor();
+    actor.isOwner = true;
+    const combat = (globalThis as any).game.combat;
+    await setRoundState(actor, {
+      combatId: 'c1',
+      round: 1,
+      isPC: true,
+      movementActions: { total: 1, used: 0 },
+      attackActions: { total: 1, used: 0 },
+      reactionActions: { total: 1, used: 0 },
+      moveBonusMeters: 0,
+      usedPowerIdsThisRound: [],
+      npcAttackUsesThisRound: {},
+      stoneBonuses: { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 },
+    });
+    expect(await commitPrepBaseAttackAction(actor, combat)).toBe(true);
+    pushBuff(actor);
+    expect(isActiveBuffPreparationWindow(actor, combat)).toBe(true);
+
+    const result = await retractActiveBuffActivation(actor, { user: { isGM: false } });
+    expect(result.ok).toBe(true);
+    expect(result.refunded).toBe(true);
+    expect(actor.effects).toHaveLength(0);
+    expect(getRoundState(actor, combat).prepBaseAttackCommitted).toBe(false);
+    expect(getRoundState(actor, combat).activeBuffUsedThisRound).toBe(false);
+    expect(getAvailableAttackActions(actor, combat)).toBe(1);
+  });
+
+  it('maintain-only retract deletes effect without inventing a refund', async () => {
+    const actor = makeActor();
+    actor.isOwner = true;
+    const combat = (globalThis as any).game.combat;
+    await setRoundState(actor, {
+      combatId: 'c1',
+      round: 1,
+      isPC: true,
+      movementActions: { total: 1, used: 0 },
+      attackActions: { total: 1, used: 0 },
+      reactionActions: { total: 1, used: 0 },
+      moveBonusMeters: 0,
+      usedPowerIdsThisRound: [],
+      npcAttackUsesThisRound: {},
+      stoneBonuses: { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 },
+      prepBaseAttackCommitted: false,
+      activeBuffUsedThisRound: false,
+    });
+    pushBuff(actor);
+    const result = await retractActiveBuffActivation(actor, { user: { isGM: false } });
+    expect(result.ok).toBe(true);
+    expect(result.refunded).toBe(false);
+    expect(actor.effects).toHaveLength(0);
+    expect(getRoundState(actor, combat).prepBaseAttackCommitted).toBe(false);
+  });
+
+  /** Round ≥2 with confirmed assignment + stones done → Preparation closed. */
+  async function closePreparation(actor: any, combat: any, round = 2) {
+    combat.round = round;
+    combat.started = true;
+    await actor.setFlag('mastery-system', 'preparationPhase', {
+      combatId: String(combat.id),
+      round,
+      boost: 'skipped',
+      boostTier: 0,
+      exchange: 'done',
+      exchangeStones: 0,
+      assignment: 'confirmed',
+    });
+    const doneKey = `cb1:${round}`;
+    combat.combatants = [{ id: 'cb1', actorId: actor.id, actor }];
+    combat.getFlag = (_ns: string, key: string) =>
+      key === 'stonePowersDoneByRound' ? { [doneKey]: true } : undefined;
+    combat.flags = {
+      'mastery-system': { stonePowersDoneByRound: { [doneKey]: true } },
+    };
+  }
+
+  it('non-GM outside Preparation is denied', async () => {
+    const actor = makeActor();
+    actor.isOwner = true;
+    const combat = { id: 'c1', round: 2, turn: 0, started: true } as any;
+    (globalThis as any).game.combat = combat;
+    await closePreparation(actor, combat, 2);
+    pushBuff(actor);
+    expect(isActiveBuffPreparationWindow(actor, combat)).toBe(false);
+
+    const result = await retractActiveBuffActivation(actor, { user: { isGM: false } });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe('denied');
+    expect(actor.effects).toHaveLength(1);
+  });
+
+  it('GM outside Preparation may retract', async () => {
+    const actor = makeActor();
+    actor.isOwner = false;
+    const combat = { id: 'c1', round: 2, turn: 0, started: true } as any;
+    (globalThis as any).game.combat = combat;
+    await closePreparation(actor, combat, 2);
+    await setRoundState(actor, {
+      combatId: 'c1',
+      round: 2,
+      isPC: true,
+      movementActions: { total: 1, used: 0 },
+      attackActions: { total: 1, used: 0 },
+      reactionActions: { total: 1, used: 0 },
+      moveBonusMeters: 0,
+      usedPowerIdsThisRound: [],
+      npcAttackUsesThisRound: {},
+      stoneBonuses: { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 },
+      prepBaseAttackCommitted: true,
+      activeBuffUsedThisRound: true,
+    });
+    pushBuff(actor);
+    expect(isActiveBuffPreparationWindow(actor, combat)).toBe(false);
+
+    const result = await retractActiveBuffActivation(actor, { user: { isGM: true } });
+    expect(result.ok).toBe(true);
+    expect(result.refunded).toBe(true);
+    expect(actor.effects).toHaveLength(0);
+  });
+
+  it('canRetractActiveBuffFromFlags: player Prep vs GM anytime', () => {
+    expect(
+      canRetractActiveBuffFromFlags({
+        maintaining: true,
+        isGM: false,
+        isOwner: true,
+        windowOpen: true,
+      }),
+    ).toBe(true);
+    expect(
+      canRetractActiveBuffFromFlags({
+        maintaining: true,
+        isGM: false,
+        isOwner: true,
+        windowOpen: false,
+      }),
+    ).toBe(false);
+    expect(
+      canRetractActiveBuffFromFlags({
+        maintaining: true,
+        isGM: true,
+        isOwner: false,
+        windowOpen: false,
+      }),
+    ).toBe(true);
+    expect(
+      canRetractActiveBuffFromFlags({
+        maintaining: false,
+        isGM: true,
+        isOwner: true,
+        windowOpen: true,
+      }),
+    ).toBe(false);
   });
 });

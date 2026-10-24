@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.771] - 2026-10-24
+
+### Added
+
+- **Active Buff retract:** During Preparation, retract an activated Buff and restore the committed base Attack Action. GM may end a maintained Buff anytime (Attack refund only if committed this Round).
+- **Active Buff Empowerment (once per Combat):** Resolve Stone Ability is once-per-combat; parks PL/Rounds for the next Prep activate/replace (PL cap 16). Cannot empower a maintained Buff; allowance does not refresh on expire/replace/reactivate. Prep UI shows pending empowerment.
+
+### Changed
+
+- Players’ Guide / Active Buff rules text aligned to once-per-combat Empowerment wording.
+
 ## [0.9.770] - 2026-10-24
 
 ### Added

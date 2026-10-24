@@ -40,6 +40,12 @@
   line-height: 1.25;
 }
 
+.stone-powers-dialog .active-buff-prep-empower {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(180, 120, 255, 0.95);
+}
+
 .stone-powers-dialog .active-buff-prep-unavailable {
   opacity: 0.85;
   font-size: 0.78rem;
@@ -50,6 +56,19 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+}
+
+.stone-powers-dialog .active-buff-prep-retract {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  flex: 1 1 100%;
+}
+
+.stone-powers-dialog .active-buff-prep-retract-hint {
+  font-size: 0.78rem;
+  opacity: 0.85;
 }
 
 .stone-powers-dialog .js-activate-active-buff.is-current {

@@ -205,15 +205,16 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(Object.keys(STONE_POWERS)).toHaveLength(32);
   });
 
-  it('Resolve pool leads with the Premium ability', () => {
+  it('Resolve pool: Premium left, Once a Combat on the right', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.resolve.map((p) => p.id);
     expect(ids[0]).toBe('resolve.damageReduction');
     expect(ids).toEqual([
       'resolve.damageReduction',
       'resolve.healing',
-      'resolve.activeBuffEmpowerment',
       'resolve.ward',
+      'resolve.activeBuffEmpowerment',
     ]);
+    expect(STONE_POWERS['resolve.activeBuffEmpowerment'].oncePerCombat).toBe(true);
   });
 
   it('Vitality pool: Premium left, Once a Combat on the right', () => {
@@ -635,6 +636,32 @@ describe('Resolve — Active Buff Empowerment stores PL and rounds', () => {
     await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
     expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(3);
     expect(actor._roundState.stoneBonuses.activeBuffPlBonus).toBe(3);
+  });
+
+  it('is once-per-combat and maps a combat flag', async () => {
+    const { oncePerCombatFlagForPower } = await import('../src/stones/colorless-stones');
+    expect(STONE_POWERS['resolve.activeBuffEmpowerment'].oncePerCombat).toBe(true);
+    expect(oncePerCombatFlagForPower('resolve.activeBuffEmpowerment')).toBe(
+      'msActiveBuffEmpowermentUsed',
+    );
+  });
+
+  it('refuses apply when once-per-combat flag is already set', async () => {
+    const actor = makeMockActor();
+    (globalThis as any).game = { ...(globalThis as any).game, combat: { id: 'c1', round: 1 } };
+    vi.stubGlobal('ui', { notifications: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } });
+    await actor.setFlag('mastery-system', 'msActiveBuffEmpowermentUsed', {
+      combatId: 'c1',
+      used: true,
+    });
+    await STONE_POWERS['resolve.activeBuffEmpowerment'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier: 2,
+      cost: 2,
+    });
+    expect(actor._roundState.stoneBonuses.extendActiveBuffRounds ?? 0).toBe(0);
+    expect(actor._roundState.stoneBonuses.activeBuffPlBonus ?? 0).toBe(0);
   });
 });
 

@@ -119,6 +119,10 @@ Active Buffs are temporary combat enhancements. Unlike Passives, they occupy a m
 
 Choose and activate or replace an Active Buff **only during the Preparation Phase**, before the Combat Round begins. Commit your **base Attack Action for the upcoming Round** as the activation cost. You cannot use that base Action on your Turn for a Basic Attack, Active Power, or any other use; it cannot also pay for Dash, Disengage, Parry or another ability. **Additional Attack Actions** from legal sources remain available. If you cannot commit the base Action, you cannot activate a Buff without an explicit exception. Ordinary Active Buffs cannot be activated outside Preparation.
 
+**Retract.** During the same Preparation Phase, you may retract a Buff you just activated. Retracting ends the Buff and restores the committed base Attack Action so you can activate a different Buff later (including in a later Round’s Preparation). The GM may end a maintained Buff outside Preparation; the Attack Action is refunded only when it was committed for that activation Round.
+
+**Active Buff Empowerment** (Resolve Stone Ability). Once per Combat, during the Preparation Phase, when activating an Active Buff, you may empower that Buff by the listed Power Levels and additional complete Rounds. The effective Power Level cannot exceed 16. Empowerment cannot be applied to an already maintained Buff. The allowance does not refresh when the Buff expires, is replaced, or is reactivated.
+
 The Buff is active **before any Turn in the activation Round**, regardless of Initiative. It normally requires no roll unless an entry targets an unwilling creature or explicitly requires one.
 
 ### Complete-Round Duration

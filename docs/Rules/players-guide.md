@@ -7944,7 +7944,7 @@ Each Rank restores **1 Scarred Health Bar** and **Seals** its printed Vitality S
 
 **Healing.** During Preparation, pay the normal cumulative Stone cost for **one Healing application**. Trigger it later in the current Round at a legal action boundary, targeting **yourself or one ally** within the listed Range. You may also trigger it **before incoming HP damage**; heal first, then resolve the hit's damage. Triggering uses **no additional Stones, Attack Action, or Reaction**. Roll once, then expend the prepared application. Unused Healing expires at Round End; Stones remain spent. Apply the current-Bar cap and the positive-Healing exception for living Incapacitated or Stable creatures. Eligible **Maximization** may enhance the roll.
 
-**Active Buff Empowerment.** Improve **one Active Buff activated this Round** by the listed effective Power Levels (up to its normal PL cap) and extra duration. The improved Buff keeps its own resulting duration; this does not add another maintained Buff. Multiple Empowerment sources do not stack unless expressly allowed.
+**Active Buff Empowerment.** Once per Combat, during the Preparation Phase, when activating an Active Buff, improve it by the listed Power Levels (effective PL cannot exceed 16) and additional complete Rounds. Empowerment cannot be applied to an already maintained Buff. The allowance does not refresh when the Buff expires, is replaced, or is reactivated. The improved Buff keeps its own resulting duration; this does not add another maintained Buff. Multiple Empowerment sources do not stack unless expressly allowed.
 
 }}
 \page
