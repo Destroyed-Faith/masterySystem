@@ -7,7 +7,9 @@ import { MasteryActor } from '../documents/actor';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import {
   buildSpecializationSheetRows,
+  ensureCharacterHasPerceptionSpec,
   findSpecializationById,
+  isCharacterPerceptionSpec,
   readSpecializations,
   SPECIALIZATION_XP_PER_RANK,
   STARTING_SPECIALIZATION_COUNT,
@@ -1061,11 +1063,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     // DF 2026: starting budget = five Rank-2 Specializations (20 Creation Points).
-    const creationSpecs = readSpecializations(context.system);
+    // Free Perception Spec is ensured on every character and does not consume a slot.
+    const creationEnsured = ensureCharacterHasPerceptionSpec(context.system);
+    if (creationEnsured.changed) {
+      context.system.specializations = creationEnsured.specializations;
+    }
+    const creationSpecs = creationEnsured.specializations;
+    const paidCreationSpecs = creationSpecs.filter((s) => !isCharacterPerceptionSpec(s));
     const specBudget = validateSpecializationList(creationSpecs, { requireStartingBudget: true });
     const specializationsValid = specBudget.ok;
-    const specializationCount = creationSpecs.length;
-    const specializationRank2Count = creationSpecs.filter((s) => s.rank === startingSpecRank).length;
+    const specializationCount = paidCreationSpecs.length;
+    const specializationRank2Count = paidCreationSpecs.filter((s) => s.rank === startingSpecRank).length;
     
     // Calculate disadvantage points
     const disadvantagePoints = (context.system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
@@ -6373,14 +6381,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   #prepareSpecializations(context: any): void {
     const system = context.system ?? {};
-    const specs = readSpecializations(system);
+    const ensured = ensureCharacterHasPerceptionSpec(system);
+    if (ensured.changed) {
+      system.specializations = ensured.specializations;
+      // Persist so existing worlds keep Perception without a one-off migration.
+      void this.actor
+        .update({ 'system.specializations': ensured.specializations })
+        .catch((err: unknown) =>
+          console.warn('Mastery System | Character Perception Spec seed failed', err),
+        );
+    }
+    const specs = ensured.specializations.length
+      ? ensured.specializations
+      : readSpecializations(system);
     const attrValues: Record<string, number> = {};
     for (const [key, data] of Object.entries(system.attributes ?? {})) {
       attrValues[key] = Number((data as any)?.value) || 0;
     }
     context.specializations = buildSpecializationSheetRows(specs, attrValues);
     context.hasSpecializations = specs.length > 0;
-    context.specializationCount = specs.length;
+    // Paid Specs only — free Perception does not consume a starting slot.
+    context.specializationCount = specs.filter((s) => !isCharacterPerceptionSpec(s)).length;
     const isOwner = !!this.actor.isOwner || !!context.isGM;
     context.canEditSpecializations = isOwner;
     // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
@@ -8417,7 +8438,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       );
       return;
     }
-    const specAlloc = validateSpecializationList(readSpecializations(system), {
+    const perceptionEnsured = ensureCharacterHasPerceptionSpec(system);
+    if (perceptionEnsured.changed) {
+      system.specializations = perceptionEnsured.specializations;
+    }
+    const specAlloc = validateSpecializationList(perceptionEnsured.specializations, {
       requireStartingBudget: true,
     });
     if (!specAlloc.ok) {
@@ -8500,6 +8525,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       'system.faithFractures.current': disadvantagePoints,
       'system.faithFractures.maximum': disadvantagePoints,
       'system.languages.known': langNorm.cleaned,
+      'system.specializations': perceptionEnsured.specializations,
     };
     
     // Always persist full per-rank schtick rows (merged 1..MR) so actor data matches the sheet after finalize

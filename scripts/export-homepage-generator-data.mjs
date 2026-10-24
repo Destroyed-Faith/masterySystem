@@ -67,6 +67,8 @@ const specializations = await import('../dist/rules/specializations.js');
 write('specialization-fields.json', {
   fields: specializations.SKILL_FIELDS,
   labels: specializations.SKILL_FIELD_LABELS,
+  /** Inspiration only — free-named Specs; eight examples per Field with job-style scopes. */
+  examples: specializations.SPECIALIZATION_FIELD_EXAMPLES,
 });
 
 // --- Echo Imprints ----------------------------------------------------------

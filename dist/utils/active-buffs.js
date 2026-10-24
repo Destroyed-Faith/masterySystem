@@ -8,9 +8,10 @@ import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 /**
- * Consume a pending Vitality "Extend Active Buff" stone-power extension.
- * Returns the extra rounds for the buff being activated right now (0 if none)
- * and clears the pending marker so only ONE Active Buff per turn benefits.
+ * Consume pending Resolve Active Buff Empowerment (PL + complete Rounds).
+ * Applies only when activating/replacing a Buff in Preparation — not when
+ * merely maintaining. Clears the pending marker so one activation benefits.
+ * Once-per-combat spend is tracked on the stone power flag separately.
  */
 async function consumePendingBuffExtension(actor) {
     try {
@@ -396,8 +397,8 @@ export async function activateActiveBuff(actor, power, opts) {
         if (!created?.length) {
             if (combat && !opts?.skipActionCommit) {
                 try {
-                    const { clearPrepBaseAttackCommitment } = await import('../combat/active-buff-lifecycle.js');
-                    await clearPrepBaseAttackCommitment(actor, combat);
+                    const { refundPrepActiveBuffActivation } = await import('../combat/active-buff-lifecycle.js');
+                    await refundPrepActiveBuffActivation(actor, combat);
                 }
                 catch {
                     /* best-effort */
@@ -450,12 +451,8 @@ export async function activateActiveBuff(actor, power, opts) {
         console.error('Mastery System | Failed to activate active buff', error);
         if (combat && !opts?.skipActionCommit) {
             try {
-                const { clearPrepBaseAttackCommitment } = await import('../combat/active-buff-lifecycle.js');
-                const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
-                await clearPrepBaseAttackCommitment(actor, combat);
-                const rs = getRoundState(actor, combat);
-                rs.activeBuffUsedThisRound = false;
-                await setRoundState(actor, rs);
+                const { refundPrepActiveBuffActivation } = await import('../combat/active-buff-lifecycle.js');
+                await refundPrepActiveBuffActivation(actor, combat);
             }
             catch {
                 /* best-effort undo */
@@ -464,6 +461,128 @@ export async function activateActiveBuff(actor, power, opts) {
         ui.notifications?.error(`Failed to activate ${power.name}`);
         return false;
     }
+}
+/**
+ * Sync permission helper when Preparation window / ownership are already known (UI context).
+ * Players: only during Preparation. GMs: anytime a true buff is maintained.
+ */
+export function canRetractActiveBuffFromFlags(opts) {
+    if (!opts.maintaining)
+        return false;
+    if (opts.isGM)
+        return true;
+    return opts.isOwner && opts.windowOpen;
+}
+/**
+ * Whether the current user may retract a maintained true Active Buff.
+ * Players: only during Preparation. GMs: anytime a true buff is maintained.
+ */
+export async function canRetractActiveBuffActivation(actor, combat, user) {
+    if (!actor)
+        return false;
+    const maintained = getTrueActiveBuffs(actor);
+    if (!maintained.length)
+        return false;
+    const u = user ?? globalThis.game?.user ?? null;
+    if (u?.isGM)
+        return true;
+    if (!combat)
+        return false;
+    if (!actor.isOwner)
+        return false;
+    try {
+        const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
+        return isActiveBuffPreparationWindow(actor, combat);
+    }
+    catch {
+        return false;
+    }
+}
+/**
+ * Retract a maintained Active Buff: delete the effect and, when the base Attack
+ * was committed for this activation, refund prepBaseAttackCommitted + activeBuffUsedThisRound.
+ * Players may only retract during Preparation; GMs may retract anytime.
+ */
+export async function retractActiveBuffActivation(actor, opts) {
+    const combat = globalThis.game?.combat ?? null;
+    const user = opts?.user ?? globalThis.game?.user ?? null;
+    const maintained = getTrueActiveBuffs(actor);
+    if (!maintained.length) {
+        ui.notifications?.warn('No Active Buff to retract.');
+        return { ok: false, refunded: false, reason: 'none' };
+    }
+    let allowed = !!user?.isGM;
+    if (!allowed && combat && actor.isOwner) {
+        try {
+            const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
+            allowed = isActiveBuffPreparationWindow(actor, combat);
+        }
+        catch {
+            allowed = false;
+        }
+    }
+    if (!allowed) {
+        ui.notifications?.warn('You can only retract an Active Buff during Preparation (GM may retract anytime).');
+        return { ok: false, refunded: false, reason: 'denied' };
+    }
+    const names = maintained
+        .map((e) => String(e?.name || 'Active Buff'))
+        .filter(Boolean)
+        .join(', ');
+    try {
+        for (const effect of [...maintained]) {
+            await effect.delete();
+        }
+    }
+    catch (err) {
+        console.error('Mastery System | Failed to retract Active Buff', err);
+        ui.notifications?.error('Failed to retract Active Buff.');
+        return { ok: false, refunded: false, reason: 'error' };
+    }
+    let refunded = false;
+    if (combat) {
+        try {
+            const { getRoundState } = await import('../combat/action-economy.js');
+            const { refundPrepActiveBuffActivation } = await import('../combat/active-buff-lifecycle.js');
+            const rs = getRoundState(actor, combat);
+            if (rs.prepBaseAttackCommitted) {
+                refunded = await refundPrepActiveBuffActivation(actor, combat);
+            }
+            else if (rs.activeBuffUsedThisRound) {
+                // Stale flag without commit — clear so Preparation can activate again.
+                rs.activeBuffUsedThisRound = false;
+                const { setRoundState } = await import('../combat/action-economy.js');
+                await setRoundState(actor, rs);
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Active Buff retract refund failed', err);
+        }
+    }
+    if (refunded) {
+        ui.notifications?.info(`${names} retracted — base Attack Action restored for this Round.`);
+    }
+    else {
+        ui.notifications?.info(`${names} ended (no Attack Action refund).`);
+    }
+    try {
+        const ChatCls = globalThis.ChatMessage;
+        if (ChatCls?.create) {
+            const esc = globalThis.foundry?.utils?.escapeHTML?.bind(globalThis.foundry.utils) ??
+                ((s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+            await ChatCls.create({
+                user: globalThis.game?.user?.id,
+                speaker: ChatCls.getSpeaker({ actor: actor }),
+                content: refunded
+                    ? `<p><strong>${esc(names)}</strong> retracted during Preparation — base Attack Action restored.</p>`
+                    : `<p><strong>${esc(names)}</strong> ended (maintained buff removed; no Attack refund).</p>`,
+            });
+        }
+    }
+    catch {
+        /* optional chat */
+    }
+    return { ok: true, refunded };
 }
 /**
  * Get all active buffs on an actor

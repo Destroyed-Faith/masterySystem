@@ -5,6 +5,13 @@
 export declare const SKILL_FIELDS: readonly ["physical", "finesse", "survival", "science-craft", "occult", "social", "investigation"];
 export type SkillField = (typeof SKILL_FIELDS)[number];
 export declare const SKILL_FIELD_LABELS: Record<SkillField, string>;
+/** Example free-named Specs per Field (inspiration only — not a closed list). */
+export interface SpecializationFieldExample {
+    name: string;
+    /** One-sentence scope; often reads like a job vignette. */
+    scope: string;
+}
+export declare const SPECIALIZATION_FIELD_EXAMPLES: Record<SkillField, SpecializationFieldExample[]>;
 export interface SpecializationRecord {
     /** Stable identity key (normalized name + field). */
     id: string;
@@ -21,6 +28,21 @@ export interface SpecializationValidation {
     ok: boolean;
     errors: string[];
 }
+/** Free universal Perception Spec — not one of the five paid starting Specs. */
+export declare const CHARACTER_PERCEPTION_FIELD: SkillField;
+export declare const CHARACTER_PERCEPTION_SPEC_ID: string;
+export declare const CHARACTER_PERCEPTION_SCOPE = "Notice, search, and read the scene";
+/** Matches `UNIVERSAL_PERCEPTION_RANK` in skill-check.ts. */
+export declare const CHARACTER_PERCEPTION_MIN_RANK = 2;
+export declare function isCharacterPerceptionSpec(spec: Pick<Partial<SpecializationRecord>, 'id' | 'name'>): boolean;
+/**
+ * Every character has Perception at least Rank 2 (free). Adds the Spec when
+ * missing; raises Rank when below the floor. Never lowers a higher Rank.
+ */
+export declare function ensureCharacterHasPerceptionSpec(system: any): {
+    specializations: SpecializationRecord[];
+    changed: boolean;
+};
 export declare function validateSpecializationList(specs: Array<Partial<SpecializationRecord>>, opts?: {
     requireStartingBudget?: boolean;
 }): SpecializationValidation;

@@ -222,10 +222,12 @@ export function validateManualWizardSelection(selection) {
     return null;
 }
 export function validateTowerWizardSelection(selection, identityCtx) {
-    // Guided and Quick share the same identity DTO validation (Imprints / Specs / Stones).
-    const identityErr = validateTowerWizardIdentity(selection, identityCtx);
-    if (identityErr)
-        return identityErr;
+    // Combat Package Wizard never writes identity — skip unless a caller still opts in.
+    if (selection.skipIdentitySteps !== true) {
+        const identityErr = validateTowerWizardIdentity(selection, identityCtx);
+        if (identityErr)
+            return identityErr;
+    }
     if (isManualBuildMode(selection)) {
         return validateManualWizardSelection(selection);
     }
@@ -347,9 +349,11 @@ export function validateTowerWizardCreation(actor) {
 }
 export function validatePackageSpecs(selection, identityCtx) {
     if (isManualBuildMode(selection)) {
-        const identityErr = validateTowerWizardIdentity(selection, identityCtx);
-        if (identityErr)
-            return identityErr;
+        if (selection.skipIdentitySteps !== true) {
+            const identityErr = validateTowerWizardIdentity(selection, identityCtx);
+            if (identityErr)
+                return identityErr;
+        }
         const specs = buildPackageGrantSpecsFromOverrides(selection);
         if (!specs || specs.length !== TOWER_WIZARD_POWER_TOTAL) {
             return `Internal package error: expected ${TOWER_WIZARD_POWER_TOTAL} grants from manual picks.`;

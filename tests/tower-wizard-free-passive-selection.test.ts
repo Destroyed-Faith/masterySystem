@@ -34,19 +34,18 @@ describe('passiveWizardChoiceLabel', () => {
 });
 
 describe('Wizard free Passive selection', () => {
-  it('step order runs identity steps, then passive1 then passive2 (no main-defense step)', () => {
+  it('step order starts at passive1 then passive2 (no identity / main-defense step)', () => {
     const p1 = WIZARD_STEP_ORDER.indexOf('passive1');
-    expect(WIZARD_STEP_ORDER.slice(0, 4)).toEqual(['echo', 'attributesStones', 'echoImprints', 'specializations']);
-    expect(p1).toBe(4);
+    expect(p1).toBe(0);
     expect(WIZARD_STEP_ORDER[p1 + 1]).toBe('passive2');
     expect(WIZARD_STEP_ORDER).not.toContain('defense');
+    expect(WIZARD_STEP_ORDER).not.toContain('echo');
     const visible = getVisibleWizardSteps({
       passive1TemplateId: 'passive-killing-intent',
       defenseId: 'armor',
       activeBuffMode: 'defensive',
     });
-    expect(visible[0]).toBe('echo');
-    // Mature characters (skipIdentitySteps) go straight to Powers.
+    expect(visible[0]).toBe('passive1');
     expect(getVisibleWizardSteps({ skipIdentitySteps: true, activeBuffMode: 'defensive' })[0]).toBe('passive1');
   });
 

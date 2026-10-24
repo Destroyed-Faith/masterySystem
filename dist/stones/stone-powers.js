@@ -743,18 +743,42 @@ const RESOLVE_POWERS_RAW = [
         name: 'Active Buff Empowerment',
         attribute: 'resolve',
         category: 'action',
-        description: 'One Active Buff this round gains +1/+2/+3/+4 Power Level and +1/+2/+3/+4 Rounds. Power Level still caps at 16. Multiple sources do not stack.',
+        oncePerCombat: true,
+        description: 'Once per Combat, during Preparation, when activating an Active Buff, empower it by +1/+2/+3/+4 Power Level and +1/+2/+3/+4 complete Rounds (PL still caps at 16). Cannot empower an already maintained Buff. The allowance does not refresh when the Buff expires, is replaced, or is reactivated. Multiple sources do not stack.',
         tiers: [
-            { label: '+1 PL, +1 Round', description: 'One Active Buff this round gains +1 Power Level and +1 Round.', value: 1 },
-            { label: '+2 PL, +2 Rounds', description: 'One Active Buff this round gains +2 Power Level and +2 Rounds.', value: 2 },
-            { label: '+3 PL, +3 Rounds', description: 'One Active Buff this round gains +3 Power Level and +3 Rounds.', value: 3 },
-            { label: '+4 PL, +4 Rounds', description: 'One Active Buff this round gains +4 Power Level and +4 Rounds.', value: 4 },
+            {
+                label: '+1 PL, +1 Round',
+                description: 'Once per Combat: when activating an Active Buff in Preparation, it gains +1 Power Level and +1 complete Round (PL cap 16).',
+                value: 1,
+            },
+            {
+                label: '+2 PL, +2 Rounds',
+                description: 'Once per Combat: when activating an Active Buff in Preparation, it gains +2 Power Level and +2 complete Rounds (PL cap 16).',
+                value: 2,
+            },
+            {
+                label: '+3 PL, +3 Rounds',
+                description: 'Once per Combat: when activating an Active Buff in Preparation, it gains +3 Power Level and +3 complete Rounds (PL cap 16).',
+                value: 3,
+            },
+            {
+                label: '+4 PL, +4 Rounds',
+                description: 'Once per Combat: when activating an Active Buff in Preparation, it gains +4 Power Level and +4 complete Rounds (PL cap 16).',
+                value: 4,
+            },
         ],
-        apply: async ({ actor, tier }) => {
+        apply: async ({ actor, combatant, tier }) => {
             const combat = game.combat;
+            const { isOncePerCombatPowerUsed } = await import('./colorless-stones.js');
+            if (isOncePerCombatPowerUsed(combatant, 'resolve.activeBuffEmpowerment', actor)) {
+                ui.notifications?.warn(`${actor.name}: Active Buff Empowerment already used this combat.`);
+                return;
+            }
             const bonus = scaleStoneTier([1, 2, 3, 4], tier);
             if (bonus <= 0)
                 return;
+            // Parks for the next Active Buff activation/replace this Preparation.
+            // Maintaining a Buff does not consume this — only activate/replace does.
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
             sb.extendActiveBuffRounds = Math.max(sb.extendActiveBuffRounds ?? 0, bonus);

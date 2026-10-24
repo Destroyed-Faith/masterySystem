@@ -365,17 +365,20 @@ export async function clearInitiativeColorlessStones(actor) {
 }
 const FLAG_PHASING_STONE = 'msPhasingStoneUsed';
 const FLAG_TEMP_HP_STONE = 'msTempHpStoneUsed';
+const FLAG_ACTIVE_BUFF_EMPOWERMENT = 'msActiveBuffEmpowermentUsed';
 /** Combatant / actor flags for Stone Powers that may fire only once per encounter. */
 const ONCE_PER_COMBAT_FLAGS = {
     'wits.initiativeBoost': FLAG_BOOST_USED,
     'wits.phasing': FLAG_PHASING_STONE,
     'vitality.tempHp': FLAG_TEMP_HP_STONE,
+    'resolve.activeBuffEmpowerment': FLAG_ACTIVE_BUFF_EMPOWERMENT,
 };
 /** All once-per-combat flag keys (for combat-end cleanup). */
 export const ONCE_PER_COMBAT_STONE_FLAGS = [
     FLAG_BOOST_USED,
     FLAG_PHASING_STONE,
     FLAG_TEMP_HP_STONE,
+    FLAG_ACTIVE_BUFF_EMPOWERMENT,
 ];
 export function oncePerCombatFlagForPower(powerId) {
     return ONCE_PER_COMBAT_FLAGS[String(powerId || '')] ?? null;

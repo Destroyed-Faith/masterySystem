@@ -98,7 +98,7 @@ export declare function clearTempColorlessStones(actor: any): Promise<void>;
  */
 export declare function clearInitiativeColorlessStones(actor: any): Promise<void>;
 /** All once-per-combat flag keys (for combat-end cleanup). */
-export declare const ONCE_PER_COMBAT_STONE_FLAGS: readonly ["msInitiativeBoostUsed", "msPhasingStoneUsed", "msTempHpStoneUsed"];
+export declare const ONCE_PER_COMBAT_STONE_FLAGS: readonly ["msInitiativeBoostUsed", "msPhasingStoneUsed", "msTempHpStoneUsed", "msActiveBuffEmpowermentUsed"];
 export declare function oncePerCombatFlagForPower(powerId: string): string | null;
 /**
  * Once-per-combat Stone Powers are stored on the **actor** (combatId-scoped),

@@ -1172,7 +1172,7 @@ export class StonePowersDialog extends BaseDialog {
     }
     async #activeBuffPrepContext(combat, locked) {
         const { listActivatableActiveBuffPowers, readBuffLifecycleFlags, formatActiveBuffDurationLabel, preparationTargetRound, isActiveBuffPreparationWindow, } = await import('../combat/active-buff-lifecycle.js');
-        const { getActiveBuffs, getTrueActiveBuffs } = await import('../utils/active-buffs.js');
+        const { getTrueActiveBuffs, canRetractActiveBuffFromFlags, } = await import('../utils/active-buffs.js');
         const { getRoundState } = await import('../combat/action-economy.js');
         const powers = await listActivatableActiveBuffPowers(this.actor);
         const round = combat ? preparationTargetRound(combat) : 1;
@@ -1185,6 +1185,18 @@ export class StonePowersDialog extends BaseDialog {
         const rs = combat ? getRoundState(this.actor, combat) : null;
         const alreadyCommitted = !!(rs?.prepBaseAttackCommitted || rs?.activeBuffUsedThisRound);
         const windowOpen = combat ? isActiveBuffPreparationWindow(this.actor, combat) : false;
+        const pendingEmpowerPl = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.activeBuffPlBonus ?? 0) || 0));
+        const pendingEmpowerRounds = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.extendActiveBuffRounds ?? 0) || 0));
+        const pendingEmpowerment = pendingEmpowerPl > 0 || pendingEmpowerRounds > 0
+            ? `Empowerment ready: +${pendingEmpowerPl} PL, +${pendingEmpowerRounds} Round${pendingEmpowerRounds === 1 ? '' : 's'} on the next activate/replace (PL cap 16; once per Combat). Maintaining does not apply it.`
+            : '';
+        const isGM = !!globalThis.game?.user?.isGM;
+        const canRetract = canRetractActiveBuffFromFlags({
+            maintaining: !!current,
+            isGM,
+            isOwner: !!this.actor.isOwner || isGM,
+            windowOpen,
+        });
         const currentFlags = current?.flags?.['mastery-system'] ?? {};
         const currentLevel = Math.max(1, Math.floor(Number(currentFlags.effectiveLevel ?? currentFlags.level ?? 1) || 1));
         const currentEffect = String(currentFlags.effectText ||
@@ -1198,11 +1210,19 @@ export class StonePowersDialog extends BaseDialog {
                 : locked
                     ? 'Stone plan is locked — Active Buff selection is unavailable.'
                     : '';
+        const retractHint = canRetract
+            ? windowOpen
+                ? 'Retract undoes this Preparation activation and restores the base Attack Action if it was committed.'
+                : 'GM: end the maintained Buff. Attack Action is refunded only if it was committed this Round.'
+            : '';
         return {
             show: powers.length > 0 || !!current,
             locked: locked || !windowOpen || alreadyCommitted,
             alreadyCommitted,
             windowOpen,
+            canRetract,
+            retractHint,
+            pendingEmpowerment,
             currentName: current ? String(current.name || 'Active Buff') : '',
             currentLevel: current ? currentLevel : 0,
             currentEffect,
@@ -1217,7 +1237,7 @@ export class StonePowersDialog extends BaseDialog {
             hint: alreadyCommitted
                 ? 'Base Attack Action already committed for an Active Buff this Preparation. Maintaining costs nothing next Round until you replace it.'
                 : current
-                    ? 'Keep the maintained Buff free of charge, or replace it (costs this Round\'s base Attack Action).'
+                    ? 'Keep the maintained Buff free of charge, or replace it (costs this Round\'s base Attack Action). Empowerment applies only on activate/replace, not on maintain.'
                     : 'Activating or replacing an Active Buff commits your base Attack Action for the upcoming Round.',
             unavailableReason,
         };
@@ -2162,6 +2182,22 @@ export class StonePowersDialog extends BaseDialog {
                 }
             };
         });
+        const retractBtn = root.querySelector('.js-retract-active-buff');
+        if (retractBtn) {
+            retractBtn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                try {
+                    const { retractActiveBuffActivation } = await import('../utils/active-buffs.js');
+                    const result = await retractActiveBuffActivation(this.actor);
+                    if (result.ok)
+                        await this.#renderKeepingScroll();
+                }
+                catch (err) {
+                    console.warn('Mastery System | Active Buff retract failed', err);
+                }
+            };
+        }
         const passivesCta = root.querySelector('.js-open-passives');
         if (passivesCta) {
             passivesCta.onclick = async (ev) => {

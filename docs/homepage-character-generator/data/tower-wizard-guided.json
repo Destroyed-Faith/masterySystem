@@ -1,9 +1,5 @@
 {
   "stepOrder": [
-    "echo",
-    "attributesStones",
-    "echoImprints",
-    "specializations",
     "passive1",
     "passive2",
     "activeBuffChoice",
@@ -93,7 +89,7 @@
           "buffs": [
             {
               "id": "ab-temp-hp",
-              "label": "Active Buff: Temporary HP",
+              "label": "Temporary HP",
               "explanation": "Frontload protection for the opening of a fight.",
               "groupLabel": "Recovery",
               "rankPreview": "During the activation Preparation Phase, gain 32 Temporary HP. During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to 32.",
@@ -106,7 +102,7 @@
           "buffs": [
             {
               "id": "ab-spell-resistance",
-              "label": "Active Buff: Spell Resistance",
+              "label": "Spell Resistance",
               "explanation": "Reject hostile spell structure for the duration.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +8 Spell Resistance (increases Final Spell TN against you).",
@@ -114,7 +110,7 @@
             },
             {
               "id": "ab-cleanse-maintenance",
-              "label": "Active Buff: Self Cleanse",
+              "label": "Self Cleanse",
               "explanation": "At the start of your turn, steadily reduce one negative ongoing effect on you.",
               "groupLabel": "Ward",
               "rankPreview": "At the start of your turn, reduce one eligible negative ongoing creature effect affecting you by 4.",
@@ -122,7 +118,7 @@
             },
             {
               "id": "ab-invisibility",
-              "label": "Active Buff: Invisibility",
+              "label": "Invisibility",
               "explanation": "Temporary Invisibility Bonus that obscures Normal Combat Awareness.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +4 Invisibility Bonus (stacks with Passive: Invisibility). Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. Attacking does not interrupt Invisibility; observers use normal Perception.",
@@ -135,7 +131,7 @@
           "buffs": [
             {
               "id": "ab-armor-aura",
-              "label": "Active Buff: Armor Aura",
+              "label": "Armor Aura",
               "explanation": "Share Armor with nearby allies.",
               "groupLabel": "Auras",
               "rankPreview": "You and allies within 8 m gain +12 Armor.",
@@ -148,7 +144,7 @@
           "buffs": [
             {
               "id": "ab-summon-damage-aura",
-              "label": "Active Buff: Summon Damage Aura",
+              "label": "Summon Damage Aura",
               "explanation": "Your summons deal extra damage while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -156,7 +152,7 @@
             },
             {
               "id": "ab-summon-armor-aura",
-              "label": "Active Buff: Summon Armor Aura",
+              "label": "Summon Armor Aura",
               "explanation": "Your summons gain Armor while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +8 Armor.",
@@ -169,7 +165,7 @@
           "buffs": [
             {
               "id": "ab-intensified-absorption",
-              "label": "Active Buff: Absorption Stone Increase",
+              "label": "Absorption Stone Increase",
               "explanation": "Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Absorption Passive. First eligible Absorption trigger per Round grants +1 Colorless Stone.",
@@ -177,7 +173,7 @@
             },
             {
               "id": "ab-reinforced-parry",
-              "label": "Active Buff: Parry Recovery",
+              "label": "Parry Recovery",
               "explanation": "Requires Parry Passive — regain spent Parry up to a per-round cap.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Parry Passive. After you spend Parry against a Martial Attack or Spell, regain up to 4 total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.",
@@ -185,7 +181,7 @@
             },
             {
               "id": "ab-reinforced-damage-negation",
-              "label": "Active Buff: Damage Negation Pool",
+              "label": "Damage Negation Pool",
               "explanation": "Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires slotted Passive: Damage Negation. During activation Preparation and each later Preparation while maintained, gain 4 Temporary Damage Negation for that Round. Unused points expire at Round End. Spend before the Passive Reserve.",
@@ -470,7 +466,7 @@
           "buffs": [
             {
               "id": "ab-temp-hp",
-              "label": "Active Buff: Temporary HP",
+              "label": "Temporary HP",
               "explanation": "Frontload protection for the opening of a fight.",
               "groupLabel": "Recovery",
               "rankPreview": "During the activation Preparation Phase, gain 32 Temporary HP. During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to 32.",
@@ -483,7 +479,7 @@
           "buffs": [
             {
               "id": "ab-spell-resistance",
-              "label": "Active Buff: Spell Resistance",
+              "label": "Spell Resistance",
               "explanation": "Reject hostile spell structure for the duration.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +8 Spell Resistance (increases Final Spell TN against you).",
@@ -491,7 +487,7 @@
             },
             {
               "id": "ab-cleanse-maintenance",
-              "label": "Active Buff: Self Cleanse",
+              "label": "Self Cleanse",
               "explanation": "At the start of your turn, steadily reduce one negative ongoing effect on you.",
               "groupLabel": "Ward",
               "rankPreview": "At the start of your turn, reduce one eligible negative ongoing creature effect affecting you by 4.",
@@ -499,7 +495,7 @@
             },
             {
               "id": "ab-invisibility",
-              "label": "Active Buff: Invisibility",
+              "label": "Invisibility",
               "explanation": "Temporary Invisibility Bonus that obscures Normal Combat Awareness.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +4 Invisibility Bonus (stacks with Passive: Invisibility). Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. Attacking does not interrupt Invisibility; observers use normal Perception.",
@@ -512,7 +508,7 @@
           "buffs": [
             {
               "id": "ab-armor-aura",
-              "label": "Active Buff: Armor Aura",
+              "label": "Armor Aura",
               "explanation": "Share Armor with nearby allies.",
               "groupLabel": "Auras",
               "rankPreview": "You and allies within 8 m gain +12 Armor.",
@@ -525,7 +521,7 @@
           "buffs": [
             {
               "id": "ab-summon-damage-aura",
-              "label": "Active Buff: Summon Damage Aura",
+              "label": "Summon Damage Aura",
               "explanation": "Your summons deal extra damage while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -533,7 +529,7 @@
             },
             {
               "id": "ab-summon-armor-aura",
-              "label": "Active Buff: Summon Armor Aura",
+              "label": "Summon Armor Aura",
               "explanation": "Your summons gain Armor while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +8 Armor.",
@@ -546,7 +542,7 @@
           "buffs": [
             {
               "id": "ab-intensified-absorption",
-              "label": "Active Buff: Absorption Stone Increase",
+              "label": "Absorption Stone Increase",
               "explanation": "Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Absorption Passive. First eligible Absorption trigger per Round grants +1 Colorless Stone.",
@@ -554,7 +550,7 @@
             },
             {
               "id": "ab-reinforced-parry",
-              "label": "Active Buff: Parry Recovery",
+              "label": "Parry Recovery",
               "explanation": "Requires Parry Passive — regain spent Parry up to a per-round cap.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Parry Passive. After you spend Parry against a Martial Attack or Spell, regain up to 4 total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.",
@@ -562,7 +558,7 @@
             },
             {
               "id": "ab-reinforced-damage-negation",
-              "label": "Active Buff: Damage Negation Pool",
+              "label": "Damage Negation Pool",
               "explanation": "Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires slotted Passive: Damage Negation. During activation Preparation and each later Preparation while maintained, gain 4 Temporary Damage Negation for that Round. Unused points expire at Round End. Spend before the Passive Reserve.",
@@ -847,7 +843,7 @@
           "buffs": [
             {
               "id": "ab-temp-hp",
-              "label": "Active Buff: Temporary HP",
+              "label": "Temporary HP",
               "explanation": "Frontload protection for the opening of a fight.",
               "groupLabel": "Recovery",
               "rankPreview": "During the activation Preparation Phase, gain 32 Temporary HP. During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to 32.",
@@ -860,7 +856,7 @@
           "buffs": [
             {
               "id": "ab-spell-resistance",
-              "label": "Active Buff: Spell Resistance",
+              "label": "Spell Resistance",
               "explanation": "Reject hostile spell structure for the duration.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +8 Spell Resistance (increases Final Spell TN against you).",
@@ -868,7 +864,7 @@
             },
             {
               "id": "ab-cleanse-maintenance",
-              "label": "Active Buff: Self Cleanse",
+              "label": "Self Cleanse",
               "explanation": "At the start of your turn, steadily reduce one negative ongoing effect on you.",
               "groupLabel": "Ward",
               "rankPreview": "At the start of your turn, reduce one eligible negative ongoing creature effect affecting you by 4.",
@@ -876,7 +872,7 @@
             },
             {
               "id": "ab-invisibility",
-              "label": "Active Buff: Invisibility",
+              "label": "Invisibility",
               "explanation": "Temporary Invisibility Bonus that obscures Normal Combat Awareness.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +4 Invisibility Bonus (stacks with Passive: Invisibility). Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. Attacking does not interrupt Invisibility; observers use normal Perception.",
@@ -889,7 +885,7 @@
           "buffs": [
             {
               "id": "ab-armor-aura",
-              "label": "Active Buff: Armor Aura",
+              "label": "Armor Aura",
               "explanation": "Share Armor with nearby allies.",
               "groupLabel": "Auras",
               "rankPreview": "You and allies within 8 m gain +12 Armor.",
@@ -902,7 +898,7 @@
           "buffs": [
             {
               "id": "ab-summon-damage-aura",
-              "label": "Active Buff: Summon Damage Aura",
+              "label": "Summon Damage Aura",
               "explanation": "Your summons deal extra damage while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -910,7 +906,7 @@
             },
             {
               "id": "ab-summon-armor-aura",
-              "label": "Active Buff: Summon Armor Aura",
+              "label": "Summon Armor Aura",
               "explanation": "Your summons gain Armor while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +8 Armor.",
@@ -923,7 +919,7 @@
           "buffs": [
             {
               "id": "ab-intensified-absorption",
-              "label": "Active Buff: Absorption Stone Increase",
+              "label": "Absorption Stone Increase",
               "explanation": "Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Absorption Passive. First eligible Absorption trigger per Round grants +1 Colorless Stone.",
@@ -931,7 +927,7 @@
             },
             {
               "id": "ab-reinforced-parry",
-              "label": "Active Buff: Parry Recovery",
+              "label": "Parry Recovery",
               "explanation": "Requires Parry Passive — regain spent Parry up to a per-round cap.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Parry Passive. After you spend Parry against a Martial Attack or Spell, regain up to 4 total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.",
@@ -939,7 +935,7 @@
             },
             {
               "id": "ab-reinforced-damage-negation",
-              "label": "Active Buff: Damage Negation Pool",
+              "label": "Damage Negation Pool",
               "explanation": "Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires slotted Passive: Damage Negation. During activation Preparation and each later Preparation while maintained, gain 4 Temporary Damage Negation for that Round. Unused points expire at Round End. Spend before the Passive Reserve.",
@@ -1224,7 +1220,7 @@
           "buffs": [
             {
               "id": "ab-temp-hp",
-              "label": "Active Buff: Temporary HP",
+              "label": "Temporary HP",
               "explanation": "Frontload protection for the opening of a fight.",
               "groupLabel": "Recovery",
               "rankPreview": "During the activation Preparation Phase, gain 32 Temporary HP. During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to 32.",
@@ -1237,7 +1233,7 @@
           "buffs": [
             {
               "id": "ab-spell-resistance",
-              "label": "Active Buff: Spell Resistance",
+              "label": "Spell Resistance",
               "explanation": "Reject hostile spell structure for the duration.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +8 Spell Resistance (increases Final Spell TN against you).",
@@ -1245,7 +1241,7 @@
             },
             {
               "id": "ab-cleanse-maintenance",
-              "label": "Active Buff: Self Cleanse",
+              "label": "Self Cleanse",
               "explanation": "At the start of your turn, steadily reduce one negative ongoing effect on you.",
               "groupLabel": "Ward",
               "rankPreview": "At the start of your turn, reduce one eligible negative ongoing creature effect affecting you by 4.",
@@ -1253,7 +1249,7 @@
             },
             {
               "id": "ab-invisibility",
-              "label": "Active Buff: Invisibility",
+              "label": "Invisibility",
               "explanation": "Temporary Invisibility Bonus that obscures Normal Combat Awareness.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +4 Invisibility Bonus (stacks with Passive: Invisibility). Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. Attacking does not interrupt Invisibility; observers use normal Perception.",
@@ -1266,7 +1262,7 @@
           "buffs": [
             {
               "id": "ab-armor-aura",
-              "label": "Active Buff: Armor Aura",
+              "label": "Armor Aura",
               "explanation": "Share Armor with nearby allies.",
               "groupLabel": "Auras",
               "rankPreview": "You and allies within 8 m gain +12 Armor.",
@@ -1279,7 +1275,7 @@
           "buffs": [
             {
               "id": "ab-summon-damage-aura",
-              "label": "Active Buff: Summon Damage Aura",
+              "label": "Summon Damage Aura",
               "explanation": "Your summons deal extra damage while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -1287,7 +1283,7 @@
             },
             {
               "id": "ab-summon-armor-aura",
-              "label": "Active Buff: Summon Armor Aura",
+              "label": "Summon Armor Aura",
               "explanation": "Your summons gain Armor while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +8 Armor.",
@@ -1300,7 +1296,7 @@
           "buffs": [
             {
               "id": "ab-intensified-absorption",
-              "label": "Active Buff: Absorption Stone Increase",
+              "label": "Absorption Stone Increase",
               "explanation": "Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Absorption Passive. First eligible Absorption trigger per Round grants +1 Colorless Stone.",
@@ -1308,7 +1304,7 @@
             },
             {
               "id": "ab-reinforced-parry",
-              "label": "Active Buff: Parry Recovery",
+              "label": "Parry Recovery",
               "explanation": "Requires Parry Passive — regain spent Parry up to a per-round cap.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Parry Passive. After you spend Parry against a Martial Attack or Spell, regain up to 4 total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.",
@@ -1316,7 +1312,7 @@
             },
             {
               "id": "ab-reinforced-damage-negation",
-              "label": "Active Buff: Damage Negation Pool",
+              "label": "Damage Negation Pool",
               "explanation": "Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires slotted Passive: Damage Negation. During activation Preparation and each later Preparation while maintained, gain 4 Temporary Damage Negation for that Round. Unused points expire at Round End. Spend before the Passive Reserve.",
@@ -1601,7 +1597,7 @@
           "buffs": [
             {
               "id": "ab-temp-hp",
-              "label": "Active Buff: Temporary HP",
+              "label": "Temporary HP",
               "explanation": "Frontload protection for the opening of a fight.",
               "groupLabel": "Recovery",
               "rankPreview": "During the activation Preparation Phase, gain 32 Temporary HP. During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to 32.",
@@ -1614,7 +1610,7 @@
           "buffs": [
             {
               "id": "ab-spell-resistance",
-              "label": "Active Buff: Spell Resistance",
+              "label": "Spell Resistance",
               "explanation": "Reject hostile spell structure for the duration.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +8 Spell Resistance (increases Final Spell TN against you).",
@@ -1622,7 +1618,7 @@
             },
             {
               "id": "ab-cleanse-maintenance",
-              "label": "Active Buff: Self Cleanse",
+              "label": "Self Cleanse",
               "explanation": "At the start of your turn, steadily reduce one negative ongoing effect on you.",
               "groupLabel": "Ward",
               "rankPreview": "At the start of your turn, reduce one eligible negative ongoing creature effect affecting you by 4.",
@@ -1630,7 +1626,7 @@
             },
             {
               "id": "ab-invisibility",
-              "label": "Active Buff: Invisibility",
+              "label": "Invisibility",
               "explanation": "Temporary Invisibility Bonus that obscures Normal Combat Awareness.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +4 Invisibility Bonus (stacks with Passive: Invisibility). Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. Attacking does not interrupt Invisibility; observers use normal Perception.",
@@ -1643,7 +1639,7 @@
           "buffs": [
             {
               "id": "ab-armor-aura",
-              "label": "Active Buff: Armor Aura",
+              "label": "Armor Aura",
               "explanation": "Share Armor with nearby allies.",
               "groupLabel": "Auras",
               "rankPreview": "You and allies within 8 m gain +12 Armor.",
@@ -1656,7 +1652,7 @@
           "buffs": [
             {
               "id": "ab-summon-damage-aura",
-              "label": "Active Buff: Summon Damage Aura",
+              "label": "Summon Damage Aura",
               "explanation": "Your summons deal extra damage while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -1664,7 +1660,7 @@
             },
             {
               "id": "ab-summon-armor-aura",
-              "label": "Active Buff: Summon Armor Aura",
+              "label": "Summon Armor Aura",
               "explanation": "Your summons gain Armor while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +8 Armor.",
@@ -1677,7 +1673,7 @@
           "buffs": [
             {
               "id": "ab-intensified-absorption",
-              "label": "Active Buff: Absorption Stone Increase",
+              "label": "Absorption Stone Increase",
               "explanation": "Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Absorption Passive. First eligible Absorption trigger per Round grants +1 Colorless Stone.",
@@ -1685,7 +1681,7 @@
             },
             {
               "id": "ab-reinforced-damage-negation",
-              "label": "Active Buff: Damage Negation Pool",
+              "label": "Damage Negation Pool",
               "explanation": "Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires slotted Passive: Damage Negation. During activation Preparation and each later Preparation while maintained, gain 4 Temporary Damage Negation for that Round. Unused points expire at Round End. Spend before the Passive Reserve.",
@@ -1970,7 +1966,7 @@
           "buffs": [
             {
               "id": "ab-temp-hp",
-              "label": "Active Buff: Temporary HP",
+              "label": "Temporary HP",
               "explanation": "Frontload protection for the opening of a fight.",
               "groupLabel": "Recovery",
               "rankPreview": "During the activation Preparation Phase, gain 32 Temporary HP. During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to 32.",
@@ -1983,7 +1979,7 @@
           "buffs": [
             {
               "id": "ab-spell-resistance",
-              "label": "Active Buff: Spell Resistance",
+              "label": "Spell Resistance",
               "explanation": "Reject hostile spell structure for the duration.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +8 Spell Resistance (increases Final Spell TN against you).",
@@ -1991,7 +1987,7 @@
             },
             {
               "id": "ab-cleanse-maintenance",
-              "label": "Active Buff: Self Cleanse",
+              "label": "Self Cleanse",
               "explanation": "At the start of your turn, steadily reduce one negative ongoing effect on you.",
               "groupLabel": "Ward",
               "rankPreview": "At the start of your turn, reduce one eligible negative ongoing creature effect affecting you by 4.",
@@ -1999,7 +1995,7 @@
             },
             {
               "id": "ab-invisibility",
-              "label": "Active Buff: Invisibility",
+              "label": "Invisibility",
               "explanation": "Temporary Invisibility Bonus that obscures Normal Combat Awareness.",
               "groupLabel": "Ward",
               "rankPreview": "Gain +4 Invisibility Bonus (stacks with Passive: Invisibility). Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. Attacking does not interrupt Invisibility; observers use normal Perception.",
@@ -2012,7 +2008,7 @@
           "buffs": [
             {
               "id": "ab-armor-aura",
-              "label": "Active Buff: Armor Aura",
+              "label": "Armor Aura",
               "explanation": "Share Armor with nearby allies.",
               "groupLabel": "Auras",
               "rankPreview": "You and allies within 8 m gain +12 Armor.",
@@ -2025,7 +2021,7 @@
           "buffs": [
             {
               "id": "ab-summon-damage-aura",
-              "label": "Active Buff: Summon Damage Aura",
+              "label": "Summon Damage Aura",
               "explanation": "Your summons deal extra damage while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -2033,7 +2029,7 @@
             },
             {
               "id": "ab-summon-armor-aura",
-              "label": "Active Buff: Summon Armor Aura",
+              "label": "Summon Armor Aura",
               "explanation": "Your summons gain Armor while inside your bonded aura.",
               "groupLabel": "Summon",
               "rankPreview": "Own Summons within 14 m gain +8 Armor.",
@@ -2046,7 +2042,7 @@
           "buffs": [
             {
               "id": "ab-intensified-absorption",
-              "label": "Active Buff: Absorption Stone Increase",
+              "label": "Absorption Stone Increase",
               "explanation": "Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Absorption Passive. First eligible Absorption trigger per Round grants +1 Colorless Stone.",
@@ -2054,7 +2050,7 @@
             },
             {
               "id": "ab-reinforced-parry",
-              "label": "Active Buff: Parry Recovery",
+              "label": "Parry Recovery",
               "explanation": "Requires Parry Passive — regain spent Parry up to a per-round cap.",
               "groupLabel": "Specialty",
               "rankPreview": "Requires Parry Passive. After you spend Parry against a Martial Attack or Spell, regain up to 4 total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.",
@@ -2319,7 +2315,7 @@
       "buffs": [
         {
           "id": "ab-damage",
-          "label": "Active Buff: Damage",
+          "label": "Damage",
           "explanation": "The simplest offensive buff — your weapon and power hits deal extra damage every time they land.",
           "groupLabel": "Raw damage",
           "rankPreview": "Your attacks deal +9d8 damage while the buff is active.",
@@ -2332,7 +2328,7 @@
       "buffs": [
         {
           "id": "ab-critical",
-          "label": "Active Buff: Critical",
+          "label": "Critical",
           "explanation": "Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.",
           "groupLabel": "Critical hits",
           "rankPreview": "Gain Critical(1) (1 designated roll per combat; natural 7s and 8s explode).",
@@ -2340,7 +2336,7 @@
         },
         {
           "id": "ab-maximization",
-          "label": "Active Buff: Maximization",
+          "label": "Maximization",
           "explanation": "Spend combat-wide uses to maximize one Damage or Healing Roll (artificial 8s). Independent of Passive/Stone Maximization.",
           "groupLabel": "Critical hits",
           "rankPreview": "While maintained, you may Maximization 1 eligible Damage or Healing Roll per combat (entire shared roll becomes artificial 8s; no explosions).",
@@ -2353,7 +2349,7 @@
       "buffs": [
         {
           "id": "ab-damage-aura",
-          "label": "Active Buff: Damage Aura",
+          "label": "Damage Aura",
           "explanation": "End-of-turn damage pulse against nearby enemies while maintained.",
           "groupLabel": "Auras",
           "rankPreview": "At the end of each of your turns, enemies within 2 m take 3d8 damage.",
@@ -2361,7 +2357,7 @@
         },
         {
           "id": "ab-summon-damage-aura",
-          "label": "Active Buff: Summon Damage Aura",
+          "label": "Summon Damage Aura",
           "explanation": "Your own Summons deal extra damage while fighting inside your bonded aura.",
           "groupLabel": "Auras",
           "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
@@ -2369,7 +2365,7 @@
         },
         {
           "id": "ab-allied-damage-aura",
-          "label": "Active Buff: Allied Damage Aura",
+          "label": "Allied Damage Aura",
           "explanation": "Other allied non-Summons in your aura gain bonus damage dice on their attacks — not you or Summons.",
           "groupLabel": "Auras",
           "rankPreview": "Other allied non-Summon creatures within 2 m gain +1d8 on their eligible damaging Martial/Spell Attacks (highest same-name aura wins; not you or Summons).",
@@ -2377,7 +2373,7 @@
         },
         {
           "id": "ab-armor-reduction-aura",
-          "label": "Active Buff: Armor Reduction Aura",
+          "label": "Armor Reduction Aura",
           "explanation": "Hostile creatures in your aura take Armor reduction against your and your allies' eligible attacks.",
           "groupLabel": "Auras",
           "rankPreview": "Hostile creatures within 2 m have 4 less effective Armor against eligible damaging Martial/Spell Attacks by you or your allies (highest same-name aura wins).",
@@ -2390,7 +2386,7 @@
       "buffs": [
         {
           "id": "ab-thorns",
-          "label": "Active Buff: Thorns",
+          "label": "Thorns",
           "explanation": "When you take final HP damage, retaliate with Thorns dice (capped by the loss).",
           "groupLabel": "Retaliation",
           "rankPreview": "Gain Thorns 4d8. When you take final HP damage, deal that much (capped by the loss) to the source.",
@@ -2403,7 +2399,7 @@
       "buffs": [
         {
           "id": "ab-armor-reduction",
-          "label": "Active Buff: Armor Reduction",
+          "label": "Armor Reduction",
           "explanation": "Your own eligible attacks ignore printed Armor (not Damage Reduction, not Corrode).",
           "groupLabel": "Defense piercing",
           "rankPreview": "Your eligible damaging Martial and Spell Attacks ignore 17 Armor (effective Armor floors at 0).",
@@ -2411,7 +2407,7 @@
         },
         {
           "id": "ab-enemy-evade-reduction",
-          "label": "Active Buff: Enemy Evade Reduction",
+          "label": "Enemy Evade Reduction",
           "explanation": "Your Martial Attack Rolls treat each target's Evade as lower — does not change stored Evade or Spell TN.",
           "groupLabel": "Defense piercing",
           "rankPreview": "Against your eligible Martial Attack Rolls, each target's effective Evade is reduced by 4 (floor 0). No effect on Spell TN.",
@@ -2419,7 +2415,7 @@
         },
         {
           "id": "ab-spell-resistance-piercing",
-          "label": "Active Buff: Spell Resistance Piercing",
+          "label": "Spell Resistance Piercing",
           "explanation": "Your Spells ignore a portion of target Spell Resistance. Base Spell TN and Paid Raises stay intact.",
           "groupLabel": "Defense piercing",
           "rankPreview": "Your Spells ignore 4 Spell Resistance on each target (SR floors at 0). Base Spell TN and Paid Raises are unchanged.",
@@ -2432,7 +2428,7 @@
       "buffs": [
         {
           "id": "ab-area-expansion",
-          "label": "Active Buff: Area Expansion",
+          "label": "Area Expansion",
           "explanation": "Expand your instantaneous circular AoE radius. Anti-stacks with Intellect Stone AoE radius (take the larger).",
           "groupLabel": "Area",
           "rankPreview": "Your eligible instantaneous circular AoEs gain +1 m radius (larger of this or Intellect Stone AoE radius bonus; do not stack).",

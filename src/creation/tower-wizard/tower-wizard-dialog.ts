@@ -46,7 +46,6 @@ import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import {
     collectRelevantWarnings,
-    validateTowerWizardIdentity,
     validateTowerWizardSelection,
     validateWizardIdentityStep,
     type TowerWizardIdentityContext,
@@ -57,7 +56,6 @@ import {
     buildWizardAttributeSummary,
     buildWizardImprintGroups,
     buildWizardSpecRows,
-    readActorIdentityPrefill,
     specRecordsFromDraft,
     type WizardEarlyChange,
 } from './tower-wizard-identity.js';
@@ -149,16 +147,21 @@ export class TowerWizardDialog extends BaseDialog {
         super(foundry.utils.mergeObject(TowerWizardDialog.DEFAULT_OPTIONS, options));
         this.actor = actor;
         const sys = (actor.system as any) ?? {};
-        // Identity steps only run during creation; mature characters rebuild Powers only.
-        const inCreation = sys?.creation?.complete === false;
+        const echo = (sys?.echo ?? {}) as { key?: string; subChoiceKey?: string; veiledFormKey?: string };
+        // Combat Package Wizard: Powers only. Echo / Attributes / Specs stay on the sheet.
         this.selection = {
             ...defaultSelection(),
-            ...readActorIdentityPrefill(sys),
             masteryRank: Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 2)),
-            skipIdentitySteps: !inCreation,
+            skipIdentitySteps: true,
+            ...(echo.key
+                ? {
+                      echoKey: String(echo.key),
+                      subChoiceKey: echo.subChoiceKey ? String(echo.subChoiceKey) : undefined,
+                      veiledFormKey: echo.veiledFormKey ? String(echo.veiledFormKey) : undefined,
+                  }
+                : {}),
             ...(options.manualBuildMode === true ? { manualBuildMode: true } : {}),
         };
-        // Quick (manual) walks echo → attributes → imprints → specs, then jumps to review.
         this.step = getVisibleWizardSteps(this.selection)[0] ?? 'review';
     }
 
@@ -341,11 +344,7 @@ export class TowerWizardDialog extends BaseDialog {
             ? collectRelevantWarnings(fullSelection, echoContext)
             : collectEchoAdvisorWarnings(this.selection, echoContext);
         const echoRequiredError = validateEchoRequiredForTowerWizard(echoContext);
-        const identityError = this.selection.skipIdentitySteps
-            ? validateTowerWizardIdentity(this.selection, identityCtx)
-            : validateTowerWizardIdentity(this.selection, identityCtx, { requireComplete: true });
         const validationError = echoRequiredError
-            || identityError
             || (manualMode || fullSelection
                 ? validateTowerWizardSelection(this.selection, identityCtx)
                 : null);
@@ -394,7 +393,7 @@ export class TowerWizardDialog extends BaseDialog {
             isEchoImprints: this.step === 'echoImprints',
             isSpecializations: this.step === 'specializations',
             isIdentityStep: isIdentityWizardStep(this.step),
-            canApply: echoContext.hasEcho && !identityError && (manualMode
+            canApply: echoContext.hasEcho && (manualMode
                 ? review.allOk && !validationError
                 : !!fullSelection && review.allOk && !validationError),
             manualBuildMode: manualMode,

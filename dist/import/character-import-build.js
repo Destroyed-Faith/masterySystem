@@ -16,7 +16,7 @@ import { calculateDisadvantagePoints, getDisadvantageDefinition, } from '../syst
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { SKILLS } from '../utils/skills.js';
 import { MAX_ATTRIBUTE } from '../utils/constants.js';
-import { DF_2026_RULES_SCHEMA_VERSION, SPECIALIZATION_MAX_RANK, findEchoImprint, isSkillField, specializationIdentityKey, } from '../rules/index.js';
+import { DF_2026_RULES_SCHEMA_VERSION, SPECIALIZATION_MAX_RANK, ensureCharacterHasPerceptionSpec, findEchoImprint, isSkillField, specializationIdentityKey, } from '../rules/index.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS } from './character-import-types.js';
 export function normalizeImportAttributes(raw) {
     const out = {};
@@ -264,7 +264,9 @@ export function buildActorSystemFromPayload(payload) {
     const minorExpressions = normalizeMinorExpressionIds(payload.minorExpressions, masteryRank);
     // DF 2026 data model. Legacy `skills` / `minorExpressions` above remain
     // archive-only fields and are never converted into Specialization Ranks.
-    const specializations = normalizeImportSpecializations(payload.specializations);
+    const specializations = ensureCharacterHasPerceptionSpec({
+        specializations: normalizeImportSpecializations(payload.specializations),
+    }).specializations;
     const echoImprints = normalizeImportEchoImprintIds(payload.echoImprints, masteryRank);
     const isDf2026Payload = Array.isArray(payload.specializations) || Array.isArray(payload.echoImprints);
     const faithPts = disadvantagePointsTotal(disadvantages);

@@ -9,8 +9,8 @@ import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
 import { findCatalogEntry } from '../../utils/power-catalog.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
-import { collectRelevantWarnings, validateTowerWizardIdentity, validateTowerWizardSelection, validateWizardIdentityStep, } from './tower-wizard-validation.js';
-import { buildReconciliationPreview, buildWizardAttributeRows, buildWizardAttributeSummary, buildWizardImprintGroups, buildWizardSpecRows, readActorIdentityPrefill, specRecordsFromDraft, } from './tower-wizard-identity.js';
+import { collectRelevantWarnings, validateTowerWizardSelection, validateWizardIdentityStep, } from './tower-wizard-validation.js';
+import { buildReconciliationPreview, buildWizardAttributeRows, buildWizardAttributeSummary, buildWizardImprintGroups, buildWizardSpecRows, specRecordsFromDraft, } from './tower-wizard-identity.js';
 import { ATTRIBUTE_KEYS } from '../../progression/v099-rules.js';
 import { buildDefensePackagesWithEcho, buildTowerWizardEchoContext, collectArtifactActiveBuffIdentityKeys, buildEchoAdvisorSummary, collectEchoAdvisorWarnings, validateEchoRequiredForTowerWizard, } from './tower-wizard-echo-advisor.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -68,16 +68,21 @@ export class TowerWizardDialog extends BaseDialog {
         super(foundry.utils.mergeObject(TowerWizardDialog.DEFAULT_OPTIONS, options));
         this.actor = actor;
         const sys = actor.system ?? {};
-        // Identity steps only run during creation; mature characters rebuild Powers only.
-        const inCreation = sys?.creation?.complete === false;
+        const echo = (sys?.echo ?? {});
+        // Combat Package Wizard: Powers only. Echo / Attributes / Specs stay on the sheet.
         this.selection = {
             ...defaultSelection(),
-            ...readActorIdentityPrefill(sys),
             masteryRank: Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 2)),
-            skipIdentitySteps: !inCreation,
+            skipIdentitySteps: true,
+            ...(echo.key
+                ? {
+                    echoKey: String(echo.key),
+                    subChoiceKey: echo.subChoiceKey ? String(echo.subChoiceKey) : undefined,
+                    veiledFormKey: echo.veiledFormKey ? String(echo.veiledFormKey) : undefined,
+                }
+                : {}),
             ...(options.manualBuildMode === true ? { manualBuildMode: true } : {}),
         };
-        // Quick (manual) walks echo → attributes → imprints → specs, then jumps to review.
         this.step = getVisibleWizardSteps(this.selection)[0] ?? 'review';
     }
     #identityCtx() {
@@ -233,11 +238,7 @@ export class TowerWizardDialog extends BaseDialog {
             ? collectRelevantWarnings(fullSelection, echoContext)
             : collectEchoAdvisorWarnings(this.selection, echoContext);
         const echoRequiredError = validateEchoRequiredForTowerWizard(echoContext);
-        const identityError = this.selection.skipIdentitySteps
-            ? validateTowerWizardIdentity(this.selection, identityCtx)
-            : validateTowerWizardIdentity(this.selection, identityCtx, { requireComplete: true });
         const validationError = echoRequiredError
-            || identityError
             || (manualMode || fullSelection
                 ? validateTowerWizardSelection(this.selection, identityCtx)
                 : null);
@@ -284,7 +285,7 @@ export class TowerWizardDialog extends BaseDialog {
             isEchoImprints: this.step === 'echoImprints',
             isSpecializations: this.step === 'specializations',
             isIdentityStep: isIdentityWizardStep(this.step),
-            canApply: echoContext.hasEcho && !identityError && (manualMode
+            canApply: echoContext.hasEcho && (manualMode
                 ? review.allOk && !validationError
                 : !!fullSelection && review.allOk && !validationError),
             manualBuildMode: manualMode,

@@ -3,7 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { buildSpecializationSheetRows, findSpecializationById, readSpecializations, SPECIALIZATION_XP_PER_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
+import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, readSpecializations, SPECIALIZATION_XP_PER_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
@@ -887,11 +887,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             attrCreationOk[ex] = max > 0 && used <= max;
         }
         // DF 2026: starting budget = five Rank-2 Specializations (20 Creation Points).
-        const creationSpecs = readSpecializations(context.system);
+        // Free Perception Spec is ensured on every character and does not consume a slot.
+        const creationEnsured = ensureCharacterHasPerceptionSpec(context.system);
+        if (creationEnsured.changed) {
+            context.system.specializations = creationEnsured.specializations;
+        }
+        const creationSpecs = creationEnsured.specializations;
+        const paidCreationSpecs = creationSpecs.filter((s) => !isCharacterPerceptionSpec(s));
         const specBudget = validateSpecializationList(creationSpecs, { requireStartingBudget: true });
         const specializationsValid = specBudget.ok;
-        const specializationCount = creationSpecs.length;
-        const specializationRank2Count = creationSpecs.filter((s) => s.rank === startingSpecRank).length;
+        const specializationCount = paidCreationSpecs.length;
+        const specializationRank2Count = paidCreationSpecs.filter((s) => s.rank === startingSpecRank).length;
         // Calculate disadvantage points
         const disadvantagePoints = (context.system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
         const disadvantagesValid = disadvantagePoints >= minDisadvantagePoints && disadvantagePoints <= maxDisadvantagePoints;
@@ -5725,14 +5731,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     #prepareSpecializations(context) {
         const system = context.system ?? {};
-        const specs = readSpecializations(system);
+        const ensured = ensureCharacterHasPerceptionSpec(system);
+        if (ensured.changed) {
+            system.specializations = ensured.specializations;
+            // Persist so existing worlds keep Perception without a one-off migration.
+            void this.actor
+                .update({ 'system.specializations': ensured.specializations })
+                .catch((err) => console.warn('Mastery System | Character Perception Spec seed failed', err));
+        }
+        const specs = ensured.specializations.length
+            ? ensured.specializations
+            : readSpecializations(system);
         const attrValues = {};
         for (const [key, data] of Object.entries(system.attributes ?? {})) {
             attrValues[key] = Number(data?.value) || 0;
         }
         context.specializations = buildSpecializationSheetRows(specs, attrValues);
         context.hasSpecializations = specs.length > 0;
-        context.specializationCount = specs.length;
+        // Paid Specs only — free Perception does not consume a starting slot.
+        context.specializationCount = specs.filter((s) => !isCharacterPerceptionSpec(s)).length;
         const isOwner = !!this.actor.isOwner || !!context.isGM;
         context.canEditSpecializations = isOwner;
         // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
@@ -5950,7 +5967,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Toggle power details expansion
      */
-    #onActiveBuffRemove(event) {
+    async #onActiveBuffRemove(event) {
         event.preventDefault();
         event.stopPropagation();
         const element = event.currentTarget;
@@ -5964,13 +5981,37 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn('Effect not found.');
             return;
         }
-        effect.delete().then(() => {
+        const combat = game.combat ?? null;
+        const isGM = !!game.user?.isGM;
+        try {
+            const { getTrueActiveBuffs, canRetractActiveBuffActivation, retractActiveBuffActivation, } = await import('../utils/active-buffs.js');
+            const isTrueBuff = getTrueActiveBuffs(this.actor).some((e) => e?.id === effectId || e === effect);
+            if (isTrueBuff) {
+                const canRetract = await canRetractActiveBuffActivation(this.actor, combat);
+                if (canRetract) {
+                    const result = await retractActiveBuffActivation(this.actor);
+                    if (result.ok)
+                        this.render();
+                    return;
+                }
+                if (!isGM) {
+                    ui.notifications?.warn('You can only retract an Active Buff during Preparation (GM may retract anytime).');
+                    return;
+                }
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Active Buff retract via sheet failed', err);
+        }
+        try {
+            await effect.delete();
             this.render();
             ui.notifications?.info(`${effect.name} removed.`);
-        }).catch((error) => {
+        }
+        catch (error) {
             console.error('Mastery System | Failed to remove active buff', error);
             ui.notifications?.error('Failed to remove active buff.');
-        });
+        }
     }
     async #onPowerDisplayNameChange(event) {
         event.preventDefault();
@@ -7612,7 +7653,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Attributes must be 2×4, 2×3, 3×2. Currently: ${c4}×4, ${c3}×3, ${c2}×2`);
             return;
         }
-        const specAlloc = validateSpecializationList(readSpecializations(system), {
+        const perceptionEnsured = ensureCharacterHasPerceptionSpec(system);
+        if (perceptionEnsured.changed) {
+            system.specializations = perceptionEnsured.specializations;
+        }
+        const specAlloc = validateSpecializationList(perceptionEnsured.specializations, {
             requireStartingBudget: true,
         });
         if (!specAlloc.ok) {
@@ -7682,6 +7727,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'system.faithFractures.current': disadvantagePoints,
             'system.faithFractures.maximum': disadvantagePoints,
             'system.languages.known': langNorm.cleaned,
+            'system.specializations': perceptionEnsured.specializations,
         };
         // Always persist full per-rank schtick rows (merged 1..MR) so actor data matches the sheet after finalize
         updateData['system.schticks.ranks'] = schticksRows;

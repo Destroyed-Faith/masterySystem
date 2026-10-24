@@ -890,6 +890,11 @@ function entryFluff(templateId: string): string {
     return String((entry?.raw as { fluff?: string })?.fluff ?? '');
 }
 
+/** Short tile label: drop catalogue type prefix when the UI already implies Active Buff. */
+function activeBuffWizardChoiceLabel(name: string): string {
+    return String(name || '').trim().replace(/^Active Buff:\s*/i, '');
+}
+
 export function getOffensiveActiveBuffOptions(): WizardOffensiveActiveBuff[] {
     return OFFENSIVE_ACTIVE_BUFF_ORDER.filter((id) => {
         const meta = OFFENSIVE_ACTIVE_BUFF_META[id];
@@ -898,7 +903,7 @@ export function getOffensiveActiveBuffOptions(): WizardOffensiveActiveBuff[] {
         const meta = OFFENSIVE_ACTIVE_BUFF_META[id]!;
         return {
             id,
-            label: meta.label,
+            label: activeBuffWizardChoiceLabel(meta.label),
             explanation: meta.explanation,
             groupLabel: meta.groupLabel,
             rankPreview: activeBuffEffectAtRank(id, DEF_RANK),
@@ -1009,7 +1014,7 @@ export function getSupportActiveBuffOptions(defenseId?: DefensePackageId): Wizar
         const meta = SUPPORT_BUFF_META[id]!;
         return {
             id,
-            label: meta.label,
+            label: activeBuffWizardChoiceLabel(meta.label),
             explanation: meta.explanation,
             groupLabel: meta.groupLabel,
             rankPreview: activeBuffEffectAtRank(id, DEF_RANK),
@@ -1406,7 +1411,10 @@ export function getSecondPassiveIntentGroups(
     return getGuidedSecondPassiveIntentGroups(passive1TemplateId, actorEchoKey, actorSubChoiceKey);
 }
 
-/** DF 2026 early steps: Echo → Attributes + Stones → Echo Imprints → Specializations. */
+/**
+ * Legacy identity step ids (Echo / Attributes / Imprints / Specs).
+ * Kept for type/history callers — the Combat Package Wizard never shows them.
+ */
 export const WIZARD_IDENTITY_STEPS: readonly TowerWizardStep[] = [
     'echo',
     'attributesStones',
@@ -1418,11 +1426,8 @@ export function isIdentityWizardStep(step: TowerWizardStep): boolean {
     return WIZARD_IDENTITY_STEPS.includes(step);
 }
 
+/** Combat Package Wizard: Passives → Buff → Offense → Review (no identity). */
 export const WIZARD_STEP_ORDER: TowerWizardStep[] = [
-    'echo',
-    'attributesStones',
-    'echoImprints',
-    'specializations',
     'passive1',
     'passive2',
     'activeBuffChoice',
@@ -1439,13 +1444,12 @@ export function packageNeedsReplacementBuffStep(selection: Partial<TowerWizardSe
 }
 
 export function getVisibleWizardSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[] {
-    const showIdentity = selection.skipIdentitySteps !== true;
-    // Quick (manual) still walks the identity steps, then jumps to review for power customization.
+    // Quick (manual): jump straight to review for power customization.
     if (isManualBuildMode(selection)) {
-        return showIdentity ? [...WIZARD_IDENTITY_STEPS, 'review'] : ['review'];
+        return ['review'];
     }
     return WIZARD_STEP_ORDER.filter((step) => {
-        if (isIdentityWizardStep(step)) return showIdentity;
+        if (isIdentityWizardStep(step)) return false;
         if (step === 'offensiveBuff' && !packageNeedsReplacementBuffStep(selection)) return false;
         if (step === 'offense' && !isManualBuildMode(selection)) return false;
         if (step === 'weakenSave' && !packageNeedsWeakenSaveStep(selection)) return false;

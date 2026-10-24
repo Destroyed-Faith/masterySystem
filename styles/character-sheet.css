@@ -447,6 +447,38 @@
   border-style: dashed;
 }
 
+/* Character creation: make Echo clearly clickable (same hint class as creation tabs). */
+.mastery-system.sheet.actor.character .sheet-echo-btn.creation-tab-hint {
+  border: 2px solid var(--df-accent, #c9a227);
+  background: color-mix(in srgb, var(--df-accent, #c9a227) 22%, var(--df-accent-subtle, rgba(255, 255, 255, 0.12)));
+  color: var(--df-text-primary, #f0e6c8);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--df-accent, #c9a227) 40%, transparent),
+    0 0 10px color-mix(in srgb, var(--df-accent, #c9a227) 35%, transparent);
+  animation: mastery-echo-creation-pulse 1.8s ease-in-out infinite;
+}
+
+.mastery-system.sheet.actor.character .sheet-echo-btn.creation-tab-hint:hover {
+  border-color: color-mix(in srgb, var(--df-accent, #c9a227) 85%, #fff);
+  background: color-mix(in srgb, var(--df-accent, #c9a227) 32%, rgba(255, 255, 255, 0.12));
+}
+
+.mastery-system.sheet.actor.character .sheet-echo-btn.creation-tab-hint.is-missing {
+  opacity: 1;
+  border-style: solid;
+}
+
+@keyframes mastery-echo-creation-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--df-accent, #c9a227) 35%, transparent),
+      0 0 8px color-mix(in srgb, var(--df-accent, #c9a227) 28%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--df-accent, #c9a227) 55%, transparent),
+      0 0 14px color-mix(in srgb, var(--df-accent, #c9a227) 45%, transparent);
+  }
+}
+
 .mastery-system.sheet.actor.character .sheet-notes-section {
   margin: 0.75rem 0 1rem;
   padding: 0.35rem 0.6rem 0.55rem;

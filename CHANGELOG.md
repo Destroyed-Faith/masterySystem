@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.776] - 2026-10-24
+
+### Changed
+
+- **Combat Package Wizard:** Identity steps removed (Echo / Attributes / Specs stay on the sheet). Active Buff and Special pickers use the same name-tile + hover tips as Passive 1/2.
+- **Specializations:** Eight example Specs per Field (job-style scopes) for the add dialog and homepage generator export. Free Perception Spec Rank 2 is ensured on every character.
+- **Creation UI:** Echo button next to the name is highlighted while Echo is still pending in creation.
+
 ## [0.9.775] - 2026-10-24
 
 ### Changed

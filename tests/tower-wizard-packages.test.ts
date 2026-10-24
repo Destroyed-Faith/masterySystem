@@ -109,8 +109,9 @@ describe('tower-wizard-packages', () => {
     });
 
     it('guided step order uses free Passive 1 then Passive 2', () => {
-        expect(WIZARD_STEP_ORDER[0]).toBe('echo');
-        expect(WIZARD_STEP_ORDER[4]).toBe('passive1');
+        expect(WIZARD_STEP_ORDER[0]).toBe('passive1');
+        expect(WIZARD_STEP_ORDER[1]).toBe('passive2');
+        expect(WIZARD_STEP_ORDER).not.toContain('echo');
         expect(WIZARD_STEP_ORDER).not.toContain('defense');
         expect(WIZARD_STEP_ORDER).not.toContain('defensePassiveVariant');
         expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).not.toContain(
@@ -329,7 +330,8 @@ describe('tower-wizard-packages', () => {
         for (const opt of options) {
             expect(opt.rankPreview.length).toBeGreaterThan(0);
             expect(opt.groupLabel.length).toBeGreaterThan(0);
-            expect(opt.label.startsWith('Active Buff:')).toBe(true);
+            expect(opt.label.length).toBeGreaterThan(0);
+            expect(opt.label.startsWith('Active Buff:')).toBe(false);
         }
         const groups = getOffensiveActiveBuffGroups();
         expect(groups.length).toBeGreaterThanOrEqual(2);

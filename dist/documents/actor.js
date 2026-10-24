@@ -16,6 +16,7 @@ import { getRulesMasteryRank, getWorldDefaultMasteryRank, suggestedMasteryRank, 
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { ensureNpcHasPerception } from '../rules/npc-situational-skills.js';
+import { ensureCharacterHasPerceptionSpec } from '../rules/specializations.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
 import { isLifetimeStoneMode, resolvedPermanentStoneTotal, resolvedStonePoolMax, systemWithStoneProgression, usesV099Stones, } from '../progression/v099-rules.js';
 /**
@@ -586,6 +587,13 @@ export class MasteryActor extends Actor {
             const ensured = ensureNpcHasPerception(system);
             if (ensured.added) {
                 system.situationalSkills = ensured.skills;
+            }
+        }
+        // Characters: free universal Perception Spec at Rank ≥ 2.
+        if (this.type === 'character') {
+            const ensured = ensureCharacterHasPerceptionSpec(system);
+            if (ensured.changed) {
+                system.specializations = ensured.specializations;
             }
         }
     }

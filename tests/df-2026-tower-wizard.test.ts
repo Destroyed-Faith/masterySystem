@@ -48,19 +48,25 @@ const baseGuided: TowerWizardSelection = {
 };
 
 describe('DF 2026 Tower Wizard — step order', () => {
-    it('runs echo → attributesStones → echoImprints → specializations before power steps and review', () => {
-        expect(WIZARD_STEP_ORDER.slice(0, 5)).toEqual([
-            'echo', 'attributesStones', 'echoImprints', 'specializations', 'passive1',
-        ]);
+    it('starts at passive1 (no identity steps) and ends at review', () => {
+        expect(WIZARD_STEP_ORDER[0]).toBe('passive1');
+        expect(WIZARD_STEP_ORDER).not.toEqual(expect.arrayContaining([...WIZARD_IDENTITY_STEPS]));
         expect(WIZARD_STEP_ORDER[WIZARD_STEP_ORDER.length - 1]).toBe('review');
-        expect(getVisibleWizardSteps({ activeBuffMode: 'defensive' }).slice(0, 4)).toEqual([...WIZARD_IDENTITY_STEPS]);
+        expect(getVisibleWizardSteps({ activeBuffMode: 'defensive' })[0]).toBe('passive1');
+        expect(getVisibleWizardSteps({ activeBuffMode: 'defensive' })).not.toEqual(
+            expect.arrayContaining([...WIZARD_IDENTITY_STEPS]),
+        );
     });
 
-    it('Quick (manualBuildMode) still walks the identity steps, then review', () => {
-        expect(getVisibleWizardSteps({ manualBuildMode: true })).toEqual([
-            'echo', 'attributesStones', 'echoImprints', 'specializations', 'review',
-        ]);
+    it('Quick (manualBuildMode) jumps straight to review', () => {
+        expect(getVisibleWizardSteps({ manualBuildMode: true })).toEqual(['review']);
         expect(getVisibleWizardSteps({ manualBuildMode: true, skipIdentitySteps: true })).toEqual(['review']);
+    });
+
+    it('includes offensiveBuff only when replacing the defensive Active Buff', () => {
+        expect(getVisibleWizardSteps({ activeBuffMode: 'defensive' })).not.toContain('offensiveBuff');
+        expect(getVisibleWizardSteps({ activeBuffMode: 'offensive' })).toContain('offensiveBuff');
+        expect(getVisibleWizardSteps({ activeBuffMode: 'support' })).toContain('offensiveBuff');
     });
 });
 
@@ -156,17 +162,21 @@ describe('DF 2026 Tower Wizard — Scenario A (starting budget)', () => {
         expect(validateTowerWizardIdentity({}, { hasEcho: true }, { requireComplete: true })).not.toMatch(/Echo\./);
     });
 
-    it('Guided and Quick share the same DTO validation for specs and imprints', () => {
+    it('skips identity DTO checks when skipIdentitySteps is set (Combat Package Wizard)', () => {
         const bad = { specializations: fiveSpecs().slice(0, 3) };
-        const guided = validateTowerWizardSelection({ ...baseGuided, ...bad });
-        const quick = validateTowerWizardSelection({ manualBuildMode: true, ...bad });
-        expect(guided).toMatch(/exactly five/i);
-        expect(quick).toBe(guided);
-        expect(validatePackageSpecs({ ...baseGuided, manualBuildMode: true, ...bad } as TowerWizardSelection)).toBe(guided);
+        expect(
+            validateTowerWizardSelection({ ...baseGuided, ...bad, skipIdentitySteps: true }),
+        ).toBeNull();
+    });
+
+    it('still validates identity when skipIdentitySteps is not set (legacy callers)', () => {
+        const bad = { specializations: fiveSpecs().slice(0, 3) };
+        expect(validateTowerWizardSelection({ ...baseGuided, ...bad })).toMatch(/exactly five/i);
     });
 
     it('leaves existing selections without identity fields valid (legacy / import callers)', () => {
         expect(validateTowerWizardSelection(baseGuided)).toBeNull();
+        expect(validateTowerWizardSelection({ ...baseGuided, skipIdentitySteps: true })).toBeNull();
     });
 });
 

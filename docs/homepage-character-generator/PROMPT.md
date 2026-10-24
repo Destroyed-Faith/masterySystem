@@ -116,6 +116,7 @@ Daten: `specialization-fields.json`, `creation-rules.json`.
 - Genau **5** Specs, je **Rank 2** (20 Creation Points / 2 pro Rank).
 - Jede Spec: Name, Field (eines der 7), Scope (ein Satz), Rank fest 2 bei Creation.
 - UI-Hinweis: **Perception Rank 2 is free** — belegt keinen Spec-Slot.
+- Optional: Vorschläge aus `specialization-fields.json` → `examples` (8 pro Field, Name + Scope); freie Namen bleiben erlaubt.
 - `skills.json` nicht als Creation-UI verwenden.
 
 ---

@@ -6,10 +6,12 @@
 import {
   SKILL_FIELDS,
   SKILL_FIELD_LABELS,
+  SPECIALIZATION_FIELD_EXAMPLES,
   SPECIALIZATION_MAX_RANK,
   STARTING_SPECIALIZATION_COUNT,
   STARTING_SPECIALIZATION_RANK,
   findSpecializationById,
+  isCharacterPerceptionSpec,
   isSkillField,
   readSpecializations,
   removeSpecialization,
@@ -65,7 +67,8 @@ export async function showSpecializationEditDialog(
     return false;
   }
   const fixedStartingRank = !!opts.fixedStartingRank;
-  if (fixedStartingRank && !existing && specs.length >= STARTING_SPECIALIZATION_COUNT) {
+  const paidSpecCount = specs.filter((s) => !isCharacterPerceptionSpec(s)).length;
+  if (fixedStartingRank && !existing && paidSpecCount >= STARTING_SPECIALIZATION_COUNT) {
     (globalThis as any).ui?.notifications?.warn?.(
       masteryLocalize(
         'MASTERY.df2026.creation.finalizeNeedSpecs',
@@ -104,8 +107,22 @@ export async function showSpecializationEditDialog(
         } />
       </div>`;
 
+  const exampleOptions = SKILL_FIELDS.flatMap((f) =>
+    (SPECIALIZATION_FIELD_EXAMPLES[f] ?? []).map(
+      (ex) =>
+        `<option value="${escapeHtml(f)}::${escapeHtml(ex.name)}" data-field="${escapeHtml(f)}" data-name="${escapeHtml(ex.name)}" data-scope="${escapeHtml(ex.scope)}">${escapeHtml(SKILL_FIELD_LABELS[f])} — ${escapeHtml(ex.name)}</option>`,
+    ),
+  ).join('');
+
   const content = `
     <form class="mastery-dialog-form spec-edit-form">
+      <div class="md-group">
+        <label class="md-label">Example <span class="md-sublabel">(optional — fills name, Field, and scope)</span></label>
+        <select name="example" class="md-select js-spec-example">
+          <option value="">— Free name —</option>
+          ${exampleOptions}
+        </select>
+      </div>
       <div class="md-group">
         <label class="md-label">Name <span class="md-sublabel">(free-named, e.g. Lockpicking)</span></label>
         <input type="text" name="name" class="md-input" value="${escapeHtml(existing?.name ?? '')}" maxlength="60" />
@@ -182,9 +199,26 @@ export async function showSpecializationEditDialog(
           cancel: { label: 'Cancel', callback: () => done(false) },
         },
         default: 'save',
+        render: (html: any) => {
+          const root = rootOf(html);
+          const exampleSelect = root?.querySelector<HTMLSelectElement>('.js-spec-example');
+          exampleSelect?.addEventListener('change', () => {
+            const opt = exampleSelect.selectedOptions?.[0];
+            if (!opt?.value) return;
+            const name = String(opt.dataset.name || '').trim();
+            const field = String(opt.dataset.field || '').trim();
+            const scope = String(opt.dataset.scope || '').trim();
+            const nameEl = root?.querySelector<HTMLInputElement>('[name="name"]');
+            const fieldEl = root?.querySelector<HTMLSelectElement>('[name="field"]');
+            const scopeEl = root?.querySelector<HTMLInputElement>('[name="scope"]');
+            if (name && nameEl) nameEl.value = name;
+            if (isSkillField(field) && fieldEl) fieldEl.value = field;
+            if (scope && scopeEl) scopeEl.value = scope;
+          });
+        },
         close: () => done(false),
       },
-      { width: 440 },
+      { width: 480 },
     ).render(true);
   });
 }
@@ -193,6 +227,12 @@ export async function deleteSpecializationWithConfirm(actor: any, specId: string
   const specs = readSpecializations(actor?.system);
   const spec = findSpecializationById(specs, specId);
   if (!spec) return false;
+  if (isCharacterPerceptionSpec(spec)) {
+    (globalThis as any).ui?.notifications?.warn?.(
+      'Perception is a free universal Specialization and cannot be removed.',
+    );
+    return false;
+  }
   const Dialog: any = (globalThis as any).Dialog;
   let confirmed = false;
   if (Dialog?.confirm) {

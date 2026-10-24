@@ -30,6 +30,12 @@ export declare function remainingCompleteRounds(lastActiveRound: number, current
 export declare function commitPrepBaseAttackAction(actor: any, combat: any): Promise<boolean>;
 export declare function clearPrepBaseAttackCommitment(actor: any, combat: any): Promise<void>;
 /**
+ * Full rollback of a Preparation Active Buff activation cost:
+ * clears prepBaseAttackCommitted and activeBuffUsedThisRound.
+ * Call only when the base Attack was committed for that activation.
+ */
+export declare function refundPrepActiveBuffActivation(actor: any, combat: any): Promise<boolean>;
+/**
  * Expire Active Buffs whose lastActiveRound is strictly before the new Round
  * (i.e. Round End of lastActiveRound has passed). Call when advancing to `newRound`.
  */

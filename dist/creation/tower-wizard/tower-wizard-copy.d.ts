@@ -34,19 +34,19 @@ export declare const TOWER_WIZARD_COPY: {
     readonly activeBuffChoice: {
         readonly heading: "What should your Active Buff do?";
         readonly body: "You can maintain only one Active Buff at a time. This is the power you activate to change how you fight for several rounds.";
-        readonly defaultHeading: "Recommended package Active Buff";
+        readonly defaultHeading: "Pick one:";
         readonly rankNote: "At PL 4";
-        readonly defensiveTitle: "Keep the recommended defensive Buff";
+        readonly defensiveTitle: "Defensive";
         readonly defensiveBody: "Keep the Buff recommended for your package (based on your first Passive when it is defensive).";
-        readonly offensiveTitle: "Replace it with an offensive Buff";
+        readonly offensiveTitle: "Offensive";
         readonly offensiveBody: "Use your Buff slot to make your attacks stronger instead of improving your defense. Examples: Active Buff: Damage, Active Buff: Critical, Active Buff: Damage Aura, or Active Buff: Thorns.";
-        readonly supportTitle: "Replace it with a support Buff";
+        readonly supportTitle: "Support";
         readonly supportBody: "Use your Buff slot for Temporary HP, auras, Invisibility, Self Cleanse, Spell Resistance, or Summon support from the final catalogue.";
     };
     readonly offensiveBuff: {
-        readonly heading: "Choose your offensive Active Buff";
-        readonly supportHeading: "Choose your support Active Buff";
-        readonly body: "This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time.";
+        readonly heading: "CHOOSE YOUR OFFENSIVE ACTIVE BUFF";
+        readonly supportHeading: "CHOOSE YOUR SUPPORT ACTIVE BUFF";
+        readonly body: "This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time. Hover a tile for full details.";
         readonly replacing: "Replacing";
         readonly rankPreview: "At PL 4";
         readonly durationNote: "In combat: activate during Preparation (commits base Attack Action)";
