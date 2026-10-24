@@ -265,6 +265,14 @@
         "tempHP": 0
       },
       "skills": {},
+      "situationalSkills": [
+        {
+          "id": "nss-perception",
+          "name": "Perception",
+          "poolDice": 6,
+          "skillRank": 0
+        }
+      ],
       "attackValues": [],
       "npcBaseAttack": {
         "name": "Waffenangriff",
@@ -332,6 +340,14 @@
         "currentBar": 0,
         "tempHP": 0
       },
+      "situationalSkills": [
+        {
+          "id": "nss-perception",
+          "name": "Perception",
+          "poolDice": 6,
+          "skillRank": 0
+        }
+      ],
       "combat": {
         "initiative": 0,
         "evade": 4,

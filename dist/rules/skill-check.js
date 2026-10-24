@@ -7,6 +7,7 @@
  */
 import { clampPaidRaises, finalSkillTn, getSkillRaiseAllowance, paidRaiseSelectOptions, skillCheckSuccessRaiseBudget, validatePaidRaisesDeclaration, validateSkillRaiseEffectAllocation, emptySkillRaiseEffectAllocation, } from './skill-raises.js';
 import { SPEC_ATTRIBUTE_KEYS, findSpecializationById, findSpecializationByName, readSpecializations, } from './specialization-roll.js';
+import { findSituationalSkillById, readSituationalSkills, } from './npc-situational-skills.js';
 /** Universal free starting Perception acts as Rank 2 when no Spec is present. */
 export const UNIVERSAL_PERCEPTION_RANK = 2;
 export function isSpecAttributeKey(value) {
@@ -22,6 +23,8 @@ export function baseTnPresets() {
 export function skillRefKey(ref) {
     if (ref.kind === 'specialization')
         return `specialization:${ref.id}`;
+    if (ref.kind === 'npc-situational')
+        return `npc-situational:${ref.id}`;
     return ref.kind;
 }
 export function skillRefsEqual(a, b) {
@@ -35,9 +38,32 @@ export function resolvePerceptionRank(system) {
         return Math.max(0, Math.floor(Number(found.rank) || 0));
     return UNIVERSAL_PERCEPTION_RANK;
 }
-export function resolveSkillForDraft(system, skill) {
+export function resolveSkillForDraft(system, skill, npcSituational) {
     if (skill.kind === 'untrained') {
         return { name: 'Untrained', rank: 0, spec: null, trained: false };
+    }
+    if (skill.kind === 'npc-situational' || npcSituational) {
+        const snap = npcSituational ??
+            (() => {
+                const s = findSituationalSkillById(readSituationalSkills(system), skill.kind === 'npc-situational' ? skill.id : '');
+                return s
+                    ? {
+                        skillId: s.id,
+                        skillName: s.name,
+                        poolDice: s.poolDice,
+                        skillRank: s.skillRank,
+                    }
+                    : null;
+            })();
+        if (!snap) {
+            return { name: 'Unknown', rank: 0, spec: null, trained: false };
+        }
+        return {
+            name: snap.skillName,
+            rank: snap.skillRank,
+            spec: null,
+            trained: snap.skillRank > 0,
+        };
     }
     if (skill.kind === 'perception') {
         const specs = readSpecializations(system);
@@ -151,8 +177,9 @@ export function missingGmContextFields(input) {
     const missing = [];
     if (!String(input.taskDescription || '').trim())
         missing.push('task');
-    if (!isSpecAttributeKey(String(input.attributeKey || '')))
+    if (!input.npcSituational && !isSpecAttributeKey(String(input.attributeKey || ''))) {
         missing.push('attribute');
+    }
     // Unset / NaN — never invent a default favourable TN
     if (input.baseTn == null || !Number.isFinite(Number(input.baseTn)))
         missing.push('baseTn');
@@ -186,32 +213,57 @@ export function planSkillCheckDraft(input) {
         gmVerified: ctx.gmVerified,
         sourceKind: ctx.sourceKind,
     });
+    const isNpcSituational = !!draft.npcSituational || ctx.skill.kind === 'npc-situational';
     const missing = missingGmContextFields({
         taskDescription: ctx.taskDescription,
         attributeKey: ctx.attributeKey,
         baseTn: ctx.baseTn,
+        npcSituational: isNpcSituational,
     });
     // sheet-verbal: require complete GM-announced context before rolling
     if (ctx.sourceKind === 'sheet-verbal' && missing.length) {
-        return emptyFail(`GM context incomplete: missing ${missing.join(', ')}. Record the GM-announced task, Attribute and Base TN.`, missing);
+        return emptyFail(isNpcSituational
+            ? `GM context incomplete: missing ${missing.join(', ')}. Record the GM-announced task and Base TN.`
+            : `GM context incomplete: missing ${missing.join(', ')}. Record the GM-announced task, Attribute and Base TN.`, missing);
     }
-    if (ctx.sourceKind === 'gm-request' && (!ctx.attributeKey || !isSpecAttributeKey(ctx.attributeKey))) {
+    if (ctx.sourceKind === 'gm-request' &&
+        !isNpcSituational &&
+        (!ctx.attributeKey || !isSpecAttributeKey(ctx.attributeKey))) {
         return emptyFail('GM request is missing a valid Attribute.');
     }
     // If GM approved a limited set, skill must be in that set
     if (ctx.allowedSkills?.length && !ctx.allowedSkills.some((s) => skillRefsEqual(s, ctx.skill))) {
         return emptyFail('Selected Skill is not GM-approved for this check.');
     }
-    const resolved = resolveSkillForDraft(system, ctx.skill);
+    let npcSnap = draft.npcSituational;
+    if (ctx.skill.kind === 'npc-situational' && !npcSnap) {
+        const s = findSituationalSkillById(readSituationalSkills(system), ctx.skill.id);
+        if (s) {
+            npcSnap = {
+                skillId: s.id,
+                skillName: s.name,
+                poolDice: s.poolDice,
+                skillRank: s.skillRank,
+            };
+        }
+    }
+    const resolved = resolveSkillForDraft(system, ctx.skill, npcSnap);
     if (input.requireKnownSkill &&
         ctx.skill.kind === 'specialization' &&
         !resolved.spec) {
         return emptyFail('Specialization not found on this character.');
     }
+    if (input.requireKnownSkill &&
+        ctx.skill.kind === 'npc-situational' &&
+        !npcSnap) {
+        return emptyFail('Situational skill not found on this NPC.');
+    }
     const attrKey = isSpecAttributeKey(String(ctx.attributeKey))
         ? String(ctx.attributeKey)
-        : '';
-    if (!attrKey)
+        : isNpcSituational
+            ? String(ctx.attributeKey || 'wits')
+            : '';
+    if (!isNpcSituational && !attrKey)
         return emptyFail('Invalid Attribute.');
     const attributeValue = Math.max(0, Math.floor(Number(system?.attributes?.[attrKey]?.value) || 0));
     const masteryRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
@@ -225,14 +277,20 @@ export function planSkillCheckDraft(input) {
         error = 'Untrained rolls get 0 Raises.';
     }
     const paid = paidCheck.ok && !error ? paidCheck.paid : 0;
+    const numDice = npcSnap
+        ? Math.max(0, Math.floor(Number(npcSnap.poolDice) || 0))
+        : attributeValue;
+    const keepDice = masteryRank;
+    // Untrained PC Spec path uses Disadvantage; NPC situational Rank 0 is "no Raises", not Disadvantage.
+    const rollDisadvantage = !isNpcSituational && !resolved.trained;
     return {
         ok: !error && paidCheck.ok,
         ...(error ? { error } : {}),
-        trained: resolved.trained,
+        trained: resolved.trained || isNpcSituational,
         skillName: resolved.name,
         rank,
         allowance,
-        attributeKey: attrKey,
+        attributeKey: attrKey || 'wits',
         attributeValue,
         masteryRank,
         baseTn,
@@ -240,9 +298,9 @@ export function planSkillCheckDraft(input) {
         paidRaises: paidCheck.ok && !error ? paid : clampedPaid,
         freeRaisesOnSuccess: allowance.maxFree,
         finalTn: paidCheck.ok && !error ? finalSkillTn(baseTn, paid) : finalSkillTn(baseTn, clampedPaid),
-        numDice: attributeValue,
-        keepDice: masteryRank,
-        rollDisadvantage: !resolved.trained,
+        numDice,
+        keepDice,
+        rollDisadvantage,
         paidOptions: paidRaiseSelectOptions(rank, baseTn),
         showFreeBanner: allowance.maxFree > 0,
         gmVerified: ctx.gmVerified,

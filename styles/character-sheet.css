@@ -4930,25 +4930,6 @@
   margin-bottom: 0.65rem;
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-field__pool {
-  flex: 0 0 auto;
-  font-size: 0.68rem;
-  font-variant-numeric: tabular-nums;
-  padding: 0.05rem 0.3rem;
-  border-radius: 4px;
-  opacity: 0.95;
-}
-
-.mastery-system.sheet.actor.npc .npc-skill-field__pool.is-full {
-  color: #9dffa8;
-  background: rgba(60, 140, 80, 0.25);
-}
-
-.mastery-system.sheet.actor.npc .npc-skill-field__pool.is-half {
-  color: #ffc98a;
-  background: rgba(160, 100, 40, 0.28);
-}
-
 .mastery-system.sheet.actor.npc .npc-skills-hint {
   margin: 0 0 0.55rem;
   font-size: 0.72rem;
@@ -4961,64 +4942,68 @@
   opacity: 0.9;
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-cat {
-  margin: 0 0 0.55rem;
-  padding: 0.35rem 0.4rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.15);
+.mastery-system.sheet.actor.npc .npc-situational-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.5rem;
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-cat.is-perception {
-  border-color: rgba(158, 200, 255, 0.35);
-  background: rgba(80, 120, 180, 0.12);
-}
-
-.mastery-system.sheet.actor.npc .npc-skill-cat__label {
+.mastery-system.sheet.actor.npc .npc-situational-toolbar button {
   font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #c9a227;
-  margin: 0 0 0.35rem;
+  padding: 0.2rem 0.45rem;
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-cat.is-perception .npc-skill-cat__label {
-  color: #9ec8ff;
+.mastery-system.sheet.actor.npc .npc-situational-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-cat__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-  gap: 0.3rem 0.45rem;
-}
-
-.mastery-system.sheet.actor.npc .npc-skill-field {
+.mastery-system.sheet.actor.npc .npc-situational-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
-  margin: 0;
-  font-size: 0.78rem;
-  font-weight: 500;
+  gap: 0.5rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-field__name {
-  flex: 1 1 auto;
+.mastery-system.sheet.actor.npc .npc-situational-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.mastery-system.sheet.actor.npc .npc-skill-field input[type="number"] {
-  flex: 0 0 3.25rem;
-  width: 3.25rem;
-  min-width: 3.25rem;
-  text-align: center;
-  padding: 0.15rem 0.25rem;
-  margin: 0;
+.mastery-system.sheet.actor.npc .npc-situational-row__name {
+  font-size: 0.85rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-situational-row__meta {
+  font-size: 0.7rem;
+  opacity: 0.8;
   font-variant-numeric: tabular-nums;
+}
+
+.mastery-system.sheet.actor.npc .npc-situational-row__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.2rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-situational-row__actions button {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.mastery-system.sheet.actor.npc .npc-situational-empty {
+  margin: 0.25rem 0 0;
+  opacity: 0.75;
 }
 
 .mastery-system.sheet.actor.npc .npc-section__title {

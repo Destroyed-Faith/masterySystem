@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.768] - 2026-10-24
+
+### Added
+
+- **NPC situational skills:** Short Guide-conformant pools (Nd8 keep MR) replace the fixed skill catalog on the NPC/Summon sheet. Capable/Specialist presets for MR 1–3; optional Rank for Paid/Free Raises; shared Skill Check dialog (Paid Raises only).
+- **Required Perception:** Every NPC/Summon always has a Perception situational entry (seeded Capable pool; cannot be deleted). Combat Perception resolve prefers that entry.
+
+### Changed
+
+- Legacy `system.skills` remains readable as a fallback; the catalog is no longer shown on the NPC sheet.
+
 ## [0.9.767] - 2026-10-24
 
 ### Added

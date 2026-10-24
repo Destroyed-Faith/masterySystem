@@ -66,3 +66,20 @@ Regression: `tests/df-2026-aid-retired.test.ts`
 
 Automated: `tests/df-2026-skill-check-dual-entry.test.ts`.  
 Manual Foundry-14 smoke: **NOT RUN** (isolated world required).
+
+## NPC situational skills (2026-10-24)
+
+**Rule source:** Players Guide — *NPCs in Skill Checks and Contests* (Capable/Specialist pools, keep = MR; no full PC Spec sheet).
+
+| Area | Status | Notes |
+|---|---|---|
+| Data | **DONE** | `system.situationalSkills[]` on npc + summon; legacy `system.skills` kept as fallback |
+| Sheet UI | **DONE** | Catalog Skills replaced by situational list + Add / Capable / Specialist / Roll / Edit / Delete |
+| Roll path | **DONE** | Shared Skill Check dialog; pool = `poolDice`, keep = MR; Paid Raises only; Attribute optional flavor |
+| Perception gate | **DONE** | Resolve: situational Perception → legacy rating>0 → Capable preset for NPC/Summon MR |
+| PC Specs | **UNCHANGED** | Character Specializations / free Perception Spec untouched |
+
+Automated: `tests/npc-skill-pool.test.ts` (presets MR1–3, Rank→Raises, poolDice ≠ Attribute, Perception resolve).  
+Full suite after change: **298 files / 3203 tests PASS**; `tsc` / `npm run build` **PASS**.  
+Manual Foundry smoke: add Perception situational → combat locate; roll Stealth from NPC sheet with Paid Raises.  
+**No commit/tag** pending approval.

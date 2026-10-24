@@ -15,6 +15,7 @@ import { getRoundState } from '../combat/action-economy.js';
 import { getRulesMasteryRank, getWorldDefaultMasteryRank, suggestedMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
+import { ensureNpcHasPerception } from '../rules/npc-situational-skills.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
 import { isLifetimeStoneMode, resolvedPermanentStoneTotal, resolvedStonePoolMax, systemWithStoneProgression, usesV099Stones, } from '../progression/v099-rules.js';
 /**
@@ -578,6 +579,13 @@ export class MasteryActor extends Actor {
                         system.phases[String(i)] = repaired[i];
                     }
                 }
+            }
+        }
+        // NPC / Summon: every actor has Perception (Capable pool if newly seeded).
+        if (this.type === 'npc' || this.type === 'summon') {
+            const ensured = ensureNpcHasPerception(system);
+            if (ensured.added) {
+                system.situationalSkills = ensured.skills;
             }
         }
     }

@@ -80,11 +80,28 @@ export async function executeSkillCheck(
     }
   }
 
+  // Refresh NPC situational snapshot from actor at resolve time
+  if (draft.skill.kind === 'npc-situational') {
+    const { findSituationalSkillById, readSituationalSkills } = await import(
+      '../rules/index.js'
+    );
+    const s = findSituationalSkillById(readSituationalSkills(system), draft.skill.id);
+    if (!s) return { ok: false, error: 'Situational skill not found on this NPC.' };
+    draft.npcSituational = {
+      skillId: s.id,
+      skillName: s.name,
+      poolDice: s.poolDice,
+      skillRank: s.skillRank,
+    };
+  }
+
   const plan = planSkillCheckDraft({ system, draft, requireKnownSkill: true });
   if (!plan.ok) return { ok: false, error: plan.error || 'Invalid Skill Check.' };
 
+  const isNpcSituational = !!draft.npcSituational || draft.skill.kind === 'npc-situational';
+
   let equipPenalty = 0;
-  if (draft.skill.kind === 'specialization') {
+  if (!isNpcSituational && draft.skill.kind === 'specialization') {
     const spec = findSpecializationById(readSpecializations(system), draft.skill.id);
     if (spec?.field === 'physical') {
       equipPenalty = Math.max(0, Number(getEquippedPhysicalSkillPenaltyDice(actor)) || 0);
@@ -92,7 +109,7 @@ export async function executeSkillCheck(
   }
 
   const mr = getRulesMasteryRank(actor) || plan.masteryRank;
-  const keepDice = Math.max(1, Math.floor(Number(mr) || plan.keepDice));
+  const keepDice = Math.max(1, Math.min(plan.numDice, Math.floor(Number(mr) || plan.keepDice)));
   const numDice = Math.max(0, plan.numDice - equipPenalty);
   const attrLabel =
     plan.attributeKey.charAt(0).toUpperCase() + plan.attributeKey.slice(1);
@@ -102,9 +119,14 @@ export async function executeSkillCheck(
     plan.freeRaisesOnSuccess > 0
       ? ` · Free on success ${plan.freeRaisesOnSuccess}`
       : '';
-  let flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
-  if (plan.rollDisadvantage) {
-    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}Untrained · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} with Disadvantage · Base TN ${plan.baseTn} · Final TN ${plan.finalTn} · 0 Raises${verified}.`;
+  let flavor = '';
+  if (isNpcSituational) {
+    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}NPC ${plan.skillName} (Rank ${plan.rank}) · Pool ${numDice}k${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
+  } else {
+    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
+    if (plan.rollDisadvantage) {
+      flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}Untrained · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} with Disadvantage · Base TN ${plan.baseTn} · Final TN ${plan.finalTn} · 0 Raises${verified}.`;
+    }
   }
   if (equipPenalty > 0) {
     flavor += ` Equipped armor/shield physical penalty: −${equipPenalty}d8.`;
@@ -134,8 +156,8 @@ export async function executeSkillCheck(
     isSkillRoll: true,
     baseModifier: 0,
     rollKind: 'skill',
-    poolAttribute: plan.attributeKey,
-    applyPoolPenalties: true,
+    ...(isNpcSituational ? {} : { poolAttribute: plan.attributeKey }),
+    applyPoolPenalties: !isNpcSituational,
     autoFailIntent: 'skill',
     checkContext: {
       skillKey: normalizedName || undefined,

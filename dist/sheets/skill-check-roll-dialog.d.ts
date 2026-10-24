@@ -27,6 +27,13 @@ export interface SkillCheckDialogOptions {
     allowedSkills?: SkillCheckSkillRef[];
     initialPaidRaises?: number;
     title?: string;
+    /** NPC situational pool — Attribute optional; pool from entry, not Attribute. */
+    npcSituational?: {
+        skillId: string;
+        skillName: string;
+        poolDice: number;
+        skillRank: number;
+    };
 }
 /**
  * Open the shared Skill Check dialog. Resolves null on cancel.

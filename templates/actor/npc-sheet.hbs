@@ -667,37 +667,41 @@
     </div>
     {{/if}}
 
-    {{!-- Skills (ratings feed Perception / skill rolls — same system.skills path as PCs) --}}
-    {{#if npcSkillGroups}}
-    <div class="npc-section npc-section--skills">
-      <h3 class="npc-section__title"><i class="fas fa-eye"></i> Skills</h3>
-      {{#if npcSkillPoolHint}}
-      <p class="npc-skills-hint"><i class="fas fa-info-circle"></i> {{npcSkillPoolHint}}</p>
-      {{/if}}
-      {{#each npcSkillGroups as |group|}}
-      <div class="npc-skill-cat{{#if (eq group.category "Perception")}} is-perception{{/if}}">
-        <div class="npc-skill-cat__label">{{group.category}}</div>
-        <div class="npc-skill-cat__grid">
-          {{#each group.skills as |skill|}}
-          <label class="npc-skill-field" title="{{#if skill.poolTooltip}}{{skill.poolTooltip}}{{else}}{{skill.name}}{{/if}}">
-            <span class="npc-skill-field__name">{{skill.name}}</span>
-            {{#if skill.poolPreview}}
-            <span class="npc-skill-field__pool{{#if skill.poolFull}} is-full{{else}} is-half{{/if}}" title="{{skill.poolTooltip}}">{{skill.poolPreview}}</span>
-            {{/if}}
-            <input type="number"
-                   name="system.skills.{{skill.key}}"
-                   value="{{skill.value}}"
-                   min="0"
-                   step="1"
-                   data-dtype="Number"
-                   {{#unless @root.editable}}disabled{{/unless}}/>
-          </label>
-          {{/each}}
-        </div>
+    {{!-- Situational Skills (DF 2026 — Nd8 keep MR; optional Rank for Raises) --}}
+    <div class="npc-section npc-section--skills npc-section--situational-skills">
+      <h3 class="npc-section__title"><i class="fas fa-dice-d8"></i> Situational Skills</h3>
+      <p class="npc-skills-hint"><i class="fas fa-info-circle"></i> {{npcSituationalHint}}</p>
+      <div class="npc-situational-toolbar">
+        {{#if editable}}
+        <button type="button" class="npc-sit-add"><i class="fas fa-plus"></i> Add</button>
+        <button type="button" class="npc-sit-preset" data-preset="capable" title="Guide capable pool for this MR"><i class="fas fa-user-shield"></i> Capable</button>
+        <button type="button" class="npc-sit-preset" data-preset="specialist" title="Guide specialist pool for this MR"><i class="fas fa-user-ninja"></i> Specialist</button>
+        {{/if}}
       </div>
-      {{/each}}
+      {{#if npcSituationalSkills.length}}
+      <div class="npc-situational-list">
+        {{#each npcSituationalSkills as |sk|}}
+        <div class="npc-situational-row" data-skill-id="{{sk.id}}">
+          <div class="npc-situational-row__main">
+            <strong class="npc-situational-row__name">{{sk.name}}</strong>
+            <span class="npc-situational-row__meta">Pool {{sk.poolPreview}} · Rank {{sk.skillRank}}</span>
+          </div>
+          <div class="npc-situational-row__actions">
+            <button type="button" class="npc-sit-roll" data-skill-id="{{sk.id}}" title="Skill Check"><i class="fas fa-dice-d8"></i></button>
+            {{#if @root.editable}}
+            <button type="button" class="npc-sit-edit" data-skill-id="{{sk.id}}" title="Edit"><i class="fas fa-pen"></i></button>
+            {{#unless sk.isPerception}}
+            <button type="button" class="npc-sit-delete" data-skill-id="{{sk.id}}" title="Delete"><i class="fas fa-trash"></i></button>
+            {{/unless}}
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <p class="npc-situational-empty md-sublabel">No situational skills yet. Add Perception or other scene pools as needed.</p>
+      {{/if}}
     </div>
-    {{/if}}
 
     {{!-- Notes --}}
     <div class="notes-panel npc-section npc-section--notes">

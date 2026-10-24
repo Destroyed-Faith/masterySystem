@@ -10,6 +10,7 @@ export * from './echo-imprints.js';
 export * from './core-rituals.js';
 export * from './specializations.js';
 export * from './specialization-roll.js';
+export * from './npc-situational-skills.js';
 export * from './fear-health.js';
 export declare const DF_2026_RULES_SCHEMA_VERSION = "2026.10.23";
 //# sourceMappingURL=index.d.ts.map

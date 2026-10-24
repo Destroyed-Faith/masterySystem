@@ -36,11 +36,20 @@ import {
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
-import { buildNpcSkillGroups, SKILLS } from '../utils/skills.js';
+import { SKILLS } from '../utils/skills.js';
 import {
-  buildSkillRollPoolPreview,
-  skillFullPoolThreshold,
-} from '../dice/roll-context-build.js';
+  ensureNpcHasPerception,
+  findSituationalSkillById,
+  isNpcPerceptionSkill,
+  newSituationalSkillId,
+  poolPreviewLabel,
+  readSituationalSkills,
+  removeSituationalSkill,
+  suggestNpcPool,
+  upsertSituationalSkill,
+  type NpcPoolPreset,
+  type NpcSituationalSkill,
+} from '../rules/npc-situational-skills.js';
 
 const NPC_SHEET_ATTRIBUTES = [
   'might',
@@ -588,7 +597,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         context.system.attributes = {};
       }
       const mr = (context as any).npcMasteryRank as number;
-      const poolThreshold = skillFullPoolThreshold(mr);
       (context as any).npcAttributes = NPC_SHEET_ATTRIBUTES.map((key) => {
         const raw = context.system.attributes?.[key];
         const value =
@@ -610,27 +618,28 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           cur.value = row.value;
         }
       }
-      const groups = buildNpcSkillGroups(context.system.skills);
-      for (const group of groups) {
-        for (const skill of group.skills) {
-          const def = SKILLS[skill.key];
-          const attrKey = String(def?.attributes?.[0] || 'wits');
-          try {
-            const preview = buildSkillRollPoolPreview(this.actor as any, skill.key, attrKey);
-            (skill as any).poolPreview = preview.rollLabel;
-            (skill as any).poolFull = preview.fullPoolReady;
-            (skill as any).poolTooltip = preview.tooltip;
-            (skill as any).poolAttr = attrKey;
-          } catch {
-            (skill as any).poolPreview = '';
-            (skill as any).poolFull = false;
-            (skill as any).poolTooltip = '';
-            (skill as any).poolAttr = attrKey;
-          }
-        }
+      const ensured = ensureNpcHasPerception(context.system, mr);
+      if (ensured.added) {
+        context.system.situationalSkills = ensured.skills;
+        // Persist so existing worlds keep Perception without a one-off migration.
+        void this.actor
+          .update({ 'system.situationalSkills': ensured.skills })
+          .catch((err: unknown) =>
+            console.warn('Mastery System | NPC Perception seed failed', err),
+          );
       }
-      (context as any).npcSkillGroups = groups;
-      (context as any).npcSkillPoolHint = `Full attribute pool when skill rating ≥ 2×MR (${poolThreshold}). Below that: half attribute pool (floor). Keep = MR (capped by pool). Preview uses the skill's primary attribute.`;
+      (context as any).npcSituationalSkills = ensured.skills.map((s) => ({
+        ...s,
+        poolPreview: poolPreviewLabel(s.poolDice, mr),
+        isPerception: isNpcPerceptionSkill(s),
+      }));
+      (context as any).npcSituationalHint = `Nd8 keep MR (${mr}). Perception is required on every NPC. Capable ≈ ${suggestNpcPool(
+        mr,
+        'capable',
+      )}d8 · Specialist ≈ ${suggestNpcPool(
+        mr,
+        'specialist',
+      )}d8 (Guide MR1–3). Rank 0 = no Raises. Legacy system.skills remains data-only fallback.`;
     }
 
     if (isNpcLike && context.system) {
@@ -1098,32 +1107,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   }
 
   /** Sync Ini malus/bonus selects → hidden net field + summary (MR d8 ± N). */
-  /** Live-update the pool label next to a skill input (same math as getData). */
-  #refreshNpcSkillPoolPreview(html: JQuery, skillKey: string, skillRating: number): void {
-    const def = SKILLS[skillKey];
-    const attrKey = String(def?.attributes?.[0] || 'wits');
-    let preview: ReturnType<typeof buildSkillRollPoolPreview>;
-    try {
-      preview = buildSkillRollPoolPreview(this.actor as any, skillKey, attrKey, skillRating);
-    } catch {
-      return;
-    }
-    const field = html.find(`.npc-skill-field input[name="system.skills.${skillKey}"]`).closest('.npc-skill-field');
-    if (!field.length) return;
-    let poolEl = field.find('.npc-skill-field__pool');
-    if (!poolEl.length) {
-      poolEl = (globalThis as any).$(
-        `<span class="npc-skill-field__pool"></span>`,
-      );
-      field.find('.npc-skill-field__name').after(poolEl);
-    }
-    poolEl
-      .text(preview.rollLabel)
-      .attr('title', preview.tooltip)
-      .toggleClass('is-full', !!preview.fullPoolReady)
-      .toggleClass('is-half', !preview.fullPoolReady);
-  }
-
   #syncNpcIniChip(chip: HTMLElement): void {
     const malusEl = chip.querySelector('select.npc-ini-malus') as HTMLSelectElement | null;
     const bonusEl = chip.querySelector('select.npc-ini-bonus') as HTMLSelectElement | null;
@@ -1144,23 +1127,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   /** @override */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
-    // Persist skill / attribute numbers immediately so Perception pool unlocks
-    // are not lost when another control re-renders before form expand settles.
-    html.find('.npc-skill-field input[name^="system.skills."]').on('change', async (ev) => {
-      const input = ev.currentTarget as HTMLInputElement;
-      const name = String(input?.name || '');
-      const m = /^system\.skills\.([^.]+)$/.exec(name);
-      if (!m) return;
-      const key = m[1]!;
-      const value = Math.max(0, Math.floor(Number(input.value) || 0));
-      input.value = String(value);
-      try {
-        await this.actor.update({ [`system.skills.${key}`]: value });
-        this.#refreshNpcSkillPoolPreview(html, key, value);
-      } catch (err) {
-        console.warn('Mastery System | NPC skill update failed', key, err);
-      }
-    });
+    // Persist attribute numbers immediately so other live previews stay in sync.
     html.find('.npc-attr-chip input[name^="system.attributes."]').on('change', async (ev) => {
       const input = ev.currentTarget as HTMLInputElement;
       const name = String(input?.name || '');
@@ -1171,16 +1138,34 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       input.value = String(value);
       try {
         await this.actor.update({ [`system.attributes.${key}.value`]: value });
-        // Attribute change can unlock/half all skills that use it.
-        html.find('.npc-skill-field input[name^="system.skills."]').each((_, el) => {
-          const inp = el as HTMLInputElement;
-          const sm = /^system\.skills\.([^.]+)$/.exec(String(inp.name || ''));
-          if (!sm) return;
-          this.#refreshNpcSkillPoolPreview(html, sm[1]!, Math.max(0, Math.floor(Number(inp.value) || 0)));
-        });
       } catch (err) {
         console.warn('Mastery System | NPC attribute update failed', key, err);
       }
+    });
+
+    html.find('.npc-sit-add').on('click', (ev) => {
+      ev.preventDefault();
+      void this.#onNpcSituationalAdd();
+    });
+    html.find('.npc-sit-preset').on('click', (ev) => {
+      ev.preventDefault();
+      const preset = String((ev.currentTarget as HTMLElement)?.dataset?.preset || '') as NpcPoolPreset;
+      void this.#onNpcSituationalPreset(preset);
+    });
+    html.find('.npc-sit-edit').on('click', (ev) => {
+      ev.preventDefault();
+      const id = String((ev.currentTarget as HTMLElement)?.dataset?.skillId || '');
+      void this.#onNpcSituationalEdit(id);
+    });
+    html.find('.npc-sit-delete').on('click', (ev) => {
+      ev.preventDefault();
+      const id = String((ev.currentTarget as HTMLElement)?.dataset?.skillId || '');
+      void this.#onNpcSituationalDelete(id);
+    });
+    html.find('.npc-sit-roll').on('click', (ev) => {
+      ev.preventDefault();
+      const id = String((ev.currentTarget as HTMLElement)?.dataset?.skillId || '');
+      void this.#onNpcSituationalRoll(id);
     });
 
     makeFoundryTooltipInert();
@@ -2177,6 +2162,178 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     await toggleKnownNpc(String((this.actor as any).id || ''));
     await KnownNpcsBar.refresh();
     await (this as any).render(false);
+  }
+
+  async #persistSituationalSkills(skills: NpcSituationalSkill[]): Promise<void> {
+    await this.actor.update({ 'system.situationalSkills': skills });
+    await (this as any).render(false);
+  }
+
+  async #promptSituationalSkillForm(
+    initial?: Partial<NpcSituationalSkill> & { presetPool?: number },
+  ): Promise<NpcSituationalSkill | null> {
+    const DialogCls = (globalThis as any).Dialog;
+    if (typeof DialogCls?.prompt !== 'function') return null;
+    const mr = Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 2));
+    const defaultPool =
+      initial?.poolDice != null
+        ? Math.max(0, Math.floor(Number(initial.poolDice) || 0))
+        : initial?.presetPool != null
+          ? Math.max(0, Math.floor(Number(initial.presetPool) || 0))
+          : suggestNpcPool(mr, 'capable');
+    const name = String(initial?.name || '');
+    const rank = Math.max(0, Math.min(8, Math.floor(Number(initial?.skillRank) || 0)));
+    const notes = String(initial?.notes || '');
+    const id = String(initial?.id || newSituationalSkillId());
+    try {
+      return await DialogCls.prompt({
+        title: initial?.id ? 'Edit Situational Skill' : 'Add Situational Skill',
+        content: `<div class="npc-sit-form">
+          <p class="notes">Pool Nd8 keep MR (${mr}). Rank 0 = no Raises.</p>
+          <p><label>Name <input type="text" name="name" value="${name.replace(/"/g, '&quot;')}" style="width:100%"/></label></p>
+          <p><label>Pool dice (N) <input type="number" name="poolDice" value="${defaultPool}" min="0" max="24" style="width:4em"/></label>
+             <span class="notes">→ Nk${mr}</span></p>
+          <p><label>Skill Rank <input type="number" name="skillRank" value="${rank}" min="0" max="8" style="width:4em"/></label></p>
+          <p><label>Notes <input type="text" name="notes" value="${notes.replace(/"/g, '&quot;')}" style="width:100%"/></label></p>
+        </div>`,
+        label: 'Save',
+        callback: (html: any) => {
+          const root = html?.jquery ? html[0] : html?.[0] ?? html;
+          const q = (n: string) =>
+            root?.querySelector?.(`input[name="${n}"]`) as HTMLInputElement | null;
+          const n = String(q('name')?.value || '').trim();
+          if (!n) return null;
+          return {
+            id,
+            name: n,
+            poolDice: Math.max(0, Math.floor(Number(q('poolDice')?.value) || 0)),
+            skillRank: Math.max(0, Math.min(8, Math.floor(Number(q('skillRank')?.value) || 0))),
+            ...(String(q('notes')?.value || '').trim()
+              ? { notes: String(q('notes')?.value).trim() }
+              : {}),
+          } satisfies NpcSituationalSkill;
+        },
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  async #onNpcSituationalAdd(): Promise<void> {
+    const record = await this.#promptSituationalSkillForm();
+    if (!record) return;
+    const next = upsertSituationalSkill(
+      readSituationalSkills((this.actor as any).system),
+      record,
+    );
+    await this.#persistSituationalSkills(next);
+  }
+
+  async #onNpcSituationalPreset(preset: NpcPoolPreset): Promise<void> {
+    if (preset !== 'capable' && preset !== 'specialist') return;
+    const mr = Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 2));
+    const pool = suggestNpcPool(mr, preset);
+    const record = await this.#promptSituationalSkillForm({
+      name: preset === 'capable' ? 'Capable' : 'Specialist',
+      poolDice: pool,
+      skillRank: 0,
+      presetPool: pool,
+    });
+    if (!record) return;
+    const next = upsertSituationalSkill(
+      readSituationalSkills((this.actor as any).system),
+      record,
+    );
+    await this.#persistSituationalSkills(next);
+  }
+
+  async #onNpcSituationalEdit(id: string): Promise<void> {
+    if (!id) return;
+    const current = findSituationalSkillById(
+      readSituationalSkills((this.actor as any).system),
+      id,
+    );
+    if (!current) {
+      (ui as any).notifications?.warn('Situational skill not found.');
+      return;
+    }
+    const record = await this.#promptSituationalSkillForm(current);
+    if (!record) return;
+    const next = upsertSituationalSkill(
+      readSituationalSkills((this.actor as any).system),
+      { ...record, id: current.id },
+      current.id,
+    );
+    await this.#persistSituationalSkills(next);
+  }
+
+  async #onNpcSituationalDelete(id: string): Promise<void> {
+    if (!id) return;
+    const DialogCls = (globalThis as any).Dialog;
+    const current = findSituationalSkillById(
+      readSituationalSkills((this.actor as any).system),
+      id,
+    );
+    if (!current) return;
+    if (isNpcPerceptionSkill(current)) {
+      (ui as any).notifications?.warn('Perception cannot be removed from NPCs.');
+      return;
+    }
+    let ok = true;
+    if (typeof DialogCls?.confirm === 'function') {
+      ok = !!(await DialogCls.confirm({
+        title: 'Delete Situational Skill',
+        content: `<p>Remove <strong>${current.name}</strong>?</p>`,
+      }));
+    }
+    if (!ok) return;
+    const next = removeSituationalSkill(
+      readSituationalSkills((this.actor as any).system),
+      id,
+    );
+    await this.#persistSituationalSkills(next);
+  }
+
+  async #onNpcSituationalRoll(id: string): Promise<void> {
+    if (!id) return;
+    const skill = findSituationalSkillById(
+      readSituationalSkills((this.actor as any).system),
+      id,
+    );
+    if (!skill) {
+      (ui as any).notifications?.warn('Situational skill not found.');
+      return;
+    }
+    const { promptSkillCheckRollDialog } = await import('./skill-check-roll-dialog.js');
+    const { executeSkillCheck } = await import('./skill-check-execute.js');
+    const skillRef = { kind: 'npc-situational' as const, id: skill.id };
+    const choice = await promptSkillCheckRollDialog({
+      actor: this.actor,
+      source: {
+        kind: 'sheet-verbal',
+        gmVerified: false,
+        taskDescription: '',
+        attributeKey: '',
+        baseTn: Number.NaN,
+        skill: skillRef,
+      },
+      lockGmFields: false,
+      title: `${skill.name} · NPC Skill Check`,
+      npcSituational: {
+        skillId: skill.id,
+        skillName: skill.name,
+        poolDice: skill.poolDice,
+        skillRank: skill.skillRank,
+      },
+    });
+    if (!choice) return;
+    const result = await executeSkillCheck({
+      actor: this.actor,
+      draft: choice.draft,
+    });
+    if (!result.ok) {
+      (ui as any).notifications?.warn(result.error || 'Invalid Skill Check.');
+    }
   }
 
 }

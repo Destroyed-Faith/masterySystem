@@ -52,6 +52,9 @@ function parseSkillRef(raw) {
         return { kind: 'perception' };
     if (v === 'untrained' || !v)
         return { kind: 'untrained' };
+    if (v.startsWith('npc-situational:')) {
+        return { kind: 'npc-situational', id: v.slice('npc-situational:'.length) };
+    }
     if (v.startsWith('specialization:')) {
         return { kind: 'specialization', id: v.slice('specialization:'.length) };
     }
@@ -60,6 +63,8 @@ function parseSkillRef(raw) {
 function skillOptionValue(ref) {
     if (ref.kind === 'specialization')
         return `specialization:${ref.id}`;
+    if (ref.kind === 'npc-situational')
+        return `npc-situational:${ref.id}`;
     return ref.kind;
 }
 /**
@@ -73,7 +78,10 @@ export async function promptSkillCheckRollDialog(opts) {
     const system = actor?.system ?? {};
     const source = opts.source;
     const lockGmFields = opts.lockGmFields ?? source.kind === 'gm-request';
-    const ctxSkill = source.skill;
+    const npcSit = opts.npcSituational;
+    const ctxSkill = npcSit
+        ? { kind: 'npc-situational', id: npcSit.skillId }
+        : source.skill;
     const ctxAttr = String(source.attributeKey || '');
     const ctxBase = Math.max(0, Math.floor(Number(source.baseTn) || 0));
     const ctxTask = String(source.taskDescription || '');
@@ -83,37 +91,55 @@ export async function promptSkillCheckRollDialog(opts) {
             ? source.allowedSkills
             : null;
     const attrVal = (k) => Math.max(0, Math.floor(Number(system?.attributes?.[k]?.value) || 0));
-    const sourceTag = source.kind === 'gm-request'
-        ? masteryLocalize('MASTERY.df2026.skillCheck.sourceGm', 'GM REQUEST · VERIFIED')
-        : masteryLocalize('MASTERY.df2026.skillCheck.sourceVerbal', 'GM-ANNOUNCED (local record)');
+    const sourceTag = npcSit
+        ? masteryLocalize('MASTERY.df2026.skillCheck.sourceNpc', 'NPC SITUATIONAL')
+        : source.kind === 'gm-request'
+            ? masteryLocalize('MASTERY.df2026.skillCheck.sourceGm', 'GM REQUEST · VERIFIED')
+            : masteryLocalize('MASTERY.df2026.skillCheck.sourceVerbal', 'GM-ANNOUNCED (local record)');
     const tnAuthority = masteryLocalize('MASTERY.df2026.skillCheck.tnLocked', 'SET BY GM');
-    const attrReadOnly = lockGmFields
-        ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(cap(ctxAttr || '—'))}${ctxAttr ? ` (${attrVal(ctxAttr)})` : ''}</div>
-       <input type="hidden" name="attribute" value="${escapeHtml(ctxAttr)}" />`
-        : `<select name="attribute" class="md-select ms-sc-attr">
-        <option value="">${escapeHtml(masteryLocalize('MASTERY.df2026.skillCheck.pickGmAttribute', '— record GM Attribute —'))}</option>
-        ${SPEC_ATTRIBUTE_KEYS.map((k) => `<option value="${k}" ${k === ctxAttr ? 'selected' : ''}>${cap(k)} (${attrVal(k)})</option>`).join('')}
-      </select>
-      <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.gmAnnouncedAttr', 'GM-vorgegeben / vom SL genannt — not a player choice.')}</small>`;
-    const skillReadOnly = lockGmFields && !allowed
-        ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(skillLabel(system, ctxSkill))}</div>
+    const attrBlock = npcSit
+        ? `<div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.attributeOptional', 'Attribute (flavor, optional)')}</label>
+        <select name="attribute" class="md-select ms-sc-attr">
+          <option value="">—</option>
+          ${SPEC_ATTRIBUTE_KEYS.map((k) => `<option value="${k}" ${k === ctxAttr ? 'selected' : ''}>${cap(k)} (${attrVal(k)})</option>`).join('')}
+        </select>
+        <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.npcPoolHint', 'Pool comes from the situational entry, not from Attribute.')}</small>
+      </div>`
+        : lockGmFields
+            ? `<div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.attribute', 'Attribute')}</label>
+        <div class="md-attr-display ms-sc-readonly">${escapeHtml(cap(ctxAttr || '—'))}${ctxAttr ? ` (${attrVal(ctxAttr)})` : ''}</div>
+        <input type="hidden" name="attribute" value="${escapeHtml(ctxAttr)}" />
+      </div>`
+            : `<div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.attribute', 'Attribute')}</label>
+        <select name="attribute" class="md-select ms-sc-attr">
+          <option value="">${escapeHtml(masteryLocalize('MASTERY.df2026.skillCheck.pickGmAttribute', '— record GM Attribute —'))}</option>
+          ${SPEC_ATTRIBUTE_KEYS.map((k) => `<option value="${k}" ${k === ctxAttr ? 'selected' : ''}>${cap(k)} (${attrVal(k)})</option>`).join('')}
+        </select>
+        <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.gmAnnouncedAttr', 'GM-vorgegeben / vom SL genannt — not a player choice.')}</small>
+      </div>`;
+    const mrForNpc = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
+    const skillReadOnly = npcSit
+        ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(npcSit.skillName)} · Rank ${npcSit.skillRank} · Pool ${npcSit.poolDice}k${Math.min(npcSit.poolDice, mrForNpc)}</div>
+       <input type="hidden" name="skill" value="${escapeHtml(skillOptionValue(ctxSkill))}" />`
+        : lockGmFields && !allowed
+            ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(skillLabel(system, ctxSkill))}</div>
          <input type="hidden" name="skill" value="${escapeHtml(skillOptionValue(ctxSkill))}" />`
-        : allowed && allowed.length > 1
-            ? `<select name="skill" class="md-select ms-sc-skill">
+            : allowed && allowed.length > 1
+                ? `<select name="skill" class="md-select ms-sc-skill">
             ${allowed
-                .map((s) => {
-                const sel = skillOptionValue(s) === skillOptionValue(ctxSkill) ? 'selected' : '';
-                return `<option value="${escapeHtml(skillOptionValue(s))}" ${sel}>${escapeHtml(skillLabel(system, s))}</option>`;
-            })
-                .join('')}
+                    .map((s) => {
+                    const sel = skillOptionValue(s) === skillOptionValue(ctxSkill) ? 'selected' : '';
+                    return `<option value="${escapeHtml(skillOptionValue(s))}" ${sel}>${escapeHtml(skillLabel(system, s))}</option>`;
+                })
+                    .join('')}
           </select>
           <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.gmApprovedSet', 'Limited to GM-approved methods for this task.')}</small>`
-            : lockGmFields
-                ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(skillLabel(system, ctxSkill))}</div>
-             <input type="hidden" name="skill" value="${escapeHtml(skillOptionValue(ctxSkill))}" />`
                 : `<div class="md-attr-display ms-sc-readonly">${escapeHtml(skillLabel(system, ctxSkill))}</div>
-             <input type="hidden" name="skill" value="${escapeHtml(skillOptionValue(ctxSkill))}" />
-             <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.sheetSkillContext', 'Sheet entry context — Skill is fixed; GM defines Attribute and TN.')}</small>`;
+           <input type="hidden" name="skill" value="${escapeHtml(skillOptionValue(ctxSkill))}" />
+           <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.sheetSkillContext', 'Sheet entry context — Skill is fixed; GM defines Attribute and TN.')}</small>`;
     const baseReadOnly = lockGmFields
         ? `<input type="number" name="baseTn" class="md-input ms-sc-base" value="${ctxBase}" disabled />
        <input type="hidden" name="baseTnLocked" value="${ctxBase}" />
@@ -147,10 +173,7 @@ export async function promptSkillCheckRollDialog(opts) {
         <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.skill', 'Skill')}</label>
         ${skillReadOnly}
       </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.attribute', 'Attribute')}</label>
-        ${attrReadOnly}
-      </div>
+      ${attrBlock}
       <div class="md-group">
         <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.baseTn', 'Base Target Number (TN)')}</label>
         ${baseReadOnly}
@@ -248,27 +271,22 @@ export async function promptSkillCheckRollDialog(opts) {
         const readDraft = (root) => {
             const nextSource = buildSourceFromForm(root);
             const paid = Math.max(0, Math.floor(Number(root?.querySelector('[name="paid"]')?.value) || 0));
-            const ctx = nextSource.kind === 'gm-request'
-                ? {
-                    skill: nextSource.skill,
-                    attributeKey: nextSource.attributeKey,
-                    baseTn: nextSource.baseTn,
-                    taskDescription: nextSource.taskDescription,
-                }
-                : {
-                    skill: nextSource.skill,
-                    attributeKey: nextSource.attributeKey,
-                    baseTn: nextSource.baseTn,
-                    taskDescription: nextSource.taskDescription,
-                };
+            const skill = npcSit
+                ? { kind: 'npc-situational', id: npcSit.skillId }
+                : nextSource.skill;
+            // Keep source.skill aligned for NPC situational
+            if (npcSit && nextSource.kind === 'sheet-verbal') {
+                nextSource.skill = skill;
+            }
             return {
                 actorId: String(actor?.id ?? ''),
                 paidRaises: paid,
-                skill: ctx.skill,
-                attributeKey: ctx.attributeKey,
-                baseTn: ctx.baseTn,
-                taskDescription: ctx.taskDescription,
+                skill,
+                attributeKey: nextSource.attributeKey,
+                baseTn: nextSource.baseTn,
+                taskDescription: nextSource.taskDescription,
                 source: nextSource,
+                ...(npcSit ? { npcSituational: { ...npcSit } } : {}),
             };
         };
         new Dialog({

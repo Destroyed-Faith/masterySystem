@@ -48,6 +48,7 @@ import {
   ensureNpcHealthState,
   resolveNpcAttackSlots,
 } from '../utils/npc-attack-model.js';
+import { ensureNpcHasPerception } from '../rules/npc-situational-skills.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
 import {
   isLifetimeStoneMode,
@@ -623,6 +624,14 @@ export class MasteryActor extends Actor {
             (system.phases as Record<string, unknown>)[String(i)] = repaired[i];
           }
         }
+      }
+    }
+
+    // NPC / Summon: every actor has Perception (Capable pool if newly seeded).
+    if ((this as any).type === 'npc' || (this as any).type === 'summon') {
+      const ensured = ensureNpcHasPerception(system);
+      if (ensured.added) {
+        system.situationalSkills = ensured.skills;
       }
     }
 

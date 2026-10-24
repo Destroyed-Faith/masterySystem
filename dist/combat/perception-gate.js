@@ -228,32 +228,114 @@ async function promptPerceptionCheck(observer, target, tn) {
                             try {
                                 const { masteryRoll } = await import('../dice/roll-handler.js');
                                 const { buildSkillRollContext, buildSkillRollPoolPreview, readSkillRating, } = await import('../dice/roll-context-build.js');
+                                const { resolveNpcPerceptionSituational, suggestNpcPool, } = await import('../rules/npc-situational-skills.js');
                                 const obsMr = targetMasteryRank(observer);
                                 const presets = buildDifficultyPresets(obsMr);
                                 const raises = Math.max(0, Math.ceil((tn - presets.standard) / 4));
-                                const skillRating = readSkillRating(observer?.system, 'perception');
-                                const preview = buildSkillRollPoolPreview(observer, 'perception', 'wits');
-                                const ctx = buildSkillRollContext(observer, 'perception', 'wits', {
-                                    baseTN: tn,
-                                    raises,
-                                });
-                                if (!ctx) {
-                                    resolve({ success: false, total: 0, tn, cancelled: true });
-                                    return;
+                                const obsType = String(observer?.type || '');
+                                const isNpcLike = obsType === 'npc' || obsType === 'summon';
+                                let result;
+                                if (isNpcLike) {
+                                    const sit = resolveNpcPerceptionSituational(observer?.system);
+                                    const legacyRating = readSkillRating(observer?.system, 'perception');
+                                    if (sit) {
+                                        const numDice = Math.max(0, Math.floor(Number(sit.poolDice) || 0));
+                                        const keepDice = numDice <= 0 ? 0 : Math.min(obsMr, numDice);
+                                        const poolNote = `NPC situational Perception (Rank ${sit.skillRank}) · Pool ${numDice}k${keepDice}`;
+                                        result = await masteryRoll({
+                                            numDice,
+                                            keepDice,
+                                            skill: 0,
+                                            tn,
+                                            normalTn: tn,
+                                            raiseTn: tn,
+                                            declaredRaiseSlots: raises,
+                                            label: 'Perception Check',
+                                            flavor: `${poolNote}. Locate check vs TN ${tn}.`,
+                                            actorId: String(observer?.id ?? ''),
+                                            skillKey: 'perception',
+                                            isSkillRoll: true,
+                                            rollKind: 'skill',
+                                            applyPoolPenalties: false,
+                                            checkContext: { skillKey: 'perception', tags: ['sight'] },
+                                            autoFailIntent: 'skill',
+                                            skipChat: false,
+                                        });
+                                    }
+                                    else if (legacyRating > 0) {
+                                        const preview = buildSkillRollPoolPreview(observer, 'perception', 'wits');
+                                        const ctx = buildSkillRollContext(observer, 'perception', 'wits', {
+                                            baseTN: tn,
+                                            raises,
+                                        });
+                                        if (!ctx) {
+                                            resolve({ success: false, total: 0, tn, cancelled: true });
+                                            return;
+                                        }
+                                        const poolNote = `Legacy Perception ${legacyRating} · Wits pool ${preview.rollLabel}${preview.fullPoolReady ? ' (full)' : ' (half)'}`;
+                                        result = await masteryRoll({
+                                            ...ctx.rollOptions,
+                                            label: ctx.label,
+                                            flavor: `${poolNote}. ${ctx.rollOptions.flavor ?? ''}`.trim(),
+                                            actorId: String(observer?.id ?? ''),
+                                            skillKey: 'perception',
+                                            isSkillRoll: true,
+                                            rollKind: 'skill',
+                                            checkContext: { skillKey: 'perception', tags: ['sight'] },
+                                            autoFailIntent: 'skill',
+                                            skipChat: false,
+                                        });
+                                    }
+                                    else {
+                                        const numDice = suggestNpcPool(obsMr, 'capable');
+                                        const keepDice = Math.min(obsMr, numDice);
+                                        const poolNote = `NPC Capable default · Pool ${numDice}k${keepDice}`;
+                                        result = await masteryRoll({
+                                            numDice,
+                                            keepDice,
+                                            skill: 0,
+                                            tn,
+                                            normalTn: tn,
+                                            raiseTn: tn,
+                                            declaredRaiseSlots: raises,
+                                            label: 'Perception Check',
+                                            flavor: `${poolNote}. Locate check vs TN ${tn}.`,
+                                            actorId: String(observer?.id ?? ''),
+                                            skillKey: 'perception',
+                                            isSkillRoll: true,
+                                            rollKind: 'skill',
+                                            applyPoolPenalties: false,
+                                            checkContext: { skillKey: 'perception', tags: ['sight'] },
+                                            autoFailIntent: 'skill',
+                                            skipChat: false,
+                                        });
+                                    }
                                 }
-                                const poolNote = `Perception ${skillRating} · Wits pool ${preview.rollLabel}${preview.fullPoolReady ? ' (full)' : ' (half)'}`;
-                                const result = await masteryRoll({
-                                    ...ctx.rollOptions,
-                                    label: ctx.label,
-                                    flavor: `${poolNote}. ${ctx.rollOptions.flavor ?? ''}`.trim(),
-                                    actorId: String(observer?.id ?? ''),
-                                    skillKey: 'perception',
-                                    isSkillRoll: true,
-                                    rollKind: 'skill',
-                                    checkContext: { skillKey: 'perception', tags: ['sight'] },
-                                    autoFailIntent: 'skill',
-                                    skipChat: false,
-                                });
+                                else {
+                                    const skillRating = readSkillRating(observer?.system, 'perception');
+                                    const preview = buildSkillRollPoolPreview(observer, 'perception', 'wits');
+                                    const ctx = buildSkillRollContext(observer, 'perception', 'wits', {
+                                        baseTN: tn,
+                                        raises,
+                                    });
+                                    if (!ctx) {
+                                        resolve({ success: false, total: 0, tn, cancelled: true });
+                                        return;
+                                    }
+                                    const poolNote = `Perception ${skillRating} · Wits pool ${preview.rollLabel}${preview.fullPoolReady ? ' (full)' : ' (half)'}`;
+                                    result = await masteryRoll({
+                                        ...ctx.rollOptions,
+                                        label: ctx.label,
+                                        flavor: `${poolNote}. ${ctx.rollOptions.flavor ?? ''}`.trim(),
+                                        actorId: String(observer?.id ?? ''),
+                                        skillKey: 'perception',
+                                        isSkillRoll: true,
+                                        rollKind: 'skill',
+                                        checkContext: { skillKey: 'perception', tags: ['sight'] },
+                                        autoFailIntent: 'skill',
+                                        skipChat: false,
+                                    });
+                                }
                                 const total = Math.max(0, Math.floor(Number(result?.total ?? result?.rollTotal) || 0));
                                 // DF 2026: no retroactive Stealth spend; TN is fixed before the observer rolls.
                                 const effectiveTn = tn;

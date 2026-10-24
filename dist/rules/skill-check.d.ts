@@ -17,6 +17,11 @@ export type SkillCheckSkillRef = {
     kind: 'perception';
 } | {
     kind: 'untrained';
+}
+/** NPC/Summon situational pool entry (system.situationalSkills). */
+ | {
+    kind: 'npc-situational';
+    id: string;
 };
 /**
  * Source of the check definition.
@@ -56,6 +61,16 @@ export interface SkillCheckDraft {
     baseTn: number;
     taskDescription?: string;
     source: SkillRollSource;
+    /**
+     * When set (NPC situational skill), pool = poolDice keep MR and Rank comes
+     * from this snapshot — Attribute does not size the pool.
+     */
+    npcSituational?: {
+        skillId: string;
+        skillName: string;
+        poolDice: number;
+        skillRank: number;
+    };
 }
 export interface AuthoritativeCheckContext {
     taskDescription: string;
@@ -125,7 +140,7 @@ export declare function skillRefKey(ref: SkillCheckSkillRef): string;
 export declare function skillRefsEqual(a: SkillCheckSkillRef, b: SkillCheckSkillRef): boolean;
 /** Resolve Perception Rank: Spec named Perception if present, else universal Rank 2. */
 export declare function resolvePerceptionRank(system: any): number;
-export declare function resolveSkillForDraft(system: any, skill: SkillCheckSkillRef): {
+export declare function resolveSkillForDraft(system: any, skill: SkillCheckSkillRef, npcSituational?: SkillCheckDraft['npcSituational']): {
     name: string;
     rank: number;
     spec: SpecializationRecord | null;
@@ -160,6 +175,8 @@ export declare function missingGmContextFields(input: {
     taskDescription?: string;
     attributeKey?: string;
     baseTn?: number | null;
+    /** NPC situational pools: Attribute is flavor only — not required. */
+    npcSituational?: boolean;
 }): string[];
 /** Plan a Skill Check from a draft (pure; does not roll). */
 export declare function planSkillCheckDraft(input: {

@@ -570,6 +570,11 @@ export interface NpcData {
   combatSenses?: CombatSensesData;
   resources: ResourcesData;
   skills: Record<string, number>;
+  /**
+   * DF 2026 situational noncombat pools (Nd8 keep MR).
+   * Not full PC Specializations — only scene-relevant skills.
+   */
+  situationalSkills?: import('../rules/npc-situational-skills.js').NpcSituationalSkill[];
   attackValues?: AttackValue[];
   /** Basis-Waffenangriff; attackValues = weitere Powers. */
   npcBaseAttack?: NpcBaseAttack;
