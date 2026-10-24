@@ -6,6 +6,15 @@ import { type PowerGrantSpec } from '../utils/power-item-builder.js';
 import { type SpecializationRecord } from '../rules/index.js';
 import type { CharacterImportArtifact, CharacterImportAttributeKey, CharacterImportDisadvantage, CharacterImportGearItem, CharacterImportPayload, CharacterImportSpecialization } from './character-import-types.js';
 export declare function normalizeImportAttributes(raw: Partial<Record<CharacterImportAttributeKey, number>> | undefined): Record<CharacterImportAttributeKey, number>;
+/** Starting Attribute Stones at Lifetime XP 0 (Creation package). */
+export declare const IMPORT_STARTING_ATTRIBUTE_STONES: number;
+/**
+ * Normalize `character.stones` into a full attribute map (missing keys → 0).
+ * Negative / non-finite values clamp to 0.
+ */
+export declare function normalizeImportStoneAssignments(raw: Partial<Record<CharacterImportAttributeKey, number>> | undefined): Record<CharacterImportAttributeKey, number>;
+export declare function sumImportStoneAssignments(stones: Record<CharacterImportAttributeKey, number>): number;
+export declare function normalizeImportPermanentColorless(raw: unknown): number;
 export declare function isKnownArtifactImportKey(key: string): boolean;
 /**
  * Echo Artifact keys to grant echo-bound (same resolution as the Echo dialog):

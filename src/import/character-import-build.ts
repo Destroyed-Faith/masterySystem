@@ -20,7 +20,11 @@ import {
 } from '../utils/power-item-builder.js';
 import { getGeneralArtifact } from '../utils/general-artifacts.js';
 import { ECHO_ARTIFACTS } from '../utils/echo-artifacts.js';
-import { DF_CORE_RULES_VERSION } from '../progression/v099-rules.js';
+import {
+  DF_CORE_RULES_VERSION,
+  permanentStonesFromLifetimeXp,
+} from '../progression/v099-rules.js';
+import { TOWER_WIZARD_STARTING_STONES } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { buildFreshTraitUses, getEcho } from '../utils/echos/index.js';
 import {
   getUnboundIdentity,
@@ -62,6 +66,36 @@ export function normalizeImportAttributes(
     out[key] = Number.isFinite(n) ? Math.max(1, Math.min(MAX_ATTRIBUTE, n)) : 2;
   }
   return out;
+}
+
+/** Starting Attribute Stones at Lifetime XP 0 (Creation package). */
+export const IMPORT_STARTING_ATTRIBUTE_STONES =
+  TOWER_WIZARD_STARTING_STONES || permanentStonesFromLifetimeXp(0);
+
+/**
+ * Normalize `character.stones` into a full attribute map (missing keys → 0).
+ * Negative / non-finite values clamp to 0.
+ */
+export function normalizeImportStoneAssignments(
+  raw: Partial<Record<CharacterImportAttributeKey, number>> | undefined,
+): Record<CharacterImportAttributeKey, number> {
+  const out = {} as Record<CharacterImportAttributeKey, number>;
+  for (const key of CHARACTER_IMPORT_ATTRIBUTE_KEYS) {
+    const n = Math.floor(Number(raw?.[key]));
+    out[key] = Number.isFinite(n) && n > 0 ? n : 0;
+  }
+  return out;
+}
+
+export function sumImportStoneAssignments(
+  stones: Record<CharacterImportAttributeKey, number>,
+): number {
+  return CHARACTER_IMPORT_ATTRIBUTE_KEYS.reduce((sum, key) => sum + (stones[key] || 0), 0);
+}
+
+export function normalizeImportPermanentColorless(raw: unknown): number {
+  const n = Math.floor(Number(raw));
+  return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
 export function isKnownArtifactImportKey(key: string): boolean {
@@ -269,6 +303,8 @@ export function normalizeImportEchoImprintIds(
 
 export function buildActorSystemFromPayload(payload: CharacterImportPayload): Record<string, unknown> {
   const attrs = normalizeImportAttributes(payload.attributes);
+  const stoneAssignments = normalizeImportStoneAssignments(payload.stones);
+  const permanentColorless = normalizeImportPermanentColorless(payload.permanentColorless);
   const masteryRank = Math.max(
     1,
     Math.min(8, Math.floor(Number(payload.masteryRank) || CREATION_MASTERY_RANK)),
@@ -278,11 +314,10 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
   const attributeBlock = Object.fromEntries(
     CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [
       key,
-      { value: attrs[key], stones: 0 },
+      { value: attrs[key], stones: stoneAssignments[key] },
     ]),
   );
 
-  const emptyAssignments = Object.fromEntries(CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [key, 0]));
   const stonePools = Object.fromEntries(
     CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [key, { current: 0, max: 0, sustained: 0 }]),
   );
@@ -344,7 +379,8 @@ export function buildActorSystemFromPayload(payload: CharacterImportPayload): Re
       v099Prepared: true,
       v099Stones: true,
       earnedAttributeXp: 0,
-      stoneAssignments: emptyAssignments,
+      stoneAssignments,
+      permanentColorless,
     },
     mastery: { rank: masteryRank, points: 0, experience: 0 },
     specializations,

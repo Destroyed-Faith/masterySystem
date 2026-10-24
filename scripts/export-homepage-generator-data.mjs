@@ -24,26 +24,68 @@ function write(name, data) {
   console.log(`wrote ${name}`);
 }
 
-// --- Creation rules -------------------------------------------------------
+// --- Creation rules (DF 2026) -----------------------------------------------
 const constants = await import('../dist/utils/constants.js');
+const skillRaises = await import('../dist/rules/skill-raises.js');
+const skillCheck = await import('../dist/rules/skill-check.js');
+const rulesIndex = await import('../dist/rules/index.js');
+const v099 = await import('../dist/progression/v099-rules.js');
+const towerValidation = await import('../dist/creation/tower-wizard/tower-wizard-validation.js');
+
+const startingSpecializationCount =
+  constants.CREATION.STARTING_SPECIALIZATION_COUNT ?? skillRaises.STARTING_SPECIALIZATION_COUNT;
+const startingSpecializationRank =
+  constants.CREATION.STARTING_SPECIALIZATION_RANK ?? skillRaises.STARTING_SPECIALIZATION_RANK;
+const startingSpecializationCreationPoints =
+  skillRaises.SKILL_CREATION_POINTS ?? startingSpecializationCount * startingSpecializationRank;
+const startingAttributeStones =
+  towerValidation.TOWER_WIZARD_STARTING_STONES ?? v099.permanentStonesFromLifetimeXp(0);
+
 write('creation-rules.json', {
+  rulesVersion: 'df-2026',
+  rulesSchemaVersion: rulesIndex.DF_2026_RULES_SCHEMA_VERSION,
   attributeDistribution: constants.CREATION.ATTRIBUTE_DISTRIBUTION,
   attributeAllowedValues: constants.CREATION.ATTRIBUTE_ALLOWED_VALUES,
-  skillPoints: constants.CREATION.SKILL_POINTS,
   maxAttributeAtCreation: constants.CREATION.MAX_ATTRIBUTE_AT_CREATION,
+  startingSpecializationCount,
+  startingSpecializationRank,
+  startingSpecializationCreationPoints,
+  /** @deprecated Alias of startingSpecializationCreationPoints — do not drive Skill-ladder UI. */
+  skillPoints: startingSpecializationCreationPoints,
+  /** @deprecated Legacy fixed-skill creation. */
   maxSkillAtCreation: constants.CREATION.MAX_SKILL_AT_CREATION,
+  startingAttributeStones,
+  startingPermanentColorless: 0,
+  universalPerceptionRank: skillCheck.UNIVERSAL_PERCEPTION_RANK,
   minDisadvantagePoints: constants.CREATION.MIN_DISADVANTAGE_POINTS,
   maxDisadvantagePoints: constants.CREATION.MAX_DISADVANTAGE_POINTS,
+  defaultMasteryRank: 2,
 });
 
-// --- Skills ---------------------------------------------------------------
+// --- Specialization Fields --------------------------------------------------
+const specializations = await import('../dist/rules/specializations.js');
+write('specialization-fields.json', {
+  fields: specializations.SKILL_FIELDS,
+  labels: specializations.SKILL_FIELD_LABELS,
+});
+
+// --- Echo Imprints ----------------------------------------------------------
+const echoImprints = await import('../dist/rules/echo-imprints.js');
+write('echo-imprints.json', {
+  minAttribute: echoImprints.ECHO_IMPRINT_MIN_ATTRIBUTE,
+  tiers: echoImprints.ECHO_IMPRINT_TIERS,
+  imprints: echoImprints.ECHO_IMPRINTS,
+});
+
+// --- Skills (archive / print only — not Creation UI) ------------------------
 const skills = await import('../dist/utils/skills.js');
 write('skills.json', {
+  _note: 'Archive / print reference only. DF 2026 Creation uses Specializations, not this skill ladder.',
   categories: skills.SKILL_CATEGORIES,
   skills: skills.SKILLS,
 });
 
-// --- Echoes ---------------------------------------------------------------
+// --- Echoes -----------------------------------------------------------------
 const echos = await import('../dist/utils/echos/index.js');
 write('echoes.json', {
   order: echos.ECHO_KEY_ORDER,
@@ -99,7 +141,6 @@ try {
   // power catalog, precomputed so the homepage generator shows the exact same
   // steps and cards (passive-1 variants, second-passive groups, buff groups,
   // core attack per delivery, special-focus groups).
-  const echos = await import('../dist/utils/echos/index.js');
   const echoKeys = echos.ECHO_KEY_ORDER;
   const deliveryModes = ['melee', 'ranged', 'spell', 'natural'];
 

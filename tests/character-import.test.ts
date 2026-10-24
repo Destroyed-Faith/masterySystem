@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   buildActorCreateDataFromPayload,
   buildPowerItemsFromGrantSpecs,
+  IMPORT_STARTING_ATTRIBUTE_STONES,
   isKnownArtifactImportKey,
   normalizeImportAttributes,
+  normalizeImportStoneAssignments,
   resolveEchoArtifactImportKeys,
   resolvePowerGrantSpecs,
+  sumImportStoneAssignments,
 } from '../src/import/character-import-build.js';
 import {
   validateCharacterImportDocument,
@@ -20,6 +23,8 @@ const startingSpecializations = [
   { name: 'Persuasion', field: 'social', scope: 'Convincing others', rank: 2 },
 ];
 
+const startingStones = { might: 1, agility: 1 };
+
 const alarisPayload = {
   name: 'Alaris',
   attributes: {
@@ -31,6 +36,8 @@ const alarisPayload = {
     influence: 8,
     wits: 10,
   },
+  stones: startingStones,
+  permanentColorless: 0,
   masteryRank: 4,
   specializations: startingSpecializations,
   skills: { acrobatics: 2, athletics: 1 },
@@ -122,6 +129,46 @@ describe('character-import validation', () => {
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => /maximum is 8/i.test(e))).toBe(true);
   });
+
+  it('requires exactly two starting Attribute Stones when creation is complete', () => {
+    expect(IMPORT_STARTING_ATTRIBUTE_STONES).toBe(2);
+    const missing = validateCharacterImportDocument({
+      schemaVersion: 1,
+      exportKind: 'mastery-character-import',
+      systemId: 'mastery-system',
+      character: { ...alarisPayload, stones: undefined },
+    });
+    expect(missing.ok).toBe(false);
+    expect(missing.errors.some((e) => /Attribute Stones/i.test(e))).toBe(true);
+
+    const wrongSum = validateCharacterImportDocument({
+      schemaVersion: 1,
+      exportKind: 'mastery-character-import',
+      systemId: 'mastery-system',
+      character: { ...alarisPayload, stones: { might: 2, agility: 1 } },
+    });
+    expect(wrongSum.ok).toBe(false);
+    expect(wrongSum.errors.some((e) => /exactly 2/i.test(e))).toBe(true);
+
+    const incomplete = validateCharacterImportDocument({
+      schemaVersion: 1,
+      exportKind: 'mastery-character-import',
+      systemId: 'mastery-system',
+      character: { ...alarisPayload, creationComplete: false, stones: undefined },
+    });
+    expect(incomplete.ok).toBe(true);
+  });
+
+  it('rejects unknown stone attribute keys', () => {
+    const result = validateCharacterImportDocument({
+      schemaVersion: 1,
+      exportKind: 'mastery-character-import',
+      systemId: 'mastery-system',
+      character: { ...alarisPayload, stones: { might: 1, agility: 1, luck: 0 } as any },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => /Unknown stone attribute/i.test(e))).toBe(true);
+  });
 });
 
 describe('character-import build', () => {
@@ -138,6 +185,12 @@ describe('character-import build', () => {
     expect(data.type).toBe('character');
     const system = data.system as any;
     expect(system.attributes.might.value).toBe(16);
+    expect(system.attributes.might.stones).toBe(1);
+    expect(system.attributes.agility.stones).toBe(1);
+    expect(system.progression.stoneAssignments.might).toBe(1);
+    expect(system.progression.stoneAssignments.agility).toBe(1);
+    expect(sumImportStoneAssignments(system.progression.stoneAssignments)).toBe(2);
+    expect(system.progression.permanentColorless).toBe(0);
     expect(system.stonePools.might.max).toBe(0);
     expect(system.progression.v099Stones).toBe(true);
     expect(system.progression.lifetimeXp).toBeUndefined();
@@ -147,6 +200,14 @@ describe('character-import build', () => {
     expect(system.disadvantages).toHaveLength(1);
     expect(system.faithFractures.maximum).toBe(2);
     expect(system.minorExpressions).toEqual(['might-set-your-feet', 'agility-soft-step']);
+  });
+
+  it('normalizes stone assignments and permanent colorless', () => {
+    const stones = normalizeImportStoneAssignments({ might: 2, agility: -1, luck: 9 } as any);
+    expect(stones.might).toBe(2);
+    expect(stones.agility).toBe(0);
+    expect(stones.vitality).toBe(0);
+    expect(sumImportStoneAssignments(stones)).toBe(2);
   });
 
   it('resolves six power grant specs', () => {

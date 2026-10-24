@@ -1,4 +1,6 @@
 {
+  "rulesVersion": "df-2026",
+  "rulesSchemaVersion": "2026.10.23",
   "attributeDistribution": [
     4,
     4,
@@ -13,12 +15,16 @@
     3,
     4
   ],
+  "maxAttributeAtCreation": 4,
   "startingSpecializationCount": 5,
   "startingSpecializationRank": 2,
   "startingSpecializationCreationPoints": 20,
   "skillPoints": 20,
-  "maxAttributeAtCreation": 4,
   "maxSkillAtCreation": 4,
+  "startingAttributeStones": 2,
+  "startingPermanentColorless": 0,
+  "universalPerceptionRank": 2,
   "minDisadvantagePoints": 0,
-  "maxDisadvantagePoints": 8
+  "maxDisadvantagePoints": 8,
+  "defaultMasteryRank": 2
 }

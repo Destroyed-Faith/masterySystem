@@ -1,5 +1,9 @@
 {
   "stepOrder": [
+    "echo",
+    "attributesStones",
+    "echoImprints",
+    "specializations",
     "passive1",
     "passive2",
     "activeBuffChoice",
@@ -214,6 +218,14 @@
       "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
     },
     {
+      "id": "ab-maximization",
+      "label": "Active Buff: Maximization",
+      "explanation": "Spend combat-wide uses to maximize one Damage or Healing Roll (artificial 8s). Independent of Passive/Stone Maximization.",
+      "groupLabel": "Critical hits",
+      "rankPreview": "While maintained, you may Maximization 1 eligible Damage or Healing Roll per combat (entire shared roll becomes artificial 8s; no explosions).",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
       "id": "ab-damage-aura",
       "label": "Active Buff: Damage Aura",
       "explanation": "End-of-turn damage pulse against nearby enemies while maintained.",
@@ -222,11 +234,67 @@
       "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
     },
     {
+      "id": "ab-summon-damage-aura",
+      "label": "Active Buff: Summon Damage Aura",
+      "explanation": "Your own Summons deal extra damage while fighting inside your bonded aura.",
+      "groupLabel": "Auras",
+      "rankPreview": "Own Summons within 14 m gain +2d8 Damage on their attacks.",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-allied-damage-aura",
+      "label": "Active Buff: Allied Damage Aura",
+      "explanation": "Other allied non-Summons in your aura gain bonus damage dice on their attacks — not you or Summons.",
+      "groupLabel": "Auras",
+      "rankPreview": "Other allied non-Summon creatures within 2 m gain +1d8 on their eligible damaging Martial/Spell Attacks (highest same-name aura wins; not you or Summons).",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-armor-reduction-aura",
+      "label": "Active Buff: Armor Reduction Aura",
+      "explanation": "Hostile creatures in your aura take Armor reduction against your and your allies' eligible attacks.",
+      "groupLabel": "Auras",
+      "rankPreview": "Hostile creatures within 2 m have 4 less effective Armor against eligible damaging Martial/Spell Attacks by you or your allies (highest same-name aura wins).",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
       "id": "ab-thorns",
       "label": "Active Buff: Thorns",
       "explanation": "When you take final HP damage, retaliate with Thorns dice (capped by the loss).",
       "groupLabel": "Retaliation",
       "rankPreview": "Gain Thorns 4d8. When you take final HP damage, deal that much (capped by the loss) to the source.",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-armor-reduction",
+      "label": "Active Buff: Armor Reduction",
+      "explanation": "Your own eligible attacks ignore printed Armor (not Damage Reduction, not Corrode).",
+      "groupLabel": "Defense piercing",
+      "rankPreview": "Your eligible damaging Martial and Spell Attacks ignore 17 Armor (effective Armor floors at 0).",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-enemy-evade-reduction",
+      "label": "Active Buff: Enemy Evade Reduction",
+      "explanation": "Your Martial Attack Rolls treat each target's Evade as lower — does not change stored Evade or Spell TN.",
+      "groupLabel": "Defense piercing",
+      "rankPreview": "Against your eligible Martial Attack Rolls, each target's effective Evade is reduced by 4 (floor 0). No effect on Spell TN.",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-spell-resistance-piercing",
+      "label": "Active Buff: Spell Resistance Piercing",
+      "explanation": "Your Spells ignore a portion of target Spell Resistance. Base Spell TN and Paid Raises stay intact.",
+      "groupLabel": "Defense piercing",
+      "rankPreview": "Your Spells ignore 4 Spell Resistance on each target (SR floors at 0). Base Spell TN and Paid Raises are unchanged.",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-area-expansion",
+      "label": "Active Buff: Area Expansion",
+      "explanation": "Expand your instantaneous circular AoE radius. Anti-stacks with Intellect Stone AoE radius (take the larger).",
+      "groupLabel": "Area",
+      "rankPreview": "Your eligible instantaneous circular AoEs gain +1 m radius (larger of this or Intellect Stone AoE radius bonus; do not stack).",
       "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
     }
   ]

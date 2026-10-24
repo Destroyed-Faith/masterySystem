@@ -232,6 +232,8 @@ describe('DF 2026 import shape', () => {
   const basePayload = {
     name: 'Valid',
     attributes: { might: 8, agility: 8, vitality: 8, intellect: 8, resolve: 8, influence: 8, wits: 8 },
+    stones: { might: 1, agility: 1 },
+    permanentColorless: 0,
     masteryRank: 2,
     powers: [
       { templateId: 'passive-evade', rank: 4 },

@@ -5,7 +5,7 @@ import { validateTowerWizardSelection } from '../creation/tower-wizard/tower-wiz
 import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { findCatalogEntry, CREATION_POWER_TOTAL } from '../utils/power-catalog.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS, CHARACTER_IMPORT_EXPORT_KIND, CHARACTER_IMPORT_SCHEMA_VERSION, CHARACTER_IMPORT_SYSTEM_ID, FOUNDRY_ACTOR_IMPORT_EXPORT_KIND, } from './character-import-types.js';
-import { disadvantagePointsTotal, expectedPowerCount, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, validateArtifactImportSpec, } from './character-import-build.js';
+import { disadvantagePointsTotal, expectedPowerCount, IMPORT_STARTING_ATTRIBUTE_STONES, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, normalizeImportPermanentColorless, normalizeImportStoneAssignments, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, sumImportStoneAssignments, validateArtifactImportSpec, } from './character-import-build.js';
 import { validateEchoImprintSelections, validateSpecializationList, } from '../rules/index.js';
 import { ECHO_ARTIFACTS, validateEchoArtifactSelection } from '../utils/echo-artifacts.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
@@ -254,12 +254,53 @@ function validateCharacterPayload(payload) {
     const df2026 = validateDf2026Fields(payload);
     errors.push(...df2026.errors);
     warnings.push(...df2026.warnings);
+    errors.push(...validateStartingStones(payload));
     return {
         ok: errors.length === 0,
         errors,
         warnings,
         kind: CHARACTER_IMPORT_EXPORT_KIND,
     };
+}
+/** Starting Attribute Stones + permanent Colorless for complete characters. */
+function validateStartingStones(payload) {
+    const errors = [];
+    const requireBudget = payload.creationComplete !== false;
+    if (payload.stones !== undefined && payload.stones !== null) {
+        if (!isPlainObject(payload.stones)) {
+            errors.push('`stones` must be an object of attribute → stone count.');
+            return errors;
+        }
+        for (const key of Object.keys(payload.stones)) {
+            if (!CHARACTER_IMPORT_ATTRIBUTE_KEYS.includes(key)) {
+                errors.push(`Unknown stone attribute "${key}".`);
+                continue;
+            }
+            const n = Number(payload.stones[key]);
+            if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
+                errors.push(`Stone count for "${key}" must be a non-negative integer.`);
+            }
+        }
+        const assignments = normalizeImportStoneAssignments(payload.stones);
+        const total = sumImportStoneAssignments(assignments);
+        if (requireBudget && total !== IMPORT_STARTING_ATTRIBUTE_STONES) {
+            errors.push(`Place exactly ${IMPORT_STARTING_ATTRIBUTE_STONES} starting Attribute Stones (placed ${total}).`);
+        }
+    }
+    else if (requireBudget) {
+        errors.push(`Starting characters need exactly ${IMPORT_STARTING_ATTRIBUTE_STONES} Attribute Stones in \`stones\`.`);
+    }
+    if (payload.permanentColorless !== undefined && payload.permanentColorless !== null) {
+        const n = Number(payload.permanentColorless);
+        if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
+            errors.push('`permanentColorless` must be a non-negative integer.');
+        }
+        else if (requireBudget && normalizeImportPermanentColorless(n) !== 0) {
+            // Creation at Lifetime XP 0 has 0 permanent Colorless; higher values are progression.
+            errors.push('Starting characters must set `permanentColorless` to 0.');
+        }
+    }
+    return errors;
 }
 function validateFoundryActorDocument(doc) {
     const errors = [];

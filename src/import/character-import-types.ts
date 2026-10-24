@@ -104,6 +104,13 @@ export interface CharacterImportPayload {
   echo?: CharacterImportEcho;
   /** Plain attribute totals (not `{ value, stones }` objects). */
   attributes: Partial<Record<CharacterImportAttributeKey, number>>;
+  /**
+   * Starting Attribute Stone placements (Lifetime XP 0 → exactly 2 Stones).
+   * Written to `system.attributes.*.stones` and `system.progression.stoneAssignments`.
+   */
+  stones?: Partial<Record<CharacterImportAttributeKey, number>>;
+  /** Permanent Colorless Stones (creation default 0). → `system.progression.permanentColorless`. */
+  permanentColorless?: number;
   masteryRank?: number;
   /**
    * DF 2026 free-named Specializations → `system.specializations`.

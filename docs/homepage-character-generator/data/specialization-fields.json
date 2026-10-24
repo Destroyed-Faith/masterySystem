@@ -1,0 +1,20 @@
+{
+  "fields": [
+    "physical",
+    "finesse",
+    "survival",
+    "science-craft",
+    "occult",
+    "social",
+    "investigation"
+  ],
+  "labels": {
+    "physical": "Physical",
+    "finesse": "Finesse",
+    "survival": "Survival",
+    "science-craft": "Science & Craft",
+    "occult": "Occult",
+    "social": "Social",
+    "investigation": "Investigation"
+  }
+}

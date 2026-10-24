@@ -37,7 +37,9 @@ Every import file must be a single JSON object:
 
 Compact build description. The module expands **power templates** from the catalog and creates the actor.
 
-### Minimal example
+### Minimal example (DF 2026 homepage Creation)
+
+Homepage Creation uses attribute values **2–4** (spread `4,4,3,3,2,2,2`), **Mastery Rank 2**, five Rank-2 Specializations, Echo Imprints, and exactly **2** starting Attribute Stones. Always send `schemaVersion: 1`.
 
 ```json
 {
@@ -46,33 +48,44 @@ Compact build description. The module expands **power templates** from the catal
   "systemId": "mastery-system",
   "character": {
     "name": "Alaris",
+    "masteryRank": 2,
     "attributes": {
-      "might": 16,
-      "agility": 16,
-      "vitality": 14,
-      "intellect": 10,
-      "resolve": 12,
-      "influence": 8,
-      "wits": 10
+      "might": 4,
+      "agility": 4,
+      "vitality": 3,
+      "intellect": 3,
+      "resolve": 2,
+      "influence": 2,
+      "wits": 2
     },
-    "masteryRank": 4,
-    "powers": [
-      { "templateId": "passive-evade", "rank": 4 },
-      { "templateId": "passive-temp-hp", "rank": 4 },
-      { "templateId": "ab-evade", "rank": 4 },
-      { "templateId": "reaction-evade", "rank": 4 },
-      { "templateId": "active-melee-weapon-single", "rank": 2 },
-      { "templateId": "active-melee-damage-t4", "special": "ignite", "rank": 2 }
+    "stones": { "might": 1, "agility": 1 },
+    "permanentColorless": 0,
+    "specializations": [
+      { "name": "Acrobatics", "field": "finesse", "scope": "Balance and tumbling", "rank": 2 },
+      { "name": "Athletics", "field": "physical", "scope": "Climbing and swimming", "rank": 2 },
+      { "name": "Stealth", "field": "finesse", "scope": "Moving unseen", "rank": 2 },
+      { "name": "Investigation", "field": "investigation", "scope": "Searching scenes", "rank": 2 },
+      { "name": "Persuasion", "field": "social", "scope": "Convincing others", "rank": 2 }
     ],
-    "artifacts": [
-      {
-        "key": "moonlightGreatsword",
-        "level": 4,
-        "activated": true,
-        "activationStoneAttribute": "might",
-        "equipped": true
-      }
-    ],
+    "echoImprints": ["mage-hand", "catfall"],
+    "echo": { "key": "dwarfs", "artifactKeys": ["stoneboundSoles"] },
+    "languages": { "known": ["common"] },
+    "combatPackage": {
+      "defenseId": "evade",
+      "secondPassiveTemplateId": "passive-temp-hp",
+      "activeBuffMode": "defensive",
+      "offenseActivePicks": [
+        { "pickId": "active-melee-weapon-single", "templateId": "active-melee-weapon-single" },
+        {
+          "pickId": "active-melee-damage-t4::ignite",
+          "templateId": "active-melee-damage-t4",
+          "special": "ignite"
+        }
+      ],
+      "delivery": "melee",
+      "weakenSave": null
+    },
+    "disadvantages": [],
     "creationComplete": true
   }
 }
@@ -83,34 +96,77 @@ Compact build description. The module expands **power templates** from the catal
 | Field | Required | Notes |
 |--------|----------|-------|
 | `name` | yes | Actor display name |
-| `attributes` | yes | Plain numbers 2–80 for all seven attributes |
+| `attributes` | yes | Plain numbers (Creation: **2–4**; in-play imports may be higher) |
+| `stones` | yes if `creationComplete` | Attribute → stone count; sum must be **2** at Creation |
+| `permanentColorless` | no | Default `0` at Creation → `system.progression.permanentColorless` |
+| `specializations` | yes if `creationComplete` | Exactly **5** Specs at **Rank 2** (DF 2026) |
+| `echoImprints` | no | Catalog ids; max count = Mastery Rank; governing Attr ≥ 4 |
 | `powers` **or** `combatPackage` | yes | Exactly **6** powers at creation (see below) |
-| `masteryRank` | no | Default `4` at creation |
+| `masteryRank` | recommended | Homepage Creation: always send **`2`** (import fallback without field is still 4) |
 | `img` | no | Portrait path/URL |
-| `bio`, `echo`, `skills`, `disadvantages`, `minorExpressions` | no | Copied into `actor.system` |
+| `bio`, `echo`, `disadvantages` | no | Copied into `actor.system` |
 | `languages.known` | no | Language keys; echo-locked languages are enforced on import |
 | `artifacts` | no | Catalog keys + level 1–10 |
 | `equipment.gear` | no | Simple gear items |
 | `creationComplete` | no | Default `true` |
 | `systemOverrides` | no | Advanced merge onto `actor.system` |
+| `skills`, `skillsSpent`, `minorExpressions` | no | **Deprecated** archive-only — warned, never converted to Specs / Imprints |
 
 ### Attributes
 
-Use **plain totals**, not `{ value, stones }`:
+Use **plain totals**, not `{ value, stones }` objects. Stone placements belong in the separate `stones` map.
 
 ```json
 "attributes": {
-  "might": 16,
-  "agility": 16,
-  "vitality": 14,
-  "intellect": 10,
-  "resolve": 12,
-  "influence": 8,
-  "wits": 10
+  "might": 4,
+  "agility": 4,
+  "vitality": 3,
+  "intellect": 3,
+  "resolve": 2,
+  "influence": 2,
+  "wits": 2
 }
 ```
 
-Missing attributes default to **2**. Stone pools and health/stress bars are computed by Foundry on import.
+Missing attributes default to **2**. Health tracks are computed by Foundry on import (Stress is soft-retired).
+
+### Starting Stones
+
+```json
+"stones": { "might": 1, "agility": 1 },
+"permanentColorless": 0
+```
+
+| Field | Notes |
+|--------|-------|
+| `stones` | Counts per attribute. Written to `system.attributes.*.stones` **and** `system.progression.stoneAssignments`. Complete Creation characters must place exactly **2** Stones. |
+| `permanentColorless` | Must be **0** for complete Creation imports. |
+
+### Specializations (DF 2026)
+
+```json
+"specializations": [
+  { "name": "Acrobatics", "field": "finesse", "scope": "Balance and tumbling", "rank": 2 }
+]
+```
+
+| Field | Notes |
+|--------|-------|
+| `name` | Free-named Spec |
+| `field` | One of: `physical`, `finesse`, `survival`, `science-craft`, `occult`, `social`, `investigation` |
+| `scope` | One-sentence scope (required) |
+| `rank` | 1–8; Creation complete → all five must be Rank **2** |
+| `id` | Optional; derived from name + field when omitted |
+
+**Perception Rank 2** is universal and free — it does **not** consume a Spec slot. Do not invent a Spec named Perception unless the player explicitly chose one.
+
+### Echo Imprints (DF 2026)
+
+```json
+"echoImprints": ["mage-hand", "catfall"]
+```
+
+Catalog ids from `src/rules/echo-imprints.ts` (28 entries). Max selected = Mastery Rank. Each Imprint’s governing attribute must be **≥ 4**. Replaces Minor Expressions.
 
 ### Echo
 
@@ -139,22 +195,9 @@ The import derives `bio.echo` (display name incl. Unbound identity), fresh
 Unbound characters do not need `artifactKeys` — the artifact follows from the
 identity (and `predatorStone` for Beasts).
 
-### Skills
+### Skills (deprecated)
 
-Map of **skill keys → rank** (creation budget: **40 points** total).
-
-```json
-"skills": {
-  "acrobatics": 2,
-  "athletics": 1,
-  "stealth": 1,
-  "lore": 2
-}
-```
-
-Keys must match the module catalog (`src/utils/skills.ts`), e.g. `acrobatics`, `athletics`, `lore`, `medicine`, `negotiation`, `perception`, … Combat is resolved without Skills; there are no combat Skill keys.
-
-Optional `skillsSpent` uses the same shape (tracks consumable uses per Safe Haven rest).
+Legacy map of **skill keys → rank**. Archive-only: import may store the values, but they are **never** converted into Specialization Ranks. Prefer `specializations`. A warning is emitted when `skills` is present.
 
 ### Disadvantages
 
@@ -199,19 +242,9 @@ At creation you may take **0–8 disadvantage points** (= starting **Faith Fract
 
 `points` is optional — calculated from `details` when omitted. Import sets `faithFractures.current` and `.maximum` to the total.
 
-### Minor Expressions
+### Minor Expressions (deprecated)
 
-Array of catalog **ids** (cantrips). Max count = **Mastery Rank**. Governing attribute must be **≥ 8**.
-
-```json
-"minorExpressions": [
-  "might-set-your-feet",
-  "agility-soft-step",
-  "intellect-arcane-spark"
-]
-```
-
-Ids look like `{attribute}-{slug}` — see `src/utils/minor-expressions.ts` (e.g. `might-hold-fast`, `resolve-steady-mind`).
+Legacy cantrip ids. Archive-only — prefer `echoImprints`. A warning is emitted when present. Do not use in new homepage exports.
 
 ### Powers — option 1: explicit grants (`powers`)
 
