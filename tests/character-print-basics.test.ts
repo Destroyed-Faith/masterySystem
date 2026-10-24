@@ -351,7 +351,7 @@ describe('character print table sheet', () => {
     expect(ctx.lifetimeProgression.rows[0][21].label).toBe('400');
   });
 
-  it('prints gifted Perception Rank 2 when no Perception Spec is stored', () => {
+  it('prints Perception elevated first (not buried in Spec groups)', () => {
     const ctx = buildCharacterPrintContext(
       mockCharacter(2, {
         progression: { rulesSchemaVersion: 'df-2026' },
@@ -360,11 +360,31 @@ describe('character print table sheet', () => {
         ],
       }),
     ) as any;
+    expect(ctx.perceptionSkill).toBeTruthy();
+    expect(ctx.perceptionSkill.name).toBe('Perception');
+    expect(ctx.perceptionSkill.rank).toBe(2);
     const all = (ctx.specializationGroups ?? []).flatMap((g: any) => g.specs);
-    const perception = all.find((s: any) => s.name === 'Perception');
-    expect(perception).toBeTruthy();
-    expect(perception.rank).toBe(2);
-    expect(perception.gifted).toBe(true);
+    expect(all.find((s: any) => s.name === 'Perception')).toBeUndefined();
+  });
+
+  it('prints all eight Stone Power attribute rows (never truncates empty pools)', () => {
+    const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
+    expect(ctx.stoneDashboard.powerGroups.map((g: any) => g.key)).toEqual([
+      'generic',
+      'might',
+      'agility',
+      'vitality',
+      'intellect',
+      'resolve',
+      'influence',
+      'wits',
+    ]);
+    const wits = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'wits');
+    const names = wits.powers.map((p: any) => p.name);
+    const onceIdx = names.findIndex((n: string) => /phasing/i.test(n));
+    const midIdx = names.findIndex((n: string) => /read intent/i.test(n));
+    expect(onceIdx).toBeGreaterThan(midIdx);
+    expect(wits.powers[onceIdx].oncePerCombat).toBe(true);
   });
 
   it('places Disadvantages under Attributes, Expressions under Health; Skills full width', () => {
@@ -397,10 +417,22 @@ describe('character print table sheet', () => {
     expect(page1).not.toContain('cp-ability-ladder');
     expect(hbs).toContain('cp-battle-buffs-block');
     expect(hbs).toContain('cp-battle-weapon-sets');
+    expect(hbs).toContain('cp-perception-block');
+    expect(hbs).toContain('cp-echo-imprints');
+    expect(hbs.indexOf('cp-echo-imprints')).toBeGreaterThan(hbs.indexOf('cp-col-right'));
     expect(hbs).toContain('Minor Expressions');
     expect(hbs).toContain('>Uses</span>');
     expect(hbs).not.toContain('Nutzungen / Rast');
     expect(hbs).not.toContain('cp-rerolls');
+  });
+
+  it('stacks Stone Power groups as full-width rows in CSS', () => {
+    const { readFileSync } = require('node:fs');
+    const { join } = require('node:path');
+    const css = readFileSync(join(process.cwd(), 'styles/character-print.css'), 'utf8');
+    expect(css).toMatch(/\.cp-sd-power-groups\s*\{[^}]*flex-direction:\s*column/s);
+    expect(css).toMatch(/\.cp-sd-power-list\s*\{[^}]*grid-template-columns:\s*repeat\(4/s);
+    expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-echo-imprints\s*,\s*\.print-page-1\.print-page-table \.cp-perception-block\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s);
   });
 
   it('keeps Minor Expressions as a compact shared row in table CSS', () => {

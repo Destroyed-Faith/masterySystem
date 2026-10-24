@@ -150,50 +150,69 @@
         </div>
       </div>
 
-      {{#if showEchoImprints}}
-      <div class="cp-block cp-minor-expressions cp-echo-imprints">
-        <div class="cp-minor-header">
-          <h3 class="cp-block-title">Echo Imprints</h3>
-          <span class="cp-minor-uses">
-            <span class="cp-minor-uses-label">{{echoImprints.length}} / {{echoImprintSlots}} (MR)</span>
-          </span>
-        </div>
-        <ul class="cp-minor-list">
-          {{#each echoImprints}}
-          <li class="cp-minor-item">
-            <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">Tier {{tier}}{{#if locked}} · needs Attr 4+{{/if}}</em></span>
-            <span class="cp-minor-body">{{effect}}</span>
-          </li>
-          {{/each}}
-          {{#each echoImprintBlankRows}}
-          <li class="cp-minor-item cp-minor-blank"><span class="cp-minor-name">&nbsp;</span></li>
-          {{/each}}
-        </ul>
-      </div>
-      {{else}}
-      {{#if hasMinorExpressions}}
-      <div class="cp-block cp-minor-expressions">
-        <div class="cp-minor-header">
-          <h3 class="cp-block-title">Minor Expressions</h3>
-          <span class="cp-minor-uses">
-            <span class="cp-minor-uses-label">Uses</span>
-            <span class="cp-minor-uses-boxes">
-              {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
-            </span>
-          </span>
-        </div>
-        <ul class="cp-minor-list">
-          {{#each minorExpressions}}
-          <li class="cp-minor-item">
-            <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
-            <span class="cp-minor-body">{{body}}</span>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/if}}
-      {{/if}}
     </div>
+
+    {{#if showEchoImprints}}
+    <div class="cp-block cp-minor-expressions cp-echo-imprints">
+      <div class="cp-minor-header">
+        <h3 class="cp-block-title">Echo Imprints</h3>
+        <span class="cp-minor-uses">
+          <span class="cp-minor-uses-label">{{echoImprints.length}} / {{echoImprintSlots}} (MR)</span>
+        </span>
+      </div>
+      <ul class="cp-minor-list">
+        {{#each echoImprints}}
+        <li class="cp-minor-item">
+          <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">Tier {{tier}}{{#if locked}} · needs Attr 4+{{/if}}</em></span>
+          <span class="cp-minor-body">{{effect}}</span>
+        </li>
+        {{/each}}
+        {{#each echoImprintBlankRows}}
+        <li class="cp-minor-item cp-minor-blank"><span class="cp-minor-name">&nbsp;</span></li>
+        {{/each}}
+      </ul>
+    </div>
+    {{else}}
+    {{#if hasMinorExpressions}}
+    <div class="cp-block cp-minor-expressions">
+      <div class="cp-minor-header">
+        <h3 class="cp-block-title">Minor Expressions</h3>
+        <span class="cp-minor-uses">
+          <span class="cp-minor-uses-label">Uses</span>
+          <span class="cp-minor-uses-boxes">
+            {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
+          </span>
+        </span>
+      </div>
+      <ul class="cp-minor-list">
+        {{#each minorExpressions}}
+        <li class="cp-minor-item">
+          <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
+          <span class="cp-minor-body">{{body}}</span>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/if}}
+    {{/if}}
+
+    {{!-- Perception always first / elevated, whether Specs or Skills follow. --}}
+    {{#if perceptionSkill}}
+    <div class="cp-block cp-perception-block">
+      <h3 class="cp-block-title">Perception <span class="cp-subtle">Rank {{perceptionSkill.rank}} · free</span></h3>
+      <div class="cp-perception-skill">
+        <span class="cp-perception-name">{{perceptionSkill.name}}</span>
+        <span class="cp-perception-chips">
+          {{#each perceptionSkill.poolChips}}
+          <span class="cp-pool-chip{{#if halfPool}} is-half-pool{{/if}}" title="{{attributeLabel}}">{{rollLabel}}</span>
+          {{/each}}
+        </span>
+        <span class="cp-sk-boxes">
+          {{#each perceptionSkill.boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
+        </span>
+      </div>
+    </div>
+    {{/if}}
 
     {{#if showSpecializations}}
     <div class="cp-block cp-learned-skills cp-learned-skills-full cp-specializations">
@@ -225,20 +244,6 @@
     {{else}}
     <div class="cp-block cp-learned-skills cp-learned-skills-full">
       <h3 class="cp-block-title">Skills</h3>
-
-      {{#if perceptionSkill}}
-      <div class="cp-perception-skill">
-        <span class="cp-perception-name">{{perceptionSkill.name}}</span>
-        <span class="cp-perception-chips">
-          {{#each perceptionSkill.poolChips}}
-          <span class="cp-pool-chip{{#if halfPool}} is-half-pool{{/if}}" title="{{attributeLabel}}">{{rollLabel}}</span>
-          {{/each}}
-        </span>
-        <span class="cp-sk-boxes">
-          {{#each perceptionSkill.boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
-        </span>
-      </div>
-      {{/if}}
 
       {{#each skillCategories}}
       <div class="cp-skill-category">
@@ -337,12 +342,10 @@
               <header class="cp-sd-power-head">
                 <span class="cp-sd-power-name">{{name}}</span>
                 <span class="cp-sd-power-cat">{{categoryUpper}}</span>
+                {{#if premium}}<span class="cp-sd-power-premium">Premium</span>{{/if}}
                 {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
               </header>
               {{#if summary}}<p class="cp-sd-power-summary">{{summary}}</p>{{/if}}
-              {{#if oncePerCombat}}
-              <p class="cp-sd-power-once">Once per combat <span class="cp-sd-power-once-box" aria-hidden="true"></span></p>
-              {{/if}}
             </div>
             <div class="cp-sd-power-tiers" aria-label="Stone cost tiers">
               {{#each paymentTiers}}
@@ -354,6 +357,9 @@
               </span>
               {{/each}}
             </div>
+            {{#if oncePerCombat}}
+            <p class="cp-sd-power-once">Once per combat <span class="cp-sd-power-once-box" aria-hidden="true"></span></p>
+            {{/if}}
           </article>
           {{/each}}
         </div>

@@ -429,11 +429,13 @@ function buildPrintSpecializations(system: any): {
       gifted,
     };
   };
+  // Perception is printed as its own elevated skill block — omit from Spec groups.
   const groups = SKILL_FIELDS.map((field) => ({
     key: field,
     label: SKILL_FIELD_LABELS[field],
     specs: specs
       .filter((s) => s.field === field)
+      .filter((s) => String(s.name || '').trim().toLowerCase() !== 'perception')
       .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
       .map((s) => mapSpec(s, s.id === 'perception-gifted')),
   })).filter((g) => g.specs.length > 0);
@@ -1215,13 +1217,21 @@ export function buildCharacterPrintContext(
   // ── Skills: Perception elevated, then categories (full catalog) ──────
   const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
   const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-  const perceptionSkill = buildPrintSkillRow(
-    actor as Actor,
-    'perception',
+  const perceptionRank = Math.max(
+    UNIVERSAL_PERCEPTION_RANK,
+    resolvePerceptionRank(system),
     num(skillMap.perception),
-    num(skillsSpent.perception),
-    masteryRank || 1,
   );
+  const perceptionSkill = {
+    ...buildPrintSkillRow(
+      actor as Actor,
+      'perception',
+      Math.max(num(skillMap.perception), perceptionRank),
+      num(skillsSpent.perception),
+      masteryRank || 1,
+    ),
+    rank: perceptionRank,
+  };
   const skillCategories = SKILL_GROUPS.map((group) => ({
     key: group.key,
     label: group.label,
@@ -1401,7 +1411,12 @@ export function buildCharacterPrintContext(
       freeStones,
       slots: Array.from({ length: freeStones }, (_, i) => i + 1),
       boosts: boostsByAttr.get(key) ?? [],
-      powers: orderPowersRampFirst(list, (p: any) => isPremiumStonePower(String(p.id))).map((p: any) => {
+      // Premium left, Once-per-combat right — full catalog always printed.
+      powers: orderPowersRampFirst(
+        list,
+        (p: any) => isPremiumStonePower(String(p.id)),
+        (p: any) => !!p?.oncePerCombat,
+      ).map((p: any) => {
         const powerId = String(p.id);
         const sup = supportByPowerId.get(powerId);
         const supportTier = sup?.tier ?? 0;
@@ -1418,6 +1433,7 @@ export function buildCharacterPrintContext(
           summary: summarizeStonePowerPrint(p),
           effect: summarizeStonePowerPrint(p),
           oncePerCombat: !!p?.oncePerCombat,
+          premium: isPremiumStonePower(powerId),
           supported: !!sup,
           tier: supportTier,
           source: compactArtifactName(sup?.source ?? ''),
@@ -1430,14 +1446,8 @@ export function buildCharacterPrintContext(
       }),
     };
   });
-  // Total spendable capacity across attribute pools — used to decide whether the
-  // (pool-less) General group is worth printing at all.
-  const totalFreeStones = allStoneGroups.reduce((s, g) => s + g.freeStones, 0);
-  // Hide attribute pools with 0 free stones; keep General only if some pool has
-  // stones to pay generic powers with.
-  const stonePowerGroups = allStoneGroups.filter((g) =>
-    g.isGeneral ? totalFreeStones > 0 : g.freeStones > 0,
-  );
+  // Always print every attribute group (General + 7) — never truncate mid-catalog.
+  const stonePowerGroups = allStoneGroups;
 
   const iniStoneCost = Math.max(4, masteryRank * 4);
   const technical = {

@@ -1027,12 +1027,20 @@
   color: #444;
 }
 
-/* Echo Imprints: readable stacked cards with full effect text. */
+/* Echo Imprints: full page width under Health/Attributes (no overlap). */
+.print-page-1.print-page-table .cp-echo-imprints,
+.print-page-1.print-page-table .cp-perception-block {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  margin-top: 2px;
+}
+
 .print-page-1.print-page-table .cp-echo-imprints .cp-minor-list {
-  flex-direction: column;
-  flex-wrap: nowrap;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: stretch;
-  gap: 3px;
+  gap: 4px;
 }
 
 .print-page-1.print-page-table .cp-echo-imprints .cp-minor-item {
@@ -1040,10 +1048,12 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 1px;
-  width: 100%;
+  flex: 1 1 45%;
+  min-width: 70mm;
+  width: auto;
   border: 1px solid #bbb;
   border-radius: 2px;
-  padding: 2px 4px;
+  padding: 3px 5px;
   box-sizing: border-box;
 }
 
@@ -1086,12 +1096,16 @@
   break-inside: avoid;
 }
 
+.print-page-1.print-page-table .cp-perception-block .cp-block-title {
+  margin-bottom: 2px;
+}
+
 .print-page-1.print-page-table .cp-perception-skill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 5px;
-  margin: 0 0 3px;
+  gap: 8px;
+  padding: 3px 6px;
+  margin: 0;
   border: 1.5px solid #333;
   border-radius: 3px;
   background: #f3f3f3;
@@ -1616,26 +1630,27 @@
   flex: 0 0 auto;
 }
 
+/* Eight full-width attribute rows (General → Wits), never a 4×2 squeeze. */
 .cp-sd-power-groups {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, auto);
-  gap: 2px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
   flex: 1 1 auto;
   min-height: 0;
-  align-content: stretch;
   overflow: visible;
 }
 
 .cp-sd-power-group {
   border: none;
   border-radius: 0;
-  padding: 0 1px 1px;
+  padding: 0 0 2px;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: visible;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .cp-sd-power-group[data-attr="generic"] { --attr-color: #455a64; }
@@ -1676,27 +1691,27 @@
   color: #555;
 }
 
+/* Four powers across each attribute row — Premium leftmost, Once-per-combat rightmost. */
 .cp-sd-power-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px 4px;
   flex: 1 1 auto;
   min-height: 0;
   overflow: visible;
+  align-items: stretch;
 }
 
-/* Name/summary left · rank cost cubes right (compact so R4 still fits). */
 .cp-sd-power {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 2px 4px;
-  padding: 2px 0 3px;
-  border-bottom: 1px dotted #ddd;
-}
-
-.cp-sd-power:last-child {
-  border-bottom: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1px;
+  padding: 2px 3px 3px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .cp-sd-power-main {
@@ -1739,6 +1754,17 @@
   padding: 0 2px;
 }
 
+.cp-sd-power-premium {
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6a4a00;
+  border: 1px solid #c9a227;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
 .cp-sd-power-support {
   font-size: 6.5px;
   font-weight: 700;
@@ -1747,34 +1773,35 @@
 
 .cp-sd-power-summary {
   margin: 1px 0 0;
-  font-size: 7.5px;
-  line-height: 1.25;
+  font-size: 7px;
+  line-height: 1.2;
   color: #222;
   white-space: normal;
   word-break: normal;
   overflow-wrap: break-word;
 }
 
-/* Once-per-combat flag — under summary only; compact, not a badge/box */
+/* Once-per-combat sits at the trailing edge of the card (right of each row). */
 .cp-sd-power-once {
   display: inline-flex;
   align-items: center;
-  gap: 1.2mm;
-  margin: 0.5px 0 0;
+  gap: 1mm;
+  margin: 1px 0 0;
   padding: 0;
-  font-size: 7px;
+  font-size: 6.5px;
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #111;
+  color: #7a1f1f;
+  align-self: flex-start;
 }
 
 .cp-sd-power-once-box {
   display: inline-block;
-  width: 2.2mm;
-  height: 2.2mm;
-  border: 0.7px solid #222;
+  width: 2mm;
+  height: 2mm;
+  border: 0.7px solid #7a1f1f;
   box-sizing: border-box;
   flex: 0 0 auto;
   background: transparent;
@@ -1782,21 +1809,19 @@
 
 .cp-sd-power-tiers {
   display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-end;
-  gap: 0.6mm;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5mm 1.5mm;
   flex: 0 0 auto;
-  width: auto;
-  max-width: 42%;
-  padding-top: 0;
+  width: 100%;
+  padding-top: 1px;
 }
 
 .cp-sd-tg {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.8mm;
+  gap: 0.5mm;
 }
 
 .cp-sd-tl {
@@ -1806,7 +1831,7 @@
   color: #666;
   margin-right: 0;
   line-height: 1;
-  min-width: 1.6em;
+  min-width: 1.4em;
   text-align: right;
 }
 
@@ -1819,14 +1844,14 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0.4mm;
+  gap: 0.3mm;
   align-items: center;
 }
 
 .cp-sd-cost {
   display: inline-block;
-  width: 3.6mm;
-  height: 3.6mm;
+  width: 2.8mm;
+  height: 2.8mm;
   border: 1px solid #222;
   border-radius: 1px;
   background: #fff;
@@ -4207,6 +4232,28 @@ body.mastery-print.is-dark:not(.is-compact) {
 .mastery-print.is-dark:not(.is-compact) .cp-sd-cost {
   background: #0e0c0a;
   border-color: #c9b896;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power {
+  border-color: #3c3832;
+  background: #1c1916;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-premium {
+  color: #e0c878;
+  border-color: #a67c4a;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-once {
+  color: #e57373;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-once-box {
+  border-color: #e57373;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-perception-block .cp-block-title {
   color: #e6e1d6;
 }
 
