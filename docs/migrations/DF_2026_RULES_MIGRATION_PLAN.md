@@ -80,6 +80,8 @@ v0.9.9 Stones/slots/bonds, Restoration/R05, combat Free Raises (Intellect Stone)
 | 2026-10-23 | Ritual TN/outcome updated (Task Level×4, one final TN). Social Combat dialog hard-gated. DF 2026 actor migration hooked on world load with legacySnapshot. Encounter-forge spell TN uses PL×4. QA report started. |
 | 2026-10-23 | **Abschluss:** Specs/Imprints/CORE_RITUALS live; Wizard early steps; Spend/Death/Pursuit-Meter retired; Mental-+4 generic removed; GM Review + Import/Export/Print; 3177 tests PASS. See `DF_2026_ABSCHLUSSBERICHT.md`. |
 | 2026-10-23 | Full-repo inventory merged into this plan. Corrected dual-track note: `src/rules` **is** consumed by spell-roll-handler, rituals utils, and df-2026 migration (not zero imports). Next priority: Skill/Specialization live path + builder + DeathCheck retire. |
+| 2026-10-24 | **Ordinary Skill Raises — post-success allocation.** Shared Skill Check dialog for Character Sheet + GM chat request (locked Base TN). Paid Raises pre-roll only; Free Raises auto on success; effect catalogue assigned on result chat card. Combat/Ritual Raises remain predeclared. Guide: `docs/rules/Destroyed_Faith_Players_Guide_Post_Roll_Skill_Raises_2026-10-24.md`. Package: `docs/migrations/df-dual-skill-roll-2026-10-24/`. |
+| 2026-10-24 | **Correction — GM-defined Skill Checks.** GM owns task/Attribute/Skill/Base TN; player overlay chooses only Paid Raises. Per-actor Spec mapping on request; sheet uses GM request or verbal GM record (no invented Attr/TN). Guide: `docs/rules/Destroyed_Faith_Players_Guide_GM_Defined_Skill_Checks_2026-10-24.md`. |
 
 ## Known blockers / decisions
 

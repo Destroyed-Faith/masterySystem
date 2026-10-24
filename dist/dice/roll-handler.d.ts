@@ -131,6 +131,25 @@ export interface RollOptions {
      * `canReroll: false` (no reroll button, executor rejects it).
      */
     isRerollResult?: boolean;
+    /**
+     * Ordinary Skill Check: Free Raises available after success (Rank allowance).
+     * Not chosen pre-roll; not added as stone bonuses.
+     */
+    freeRaisesAvailableAtSuccess?: number;
+    /**
+     * Ordinary Skill Check metadata persisted on the result chat card for
+     * post-success Raise effect allocation (DF 2026-10-24).
+     */
+    skillCheckMeta?: {
+        source: any;
+        skillRankAtRoll: number;
+        paidRaisesDeclared: number;
+        freeRaisesAvailableAtSuccess: number;
+        skillName: string;
+        attributeKey: string;
+        taskDescription?: string;
+        gmVerified?: boolean;
+    };
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {

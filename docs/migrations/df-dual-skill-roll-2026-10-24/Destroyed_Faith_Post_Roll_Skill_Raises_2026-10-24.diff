@@ -1,0 +1,368 @@
+--- Destroyed_Faith_Players_Guide_Perception_Rank2_2026-10-23.md
++++ Destroyed_Faith_Players_Guide_Post_Roll_Skill_Raises_2026-10-24.md
+@@ -1578,7 +1578,7 @@
+ | **Keep** | The character's **Mastery Rank** |
+ | **Base TN** | The **task itself**, never the character's MR |
+ | **Competence** | The Specialization's **Skill Rank** |
+-| **Raises allowed** | At most **Skill Rank in total**, including Rank-based **Free Raises** (Ranks 4, 6, 8); declare before rolling |
++| **Raises allowed** | Up to **Skill Rank** total: choose Paid Raises before rolling; Rank-based Free Raises become available on success (Ranks 4, 6, 8) |
+ 
+ **Skill Roll: Relevant Attribute k Mastery Rank.** Roll exploding d8 with the normal Advantage/Disadvantage, Health, Fear and Reroll Point rules. Skill Rank determines competence and Raises, while Attribute and MR determine the roll.
+ 
+@@ -1587,8 +1587,8 @@
+ 1. **What are you attempting?** Name the specific task and intended result.
+ 2. **What do you know?** Identify a fitting Specialization and its Rank, or treat the attempt as untrained.
+ 3. **How do you do it?** Choose the Attribute that best describes the approach.
+-4. **How far do you push?** Declare up to Skill Rank **total Skill Raises** (Paid plus any Rank-based Free Raises) and their effects.
+-5. **Can you succeed passively?** If not, roll against the final TN.
++4. **How far do you push?** Choose the number of **Paid Raises** before rolling (up to your Rank allowance); the Final TN rises by +4 each. Free Raises are reserved automatically.
++5. **Resolve and enhance.** Check eligible Passive Success or roll against the Final TN. On success, distribute your declared Paid Raises plus available Free Raises among suitable effects before describing the final outcome.
+ 
+ **Skill Rank opens possibilities. Raises improve the result. Attributes and MR determine reliability.**
+ 
+@@ -1618,20 +1618,20 @@
+ 
+ **These are examples, not fixed prices for items, diseases, or professions.** A task with a different complication may have a different TN. The table measures execution difficulty; the Skill Rank separately measures whether the character knows *how* to perform it.
+ 
+-### Declare Raises Before the Roll
++### Choose Paid Raises Before the Roll; Allocate Effects After Success
+ 
+ **Final Skill TN = Base Task TN + (4 × declared Paid Skill Raises).**
+ 
+-Declare all Raise benefits **before the roll**, assigning each to Scope, Speed, Quality, Efficiency, Insight, or Safety. **Total declared Raises (Paid + Free) cannot exceed Skill Rank.** Free Raises are unlocked at Ranks **4, 6, and 8**: one, two, or three Free Raises respectively. They do **not** add +4 TN; Paid Raises do. A character may declare fewer than their allowance. An untrained character declares none. The GM confirms that each effect fits the task.
+-
+-On meeting the **one final TN**, the basic task and *all* declared Raise effects succeed. A failure grants no declared effects as an automatic consolation. The GM may describe partial progress, but never award undeclared Raises from a high roll. There is no Skill Point pool to track. **Example:** Blacksmithing 4, nails, Base TN 8. Declare **Scope 2 + Speed 1**: one Free Raise and two Paid Raises, so **Final TN = 8 + 8 = 16**. A result of 16+ makes the agreed large batch in the shorter time; a result of 15 fails the enhanced attempt. The same three effects at Blacksmithing 3 would cost **three Paid Raises: TN 20**.
++**Before the roll**, the GM sets the Base Task TN and the player declares only the **number of Paid Raises**, up to the Rank allowance; each adds +4 TN. At Ranks **4, 6 and 8**, the character also has **1, 2 or 3 Free Raises** automatically available after a successful Check. Paid plus Free Raises cannot exceed the Skill Rank. A character may choose fewer Paid Raises; Free Raises cost no TN and need no advance selection. An untrained character has no Raises. The GM confirms suitable effects when they are allocated after success.
++
++On meeting the **one Final TN**, the basic task succeeds and the player allocates **declared Paid + available Free Raises** to Scope, Speed, Quality, Efficiency, Insight or Safety. Each effect must fit the already stated task, method, materials and situation; the GM confirms the specific benefit before it enters the fiction. Unallocated Raises expire when the result is finalized. On failure, the enhanced attempt fails, even if the roll reached the unraised Base TN; a high roll grants no extra Raises. There is no Skill Point pool. **Example:** Blacksmithing 4, nails, Base TN 8. Choose **two Paid Raises** before rolling: **Final TN = 16**. On success, add **one Free Raise** and allocate the three effects, perhaps **Scope 2 + Speed 1**, with GM agreement. Blacksmithing 3 can attempt three Paid Raises for **TN 20**, with no Free Raise.
+ }}
+ \page
+ {{pageNumber,auto}}
+ {{wide
+ ## Eight Ranks of Expertise
+ 
+-Every Specialization uses **the same eight ranks**. Rank broadens real training and sets the **total** number of Raises allowed. **Ranks 4, 6 and 8 each replace one additional Paid Raise with a Free Raise**, not add Raises beyond the Rank cap. Free Raises are declared in advance and cost no TN increase.
++Every Specialization uses **the same eight ranks**. Rank broadens real training and caps **Paid + Free Raises together**. Free Raises unlock at Ranks 4, 6 and 8 and become available on each successful Skill Check; only the number of Paid Raises is chosen before rolling.
+ 
+ | Rank | Training | Examples of access | Paid | Free |
+ |:--:|---|---|:--:|:--:|
+@@ -1645,7 +1645,7 @@
+ | **7** | Grandmaster | Exceptional rare methods and judgment | **5** | **2** |
+ | **8** | Legendary | Highest conceivable *mundane* mastery in that field | **5** | **3** |
+ 
+-**Example:** Blacksmithing 8 can declare **five Paid + three Free Raises** in one attempt (eight total); only the five Paid Raises add TN, for **+20** rather than +32.
++**Example:** Blacksmithing 8 may declare up to **five Paid Raises** before rolling, increasing the TN by at most **+20**. After success it also receives **three Free Raises**, for up to **eight effects** to allocate.
+ 
+ ### Rank Is Training; TN Is Difficulty
+ 
+@@ -1662,7 +1662,7 @@
+ {{wide
+ ## One Raise Catalogue for Every Skill
+ 
+-A **Paid Skill Raise** adds **+4 to the final TN**. A **Free Skill Raise**, unlocked by Skill Ranks 4, 6 and 8, adds **+0 TN**. Both give **one identical permitted effect**, must be declared **before rolling**, and count toward the single **total-Raises limit of Skill Rank**. They are not a spendable pool: the Free allowance renews automatically on every eligible Skill Check. Multiple Raises may enhance one effect or be split between effects. If the check fails, the declared Free Raises do not create a result on their own.
++A **Paid Skill Raise** is chosen **before** the check and adds **+4 to its Final TN**. A **Free Skill Raise**, unlocked by Ranks 4, 6 and 8, adds **+0 TN** and becomes available automatically **after a successful check**. Both buy the same suitable effect, and **Paid + Free cannot exceed Skill Rank**. After success, allocate them to one or several catalogue effects, agreeing on the concrete benefits with the GM before the result is finalized. Free Raises refresh each check; they are not a spendable reserve. Failure grants no Raise benefits.
+ 
+ | Effect | One Raise can accomplish... |
+ |---|---|
+@@ -1677,13 +1677,13 @@
+ 
+ - **Scope:** 1 Raise = ×2, 2 = ×4, 3 = ×8, and so on. This scales the *same task*, not unrelated tasks, extra combat attacks, spell targets, or free finished goods without ingredients.
+ - **Speed:** 1 Raise = half the feasible work time; 2 = one quarter, subject to realistic minimums and prerequisites. Speed that creates time pressure or hazards requires an active roll.
+-- **Quality, Efficiency, Insight, and Safety:** Agree on the concrete step or benefit **before** rolling. A vague request for "more" is not a completed Raise declaration.
++- **Quality, Efficiency, Insight, and Safety:** Describe the concrete benefit **after success**, before narrating or resolving its consequence. The GM confirms that the chosen benefit is achievable by the declared method and the available evidence or materials.
+ - A Raise cannot replace a **new Power, Artifact, Ritual, HP healing, combat Special, or monetary reward**. Equipment quality gives no unlisted Attack, Damage, Armor, Evade, or other mechanical bonus.
+ - The GM may decline an inapplicable effect. A persuasive speech cannot make another person mind-controlled; a Medicine check cannot **instantly** restore a Scarred Health Bar (trained medical aftercare may aid **Safe Haven Rest** recovery); a tracking check cannot reveal information that has left no trace.
+ 
+ ### Outcome and Risk
+ 
+-All declared effects are resolved against **one final TN**: base TN **+4 per Paid Raise**, **+0 per Free Raise**. If the attempt fails, none of the declared improvements happens automatically. The GM may allow narrative partial progress, but should not grant Raise benefits merely from an excess roll. No undeclared Raise is generated by a large roll. **Social Challenges** use this very same Raise catalogue: declare all Paid and Free effects before the roll, add +4 TN per **Paid** Raise only, and apply them only on success.
++The attempt uses **one Final TN**, fixed before the roll: Base TN **+4 per declared Paid Raise**. If successful, allocate those Paid Raises plus any Free Raises, then resolve the agreed effects; a failed check yields none. A high roll creates no extra Raises. **Social Challenges** follow this same Skill procedure: announce Paid Raises first, roll once, and select suitable effects after success. **Combat and Ritual Raises retain their own advance-allocation rules.**
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1694,11 +1694,11 @@
+ 
+ **Routine mastery:** A trained character automatically completes a **familiar, ordinary task within the procedures covered by their Skill Rank** when there is adequate time, proper tools, and no active opposition, urgent danger, or significant consequences of failure. This grants the **basic task only**; it does not award any declared Raise benefits for free. Even a Rank 8 physician with a modest Attribute can reliably carry out familiar surgery in calm, properly equipped conditions. This is learned professional mastery, not a static numeric bonus.
+ 
+-**Passive Skill Value:** For other eligible, calm tasks (including careful tasks that are not routine or an enhanced task with declared Raises), retain the existing formula:
++**Passive Skill Value:** For other eligible, calm tasks (including careful, enhanced tasks where the player chooses Paid Raises), retain the existing formula:
+ 
+ `Passive Skill Value = 2 × Relevant Attribute`
+ 
+-If the Passive Skill Value meets the **final TN** and the character possesses any indispensable knowledge and tools, the task succeeds without rolling. For general actions anyone can attempt, passive success may also apply without a Specialization. **All declared Raises count toward final TN**; no unannounced Raises are ever created. Neither path bypasses missing professional knowledge, tools, or conditions. Active danger, a resisting opponent, dramatically important uncertainty, unstable circumstances, or self-imposed urgency requires a roll. Use the Attribute fitting the actual careful approach, not a permanently assigned Primary Attribute.
++If the Passive Skill Value meets the **Final TN** and the character has the necessary knowledge and tools, the task succeeds without rolling; the player may then allocate the declared Paid and eligible Free Raises as for any successful check. For generally accessible tasks, passive success may also apply without a Specialization (and thus without Raises). The GM requires a roll under opposition, danger, instability or consequential urgency. Routine mastery grants the basic task without Raise effects.
+ 
+ ### If You Lack a Specialization
+ 
+@@ -1714,7 +1714,7 @@
+ | **Intellect** | Visible discrepancies, patterns, spatial relationships, clues that can be inferred from what is present |
+ | **Resolve** | Occult presence, supernatural unease, spiritual or demonic pressure when the sense permits it |
+ 
+-Perception uses the **ordinary Skill Raise rules**: at Rank 2, up to **two declared Paid Raises** (+4 TN each); Free Raises arrive at Ranks 4/6/8. Raises describe additional observable detail, scope, or another applicable agreed effect, within the character's available Senses. Tracking, Forensics, or Demonology may interpret observations through trained methods. **Combat detection** still follows its specific per-target/per-Round limits; Raises do not grant additional free checks or overcome Blocked Senses. **Opposition:** First resolve the opponent's concealment, deception, or forgery setup Skill Check; its successful result sets the Perception TN. A tied Perception result succeeds. Use Opposed Attribute Contests where the rules explicitly call for them.
++Perception follows normal Skill Raises: at Rank 2, choose up to **two Paid Raises before rolling** (+4 TN each). Free Raises become available on success at Ranks 4/6/8 and may buy extra observable detail, scope or other appropriate effects. Tracking, Forensics or Demonology can interpret observations through specialized methods. Combat detection still obeys its per-target/per-Round limits, and Raises do not grant extra free checks or overcome Blocked Senses. **Opposition:** Resolve the concealer's setup Skill Check first; its successful result sets the observer's Perception TN. Ties succeed for the observer.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1769,11 +1769,11 @@
+ 
+ ### Climbing — Working Example
+ 
+-A character with **Climbing 4** chooses **Scope 1** (help one additional prepared climber using the same route and equipment) and **Safety 1** (secure one identified weak anchor point). The GM confirms both effects are physically possible. On a Base TN 16 route, declare 2 Raises: **Final TN 20** (1 Free, 1 Paid). On success both benefits apply.
++A character with **Climbing 4** attempts a Base TN 16 route. The player chooses **one Paid Raise** before rolling, for **Final TN 20**. After success, one **Free Raise** becomes available, allowing **Scope 1** (help one similarly prepared climber) and **Safety 1** (secure one identifiable weak anchor), if the GM confirms both are feasible.
+ 
+ ### Swimming — Working Example
+ 
+-A character with **Swimming 3** crosses a flooded channel. With **Speed 1**, the feasible crossing time is halved and the TN rises from 12 to **16**. If the current is dangerous, the roll remains required even if the character's Passive Skill Value could otherwise meet 16. **Limits:** An untrained person may climb or swim normally with Disadvantage when a roll is called. Rank 8 does not grant immunity to falling, drowning, impossible gaps, equipment failure, or environmental consequences. No amount of Scope creates extra movement actions in combat.
++A character with **Swimming 3** crosses a flooded channel at **Base TN 12**. The player chooses **one Paid Raise**, making **Final TN 16**. On success, the Raise may provide **Speed 1**, halving the feasible crossing time. Dangerous currents require an active check. An untrained swimmer may attempt ordinary crossings with Disadvantage when a roll is needed; an impossibly hazardous passage remains impossible without a credible method.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1793,11 +1793,11 @@
+ 
+ ### Stealth — Working Example
+ 
+-A scout with **Stealth 5** wants to lead others past guards quietly. The GM permits **Scope 1** to include a second similarly prepared person, and **Safety 1** to prevent one defined incidental noise source. Against a Base TN 16, Final TN is **20** (1 Free, 1 Paid). The actual **Stealth roll result** is still used for trained opposition against Perception as the ordinary concealment rules require; the Raises do not become free flat concealment bonuses.
++A scout with **Stealth 5** leads others past guards. With **one Paid Raise**, the check against Base TN 16 has **Final TN 20**. On success, the scout also receives **one Free Raise** and may allocate both to **Scope 1** (include a similarly prepared companion) and **Safety 1** (address one predictable noise source), subject to GM approval. The successful Stealth **roll result**, not its Raises, sets the observer's opposing Perception TN.
+ 
+ ### Sleight of Hand — Working Example
+ 
+-With **Sleight of Hand 4**, a character swaps two identical-looking seals during a court audience. **Speed 1** shortens the execution window; **Quality 1** leaves a cleaner substitution. If the initial TN is 20, the declared attempt is **TN 24** (1 Free, 1 Paid). This does not conjure a forged seal or bypass the need to possess one. **Boundaries:** Stealth never grants Invisibility or bypasses an uncovered Combat Sense. Sleight of Hand does not automatically replace Forgery, Lockpicking, Alchemy, or other distinct trained crafts. The skill's statement of scope determines what is learned.
++With **Sleight of Hand 4**, a character swaps two lookalike seals at court. Choose **one Paid Raise** against Base TN 20: **Final TN 24**. On success, the **one Free Raise** also becomes available; the character may then allocate **Speed 1** (shorter execution window) and **Quality 1** (cleaner substitution). The character still needs a real replacement seal and an appropriate method. **Boundaries:** Stealth does not grant Invisibility or bypass an uncovered Combat Sense; Sleight of Hand remains distinct from Forgery, Lockpicking and other crafts.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1817,11 +1817,11 @@
+ 
+ ### Tracking — Working Example
+ 
+-Tracking 4 follows a visible trail (Base TN 12), declaring **Insight 2** to learn both the approximate group size and whether an injured traveler was present. The GM checks that the terrain still retains both types of evidence. Final TN = **16** (1 Free, 1 Paid). A missed roll provides no automatic two extra facts.
++Tracking 4 follows a visible trail at **Base TN 12**. The player chooses **one Paid Raise** before rolling, reaching **Final TN 16**. On success, **one Free Raise** also becomes available; two **Insight** Raises may then reveal the approximate group size and whether an injured traveler passed, if the terrain retains those clues. A failed check grants no extra information.
+ 
+ ### Animal Handling — Working Example
+ 
+-Animal Handling 3 settles a frightened pack animal (Base TN 12). **Safety 1** prevents the specific secondary danger of the animal kicking a nearby helper; Final TN = **16**. Persuading a thinking person or commanding a demon is not animal handling. **The task stays the same as a character advances.** A woodland trail does not become harder because the tracker moves from MR 2 to MR 4. The higher Keep makes the trained tracker more reliable. A deliberately concealed trail may instead have an opposing Stealth result as its TN.
++Animal Handling 3 settles a frightened pack animal at **Base TN 12**. The player chooses **one Paid Raise** before rolling, making **Final TN 16**. On success, it may be allocated to **Safety 1** to reduce the risk of the animal kicking a helper. The task remains equally difficult as a character gains Mastery Rank; a higher Keep improves reliability. An opposed attempt may instead use a suitable successful opposing Skill result as its TN.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1841,11 +1841,11 @@
+ 
+ ### Medicine — Working Example
+ 
+-A **Medicine 4** practitioner treats a familiar ordinary illness without pressure, equipment shortage, or active danger. That is **routine work within Rank 4** and requires no roll. For unfamiliar work, the existing **Passive Skill Value** may still allow success. During a collapsing battle line, the same treatment requires an active roll. The player may declare **Speed 1** and **Safety 1** to shorten feasible treatment time and avoid a specific secondary complication, raising Base TN 16 to **20** (1 Free, 1 Paid).
++A **Medicine 4** practitioner treats a familiar illness routinely without a roll. During danger, the practitioner chooses **one Paid Raise** before rolling; Base TN 16 becomes **Final TN 20**. On success, the available **one Free Raise** permits two suitable benefits, for example **Speed 1 + Safety 1**, agreed with the GM. Passive Skill Value may still resolve eligible calm, nonroutine work.
+ 
+ ### Alchemy — Working Example
+ 
+-An **Alchemy 5** specialist makes a known antidote from properly available ingredients. With **Scope 2**, the practitioner attempts four doses instead of one (requiring materials for four doses); with **Efficiency 1**, reduce an identified avoidable source of waste. At Base TN 16, Final TN is **24** (1 Free, 2 Paid). **Medicine and magical Restoration remain distinct:** A Medicine check does not reopen a Scarred Bar during combat. Medicine 4 or 8 can improve a patient's **natural Scarred-Bar recovery during a Safe Haven Rest** (see *Healing & Assistance*). Alchemy alone cannot manufacture a spell effect or an unlisted Permanent Magic Item; it produces mundane medicines, preparations, and defined items subject to materials and setting rules.
++An **Alchemy 5** specialist prepares a known antidote. Choosing **two Paid Raises** raises Base TN 16 to **Final TN 24**. After success, the character has **three effects** to allocate (two Paid, one Free), for example **Scope 2** for four prepared doses with sufficient ingredients and **Efficiency 1** to reduce avoidable waste. Medicine and magical Restoration remain distinct: clinical aftercare can improve Safe Haven recovery but an ordinary Skill Check cannot reopen a Scarred Bar during combat.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1873,7 +1873,7 @@
+ | Forge a beautiful, sharp ordinary sword | **16** | Suitable training (roughly Rank 4+) and tools |
+ | Forge a specialized high-precision blade | **24** | Advanced training (roughly Rank 6+) and materials |
+ 
+-The values above are **illustrative Task TNs**, not a universal rule that Rank must equal TN divided by four. A Rank 1 smith who rushes a nail order may declare **Speed 1** and face **TN 12** (the one Raise allowed at Rank 1). A Rank 8 smith facing the same nail order sees **the same Base TN 8**, but can plan a far more ambitious result.
++The values above are **illustrative Task TNs**, not a formula derived from Skill Rank. A Rank 1 smith choosing **one Paid Raise** before rolling increases the basic-nails TN from 8 to **12**; if successful, the player may allocate it to **Speed 1** for a faster production run. A Rank 8 smith faces the same Base TN 8, with more available Paid and Free Raises.
+ 
+ ### The Nail Order — Three Raises
+ 
+@@ -1882,9 +1882,9 @@
+ - **Base task:** Nails, TN 8.
+ - **Scope 2:** Four equal-sized batches rather than one.
+ - **Speed 1:** Half the feasible production time.
+-- **Final TN:** `8 + (2 × 4) = 16` (3 declared Raises: 1 Free, 2 Paid).
+-
+-The player declares all three before rolling. Meeting TN 16 achieves the stated batch and timing. A Rank 2 smith cannot declare three Raises on the same attempt. Neither gains a mechanical weapon bonus from Quality unless another existing item rule expressly grants one.
++- **Final TN:** `8 + (2 × 4) = 16` (two Paid Raises declared before the roll; one Free Raise available after success).
++
++The player commits **two Paid Raises** before rolling. On reaching TN 16, the additional **one Free Raise** becomes available; the player can then allocate **Scope 2 + Speed 1** for the agreed batch and timing. A Rank 2 smith cannot obtain three Raises on one check. Quality alone grants no unlisted mechanical weapon bonus.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1906,11 +1906,11 @@
+ 
+ ### Demonology — Working Example
+ 
+-A Demonology 5 specialist examines a cult seal (Base TN 16). **Insight 2** seeks both the likely authoring tradition and whether the pattern is deliberately falsified. Final TN = **20** (1 Free, 1 Paid). An invented secret not encoded in the seal cannot be granted by rolling well.
++A **Demonology 5** specialist examines a cult seal at **Base TN 16**, choosing **one Paid Raise** before rolling for **Final TN 20**. On success, the available **one Free Raise** permits **Insight 2**: discover the authoring tradition and evidence of deliberate falsification, if both signs are present.
+ 
+ ### Warding Traditions — Working Example
+ 
+-A Warding Traditions 4 practitioner prepares the material layout for an established protective rite. **Efficiency 1** avoids one specified material loss; **Safety 1** guards against a mundane setup mistake. If the task's Base TN is 12, Final TN = **16** (1 Free, 1 Paid). **Limits:** These specializations do not automatically detect invisible magical beings, grant Spell delivery, dispel Powers, or ignore the Ritual Stone costs. Perception (Resolve) senses occult pressure only when the applicable senses and circumstances allow; occult expertise interprets it afterward.
++A **Warding Traditions 4** practitioner arranges materials for an established protective rite. The mundane preparation has **Base TN 12**; one **Paid Raise** makes **Final TN 16**. On success, the **one Free Raise** also becomes available, allowing **Efficiency 1** (reduce avoidable material loss) and **Safety 1** (prevent one plausible setup mistake). The actual Ritual remains a separate magical procedure with its own Stone costs and predeclared tier.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1932,11 +1932,11 @@
+ 
+ ### Persuasion — Working Example
+ 
+-A Persuasion 4 negotiator seeks fair passage through a cautious city's gate (Base TN chosen from the actual circumstances or the opponent's established resistance). **Quality 1** seeks a more durable commitment; **Speed 1** shortens negotiations. Two declared Raises add **+4 TN** (1 Free, 1 Paid). Neither Raise can compel agreement to a fundamentally unacceptable proposition.
++A **Persuasion 4** negotiator seeks fair passage through a cautious city gate. Against the Base TN, the player chooses **one Paid Raise**, adding +4. On success, **one Free Raise** also becomes available; the player may allocate **Quality 1** to a more durable commitment and **Speed 1** to shorter negotiations, within the captain's credible choices.
+ 
+ ### Deception — Working Example
+ 
+-A Deception 3 character poses as an authorized courier. The defender can oppose with appropriate Perception, Investigation, or social expertise. **Quality 1** removes one agreed obvious weakness from the forged explanation, not from the character's actual documents. The opposing Skill Check still decides whether the deception is believed. **Social Challenges:** These are ordinary Social Skill Checks. For longer social scenes, use the optional Social Challenges guidance; there are no separate phases, Setup Points, or Raise thresholds.
++A **Deception 3** character poses as a courier. If the player chooses **one Paid Raise**, the Base TN increases by **4**; on success the player may allocate **Quality 1** to strengthen one plausible weakness in the explanation. A suitable Perception or Investigation check can oppose the resulting successful **rolled total**. Social Challenges use the same procedure.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1958,11 +1958,11 @@
+ 
+ ### Forensics — Working Example
+ 
+-A Forensics 5 investigator examines a disturbed chamber (Base TN 16). **Insight 2** seeks whether the furniture was staged and the likely order of two movements. TN becomes **24**. The method must have access to surviving signs; it cannot automatically supply the perpetrator's name.
++A **Forensics 5** investigator examines a disturbed chamber at **Base TN 16**. Choosing **one Paid Raise** makes **Final TN 20**. On success, the investigator also gains **one Free Raise**, and may allocate **Insight 2** to identify staged furniture and the order of two movements, if surviving evidence supports both conclusions.
+ 
+ ### Streetwise — Working Example
+ 
+-A Streetwise 4 character seeks the broker behind a black-market shipment. **Speed 1** shortens the search; **Safety 1** avoids one specified chance of exposing the informant. Base TN 16 becomes **24**. The ability does not automatically persuade a contact to betray a deeply held loyalty; that is a separate social outcome. **Boundaries:** Perception is the universal Skill for noticing clues. Expertly reconstructing a crime is Forensics. Following footprints through wilderness is Tracking. Bargaining for testimony is Persuasion. Choose the Specialization that matches the **method**, not the one with the highest Rank.
++A **Streetwise 4** character investigates the broker of a black-market shipment at **Base TN 16**. With **one Paid Raise**, the **Final TN is 20**. On success, the **one Free Raise** also becomes available: allocate **Speed 1** to shorten the search and **Safety 1** to reduce one foreseeable risk to the informant. A separate social exchange may be needed to secure cooperation.
+ }}
+ \page
+ {{pageNumber,auto}}
+@@ -1971,7 +1971,7 @@
+ 
+ ### Trained Under Pressure
+ 
+-A physician has **Intellect 4**, **MR 2**, and **Medicine 4**. A frightened patient needs immediate treatment under battlefield pressure. The GM sets **Base TN 16**. The physician declares **Speed 1 + Safety 1** to work faster and prevent a specific avoidable treatment complication. **Final TN 20** (1 Free, 1 Paid). Roll **4k2**, with normal explosions. Reaching 24 produces the described result. Reaching only 16 does not automatically grant the declared enhanced result.
++A physician has **Intellect 4**, **MR 2**, and **Medicine 4**. Battlefield treatment has **Base TN 16**. The physician commits **one Paid Raise** before rolling, for **Final TN 20**, and rolls **4k2**. A result of **24** succeeds: the physician may allocate the committed Paid Raise plus **one Free Raise** to **Speed 1 + Safety 1**, subject to the GM confirming feasible effects. A result of 16 fails the enhanced attempt.
+ 
+ ### Same Task, Higher Mastery Rank
+ 
+@@ -1983,11 +1983,11 @@
+ 
+ ### Hidden Opposition
+ 
+-A specialist makes a Stealth Check against the GM's **Task TN for concealing the approach** before moving past guards. Only if that setup succeeds does the **final rolled result** become the TN for the guards' eligible Perception checks. Stealth Rank limits the specialist's announced Raise effects, not the amount of the ordinary resulting concealment score. If a rule provides a separate Invisibility TN, use its specific detection rules.
++A specialist makes a Stealth setup Check against the GM's intrinsic Task TN before moving past guards. The player commits Paid Raises before that roll and, if successful, allocates any effects **before the guards respond**. The successful rolled result then sets the eligible observers' Perception TN. The Raises do not become flat concealment bonuses.
+ 
+ ### Passive Success with Raises
+ 
+-A Master Blacksmith with proper equipment does not roll for **familiar routine work** within their Rank when unhurried and uncontested, regardless of a modest Attribute. If the player declares **Scope 1**, that enhancement is **not automatically free**: the raised final TN must be met by the existing **Passive Skill Value** or an active roll. Declaring **Speed** that creates urgency removes passive eligibility.
++A Master Blacksmith completes safe, familiar routine work without rolling; this grants the basic result. For an enhanced task, the player chooses Paid Raises and checks the full raised TN with **Passive Skill Value** or an actual roll. On success, Free Raises are also available for agreed benefits. Adding pressure through a faster schedule can remove passive eligibility.
+ 
+ ### What Skills Never Do
+ 
+@@ -2018,10 +2018,10 @@
+ 
+ ### Other Subsystems
+ 
+-**Rituals:** All 16 Core Rituals are available free to every character from the start; no learning, teachers, or instructions are required. Any credibly described approach and Attribute may be used. Learned Specializations are optional and supply Free Raises where genuinely relevant. Base TN is at least 12 (Task Level 3), increasing when a target/source warrants it, with **at most 8 total Raises**; only Paid Raises raise the final TN. Ritual Stones remain Sealed. **Summons:** Their purchased Summon Skill Dice remain a separate Bond mechanic, not character Skill Points. **Social Challenges:** Optional narrative guidance for linked Social Skill Checks, using the same Skill Rank, Task TN, and declared Raises as any other task.
++**Rituals:** All 16 Core Rituals are available to every character from creation. Ritual effect tiers and optional effects are declared **before** the Ritual check, with Sealed Stone costs based on their total Raises. Base TN is at least 12 and may rise for a stronger source. **Summons:** Purchased Summon Skill Dice remain separate from PC Skills. **Social Challenges:** Use the ordinary **post-success Skill Raise allocation** of this chapter.
+ 
+ {{note
+-**Quick reference:** *Know task → choose Attribute → Task Level × 4 → declare up to Skill Rank total Raises (Ranks 4/6/8 grant 1/2/3 Free Raises; +4 TN per Paid only) → eligible passive success or roll Attribute k MR.*
++**Quick reference:** *Name task and approach → GM sets Base TN (Task Level × 4) → choose Paid Raises (+4 TN each, capped by Rank minus Free allowance) → passive success or Attribute k MR roll → on success allocate the Paid Raises plus automatic Free Raises (1/2/3 at Ranks 4/6/8).*
+ }}
+ }}
+ \page
+@@ -4063,8 +4063,8 @@
+ 
+ 1. **Name the objective.** What does the character want the other person to do, believe, reveal, or agree to? Decide whether that outcome is genuinely possible given the person's interests, information, commitments, and freedom to choose.
+ 2. **Choose the method and stakes.** Use a fitting learned Specialization (Persuasion, Deception, Etiquette, Streetwise, or a custom field) and the Attribute that describes the approach. Determine a **Task Level and Base TN (Task Level x 4)** from the *actual request and circumstances*, never the character's MR.
+-3. **Declare Raises before rolling.** A character may declare up to their Skill Rank in total **Scope, Speed, Quality, Efficiency, Insight, or Safety** effects. Ranks 4/6/8 permit 1/2/3 **Free** of those Raises. Each **Paid** Raise adds **+4 TN**; Free Raises add none. Agree on exactly what each Raise achieves before the roll.
+-4. **Resolve normally.** Roll **Attribute k MR** (or use a permitted Passive Skill Value); success against the *final* TN delivers the declared outcome and Raise effects. Failure does not award unannounced or partially paid Raises. Keep consequences within the fiction, not a new social score.
++3. **Choose Paid Raises before rolling.** Select their number within the Skill Rank cap; each adds **+4 TN**. The Rank 4/6/8 Free allowances (1/2/3) need no advance declaration.
++4. **Resolve and allocate.** Roll **Attribute k MR** (or use permitted Passive Success). On meeting Final TN, allocate the declared Paid and available Free Raises to suitable **Scope, Speed, Quality, Efficiency, Insight or Safety** effects with GM agreement, before the social result is finalized. Failure grants none.
+ 
+ **Active opposition:** If a trained opponent is actively trying to deceive, expose, or counter a technique, use **Skill Opposition** (the first successful setup Skill result becomes the responding Skill Check's TN). For a direct contest of personal ability without a trained Skill method, use the existing **Opposed Attribute Contest**. Do not add a second invented "Social Defense" to either procedure.
+ 
+@@ -4072,7 +4072,7 @@
+ 
+ ### One Conversation - A City Gate
+ 
+-A captain is cautious but willing to hear reasonable petitions. The party asks for entry. The GM sets **Task Level 4, Base TN 16**. A character has **Persuasion 4, Influence 4, MR 2** and wants not just entry but a more dependable commitment from the captain. Rank 4 permits **one Free Raise**; the player declares **Quality 1 (Free, +0 TN)** for an assurance that the party may use this gate again under agreed conditions. **Final TN 16**; the character rolls **4k2**.
++A captain hears the party's request for entry. The GM sets **Task Level 4, Base TN 16**. A negotiator has **Persuasion 4, Influence 4, MR 2** and chooses **zero Paid Raises**, so **Final TN 16** and the roll is **4k2**. On a result of **22**, the **one Free Raise** becomes available; the negotiator allocates **Quality 1** to a dependable assurance of future entry, if the captain can credibly offer it. A result of **15** fails the request. A substantially different offer may change the situation for a later check.
+ 
+ A result of **22** wins entry and the agreed assurance. A result of **15** fails the proposed agreement; Free Raises do not grant benefits on a failed check. A materially different offer can be attempted later if circumstances allow; repeating the same pitch endlessly is not automatic. Even a great roll cannot compel the captain to betray a non-negotiable oath.
+ 
+@@ -4087,22 +4087,22 @@
+ 
+ The group wants a prince to send soldiers to an approaching war. This is too consequential for mere flattery, but **there is no required three-phase sequence**. The players may cooperate through several meaningful actions, or go straight to a serious proposal if they already have what they need. **Find the real concern.** A character with **Court Intelligence 3 (Investigation)** investigates the prince's situation (Wits or Intellect as appropriate). The GM assigns **Base TN 12**. The player declares **Insight 1**, raising the TN to **16**, to learn one further useful fact. Success reveals that the prince fears leaving his capital defenseless. The information is a real clue, not an abstract bonus.
+ 
+-**Create a credible offer.** Another character with **Etiquette 3** prepares and presents a formal undertaking that would protect the capital. The GM sets **Base TN 16**. The character may declare **Quality 1** for an especially clear, credible formulation, making **Final TN 20**. Success establishes an offer the prince can reasonably consider; it gives no +MR bonus to another player's dice.
+-
+-**Ask for the troops.** The negotiator has **Persuasion 4**. With the credible defense proposal in hand, the GM judges this specific request feasible and sets **Base TN 20**. The player declares **Quality 1** to obtain an explicit, dependable commitment, so **Final TN 20** (one Free Raise). Success secures the agreed deployment and commitment. Failure means those terms are not accepted; the prince may counteroffer, delay, or refuse as the fiction dictates.
++**Create a credible offer.** A character with **Etiquette 3** presents a formal undertaking. At **Base TN 16**, the player chooses **one Paid Raise**, for **Final TN 20**. On success, assign it to **Quality 1** for especially clear, credible terms.
++
++**Ask for the troops.** The negotiator has **Persuasion 4**. The GM deems the request feasible and sets **Base TN 20**. The player chooses **zero Paid Raises**. On meeting **Final TN 20**, **one Free Raise** becomes available for **Quality 1**, securing an explicit, dependable commitment within the negotiated terms.
+ 
+ **What changed?** Earlier successes supplied information and changed the proposal. They did **not** create a numerical progress resource, change past TNs, or force a final roll. If the group begins with proof and a convincing agreement, the first two steps can be skipped. If a player makes a truly different offer later, set its difficulty **before** the new roll.
+ 
+ ### Skill Opposition - A False Courier
+ 
+-A character with **Deception 3, Influence 4, MR 2** poses as an authorized courier. The GM sets **Base TN 12** for maintaining a plausible account. The player declares **Quality 1 (+4)** to remove one agreed weakness from the explanation, for **Final TN 16**. The character rolls **4k2**, succeeds, and obtains a **Final Skill Result of 22**.
+-
+-A suspicious guard with **Investigation 2, Wits 4, MR 2** actively checks the story. Under the existing **Skill Opposition** rule, the courier's **22 becomes the guard's TN**. The guard rolls **4k2** with no declared Raises and gets **19**: the deception holds. A result of **24** would expose it. Use the same original setup result if another guard checks the *unchanged* story; do not reroll the courier's preparation for each observer. A guard can also roll Perception when the check concerns something immediately observable.
++A character with **Deception 3, Influence 4, MR 2** poses as a courier. The GM sets **Base TN 12**. The character chooses **one Paid Raise**, for **Final TN 16**, then rolls **4k2** and succeeds with **22**. Before the guard challenges the story, the player assigns **Quality 1** to strengthen one plausible detail of the account. The successful rolled result **22**, not the Raise, becomes the guard's opposition TN.
++
++A suspicious guard with **Investigation 2, Wits 4, MR 2** checks the story. The established courier result **22** becomes the guard's TN. The guard chooses no Paid Raises, rolls **4k2**, and gets **19**; the cover holds. A result of **24** exposes it. The opposition proceeds only after any effects of the setup have been assigned.
+ 
+ ### Shared Table Guidance
+ 
+ - **Cooperation:** Any character can contribute a fitting action with its own objective and consequence. No mandatory main spokesperson, once-per-phase support allowance, or flat +MR assistance bonus.
+-- **Raises:** Always declared in advance under the **same total Skill Rank cap**; **Paid +4 TN, Free +0 TN**, as for every other Skill Check. Never count excess dice results as unannounced Raises.
++- **Raises:** Choose the number of **Paid Raises before rolling** within the ordinary Skill Rank cap (**Paid +4 TN; Free +0 TN**). On success, allocate the Paid and eligible Free Raises to effects before resolving the scene. High results create no additional Raises.
+ - **Consequences:** A failed social attempt can change trust, available options, time, or risk. **Fear Checks are not automatic**; use them only where the established Fear rules and actual psychological danger justify them.
+ - **Pacing:** One roll when one meaningful decision settles it; several linked actions when the participants genuinely need to uncover, prepare, bargain, and decide. No social progress track, separate preparation points, fixed phase count, or separate success thresholds.
+ 
+@@ -5098,7 +5098,7 @@
+ 
+ ### Stealth While Invisible
+ 
+-**Establish Stealth before observation.** For a Sense affected by both Invisibility and concealment, use the higher successful **Stealth Final Result** or **Invisibility TN** without adding them together. The creature may also rely on Invisibility alone. Declare Skill Raises before its Stealth check; they affect Stealth rather than the Invisibility Bonus. Untrained hiding uses Disadvantage and no Raises.
++**Establish Stealth before observation.** Against affected Senses, use the higher successful **Stealth roll result** or **Invisibility TN**, without summing them. Choose Paid Skill Raises before the Stealth setup; on success, allocate its Raise effects **before any observer rolls**. These effects enhance the stated concealment method, not the separate Invisibility Bonus. Untrained hiding uses Disadvantage and no Raises.
+ \page
+ {{pageNumber,auto}}
+ **Round-by-round visibility:** At the start of each Round, observer-specific locations found by Perception expire as described below. The Invisibility TN remains based on MR, Invisibility Bonus, and lost Health Bars only. Ordinary Stealth must follow its normal end conditions. Detection through a Clear, uncovered Combat Sense is unaffected by Invisibility.
+@@ -5141,7 +5141,7 @@
+ {{note
+ ##### Quick Examples
+ 
+-**Normal Stealth:** A Stealth Final Result of 21 creates Perception TN 21. **Invisibility:** MR 3 with Passive: Invisibility Level 6 has Base TN 12 + Invisibility Bonus 6 = **TN 18**. **Stealth declared in advance:** Before the observer checks, the invisible creature attempts a legal Stealth setup at Task TN 12 and rolls **24**, successfully establishing concealment. For an observer whose active Sense is affected by both methods, use the higher of **Stealth TN 24** and **Invisibility TN 18**, not their sum. The observer rolls Perception **23** and fails to locate the creature. No post-roll Skill Points or undeclared Raises can change that result.
++**Normal Stealth:** A successful Stealth roll of 21 sets Perception TN 21. **Invisibility:** MR 3 with Passive: Invisibility Level 6 has TN 12 + Bonus 6 = **18**. **Stealth setup:** Before the observer checks, an invisible creature rolls against **Task TN 12** and achieves **24**. The player resolves any post-success Skill Raise allocation before observation. The observer with affected Senses uses the higher TN **24**, not 24 + 18, and a Perception result **23** fails. Neither Skill Points nor Raises chosen after observing the defender's result may adjust that TN.
+ 
+ **Injured:** The same MR 3 character loses two Health Bars. Its Invisibility TN drops from 18 to **12**. A separately established Stealth TN remains subject to the ordinary Stealth rules, not post-roll spending.
+ 
+@@ -5650,9 +5650,9 @@
+ 
+ Some opposition is about **trained Skill use**, not raw capability: Stealth against Perception, Deception against Investigation, a concealed trail against Tracking, and similar cases.
+ 
+-1. **Create the opposition.** The acting character states the intended concealment, deception, or other setup. Set its own Task Level and Base TN from the task, not from either character's MR. Declare any **Paid and Free Skill Raises** before rolling; only Paid Raises increase the **final** setup TN.
++1. **Create the opposition.** State the intended concealment, deception or setup. Set its own Task Level and Base TN, then declare **Paid Raises** before the setup roll. Only Paid Raises add +4 to that attempt's Final TN.
+ 2. **If the setup fails**, its intended concealment or deception is not established. No opposing roll is required to overcome that failed setup. A watcher still must be in a position to observe the relevant evidence; failure does not grant distant creatures automatic knowledge.
+-3. **If the setup succeeds**, its **Final Skill Result becomes the TN** for responding Skill Checks by creatures able to investigate, perceive, or challenge the setup. The responder follows the normal Skill rules, including its own declared Raises and penalties, if any.
++3. **If the setup succeeds**, allocate the actor's declared Paid and available Free Raises **before any responder checks**; the successful setup **roll result** then becomes the TN for eligible observers or challengers. The responder follows the normal Skill procedure and chooses their own Paid Raises before rolling.
+ 4. The successful setup roll is made **once** for the same disguise, trail, story, hidden camp, or other unchanged obstacle. Do not reroll it for each observer. Reassess only when the actual situation materially changes.
+ 
+ **NPC response:** An NPC without full player-style Attributes still **rolls** its situational Pool, keeping its MR, as described under **NPCs in Skill Checks and Contests** in the core rules. Do not waive the opposing roll merely because the responder is an NPC. **Example:** A false courier attempts Deception at Base TN 12 and declares no Raises. A result of 9 fails to establish a convincing cover; a present guard notices the obvious problem without an opposed roll. A result of 22 establishes the cover, and an actively suspicious guard may roll Investigation or suitable Perception against **TN 22**.
+@@ -5910,7 +5910,7 @@
+ 
+ #### Emergency Medicine — Under Pressure
+ 
+-An adjacent, conscious helper may spend **1 Attack Action** to stabilize an **Incapacitated** creature. Use a suitable Medicine Specialization and the normal Skill Check, including predeclared Raises and ordinary Pool/Keep rules.
++An adjacent, conscious helper may spend **1 Attack Action** to stabilize an **Incapacitated** creature. Use an appropriate Medicine Specialization and the normal Skill Check: commit Paid Raises before rolling and allocate any successful Raise effects afterward, using the existing action economy.
+ 
+ **Emergency Medicine Base Task Level = the patient's MR.**
+ 
+@@ -8017,7 +8017,7 @@
+ 
+ A genuinely applied **learned Specialization** contributes **1/2/3 Free Raises at Rank 4/6/8**. A character using another approach performs the same Ritual with Paid Raises. This **does not impose mundane untrained Skill Disadvantage** on a Ritual. Inventing a superficial explanation for an unrelated high-Rank Skill does not earn Free Raises.
+ 
+-**Exactly the same roll and declared-Raise structure as other Skills:**
++**Rituals use the Skill dice and TN engine with one important exception: Ritual tiers and all Raise effects are committed BEFORE rolling. Ordinary Skill effects are allocated AFTER success.**
+ 
+ - Start at **Ritual Task Level 3 (Base TN 12)** for each of the sixteen Rituals. If the target or task has a **genuinely higher** relevant Task Level, use it instead. **Base Ritual TN = max(3, relevant Task Level) x 4**, never from the caster's own MR.
+ - Select a named **effect tier 0-4**: the tier costs that many Raises and includes lower tiers on success.
+@@ -9380,7 +9380,7 @@
+ 
+ #### **2) Skill Checks**
+ 
+-**Skill Rank 1–8** in a freely chosen Specialization; Rank 0 is untrained. A Task's own Level sets **Base TN = Level × 4**. Roll the relevant **Attribute k MR**. Before rolling, declare up to **Skill Rank total Raises** for Scope, Speed, Quality, Efficiency, Insight or Safety; **Ranks 4/6/8** grant **1/2/3 Free Raises**. Every Paid Raise adds +4 TN; Free Raises add +0. Untrained attempts roll with Disadvantage and no Skill Raises. Familiar trained work succeeds without rolling when routine, safe and equipped; otherwise **Passive Skill Value = 2 × Attribute** can meet the final TN in eligible calm situations.
++**Skill Rank 1–8** measures a freely chosen Specialization; Rank 0 is untrained. A Task sets **Base TN = Task Level × 4**. Roll **relevant Attribute k MR**. Declare the **number of Paid Raises before** rolling (+4 TN each, capped by Rank minus the available Free allowance). On success, **allocate Paid Raises + the automatic Free Raises at Ranks 4/6/8 (1/2/3)** to suitable Skill effects. Untrained attempts use Disadvantage and no Raises. Familiar trained work succeeds routinely when safe and equipped; other eligible calm situations may use **Passive Skill Value = 2 × Attribute** against the Final TN.
+ 
+ **Echo Imprints:** Immediately after starting Attributes, choose up to MR free Imprints tied to Attributes **4+**; they express small magic and Echo Memories.
+ 

@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.767] - 2026-10-24
+
+### Added
+
+- **Ordinary Skill Checks — dual entry:** Character Sheet and GM chat **Skill Check** request share one player dialog and one resolution path.
+- **Post-success Raise allocation:** On a successful Skill Check, Paid + Free Raises are assigned on the result chat card (Scope / Speed / Quality / Efficiency / Insight / Safety).
+
+### Changed
+
+- **GM-defined Skill Checks:** The GM sets task, Attribute, Specialization (or Untrained / Perception) and Base TN. Players choose only Paid Raises before rolling; Free Raises unlock automatically on success. Combat and Ritual Raises remain predeclared.
+- **Sheet entry:** Spec click prefers an open GM request; otherwise records verbally announced GM values (no invented Attribute/TN).
+
 ## [0.9.766] - 2026-10-23
 
 ### Changed

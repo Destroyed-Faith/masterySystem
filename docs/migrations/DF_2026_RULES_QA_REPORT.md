@@ -49,3 +49,20 @@ Regression: `tests/df-2026-aid-retired.test.ts`
 3. Spec roll → **kein** Aid-Button; alte Aid-Cards beim Öffnen ohne klickbaren Bonus.  
 4. Echo Imprints / Ritual Workshop / Tower Wizard / Migration Review / Import-Export / Reload.  
 5. Combat: Guard/Evade/Dive for Cover OK; kein Aid-Manöver.
+
+## Dual Skill Roll entry (2026-10-24) — GM-defined correction
+
+**Rule source:** `docs/rules/Destroyed_Faith_Players_Guide_GM_Defined_Skill_Checks_2026-10-24.md`  
+**Principle:** GM defines task, Attribute, Skill/Untrained and Base TN. Player chooses **only Paid Raises** before rolling. Free Raises auto on success; effects on result chat card. Combat/Ritual unchanged.
+
+| Path | Expected |
+|---|---|
+| GM **Skill Check** | Form: Task + Attribute + Base TN + per-actor Spec/Perception/Untrained map; request payload authoritative |
+| Player overlay | Task/Attribute/Skill/Base TN **read-only**; only Paid Raises dropdown; Final TN updates live |
+| Sheet Spec click | Prefers open GM request; else records verbal GM values (labeled GM-vorgegeben); missing context blocks roll — no invented Attr/TN |
+| Client forge | Attribute/Skill/TN overrides rejected at resolve (`validateAgainstGmAssignment`) |
+| Success card | Inline Raise allocation (Paid+Free); `skillCheckSnapshot` + `gmVerified` flag |
+| Fail / Combat / Ritual | No post-success Skill Raise panel |
+
+Automated: `tests/df-2026-skill-check-dual-entry.test.ts`.  
+Manual Foundry-14 smoke: **NOT RUN** (isolated world required).

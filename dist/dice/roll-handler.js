@@ -452,17 +452,18 @@ export async function masteryRoll(options) {
         raiseOutcome = success ? 'full' : 'fail';
     }
     else if (raiseModel === 'skill') {
-        success = total >= normalTnVal;
-        const marginRaises = success ? countMarginRaises(total, normalTnVal) : 0;
-        if (declaredRaiseSlots > 0) {
+        // Ordinary Skill Checks: must meet Final TN (Base + Paid×4). No margin-minted Raises.
+        // Free Raises are awarded on success via freeRaisesAvailableAtSuccess (not stone bonuses).
+        const freeOnSuccess = Math.max(0, Math.floor(Number(options.freeRaisesAvailableAtSuccess ?? 0) || 0));
+        if (declaredRaiseSlots > 0 || raiseTnVal > normalTnVal) {
             raiseOutcome = resolveRaiseOutcome(total, normalTnVal, declaredRaiseSlots, raiseTnRollBonus);
-            const declaredCredit = raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
-            raises = marginRaises + declaredCredit;
-            success = raiseOutcome !== 'fail';
+            success = raiseOutcome === 'full';
+            raises = success ? declaredRaiseSlots + freeOnSuccess + stoneBonusRaises : 0;
         }
         else {
+            success = total >= normalTnVal;
             raiseOutcome = success ? 'full' : 'fail';
-            raises = marginRaises + (success ? stoneBonusRaises : 0);
+            raises = success ? freeOnSuccess + stoneBonusRaises : 0;
         }
     }
     else {
@@ -533,7 +534,7 @@ export async function masteryRoll(options) {
         ...(options.attackCardMessageId ? { attackCardMessageId: options.attackCardMessageId } : {}),
     };
     if (!options.skipChat) {
-        await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, rollRecipe, !!options.isRerollResult);
+        await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, rollRecipe, !!options.isRerollResult, options.skillCheckMeta, options.freeRaisesAvailableAtSuccess);
     }
     if (options.skillKey === 'stealth' && options.actorId && result.success !== undefined) {
         try {
@@ -614,7 +615,7 @@ export async function showMasteryRollDice3d(result, skillBonus = 0) {
 /**
  * Send roll result to chat
  */
-async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, rollRecipe, isRerollResult) {
+async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, rollRecipe, isRerollResult, skillCheckMeta, freeRaisesAvailableAtSuccess) {
     try {
         // Get actor if available
         let actor = null;
@@ -698,10 +699,17 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
               </div>
               ${result.raises > 0 ? `
                 <div class="result-line">
-                  <span><strong>Raises:</strong></span>
+                  <span><strong>Raises available:</strong></span>
                   <span class="value"><strong>${result.raises}</strong></span>
                 </div>
               ` : ''}
+              ${skillCheckMeta && result.success
+            ? `
+              <div class="result-line md-sublabel">
+                <span>Raise budget:</span>
+                <span class="value">${skillCheckMeta.paidRaisesDeclared} Paid + ${skillCheckMeta.freeRaisesAvailableAtSuccess} Free</span>
+              </div>`
+            : ''}
               ${isSkillRoll && result.success && actor ? `
                 <div class="result-line" title="Opposed Skill Rolls: if this was a Setup Roll, the Final Result is the TN the opposing creature must meet.">
                   <span>Opposing TN (Setup Roll):</span>
@@ -711,6 +719,8 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             </div>
           ` : ''}
         </div>
+
+        <div class="ms-skill-raise-alloc-host" data-ms-skill-raise-host="1"></div>
         
         ${isRerollResult ? '' : `
         <div class="mastery-faith-reroll-bar">
@@ -724,6 +734,43 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
         // Flags: omit dieChains — they duplicate explosion data already in rolls[] and can bloat
         // message flags (Forge / large pools), which may break chat create or sync after a few rolls.
         const { dieChains: _omitDieChainsFromFlags, ...rollResultForFlags } = result;
+        const freeAvail = Math.max(0, Math.floor(Number(skillCheckMeta?.freeRaisesAvailableAtSuccess ?? freeRaisesAvailableAtSuccess ?? 0) || 0));
+        const paidDeclared = Math.max(0, Math.floor(Number(skillCheckMeta?.paidRaisesDeclared ?? rollRecipe?.declaredRaiseSlots ?? 0) || 0));
+        const skillCheckSnapshot = skillCheckMeta
+            ? {
+                actorId: actorId || null,
+                requestId: skillCheckMeta.source?.kind === 'gm-request'
+                    ? skillCheckMeta.source.requestId
+                    : undefined,
+                taskDescription: skillCheckMeta.taskDescription || '',
+                skillName: skillCheckMeta.skillName,
+                skillRankAtRoll: skillCheckMeta.skillRankAtRoll,
+                attributeKey: skillCheckMeta.attributeKey,
+                baseTn: result.normalTn ?? result.tn,
+                paidRaisesDeclared: paidDeclared,
+                freeRaisesAvailableAtSuccess: freeAvail,
+                finalTn: result.raiseTn ?? result.tn,
+                rollTotal: result.total,
+                success: !!result.success,
+                allocationStatus: result.success
+                    ? paidDeclared + freeAvail > 0
+                        ? 'pending'
+                        : 'finalized'
+                    : 'not-applicable',
+                effectAllocation: {
+                    scope: 0,
+                    speed: 0,
+                    quality: 0,
+                    efficiency: 0,
+                    insight: 0,
+                    safety: 0,
+                },
+                proposedBenefit: '',
+                sourceKind: skillCheckMeta.source?.kind || 'sheet-verbal',
+                gmVerified: !!skillCheckMeta.gmVerified,
+                schema: 'df-skill-check-2026-10-24',
+            }
+            : null;
         // Create chat message with serialized Roll object (Foundry v13 expects serialized rolls)
         // Use roll.toJSON() to serialize the roll properly
         const chatData = {
@@ -746,7 +793,8 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
                     actorId: actorId || null,
                     baseModifier: baseModifier || 0,
                     skillSpentApplied: false,
-                    faithRerollConsumed: false
+                    faithRerollConsumed: false,
+                    ...(skillCheckSnapshot ? { skillCheckSnapshot } : {}),
                 }
             }
         };

@@ -1,0 +1,369 @@
+/**
+ * Ordinary Skill Check dialog + GM request card + post-success Raise allocation
+ * (DF Dual Skill Roll UX 2026-10-24).
+ */
+
+.mastery-system.ms-skill-check-dialog .window-content {
+  min-width: 0;
+}
+
+.ms-skill-check-form,
+.ms-scr-gm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ms-sc-source-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+.ms-sc-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 0.25rem 0.45rem;
+  background: #314955;
+  color: #d4f4ee;
+}
+
+.ms-sc-tag-gold {
+  background: #5b4523;
+  color: #f4dbaa;
+}
+
+.ms-sc-tag-dim {
+  background: #38434d;
+  color: #cbd3da;
+}
+
+.ms-sc-free-notice {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  background: #193b37;
+  border: 1px solid #2c7364;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  color: #acd2cc;
+}
+
+.ms-sc-free-notice strong {
+  display: block;
+  color: #abf3e1;
+  font-size: 0.9rem;
+}
+
+.ms-sc-free-notice small {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+}
+
+.ms-sc-free-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.ms-sc-help {
+  border: 1px solid #485663;
+  border-radius: 9px;
+  background: #222a32;
+  padding: 0.45rem 0.65rem;
+  color: #dce7e9;
+}
+
+.ms-sc-help summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ms-sc-help ul {
+  margin: 0.5rem 0 0.15rem;
+  padding-left: 1.15rem;
+  color: #a7b1bb;
+  font-size: 0.8rem;
+}
+
+.ms-sc-mathbox {
+  background: #10181e;
+  border: 1px solid #48656a;
+  border-radius: 11px;
+  padding: 0.75rem 0.85rem;
+  color: #eef0ee;
+}
+
+.ms-sc-mathrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.ms-sc-mathrow-compact {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: #a7b1bb;
+}
+
+.ms-sc-final-tn {
+  color: #edc27a;
+  font-size: 1.65rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* GM request chat card */
+.ms-skill-check-request {
+  background: #13191e;
+  border: 1px solid #46525b;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  color: #eef0ee;
+}
+
+.ms-scr-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.ms-scr-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  background: #274a42;
+  color: #b3ead9;
+}
+
+.ms-scr-meta,
+.ms-scr-note,
+.ms-scr-hint {
+  font-size: 0.78rem;
+  color: #a7b1bb;
+  margin-top: 0.35rem;
+}
+
+.ms-scr-list {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.ms-scr-participant {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+  background: #202832;
+  border-radius: 7px;
+}
+
+.ms-scr-status-ok {
+  color: #78d7c1;
+}
+
+.ms-scr-status-fail {
+  color: #f39f9f;
+}
+
+.ms-scr-open {
+  border: 1px solid #4b5964;
+  background: #28343d;
+  color: #eef0ee;
+  border-radius: 7px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ms-scr-actors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.ms-scr-actors-map {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.ms-scr-actor-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(140px, 1.2fr);
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.ms-scr-actor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #203f42;
+  color: #c6f5eb;
+  border: 1px solid #436f70;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.ms-sc-readonly {
+  font-weight: 700;
+}
+
+.ms-sc-missing {
+  background: #5b2b35;
+  color: #ffc9cb;
+  border: 1px solid #7a3a45;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* Chat launch button sits next to Rolls */
+.ms-skill-check-launch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Post-success Raise allocation on result card */
+.ms-skill-raise-alloc-host:empty {
+  display: none;
+}
+
+.ms-sra-panel,
+.ms-sra-finalized,
+.ms-sra-pending-ro,
+.ms-sra-fail-note {
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #46525b;
+  border-radius: 10px;
+  background: #13191e;
+  color: #eef0ee;
+  font-size: 0.85rem;
+}
+
+.ms-sra-balance {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ms-sra-balance strong {
+  color: #edc27a;
+}
+
+.ms-sra-hint,
+.ms-sra-effect-desc {
+  font-size: 0.72rem;
+  color: #a7b1bb;
+}
+
+.ms-sra-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0;
+}
+
+.ms-sra-effect-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ms-sra-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ms-sra-stepper button {
+  border: 1px solid #4b5964;
+  background: #28343d;
+  color: #eef0ee;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 7px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ms-sra-stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ms-sra-count {
+  min-width: 1.1rem;
+  text-align: center;
+  font-weight: 800;
+}
+
+.ms-sra-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.45rem;
+}
+
+.ms-sra-benefit-input {
+  width: 100%;
+  min-height: 2.5rem;
+  resize: vertical;
+  background: #10151b;
+  border: 1px solid #4a5863;
+  border-radius: 8px;
+  color: #eef0ee;
+  padding: 0.45rem 0.55rem;
+}
+
+.ms-sra-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  margin-top: 0.55rem;
+}
+
+.ms-sra-actions button {
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #59636b;
+  background: #2a343b;
+  color: #eef0ee;
+}
+
+.ms-sra-actions .ms-sra-apply {
+  border: 0;
+  background: linear-gradient(#e8c982, #d8ab5e);
+  color: #282315;
+}
+
+.ms-sra-fail-note {
+  color: #f39f9f;
+  font-weight: 700;
+}
+
+.ms-sra-summary.success {
+  color: #78d7c1;
+}

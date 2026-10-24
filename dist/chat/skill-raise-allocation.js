@@ -1,0 +1,250 @@
+/**
+ * Post-success ordinary Skill Raise effect allocation on the result chat card.
+ * Combat / Ritual cards never receive this panel.
+ */
+import { SKILL_RAISE_EFFECTS, SKILL_RAISE_EFFECT_LABELS, finalizeSkillCheckAllocation, skillCheckSuccessRaiseBudget, } from '../rules/index.js';
+const FLAG_SCOPE = 'mastery-system';
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+function readSnapshot(message) {
+    const flags = message?.flags?.[FLAG_SCOPE] ?? message?.getFlag?.(FLAG_SCOPE) ?? {};
+    const raw = flags.skillCheckSnapshot;
+    if (!raw || typeof raw !== 'object')
+        return null;
+    if (raw.schema && raw.schema !== 'df-skill-check-2026-10-24')
+        return null;
+    return raw;
+}
+function userMayAllocate(user, snapshot) {
+    if (!user)
+        return false;
+    if (user.isGM)
+        return true;
+    const actor = globalThis.game?.actors?.get?.(snapshot.actorId);
+    if (!actor)
+        return false;
+    return typeof actor.testUserPermission === 'function'
+        ? actor.testUserPermission(user, 'OWNER')
+        : false;
+}
+function buildPanelHtml(snapshot, interactive) {
+    if (!snapshot.success || snapshot.allocationStatus === 'not-applicable') {
+        return `<div class="ms-sra-fail-note">Failed — Final TN ${escapeHtml(snapshot.finalTn)}. No Raise effects.</div>`;
+    }
+    const budget = skillCheckSuccessRaiseBudget(snapshot.skillRankAtRoll, snapshot.paidRaisesDeclared);
+    const alloc = snapshot.effectAllocation ?? {
+        scope: 0,
+        speed: 0,
+        quality: 0,
+        efficiency: 0,
+        insight: 0,
+        safety: 0,
+    };
+    const spent = SKILL_RAISE_EFFECTS.reduce((n, k) => n + Math.max(0, Math.floor(Number(alloc[k]) || 0)), 0);
+    const left = Math.max(0, budget.available - spent);
+    if (snapshot.allocationStatus === 'finalized') {
+        const parts = SKILL_RAISE_EFFECTS.filter((k) => (alloc[k] ?? 0) > 0)
+            .map((k) => `${SKILL_RAISE_EFFECT_LABELS[k].label} ${alloc[k]}`)
+            .join(' · ');
+        return `
+      <div class="ms-sra-finalized">
+        <div class="ms-sra-balance"><b>Raises assigned</b><strong>${spent} / ${budget.available}</strong></div>
+        <p class="ms-sra-summary success">${parts ? escapeHtml(parts) : 'No effects used.'}</p>
+        ${snapshot.proposedBenefit
+            ? `<p class="ms-sra-benefit">${escapeHtml(snapshot.proposedBenefit)}</p>`
+            : ''}
+        <p class="ms-sra-hint">GM adjudicates the concrete fiction.</p>
+      </div>`;
+    }
+    if (!interactive) {
+        return `<div class="ms-sra-pending-ro">Raises to allocate: ${budget.available} (${budget.paid} Paid + ${budget.free} Free) — waiting for the player.</div>`;
+    }
+    const rows = SKILL_RAISE_EFFECTS.map((key) => {
+        const meta = SKILL_RAISE_EFFECT_LABELS[key];
+        const n = Math.max(0, Math.floor(Number(alloc[key]) || 0));
+        return `
+      <div class="ms-sra-row" data-effect="${key}">
+        <div>
+          <div class="ms-sra-effect-title">${escapeHtml(meta.label)}</div>
+          <div class="ms-sra-effect-desc">${escapeHtml(meta.summary)}</div>
+        </div>
+        <div class="ms-sra-stepper">
+          <button type="button" class="ms-sra-minus" data-effect="${key}" aria-label="${escapeHtml(meta.label)} decrease" ${n <= 0 ? 'disabled' : ''}>−</button>
+          <output class="ms-sra-count" data-effect="${key}">${n}</output>
+          <button type="button" class="ms-sra-plus" data-effect="${key}" aria-label="${escapeHtml(meta.label)} increase" ${left <= 0 ? 'disabled' : ''}>+</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+    <div class="ms-sra-panel" data-ms-sra="1">
+      <div class="ms-sra-balance">
+        <b>Raises to allocate</b>
+        <strong class="ms-sra-left">${left} / ${budget.available} left</strong>
+      </div>
+      <div class="ms-sra-hint">${budget.paid} Paid + ${budget.free} Free (same effects)</div>
+      ${rows}
+      <div class="ms-sra-field">
+        <label for="ms-sra-benefit">Specific benefit (agree with GM)</label>
+        <textarea class="ms-sra-benefit-input" rows="2" placeholder="e.g. two more related track groups">${escapeHtml(snapshot.proposedBenefit || '')}</textarea>
+      </div>
+      <div class="ms-sra-actions">
+        <button type="button" class="ms-sra-finish-empty">Finish without effects</button>
+        <button type="button" class="ms-sra-apply">Apply Raises</button>
+      </div>
+    </div>`;
+}
+function localCounts(host) {
+    const out = {
+        scope: 0,
+        speed: 0,
+        quality: 0,
+        efficiency: 0,
+        insight: 0,
+        safety: 0,
+    };
+    for (const key of SKILL_RAISE_EFFECTS) {
+        const el = host.querySelector(`.ms-sra-count[data-effect="${key}"]`);
+        out[key] = Math.max(0, Math.floor(Number(el?.textContent) || 0));
+    }
+    return out;
+}
+async function persistSnapshot(message, snapshot) {
+    await message.setFlag(FLAG_SCOPE, 'skillCheckSnapshot', snapshot);
+}
+function renderIntoHost(message, html) {
+    const snapshot = readSnapshot(message);
+    const host = html.querySelector('[data-ms-skill-raise-host]');
+    if (!host)
+        return;
+    if (!snapshot) {
+        host.innerHTML = '';
+        return;
+    }
+    // Combat / ritual / non-skill-check messages never get skillCheckSnapshot.
+    const user = globalThis.game?.user;
+    const interactive = snapshot.allocationStatus === 'pending' && userMayAllocate(user, snapshot);
+    host.innerHTML = buildPanelHtml(snapshot, interactive);
+    if (!interactive || snapshot.allocationStatus !== 'pending')
+        return;
+    const panel = host.querySelector('[data-ms-sra]');
+    if (!panel)
+        return;
+    const refreshDisabled = () => {
+        const budget = skillCheckSuccessRaiseBudget(snapshot.skillRankAtRoll, snapshot.paidRaisesDeclared);
+        const counts = localCounts(panel);
+        const spent = SKILL_RAISE_EFFECTS.reduce((n, k) => n + counts[k], 0);
+        const left = Math.max(0, budget.available - spent);
+        const leftEl = panel.querySelector('.ms-sra-left');
+        if (leftEl)
+            leftEl.textContent = `${left} / ${budget.available} left`;
+        for (const key of SKILL_RAISE_EFFECTS) {
+            const minus = panel.querySelector(`.ms-sra-minus[data-effect="${key}"]`);
+            const plus = panel.querySelector(`.ms-sra-plus[data-effect="${key}"]`);
+            if (minus)
+                minus.disabled = counts[key] <= 0;
+            if (plus)
+                plus.disabled = left <= 0;
+        }
+    };
+    panel.querySelectorAll('.ms-sra-minus').forEach((btn) => {
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const key = btn.dataset.effect;
+            const out = panel.querySelector(`.ms-sra-count[data-effect="${key}"]`);
+            if (!out)
+                return;
+            const n = Math.max(0, Math.floor(Number(out.textContent) || 0) - 1);
+            out.textContent = String(n);
+            refreshDisabled();
+        });
+    });
+    panel.querySelectorAll('.ms-sra-plus').forEach((btn) => {
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const key = btn.dataset.effect;
+            const budget = skillCheckSuccessRaiseBudget(snapshot.skillRankAtRoll, snapshot.paidRaisesDeclared);
+            const counts = localCounts(panel);
+            const spent = SKILL_RAISE_EFFECTS.reduce((n, k) => n + counts[k], 0);
+            if (spent >= budget.available)
+                return;
+            const out = panel.querySelector(`.ms-sra-count[data-effect="${key}"]`);
+            if (!out)
+                return;
+            out.textContent = String(counts[key] + 1);
+            refreshDisabled();
+        });
+    });
+    const apply = async (allowZero) => {
+        if (!userMayAllocate(globalThis.game?.user, snapshot)) {
+            globalThis.ui?.notifications?.warn?.('You cannot allocate Raises for this character.');
+            return;
+        }
+        const benefit = panel.querySelector('.ms-sra-benefit-input')?.value ?? '';
+        const allocation = localCounts(panel);
+        const next = finalizeSkillCheckAllocation(snapshot, allocation, benefit, { allowZero });
+        if (!next.ok) {
+            globalThis.ui?.notifications?.warn?.(next.error ?? 'Invalid allocation.');
+            return;
+        }
+        // Allow finishing with zero effects when allowZero.
+        if (!allowZero) {
+            const budget = skillCheckSuccessRaiseBudget(snapshot.skillRankAtRoll, snapshot.paidRaisesDeclared);
+            const spent = SKILL_RAISE_EFFECTS.reduce((n, k) => n + allocation[k], 0);
+            if (spent === 0 && !String(benefit).trim()) {
+                // Treat as finish without effects
+            }
+            else if (spent > budget.available) {
+                globalThis.ui?.notifications?.warn?.('Too many Raise effects.');
+                return;
+            }
+        }
+        await persistSnapshot(message, {
+            ...next.snapshot,
+            allocationStatus: 'finalized',
+        });
+        // Re-render from updated flags
+        renderIntoHost(message, html);
+    };
+    panel.querySelector('.ms-sra-apply')?.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        void apply(false);
+    });
+    panel.querySelector('.ms-sra-finish-empty')?.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        void apply(true);
+    });
+}
+let registered = false;
+export function registerSkillRaiseAllocationHandlers() {
+    if (registered)
+        return;
+    registered = true;
+    Hooks.on('renderChatMessage', (message, html) => {
+        const root = html instanceof HTMLElement ? html : html?.[0];
+        if (!root)
+            return;
+        try {
+            renderIntoHost(message, root);
+        }
+        catch (err) {
+            console.warn('Mastery System | skill raise allocation render failed', err);
+        }
+    });
+    // Foundry v13+ may use renderChatMessageHTML
+    Hooks.on('renderChatMessageHTML', (message, html) => {
+        if (!(html instanceof HTMLElement))
+            return;
+        try {
+            renderIntoHost(message, html);
+        }
+        catch (err) {
+            console.warn('Mastery System | skill raise allocation render failed', err);
+        }
+    });
+}
+//# sourceMappingURL=skill-raise-allocation.js.map

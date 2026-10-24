@@ -1,9 +1,10 @@
 /**
- * Pure Specialization roll planning + list helpers (DF Players Guide 2026-10-23).
+ * Pure Specialization roll planning + list helpers (DF Players Guide 2026-10-24).
  *
  * - Trained roll: Attribute dice, Keep = Mastery Rank, Raises from Spec Rank.
  * - Untrained roll (no matching Spec): full Attribute pool with Disadvantage, 0 Raises.
- * - Task Level × 4 = Base TN; each Paid Raise adds +4 TN; Free Raises add 0 TN.
+ * - Task Level × 4 = Base TN; each Paid Raise adds +4 TN.
+ * - Free Raises are NOT chosen pre-roll; they unlock automatically on success.
  */
 import { type SkillRaiseAllowance } from './skill-raises.js';
 import { type SkillField, type SpecializationRecord } from './specializations.js';
@@ -15,8 +16,14 @@ export interface SpecializationRollPlanInput {
     rank?: number | null;
     attributeValue: number;
     masteryRank: number;
-    taskLevel: number;
+    /** Prefer `baseTn` when the GM sets an explicit TN (e.g. opposed). */
+    taskLevel?: number;
+    baseTn?: number;
     paidRaises?: number;
+    /**
+     * @deprecated Free Raises are automatic on success — ignored for TN / pre-roll validation.
+     * Retained so older callers compile; output `freeRaises` is the Rank free allowance.
+     */
     freeRaises?: number;
 }
 export interface SpecializationRollPlan {
@@ -28,13 +35,14 @@ export interface SpecializationRollPlan {
     taskLevel: number;
     baseTn: number;
     paidRaises: number;
+    /** Free Raises available after a successful check (not chosen pre-roll). */
     freeRaises: number;
     finalTn: number;
     numDice: number;
     keepDice: number;
     rollDisadvantage: boolean;
 }
-/** Validate Raises BEFORE the roll and compute pool / TN. */
+/** Validate Paid Raises BEFORE the roll and compute pool / TN. Free = Rank allowance on success. */
 export declare function planSpecializationRoll(input: SpecializationRollPlanInput): SpecializationRollPlan;
 /** Normalized read of `system.specializations` (array or keyed object). */
 export declare function readSpecializations(system: any): SpecializationRecord[];

@@ -7,16 +7,12 @@ import {
   SKILL_FIELDS,
   SKILL_FIELD_LABELS,
   SPECIALIZATION_MAX_RANK,
-  SPEC_ATTRIBUTE_KEYS,
   STARTING_SPECIALIZATION_COUNT,
   STARTING_SPECIALIZATION_RANK,
   findSpecializationById,
-  getSkillRaiseAllowance,
   isSkillField,
-  planSpecializationRoll,
   readSpecializations,
   removeSpecialization,
-  skillTaskBaseTn,
   specializationIdentityKey,
   upsertSpecialization,
   validateSpecializationList,
@@ -31,10 +27,6 @@ function escapeHtml(value: unknown): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-}
-
-function cap(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function rootOf(html: any): HTMLElement | null {
@@ -220,132 +212,40 @@ export interface SpecializationRollChoice {
   attributeKey: string;
   taskLevel: number;
   paidRaises: number;
+  /** Always 0 pre-roll — Free Raises unlock on success. Kept for API compat. */
   freeRaises: number;
 }
 
 /**
- * Pre-roll picker: Attribute (any of seven), Task Level, Paid / Free Raises.
- * `spec === null` means an untrained roll (0 Raises, Disadvantage).
+ * Sheet Skill Check entry — shared dialog; GM-announced context; Paid Raises only.
  */
 export async function promptSpecializationRollOptions(
   actor: any,
   spec: SpecializationRecord | null,
 ): Promise<SpecializationRollChoice | null> {
-  const Dialog: any = (globalThis as any).Dialog;
-  if (!Dialog) return null;
-  const system = actor?.system ?? {};
-  const mr = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
-  const rank = spec?.rank ?? 0;
-  const allowance = getSkillRaiseAllowance(rank);
-  const attrVal = (k: string) => Math.max(0, Math.floor(Number(system?.attributes?.[k]?.value) || 0));
-
-  const attrOptions = SPEC_ATTRIBUTE_KEYS.map(
-    (k, i) => `<option value="${k}" ${i === 0 ? 'selected' : ''}>${cap(k)} (${attrVal(k)})</option>`,
-  ).join('');
-
-  const title = spec
-    ? `Roll ${spec.name} (Rank ${rank})`
-    : masteryLocalize('MASTERY.df2026.specializations.untrainedRoll', 'Untrained Roll');
-  const content = `
-    <form class="mastery-dialog-form spec-roll-form">
-      ${
-        spec
-          ? `<p class="md-sublabel">${escapeHtml(SKILL_FIELD_LABELS[spec.field])} — ${escapeHtml(spec.scope)}</p>`
-          : `<p class="md-sublabel">No matching Specialization: full Attribute pool with Disadvantage, 0 Raises.</p>`
-      }
-      <div class="md-group">
-        <label class="md-label">Attribute</label>
-        <select name="attribute" class="md-select">${attrOptions}</select>
-      </div>
-      <div class="md-group">
-        <label class="md-label">Task Level <span class="md-sublabel">(Base TN = Task Level × 4)</span></label>
-        <input type="number" name="taskLevel" class="md-input" min="1" max="20" step="1" value="2" />
-      </div>
-      <div class="md-group">
-        <label class="md-label">Paid Raises <span class="md-sublabel">(+4 TN each; max ${allowance.maxPaid})</span></label>
-        <input type="number" name="paid" class="md-input" min="0" max="${allowance.maxPaid}" step="1" value="0" ${allowance.maxPaid > 0 ? '' : 'disabled'} />
-      </div>
-      <div class="md-group">
-        <label class="md-label">Free Raises <span class="md-sublabel">(+0 TN; max ${allowance.maxFree})</span></label>
-        <input type="number" name="free" class="md-input" min="0" max="${allowance.maxFree}" step="1" value="0" ${allowance.maxFree > 0 ? '' : 'disabled'} />
-      </div>
-      <div class="md-group md-final-tn">
-        Pool: <strong><span class="spec-pool">${attrVal('might')}</span>d8</strong>, keep ${mr}${spec ? '' : ' (Disadvantage)'}
-        · Base TN <strong><span class="spec-base-tn">${skillTaskBaseTn(2)}</span></strong>
-        · Final TN <strong><span class="spec-final-tn">${skillTaskBaseTn(2)}</span></strong>
-      </div>
-    </form>`;
-
-  return new Promise<SpecializationRollChoice | null>((resolve) => {
-    let settled = false;
-    const done = (v: SpecializationRollChoice | null) => {
-      if (settled) return;
-      settled = true;
-      resolve(v);
-    };
-    const read = (root: HTMLElement | null): SpecializationRollChoice => ({
-      attributeKey: readValue(root, 'attribute') || 'might',
-      taskLevel: Math.max(1, Math.floor(Number(readValue(root, 'taskLevel')) || 1)),
-      paidRaises: Math.max(0, Math.floor(Number(readValue(root, 'paid')) || 0)),
-      freeRaises: Math.max(0, Math.floor(Number(readValue(root, 'free')) || 0)),
-    });
-    new Dialog(
-      {
-        title,
-        content,
-        buttons: {
-          roll: {
-            label: '<i class="fas fa-dice-d20"></i> Roll',
-            callback: (html: any) => {
-              const choice = read(rootOf(html));
-              const plan = planSpecializationRoll({
-                rank,
-                attributeValue: attrVal(choice.attributeKey),
-                masteryRank: mr,
-                taskLevel: choice.taskLevel,
-                paidRaises: choice.paidRaises,
-                freeRaises: choice.freeRaises,
-              });
-              if (!plan.ok) {
-                (globalThis as any).ui?.notifications?.warn?.(plan.error ?? 'Invalid Raises.');
-                return done(null);
-              }
-              done(choice);
-            },
-          },
-          cancel: { label: 'Cancel', callback: () => done(null) },
-        },
-        default: 'roll',
-        render: (html: any) => {
-          const root = rootOf(html);
-          if (!root) return;
-          const refresh = () => {
-            const c = read(root);
-            const plan = planSpecializationRoll({
-              rank,
-              attributeValue: attrVal(c.attributeKey),
-              masteryRank: mr,
-              taskLevel: c.taskLevel,
-              paidRaises: c.paidRaises,
-              freeRaises: c.freeRaises,
-            });
-            const set = (cls: string, text: string) => {
-              const el = root.querySelector(cls);
-              if (el) el.textContent = text;
-            };
-            set('.spec-pool', String(plan.numDice));
-            set('.spec-base-tn', String(plan.baseTn));
-            set('.spec-final-tn', plan.ok ? String(plan.finalTn) : `${plan.finalTn} (invalid)`);
-          };
-          root.querySelectorAll('input, select').forEach((el) => {
-            el.addEventListener('input', refresh);
-            el.addEventListener('change', refresh);
-          });
-          refresh();
-        },
-        close: () => done(null),
-      },
-      { width: 440 },
-    ).render(true);
+  const { promptSkillCheckRollDialog } = await import('./skill-check-roll-dialog.js');
+  const { taskLevelFromBaseTn } = await import('../rules/index.js');
+  const skillRef = spec
+    ? { kind: 'specialization' as const, id: spec.id }
+    : { kind: 'untrained' as const };
+  const choice = await promptSkillCheckRollDialog({
+    actor,
+    source: {
+      kind: 'sheet-verbal',
+      gmVerified: false,
+      taskDescription: '',
+      attributeKey: '',
+      baseTn: Number.NaN,
+      skill: skillRef,
+    },
+    lockGmFields: false,
+    title: spec ? `${spec.name} · Skill Check` : 'Untrained · Skill Check',
   });
+  if (!choice) return null;
+  return {
+    attributeKey: choice.attributeKey,
+    taskLevel: taskLevelFromBaseTn(choice.baseTn),
+    paidRaises: choice.paidRaises,
+    freeRaises: 0,
+  };
 }

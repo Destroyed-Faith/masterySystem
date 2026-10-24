@@ -3538,6 +3538,11 @@ Hooks.once('ready', async function() {
   const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
   registerFaithFractureRerollHandlers();
 
+  const { registerSkillRaiseAllocationHandlers } = await import('./chat/skill-raise-allocation.js');
+  registerSkillRaiseAllocationHandlers();
+  const { registerSkillCheckRequestHandlers } = await import('./chat/skill-check-request.js');
+  registerSkillCheckRequestHandlers();
+
   const { registerReactionWindowChatHandlers } = await import('./combat/reaction-window-chat.js');
   registerReactionWindowChatHandlers();
   const { registerReactionFollowupChatHandlers } = await import('./combat/reaction-followups.js');

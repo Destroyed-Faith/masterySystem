@@ -34,7 +34,7 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
     expect(getSkillRaiseAllowance(8)).toEqual({ maxPaid: 5, maxFree: 3, maxTotal: 8 });
   });
 
-  it('Base TN = Task Level × 4; each Paid Raise +4, Free +0', () => {
+  it('Base TN = Task Level × 4; each Paid Raise +4; Free auto on success (not pre-selected)', () => {
     expect(skillTaskBaseTn(2)).toBe(8);
     expect(finalSkillTn(8, 0)).toBe(8);
     expect(finalSkillTn(8, 2)).toBe(16);
@@ -44,7 +44,7 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
       masteryRank: 3,
       taskLevel: 2,
       paidRaises: 2,
-      freeRaises: 1,
+      freeRaises: 99, // ignored pre-roll; Rank free allowance is reported
     });
     expect(plan.ok).toBe(true);
     expect(plan.baseTn).toBe(8);
@@ -94,7 +94,7 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
     expect(plan.finalTn).toBe(plan.baseTn);
   });
 
-  it('untrained cannot take any Raise', () => {
+  it('untrained cannot take any Paid Raise; Free input is ignored', () => {
     const paid = planSpecializationRoll({
       rank: null,
       attributeValue: 5,
@@ -104,15 +104,16 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
     });
     expect(paid.ok).toBe(false);
     expect(paid.paidRaises).toBe(0);
-    const free = planSpecializationRoll({
+    const freeIgnored = planSpecializationRoll({
       rank: undefined,
       attributeValue: 5,
       masteryRank: 2,
       taskLevel: 2,
       freeRaises: 1,
     });
-    expect(free.ok).toBe(false);
-    expect(free.error).toMatch(/Untrained/);
+    expect(freeIgnored.ok).toBe(true);
+    expect(freeIgnored.freeRaises).toBe(0);
+    expect(freeIgnored.paidRaises).toBe(0);
   });
 });
 

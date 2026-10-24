@@ -1,11 +1,12 @@
 /**
- * Pure Specialization roll planning + list helpers (DF Players Guide 2026-10-23).
+ * Pure Specialization roll planning + list helpers (DF Players Guide 2026-10-24).
  *
  * - Trained roll: Attribute dice, Keep = Mastery Rank, Raises from Spec Rank.
  * - Untrained roll (no matching Spec): full Attribute pool with Disadvantage, 0 Raises.
- * - Task Level × 4 = Base TN; each Paid Raise adds +4 TN; Free Raises add 0 TN.
+ * - Task Level × 4 = Base TN; each Paid Raise adds +4 TN.
+ * - Free Raises are NOT chosen pre-roll; they unlock automatically on success.
  */
-import { SPECIALIZATION_XP_PER_RANK, finalSkillTn, getSkillRaiseAllowance, passiveSkillValue, skillTaskBaseTn, validateSkillRaiseAllocation, } from './skill-raises.js';
+import { SPECIALIZATION_XP_PER_RANK, finalSkillTn, getSkillRaiseAllowance, passiveSkillValue, skillTaskBaseTn, validatePaidRaisesDeclaration, } from './skill-raises.js';
 import { SKILL_FIELD_LABELS, isSkillField, normalizeSpecializationName, specializationIdentityKey, } from './specializations.js';
 export const SPECIALIZATION_MAX_RANK = 8;
 export const SPEC_ATTRIBUTE_KEYS = [
@@ -17,26 +18,29 @@ export const SPEC_ATTRIBUTE_KEYS = [
     'influence',
     'wits',
 ];
-/** Validate Raises BEFORE the roll and compute pool / TN. */
+/** Validate Paid Raises BEFORE the roll and compute pool / TN. Free = Rank allowance on success. */
 export function planSpecializationRoll(input) {
     const rank = Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(input.rank) || 0)));
     const trained = rank > 0;
-    const taskLevel = Math.max(1, Math.floor(Number(input.taskLevel) || 1));
-    const baseTn = skillTaskBaseTn(taskLevel);
+    const taskLevel = Math.max(1, Math.floor(Number(input.taskLevel ??
+        (typeof input.baseTn === 'number' ? Math.max(1, Math.round(Number(input.baseTn) / 4) || 1) : 1)) || 1));
+    const baseTn = typeof input.baseTn === 'number' && Number.isFinite(input.baseTn)
+        ? Math.max(0, Math.floor(Number(input.baseTn) || 0))
+        : skillTaskBaseTn(taskLevel);
     const allowance = getSkillRaiseAllowance(rank);
     const requestedPaid = Math.max(0, Math.floor(Number(input.paidRaises) || 0));
-    const requestedFree = Math.max(0, Math.floor(Number(input.freeRaises) || 0));
     const mr = Math.max(1, Math.floor(Number(input.masteryRank) || 1));
     const numDice = Math.max(0, Math.floor(Number(input.attributeValue) || 0));
-    const check = validateSkillRaiseAllocation(rank, requestedPaid, requestedFree);
+    const check = validatePaidRaisesDeclaration(rank, requestedPaid);
     const paid = check.ok ? check.paid : 0;
-    const free = check.ok ? check.free : 0;
+    // Free Raises are informational / post-success only — never selected pre-roll.
+    const free = allowance.maxFree;
     let error = check.error;
-    if (!trained && (requestedPaid > 0 || requestedFree > 0)) {
+    if (!trained && requestedPaid > 0) {
         error = 'Untrained rolls get 0 Raises.';
     }
     return {
-        ok: check.ok,
+        ok: !error && check.ok,
         ...(error ? { error } : {}),
         trained,
         rank,

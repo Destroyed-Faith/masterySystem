@@ -8,7 +8,6 @@ import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import {
   buildSpecializationSheetRows,
   findSpecializationById,
-  planSpecializationRoll,
   readSpecializations,
   SPECIALIZATION_XP_PER_RANK,
   STARTING_SPECIALIZATION_COUNT,
@@ -6449,10 +6448,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * DF 2026 Specialization roll.
-   * Trained: Attribute dice, Keep = MR; Task Level × 4 = Base TN; Paid Raises +4 TN each.
-   * Untrained (no Spec): full Attribute pool + Disadvantage, 0 Raises.
-   * Raises are validated BEFORE the roll. No post-roll spend buttons.
+   * DF 2026 ordinary Skill Check (sheet entry).
+   * Clicked Spec is entry context only — GM defines Attribute / TN / task.
+   * Prefer an open GM chat request; otherwise record verbally announced GM values.
+   * Player gameplay choice before the roll: Paid Raises only.
    */
   async #onSpecializationRoll(event: JQuery.ClickEvent) {
     event.preventDefault();
@@ -6465,65 +6464,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
 
-    const { promptSpecializationRollOptions } = await import('./specializations-dialog.js');
-    const choice = await promptSpecializationRollOptions(this.actor, spec);
-    if (!choice) return;
+    const { promptSkillCheckRollDialog } = await import('./skill-check-roll-dialog.js');
+    const { executeSkillCheck } = await import('./skill-check-execute.js');
+    const { findOpenSkillCheckRequestForActor, openSkillCheckForRequest } = await import(
+      '../chat/skill-check-request.js'
+    );
 
-    const system = (this.actor as any).system;
-    const attributeValue = Number(system?.attributes?.[choice.attributeKey]?.value) || 0;
-    const masteryRank = getRulesMasteryRank(this.actor as any);
-    const plan = planSpecializationRoll({
-      rank: spec?.rank ?? 0,
-      attributeValue,
-      masteryRank,
-      taskLevel: choice.taskLevel,
-      paidRaises: choice.paidRaises,
-      freeRaises: choice.freeRaises,
-    });
-    if (!plan.ok) {
-      ui.notifications?.warn(plan.error || 'Invalid Raises for this Specialization Rank.');
+    const actorId = String((this.actor as any).id || '');
+    const openReq = findOpenSkillCheckRequestForActor(actorId, spec?.id);
+    if (openReq) {
+      await openSkillCheckForRequest(
+        this.actor,
+        openReq.payload,
+        String(openReq.message.id),
+      );
       return;
     }
 
-    const attrLabel = choice.attributeKey.charAt(0).toUpperCase() + choice.attributeKey.slice(1);
-    const label = spec ? `${spec.name} Check` : 'Untrained Check';
-    const flavor = spec
-      ? `Specialization ${spec.name} (Rank ${plan.rank}) · ${attrLabel} ${attributeValue}d8 keep ${plan.keepDice} · Task Level ${plan.taskLevel} (Base TN ${plan.baseTn}) · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Free ${plan.freeRaises} · Final TN ${plan.finalTn}.`
-      : `Untrained · ${attrLabel} ${attributeValue}d8 keep ${plan.keepDice} with Disadvantage · Task Level ${plan.taskLevel} · Final TN ${plan.finalTn} · 0 Raises.`;
+    // No open GM request — record verbally announced GM check (not server-verified).
+    const skillRef = spec
+      ? { kind: 'specialization' as const, id: spec.id }
+      : { kind: 'untrained' as const };
+    const choice = await promptSkillCheckRollDialog({
+      actor: this.actor,
+      source: {
+        kind: 'sheet-verbal',
+        gmVerified: false,
+        taskDescription: '',
+        attributeKey: '',
+        baseTn: Number.NaN,
+        skill: skillRef,
+      },
+      lockGmFields: false,
+      title: spec ? `${spec.name} · Skill Check` : 'Untrained · Skill Check',
+    });
+    if (!choice) return;
 
-    let equipPenalty = 0;
-    if (spec?.field === 'physical') {
-      equipPenalty = Math.max(0, Number(getEquippedPhysicalSkillPenaltyDice(this.actor as any)) || 0);
+    const result = await executeSkillCheck({
+      actor: this.actor,
+      draft: choice.draft,
+    });
+    if (!result.ok) {
+      ui.notifications?.warn(result.error || 'Invalid Skill Check.');
     }
-    const normalizedName = spec ? spec.name.trim().toLowerCase() : '';
-    const { masteryRoll } = await import('../dice/roll-handler.js');
-    await masteryRoll({
-      numDice: Math.max(0, plan.numDice - equipPenalty),
-      keepDice: plan.keepDice,
-      skill: 0,
-      tn: plan.baseTn,
-      normalTn: plan.baseTn,
-      raiseTn: plan.finalTn,
-      declaredRaiseSlots: plan.paidRaises,
-      stoneBonusRaises: plan.freeRaises,
-      raiseModel: 'skill',
-      rollDisadvantage: plan.rollDisadvantage,
-      label,
-      flavor:
-        equipPenalty > 0
-          ? `${flavor} Equipped armor/shield physical penalty: −${equipPenalty}d8.`
-          : flavor,
-      actorId: (this.actor as any).id,
-      // Only Stealth keeps its legacy key so the Stealth setup result is recorded.
-      ...(normalizedName === 'stealth' ? { skillKey: 'stealth' } : {}),
-      isSkillRoll: true,
-      baseModifier: 0,
-      rollKind: 'skill',
-      poolAttribute: choice.attributeKey,
-      applyPoolPenalties: true,
-      autoFailIntent: 'skill',
-      checkContext: { skillKey: normalizedName || undefined },
-    } as any);
   }
 
   /**

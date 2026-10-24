@@ -4,6 +4,7 @@
  */
 
 export * from './skill-raises.js';
+export * from './skill-check.js';
 export * from './spell-tn.js';
 export * from './ritual-tn.js';
 export * from './echo-imprints.js';

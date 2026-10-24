@@ -20,11 +20,11 @@ export interface SpecializationRollChoice {
     attributeKey: string;
     taskLevel: number;
     paidRaises: number;
+    /** Always 0 pre-roll — Free Raises unlock on success. Kept for API compat. */
     freeRaises: number;
 }
 /**
- * Pre-roll picker: Attribute (any of seven), Task Level, Paid / Free Raises.
- * `spec === null` means an untrained roll (0 Raises, Disadvantage).
+ * Sheet Skill Check entry — shared dialog; GM-announced context; Paid Raises only.
  */
 export declare function promptSpecializationRollOptions(actor: any, spec: SpecializationRecord | null): Promise<SpecializationRollChoice | null>;
 //# sourceMappingURL=specializations-dialog.d.ts.map
