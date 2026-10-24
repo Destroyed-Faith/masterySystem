@@ -337,13 +337,34 @@ describe('character print table sheet', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
     expect(ctx.healthBars[0].max).toBe(8);
     expect(ctx.healthBars[0].boxes).toBeUndefined();
-    expect(ctx.abilities[0].poolTiers.map((t: any) => t.label)).toEqual(['10%', '20%']);
+    expect(ctx.abilities[0].poolTiers.map((t: any) => t.label)).toEqual([
+      '10%',
+      '20%',
+      '40%',
+      '50%',
+    ]);
     expect(ctx.abilities[0].ladder).toBeUndefined();
-    expect(ctx.lifetimeProgression.lineSlots).toBe(12);
-    expect(ctx.lifetimeProgression.rows[0]).toHaveLength(12);
+    expect(ctx.lifetimeProgression.lineSlots).toBe(22);
+    expect(ctx.lifetimeProgression.rows[0]).toHaveLength(22);
     expect(ctx.lifetimeProgression.rows[0][0].label).toBe('Start');
     expect(ctx.lifetimeProgression.rows[0][2].label).toBe('20');
-    expect(ctx.lifetimeProgression.rows[0][11].label).toBe('200');
+    expect(ctx.lifetimeProgression.rows[0][21].label).toBe('400');
+  });
+
+  it('prints gifted Perception Rank 2 when no Perception Spec is stored', () => {
+    const ctx = buildCharacterPrintContext(
+      mockCharacter(2, {
+        progression: { rulesSchemaVersion: 'df-2026' },
+        specializations: [
+          { id: 'acro', name: 'Acrobatics', field: 'physical', scope: 'Grace', rank: 2 },
+        ],
+      }),
+    ) as any;
+    const all = (ctx.specializationGroups ?? []).flatMap((g: any) => g.specs);
+    const perception = all.find((s: any) => s.name === 'Perception');
+    expect(perception).toBeTruthy();
+    expect(perception.rank).toBe(2);
+    expect(perception.gifted).toBe(true);
   });
 
   it('places Disadvantages under Attributes, Expressions under Health; Skills full width', () => {
@@ -374,7 +395,8 @@ describe('character print table sheet', () => {
     expect(hbs).not.toContain('Lost Stress');
     expect(page1).not.toContain('cp-stress');
     expect(page1).not.toContain('cp-ability-ladder');
-    expect(hbs).toContain('cp-battle-buffs-top');
+    expect(hbs).toContain('cp-battle-buffs-block');
+    expect(hbs).toContain('cp-battle-weapon-sets');
     expect(hbs).toContain('Minor Expressions');
     expect(hbs).toContain('>Uses</span>');
     expect(hbs).not.toContain('Nutzungen / Rast');

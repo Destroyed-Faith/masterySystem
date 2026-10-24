@@ -70,6 +70,10 @@ import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { calculateDisadvantagePoints, getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
+import {
+  resolvePerceptionRank,
+  UNIVERSAL_PERCEPTION_RANK,
+} from '../rules/skill-check.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
 import {
   basicAttackMrDamageFormula,
@@ -236,10 +240,12 @@ const ATTR_ORDER = [
 const HEALTH_POOL_TIERS = [
   { label: '10%', fraction: 0.1 },
   { label: '20%', fraction: 0.2 },
+  { label: '40%', fraction: 0.4 },
+  { label: '50%', fraction: 0.5 },
 ] as const;
 
-/** Lifetime XP stone track on the table sheet: Start×2, then every 20 XP through 200. */
-const PRINT_LIFETIME_TRACK_XP = 200;
+/** Lifetime XP stone track on the table sheet: Start×2, then every 20 XP through 400. */
+const PRINT_LIFETIME_TRACK_XP = 400;
 
 function poolAtHealthFraction(pool: number, fraction: number): number {
   if (pool <= 0) return 0;
@@ -387,6 +393,7 @@ function buildPrintSpecializations(system: any): {
       rank: number;
       raises: string;
       pips: { filled: boolean }[];
+      gifted?: boolean;
     }[];
   }[];
   specializationCount: number;
@@ -394,25 +401,41 @@ function buildPrintSpecializations(system: any): {
   hasSpecializations: boolean;
   showSpecializations: boolean;
 } {
-  const specs = readSpecializations(system);
+  const specs = [...readSpecializations(system)];
+  // Everyone receives Perception Rank 2 for free (not always stored as a Spec row).
+  const hasPerception = specs.some(
+    (s) => String(s.name || '').trim().toLowerCase() === 'perception',
+  );
+  if (!hasPerception) {
+    const rank = Math.max(UNIVERSAL_PERCEPTION_RANK, resolvePerceptionRank(system));
+    specs.push({
+      id: 'perception-gifted',
+      name: 'Perception',
+      field: 'investigation',
+      scope: 'Notice, search, and read the scene',
+      rank,
+    } as any);
+  }
+  const mapSpec = (s: (typeof specs)[number], gifted = false) => {
+    const allowance = getSkillRaiseAllowance(s.rank);
+    return {
+      name: s.name,
+      scope: s.scope,
+      rank: s.rank,
+      raises: allowance.maxTotal
+        ? `${allowance.maxPaid} paid${allowance.maxFree ? ` + ${allowance.maxFree} free` : ''}`
+        : 'no Raises',
+      pips: PRINT_SPEC_PIPS.map((n) => ({ filled: n <= s.rank })),
+      gifted,
+    };
+  };
   const groups = SKILL_FIELDS.map((field) => ({
     key: field,
     label: SKILL_FIELD_LABELS[field],
     specs: specs
       .filter((s) => s.field === field)
       .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
-      .map((s) => {
-        const allowance = getSkillRaiseAllowance(s.rank);
-        return {
-          name: s.name,
-          scope: s.scope,
-          rank: s.rank,
-          raises: allowance.maxTotal
-            ? `${allowance.maxPaid} paid${allowance.maxFree ? ` + ${allowance.maxFree} free` : ''}`
-            : 'no Raises',
-          pips: PRINT_SPEC_PIPS.map((n) => ({ filled: n <= s.rank })),
-        };
-      }),
+      .map((s) => mapSpec(s, s.id === 'perception-gifted')),
   })).filter((g) => g.specs.length > 0);
   const usesDf2026 = String(system?.progression?.rulesSchemaVersion ?? '') === DF_2026_RULES_SCHEMA_VERSION;
   return {
@@ -1558,6 +1581,8 @@ export function buildCharacterPrintContext(
     portrait,
     hasPortrait: !!portrait,
     lifetimeProgression: buildPrintLifetimeProgression(system),
+    weaponSetTiles,
+    hasWeaponSets: weaponSetTiles.length > 0,
     gear,
     equipment,
     consumableSlots: buildConsumablePrintSlots(actor),

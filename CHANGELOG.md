@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.775] - 2026-10-24
+
+### Changed
+
+- **Table character print (Alaris pass):** Gifted Perception Rank 2 on the Specs list. Lifetime XP track through 400 with theme-aware dark/light stone boxes. Attribute pools add 40%/50%. Stone Power cost cubes stay right of the text in straight rows (dark fill on dark sheets). Active Buffs return to the right column with trailing effect text. Weapon Sets print above Powers & Combat. Echo Imprints readable again.
+
 ## [0.9.774] - 2026-10-24
 
 ### Changed
