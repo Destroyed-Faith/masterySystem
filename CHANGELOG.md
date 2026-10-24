@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.778] - 2026-10-24
+
+### Changed
+
+- **Table character print:** Perception uses Spec-style R·paid + pips. Stone Dashboard drops the Exhausted strip (Regeneration on the Initiative row), labels T1–T3 only (no T4) with larger stacked write-in boxes, leads Wits with Phasing, and keeps Once-per-Combat trailing. Landscape pages fill full height so Wits and the battle page are no longer clipped.
+
 ## [0.9.777] - 2026-10-24
 
 ### Fixed

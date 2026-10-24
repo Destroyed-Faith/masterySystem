@@ -1100,6 +1100,20 @@
   margin-bottom: 2px;
 }
 
+/* Spec-style Perception: same R·paid / pips row as Specializations. */
+.print-page-1.print-page-table .cp-perception-block .cp-learned-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.print-page-1.print-page-table .cp-perception-block .cp-learned-list li {
+  font-size: 9px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
 .print-page-1.print-page-table .cp-perception-skill {
   display: flex;
   align-items: center;
@@ -1383,13 +1397,14 @@
 .print-page-stones {
   width: 277mm;
   min-height: 190mm;
-  height: auto;
+  height: 190mm;
   max-height: 190mm;
   page: cp-landscape;
   display: flex;
   flex-direction: column;
-  padding-bottom: 2mm;
+  padding-bottom: 5mm; /* room for absolute footer */
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* ~6 mm physical cube slots (room to nudge ~8 mm cubes) */
@@ -1449,6 +1464,21 @@
 .cp-sd-ini-seg-colorless {
   flex: 0 0 auto;
   margin-left: 4px;
+}
+
+.cp-sd-ini-sep {
+  display: inline-block;
+  width: 0;
+  height: 5mm;
+  margin: 0 4px 0 8px;
+  border-left: 1.5px solid #888;
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.cp-sd-ini-seg-regen {
+  flex: 0 0 auto;
+  margin-left: 0;
 }
 
 .cp-sd-ini-k,
@@ -1574,39 +1604,12 @@
   color: #999;
 }
 
-/* 3. Exhausted strip (~5%) */
+/* Exhausted strip removed — Regeneration lives on the Initiative row. */
 .cp-sd-exhausted {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
-  border: 1px solid #666;
-  border-radius: 2px;
-  padding: 2px 6px;
-  margin-bottom: 1.2mm;
-  flex: 0 0 auto;
-  background: #fafafa;
+  display: none;
 }
 
-.cp-sd-exhausted-label {
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.cp-sd-exhausted-hint {
-  font-size: 8px;
-  color: #555;
-  margin-left: auto;
-}
-
-.cp-sd-exhausted-cubes .cp-sd-cube {
-  width: 6mm;
-  height: 6mm;
-}
-
-/* 4. Stone Powers — fill remaining page; no frame, no clipping */
+/* 3. Stone Powers — fill remaining page */
 .cp-sd-powers {
   flex: 1 1 auto;
   min-height: 0;
@@ -1615,7 +1618,7 @@
   border: none;
   border-radius: 0;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .cp-sd-powers-title {
@@ -1634,21 +1637,23 @@
 .cp-sd-power-groups {
   display: flex;
   flex-direction: column;
-  gap: 2.5px;
+  gap: 1.5px;
   flex: 1 1 auto;
   min-height: 0;
-  overflow: visible;
+  overflow: hidden;
+  justify-content: space-between;
 }
 
 .cp-sd-power-group {
   border: none;
   border-radius: 0;
-  padding: 0 0 2px;
+  padding: 0;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: hidden;
+  flex: 1 1 0;
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -1703,10 +1708,12 @@
 }
 
 .cp-sd-power {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 1px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  column-gap: 2mm;
+  row-gap: 1px;
   padding: 2px 3px 3px;
   border: 1px solid #ddd;
   border-radius: 2px;
@@ -1715,7 +1722,8 @@
 }
 
 .cp-sd-power-main {
-  flex: 1 1 auto;
+  grid-column: 1;
+  grid-row: 1;
   min-width: 0;
 }
 
@@ -1781,8 +1789,10 @@
   overflow-wrap: break-word;
 }
 
-/* Once-per-combat sits at the trailing edge of the card (right of each row). */
+/* Once-per-combat under the name/summary (powers with this flag also sort last in the row). */
 .cp-sd-power-once {
+  grid-column: 1;
+  grid-row: 2;
   display: inline-flex;
   align-items: center;
   gap: 1mm;
@@ -1807,52 +1817,57 @@
   background: transparent;
 }
 
+/* T1–T3 stacked vertically on the right — write-in boxes sized for tokens. */
 .cp-sd-power-tiers {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5mm 1.5mm;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.7mm;
   flex: 0 0 auto;
-  width: 100%;
-  padding-top: 1px;
+  width: auto;
+  padding-top: 0;
+  align-self: stretch;
 }
 
 .cp-sd-tg {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.5mm;
+  gap: 1mm;
 }
 
 .cp-sd-tl {
-  font-size: 5.5px;
+  font-size: 6.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
-  color: #666;
+  color: #555;
   margin-right: 0;
   line-height: 1;
-  min-width: 1.4em;
+  min-width: 1.6em;
   text-align: right;
 }
 
-/* Straight horizontal row of equal cubes — never a skewed grid. */
+/* Straight horizontal row of equal cubes per tier — never a skewed grid. */
 .cp-sd-boxes,
 .cp-sd-boxes.is-t1,
 .cp-sd-boxes.is-t2,
-.cp-sd-boxes.is-t3,
-.cp-sd-boxes.is-t4 {
+.cp-sd-boxes.is-t3 {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0.3mm;
+  gap: 0.5mm;
   align-items: center;
 }
 
 .cp-sd-cost {
   display: inline-block;
-  width: 2.8mm;
-  height: 2.8mm;
-  border: 1px solid #222;
+  width: 4.2mm;
+  height: 4.2mm;
+  border: 1.25px solid #222;
   border-radius: 1px;
   background: #fff;
   box-sizing: border-box;
@@ -1936,14 +1951,16 @@
 .print-page-battle {
   width: 277mm; /* A4 landscape content width (297mm − 2×10mm) */
   min-height: 190mm; /* A4 landscape content height (210mm − 2×10mm) */
-  height: auto;
+  height: 190mm;
   max-height: 190mm;
   page: cp-landscape;
   font-size: 13px;
   display: flex;
   flex-direction: column;
-  padding-bottom: 2mm;
+  padding-bottom: 5mm; /* room for absolute footer */
   overflow: hidden;
+  box-sizing: border-box;
+  background: inherit;
 }
 
 .print-page-battle .cp-use-box {
@@ -4357,7 +4374,15 @@ body.mastery-print.is-dark:not(.is-compact) {
   border-color: #3c3832;
 }
 
-/* Regeneration strip: dark panel + light text (was near-white on near-white) */
+.mastery-print.is-dark:not(.is-compact) .cp-sd-ini-sep {
+  border-left-color: #8a8278;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-ini-seg-regen {
+  color: #e6e1d6;
+}
+
+/* Legacy exhausted strip (hidden in template; keep dark tokens if re-enabled). */
 .mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted {
   background: #1c1916;
   border-color: #5c564c;

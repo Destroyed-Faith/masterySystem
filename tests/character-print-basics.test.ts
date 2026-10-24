@@ -231,14 +231,14 @@ describe('character print table sheet', () => {
     expect(mightGroup).toBeTruthy();
     const melee = mightGroup.powers.find((p: any) => p.name === 'Damage');
     expect(melee.summary).toMatch(/2\/4\/8\/16/);
-    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
-    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3', 't4']);
-    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
+    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3']);
+    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4]);
     const parry = mightGroup.powers.find((p: any) => /parry/i.test(p.name));
     expect(parry.summary).toMatch(/\+2 per Rank/i);
-    // Premium Ability: four Ranks with lane counts 2 / 4 / 6 / 8.
-    expect(parry.paymentTiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
-    expect(parry.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6, 8]);
+    // Premium Ability: T1–T3 lane counts 2 / 4 / 6 (T4 omitted on print).
+    expect(parry.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(parry.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6]);
     expect(parry.oncePerCombat).toBe(false);
 
     const witsGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'wits');
@@ -246,8 +246,8 @@ describe('character print table sheet', () => {
     expect(initiativeBoost.oncePerCombat).toBe(true);
     const phasing = witsGroup.powers.find((p: any) => /^phasing$/i.test(p.name));
     expect(phasing.oncePerCombat).toBe(true);
-    expect(phasing.paymentTiers[0].label).toBe('R1');
-    expect(phasing.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6, 8]);
+    expect(phasing.paymentTiers[0].label).toBe('T1');
+    expect(phasing.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6]);
     expect(phasing.summary).toMatch(/\+1 per Rank/i);
     const vitalityGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'vitality');
     const tempHp = vitalityGroup.powers.find((p: any) => /temporary hp/i.test(p.name));
@@ -351,7 +351,7 @@ describe('character print table sheet', () => {
     expect(ctx.lifetimeProgression.rows[0][21].label).toBe('400');
   });
 
-  it('prints Perception elevated first (not buried in Spec groups)', () => {
+  it('prints Perception elevated first with Spec-style R·paid + pips', () => {
     const ctx = buildCharacterPrintContext(
       mockCharacter(2, {
         progression: { rulesSchemaVersion: 'df-2026' },
@@ -360,9 +360,11 @@ describe('character print table sheet', () => {
         ],
       }),
     ) as any;
-    expect(ctx.perceptionSkill).toBeTruthy();
-    expect(ctx.perceptionSkill.name).toBe('Perception');
-    expect(ctx.perceptionSkill.rank).toBe(2);
+    expect(ctx.perceptionSpecialization).toBeTruthy();
+    expect(ctx.perceptionSpecialization.name).toBe('Perception');
+    expect(ctx.perceptionSpecialization.rank).toBe(2);
+    expect(ctx.perceptionSpecialization.raises).toBe('2 paid');
+    expect(ctx.perceptionSpecialization.pips.filter((p: any) => p.filled)).toHaveLength(2);
     const all = (ctx.specializationGroups ?? []).flatMap((g: any) => g.specs);
     expect(all.find((s: any) => s.name === 'Perception')).toBeUndefined();
   });
@@ -381,10 +383,11 @@ describe('character print table sheet', () => {
     ]);
     const wits = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'wits');
     const names = wits.powers.map((p: any) => p.name);
-    const onceIdx = names.findIndex((n: string) => /phasing/i.test(n));
-    const midIdx = names.findIndex((n: string) => /read intent/i.test(n));
-    expect(onceIdx).toBeGreaterThan(midIdx);
-    expect(wits.powers[onceIdx].oncePerCombat).toBe(true);
+    // Phasing leads Wits; remaining Once-per-combat powers stay trailing.
+    expect(names[0]).toMatch(/^phasing$/i);
+    expect(wits.powers[0].oncePerCombat).toBe(true);
+    const iniBoostIdx = names.findIndex((n: string) => /initiative boost/i.test(n));
+    expect(iniBoostIdx).toBe(names.length - 1);
   });
 
   it('places Disadvantages under Attributes, Expressions under Health; Skills full width', () => {
@@ -418,6 +421,10 @@ describe('character print table sheet', () => {
     expect(hbs).toContain('cp-battle-buffs-block');
     expect(hbs).toContain('cp-battle-weapon-sets');
     expect(hbs).toContain('cp-perception-block');
+    expect(hbs).toContain('perceptionSpecialization');
+    expect(hbs).toContain('cp-sd-ini-sep');
+    expect(hbs).toContain('cp-sd-ini-seg-regen');
+    expect(hbs).not.toContain('cp-sd-exhausted');
     expect(hbs).toContain('cp-echo-imprints');
     expect(hbs.indexOf('cp-echo-imprints')).toBeGreaterThan(hbs.indexOf('cp-col-right'));
     expect(hbs).toContain('Minor Expressions');
@@ -432,6 +439,7 @@ describe('character print table sheet', () => {
     const css = readFileSync(join(process.cwd(), 'styles/character-print.css'), 'utf8');
     expect(css).toMatch(/\.cp-sd-power-groups\s*\{[^}]*flex-direction:\s*column/s);
     expect(css).toMatch(/\.cp-sd-power-list\s*\{[^}]*grid-template-columns:\s*repeat\(4/s);
+    expect(css).toMatch(/\.cp-sd-power-tiers\s*\{[^}]*flex-direction:\s*column/s);
     expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-echo-imprints\s*,\s*\.print-page-1\.print-page-table \.cp-perception-block\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s);
   });
 

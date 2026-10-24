@@ -196,8 +196,21 @@
     {{/if}}
     {{/if}}
 
-    {{!-- Perception always first / elevated, whether Specs or Skills follow. --}}
-    {{#if perceptionSkill}}
+    {{!-- Perception elevated: Spec-style R·paid + pips when Specs are on; legacy skill chips otherwise. --}}
+    {{#if perceptionSpecialization}}
+    <div class="cp-block cp-perception-block">
+      <h3 class="cp-block-title">Perception</h3>
+      <ul class="cp-learned-list">
+        <li>
+          <span class="cp-sk-name">{{perceptionSpecialization.name}}{{#if perceptionSpecialization.gifted}} <em class="cp-sk-gifted">(free)</em>{{/if}} <span class="cp-sk-attrs">({{perceptionSpecialization.scope}})</span></span>
+          <span class="cp-sk-keep" title="Raise allowance">R{{perceptionSpecialization.rank}} · {{perceptionSpecialization.raises}}</span>
+          <span class="cp-sk-boxes">
+            {{#each perceptionSpecialization.pips}}<i class="cp-sk-box{{#if filled}} is-spent{{/if}}"></i>{{/each}}
+          </span>
+        </li>
+      </ul>
+    </div>
+    {{else if perceptionSkill}}
     <div class="cp-block cp-perception-block">
       <h3 class="cp-block-title">Perception <span class="cp-subtle">Rank {{perceptionSkill.rank}} · free</span></h3>
       <div class="cp-perception-skill">
@@ -278,7 +291,7 @@
 {{!-- ====================== PAGE 2 — Stone Dashboard (landscape) ====================== --}}
 <section class="print-page print-page-stones print-page-table">
 
-  {{!-- 1. Initiative — one forced single line --}}
+  {{!-- 1. Initiative + Regeneration (separator) — one forced single line --}}
   <header class="cp-sd-ini" aria-label="Initiative">
     <span class="cp-sd-ini-seg cp-sd-ini-seg-roll">
       <b class="cp-sd-ini-k">Initiative</b>
@@ -298,6 +311,11 @@
         {{#each stoneDashboard.colorlessBoxes}}<i class="cp-sd-cube"></i>{{/each}}
       </span>
     </span>
+    <span class="cp-sd-ini-sep" aria-hidden="true"></span>
+    <span class="cp-sd-ini-seg cp-sd-ini-seg-regen">
+      <b class="cp-sd-ini-k">Regeneration</b>
+      <b>{{stoneDashboard.regeneration}}</b> Stones per Round
+    </span>
   </header>
 
   {{!-- 2. Attribute Stone Pools — compact row --}}
@@ -313,16 +331,7 @@
     {{/each}}
   </section>
 
-  {{!-- 3. Exhausted / Regeneration — very compact --}}
-  <section class="cp-sd-exhausted" aria-label="Exhausted Stones">
-    <span class="cp-sd-exhausted-label">Regenerating <b>{{stoneDashboard.regeneration}}</b> Stones per Round</span>
-    <span class="cp-sd-cube-row cp-sd-exhausted-cubes">
-      {{#each stoneDashboard.exhaustedSlots}}<i class="cp-sd-cube"></i>{{/each}}
-    </span>
-    <span class="cp-sd-exhausted-hint">At end of Round: regenerate {{stoneDashboard.regeneration}} Exhausted Stones.</span>
-  </section>
-
-  {{!-- 4. Stone Powers — dominant reference (~75%) --}}
+  {{!-- 3. Stone Powers — fill remaining page --}}
   <section class="cp-sd-powers" aria-label="Stone Powers">
     <h2 class="cp-sd-powers-title">Stone Powers</h2>
     {{#if stoneDashboard.hasStonePowers}}

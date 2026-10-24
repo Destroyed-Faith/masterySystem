@@ -151,11 +151,10 @@ export function summarizeStonePowerPrint(power: {
 }
 
 /**
- * Printed Stone Ability lanes. All four Ranks exist; lane counts follow the
- * Ability's cost curve (Normal 1/2/4/8, Premium 2/4/6/8). No Rank 5.
- * A Support-prefilled Rank's lanes print filled — that Rank costs no Stones.
+ * Print shows Tiers 1–3 only (T4 omitted for write-in stone boxes).
+ * Labels are T1/T2/T3. Support-prefilled tiers print filled.
  */
-const STONE_PRINT_TIER_LAYOUTS = ['t1', 't2', 't3', 't4'] as const;
+const STONE_PRINT_TIER_LAYOUTS = ['t1', 't2', 't3'] as const;
 
 function stonePowerPaymentTiersForPrint(
   powerId: string,
@@ -163,16 +162,35 @@ function stonePowerPaymentTiersForPrint(
 ): { label: string; tier: number; layout: string; count: number; boxes: { filled: boolean }[] }[] {
   const prefill = effectiveStoneSupportPrefillTier(powerId, supportTier);
   return STONE_PRINT_TIER_LAYOUTS.map((layout, i) => {
-    const rank = i + 1;
-    const count = stonePowerRankCost(powerId, rank);
+    const tier = i + 1;
+    const count = stonePowerRankCost(powerId, tier);
     return {
-      label: `R${rank}`,
-      tier: rank,
+      label: `T${tier}`,
+      tier,
       layout,
       count,
-      boxes: Array.from({ length: count }, () => ({ filled: prefill > 0 && rank === prefill })),
+      boxes: Array.from({ length: count }, () => ({ filled: prefill > 0 && tier === prefill })),
     };
   });
+}
+
+/** Wits: Phasing first; then Premium → mid; remaining Once-per-combat last. */
+function orderStonePowersForPrintAttr(attrKey: string, list: any[]): any[] {
+  const preferredIds = attrKey === 'wits' ? new Set(['wits.phasing']) : new Set<string>();
+  const preferred: any[] = [];
+  const rest: any[] = [];
+  for (const p of list) {
+    if (preferredIds.has(String(p?.id ?? ''))) preferred.push(p);
+    else rest.push(p);
+  }
+  return [
+    ...preferred,
+    ...orderPowersRampFirst(
+      rest,
+      (p: any) => isPremiumStonePower(String(p.id)),
+      (p: any) => !!p?.oncePerCombat,
+    ),
+  ];
 }
 
 /** Options for the printable character sheet. */
@@ -396,6 +414,15 @@ function buildPrintSpecializations(system: any): {
       gifted?: boolean;
     }[];
   }[];
+  /** Elevated Perception Spec row (same R·paid / pips as Specs). */
+  perceptionSpecialization: {
+    name: string;
+    scope: string;
+    rank: number;
+    raises: string;
+    pips: { filled: boolean }[];
+    gifted?: boolean;
+  } | null;
   specializationCount: number;
   specializationBlankRows: number[];
   hasSpecializations: boolean;
@@ -429,7 +456,7 @@ function buildPrintSpecializations(system: any): {
       gifted,
     };
   };
-  // Perception is printed as its own elevated skill block — omit from Spec groups.
+  // Perception is elevated above Spec groups (same R·paid / pips row as Specs).
   const groups = SKILL_FIELDS.map((field) => ({
     key: field,
     label: SKILL_FIELD_LABELS[field],
@@ -437,11 +464,18 @@ function buildPrintSpecializations(system: any): {
       .filter((s) => s.field === field)
       .filter((s) => String(s.name || '').trim().toLowerCase() !== 'perception')
       .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
-      .map((s) => mapSpec(s, s.id === 'perception-gifted')),
+      .map((s) => mapSpec(s)),
   })).filter((g) => g.specs.length > 0);
+  const perceptionSpec = specs.find(
+    (s) => String(s.name || '').trim().toLowerCase() === 'perception',
+  );
+  const perceptionSpecialization = perceptionSpec
+    ? mapSpec(perceptionSpec, perceptionSpec.id === 'perception-gifted')
+    : null;
   const usesDf2026 = String(system?.progression?.rulesSchemaVersion ?? '') === DF_2026_RULES_SCHEMA_VERSION;
   return {
     specializationGroups: groups,
+    perceptionSpecialization,
     specializationCount: specs.length,
     specializationBlankRows: Array.from(
       { length: usesDf2026 ? Math.max(0, PRINT_SPEC_MIN_ROWS - specs.length) : 0 },
@@ -1411,12 +1445,8 @@ export function buildCharacterPrintContext(
       freeStones,
       slots: Array.from({ length: freeStones }, (_, i) => i + 1),
       boosts: boostsByAttr.get(key) ?? [],
-      // Premium left, Once-per-combat right — full catalog always printed.
-      powers: orderPowersRampFirst(
-        list,
-        (p: any) => isPremiumStonePower(String(p.id)),
-        (p: any) => !!p?.oncePerCombat,
-      ).map((p: any) => {
+      // Premium left, Once-per-combat right; Wits leads with Phasing.
+      powers: orderStonePowersForPrintAttr(key, list).map((p: any) => {
         const powerId = String(p.id);
         const sup = supportByPowerId.get(powerId);
         const supportTier = sup?.tier ?? 0;

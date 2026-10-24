@@ -302,7 +302,7 @@ describe('Quick Play character print', () => {
     expect(ctx.hasEchoCards).toBeUndefined();
   });
 
-  it('connects each Attribute to its stones and T1–T4 stone cost layouts', () => {
+  it('connects each Attribute to its stones and T1–T3 stone cost layouts', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     expect(ctx.attributeModules).toHaveLength(7);
     const agility = ctx.attributeModules.find((m: any) => m.key === 'agility');
@@ -310,19 +310,19 @@ describe('Quick Play character print', () => {
     expect(agility.stoneReady).toBe(1);
     expect(agility.stones).toEqual([{ ready: true }]);
     const crit = agility.powers.find((p: any) => p.name === 'Crit');
-    // Premium Ability: four Ranks with lane counts 2 / 4 / 6 / 8.
+    // Premium Ability: T1–T3 lane counts 2 / 4 / 6 (T4 omitted on print).
     expect(crit.premium).toBe(true);
-    expect(crit.tiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
-    expect(crit.tiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6, 8]);
-    expect(crit.tiers.find((t: any) => t.label === 'R1').layout).toBe('t1');
-    expect(crit.tiers.find((t: any) => t.label === 'R2').layout).toBe('t2');
+    expect(crit.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(crit.tiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6]);
+    expect(crit.tiers.find((t: any) => t.label === 'T1').layout).toBe('t1');
+    expect(crit.tiers.find((t: any) => t.label === 'T2').layout).toBe('t2');
     expect(crit.effect).toBeUndefined();
 
     const vitality = ctx.attributeModules.find((m: any) => m.key === 'vitality');
     const tempHp = vitality.powers.find((p: any) => p.name === 'Temporary HP');
-    expect(tempHp.tiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
-    expect(tempHp.tiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
-    expect(tempHp.tiers.find((t: any) => t.label === 'R1').layout).toBe('t1');
+    expect(tempHp.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(tempHp.tiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4]);
+    expect(tempHp.tiers.find((t: any) => t.label === 'T1').layout).toBe('t1');
 
     const influence = ctx.attributeModules.find((m: any) => m.key === 'influence');
     expect(influence.value).toBe(4);
@@ -333,8 +333,8 @@ describe('Quick Play character print', () => {
     expect(ctx.generalStones.powers).toHaveLength(4);
     const extraAttack = ctx.generalStones.powers.find((p: any) => p.name === 'Extra Attack');
     expect(extraAttack.premium).toBe(true);
-    expect(extraAttack.tiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
-    expect(extraAttack.tiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6, 8]);
+    expect(extraAttack.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(extraAttack.tiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6]);
   });
 
   it('shows only trained skills by category with Keep and existing skill-use boxes', () => {
@@ -596,11 +596,11 @@ describe('Quick Play character print', () => {
     expect(tempHp.supported).toBe(true);
     expect(tempHp.supportSource).toBe('Soul Sigil');
     expect(tempHp.supportTier).toBeGreaterThanOrEqual(2);
-    // Exactly the pre-filled Rank prints filled; every other Rank stays open.
+    // Exactly the pre-filled Tier prints filled; every other Tier stays open.
     const prefilled = tempHp.tiers.find((t: any) => t.tier === tempHp.supportTier);
     expect(prefilled.boxes.every((b: any) => b.filled)).toBe(true);
-    const r1 = tempHp.tiers.find((t: any) => t.label === 'R1');
-    expect(r1.boxes.every((b: any) => !b.filled)).toBe(true);
+    const t1 = tempHp.tiers.find((t: any) => t.label === 'T1');
+    expect(t1.boxes.every((b: any) => !b.filled)).toBe(true);
 
     expect(ctx.weaponSetTiles.some((t: any) => /Moonlight Greatsword/i.test(t.title))).toBe(true);
 
