@@ -333,12 +333,17 @@ describe('character print table sheet', () => {
     expect(ctx.pageTotal).toBe(3);
   });
 
-  it('prints Health / Stress totals with write-in lost fields', () => {
+  it('prints Health totals with write-in lost fields (no Stress track)', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
     expect(ctx.healthBars[0].max).toBe(8);
     expect(ctx.healthBars[0].boxes).toBeUndefined();
-    expect(ctx.stressBars[0].max).toBe(4);
-    expect(ctx.stressBreakdown).toEqual({ name: 'Breakdown', max: 1 });
+    expect(ctx.abilities[0].poolTiers.map((t: any) => t.label)).toEqual(['10%', '20%']);
+    expect(ctx.abilities[0].ladder).toBeUndefined();
+    expect(ctx.lifetimeProgression.lineSlots).toBe(12);
+    expect(ctx.lifetimeProgression.rows[0]).toHaveLength(12);
+    expect(ctx.lifetimeProgression.rows[0][0].label).toBe('Start');
+    expect(ctx.lifetimeProgression.rows[0][2].label).toBe('20');
+    expect(ctx.lifetimeProgression.rows[0][11].label).toBe('200');
   });
 
   it('places Disadvantages under Attributes, Expressions under Health; Skills full width', () => {
@@ -366,7 +371,10 @@ describe('character print table sheet', () => {
     expect(page1.indexOf('cp-expertise-row')).toBe(-1);
     expect(hbs).toContain('cp-vital-total');
     expect(hbs).toContain('Lost Health Points');
-    expect(hbs).toContain('Lost Stress');
+    expect(hbs).not.toContain('Lost Stress');
+    expect(page1).not.toContain('cp-stress');
+    expect(page1).not.toContain('cp-ability-ladder');
+    expect(hbs).toContain('cp-battle-buffs-top');
     expect(hbs).toContain('Minor Expressions');
     expect(hbs).toContain('>Uses</span>');
     expect(hbs).not.toContain('Nutzungen / Rast');
@@ -380,6 +388,7 @@ describe('character print table sheet', () => {
     expect(css).toContain('.print-page-1.print-page-table .cp-minor-list');
     expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-minor-list\s*\{[^}]*flex-direction:\s*row/s);
     expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-minor-body\s*\{[^}]*white-space:\s*nowrap/s);
+    expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-echo-imprints \.cp-minor-body\s*\{[^}]*white-space:\s*normal/s);
     expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-battle-card-roll\s*\{[^}]*color:\s*#9ec5f5/s);
     expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-sd-exhausted\s*\{[^}]*background:\s*#1c1916/s);
     expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-sd-exhausted-label\s*\{[^}]*color:\s*#e6e1d6/s);

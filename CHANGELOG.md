@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.774] - 2026-10-24
+
+### Changed
+
+- **Table character print:** Drop Stress and Attribute ladder (4/8/12…). Attribute pools show 0%/10%/20% only. Lifetime XP track fills one row through 200 XP with Stone-Power-sized boxes. Echo Imprints print full effect text without Attribute. Stone pools/power cost cubes aligned; Active Buffs move above Actives on the combat page.
+
 ## [0.9.773] - 2026-10-24
 
 ### Fixed

@@ -3,7 +3,7 @@
  *
  * Builds a flat, print-friendly context from a `character` actor and renders the
  * standard **Table Character Sheet** (`templates/actor/character-print.hbs`):
- *   1. Portrait Character Sheet (attributes, core combat, HP/Stress, skills)
+ *   1. Portrait Character Sheet (attributes, core combat, HP, skills)
  *   2. Landscape Stone Dashboard (physical cube zones + initiative)
  *   3. Landscape Powers & Combat (precomputed attack/damage, specials tray)
  * Optional Equipment / Summons modules print only when `includeModules` is set.
@@ -232,16 +232,14 @@ const ATTR_ORDER = [
   'wits'
 ] as const;
 
-/** Compressed Attribute scale (bands of 4, cap 40). Not Stone generation. */
-const ABILITY_LADDER = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40];
-
-/** Health wound-track pool penalties (dice pool at each penalty tier). */
+/** Health wound-track pool columns printed beside the full Attribute value (0%). */
 const HEALTH_POOL_TIERS = [
   { label: '10%', fraction: 0.1 },
   { label: '20%', fraction: 0.2 },
-  { label: '40%', fraction: 0.4 },
-  { label: '50%', fraction: 0.5 },
 ] as const;
+
+/** Lifetime XP stone track on the table sheet: Start×2, then every 20 XP through 200. */
+const PRINT_LIFETIME_TRACK_XP = 200;
 
 function poolAtHealthFraction(pool: number, fraction: number): number {
   if (pool <= 0) return 0;
@@ -811,7 +809,6 @@ export function buildCharacterPrintContext(
       blocked: false,
       blockedBy: '',
       slots: Array.from({ length: stoneAvailable }, (_, i) => i + 1),
-      ladder: ABILITY_LADDER.map((n) => ({ n, filled: value >= n })),
       poolTiers: HEALTH_POOL_TIERS.map((t) => ({
         label: t.label,
         pool: poolAtHealthFraction(value, t.fraction),
@@ -1574,12 +1571,21 @@ function buildPrintLifetimeProgression(system: any) {
   const assignments = usesV099Stones(system) ? readAssignments(system) : {};
   const colorless = usesV099Stones(system) ? permanentColorlessCount(system) : 0;
   const slotOrder = Array.isArray(system?.progression?.stoneSlotOrder) ? system.progression.stoneSlotOrder : null;
-  const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder, 'visible').map((slot) =>
-    lifetimeXp == null
-      ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
-      : slot,
-  );
-  const lineSlots = Math.max(1, slots.length);
+  const lineSlots = 2 + Math.floor(PRINT_LIFETIME_TRACK_XP / 20);
+  const slots = buildStoneProgressionSlots(
+    lifetimeXp ?? 0,
+    assignments,
+    PRINT_LIFETIME_TRACK_XP,
+    colorless,
+    slotOrder,
+    'full',
+  )
+    .slice(0, lineSlots)
+    .map((slot) =>
+      lifetimeXp == null
+        ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
+        : slot,
+    );
   return {
     lifetimeLabel: lifetimeXp == null ? '' : String(lifetimeXp),
     unknown: lifetimeXp == null,
