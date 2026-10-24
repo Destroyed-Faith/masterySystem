@@ -21,7 +21,7 @@ export interface GuidedPassiveSelectionOptions {
     excludeTemplateId?: string | null;
     actorEchoKey?: string | null;
     actorSubChoiceKey?: string | null;
-    /** Mark survivability recommendations (Step 1 only). */
+    /** Mark survivability recommendations (Armor / Evade / DR / Phasing / Temp HP). */
     markRecommended?: boolean;
 }
 /**

@@ -78,6 +78,7 @@ describe('Wizard free Passive selection', () => {
     const first = getGuidedPassiveSelectionGroups({ markRecommended: true });
     const second = getGuidedPassiveSelectionGroups({
       excludeTemplateId: 'passive-fortified-frame',
+      markRecommended: true,
     });
     expect(first.map((g) => g.intentLabel)).toEqual([
       'Offensive',
@@ -85,6 +86,28 @@ describe('Wizard free Passive selection', () => {
       'Utility & Mobility',
     ]);
     expect(second.map((g) => g.intentLabel)).toEqual(first.map((g) => g.intentLabel));
+  });
+
+  it('recommends only Armor, Evade, DR, Phasing, and Temp HP', () => {
+    const ids = getFirstPassiveIntentGroups()
+      .flatMap((g) => g.passives)
+      .filter((p) => p.recommended)
+      .map((p) => p.id)
+      .sort();
+    expect(ids).toEqual([
+      'passive-damage-reduction',
+      'passive-evade',
+      'passive-fortified-frame',
+      'passive-ghostform',
+      'passive-temp-hp',
+    ]);
+    const step2 = getSecondPassiveIntentGroups(undefined, 'passive-speed')
+      .flatMap((g) => g.passives)
+      .filter((p) => p.recommended)
+      .map((p) => p.id);
+    expect(step2).toContain('passive-fortified-frame');
+    expect(step2).not.toContain('passive-fortitude');
+    expect(step2).not.toContain('passive-regeneration');
   });
 
   it('Step 2 excludes the already selected Passive and enforces categories', () => {

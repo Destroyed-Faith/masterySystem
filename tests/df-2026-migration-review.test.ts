@@ -209,12 +209,19 @@ describe('DF 2026 import shape', () => {
     } as any) as any;
     expect(system.specializations).toEqual([
       { id: 'finesse:lockpicking', name: 'Lockpicking', field: 'finesse', scope: 'Locks', rank: 2 },
+      {
+        id: 'investigation:perception',
+        name: 'Perception',
+        field: 'investigation',
+        scope: 'Notice, search, and read the scene',
+        rank: 2,
+      },
     ]);
     expect(system.echoImprints).toEqual(['mage-hand']);
     expect(system.progression.rulesSchemaVersion).toBe(DF_2026_RULES_SCHEMA_VERSION);
     // Legacy fields are preserved as-is but are never turned into Specializations.
     expect(system.skills).toEqual({ stealth: 5 });
-    expect(system.specializations).toHaveLength(1);
+    expect(system.specializations).toHaveLength(2);
   });
 
   it('legacy-only payload is not stamped as DF 2026 (migration will handle it)', () => {

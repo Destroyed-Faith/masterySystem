@@ -584,6 +584,61 @@ export class TowerWizardDialog extends BaseDialog {
     async _onRender(context, options) {
         await super._onRender(context, options);
         const root = $(this.element);
+        // Tile hover tips: fixed position so `.tower-wizard-body` overflow does not clip them.
+        let tipHideTimer = null;
+        const placeTileTip = (tile) => {
+            const tip = tile.querySelector('.tower-wizard-tile-tip');
+            if (!tip)
+                return;
+            if (tipHideTimer) {
+                clearTimeout(tipHideTimer);
+                tipHideTimer = null;
+            }
+            tip.classList.add('is-open');
+            const rect = tile.getBoundingClientRect();
+            const maxH = Math.min(260, Math.floor(window.innerHeight * 0.42));
+            const tipW = Math.min(360, Math.floor(window.innerWidth * 0.78));
+            tip.style.width = `${tipW}px`;
+            tip.style.maxHeight = `${maxH}px`;
+            // Measure after open so scrollHeight is accurate.
+            const tipH = Math.min(tip.scrollHeight || maxH, maxH);
+            let top = rect.top - tipH - 8;
+            if (top < 8)
+                top = Math.min(rect.bottom + 8, window.innerHeight - tipH - 8);
+            let left = rect.left + rect.width / 2 - tipW / 2;
+            left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+            tip.style.top = `${Math.max(8, top)}px`;
+            tip.style.left = `${left}px`;
+            tip.style.bottom = 'auto';
+        };
+        const hideTileTip = (tile) => {
+            const tip = tile.querySelector('.tower-wizard-tile-tip');
+            if (!tip)
+                return;
+            tipHideTimer = setTimeout(() => {
+                tip.classList.remove('is-open');
+                tip.style.top = '';
+                tip.style.left = '';
+                tip.style.bottom = '';
+                tip.style.width = '';
+                tip.style.maxHeight = '';
+            }, 120);
+        };
+        root.find('.tower-wizard-passive-tile').each((_i, el) => {
+            const tile = el;
+            tile.addEventListener('mouseenter', () => placeTileTip(tile));
+            tile.addEventListener('focusin', () => placeTileTip(tile));
+            tile.addEventListener('mouseleave', () => hideTileTip(tile));
+            tile.addEventListener('focusout', () => hideTileTip(tile));
+            const tip = tile.querySelector('.tower-wizard-tile-tip');
+            tip?.addEventListener('mouseenter', () => {
+                if (tipHideTimer) {
+                    clearTimeout(tipHideTimer);
+                    tipHideTimer = null;
+                }
+            });
+            tip?.addEventListener('mouseleave', () => hideTileTip(tile));
+        });
         /* ---- DF 2026 early identity steps ---- */
         root.find('.js-tw-choose-echo').on('click', async () => {
             const before = JSON.stringify(this.actor.system?.echo?.key ?? '')

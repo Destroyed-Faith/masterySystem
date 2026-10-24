@@ -264,11 +264,14 @@ export function buildActorSystemFromPayload(payload) {
     const minorExpressions = normalizeMinorExpressionIds(payload.minorExpressions, masteryRank);
     // DF 2026 data model. Legacy `skills` / `minorExpressions` above remain
     // archive-only fields and are never converted into Specialization Ranks.
-    const specializations = ensureCharacterHasPerceptionSpec({
-        specializations: normalizeImportSpecializations(payload.specializations),
-    }).specializations;
     const echoImprints = normalizeImportEchoImprintIds(payload.echoImprints, masteryRank);
     const isDf2026Payload = Array.isArray(payload.specializations) || Array.isArray(payload.echoImprints);
+    const normalizedSpecs = normalizeImportSpecializations(payload.specializations);
+    // Free Perception Spec only on DF 2026 imports — legacy-only payloads stay empty
+    // so the world migration / sheet ensure can stamp them later.
+    const specializations = isDf2026Payload
+        ? ensureCharacterHasPerceptionSpec({ specializations: normalizedSpecs }).specializations
+        : normalizedSpecs;
     const faithPts = disadvantagePointsTotal(disadvantages);
     // Same derivations as the in-game Echo dialog: display name (incl. Unbound
     // identity), fresh trait uses, and echo-locked languages.

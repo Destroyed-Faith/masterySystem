@@ -10,7 +10,7 @@ export declare const TOWER_WIZARD_COPY: {
     readonly passive1: {
         readonly heading: "CHOOSE YOUR FIRST PASSIVE";
         readonly body: "Choose the first Passive that defines your character. Defensive Powers are recommended for survivability, but any legal Passive is available.";
-        readonly recommendNote: "Recommended for survivability: Armor, Evade, or another defensive Passive. You may choose any Passive.";
+        readonly recommendNote: "Recommended for survivability: Armor, Evade, Damage Reduction, Phasing, or Temporary HP. You may choose any Passive.";
         readonly nowChoose: "Pick one:";
     };
     readonly defensePassiveVariant: {

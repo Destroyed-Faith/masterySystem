@@ -16,7 +16,7 @@ export const TOWER_WIZARD_COPY = {
         heading: 'CHOOSE YOUR FIRST PASSIVE',
         body: 'Choose the first Passive that defines your character. Defensive Powers are recommended for survivability, but any legal Passive is available.',
         recommendNote:
-            'Recommended for survivability: Armor, Evade, or another defensive Passive. You may choose any Passive.',
+            'Recommended for survivability: Armor, Evade, Damage Reduction, Phasing, or Temporary HP. You may choose any Passive.',
         nowChoose: 'Pick one:',
     },
 

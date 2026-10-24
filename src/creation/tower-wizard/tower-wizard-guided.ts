@@ -546,20 +546,13 @@ function echoAllowsEntry(
     return echoRequirementMet(entry.requiresEcho, actorEchoKey, actorSubChoiceKey);
 }
 
-/** Defensive catalogue Passives — optional recommendation chips on Step 1 only. */
+/** Survivability picks with a Recommended chip on Passive 1 / Passive 2 tiles. */
 const WIZARD_RECOMMENDED_SURVIVABILITY = new Set([
     'passive-fortified-frame',
     'passive-evade',
     'passive-damage-reduction',
     'passive-ghostform',
-    'passive-parry',
-    'passive-damage-negation',
     'passive-temp-hp',
-    'passive-deep-vitality',
-    'passive-fortitude',
-    'passive-spell-resistance',
-    'passive-ward',
-    'passive-invisibility',
 ]);
 
 export function wrapGuidedPassiveCard(
@@ -600,7 +593,7 @@ export interface GuidedPassiveSelectionOptions {
     excludeTemplateId?: string | null;
     actorEchoKey?: string | null;
     actorSubChoiceKey?: string | null;
-    /** Mark survivability recommendations (Step 1 only). */
+    /** Mark survivability recommendations (Armor / Evade / DR / Phasing / Temp HP). */
     markRecommended?: boolean;
 }
 
@@ -661,6 +654,7 @@ export function getGuidedSecondPassiveIntentGroups(
         excludeTemplateId: passive1TemplateId,
         actorEchoKey,
         actorSubChoiceKey,
+        markRecommended: true,
     });
 }
 
