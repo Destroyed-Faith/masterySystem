@@ -111,6 +111,13 @@ export async function maybeAdvanceNpcBossPhase(actor: any): Promise<NpcPhaseAdva
 
   await (await import('./gm-relay.js')).updateActorViaGm(actor, patch);
 
+  try {
+    const { onNpcMaximizationPhaseChanged } = await import('./npc-maximization.js');
+    await onNpcMaximizationPhaseChanged(actor);
+  } catch {
+    /* optional */
+  }
+
   const result: NpcPhaseAdvanceResult = {
     fromIndex,
     toIndex,
@@ -165,6 +172,12 @@ export async function activateNpcBossPhaseFromSheet(
     const patch = buildNpcPhaseActivatePatch(actor, next, { persistCurrentHealth: true });
     if (!patch) return null;
     await (await import('./gm-relay.js')).updateActorViaGm(actor, patch);
+    try {
+      const { onNpcMaximizationPhaseChanged } = await import('./npc-maximization.js');
+      await onNpcMaximizationPhaseChanged(actor);
+    } catch {
+      /* optional */
+    }
     return {
       fromIndex,
       toIndex: next,
@@ -175,6 +188,12 @@ export async function activateNpcBossPhaseFromSheet(
   }
 
   await (await import('./gm-relay.js')).updateActorViaGm(actor, { 'system.npcActivePhaseIndex': next });
+  try {
+    const { onNpcMaximizationPhaseChanged } = await import('./npc-maximization.js');
+    await onNpcMaximizationPhaseChanged(actor);
+  } catch {
+    /* optional */
+  }
   return {
     fromIndex,
     toIndex: next,

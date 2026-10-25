@@ -282,7 +282,18 @@ function readLiveNpcAttackFormFields(
   pick('npcIsSpell');
   pick('npcSplitAttack');
   pick('npcCrit');
+  pick('npcMaximizationEligible');
+  pick('npcMaximizationCadence');
   return out;
+}
+
+/** Shared Maximization pool for sheet context (always a plain object for HBS). */
+function normalizeNpcMaximizationForContext(raw: unknown): { charges: number; refresh: 'perRound' | 'perPhase' } {
+  const o = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  const n = Math.floor(Number(o.charges));
+  const charges = Number.isFinite(n) && n > 0 ? Math.min(10, n) : 0;
+  const refresh = String(o.refresh || '').trim() === 'perPhase' ? 'perPhase' : 'perRound';
+  return { charges, refresh };
 }
 
 /** Coerce sheet / FormData strings so attack & damage pool &lt;select&gt; `eq` matches. */
@@ -328,6 +339,19 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     o.npcCrit = true;
   } else {
     delete o.npcCrit;
+  }
+  if (
+    o.npcMaximizationEligible === true ||
+    o.npcMaximizationEligible === 'true' ||
+    o.npcMaximizationEligible === 'on'
+  ) {
+    o.npcMaximizationEligible = true;
+  } else {
+    delete o.npcMaximizationEligible;
+  }
+  {
+    const cad = String(o.npcMaximizationCadence || '').trim();
+    o.npcMaximizationCadence = cad === 'perPhase' ? 'perPhase' : 'perRound';
   }
   {
     const apr = Math.floor(Number(o.npcAttacksPerRound));
@@ -567,6 +591,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             health: ensureNpcHealthState(phase?.health ?? context.system.health),
             npcReactions: omitNpcCounterattackRows(coerceNpcReactionsArray(phase?.npcReactions)),
             npcReactionSlots: clampNpcReactionSlots(phase?.npcReactionSlots),
+            npcMaximization: normalizeNpcMaximizationForContext(phase?.npcMaximization),
             attackSlots: clampNpcAttackSlots(
               phase?.attackSlots ??
                 sumNpcAttackSlotsFromPowers({
@@ -668,6 +693,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       (context as any).canReleaseKnownNpc = !isSummon && !!(game as any).user?.isGM;
       (context as any).knownNpcReleased = isKnownNpcReleased(String(actorDoc?.id || ''));
       context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
+      context.system.npcMaximization = normalizeNpcMaximizationForContext(context.system.npcMaximization);
       if (Array.isArray(context.system.attackValues)) {
         context.system.attackValues = context.system.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r));
       }
@@ -680,6 +706,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             : ph.attackValues,
           npcReactions: coerceNpcReactionsArray(ph.npcReactions),
           npcReactionSlots: clampNpcReactionSlots(ph.npcReactionSlots),
+          npcMaximization: normalizeNpcMaximizationForContext(ph.npcMaximization),
         }));
         (context as any).npcPhaseCopyTargets =
           context.system.phases.length > 1
@@ -1568,6 +1595,12 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     };
     (this as any).activeTab = `phase-${toPi}`;
     await (this.actor as any).update(patch, extraOpt);
+    try {
+      const { onNpcMaximizationPhaseChanged } = await import('../combat/npc-maximization.js');
+      await onNpcMaximizationPhaseChanged(this.actor);
+    } catch {
+      /* optional */
+    }
   }
 
   async #onNpcPowerSpecialAdd(event: JQuery.ClickEvent) {

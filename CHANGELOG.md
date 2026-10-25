@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.787] - 2026-10-25
+
+### Added
+
+- **NPC Maximization:** Shared pool on root NPC or boss phase (charges + refresh per round/phase). Mark attacks as eligible with per-round or per-phase cadence; damage cards offer „Roll Maximum“ like players when pool and cadence allow.
+
 ## [0.9.786] - 2026-10-25
 
 ### Changed

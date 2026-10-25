@@ -21,6 +21,7 @@ import {
   combatReadyRemaining,
   minLivePoolCurrent,
 } from '../stones/stone-combat-ledger.js';
+import { seedNpcMaximizationRoundState } from './npc-maximization.js';
 
 /**
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
@@ -240,6 +241,19 @@ export interface RoundState {
    * Each use removes one radial copy; max copies = `npcAttacksPerRound` (1–5).
    */
   npcAttackUsesThisRound?: Record<string, number>;
+  /** Shared NPC Maximization remaining (root or active phase pool). */
+  npcMaximizationRemaining?: number;
+  /** Configured grant at last seed (for UI X/Y). */
+  npcMaximizationGranted?: number;
+  /** How the shared pool refreshes. */
+  npcMaximizationRefresh?: 'perRound' | 'perPhase';
+  /** Phase index the remaining belongs to; null = root NPC. */
+  npcMaximizationPhaseIndex?: number | null;
+  /**
+   * Maximization spends per attack usage key this round/phase
+   * (cadence: at most 1 while the key is present with value ≥ 1).
+   */
+  npcMaximizationAttackUses?: Record<string, number>;
   /**
    * When true, a Movement Power already replaced normal Movement this round —
    * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
@@ -628,7 +642,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     reactionActions: { total: npcReactSlots, used: 0 }
   };
 
-  return {
+  const next: RoundState = {
     combatId: combatId || undefined,
     round,
     turn: combat?.turn || 0,
@@ -643,6 +657,10 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
       extraMoveMeters: 0
     }
   };
+  if (owner.type === 'npc' || owner.type === 'summon') {
+    seedNpcMaximizationRoundState(owner, combat, next, stored ?? null);
+  }
+  return next;
 }
 
 /** Extra movement distance (m) this round from initiative shop, stones, etc. — for range previews, not action counts. */
@@ -684,6 +702,7 @@ export async function setRoundState(actor: Actor, state: RoundState): Promise<vo
   }
   // Ensure object maps are plain data (never leave undefined holes that skip clears).
   if (!toSave.npcAttackUsesThisRound) toSave.npcAttackUsesThisRound = {};
+  if (!toSave.npcMaximizationAttackUses) toSave.npcMaximizationAttackUses = {};
   if (!toSave.usedPowerIdsThisRound) toSave.usedPowerIdsThisRound = [];
 
   const hadPrev =
@@ -2423,6 +2442,9 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
   roundState.usedPowerIdsThisRound = [];
   roundState.npcAttackUsesThisRound = {};
   roundState.combatId = (combat as any).id ?? '';
+  if ((actor as any).type === 'npc' || (actor as any).type === 'summon') {
+    seedNpcMaximizationRoundState(actor, combat, roundState, previous ?? null);
+  }
   const storedSb = ((actor as any).getFlag?.('mastery-system', 'roundState') as RoundState | undefined)?.stoneBonuses;
   if (storedSb && roundState.stoneBonuses) {
     for (const key of DEFENSIVE_STONE_KEYS) {

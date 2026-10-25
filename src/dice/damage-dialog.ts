@@ -997,7 +997,31 @@ export async function showDamageDialog(
       : [];
 
   // Create damage card as chat message instead of dialog
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
+    let npcMaximizationUi: {
+      remaining: number;
+      canSpend: boolean;
+      label: string;
+      attackIndex: number;
+      phaseIndex: number | null;
+    } | null = null;
+    if (isNpcAttackFlow && actorToUse) {
+      try {
+        const { getNpcMaximizationUiState } = await import('../combat/npc-maximization.js');
+        const attackIndex = Math.max(0, Math.floor(Number(flags?.npcAttackIndex) || 0));
+        const phaseRaw = flags?.npcPhaseIndex;
+        const phaseIndex =
+          phaseRaw === undefined || phaseRaw === null || phaseRaw === ''
+            ? null
+            : Math.floor(Number(phaseRaw));
+        const ui = getNpcMaximizationUiState(actorToUse, { attackIndex, phaseIndex });
+        if (ui) {
+          npcMaximizationUi = { ...ui, attackIndex, phaseIndex };
+        }
+      } catch (err) {
+        console.warn('Mastery System | NPC Maximization UI state failed', err);
+      }
+    }
     const damageCardContent = createDamageCardContent(
       attacker,
       target,
@@ -1037,6 +1061,7 @@ export async function showDamageDialog(
           ? getRulesMasteryRank(actorToUse)
           : Math.max(1, Math.floor(Number(flags?.masteryRank) || 2)),
       },
+      npcMaximizationUi,
     );
     
     const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
@@ -1154,6 +1179,14 @@ function createDamageCardContent(
     locked?: boolean;
     masteryRank?: number;
   } = {},
+  /** NPC shared-pool Maximization (overrides player stone/passive/buff UI when set). */
+  npcMaximizationUi: {
+    remaining: number;
+    canSpend: boolean;
+    label: string;
+    attackIndex: number;
+    phaseIndex: number | null;
+  } | null = null,
 ): string {
   const allocPanel = buildRaiseAllocPanelHtml(
     Math.max(0, Math.floor(Number(raiseAlloc.slots) || 0)),
@@ -1298,6 +1331,14 @@ function createDamageCardContent(
           <i class="fas fa-dice"></i> Roll
         </button>
         ${(() => {
+          if (npcMaximizationUi) {
+            if (!npcMaximizationUi.canSpend || npcMaximizationUi.remaining <= 0) return '';
+            const pi =
+              npcMaximizationUi.phaseIndex == null ? '' : String(npcMaximizationUi.phaseIndex);
+            return `<span class="max-source-hint">${damageCardHtmlEsc(npcMaximizationUi.label)}</span><button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}" data-maximize="1" data-max-source="npc" data-npc-attack-index="${npcMaximizationUi.attackIndex}" data-npc-phase-index="${pi}" title="Spend 1 NPC Maximization (${npcMaximizationUi.remaining} left). Every d8 becomes 8 (artificial, not natural).">
+          <i class="fas fa-arrow-up"></i> Roll Maximum
+        </button>`;
+          }
           const maxLeft = remainingMaximizations(attacker);
           if (maxLeft <= 0) return '';
           const sources = listAvailableMaximizationSources(attacker);
@@ -1565,10 +1606,33 @@ export function attachDamageCardHandlers(messageId: string): void {
     const deferredMaximization = wantMax
       ? async (): Promise<boolean> => {
           try {
+            if (maxSourceRawForRoll === 'npc') {
+              const { spendNpcMaximization } = await import('../combat/npc-maximization.js');
+              const attackIndex = Math.max(
+                0,
+                Math.floor(
+                  Number(
+                    $btn.attr('data-npc-attack-index') ??
+                      flags.npcAttackIndex ??
+                      0,
+                  ) || 0,
+                ),
+              );
+              const phaseRaw =
+                $btn.attr('data-npc-phase-index') ??
+                (flags.npcPhaseIndex != null ? String(flags.npcPhaseIndex) : '');
+              const phaseIndex =
+                phaseRaw === '' || phaseRaw == null
+                  ? null
+                  : Math.floor(Number(phaseRaw));
+              return await spendNpcMaximization(attacker, { attackIndex, phaseIndex });
+            }
             const { spendMaximization } = await import('../stones/stone-combat-effects.js');
             const src: MaximizationSource | null =
-              maxSourceRawForRoll === 'stone' || maxSourceRawForRoll === 'passive'
-                ? maxSourceRawForRoll
+              maxSourceRawForRoll === 'stone' ||
+              maxSourceRawForRoll === 'passive' ||
+              maxSourceRawForRoll === 'activeBuff'
+                ? (maxSourceRawForRoll as MaximizationSource)
                 : null;
             return await spendMaximization(attacker, src);
           } catch (err) {

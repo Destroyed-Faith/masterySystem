@@ -90,6 +90,17 @@
       <label>Crit</label>
       <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcCrit" {{#if atk.npcCrit}}checked{{/if}} data-dtype="Boolean" title="Attack dice explode on 7 and 8, like player Crit. Damage dice do not explode. Set per power."/></label>
     </div>
+    <div class="npc-attack-field npc-attack-field--check">
+      <label>Maximization</label>
+      <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcMaximizationEligible" {{#if atk.npcMaximizationEligible}}checked{{/if}} data-dtype="Boolean" title="This attack may spend from the NPC Maximization pool (Roll Maximum on the damage card)."/></label>
+    </div>
+    <div class="npc-attack-field">
+      <label>Max Cadence</label>
+      <select name="{{path}}.npcMaximizationCadence" title="How often this attack may spend Maximization from the shared pool.">
+        <option value="perRound" {{#unless (eq atk.npcMaximizationCadence "perPhase")}}selected{{/unless}}>pro Runde</option>
+        <option value="perPhase" {{#if (eq atk.npcMaximizationCadence "perPhase")}}selected{{/if}}>pro Phase</option>
+      </select>
+    </div>
     {{#if false}}
     <div class="npc-attack-field">
       <label>Stress (d8)</label>

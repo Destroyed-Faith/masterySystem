@@ -475,6 +475,16 @@ export interface AttackValue {
    * Die Summe über alle Powers der aktiven Phase setzt `attackSlots` (ATK).
    */
   npcAttacksPerRound?: number;
+  /**
+   * When true, this attack may spend from the NPC Maximization pool
+   * (Damage card „Roll Maximum“).
+   */
+  npcMaximizationEligible?: boolean;
+  /**
+   * How often this attack may spend Maximization from the shared pool.
+   * Defaults to `perRound` when eligible.
+   */
+  npcMaximizationCadence?: 'perRound' | 'perPhase';
   /** Stress-Schaden bei Treffer (Nd8, plain — Stress-Armor mindert). */
   npcStressD8?: number;
   /** Multiple specials on this attack */
@@ -526,6 +536,11 @@ export interface BossPhase {
    * When unset, combat falls back to the sum of Angriffe/Runde copies.
    */
   attackSlots?: number;
+  /**
+   * Shared Maximization charges for this phase (damage Roll Maximum).
+   * `charges: 0` disables. Refresh resets remaining at round or phase start.
+   */
+  npcMaximization?: NpcMaximizationPool;
   /** Opt-in Reactions for this phase (0 = none). */
   npcReactionSlots?: number;
   npcReactions?: NpcReactionRow[];
@@ -537,6 +552,14 @@ export interface BossPhase {
     basisDefense: number;
     vitality?: number;
   };
+}
+
+/** Shared NPC Maximization budget (root or boss phase). */
+export interface NpcMaximizationPool {
+  /** Available Maximizations (0 = off). */
+  charges: number;
+  /** When remaining resets to `charges`. */
+  refresh: 'perRound' | 'perPhase';
 }
 
 // === NPC Data ===
@@ -586,6 +609,10 @@ export interface NpcData {
    * for bosses the active phase's `attackSlots` is mirrored here for combat.
    */
   attackSlots?: number;
+  /**
+   * Shared Maximization for non-phased NPCs (see BossPhase.npcMaximization for bosses).
+   */
+  npcMaximization?: NpcMaximizationPool;
   /** Movement actions per round in combat (default 1). */
   npcMovementSlots?: number;
   /** Reactions per round. Default 0 — NPCs do not react unless configured. */

@@ -156,6 +156,17 @@
             <label title="Reactions pro Runde in dieser Phase. 0 = keine.">Reaction</label>
             <input type="number" name="system.phases.{{phaseIndex}}.npcReactionSlots" value="{{default phase.npcReactionSlots 0}}" min="0" max="10" step="1" data-dtype="Number"/>
           </div>
+          <div class="npc-phase-economy__chip">
+            <label title="Gemeinsamer Maximization-Pool dieser Phase (0 = aus). Markierte Attacken können Roll Maximum nutzen.">Maximization</label>
+            <input type="number" name="system.phases.{{phaseIndex}}.npcMaximization.charges" value="{{default phase.npcMaximization.charges 0}}" min="0" max="10" step="1" data-dtype="Number"/>
+          </div>
+          <div class="npc-phase-economy__chip">
+            <label title="Wann der Maximization-Pool wieder aufgefüllt wird.">Max Refresh</label>
+            <select name="system.phases.{{phaseIndex}}.npcMaximization.refresh">
+              <option value="perRound" {{#unless (eq phase.npcMaximization.refresh "perPhase")}}selected{{/unless}}>pro Runde</option>
+              <option value="perPhase" {{#if (eq phase.npcMaximization.refresh "perPhase")}}selected{{/if}}>pro Phase</option>
+            </select>
+          </div>
         </div>
         
         <section class="npc-section npc-section--combat">
@@ -449,6 +460,17 @@
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Move Actions / Round</span>
             <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement actions per round"/>
+          </div>
+          <div class="npc-combat-chip">
+            <span class="npc-combat-chip__label">Maximization</span>
+            <input type="number" name="system.npcMaximization.charges" value="{{default system.npcMaximization.charges 0}}" min="0" max="10" step="1" data-dtype="Number" title="Shared Maximization pool (0 = off). Eligible attacks can use Roll Maximum on the damage card."/>
+          </div>
+          <div class="npc-combat-chip">
+            <span class="npc-combat-chip__label">Max Refresh</span>
+            <select name="system.npcMaximization.refresh" title="When the Maximization pool refills.">
+              <option value="perRound" {{#unless (eq system.npcMaximization.refresh "perPhase")}}selected{{/unless}}>pro Runde</option>
+              <option value="perPhase" {{#if (eq system.npcMaximization.refresh "perPhase")}}selected{{/if}}>pro Phase</option>
+            </select>
           </div>
         </div>
       </section>
