@@ -61,7 +61,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Your attacks gain **Critical(2)** (2 Critical attacks per Round; Attack Dice explode on 7–8).",
+        "effect": "Gain **Critical(2)** (2 designated rolls per combat; natural 7s and 8s explode).",
         "special": "",
         "powerTemplateId": "ab-critical"
       }
@@ -654,7 +654,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Your attacks gain **Critical(2)** (2 Critical attacks per Round; Attack Dice explode on 7–8)."
+              "text": "Gain **Critical(2)** (2 designated rolls per combat; natural 7s and 8s explode)."
             },
             "specials": [],
             "lvl": 6

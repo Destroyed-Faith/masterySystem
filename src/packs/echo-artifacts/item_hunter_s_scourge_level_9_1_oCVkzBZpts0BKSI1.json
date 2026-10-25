@@ -61,7 +61,7 @@
         "range": "Self",
         "aoe": "Radius 8m",
         "duration": "Instant",
-        "effect": "Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special.",
+        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Qualifying creatures hit gain the chosen targeted Special; no Power damage. No weapon or Spell Focus bonus.",
         "special": "Exorcism(13)",
         "powerTemplateId": "active-melee-aoe-targeted-special",
         "chosenSpecialKey": "exorcism"
@@ -728,7 +728,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special."
+              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Qualifying creatures hit gain the chosen targeted Special; no Power damage. No weapon or Spell Focus bonus."
             },
             "specials": [],
             "lvl": 9

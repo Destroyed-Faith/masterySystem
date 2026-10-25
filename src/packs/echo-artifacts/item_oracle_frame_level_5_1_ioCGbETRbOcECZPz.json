@@ -40,7 +40,7 @@
         "range": "Self",
         "aoe": "Aura 6m",
         "duration": "MR Rounds",
-        "effect": "You and allies within **6 m** gain **+9 Armor**.",
+        "effect": "You and allies within **6 m** gain **+3 Armor**.",
         "special": "",
         "powerTemplateId": "ab-armor-aura"
       },
@@ -250,7 +250,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "You and allies within **6 m** gain **+9 Armor**."
+              "text": "You and allies within **6 m** gain **+3 Armor**."
             },
             "specials": [],
             "lvl": 4

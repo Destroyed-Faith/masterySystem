@@ -12,7 +12,7 @@ export declare const SUMMON_AURA_RADIUS_M: readonly [8, 10, 12, 14, 16, 18, 20, 
 /** Printed Summon Damage Aura dice (d8) for PL 1–16. */
 export declare const SUMMON_DAMAGE_AURA_DICE: readonly [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 /** Printed Summon Armor Aura bonus for PL 1–16. */
-export declare const SUMMON_ARMOR_AURA_BONUS: readonly [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+export declare const SUMMON_ARMOR_AURA_BONUS: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /**
  * Eligible diminishing Special(X) types from the Special Aura entry.
  * Binary, hard-control, and other unlisted Specials are refused.

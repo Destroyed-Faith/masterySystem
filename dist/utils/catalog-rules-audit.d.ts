@@ -94,8 +94,12 @@ export declare const RULES_EXPECTED_ARTIFACTS: ReadonlyArray<{
 }>;
 /** Expected Active Buff: Evade L1…L16 values (15 PP / +1 → +2…+32). */
 export declare const RULES_AB_EVADE_CURVE: readonly [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-/** Expected Active Buff: Armor L1…L16 values (Rules). */
-export declare const RULES_AB_ARMOR_CURVE: readonly [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
+/** Expected Active Buff: Armor L1…L16 values (15 PP / Armor → +2…+32). */
+export declare const RULES_AB_ARMOR_CURVE: readonly [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Expected Active Buff: Armor Aura L1…L16 values (+1 Armor / PL). */
+export declare const RULES_AB_ARMOR_AURA_CURVE: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Expected Active Buff: Summon Armor Aura L1…L16 values (+1 Armor / PL). */
+export declare const RULES_AB_SUMMON_ARMOR_AURA_CURVE: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /** Extract `Active Buff: X` / `Reaction: X` style titles from Rules markdown. */
 export declare function parsePrefixedPowerNames(markdown: string, prefix: string): string[];
 /** Passive names from `<h3>Name (Passive: …)</h3>` and `Passive: X` headings. */

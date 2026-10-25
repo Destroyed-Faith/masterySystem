@@ -211,10 +211,10 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
 
     const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesHeavy')!);
     const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
-    expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.effect).toContain('+6 Armor');
+    expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.effect).toContain('+8 Armor');
     expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.powerTemplateId).toBe('ab-armor');
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
-    expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+12 Armor');
+    expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+20 Armor');
   });
 
   it('Serpent Scales: Dragon Wings + ab-evade / mobility extension + EVADE Stone Support', () => {
@@ -303,7 +303,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const l7Rows = (tree.nodes[6].itemData.system as any).levelProgression as any[];
     const field = l7Rows.find((r) => String(r.name).includes('Oracle Field'));
     expect(field?.name).toBe('Oracle Field V');
-    expect(field?.effect).toContain('+14 Armor');
+    expect(field?.effect).toContain('+5 Armor');
     expect(field?.aoe).toContain('10');
   });
 

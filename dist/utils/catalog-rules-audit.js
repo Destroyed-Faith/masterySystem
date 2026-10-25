@@ -268,9 +268,17 @@ export const RULES_EXPECTED_ARTIFACTS = [
 export const RULES_AB_EVADE_CURVE = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
 ];
-/** Expected Active Buff: Armor L1…L16 values (Rules). */
+/** Expected Active Buff: Armor L1…L16 values (15 PP / Armor → +2…+32). */
 export const RULES_AB_ARMOR_CURVE = [
-    5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65,
+    2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+];
+/** Expected Active Buff: Armor Aura L1…L16 values (+1 Armor / PL). */
+export const RULES_AB_ARMOR_AURA_CURVE = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+];
+/** Expected Active Buff: Summon Armor Aura L1…L16 values (+1 Armor / PL). */
+export const RULES_AB_SUMMON_ARMOR_AURA_CURVE = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 ];
 // ─── Rules MD parsing ────────────────────────────────────────────────────────
 const HTML_FRAGMENT_RE = /<br|<\/|^\s*$/i;
@@ -652,8 +660,32 @@ export function runCatalogRulesAudit(options = {}) {
                 const curve = readMechanicsCurve(tpl, 'armor');
                 const ok = RULES_AB_ARMOR_CURVE.every((v, i) => curve[i] === v);
                 return ok
-                    ? `Armor curve +5…+65 matches Rules; Active Buff: ${rulesName}`
-                    : `Armor curve mismatch vs Rules +5…+65`;
+                    ? `Armor curve +2…+32 matches Rules; Active Buff: ${rulesName}`
+                    : `Armor curve mismatch vs Rules +2…+32 (got ${curve.filter((x) => x != null).join(',')})`;
+            }
+            if (id === 'ab-armor-aura') {
+                const tpl = abMap.get(id)?.template;
+                if (!tpl)
+                    return undefined;
+                const curve = readMechanicsCurve(tpl, 'armor');
+                const ok = RULES_AB_ARMOR_AURA_CURVE.every((v, i) => curve[i] === v);
+                return ok
+                    ? `Armor Aura curve +1…+16 matches Rules; Active Buff: ${rulesName}`
+                    : `Armor Aura curve mismatch vs Rules +1…+16 (got ${curve.filter((x) => x != null).join(',')})`;
+            }
+            if (id === 'ab-summon-armor-aura') {
+                const tpl = abMap.get(id)?.template;
+                if (!tpl)
+                    return undefined;
+                const curve = POWER_LEVEL_KEYS.map((k) => {
+                    const m = tpl.levels?.[k]?.mechanics;
+                    const v = m?.summonArmorAura?.armor;
+                    return typeof v === 'number' ? v : undefined;
+                });
+                const ok = RULES_AB_SUMMON_ARMOR_AURA_CURVE.every((v, i) => curve[i] === v);
+                return ok
+                    ? `Summon Armor Aura curve +1…+16 matches Rules; Active Buff: ${rulesName}`
+                    : `Summon Armor Aura curve mismatch vs Rules +1…+16 (got ${curve.filter((x) => x != null).join(',')})`;
             }
             return undefined;
         },

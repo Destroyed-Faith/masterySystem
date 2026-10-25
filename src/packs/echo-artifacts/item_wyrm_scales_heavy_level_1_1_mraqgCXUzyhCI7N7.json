@@ -59,10 +59,15 @@
         "kind": "power",
         "powerTemplateId": "ab-armor",
         "displayName": "Wyrm Scales",
+        "stagePowerLevels": [
+          "4",
+          "10",
+          "16"
+        ],
         "stageEffectTexts": [
-          "Gain **+6 Armor**.",
-          "Gain **+12 Armor**. This replaces Wyrm Scales I.",
-          "Gain **+18 Armor**. This replaces Wyrm Scales II."
+          "Gain **+8 Armor**.",
+          "Gain **+20 Armor**. This replaces Wyrm Scales I.",
+          "Gain **+32 Armor**. This replaces Wyrm Scales II."
         ]
       },
       {

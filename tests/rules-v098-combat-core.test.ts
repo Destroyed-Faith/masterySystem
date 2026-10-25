@@ -29,12 +29,12 @@ describe('Rules v0.9.8 catalog alignment samples', () => {
     expect(ids.has('passive-awareness-damage')).toBe(false);
   });
 
-  it('Active Buff Armor uses +5 / +9 / +65 curve', () => {
+  it('Active Buff Armor uses +2 / +4 / +32 curve', () => {
     const ab = ACTIVE_BUFF_TEMPLATES.find((t) => t.templateId === 'ab-armor');
     expect(ab).toBeTruthy();
     const levels = ab!.levels as Record<string, any>;
-    expect(levels['1']?.mechanics?.armor).toBe(5);
-    expect(levels['16']?.mechanics?.armor).toBe(65);
+    expect(levels['1']?.mechanics?.armor).toBe(2);
+    expect(levels['16']?.mechanics?.armor).toBe(32);
   });
 
   it('Active Buff Evade uses +2 / +4 / +32 curve', () => {
@@ -63,7 +63,7 @@ describe('Rules v0.9.8 catalog alignment samples', () => {
     expect(String(levels['2']?.effect?.text || '')).toMatch(/10 m/);
     expect(String(levels['5']?.effect?.text || '')).toMatch(/16 m/);
     expect(String(levels['16']?.effect?.text || '')).toMatch(/40 m/);
-    expect(levels['16']?.mechanics?.summonArmorAura?.armor).toBe(32);
+    expect(levels['16']?.mechanics?.summonArmorAura?.armor).toBe(16);
     expect(levels['16']?.mechanics?.summonArmorAura?.radiusM).toBe(40);
   });
 });

@@ -7,11 +7,6 @@
 
 }}
 
-<!-- 2026-10-24 Offensive Expansion: seven new Active Buffs are authored in
-     docs/Rules/Destroyed_Faith_Active_Buffs_Offensive_Expansion_2026-10-24.*
-     and docs/Rules/Destroyed_Faith_Offensive_Active_Buff_Progressions_2026-10-24.json.
-     Live catalogue = 25 (prior 18 unchanged + 7 offensive). Product version remains v0.9.9.5. -->
-
 
 ![Eron](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/eronFull.png)  {position:absolute,top:50px,right:55px,width:700px}
 
@@ -67,6 +62,7 @@ The Homebrewery
 Destroyed Faith — DF Core Active Buffs
 Version: v0.9.9.5 (2026-10-15)
 Playtest rules alignment: 2026-10-20 (Preparation Phase activation; original DN Pool curve retained; no version change)
+Playtest expansion: 2026-10-24 (seven offensive Active Buffs added; existing 18 entries preserved; provisional PP pricing for playtest; no product-version change)
 > **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
 
 }}
@@ -102,6 +98,13 @@ Playtest rules alignment: 2026-10-20 (Preparation Phase activation; original DN 
 - #### [{{ Active Buff: Thorns}}{{ 21}}](#p21)
 - #### [{{ Active Buff: Summon Armor Aura}}{{ 22}}](#p22)
 - #### [{{ Active Buff: Absorption Stone Increase}}{{ 23}}](#p23)
+- #### [{{ Active Buff: Armor Reduction}}{{ 24}}](#p24)
+- #### [{{ Active Buff: Enemy Evade Reduction}}{{ 25}}](#p25)
+- #### [{{ Active Buff: Spell Resistance Piercing}}{{ 26}}](#p26)
+- #### [{{ Active Buff: Maximization}}{{ 27}}](#p27)
+- #### [{{ Active Buff: Armor Reduction Aura}}{{ 28}}](#p28)
+- #### [{{ Active Buff: Allied Damage Aura}}{{ 29}}](#p29)
+- #### [{{ Active Buff: Area Expansion}}{{ 30}}](#p30)
 
 }}
 \page
@@ -115,10 +118,6 @@ Active Buffs are temporary combat enhancements. Unlike Passives, they occupy a m
 ### Preparation Phase Activation
 
 Choose and activate or replace an Active Buff **only during the Preparation Phase**, before the Combat Round begins. Commit your **base Attack Action for the upcoming Round** as the activation cost. You cannot use that base Action on your Turn for a Basic Attack, Active Power, or any other use; it cannot also pay for Dash, Disengage, Parry or another ability. **Additional Attack Actions** from legal sources remain available. If you cannot commit the base Action, you cannot activate a Buff without an explicit exception. Ordinary Active Buffs cannot be activated outside Preparation.
-
-**Retract.** During the same Preparation Phase, you may retract a Buff you just activated. Retracting ends the Buff and restores the committed base Attack Action so you can activate a different Buff later (including in a later Round’s Preparation). The GM may end a maintained Buff outside Preparation; the Attack Action is refunded only when it was committed for that activation Round.
-
-**Active Buff Empowerment** (Resolve Stone Ability). Once per Combat, during the Preparation Phase, when activating an Active Buff, you may empower that Buff by the listed Power Levels and additional complete Rounds. The effective Power Level cannot exceed 16. Empowerment cannot be applied to an already maintained Buff. The allowance does not refresh when the Buff expires, is replaced, or is reactivated.
 
 The Buff is active **before any Turn in the activation Round**, regardless of Initiative. It normally requires no roll unless an entry targets an unwilling creature or explicitly requires one.
 
@@ -160,6 +159,8 @@ The catalogue heading is the canonical technical Power name; Power Level changes
 
 No standard Active Buff grants **Attack Dice, additional Attack Actions, additional Reactions, Special Application or increases, hard control, generic Penetration, hidden Movement Powers, or unrelated secondary mechanics**. The Universal Raise Effect: Special Increase and Intellect Stone Ability: Special Boost follow their own rules; they are not Active Buff effects.
 
+**Named offensive defense bypasses.** Active Buff: Armor Reduction, Enemy Evade Reduction, and Spell Resistance Piercing are dedicated, one-axis exceptions that adjust only the defense component stated in their own entries. They grant no Attack Dice, do not apply a Special, and do not create generic Penetration or modify an unrelated defense.
+
 **Approved exception:** Active Buff: Damage may exceed its PP target by **5 PP** across its printed progression. Closed premium subsystems retain their printed milestone progressions even when not filling every PP tier. A table entry marked **Unavailable** grants nothing and cannot be purchased, selected, activated or received at that Power Level.
 
 ### Critical and Invisibility
@@ -172,6 +173,12 @@ No standard Active Buff grants **Attack Dice, additional Attack Actions, additio
 
 Auras remain centered on their owner. **Damage Aura** pulses at the caster's End of Turn, once per target per Round, while Summon auras apply their bonuses only to the owner's qualifying Summons within radius. Parry, Damage Reduction, Phasing, Absorption and Damage Negation Buffs retain their explicit prerequisites, caps and source-specific restrictions; generic Buff rules do not override them.
 
+**New offensive auras.** Armor Reduction Aura reduces effective Armor only for eligible attacks by the owner or the owner's allies against hostile creatures inside its radius. Allied Damage Aura enhances eligible attacks by *other allied non-Summon creatures* inside its radius; it does not enhance the owner or any Summon. Both are centered on the Buff owner, update their affected creatures as positions change, and do not themselves require an Attack Roll or unwilling-target activation roll. Neither aura applies Corrode, a Special, or a permanent modification to the target's Armor. Multiple auras of the same technical name do not add together; use the strongest eligible bonus.
+
+**Area Expansion restriction.** Only already-existing, instantaneous circular AoEs on the Buff owner's eligible Martial Attacks or Spells gain the printed radius increase. This Buff cannot expand Auras, persistent zones, lines, cones, walls, summoned effects, or any delivery without a printed circular radius. For the same AoE, **Area Expansion and Intellect Stone Ability: Range & AoE Boost do not stack for radius**: use the larger eligible radius bonus. Other delivery components of the Stone Ability still resolve normally. Neither source changes the Power's purchased base radius.
+
+**Maximization source restriction.** Active Buff: Maximization joins the existing Passive: Maximization and Vitality Stone Ability: Maximization as a legal, separately tracked source. Choose exactly one eligible Maximization source for each shared Damage or Healing Roll; sources do not stack or multiply charges.
+
 }}
 \page
 
@@ -183,7 +190,7 @@ Auras remain centered on their owner. **Damage Aura** pulses at the caster's End
   Active Buff: Armor
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      Pure Armor axis. +1 Armor = 7.5 PP; whole-number values are rounded down to the Active Buff budget.<br>
+      Pure Armor axis. Playtest calibration: +2 Armor per Power Level (15 PP per Armor); replaces the former 7.5 PP per Armor conversion.<br>
       Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
@@ -194,22 +201,22 @@ Reinforce your defenses with the printed **Armor bonus**. It applies to you only
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Armor**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Armor**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Armor**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+17 Armor**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+21 Armor**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+25 Armor**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+29 Armor**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+33 Armor**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+37 Armor**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+41 Armor**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+45 Armor**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+49 Armor**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+53 Armor**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+57 Armor**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+61 Armor**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+65 Armor**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Armor**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Armor**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Armor**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Armor**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Armor**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Armor**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Armor**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Armor**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+18 Armor**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+20 Armor**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+22 Armor**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+24 Armor**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+26 Armor**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+28 Armor**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+30 Armor**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+32 Armor**. |
 
 }}
 \page
@@ -257,7 +264,7 @@ Gain the printed **Evade bonus** against eligible attacks for the duration. No A
   Active Buff: Armor Aura
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      Armor aura. Armor = 7.5 PP per point; +2 m radius = 10 PP. Radius cost is paid before Armor. Bonuses are below the self-only Armor Buff.<br>
+      Armor aura. Playtest calibration: +1 Armor per Power Level, with the existing +2 m per Level radius progression. Group-wide Armor is deliberately weaker than the self-only Buff.<br>
       Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
@@ -268,22 +275,22 @@ You and allies **within the listed radius of you** gain the printed Armor bonus 
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. |
-| **2** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | You and allies in the area gain **+6 Armor**. |
-| **3** | Active Buff | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. |
-| **4** | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. |
-| **5** | Active Buff | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+14 Armor**. |
-| **6** | Active Buff | Self | Radius 12 m | Mastery Rank Rounds | You and allies in the area gain **+17 Armor**. |
-| **7** | Active Buff | Self | Radius 14 m | Mastery Rank Rounds | You and allies in the area gain **+20 Armor**. |
-| **8** | Active Buff | Self | Radius 16 m | Mastery Rank Rounds | You and allies in the area gain **+22 Armor**. |
-| **9** | Active Buff | Self | Radius 18 m | Mastery Rank Rounds | You and allies in the area gain **+25 Armor**. |
-| **10** | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. |
-| **11** | Active Buff | Self | Radius 22 m | Mastery Rank Rounds | You and allies in the area gain **+30 Armor**. |
-| **12** | Active Buff | Self | Radius 24 m | Mastery Rank Rounds | You and allies in the area gain **+33 Armor**. |
-| **13** | Active Buff | Self | Radius 26 m | Mastery Rank Rounds | You and allies in the area gain **+36 Armor**. |
-| **14** | Active Buff | Self | Radius 28 m | Mastery Rank Rounds | You and allies in the area gain **+38 Armor**. |
-| **15** | Active Buff | Self | Radius 30 m | Mastery Rank Rounds | You and allies in the area gain **+41 Armor**. |
-| **16** | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+1 Armor**. |
+| **2** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | You and allies in the area gain **+2 Armor**. |
+| **3** | Active Buff | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+3 Armor**. |
+| **4** | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. |
+| **5** | Active Buff | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+5 Armor**. |
+| **6** | Active Buff | Self | Radius 12 m | Mastery Rank Rounds | You and allies in the area gain **+6 Armor**. |
+| **7** | Active Buff | Self | Radius 14 m | Mastery Rank Rounds | You and allies in the area gain **+7 Armor**. |
+| **8** | Active Buff | Self | Radius 16 m | Mastery Rank Rounds | You and allies in the area gain **+8 Armor**. |
+| **9** | Active Buff | Self | Radius 18 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. |
+| **10** | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+10 Armor**. |
+| **11** | Active Buff | Self | Radius 22 m | Mastery Rank Rounds | You and allies in the area gain **+11 Armor**. |
+| **12** | Active Buff | Self | Radius 24 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. |
+| **13** | Active Buff | Self | Radius 26 m | Mastery Rank Rounds | You and allies in the area gain **+13 Armor**. |
+| **14** | Active Buff | Self | Radius 28 m | Mastery Rank Rounds | You and allies in the area gain **+14 Armor**. |
+| **15** | Active Buff | Self | Radius 30 m | Mastery Rank Rounds | You and allies in the area gain **+15 Armor**. |
+| **16** | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+16 Armor**. |
 
 }}
 \page
@@ -783,7 +790,7 @@ When you take **final HP damage from a direct attack, Spell or Power**, the sour
   Active Buff: Summon Armor Aura
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      Owner-only Summon protection aura. Armor applies while eligible Summons are inside the printed radius; normal MR-Round duration and maintained-Buff limits apply.<br>
+      Owner-only Summon protection aura. Playtest calibration: +1 Armor per Power Level; listed radii and maintained-Buff duration remain unchanged.<br>
       Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
@@ -794,22 +801,22 @@ Your own **Summons within the printed radius** gain the listed Armor bonus while
 
 | **Level** | **Armor Bonus** | **Radius** |
 |:--:|:--:|:--:|
-| **1** | +2 Armor | 8 m |
-| **2** | +4 Armor | 10 m |
-| **3** | +6 Armor | 12 m |
-| **4** | +8 Armor | 14 m |
-| **5** | +10 Armor | 16 m |
-| **6** | +12 Armor | 18 m |
-| **7** | +14 Armor | 20 m |
-| **8** | +16 Armor | 22 m |
-| **9** | +18 Armor | 24 m |
-| **10** | +20 Armor | 26 m |
-| **11** | +22 Armor | 28 m |
-| **12** | +24 Armor | 30 m |
-| **13** | +26 Armor | 32 m |
-| **14** | +28 Armor | 34 m |
-| **15** | +30 Armor | 36 m |
-| **16** | +32 Armor | 40 m |
+| **1** | +1 Armor | 8 m |
+| **2** | +2 Armor | 10 m |
+| **3** | +3 Armor | 12 m |
+| **4** | +4 Armor | 14 m |
+| **5** | +5 Armor | 16 m |
+| **6** | +6 Armor | 18 m |
+| **7** | +7 Armor | 20 m |
+| **8** | +8 Armor | 22 m |
+| **9** | +9 Armor | 24 m |
+| **10** | +10 Armor | 26 m |
+| **11** | +11 Armor | 28 m |
+| **12** | +12 Armor | 30 m |
+| **13** | +13 Armor | 32 m |
+| **14** | +14 Armor | 34 m |
+| **15** | +15 Armor | 36 m |
+| **16** | +16 Armor | 40 m |
 
 }}
 \page
@@ -847,5 +854,302 @@ Your own **Summons within the printed radius** gain the listed Armor bonus while
 |   **14**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | First eligible Absorption trigger per Round grants **+4 Colorless Stones**. |
 |   **15**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | First eligible Absorption trigger per Round grants **+4 Colorless Stones**. |
 |   **16**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | First eligible Absorption trigger per Round grants **+4 Colorless Stones**. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+##### New Offensive Active Buffs
+
+<h3 id="active-buff-armor-reduction">
+  Active Buff: Armor Reduction
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Personal offensive Armor reduction, one mechanical axis. Budget: 7.5 PP per point ignored, rounded down.<br>
+      Affects only your own eligible damaging Martial or Spell Attacks; no effect against environmental or ongoing non-Attack damage.<br>
+      Stacks with legal Passive and Stone Armor Reduction, weapon Penetration and target Corrode; effective Armor remains at least 0.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+When you make an eligible **damaging Martial Attack or Spell Attack**, ignore the printed amount of **Armor counted against that specific attack**. For an eligible AoE, evaluate each successfully hit target separately; for Autofire, evaluate each hit separately. This never changes a target's listed Armor and does not benefit any other attacker.
+
+Resolve after applicable **Corrode(X)** and together with other explicitly legal attacker-side Armor Reduction and weapon **Penetration(X)**. Effective Armor cannot be reduced below **0**. This Buff gives no extra Damage Dice, Attack Dice, hit bonus, Corrode, generic Penetration or bypass of percentage-based Damage Reduction. It does not alter Damage Aura pulses, ongoing Special ticks or effects without an eligible Attack.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **5 Armor** on your own eligible damaging Attacks. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **9 Armor** on your own eligible damaging Attacks. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **13 Armor** on your own eligible damaging Attacks. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **17 Armor** on your own eligible damaging Attacks. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **21 Armor** on your own eligible damaging Attacks. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **25 Armor** on your own eligible damaging Attacks. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **29 Armor** on your own eligible damaging Attacks. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **33 Armor** on your own eligible damaging Attacks. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **37 Armor** on your own eligible damaging Attacks. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **41 Armor** on your own eligible damaging Attacks. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **45 Armor** on your own eligible damaging Attacks. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **49 Armor** on your own eligible damaging Attacks. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **53 Armor** on your own eligible damaging Attacks. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **57 Armor** on your own eligible damaging Attacks. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **61 Armor** on your own eligible damaging Attacks. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Ignore **65 Armor** on your own eligible damaging Attacks. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-enemy-evade-reduction">
+  Active Buff: Enemy Evade Reduction
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Pure attacker-side Enemy Evade Reduction. Budget: 30 PP per 1 Evade ignored.<br>
+      Only your own eligible Martial Attack Rolls; each Martial AoE target resolves independently.<br>
+      Never changes actual enemy Evade, does not apply Expose, and does not affect Spell TN.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+Against the targets of your own **eligible Martial Attack Rolls**, treat their **Evade as reduced by the printed amount**, to a minimum effective Evade of **0**. This applies to eligible melee, ranged and attack-based Reactions, as well as Martial AoEs. For each AoE target, compare the one shared Attack Roll against that target's individually modified Evade. Autofire retains its printed **+4 TN per subsequent attack**.
+
+This Buff is **attacker-side only**: it does not reduce the target's listed Evade, help other attackers, grant additional Attack Dice, apply Expose or modify Spell Casting TNs. Other explicitly legal attacker-side Evade reductions may apply, but effective Evade never becomes negative.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **1 less Evade** against your eligible Martial Attacks. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **2 less Evade** against your eligible Martial Attacks. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **3 less Evade** against your eligible Martial Attacks. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **4 less Evade** against your eligible Martial Attacks. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **5 less Evade** against your eligible Martial Attacks. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **6 less Evade** against your eligible Martial Attacks. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **7 less Evade** against your eligible Martial Attacks. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **8 less Evade** against your eligible Martial Attacks. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **9 less Evade** against your eligible Martial Attacks. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **10 less Evade** against your eligible Martial Attacks. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **11 less Evade** against your eligible Martial Attacks. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **12 less Evade** against your eligible Martial Attacks. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **13 less Evade** against your eligible Martial Attacks. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **14 less Evade** against your eligible Martial Attacks. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **15 less Evade** against your eligible Martial Attacks. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Treat enemies as having **16 less Evade** against your eligible Martial Attacks. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-spell-resistance-piercing">
+  Active Buff: Spell Resistance Piercing
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Pure caster-side Spell Resistance Piercing. Budget: 30 PP per 1 Spell Resistance ignored.<br>
+      Affects only the target Spell Resistance component of your own eligible Spells.<br>
+      Does not reduce Spell Base TN, Paid Raise TN, other surcharges or non-Spell defenses.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+When resolving a **Spell you cast** against a creature, ignore up to the printed amount of that creature's **Spell Resistance** for this Spell only. Determine the target's remaining Spell Resistance (minimum **0**) and then calculate its normal **Final Spell TN**, preserving the Spell Base TN, Paid Raise modifiers and any other applicable modifiers. For a Spell AoE, resolve Spell Resistance Piercing separately against each target using the shared Casting Roll.
+
+This Buff does not lower any target's actual Spell Resistance for other casters and never modifies the Spell Base TN, normal Attack Dice, Casting Dice, Evade or a non-Spell resistance.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **1 Spell Resistance** against your own eligible Spells. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **2 Spell Resistance** against your own eligible Spells. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **3 Spell Resistance** against your own eligible Spells. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **4 Spell Resistance** against your own eligible Spells. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **5 Spell Resistance** against your own eligible Spells. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **6 Spell Resistance** against your own eligible Spells. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **7 Spell Resistance** against your own eligible Spells. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **8 Spell Resistance** against your own eligible Spells. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **9 Spell Resistance** against your own eligible Spells. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **10 Spell Resistance** against your own eligible Spells. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **11 Spell Resistance** against your own eligible Spells. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **12 Spell Resistance** against your own eligible Spells. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **13 Spell Resistance** against your own eligible Spells. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **14 Spell Resistance** against your own eligible Spells. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **15 Spell Resistance** against your own eligible Spells. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Ignore up to **16 Spell Resistance** against your own eligible Spells. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-maximization">
+  Active Buff: Maximization
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Closed premium subsystem: 120 PP per available Combat use; milestones at PL4, PL8, PL12, PL16.<br>
+      One use maximizes a complete eligible Damage or Healing Roll, not an Attack/Casting Roll.<br>
+      One source per roll; combat-wide spent allowance cannot refresh by ending, replacing or reactivating this Buff.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+While this Buff is maintained, you may spend one of its listed **combat-wide Maximization uses** immediately before an eligible **Damage Roll or Healing Roll**, after applying any eligible Damage Negation. Every remaining d8 in that complete shared roll receives an **artificial result of 8**; the artificial values do not explode or trigger effects requiring a **natural 8**. A shared AoE or Autofire Damage Roll costs **one use**, even when it affects several creatures; independently rolled pools need separate uses. A roll that never occurs does not spend a use.
+
+Track the allowance **per character and per combat** for this technical Active Buff. Only uses not already spent remain available during a later activation of the same Buff; deactivating, replacing, refreshing, raising its duration or reactivating it never replenishes expended uses in the same combat. Unused uses cannot be spent while the Buff is inactive, and all charges expire at Combat End.
+
+This is a third legal source alongside **Passive: Maximization** and **Vitality Stone Ability: Maximization**. Select exactly **one source per eligible roll**. It does not change the size of the Damage Pool, add an Attack, bypass Armor or grant natural-8 effects.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **1 Maximization use per combat** while this Buff is maintained. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **1 Maximization use per combat** while this Buff is maintained. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **1 Maximization use per combat** while this Buff is maintained. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **1 Maximization use per combat** while this Buff is maintained. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **2 Maximization uses per combat** while this Buff is maintained. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **2 Maximization uses per combat** while this Buff is maintained. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **2 Maximization uses per combat** while this Buff is maintained. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **2 Maximization uses per combat** while this Buff is maintained. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **3 Maximization uses per combat** while this Buff is maintained. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **3 Maximization uses per combat** while this Buff is maintained. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **3 Maximization uses per combat** while this Buff is maintained. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **3 Maximization uses per combat** while this Buff is maintained. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain up to **4 Maximization uses per combat** while this Buff is maintained. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-armor-reduction-aura">
+  Active Buff: Armor Reduction Aura
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Group-support offensive aura: 20 PP per 1 Armor ignored plus radius cost.<br>
+      Radius PP costs: 2 m = 50, 3 m = 90, 4 m = 130, 5 m = 180.<br>
+      Applies only to eligible allied attacks against hostile targets inside the aura; no cast/attack roll or Corrode application.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+This self-centered aura **moves with you**. When you or an allied creature makes an eligible **damaging Martial Attack or Spell Attack against a hostile creature inside the listed radius**, treat only that target's effective Armor against that attack as reduced by the printed amount. The attacker does **not** have to stand within the aura; the **hostile target** does. Evaluate the target's position when its Armor is resolved for the hit. The aura immediately stops applying when the target leaves its radius.
+
+This is an **automatic support aura**, not an Attack Roll, Spell Casting Roll, hostile-target Power application or Corrode. It requires **no separate attack or activation roll** against the affected enemies, grants no new Special, and does not change their listed Armor or apply a lasting debuff. It does not reduce Armor against Damage Aura pulses, ongoing Special damage, environmental damage or other non-Attack damage.
+
+For an eligible attack, combine this aura's reduction with legal **Corrode**, attacker-side **Passive/Active Buff/Stone Armor Reduction** and weapon **Penetration**; minimum effective Armor remains **0**. Multiple Armor Reduction Auras do **not** stack: use the **highest eligible aura reduction**.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **1 Armor**. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **2 Armor**. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **4 Armor**. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **5 Armor**. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **6 Armor**. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **7 Armor**. |
+| **8** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **8 Armor**. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **9 Armor**. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **10 Armor**. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **11 Armor**. |
+| **12** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **12 Armor**. |
+| **13** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **13 Armor**. |
+| **14** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **14 Armor**. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **15 Armor**. |
+| **16** | Active Buff | Self | Radius 5 m | Mastery Rank Rounds | Allied attacks against hostile creatures inside the aura ignore **15 Armor**. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-allied-damage-aura">
+  Active Buff: Allied Damage Aura
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Group-support damage aura, other non-Summon allies only. Budget: 80 PP per 1d8 plus radius cost.<br>
+      Radius PP costs: 2 m = 40, 3 m = 80, 4 m = 130.<br>
+      Damage bonus only on eligible damaging attacks by other allies inside radius; not the owner or Summons.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+This self-centered aura **moves with you**. An **allied non-Summon creature other than you** that is inside the printed radius when resolving its **eligible damaging Martial Attack or Spell Attack** adds the listed **d8 Damage Dice** to that attack's Damage Pool. The aura does not benefit your own attacks, your Summons, allied Summons, environmental damage, an ongoing Special tick, a Damage Aura pulse or a non-attacking effect. The ally gains or loses the bonus immediately on entering or leaving the aura.
+
+For a shared AoE or Autofire Damage Roll, add the eligible aura Damage Dice **once to the shared roll**, then use that common roll for each successful target or hit; do not reroll the bonus per target. Resolve each defender's independent defenses normally. This does not grant extra Attack Dice, extra attacks, Raises or Specials.
+
+Multiple **Allied Damage Auras** do not stack on the same recipient attack; apply the **strongest eligible bonus**. Other legal separately named Damage bonuses follow their own normal rules.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+1d8 Damage**. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+1d8 Damage**. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+1d8 Damage**. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+2d8 Damage**. |
+| **8** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+2d8 Damage**. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+2d8 Damage**. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+2d8 Damage**. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+3d8 Damage**. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+3d8 Damage**. |
+| **13** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+3d8 Damage**. |
+| **14** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+3d8 Damage**. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+4d8 Damage**. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Eligible damaging Attacks by other non-Summon allies inside the aura gain **+4d8 Damage**. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-area-expansion">
+  Active Buff: Area Expansion
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      Premium radius-only subsystem: 120 PP per 1 m added to eligible circular AoE radius.<br>
+      Milestones: PL4 +1 m; PL8 +2 m; PL12 +3 m; PL16 +4 m. PL1-3 unavailable.<br>
+      Does not stack its radius bonus with Intellect Stone Range & AoE Boost. Use the larger radius addition.<br>
+      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Duration: Mastery Rank complete Rounds; expires at final Round End.
+    </span>
+  </span>
+</h3>
+
+While this Buff is maintained, your own eligible **instantaneous circular Martial or Spell AoEs with an existing printed radius** gain the listed **additional radius in meters** when their area is determined. This changes **radius only**, not diameter by a separate amount, and does not grant a new AoE shape, Attack, Damage Die, Raise, Range, Power Level, or target count unrelated to the actual enlarged geometry.
+
+The Buff does **not** enlarge Auras, Persistent Zones, ongoing fields, walls, lines, cones, movement effects, Summon effects, Rituals or any Power without a purchased instantaneous circular AoE. It does not retrospectively enlarge an area created before it became active.
+
+**Anti-stacking rule:** When **Intellect Stone Ability: Range & AoE Boost** also increases the radius of the same AoE, **use the larger of the two eligible radius bonuses, never their sum**. The Stone's separate Range or Reach bonuses still work normally. At **PL16**, this Active Buff provides at most **+4 m** radius.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+1 m radius**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+1 m radius**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+1 m radius**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+1 m radius**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+2 m radius**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+2 m radius**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+2 m radius**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+2 m radius**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+3 m radius**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+3 m radius**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+3 m radius**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+3 m radius**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Your eligible instantaneous circular Martial/Spell AoEs gain **+4 m radius**. |
 
 }}

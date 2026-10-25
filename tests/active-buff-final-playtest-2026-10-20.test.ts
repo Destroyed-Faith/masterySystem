@@ -127,8 +127,8 @@ describe('1. Final catalogue — 18 technical identities + PL tables', () => {
   });
 
   it('matches printed PL1/PL4/PL8/PL16 values for core axes', () => {
-    expect(ab('ab-armor')?.levels?.['1']?.mechanics?.armor).toBe(5);
-    expect(ab('ab-armor')?.levels?.['16']?.mechanics?.armor).toBe(65);
+    expect(ab('ab-armor')?.levels?.['1']?.mechanics?.armor).toBe(2);
+    expect(ab('ab-armor')?.levels?.['16']?.mechanics?.armor).toBe(32);
     expect(ab('ab-evade')?.levels?.['1']?.mechanics?.evade).toBe(2);
     expect(ab('ab-evade')?.levels?.['16']?.mechanics?.evade).toBe(32);
     expect(ab('ab-temp-hp')?.levels?.['1']?.mechanics?.tempHP).toBe('10');

@@ -54,7 +54,7 @@
         "range": "Self",
         "aoe": "Radius 7m",
         "duration": "Instant",
-        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.",
+        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.",
         "special": "Lacerate(10)",
         "powerTemplateId": "active-melee-aoe-damage-t4",
         "chosenSpecialKey": "lacerate"
@@ -66,7 +66,7 @@
         "range": "Self",
         "aoe": "Radius 8m",
         "duration": "Instant",
-        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **13d8 damage** and may use Dive for Cover before payload.",
+        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **13d8 Power damage** (one shared damage roll) and may use Dive for Cover before payload.",
         "special": "Push(10)",
         "powerTemplateId": "active-melee-weapon-aoe",
         "chosenSpecialKey": "push"
@@ -546,7 +546,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload."
+              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload."
             },
             "specials": [],
             "lvl": 8
@@ -757,7 +757,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **13d8 damage** and may use Dive for Cover before payload."
+              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **13d8 Power damage** (one shared damage roll) and may use Dive for Cover before payload."
             },
             "specials": [],
             "lvl": 9

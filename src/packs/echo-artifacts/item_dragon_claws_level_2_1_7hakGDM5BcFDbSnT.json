@@ -40,7 +40,7 @@
         "range": "Self",
         "aoe": "Radius 3m",
         "duration": "Instant",
-        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.",
+        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.",
         "special": "Lacerate(5)",
         "powerTemplateId": "active-melee-aoe-damage-t4",
         "chosenSpecialKey": "lacerate"
@@ -367,7 +367,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload."
+              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload."
             },
             "specials": [],
             "lvl": 2

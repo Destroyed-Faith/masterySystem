@@ -78,9 +78,9 @@ describe('Offensive Active Buff expansion 2026-10-24', () => {
 
   it('preserves original Armor PL curve unchanged', () => {
     const armor = ACTIVE_BUFF_TEMPLATES.find((t) => t.templateId === 'ab-armor')!;
-    expect(armor.levels['1']!.mechanics?.armor).toBe(5);
-    expect(armor.levels['4']!.mechanics?.armor).toBe(17);
-    expect(armor.levels['16']!.mechanics?.armor).toBe(65);
+    expect(armor.levels['1']!.mechanics?.armor).toBe(2);
+    expect(armor.levels['4']!.mechanics?.armor).toBe(8);
+    expect(armor.levels['16']!.mechanics?.armor).toBe(32);
   });
 
   it('matches canonical JSON progressions for all seven new powers', () => {

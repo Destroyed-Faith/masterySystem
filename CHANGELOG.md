@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.784] - 2026-10-25
+
+### Changed
+
+- **Active Buff rebalance (new catalog):** Armor is now +2…+32 (+2/PL, 15 PP per Armor). Armor Aura and Summon Armor Aura are +1…+16. Rules MD, templates, audit curves, Echo Artifact texts (Wyrm Scales / Oracle Field / Draconic Roar), packs, and homepage Tower Wizard previews updated.
+
 ## [0.9.783] - 2026-10-25
 
 ### Fixed

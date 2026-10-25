@@ -45,7 +45,7 @@
         "range": "Self",
         "aoe": "Cone 14m",
         "duration": "Instant",
-        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.",
+        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.",
         "special": "Ruin(9)",
         "powerTemplateId": "active-ranged-aoe-damage-t4",
         "chosenSpecialKey": "ruin"
@@ -57,7 +57,7 @@
         "range": "Self",
         "aoe": "Aura 20m",
         "duration": "MR Rounds",
-        "effect": "You and allies within **20 m** gain **+28 Armor**.",
+        "effect": "You and allies within **20 m** gain **+10 Armor**.",
         "special": "",
         "powerTemplateId": "ab-armor-aura"
       },
@@ -93,7 +93,12 @@
         "level": 2,
         "kind": "power",
         "powerTemplateId": "ab-armor-aura",
-        "displayName": "Draconic Roar"
+        "displayName": "Draconic Roar",
+        "stagePowerLevels": [
+          "4",
+          "10",
+          "16"
+        ]
       },
       {
         "level": 3,
@@ -323,7 +328,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload."
+              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload."
             },
             "specials": [],
             "lvl": 7
@@ -462,7 +467,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "You and allies within **20 m** gain **+28 Armor**."
+              "text": "You and allies within **20 m** gain **+10 Armor**."
             },
             "specials": [],
             "lvl": 5

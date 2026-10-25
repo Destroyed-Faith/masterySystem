@@ -374,10 +374,12 @@ const WYRM_SCALES_HEAVY = {
         2: {
             name: 'Wyrm Scales',
             templateId: 'ab-armor',
+            // Standard Active Buff: Armor PL 4 / 10 / 16 (+2 Armor / PL → +8 / +20 / +32).
+            stagePowerLevels: ['4', '10', '16'],
             stageEffectTexts: [
-                'Gain **+6 Armor**.',
-                'Gain **+12 Armor**. This replaces Wyrm Scales I.',
-                'Gain **+18 Armor**. This replaces Wyrm Scales II.',
+                'Gain **+8 Armor**.',
+                'Gain **+20 Armor**. This replaces Wyrm Scales I.',
+                'Gain **+32 Armor**. This replaces Wyrm Scales II.',
             ],
         },
         3: {
@@ -412,7 +414,7 @@ const WYRM_SCALES_HEAVY = {
             type: 'Active Buff',
             range: 'Self',
             duration: 'Mastery Rank Rounds',
-            effect: 'You gain +6 Armor.',
+            effect: 'Use standard Active Buff: Armor (PL 4): gain +8 Armor for Mastery Rank Rounds.',
             special: 'Armor',
         },
         {
@@ -439,7 +441,7 @@ const WYRM_SCALES_HEAVY = {
             type: 'Active Buff',
             range: 'Self',
             duration: 'Mastery Rank Rounds',
-            effect: 'You gain +12 Armor.',
+            effect: 'Use standard Active Buff: Armor (PL 10): gain +20 Armor for Mastery Rank Rounds. This replaces Wyrm Scales I.',
             special: 'Armor',
         },
         {
@@ -466,7 +468,7 @@ const WYRM_SCALES_HEAVY = {
             type: 'Active Buff',
             range: 'Self',
             duration: 'Mastery Rank Rounds',
-            effect: 'You gain +18 Armor.',
+            effect: 'Use standard Active Buff: Armor (PL 16): gain +32 Armor for Mastery Rank Rounds. This replaces Wyrm Scales II.',
             special: 'Armor',
         },
         {
@@ -794,7 +796,12 @@ const DRAGON_HEAD = {
     // the Node Editor; only the names are overridden.
     progressionPickSpecs: {
         1: { name: 'Breath Weapon', delivery: 'ranged-aoe', special: 'ruin' },
-        2: { name: 'Draconic Roar', templateId: 'ab-armor-aura' },
+        2: {
+            name: 'Draconic Roar',
+            templateId: 'ab-armor-aura',
+            // Armor Aura PL 4 / 10 / 16 (+1 Armor / PL → +4 / +10 / +16; radii 8 / 20 / 32 m).
+            stagePowerLevels: ['4', '10', '16'],
+        },
     },
     stoneFunction: { level: 3, kind: 'stoneRefresh', attribute: 'might', name: 'Draconic Recovery' },
     baseValues: [
@@ -832,7 +839,7 @@ const DRAGON_HEAD = {
             range: 'Self',
             aoe: 'Radius 8 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +12 Armor.',
+            effect: 'You and allies in the area gain +4 Armor.',
             special: 'Armor Aura',
         },
         {
@@ -861,7 +868,7 @@ const DRAGON_HEAD = {
             range: 'Self',
             aoe: 'Radius 20 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +28 Armor.',
+            effect: 'You and allies in the area gain +10 Armor.',
             special: 'Armor Aura',
         },
         {
@@ -890,7 +897,7 @@ const DRAGON_HEAD = {
             range: 'Self',
             aoe: 'Radius 32 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +44 Armor.',
+            effect: 'You and allies in the area gain +16 Armor.',
             special: 'Armor Aura',
         },
         {
@@ -1220,7 +1227,7 @@ const ORACLE_FRAME = {
             range: 'Self',
             aoe: 'Radius 2 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +4 Armor.',
+            effect: 'You and allies in the area gain +1 Armor.',
             special: 'Armor Aura',
         },
         {
@@ -1248,7 +1255,7 @@ const ORACLE_FRAME = {
             range: 'Self',
             aoe: 'Radius 6 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +9 Armor.',
+            effect: 'You and allies in the area gain +3 Armor.',
             special: 'Armor Aura',
         },
         {
@@ -1276,7 +1283,7 @@ const ORACLE_FRAME = {
             range: 'Self',
             aoe: 'Radius 10 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +14 Armor.',
+            effect: 'You and allies in the area gain +5 Armor.',
             special: 'Armor Aura',
         },
         {

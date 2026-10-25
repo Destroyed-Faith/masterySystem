@@ -8,9 +8,10 @@
 import { buildLevels, activeBuffRow } from './_shared.js';
 import { activeBuffSpecialIncrease } from '../pool-special-ranks.js';
 // Level-scaled value tables derived from the L1..L16 calculations in the md.
-// Rules/active-buffs.md Armor: +5 at L1, +4/level → L16 = +65 (7.5 PP per Armor).
-// Active Buff Evade reprice: 15 PP / +1 → L1..L16 = +2..+32 (was +8…+98).
-const AB_ARMOR = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
+// Active Buff: Armor playtest calibration (2026-10-25): +2 Armor / PL (15 PP per Armor)
+// → L1..L16 = +2…+32 (replaces former 7.5 PP / Armor → +5…+65).
+// Active Buff Evade: 15 PP / +1 → L1..L16 = +2…+32.
+const AB_ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const AB_EVADE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Evade half of Evade+THP Active Buff (L1 = 0). Temp refresh curve unchanged. */
 const AB_EVADE_THP_EV = [0, 1, 2, 2, 3, 4, 4, 5, 5, 6, 7, 8, 8, 9, 9, 10];
@@ -31,7 +32,8 @@ const AB_SPELL_RESISTANCE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28,
 /** Active Buff: Self Cleanse (+1 per level; Start of Turn). */
 const AB_CLEANSE_MAINTENANCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const AURA_RADIUS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-const AURA_ARMOR = [4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30, 33, 36, 38, 41, 44];
+// Armor Aura: +1 Armor / PL (weaker than self Buff); radius +2 m / Level unchanged.
+const AURA_ARMOR = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 // --- Active Buff Aura tables (banded radius L1–7=2m, L8–14=3m, L15–16=4m) ---
 const AURA_BAND_RADIUS = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4];
 const AURA_DAMAGE = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
@@ -43,7 +45,8 @@ const GF_PHYS_PEN = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2];
 /** Summon Damage / Armor Aura — radius bands (Players Guide Summons). */
 const SUMMON_AURA_RADIUS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40];
 const SUMMON_DMG_AURA = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
-const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+// Summon Armor Aura: +1 Armor / PL; radii unchanged (8…40 m).
+const SUMMON_ARMOR_AURA = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /** Active Buff: Parry Recovery — 1 Parry per Power Level per Round. */
 const REINFORCED_PARRY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /** Active Buff: Absorption Stone Increase — extra Temporary Colorless Stones on first harvest/Round. */

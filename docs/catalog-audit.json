@@ -1,6 +1,6 @@
 {
-  "version": "0.9.783",
-  "generatedAt": "2026-10-24T17:42:41.225Z",
+  "version": "0.9.784",
+  "generatedAt": "2026-10-25T08:23:02.331Z",
   "summary": {
     "correct": 203,
     "corrected": 3,
@@ -469,21 +469,21 @@
       "id": "ab-area-expansion",
       "name": "Active Buff: Area Expansion",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "activeBuff",
       "id": "ab-armor",
       "name": "Active Buff: Armor",
       "status": "correct",
-      "notes": "Armor curve +5…+65 matches Rules; Active Buff: Armor"
+      "notes": "Armor curve +2…+32 matches Rules; Active Buff: Armor"
     },
     {
       "category": "activeBuff",
       "id": "ab-armor-aura",
       "name": "Active Buff: Armor Aura",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Armor Aura curve +1…+16 matches Rules; Active Buff: Armor Aura"
     },
     {
       "category": "activeBuff",
@@ -602,7 +602,7 @@
       "id": "ab-maximization",
       "name": "Active Buff: Maximization",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "activeBuff",
@@ -658,7 +658,7 @@
       "id": "ab-summon-armor-aura",
       "name": "Active Buff: Summon Armor Aura",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Summon Armor Aura curve +1…+16 matches Rules; Active Buff: Summon Armor Aura"
     },
     {
       "category": "activeBuff",

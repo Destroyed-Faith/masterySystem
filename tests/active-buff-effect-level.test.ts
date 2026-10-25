@@ -30,7 +30,7 @@ describe('resolvePowerMechanics Armor name collision', () => {
     expect(mech?.armor).toBe(4);
   });
 
-  it('resolves Active Buff: Armor by templateId to the buff curve (+5 at PL1, +17 at PL4)', () => {
+  it('resolves Active Buff: Armor by templateId to the buff curve (+2 at PL1, +8 at PL4)', () => {
     const l1 = resolvePowerMechanics({
       name: 'Active Buff: Armor',
       system: { templateId: 'ab-armor', rank: 1, category: 'activeBuff' },
@@ -39,8 +39,8 @@ describe('resolvePowerMechanics Armor name collision', () => {
       name: 'Active Buff: Armor',
       system: { templateId: 'ab-armor', rank: 4, category: 'activeBuff' },
     });
-    expect(l1?.armor).toBe(5);
-    expect(l4?.armor).toBe(17);
+    expect(l1?.armor).toBe(2);
+    expect(l4?.armor).toBe(8);
   });
 
   it('does not map bare templateName Armor + activeBuff category to Passive', () => {
@@ -48,7 +48,7 @@ describe('resolvePowerMechanics Armor name collision', () => {
       name: 'Armor',
       system: { rank: 1, category: 'activeBuff', powerType: 'buff' },
     });
-    // Category-scoped templateName match → Active Buff L1 = +5
-    expect(mech?.armor).toBe(5);
+    // Category-scoped templateName match → Active Buff L1 = +2
+    expect(mech?.armor).toBe(2);
   });
 });
