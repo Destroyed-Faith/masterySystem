@@ -6,8 +6,10 @@
  */
 
 import {
+  PERCEPTION_FOCUS_ATTRIBUTES,
   SPEC_ATTRIBUTE_KEYS,
   baseTnPresets,
+  isCharacterPerceptionSpec,
   isSpecAttributeKey,
   planSkillCheckDraft,
   resolveSkillForDraft,
@@ -18,6 +20,17 @@ import {
   type SpecAttributeKey,
 } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
+
+function attributeKeysForSkill(skill: SkillCheckSkillRef, system: any): readonly string[] {
+  if (skill.kind === 'perception') return PERCEPTION_FOCUS_ATTRIBUTES;
+  if (skill.kind === 'specialization') {
+    const resolved = resolveSkillForDraft(system, skill);
+    if (resolved.spec && isCharacterPerceptionSpec(resolved.spec)) {
+      return PERCEPTION_FOCUS_ATTRIBUTES;
+    }
+  }
+  return SPEC_ATTRIBUTE_KEYS;
+}
 
 export interface SkillCheckDialogResult {
   draft: SkillCheckDraft;
@@ -153,6 +166,18 @@ export async function promptSkillCheckRollDialog(
     'SET BY GM',
   );
 
+  const focusAttrs = attributeKeysForSkill(ctxSkill, system);
+  const perceptionFocusHint =
+    focusAttrs === PERCEPTION_FOCUS_ATTRIBUTES
+      ? masteryLocalize(
+          'MASTERY.df2026.skillCheck.perceptionFocus',
+          'Perception Focus: Wits, Intellect, or Resolve.',
+        )
+      : masteryLocalize(
+          'MASTERY.df2026.skillCheck.gmAnnouncedAttr',
+          'GM-vorgegeben / vom SL genannt — not a player choice.',
+        );
+
   // NPC situational pools already include dice — Attribute is PC-only context.
   const attrBlock = npcSit
     ? ''
@@ -173,17 +198,16 @@ export async function promptSkillCheckRollDialog(
               '— record GM Attribute —',
             ),
           )}</option>
-          ${SPEC_ATTRIBUTE_KEYS.map(
-            (k) =>
-              `<option value="${k}" ${k === ctxAttr ? 'selected' : ''}>${cap(k)} (${attrVal(
-                k,
-              )})</option>`,
-          ).join('')}
+          ${focusAttrs
+            .map(
+              (k) =>
+                `<option value="${k}" ${k === ctxAttr ? 'selected' : ''}>${cap(k)} (${attrVal(
+                  k,
+                )})</option>`,
+            )
+            .join('')}
         </select>
-        <small class="md-sublabel">${masteryLocalize(
-          'MASTERY.df2026.skillCheck.gmAnnouncedAttr',
-          'GM-vorgegeben / vom SL genannt — not a player choice.',
-        )}</small>
+        <small class="md-sublabel">${perceptionFocusHint}</small>
       </div>`;
 
   const paidLabel = npcSit

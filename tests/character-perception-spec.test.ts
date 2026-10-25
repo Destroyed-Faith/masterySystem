@@ -30,7 +30,7 @@ describe('Character free Perception Spec', () => {
     expect(perc).toMatchObject({
       id: CHARACTER_PERCEPTION_SPEC_ID,
       name: 'Perception',
-      field: 'investigation',
+      field: 'perception',
       rank: CHARACTER_PERCEPTION_MIN_RANK,
     });
     const again = ensureCharacterHasPerceptionSpec({
@@ -45,7 +45,7 @@ describe('Character free Perception Spec', () => {
       {
         id: CHARACTER_PERCEPTION_SPEC_ID,
         name: 'Perception',
-        field: 'investigation' as const,
+        field: 'perception' as const,
         scope: 'Notice, search, and read the scene',
         rank: 1,
       },
@@ -61,7 +61,7 @@ describe('Character free Perception Spec', () => {
       {
         id: CHARACTER_PERCEPTION_SPEC_ID,
         name: 'Perception',
-        field: 'investigation' as const,
+        field: 'perception' as const,
         scope: 'Notice, search, and read the scene',
         rank: 4,
       },

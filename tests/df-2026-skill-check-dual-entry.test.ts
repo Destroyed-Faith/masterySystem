@@ -48,9 +48,9 @@ const trackingSystem = {
       rank: 8,
     },
     {
-      id: 'investigation:perception',
+      id: 'perception:perception',
       name: 'Perception',
-      field: 'investigation',
+      field: 'perception',
       scope: 'Noticing details',
       rank: 2,
     },

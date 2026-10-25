@@ -12,7 +12,7 @@ import {
     type EchoImprintAttribute,
 } from '../../rules/echo-imprints.js';
 import {
-    SKILL_FIELDS,
+    PAID_SKILL_FIELDS,
     SKILL_FIELD_LABELS,
     isSkillField,
     specializationIdentityKey,
@@ -180,7 +180,7 @@ export function buildWizardSpecRows(selection: Partial<TowerWizardSelection>): W
             field,
             scope: spec?.scope ?? '',
             rank: 2,
-            fieldOptions: SKILL_FIELDS.map((f) => ({
+            fieldOptions: PAID_SKILL_FIELDS.map((f) => ({
                 value: f,
                 label: SKILL_FIELD_LABELS[f],
                 selected: f === field,
@@ -198,7 +198,9 @@ export function specRecordsFromDraft(
         const name = String(row.name ?? '').trim();
         const scope = String(row.scope ?? '').trim();
         if (!name && !scope) continue;
-        const field: SkillField = isSkillField(row.field) ? row.field : 'physical';
+        const rawField = String(row.field ?? '');
+        const field: SkillField =
+            isSkillField(rawField) && rawField !== 'perception' ? rawField : 'physical';
         out.push({ id: specializationIdentityKey(name, field), name, field, scope, rank: 2 });
     }
     return out;

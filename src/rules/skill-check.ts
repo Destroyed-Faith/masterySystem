@@ -25,7 +25,13 @@ import {
   readSpecializations,
   type SpecAttributeKey,
 } from './specialization-roll.js';
-import type { SpecializationRecord } from './specializations.js';
+import {
+  PERCEPTION_FOCUS_ATTRIBUTES,
+  isCharacterPerceptionSpec,
+  isPerceptionFocusAttribute,
+  normalizeSpecializationName,
+  type SpecializationRecord,
+} from './specializations.js';
 import {
   findSituationalSkillById,
   readSituationalSkills,
@@ -33,6 +39,9 @@ import {
 
 /** Universal free starting Perception acts as Rank 2 when no Spec is present. */
 export const UNIVERSAL_PERCEPTION_RANK = 2;
+
+/** Re-export Focus options for dialogs / tests. */
+export { PERCEPTION_FOCUS_ATTRIBUTES, isPerceptionFocusAttribute };
 
 export type SkillCheckSkillRef =
   | { kind: 'specialization'; id: string }
@@ -469,6 +478,21 @@ export function planSkillCheckDraft(input: {
       ? String(ctx.attributeKey || 'wits')
       : '';
   if (!isNpcSituational && !attrKey) return emptyFail('Invalid Attribute.');
+
+  const isPerceptionCheck =
+    ctx.skill.kind === 'perception' ||
+    (resolved.spec != null && isCharacterPerceptionSpec(resolved.spec)) ||
+    normalizeSpecializationName(resolved.name) === 'perception';
+  if (
+    isPerceptionCheck &&
+    !isNpcSituational &&
+    attrKey &&
+    !isPerceptionFocusAttribute(attrKey)
+  ) {
+    return emptyFail(
+      'Perception Checks use Attribute Focus Wits, Intellect, or Resolve only.',
+    );
+  }
 
   const attributeValue = Math.max(
     0,

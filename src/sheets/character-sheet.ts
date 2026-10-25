@@ -6536,8 +6536,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     // No open GM request — record verbally announced GM check (not server-verified).
+    // Perception is the universal Skill (Wits / Intellect / Resolve Focus), not a Field Spec.
     const skillRef = spec
-      ? { kind: 'specialization' as const, id: spec.id }
+      ? isCharacterPerceptionSpec(spec)
+        ? ({ kind: 'perception' as const })
+        : { kind: 'specialization' as const, id: spec.id }
       : { kind: 'untrained' as const };
     const choice = await promptSkillCheckRollDialog({
       actor: this.actor,

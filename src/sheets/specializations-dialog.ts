@@ -4,7 +4,7 @@
  */
 
 import {
-  SKILL_FIELDS,
+  PAID_SKILL_FIELDS,
   SKILL_FIELD_LABELS,
   SPECIALIZATION_FIELD_EXAMPLES,
   SPECIALIZATION_MAX_RANK,
@@ -84,7 +84,7 @@ export async function showSpecializationEditDialog(
     ? STARTING_SPECIALIZATION_RANK
     : (existing?.rank ?? 1);
 
-  const fieldOptions = SKILL_FIELDS.map(
+  const fieldOptions = PAID_SKILL_FIELDS.map(
     (f) =>
       `<option value="${f}" ${existing?.field === f ? 'selected' : ''}>${escapeHtml(SKILL_FIELD_LABELS[f])}</option>`,
   ).join('');
@@ -107,7 +107,7 @@ export async function showSpecializationEditDialog(
         } />
       </div>`;
 
-  const exampleOptions = SKILL_FIELDS.flatMap((f) =>
+  const exampleOptions = PAID_SKILL_FIELDS.flatMap((f) =>
     (SPECIALIZATION_FIELD_EXAMPLES[f] ?? []).map(
       (ex) =>
         `<option value="${escapeHtml(f)}::${escapeHtml(ex.name)}" data-field="${escapeHtml(f)}" data-name="${escapeHtml(ex.name)}" data-scope="${escapeHtml(ex.scope)}">${escapeHtml(SKILL_FIELD_LABELS[f])} — ${escapeHtml(ex.name)}</option>`,
@@ -164,8 +164,14 @@ export async function showSpecializationEditDialog(
                 : allowRankEdit
                   ? Math.floor(Number(readValue(root, 'rank')) || 0)
                   : (existing?.rank ?? 1);
-              if (!isSkillField(fieldRaw)) {
+              if (!isSkillField(fieldRaw) || fieldRaw === 'perception') {
                 (globalThis as any).ui?.notifications?.warn?.('Choose a Field.');
+                return done(false);
+              }
+              if (isCharacterPerceptionSpec({ name })) {
+                (globalThis as any).ui?.notifications?.warn?.(
+                  'Perception is free for every character — it is not one of the five Specializations.',
+                );
                 return done(false);
               }
               const field = fieldRaw as SkillField;

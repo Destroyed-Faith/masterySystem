@@ -25,6 +25,9 @@ import {
   readSpecializations,
   STARTING_SPECIALIZATION_COUNT,
   STARTING_SPECIALIZATION_RANK,
+  ensureCharacterHasPerceptionSpec,
+  isCharacterPerceptionSpec,
+  paidSpecializations,
   type EchoImprintAttribute,
   type SkillField,
   type SpecializationRecord,
@@ -52,6 +55,7 @@ const IMPRINT_ATTRIBUTES: EchoImprintAttribute[] = [
 
 /** Legacy Skill category → closest Specialization Field (suggestion only). */
 const CATEGORY_TO_FIELD: Record<string, SkillField> = {
+  // Perception is a free universal Skill — do not suggest it as Investigation.
   [SKILL_CATEGORIES.AWARENESS]: 'investigation',
   [SKILL_CATEGORIES.PHYSICAL]: 'physical',
   [SKILL_CATEGORIES.KNOWLEDGE_CRAFT]: 'science-craft',
@@ -189,8 +193,10 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
   const legacyExpressions = snapshot?.minorExpressions ?? system.minorExpressions ?? null;
   const mr = masteryRankOf(system);
 
-  const currentSpecs = readSpecializations(system);
-  const haveNames = new Set(currentSpecs.map((s) => normalizeSpecializationName(s.name)));
+  const currentSpecsAll = readSpecializations(system);
+  // Review UI picks five *paid* Specs; free Perception is auto-ensured on save.
+  const currentSpecs = paidSpecializations(currentSpecsAll) as SpecializationRecord[];
+  const haveNames = new Set(currentSpecsAll.map((s) => normalizeSpecializationName(s.name)));
 
   const legacySkillsList: LegacySkillRow[] = [];
   const specSuggestions: SpecSuggestion[] = [];
@@ -200,6 +206,17 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
       if (rating <= 0) continue;
       const def = SKILLS[skillKey];
       const name = def?.name ?? titleCase(skillKey);
+      // Universal Perception is never a paid Spec suggestion.
+      if (skillKey === 'perception' || normalizeSpecializationName(name) === 'perception') {
+        legacySkillsList.push({
+          skillKey,
+          name,
+          field: 'perception',
+          rating,
+          categoryLabel: def?.category ? String(def.category) : 'Perception',
+        });
+        continue;
+      }
       const field: SkillField = (def && CATEGORY_TO_FIELD[def.category]) || 'physical';
       legacySkillsList.push({
         skillKey,
@@ -248,7 +265,7 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
   const warnings: string[] = [];
   if (legacySkillsList.length && currentSpecs.length < STARTING_SPECIALIZATION_COUNT) {
     warnings.push(
-      `Pick exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK}. Legacy Skill ratings are not converted.`,
+      `Pick exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK} (Perception is free and does not use a slot). Legacy Skill ratings are not converted.`,
     );
   }
   for (const u of unmappedExpressions) {
@@ -312,7 +329,11 @@ export function normalizeReviewSpecialization(
 ): SpecializationRecord | null {
   const name = String(raw?.name ?? '').trim();
   if (!name) return null;
-  const field: SkillField = isSkillField(String(raw?.field ?? '')) ? (raw!.field as SkillField) : 'physical';
+  // Perception is free universal — never saved as one of the five paid review Specs.
+  if (isCharacterPerceptionSpec({ name, field: raw?.field, id: raw?.id })) return null;
+  const fieldRaw = String(raw?.field ?? '');
+  const field: SkillField =
+    isSkillField(fieldRaw) && fieldRaw !== 'perception' ? (fieldRaw as SkillField) : 'physical';
   return {
     id: specializationIdentityKey(name, field),
     name,
@@ -340,8 +361,13 @@ export function buildDf2026ReviewUpdate(
   }
   const imprintIds = [...new Set((input?.echoImprints ?? []).map((v) => String(v ?? '').trim()).filter(Boolean))];
 
+  // Always keep free Perception alongside the five paid Specs.
+  const withPerception = ensureCharacterHasPerceptionSpec({
+    specializations: specs,
+  }).specializations;
+
   const errors: string[] = [];
-  errors.push(...validateSpecializationList(specs, { requireStartingBudget: true }).errors);
+  errors.push(...validateSpecializationList(withPerception, { requireStartingBudget: true }).errors);
 
   const attributes = {} as Partial<Record<EchoImprintAttribute, number>>;
   for (const attr of IMPRINT_ATTRIBUTES) {
@@ -356,17 +382,17 @@ export function buildDf2026ReviewUpdate(
   );
 
   if (errors.length) {
-    return { ok: false, errors, update: null, specializations: specs, echoImprints: imprintIds };
+    return { ok: false, errors, update: null, specializations: withPerception, echoImprints: imprintIds };
   }
   return {
     ok: true,
     errors: [],
     update: {
-      'system.specializations': specs,
+      'system.specializations': withPerception,
       'system.echoImprints': imprintIds,
       [`flags.mastery-system.${DF_2026_REVIEWED_FLAG}`]: now.toISOString(),
     },
-    specializations: specs,
+    specializations: withPerception,
     echoImprints: imprintIds,
   };
 }

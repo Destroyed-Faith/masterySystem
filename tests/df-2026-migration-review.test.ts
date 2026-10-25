@@ -124,8 +124,15 @@ describe('DF 2026 migration review plan', () => {
       ].sort(),
     );
     const specs = update['system.specializations'] as any[];
-    expect(specs).toHaveLength(5);
-    expect(specs.every((s) => s.rank === 2)).toBe(true);
+    // Five paid Specs + free universal Perception.
+    expect(specs).toHaveLength(6);
+    expect(specs.filter((s) => s.name !== 'Perception')).toHaveLength(5);
+    expect(specs.find((s) => s.name === 'Perception')).toMatchObject({
+      field: 'perception',
+      rank: 2,
+    });
+    expect(specs.every((s) => s.rank === 2 || s.name === 'Perception')).toBe(true);
+    expect(specs.filter((s) => s.name !== 'Perception').every((s) => s.rank === 2)).toBe(true);
     // XP / Stones / Powers / Artifacts keys are never part of the review update.
     for (const key of Object.keys(update)) {
       expect(key).not.toMatch(/xp|stone|power|artifact|items/i);
@@ -210,9 +217,9 @@ describe('DF 2026 import shape', () => {
     expect(system.specializations).toEqual([
       { id: 'finesse:lockpicking', name: 'Lockpicking', field: 'finesse', scope: 'Locks', rank: 2 },
       {
-        id: 'investigation:perception',
+        id: 'perception:perception',
         name: 'Perception',
-        field: 'investigation',
+        field: 'perception',
         scope: 'Notice, search, and read the scene',
         rank: 2,
       },

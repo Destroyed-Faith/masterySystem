@@ -15,7 +15,7 @@
  */
 
 import {
-  SKILL_FIELDS,
+  PAID_SKILL_FIELDS,
   SKILL_FIELD_LABELS,
   STARTING_SPECIALIZATION_COUNT,
   STARTING_SPECIALIZATION_RANK,
@@ -53,7 +53,7 @@ function cap(s: string): string {
 }
 
 function specRowHtml(row: { name?: string; field?: string; scope?: string }): string {
-  const fieldOptions = SKILL_FIELDS.map(
+  const fieldOptions = PAID_SKILL_FIELDS.map(
     (f) =>
       `<option value="${f}" ${row.field === f ? 'selected' : ''}>${esc(SKILL_FIELD_LABELS[f as SkillField])}</option>`,
   ).join('');
@@ -178,7 +178,7 @@ function planHtml(plan: Df2026ReviewPlan, attrValue: (attr: string) => number): 
         <p class="dfr-hint">${esc(
           masteryLocalize(
             'MASTERY.df2026.migrationReview.startingSpecsHint',
-            'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation).',
+            'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation). Perception is free for every character and does not use one of these five slots.',
           ),
         )}</p>
         <div class="dfr-spec-rows">${starterSpecs.join('')}</div>

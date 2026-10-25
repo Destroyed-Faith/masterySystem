@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.788] - 2026-10-25
+
+### Fixed
+
+- **Perception (Universal Skill):** Perception is no longer an Investigation Spec and does not consume one of the five starting Specialization slots (migration review, creation, Field pickers). Checks use Attribute Focus Wits / Intellect / Resolve only; legacy `investigation:perception` is remapped to the universal Field.
+
 ## [0.9.787] - 2026-10-25
 
 ### Added
