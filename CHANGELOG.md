@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.796] - 2026-10-25
+
+### Fixed
+
+- **Artifact Melee AoE targeting:** Rending Spiral, Tail Sweep, Frostwave, Whirling Scourge and other self-centered Instant Melee AoEs now open the interactive radius preview + affected-creature confirm (same Instant AoE rules: no Primary Target). Acceptance tests cover menu → route → Attack Card context for Claws, Breath, and Moonlight Judgment.
+
 ## [0.9.795] - 2026-10-25
 
 ### Fixed

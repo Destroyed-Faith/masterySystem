@@ -7,8 +7,7 @@
  */
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
 import { getSegmentIdForOption } from './radial-menu/options.js';
-import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting.js';
-import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
+import { startMeleeTargeting } from './melee-targeting.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeMovementAction, isNormalMovementReplaced, markPowerUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
@@ -1278,51 +1277,26 @@ export async function handleChosenCombatOption(token, option) {
             return;
         }
         if (option.burstMeleeAoE) {
-            console.log('[MS NPC Targeting] SELECT entering MELEE_AOE_DIALOG', {
-                name: option.name,
-                source: option.source,
-                burstMeleeRadiusMeters: option.burstMeleeRadiusMeters,
-                aoeRadiusMeters: option.aoeRadiusMeters,
-                aoeShape: option.aoeShape,
-                tags: option.tags,
-            });
-            const collectedBurstIds = collectMeleeBurstHostileTokenIds(token, option);
-            if (!collectedBurstIds.length) {
-                ui.notifications?.warn?.('Melee AoE: no hostile targets in range.');
-                console.warn('Mastery System | [RADIAL FLOW] melee burst: zero hostile targets in AoE', {
-                    option: option.name,
-                    token: token.name
-                });
-                return;
-            }
-            // Instant AoE: NO Primary Target. Preview affected creatures (not hits),
-            // then one shared Attack roll vs each Evade + equal payload.
+            // Self-centered Instant Melee AoE (Rending Spiral, Tail Sweep, Frostwave, …):
+            // same interactive flow as Cone/Zone — radius preview + affected-creature
+            // panel. No Primary Target; no silent Dialog shortcut.
             const radiusM = typeof option.burstMeleeRadiusMeters === 'number' && option.burstMeleeRadiusMeters > 0
                 ? option.burstMeleeRadiusMeters
                 : Number(option.aoeRadiusMeters) || Number(option.range) || 0;
-            const { promptMeleeAoeAffectedConfirm } = await import('./combat/aoe-affected-confirm.js');
-            const confirmed = await promptMeleeAoeAffectedConfirm({
-                attackerToken: token,
-                candidateTokenIds: collectedBurstIds,
-                radiusMeters: radiusM,
-                powerName: String(option.name || 'Melee AoE'),
+            console.log('[MS NPC Targeting] SELECT entering MELEE_BURST_RADIUS_MODE', {
+                name: option.name,
+                source: option.source,
+                radiusM,
+                tags: option.tags,
             });
-            if (confirmed === 'cancelled')
-                return;
-            const effectiveBurstIds = confirmed.affectedTokenIds;
-            const { aoeContextFromAffectedTokenIds, createMeleeAttackCard } = await import('./combat/attack-executor.js');
-            const powerBonus = option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
-            const built = aoeContextFromAffectedTokenIds(effectiveBurstIds, powerBonus);
-            if (!built) {
-                ui.notifications?.warn?.('Melee AoE: no valid targets in the area.');
-                return;
-            }
-            const carrierTok = canvas.tokens?.get(built.carrierTokenId);
-            if (!carrierTok) {
-                ui.notifications?.warn?.('Melee AoE: could not resolve a roll-carrier token.');
-                return;
-            }
-            await createMeleeAttackCard(token, carrierTok, option, null, built.aoe);
+            option.range = 0;
+            option.rangeMeters = 0;
+            option.aoeShape = 'radius';
+            option.aoeRadiusMeters = radiusM;
+            option.aoePlacementProfile = 'melee-burst';
+            option.allowManualTargetSelection = true;
+            option.defaultTargetGroup = option.defaultTargetGroup || 'creature';
+            startUtilityRadiusMode(token, option);
             return;
         }
         startMeleeTargeting(token, option);

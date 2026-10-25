@@ -13,6 +13,7 @@ import { bestConeEdgePair, wideningConeCells } from './utils/cone-template.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldCenter, } from './utils/grid-snap.js';
 import { pickTokenAtPoint } from './utils/token-pick.js';
 import { tokenIsExcludedAsTarget } from './combat/defeated-token.js';
+import { tokenIsHostileTo } from './combat/threatened-ranged.js';
 import { utilitySingleTargetAllowsSelf } from './utility-targeting-rules.js';
 import { artifactLevelToTemplateRank } from './utils/artifact-spell-pick.js';
 import { getTemplate } from './utils/powers/templates/index.js';
@@ -334,10 +335,20 @@ function isAlly(casterToken, targetToken) {
     return false;
 }
 /**
- * Check if a token is an enemy of the caster
+ * Check if a token is an enemy of the caster.
+ * Prefer combat hostility (covers mis-set dispositions); fall back to HOSTILE flag.
  */
-function isEnemy(_casterToken, targetToken) {
-    const targetDisposition = targetToken.document.disposition;
+function isEnemy(casterToken, targetToken) {
+    try {
+        if (tokenIsHostileTo(casterToken, targetToken))
+            return true;
+    }
+    catch {
+        /* fall through */
+    }
+    if (isAlly(casterToken, targetToken))
+        return false;
+    const targetDisposition = targetToken?.document?.disposition ?? targetToken?.disposition;
     return targetDisposition === CONST.TOKEN_DISPOSITIONS.HOSTILE;
 }
 /**
@@ -365,6 +376,8 @@ function findCandidatesInRadius(casterToken, center, radiusMeters, targetGroup) 
     const candidates = new Map();
     const allTokens = canvas.tokens?.placeables || [];
     for (const token of allTokens) {
+        if (!token?.id || token.id === casterToken?.id)
+            continue;
         if (tokenIsExcludedAsTarget(token))
             continue;
         const tokenCenter = token.center;
@@ -449,7 +462,10 @@ function updateCandidateVisuals(state) {
  */
 function createTargetSelectionPanel(state) {
     const isAttackAoe = state.option.slot === 'attack' &&
-        (state.option.aoePlacementProfile === 'hostile-zone' || state.option.aoeShape === 'cone');
+        (state.option.aoePlacementProfile === 'hostile-zone' ||
+            state.option.aoePlacementProfile === 'melee-burst' ||
+            state.option.aoeShape === 'cone' ||
+            state.option.burstMeleeAoE === true);
     const confirmLabel = isAttackAoe
         ? 'Confirm AoE'
         : state.option.aoePlacementProfile === 'hostile-zone'
@@ -898,8 +914,11 @@ export function startUtilityRadiusMode(token, option) {
         onPointerDown: () => { },
         onKeyDown: () => { },
         manualMode: option.allowManualTargetSelection !== false,
-        // Hostile attack zones spare allies; heal/utility keep allies selectable.
-        excludeAllies: option.aoePlacementProfile === 'hostile-zone',
+        // Hostile attack zones / self-centered melee bursts spare allies by default;
+        // heal/utility keep allies selectable.
+        excludeAllies: option.aoePlacementProfile === 'hostile-zone' ||
+            option.aoePlacementProfile === 'melee-burst' ||
+            option.burstMeleeAoE === true,
     };
     activeUtilityTargeting = state;
     // Event handlers (can now reference state)
@@ -1117,9 +1136,12 @@ async function confirmUtilityTargets(state) {
     const isHealPlacement = state.option.aoePlacementProfile === 'heal';
     const isCleansePlacement = state.option.aoePlacementProfile === 'cleanse';
     const isSupport = isHealPlacement || isCleansePlacement;
-    // Cone Instant AoE (e.g. Dragon Breath): Attack Action + Breath use are spent
-    // on Roll via the attack card — never on targeting confirm / cancel.
-    const deferActionSpendToAttackCard = state.option.slot === 'attack' && state.option.aoeShape === 'cone';
+    // Instant AoE attack cards (Cone Breath, self-centered Melee burst): Attack
+    // Action / Breath use are spent on Roll — never on targeting confirm / cancel.
+    const deferActionSpendToAttackCard = state.option.slot === 'attack' &&
+        (state.option.aoeShape === 'cone' ||
+            state.option.aoePlacementProfile === 'melee-burst' ||
+            state.option.burstMeleeAoE === true);
     if (state.option.costsAction && !deferActionSpendToAttackCard) {
         if (combat && actor) {
             const available = getAvailableAttackActions(actor, combat);
@@ -1226,11 +1248,15 @@ async function confirmUtilityTargets(state) {
         return;
     }
     const isConeAttack = state.option.slot === 'attack' && state.option.aoeShape === 'cone';
-    if (isAttackZone || isConeAttack) {
+    const isMeleeBurstAttack = state.option.slot === 'attack' &&
+        (state.option.aoePlacementProfile === 'melee-burst' || state.option.burstMeleeAoE === true);
+    if (isAttackZone || isConeAttack || isMeleeBurstAttack) {
         if (!targets.length) {
             ui.notifications?.warn(isConeAttack
                 ? 'No affected creatures in the Cone.'
-                : 'Keine Ziele in der Zone ausgewählt.');
+                : isMeleeBurstAttack
+                    ? 'No affected creatures in the Melee AoE.'
+                    : 'Keine Ziele in der Zone ausgewählt.');
             endUtilityTargeting(false);
             return;
         }
@@ -1260,8 +1286,8 @@ async function confirmUtilityTargets(state) {
                 state.option.spellZoneCenterX = state.center.x;
                 state.option.spellZoneCenterY = state.center.y;
             }
-            // Cone Breath / Melee Cone: melee attack card. Hostile-zone placement: ranged.
-            if (isConeAttack) {
+            // Cone Breath / self-centered Melee burst → melee card. Hostile-zone → ranged.
+            if (isConeAttack || isMeleeBurstAttack) {
                 await createMeleeAttackCard(state.casterToken, rollCarrier, state.option, null, built.aoe);
             }
             else {
