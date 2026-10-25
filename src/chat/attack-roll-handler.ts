@@ -1520,12 +1520,26 @@ function buildMitigationHtml(damageResult: any): string {
 
 function buildDamageChatContent(damageResult: any, target: Actor, flags?: any): string {
   const damageBreakdown: string[] = [];
-  if (damageResult.baseDamage > 0) damageBreakdown.push(`Base: ${damageResult.baseDamage}`);
+  if (damageResult.baseDamage > 0) damageBreakdown.push(`Waffe: ${damageResult.baseDamage}`);
+  if (damageResult.spellFocusDamage > 0) {
+    damageBreakdown.push(`Spell Focus: ${damageResult.spellFocusDamage}`);
+  }
   if (damageResult.powerDamage > 0) damageBreakdown.push(`Power: ${damageResult.powerDamage}`);
   if (damageResult.passiveDamage > 0) damageBreakdown.push(`Passive: ${damageResult.passiveDamage}`);
+  if (damageResult.activeBuffDamage > 0) {
+    damageBreakdown.push(`Active Buff: ${damageResult.activeBuffDamage}`);
+  }
   if (damageResult.raiseDamage > 0) damageBreakdown.push(`Raises: ${damageResult.raiseDamage}`);
   const damageText =
     damageBreakdown.length > 0 ? damageBreakdown.join(', ') : `${damageResult.totalDamage} damage`;
+
+  const specialsLabel = String(
+    damageResult.specialsLabel ||
+      (Array.isArray(damageResult.specialsUsed)
+        ? damageResult.specialsUsed.filter((s: string) => /\(\d+\)/.test(String(s))).join(', ')
+        : '') ||
+      '',
+  ).trim();
 
   const details = Array.isArray(damageResult.rollDetails)
     ? (damageResult.rollDetails as string[])
@@ -1538,6 +1552,10 @@ function buildDamageChatContent(damageResult: any, target: Actor, flags?: any): 
           .map((line) => `<li>${esc(line)}</li>`)
           .join('')}</ul></div>`
       : '';
+
+  const specialsHtml = specialsLabel
+    ? `<p class="mastery-damage-specials"><strong>Special:</strong> ${esc(specialsLabel)}</p>`
+    : '';
 
   const limitNotes = Array.isArray(damageResult.applicationLimitNotes)
     ? (damageResult.applicationLimitNotes as string[])
@@ -1564,6 +1582,7 @@ function buildDamageChatContent(damageResult: any, target: Actor, flags?: any): 
       }</h3>
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
+      ${specialsHtml}
       <p><strong>Target:</strong> ${(target as any).name}</p>
       ${limitHtml}
       ${buildMitigationHtml(damageResult)}

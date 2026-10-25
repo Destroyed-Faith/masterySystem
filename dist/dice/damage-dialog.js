@@ -807,12 +807,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         : [];
     const { getActiveSpecialValue } = await import('../system/active-specials.js');
     const targetMarkValue = Math.max(0, getActiveSpecialValue(target, 'mark'));
-    // Spell Focus AFTER raise/power formula resolve — earlier merges were wiped by
-    // `snapshotToDamageFormula`. Staff of the Dark etc. add dice to Spell damage
-    // (not Waffe); Waffe stays 0 for casting attacks (`ignoreWeaponDamage`).
-    const powerDamageBeforeFocus = powerDamage;
+    // Spell Focus is a separate damage bucket (never merged into Power for rolling
+    // or chat labels). Instant AoE never adds Spell Focus.
     let spellFocusBonusDice = 0;
-    // Instant AoE never adds Spell Focus (shared Power damage only).
     if (spellFocusDamageApplies({
         isSpell: attackIsSpell,
         isNpcAttackFlow,
@@ -821,11 +818,6 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     })) {
         try {
             spellFocusBonusDice = getActorSpellFocusBonusDice(actorToUse);
-            if (spellFocusBonusDice > 0) {
-                powerDamage = addD8DiceToFormula(powerDamage, spellFocusBonusDice);
-                if (selectedPowerData)
-                    selectedPowerData.damage = powerDamage;
-            }
         }
         catch (err) {
             console.warn('Mastery System | spell focus bonus failed', err);
@@ -837,6 +829,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     const spellFocusSources = attackIsSpell && !isNpcAttackFlow && spellFocusBonusDice > 0 && !isInstantAoeFlags(flags)
         ? listActorSpellFocusSources(actorToUse)
         : [];
+    const activeBuffPreview = summarizeActiveBuffDamage(actorToUse);
     // Create damage card as chat message instead of dialog
     return new Promise(async (resolve) => {
         let npcMaximizationUi = null;
@@ -858,8 +851,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             }
         }
         const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue, {
-            // Keep Power line free of Focus dice when the Focus row is shown.
-            power: shownPowerDamage || powerDamageBeforeFocus,
+            power: shownPowerDamage || powerDamage,
             raise: shownRaiseDamage,
             specials: shownSpecials,
             might: flags?.attackType === 'melee' && attributeScalingEnabled()
@@ -869,6 +861,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             spellFocusDice: spellFocusBonusDice,
             weaponName: weaponDisplayName,
             spellFocusSources,
+            activeBuff: activeBuffPreview.formula,
+            activeBuffSources: activeBuffPreview.sources,
             castingNoWeapon: !!flags?.ignoreWeaponDamage ||
                 (isInstantAoeFlags(flags) && flags?.dragonHeadDamageBreath !== true),
         }, formatSplitStrikeBanner(flags), {
@@ -896,7 +890,10 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     selectedPowerId: selectedPowerId,
                     baseDamage,
                     powerDamage,
+                    spellFocusDice: spellFocusBonusDice,
+                    spellFocusSources,
                     passiveDamage,
+                    activeBuffDamage: activeBuffPreview.formula,
                     raises: 0,
                     raiseOutcome: flags?.raiseOutcome ?? null,
                     raiseOutcomeLine,
@@ -945,6 +942,91 @@ function damageCardHtmlEsc(text) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+/**
+ * Unconditional Active Buff: Damage riders (same filter as the roll loop).
+ * Returned formula is display-only (e.g. `4d8` or `4d8+2d8`).
+ */
+export function summarizeActiveBuffDamage(attacker) {
+    const sources = [];
+    if (!attacker)
+        return { formula: '0', sources };
+    try {
+        const contributions = collectMechanicsContributions(attacker);
+        for (const c of contributions) {
+            if (c.sourceKind !== 'buff')
+                continue;
+            const rider = c.mechanics?.damageRider;
+            if (!rider?.flat || rider.vsCondition)
+                continue;
+            const aw = c.mechanics?.applyWhen;
+            if (aw && String(aw) !== 'activeBuff-active')
+                continue;
+            const dice = String(rider.flat).trim().replace(/^\+\s*/, '');
+            if (!dice || !/^\d*d\d+/i.test(dice))
+                continue;
+            const name = String(c.source || 'Active Buff').trim() || 'Active Buff';
+            sources.push({ name, dice });
+        }
+        if (sources.length === 0)
+            return { formula: '0', sources };
+        const allNd8 = sources.every((s) => /^\d+d8$/i.test(s.dice));
+        if (allNd8) {
+            const n = sources.reduce((sum, s) => sum + (parseInt(s.dice, 10) || 0), 0);
+            return { formula: n > 0 ? `${n}d8` : '0', sources };
+        }
+        return { formula: sources.map((s) => s.dice).join('+'), sources };
+    }
+    catch {
+        return { formula: '0', sources };
+    }
+}
+/** Specials that belong on the player-facing Special: chat line. */
+export function formatDamageSpecialsLabel(specialsUsed) {
+    if (!Array.isArray(specialsUsed) || !specialsUsed.length)
+        return '';
+    const out = [];
+    const seen = new Set();
+    for (const raw of specialsUsed) {
+        const s = String(raw || '').trim();
+        if (!s)
+            continue;
+        if (/^mark spent /i.test(s))
+            continue;
+        if (/vulnerability/i.test(s) && /→/.test(s))
+            continue;
+        if (/\(buff damage\)/i.test(s))
+            continue;
+        if (/^active buff\b/i.test(s))
+            continue;
+        if (/^penetration\s*\(/i.test(s))
+            continue;
+        if (/^precision\s*\(/i.test(s))
+            continue;
+        if (/^brutal\s*impact\s*\(/i.test(s))
+            continue;
+        if (/removed by Damage Negation/i.test(s))
+            continue;
+        if (/^Maximization:/i.test(s))
+            continue;
+        if (/^Phased/i.test(s))
+            continue;
+        if (/^Reroll/i.test(s))
+            continue;
+        if (/Armor Penetration/i.test(s))
+            continue;
+        if (/Armor Reduction/i.test(s))
+            continue;
+        // Prefer Name(N) style specials; keep short printable status names.
+        if (!/^[A-Za-z][\w\s]*(?:\(\d+\))?$/.test(s) && !/\(\d+\)/.test(s))
+            continue;
+        const key = s.toLowerCase();
+        if (seen.has(key))
+            continue;
+        seen.add(key);
+        out.push(s);
+    }
+    return out.join(', ');
 }
 /**
  * Create HTML content for damage card in chat
@@ -1047,6 +1129,22 @@ npcMaximizationUi = null) {
           <span class="damage-label">Power:</span>
           <span class="damage-value">${hitSplit.power || powerDamage || '0'}</span>
         </div>
+        ${passiveDamage && passiveDamage !== '0'
+        ? `<div class="damage-row">
+          <span class="damage-label">Passive:</span>
+          <span class="damage-value">${passiveDamage}</span>
+        </div>`
+        : ''}
+        ${hitSplit.activeBuff && hitSplit.activeBuff !== '0'
+        ? `<div class="damage-row">
+          <span class="damage-label">Active Buff:</span>
+          <span class="damage-value">${Array.isArray(hitSplit.activeBuffSources) && hitSplit.activeBuffSources.length
+            ? hitSplit.activeBuffSources
+                .map((s) => `${damageCardHtmlEsc(s.dice)}${s.name ? ` — ${damageCardHtmlEsc(s.name)}` : ''}`)
+                .join('; ')
+            : damageCardHtmlEsc(hitSplit.activeBuff)}</span>
+        </div>`
+        : ''}
         <div class="damage-row damage-row-raise-live" style="${hitSplit.raise ? '' : 'display:none;'}">
           <span class="damage-label">Raise:</span>
           <span class="damage-value">${damageCardHtmlEsc(hitSplit.raise || '')}</span>
@@ -1062,12 +1160,6 @@ npcMaximizationUi = null) {
         ? `<div class="damage-row">
           <span class="damage-label">Might/8:</span>
           <span class="damage-value">+${hitSplit.might}, fest</span>
-        </div>`
-        : ''}
-        ${passiveDamage && passiveDamage !== '0'
-        ? `<div class="damage-row">
-          <span class="damage-label">Passive:</span>
-          <span class="damage-value">${passiveDamage}</span>
         </div>`
         : ''}
       </div>
@@ -1376,6 +1468,7 @@ export function attachDamageCardHandlers(messageId) {
                 spendMaximizationAfterNegation: deferredMaximization,
                 raiseBonusDice: Math.max(0, Math.floor(Number(flags.raiseBonusDice) || 0)),
                 raiseBonusLabel: String(flags.raiseBonusLabel || ''),
+                spellFocusDice: Math.max(0, Math.floor(Number(flags.spellFocusDice) || 0)),
             });
             // Mechanical npcStressD8 / Stress on hit retired.
             completeDamageCard(messageId, result);
@@ -2630,10 +2723,13 @@ damageRollOpts) {
                     sheet.render(false);
                 return {
                     baseDamage: 0,
+                    spellFocusDamage: 0,
                     powerDamage: 0,
                     passiveDamage: 0,
+                    activeBuffDamage: 0,
                     raiseDamage: 0,
                     specialsUsed: [],
+                    specialsLabel: '',
                     totalDamage: 0,
                     rollDetails: ['Phased — hit ignored before the damage roll (no damage, no Specials)'],
                     count8s: 0,
@@ -2660,6 +2756,7 @@ damageRollOpts) {
     // rolled (half-pool cap, floor). Skipped on Faith-Fracture rerolls: the
     // reduced pool from the first roll is passed back in.
     let negationSkipRaiseDice = 0;
+    let spellFocusDiceLeft = Math.max(0, Math.floor(Number(damageRollOpts?.spellFocusDice) || 0));
     const negationNotes = [];
     if (target && !skipPhasingPrompt) {
         try {
@@ -2671,6 +2768,7 @@ damageRollOpts) {
             const resolvedRaiseBonusDice = Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0));
             const originalDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
                 Math.max(0, Math.floor(stoneDamageBonusDice)) +
+                spellFocusDiceLeft +
                 countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
                 countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
                 raiseDamagePicks +
@@ -2694,6 +2792,11 @@ damageRollOpts) {
                     if (left > 0 && stoneDamageBonusDice > 0) {
                         const take = Math.min(stoneDamageBonusDice, left);
                         stoneDamageBonusDice -= take;
+                        left -= take;
+                    }
+                    if (left > 0 && spellFocusDiceLeft > 0) {
+                        const take = Math.min(spellFocusDiceLeft, left);
+                        spellFocusDiceLeft -= take;
                         left -= take;
                     }
                     if (left > 0) {
@@ -2734,6 +2837,7 @@ damageRollOpts) {
         const remainingRaiseBonus = Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice);
         const remainingDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
             Math.max(0, Math.floor(stoneDamageBonusDice)) +
+            spellFocusDiceLeft +
             countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
             countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
             raiseDamagePicksLeft +
@@ -2798,6 +2902,15 @@ damageRollOpts) {
         catch (e) {
             console.warn('Mastery System | Could not consume Martial Damage bonus after roll', e);
         }
+    }
+    let spellFocusDamageRolled = 0;
+    if (spellFocusDiceLeft > 0) {
+        const focusRoll = await rollDiceWithDetail(`${spellFocusDiceLeft}d8`, 'Spell Focus', undefined, poolFaces);
+        spellFocusDamageRolled = focusRoll.total;
+        if (focusRoll.line)
+            rollDetails.push(focusRoll.line);
+        if (focusRoll.roll)
+            damageChatRolls.push(focusRoll.roll);
     }
     const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power', undefined, poolFaces);
     const powerDamageRolled = powerRoll.total;
@@ -2948,7 +3061,9 @@ damageRollOpts) {
                 const dice = String(rider.flat).trim().replace(/^\+\s*/, '');
                 if (!dice || !/^\d*d\d+/i.test(dice))
                     continue;
-                const r = await rollDiceWithDetail(dice, `${c.source} (buff damage)`);
+                const buffName = String(c.source || '').trim();
+                const label = buffName ? `Active Buff — ${buffName}` : 'Active Buff';
+                const r = await rollDiceWithDetail(dice, label);
                 activeBuffDamageRolled += r.total;
                 if (r.line)
                     rollDetails.push(r.line);
@@ -3085,6 +3200,7 @@ damageRollOpts) {
     let totalDamage = baseDamageRolled
         + stoneMightDamageRolled
         + mightMeleeBonus
+        + spellFocusDamageRolled
         + powerDamageRolled
         + summonAuraRolled
         + alliedAuraRolled
@@ -3108,9 +3224,13 @@ damageRollOpts) {
             await attacker.update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
             ui.notifications?.info(`${attacker.name} spent 1 Reroll Point — rerolling damage (was ${prevTotal}).`);
             const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext, skipApply, true, // phasing was already offered before the first roll
-            autofireShared
-                ? { useId: autofireShared.useId } // Negation already committed; Maximization already spent
-                : undefined);
+            {
+                ...(autofireShared?.useId ? { useId: autofireShared.useId } : {}),
+                // Negation already stripped locals; keep remaining Focus / Raise buckets.
+                spellFocusDice: spellFocusDiceLeft,
+                raiseBonusDice: Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice),
+                raiseBonusLabel: damageRollOpts?.raiseBonusLabel,
+            });
             rerolled.rollDetails = [
                 `Reroll — 1 Reroll Point spent (previous total: ${prevTotal})`,
                 ...(rerolled.rollDetails ?? []),
@@ -3271,12 +3391,16 @@ damageRollOpts) {
             await resolveForcedMovementAfterDamage(attacker, target, specialsUsed);
         }
     }
+    const specialsLabel = formatDamageSpecialsLabel(specialsUsed);
     const result = {
         baseDamage: baseDamageRolled,
+        spellFocusDamage: spellFocusDamageRolled,
         powerDamage: powerDamageRolled,
         passiveDamage: passiveDamageRolled,
+        activeBuffDamage: activeBuffDamageRolled,
         raiseDamage,
         specialsUsed,
+        specialsLabel: specialsLabel || undefined,
         applicationLimitNotes: applicationLimitNotes.length ? applicationLimitNotes : undefined,
         totalDamage: appliedDamage,
         rollDetails: rollDetails.length ? rollDetails : undefined,

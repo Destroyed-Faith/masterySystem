@@ -16,10 +16,18 @@ export declare class MasteryItemSheet extends BaseItemSheet {
         };
         window: {
             resizable: boolean;
+            controls: {
+                icon: string;
+                label: string;
+                action: string;
+            }[];
         };
         form: {
             submitOnChange: boolean;
             closeOnSubmit: boolean;
+        };
+        actions: {
+            msExportFullItem: (this: any) => void;
         };
     };
     /** @override */

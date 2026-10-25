@@ -176,17 +176,25 @@
     <p class="artifact-card-action-reason">{{actorActions.linkDisabledReason}}</p>
     {{/if}}
     {{/if}}
+    <button type="button" class="artifact-card-edit" data-action="export-full-item" title="Download exact Item JSON + readable Markdown (read-only).">
+      <i class="fas fa-file-export"></i> Export Full Item
+    </button>
     {{#if isGM}}
     <button type="button" class="artifact-card-edit" data-action="open-node-editor" title="Edit this artifact in the Node Editor (GM only).">
       <i class="fas fa-pen"></i> Edit in Node Editor
     </button>
     {{/if}}
   </footer>
-  {{else if isGM}}
+  {{else}}
   <footer class="artifact-card-footer">
+    <button type="button" class="artifact-card-edit" data-action="export-full-item" title="Download exact Item JSON + readable Markdown (read-only).">
+      <i class="fas fa-file-export"></i> Export Full Item
+    </button>
+    {{#if isGM}}
     <button type="button" class="artifact-card-edit" data-action="open-node-editor" title="Edit this artifact in the Node Editor (GM only).">
       <i class="fas fa-pen"></i> Edit in Node Editor
     </button>
+    {{/if}}
   </footer>
   {{/if}}
 </div>

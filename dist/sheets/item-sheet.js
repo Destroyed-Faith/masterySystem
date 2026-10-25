@@ -12,8 +12,32 @@ export class MasteryItemSheet extends BaseItemSheet {
     static DEFAULT_OPTIONS = {
         classes: ['mastery-system', 'sheet', 'item'],
         position: { width: 520, height: 480 },
-        window: { resizable: true },
+        window: {
+            resizable: true,
+            controls: [
+                {
+                    icon: 'fas fa-file-export',
+                    label: 'Export Full Item',
+                    action: 'msExportFullItem',
+                },
+            ],
+        },
         form: { submitOnChange: true, closeOnSubmit: false },
+        actions: {
+            msExportFullItem: function () {
+                void (async () => {
+                    try {
+                        const { downloadItemFullExport } = await import('../utils/item-full-export.js');
+                        const { jsonName, mdName } = downloadItemFullExport(this.item);
+                        ui.notifications?.info(`Exported ${jsonName} and ${mdName} (read-only).`);
+                    }
+                    catch (err) {
+                        console.error('Mastery System | Export Full Item failed', err);
+                        ui.notifications?.error('Export Full Item failed — see console.');
+                    }
+                })();
+            },
+        },
     };
     /** @override */
     static PARTS = {

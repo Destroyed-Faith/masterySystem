@@ -36,6 +36,17 @@ const BaseArtifactSheet: any = foundry.applications.api.HandlebarsApplicationMix
   foundry.applications.sheets.ItemSheetV2,
 );
 
+async function exportFullItemFromSheet(item: any): Promise<void> {
+  try {
+    const { downloadItemFullExport } = await import('../utils/item-full-export.js');
+    const { jsonName, mdName } = downloadItemFullExport(item);
+    ui.notifications?.info(`Exported ${jsonName} and ${mdName} (read-only).`);
+  } catch (err) {
+    console.error('Mastery System | Export Full Item failed', err);
+    ui.notifications?.error('Export Full Item failed — see console.');
+  }
+}
+
 function readChosenPath(
   wrap: Element | null,
   btn: HTMLElement,
@@ -58,8 +69,22 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
   static DEFAULT_OPTIONS = {
     classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
     position: { width: 520, height: 'auto' },
-    window: { resizable: true },
+    window: {
+      resizable: true,
+      controls: [
+        {
+          icon: 'fas fa-file-export',
+          label: 'Export Full Item',
+          action: 'msExportFullItem',
+        },
+      ],
+    },
     form: { submitOnChange: false, closeOnSubmit: false },
+    actions: {
+      msExportFullItem: function (this: any) {
+        void exportFullItemFromSheet(this.item);
+      },
+    },
   };
 
   /** @override */
@@ -295,6 +320,11 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
       const { wireEmbeddedArtifactToWorldTree } = await import('../utils/artifact-tree-grant.js');
       const wire = await wireEmbeddedArtifactToWorldTree(parentActor, item, { notify: true });
       if (wire?.ok) await refresh();
+    });
+
+    root.querySelector('[data-action="export-full-item"]')?.addEventListener('click', (ev: Event) => {
+      ev.preventDefault();
+      void exportFullItemFromSheet(item);
     });
 
     if (!game.user?.isGM) return;

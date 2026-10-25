@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.800] - 2026-10-25
+
+### Added
+
+- **Export Full Item:** Parent Item / Artifact sheet control downloads exact stored Item JSON plus readable Markdown (Levels 1–10). STORED vs REGISTRY clearly separated; read-only (no migrate/resync).
+
+### Fixed
+
+- **Damage source breakdown:** Spell Focus is no longer merged into Power for rolling/chat. Pre-roll and post-roll show Waffe / Spell Focus / Power / Passive / Active Buff / Specials as separate lines.
+
 ## [0.9.799] - 2026-10-25
 
 ### Fixed

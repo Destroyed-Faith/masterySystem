@@ -1331,14 +1331,25 @@ function buildMitigationHtml(damageResult) {
 function buildDamageChatContent(damageResult, target, flags) {
     const damageBreakdown = [];
     if (damageResult.baseDamage > 0)
-        damageBreakdown.push(`Base: ${damageResult.baseDamage}`);
+        damageBreakdown.push(`Waffe: ${damageResult.baseDamage}`);
+    if (damageResult.spellFocusDamage > 0) {
+        damageBreakdown.push(`Spell Focus: ${damageResult.spellFocusDamage}`);
+    }
     if (damageResult.powerDamage > 0)
         damageBreakdown.push(`Power: ${damageResult.powerDamage}`);
     if (damageResult.passiveDamage > 0)
         damageBreakdown.push(`Passive: ${damageResult.passiveDamage}`);
+    if (damageResult.activeBuffDamage > 0) {
+        damageBreakdown.push(`Active Buff: ${damageResult.activeBuffDamage}`);
+    }
     if (damageResult.raiseDamage > 0)
         damageBreakdown.push(`Raises: ${damageResult.raiseDamage}`);
     const damageText = damageBreakdown.length > 0 ? damageBreakdown.join(', ') : `${damageResult.totalDamage} damage`;
+    const specialsLabel = String(damageResult.specialsLabel ||
+        (Array.isArray(damageResult.specialsUsed)
+            ? damageResult.specialsUsed.filter((s) => /\(\d+\)/.test(String(s))).join(', ')
+            : '') ||
+        '').trim();
     const details = Array.isArray(damageResult.rollDetails)
         ? damageResult.rollDetails
         : [];
@@ -1347,6 +1358,9 @@ function buildDamageChatContent(damageResult, target, flags) {
         ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
             .map((line) => `<li>${esc(line)}</li>`)
             .join('')}</ul></div>`
+        : '';
+    const specialsHtml = specialsLabel
+        ? `<p class="mastery-damage-specials"><strong>Special:</strong> ${esc(specialsLabel)}</p>`
         : '';
     const limitNotes = Array.isArray(damageResult.applicationLimitNotes)
         ? damageResult.applicationLimitNotes
@@ -1368,6 +1382,7 @@ function buildDamageChatContent(damageResult, target, flags) {
       <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}${splitBanner ? ` <span class="damage-split-sub">(${esc(splitBanner)})</span>` : ''}</h3>
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
+      ${specialsHtml}
       <p><strong>Target:</strong> ${target.name}</p>
       ${limitHtml}
       ${buildMitigationHtml(damageResult)}

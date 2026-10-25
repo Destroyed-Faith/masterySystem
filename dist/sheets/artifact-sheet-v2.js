@@ -19,6 +19,17 @@ import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-act
 import { openFoundryImagePopout } from '../ui/image-url-share.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 const BaseArtifactSheet = foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ItemSheetV2);
+async function exportFullItemFromSheet(item) {
+    try {
+        const { downloadItemFullExport } = await import('../utils/item-full-export.js');
+        const { jsonName, mdName } = downloadItemFullExport(item);
+        ui.notifications?.info(`Exported ${jsonName} and ${mdName} (read-only).`);
+    }
+    catch (err) {
+        console.error('Mastery System | Export Full Item failed', err);
+        ui.notifications?.error('Export Full Item failed — see console.');
+    }
+}
 function readChosenPath(wrap, btn) {
     const pathSel = wrap?.querySelector('.artifact-sheet-path-select');
     const worldId = String((pathSel instanceof HTMLSelectElement
@@ -36,8 +47,22 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     static DEFAULT_OPTIONS = {
         classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
         position: { width: 520, height: 'auto' },
-        window: { resizable: true },
+        window: {
+            resizable: true,
+            controls: [
+                {
+                    icon: 'fas fa-file-export',
+                    label: 'Export Full Item',
+                    action: 'msExportFullItem',
+                },
+            ],
+        },
         form: { submitOnChange: false, closeOnSubmit: false },
+        actions: {
+            msExportFullItem: function () {
+                void exportFullItemFromSheet(this.item);
+            },
+        },
     };
     /** @override */
     static PARTS = {
@@ -240,6 +265,10 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
             const wire = await wireEmbeddedArtifactToWorldTree(parentActor, item, { notify: true });
             if (wire?.ok)
                 await refresh();
+        });
+        root.querySelector('[data-action="export-full-item"]')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void exportFullItemFromSheet(item);
         });
         if (!game.user?.isGM)
             return;

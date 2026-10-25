@@ -23,10 +23,18 @@ export declare class ArtifactSheetV2 extends BaseArtifactSheet {
         };
         window: {
             resizable: boolean;
+            controls: {
+                icon: string;
+                label: string;
+                action: string;
+            }[];
         };
         form: {
             submitOnChange: boolean;
             closeOnSubmit: boolean;
+        };
+        actions: {
+            msExportFullItem: (this: any) => void;
         };
     };
     /** @override */

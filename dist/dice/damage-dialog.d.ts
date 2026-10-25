@@ -33,10 +33,16 @@ export interface SpecialOption {
 }
 export interface DamageResult {
     baseDamage: number;
+    /** Spell Focus pool total (separate from Power — never merged into powerDamage). */
+    spellFocusDamage?: number;
     powerDamage: number;
     passiveDamage: number;
+    /** Unconditional Active Buff: Damage rider total. */
+    activeBuffDamage?: number;
     raiseDamage: number;
     specialsUsed: string[];
+    /** Player-facing Special line for chat, e.g. `Expose(3), Hex(5)`. */
+    specialsLabel?: string;
     /** Overflow from the per-Round Diminishing Special application limit. */
     applicationLimitNotes?: string[];
     totalDamage: number;
@@ -80,6 +86,19 @@ export interface DamageResult {
     sharedDice?: SharedDicePool;
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
+/**
+ * Unconditional Active Buff: Damage riders (same filter as the roll loop).
+ * Returned formula is display-only (e.g. `4d8` or `4d8+2d8`).
+ */
+export declare function summarizeActiveBuffDamage(attacker: Actor | null | undefined): {
+    formula: string;
+    sources: Array<{
+        name: string;
+        dice: string;
+    }>;
+};
+/** Specials that belong on the player-facing Special: chat line. */
+export declare function formatDamageSpecialsLabel(specialsUsed: readonly string[] | null | undefined): string;
 /**
  * Bind damage-card UI (roll, cancel). Safe to call again after chat HTML refresh.
  */
@@ -190,6 +209,8 @@ damageRollOpts?: {
      */
     raiseBonusDice?: number;
     raiseBonusLabel?: string;
+    /** Spell Focus d8 count — rolled as its own pool, never merged into Power. */
+    spellFocusDice?: number;
 }): Promise<DamageResult>;
 /**
  * After HP is applied for a hit, open Push/Pull destination picking when the
