@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.793] - 2026-10-25
+
+### Fixed
+
+- **CI / Tower Wizard:** Restoration & Cleanse group again lists catalogue Single Target Heal; outdated R-05 “no HP heal” assertion removed.
+
 ## [0.9.792] - 2026-10-25
 
 ### Fixed

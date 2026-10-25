@@ -392,14 +392,14 @@ describe('tower-wizard-packages', () => {
         );
     });
 
-    it('offense groups combine restoration and cleanse support actives', () => {
+    it('offense groups combine heal, restoration and cleanse support actives', () => {
         const groups = getOffenseActiveSpecialGroups(null);
         const healing = groups.find((g) => g.groupLabel === 'Restoration & Cleanse');
         expect(healing).toBeDefined();
         const labels = healing!.patterns.map((p) => p.label);
-        expect(labels.some((l) => /restoration/i.test(l))).toBe(true);
-        // R-05: retired ordinary Single/AoE Heal patterns never appear.
-        expect(healing!.patterns.some((p) => /single-heal|aoe-heal/.test(p.patternId))).toBe(false);
+        // Catalogue Single Target Heal (HP) is selectable again alongside Scarred Bar Restoration.
+        expect(healing!.patterns.some((p) => /single-heal/.test(p.patternId))).toBe(true);
+        expect(labels.some((l) => /restoration|heal/i.test(l))).toBe(true);
         expect(healing!.patterns.some((p) => p.patternId.includes('health-level-heal'))).toBe(true);
         expect(healing!.patterns.some((p) => p.patternId.includes('aoe-restoration'))).toBe(true);
         expect(labels.some((l) => /cleanse/i.test(l))).toBe(true);

@@ -277,8 +277,15 @@ const OFFENSE_GROUP_ORDER = [
     OFFENSE_GROUP_HEAL,
 ];
 const NORMAL_ATTACK_PATTERN_ORDER = ['weapon-single', 'weapon-split', 'weapon-aoe', 'weapon-autofire'];
-// R-05: ordinary Single/AoE Heal Actives are retired; Scarred Bar Restoration replaces them.
-const HEAL_PATTERN_ORDER = ['health-level-heal', 'aoe-restoration', 'single-cleanse', 'aoe-cleanse', 'heal-cleanse-mixed'];
+// Catalogue: Single Target Heal (HP) + Scarred Bar Restoration + Cleanse.
+const HEAL_PATTERN_ORDER = [
+    'single-heal',
+    'health-level-heal',
+    'aoe-restoration',
+    'single-cleanse',
+    'aoe-cleanse',
+    'heal-cleanse-mixed',
+];
 const CONTROL_PATTERN_ORDER = ['damage-stunned'];
 function isNormalWeaponAttack(entry) {
     return /active-(?:melee|ranged)-weapon-(single|aoe|split)$/.test(entry.templateId)
@@ -353,7 +360,7 @@ function offenseSpecialGroupTooltip(groupKey, specialKey) {
         return 'Positioning, disables, and hard control — push, pull, prone, disarm, stun, and similar effects.';
     }
     if (groupKey === OFFENSE_GROUP_HEAL) {
-        return 'Reopen Scarred Health Bars with Restoration and remove afflictions with Cleanse. Neither restores ordinary HP.';
+        return 'Single Target Heal restores HP; Scarred Bar Restoration reopens Scarred bars; Cleanse removes afflictions.';
     }
     if (groupKey === OFFENSE_UTILITY_GROUP_KEY) {
         return 'Barriers, illusion, zones, and other Actives that do not fit the categories above.';
