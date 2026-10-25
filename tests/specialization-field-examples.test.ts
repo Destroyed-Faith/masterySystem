@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-  SKILL_FIELDS,
+  PAID_SKILL_FIELDS,
   SPECIALIZATION_FIELD_EXAMPLES,
 } from '../src/rules/index.js';
 
 describe('Specialization Field examples', () => {
-  it('offers eight inspiration Specs per Field with non-empty scopes', () => {
-    for (const field of SKILL_FIELDS) {
+  it('offers eight inspiration Specs per paid Field with non-empty scopes', () => {
+    for (const field of PAID_SKILL_FIELDS) {
       const list = SPECIALIZATION_FIELD_EXAMPLES[field];
       expect(list, field).toHaveLength(8);
       const names = new Set<string>();
@@ -17,5 +17,9 @@ describe('Specialization Field examples', () => {
       }
       expect(names.size).toBe(8);
     }
+  });
+
+  it('has no paid inspiration Specs under universal Perception', () => {
+    expect(SPECIALIZATION_FIELD_EXAMPLES.perception).toEqual([]);
   });
 });

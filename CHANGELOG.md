@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.789] - 2026-10-25
+
+### Fixed
+
+- **CI:** Specialization Field examples test only requires eight inspiration Specs on paid Fields; universal Perception has none.
+
 ## [0.9.788] - 2026-10-25
 
 ### Fixed
