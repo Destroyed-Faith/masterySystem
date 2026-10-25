@@ -1357,7 +1357,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // No need to calculate here - just use the derived values from system.combat
     
     // Add skills list (sorted alphabetically)
-    context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
+    // Legacy fixed Skills are retired — Specializations are the only Skills UI.
+    context.skills = [];
 
     // DF 2026 Specializations (live path); legacy fixed Skills stay as archive.
     this.#prepareSpecializations(context);

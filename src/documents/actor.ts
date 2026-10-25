@@ -20,6 +20,10 @@ import {
 } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier, getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import {
+  isVirtualUnarmedWeapon,
+  resolveEquippedWeaponForAttackType,
+} from '../utils/unarmed-fallback.js';
+import {
   buildActorMechanicsBreakdown,
   buildBuffMechanicsBreakdown,
   buildPassiveMechanicsBreakdown,
@@ -659,24 +663,47 @@ export class MasteryActor extends Actor {
       system.combat = {};
     }
     
-    // Find equipped items
-    let equippedWeapon: any = null;
+    // Find equipped armor / shield (item scan). Active weapon comes from the
+    // Weapon Set resolver so two-handed Artifacts assigned to the active set
+    // are not reported as Unarmed when `system.equipped` drifted to false.
     let equippedArmor: any = null;
     let equippedShield: any = null;
-    
-    for (const item of items) {
+
+    const itemList: any[] = (() => {
+      if (!items) return [];
+      if (Array.isArray(items)) return items;
+      if (typeof (items as any).values === 'function') {
+        try {
+          return Array.from((items as any).values());
+        } catch {
+          return [];
+        }
+      }
+      if (typeof (items as any)[Symbol.iterator] === 'function') {
+        try {
+          return Array.from(items as any);
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    })();
+
+    for (const item of itemList) {
       const itemSystem = (item as any).system || {};
       if (itemSystem.equipped === true) {
-        if (item.type === 'weapon' && !equippedWeapon) {
-          equippedWeapon = item;
-        } else if (item.type === 'armor' && !equippedArmor) {
+        if (item.type === 'armor' && !equippedArmor) {
           equippedArmor = item;
         } else if (item.type === 'shield' && !equippedShield) {
           equippedShield = item;
         }
       }
     }
-    
+
+    const resolvedWeapon = resolveEquippedWeaponForAttackType(itemList, 'melee', this);
+    const equippedWeapon =
+      resolvedWeapon && !isVirtualUnarmedWeapon(resolvedWeapon) ? resolvedWeapon : null;
+
     // Set derived equipment names and IDs
     system.combat.activeWeaponName = equippedWeapon?.name || 'Unarmed';
     system.combat.activeWeaponId = equippedWeapon?.id || null;

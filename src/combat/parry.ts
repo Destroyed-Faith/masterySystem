@@ -16,6 +16,10 @@ import {
   type RoundState,
 } from './action-economy.js';
 import { passiveParryPoolForLevel } from '../utils/powers/templates/passives.js';
+import {
+  isVirtualUnarmedWeapon,
+  resolveEquippedWeaponForAttackType,
+} from '../utils/unarmed-fallback.js';
 
 export const SPELL_PARRY_ORIGIN_M = 22;
 
@@ -352,16 +356,11 @@ export async function applyParryDiceStrip(
 /** Equipped weapon / artifact weapon damage dice string (fallback 1d8). */
 export function resolveEquippedWeaponDamageFormula(actor: any): string {
   const items = actorItems(actor);
-  const weapon =
-    items.find((it) => it?.type === 'weapon' && it?.system?.equipped === true) ||
-    items.find(
-      (it) =>
-        it?.type === 'artifact' &&
-        it?.system?.equipped === true &&
-        (it?.system?.artifactWeapon?.damage || it?.system?.baseProfile),
-    ) ||
-    null;
-  if (!weapon?.system) return '1d8';
+  const weapon = resolveEquippedWeaponForAttackType(items, 'melee', actor);
+  if (!weapon?.system || isVirtualUnarmedWeapon(weapon)) {
+    // Resolver returns virtual unarmed with 1d8 — keep that as the fallback.
+    return '1d8';
+  }
   const sys = weapon.system as any;
   const artifactDmg =
     typeof sys.artifactWeapon?.damage === 'string' ? sys.artifactWeapon.damage.trim() : '';

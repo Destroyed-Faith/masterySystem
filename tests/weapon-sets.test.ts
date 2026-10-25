@@ -39,6 +39,7 @@ import { RADIAL_STANDARD_MANEUVER_IDS } from '../src/utils/radial-maneuver-prefs
 import { buildWeaponSwapCardHtml } from '../src/chat/weapon-swap-card.js';
 import {
   addWeaponSetSlot,
+  activeWeaponSetNeedsEquipmentSync,
   describeWeaponSetHands,
   describeWeaponSwap,
   describeActiveWeaponProfile,
@@ -51,12 +52,17 @@ import {
   peekWeaponSets,
   pruneWeaponSetRefs,
   readHandsFromEquippedItems,
+  reconcileActiveWeaponSetEquipment,
   resetWeaponSetLocks,
   resolveSwapTarget,
   swapWeaponSet,
   weaponSetCount,
   WEAPON_SWAP_ID,
 } from '../src/utils/weapon-sets.js';
+import {
+  resolveEquippedWeaponForAttackType,
+} from '../src/utils/unarmed-fallback.js';
+import { resolveEquippedWeaponDamageFormula } from '../src/combat/parry.js';
 
 function merge(target: any, source: any): any {
   if (!source || typeof source !== 'object' || Array.isArray(source)) return source;
@@ -74,6 +80,11 @@ function makeItem(id: string, opts: {
   hands?: number;
   innates?: string[];
   twoHanded?: boolean;
+  name?: string;
+  baseProfile?: string;
+  currentLevel?: number;
+  artifactWeapon?: Record<string, unknown>;
+  damage?: string;
 } = {}) {
   const equipment: Record<string, unknown> = {
     container: 'inventory',
@@ -82,15 +93,20 @@ function makeItem(id: string, opts: {
   };
   if (opts.twoHanded) equipment.twoHanded = true;
   const flags: Record<string, any> = { 'mastery-system': { equipment } };
+  const system: Record<string, unknown> = {
+    equipped: opts.equipped ?? false,
+    hands: opts.hands ?? 1,
+    innateAbilities: opts.innates ?? [],
+  };
+  if (opts.baseProfile) system.baseProfile = opts.baseProfile;
+  if (opts.currentLevel != null) system.currentLevel = opts.currentLevel;
+  if (opts.artifactWeapon) system.artifactWeapon = opts.artifactWeapon;
+  if (opts.damage) system.damage = opts.damage;
   return {
     id,
     type: opts.type ?? 'weapon',
-    name: id,
-    system: {
-      equipped: opts.equipped ?? false,
-      hands: opts.hands ?? 1,
-      innateAbilities: opts.innates ?? [],
-    },
+    name: opts.name ?? id,
+    system,
     flags,
     getFlag(scope: string, key: string) {
       return flags[scope]?.[key];
@@ -102,6 +118,20 @@ function makeItem(id: string, opts: {
       }
     },
   };
+}
+
+/** Lor-Keth-style two-handed Artifact sitting in inventory but assigned to Set 1. */
+function makeUnequippedTwoHandedStaff(id = 'lSqKokGmDKKkzyNX') {
+  return makeItem(id, {
+    type: 'artifact',
+    name: "Lor-Keth's Staff - Level 3-1",
+    equipped: false,
+    slot: null,
+    hands: 2,
+    baseProfile: 'twoHandedWeapon',
+    currentLevel: 3,
+    artifactWeapon: { damage: '7d8', weaponType: 'melee', hands: 2, specials: [] },
+  });
 }
 
 function makeActor(items: ReturnType<typeof makeItem>[], initialSets?: unknown) {
@@ -523,5 +553,151 @@ describe('weapon set labels', () => {
     expect(weaponSetCount(next!)).toBe(3);
     expect(listEquipmentWeaponSetChoices(actor).map((c) => c.target)).toEqual([1, 2, 3]);
     expect(listEquipmentWeaponSetChoices(actor).map((c) => c.shortLabel)).toEqual(['I', 'II', 'III']);
+  });
+});
+
+describe('two-handed Artifact in active Weapon Set (Lor-Keth Staff regression)', () => {
+  beforeEach(() => {
+    resetWeaponSetLocks();
+    (globalThis as any).game = { user: { isGM: true } };
+  });
+
+  function staffActor(staff = makeUnequippedTwoHandedStaff()) {
+    return {
+      actor: makeActor([staff], {
+        schemaVersion: 1,
+        active: 1,
+        stowed: false,
+        sets: {
+          1: { mainhand: staff.id, offhand: staff.id },
+          2: { mainhand: null, offhand: null },
+        },
+      }),
+      staff,
+    };
+  }
+
+  it('detects equipment drift when Set 1 has the Staff but it is unequipped', () => {
+    const { actor } = staffActor();
+    expect(activeWeaponSetNeedsEquipmentSync(actor)).toBe(true);
+  });
+
+  it('resolves melee selection and 7d8 damage from the set without equipped=true', () => {
+    const { actor, staff } = staffActor();
+    const resolved = resolveEquippedWeaponForAttackType([staff], 'melee', actor);
+    expect(resolved?.id).toBe(staff.id);
+    expect(resolved?.system?.damage).toBe('7d8');
+    expect(describeActiveWeaponProfile(actor)).toMatchObject({
+      unarmed: false,
+      damage: '7d8',
+      name: "Lor-Keth's Staff",
+    });
+    expect(resolveEquippedWeaponDamageFormula(actor)).toBe('7d8');
+  });
+
+  it('ensureWeaponSets / sheet reopen reconciles equipped + mainhand slot', async () => {
+    const { actor, staff } = staffActor();
+    expect(staff.system.equipped).toBe(false);
+    await ensureWeaponSets(actor);
+    expect(staff.system.equipped).toBe(true);
+    expect(staff.getFlag('mastery-system', 'equipment').slot).toBe('mainhand');
+    expect(staff.getFlag('mastery-system', 'equipment').twoHanded).toBe(true);
+    expect(activeWeaponSetNeedsEquipmentSync(actor)).toBe(false);
+    expect(readHandsFromEquippedItems(actor)).toEqual({
+      mainhand: staff.id,
+      offhand: staff.id,
+    });
+  });
+
+  it('clicking the already-active set re-applies the Staff', async () => {
+    const { actor, staff } = staffActor();
+    const result = await swapWeaponSet(actor, 1);
+    expect(result).toMatchObject({ ok: true, swapped: false, active: 1 });
+    expect(staff.system.equipped).toBe(true);
+    expect(staff.getFlag('mastery-system', 'equipment').slot).toBe('mainhand');
+  });
+
+  it('switching Weapon Sets equips set 2 then restores the Staff on set 1', async () => {
+    const staff = makeUnequippedTwoHandedStaff();
+    const dagger = makeItem('dagger', {
+      type: 'weapon',
+      name: 'Dagger',
+      equipped: false,
+      slot: null,
+      damage: '1d8',
+    });
+    const actor = makeActor([staff, dagger], {
+      schemaVersion: 1,
+      active: 1,
+      stowed: false,
+      sets: {
+        1: { mainhand: staff.id, offhand: staff.id },
+        2: { mainhand: 'dagger', offhand: null },
+      },
+    });
+    await reconcileActiveWeaponSetEquipment(actor);
+    expect(staff.system.equipped).toBe(true);
+
+    const toTwo = await swapWeaponSet(actor, 2);
+    expect(toTwo).toMatchObject({ ok: true, swapped: true, active: 2 });
+    expect(dagger.system.equipped).toBe(true);
+    expect(staff.system.equipped).toBe(false);
+    expect(resolveEquippedWeaponForAttackType([staff, dagger], 'melee', actor)?.id).toBe('dagger');
+
+    const back = await swapWeaponSet(actor, 1);
+    expect(back).toMatchObject({ ok: true, swapped: true, active: 1 });
+    expect(staff.system.equipped).toBe(true);
+    expect(resolveEquippedWeaponForAttackType([staff, dagger], 'melee', actor)?.system?.damage).toBe(
+      '7d8',
+    );
+  });
+
+  it('unlinked token actor keeps its own set; world updates do not rewrite token items', async () => {
+    const worldStaff = makeUnequippedTwoHandedStaff('world-staff');
+    const world = makeActor([worldStaff], {
+      schemaVersion: 1,
+      active: 1,
+      sets: {
+        1: { mainhand: 'world-staff', offhand: 'world-staff' },
+        2: { mainhand: null, offhand: null },
+      },
+    });
+    world.id = 'world-lor';
+
+    // Unlinked token: own item copy + own weaponSets (may be stale / unequipped).
+    const tokenStaff = makeUnequippedTwoHandedStaff('token-staff');
+    tokenStaff.name = "Lor-Keth's Staff - Level 3-1";
+    const token = makeActor([tokenStaff], {
+      schemaVersion: 1,
+      active: 1,
+      stowed: false,
+      sets: {
+        1: { mainhand: 'token-staff', offhand: 'token-staff' },
+        2: { mainhand: null, offhand: null },
+      },
+    });
+    token.id = 'token-lor';
+    (token as any).isToken = true;
+
+    await ensureWeaponSets(world);
+    expect(worldStaff.system.equipped).toBe(true);
+    // Token still unequipped until its own ensure/reconcile runs.
+    expect(tokenStaff.system.equipped).toBe(false);
+    expect(resolveEquippedWeaponForAttackType([tokenStaff], 'melee', token)?.system?.damage).toBe(
+      '7d8',
+    );
+
+    await ensureWeaponSets(token);
+    expect(tokenStaff.system.equipped).toBe(true);
+    expect(tokenStaff.getFlag('mastery-system', 'equipment').slot).toBe('mainhand');
+  });
+
+  it('derived combat fields treat set Artifact as active weapon (not Unarmed)', () => {
+    const { actor, staff } = staffActor();
+    const resolved = resolveEquippedWeaponForAttackType([staff], 'melee', actor);
+    const activeWeaponName = resolved && !resolved.system?.virtualUnarmed ? resolved.name : 'Unarmed';
+    const activeWeaponId = resolved && !resolved.system?.virtualUnarmed ? resolved.id : null;
+    expect(activeWeaponName).toBe("Lor-Keth's Staff - Level 3-1");
+    expect(activeWeaponId).toBe(staff.id);
   });
 });

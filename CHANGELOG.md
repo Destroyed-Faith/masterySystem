@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.790] - 2026-10-25
+
+### Fixed
+
+- **Weapon Sets / Artifacts:** Active-set two-handed Artifacts (e.g. Staff assigned to both hands) no longer resolve as Unarmed when `equipped` drifted false. Derived combat, damage, and equip sync follow the active set; sheet/ready/createToken reconcile equipment. Unlinked tokens keep their own state and reconcile on place.
+
+### Changed
+
+- **Character sheet:** Legacy fixed Skills archive UI removed; Specializations remain the Skills path.
+
 ## [0.9.789] - 2026-10-25
 
 ### Fixed

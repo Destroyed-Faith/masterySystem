@@ -190,7 +190,13 @@ export function getItemInHandSlot(actor: any, slotKey: 'mainhand' | 'offhand'): 
     if (flags.slot === slotKey) return it;
   }
   if (slotKey === 'mainhand') {
-    return items.find((it) => it.type === 'weapon' && it.system?.equipped === true) ?? null;
+    return (
+      items.find(
+        (it) =>
+          (it.type === 'weapon' || it.type === 'artifact') &&
+          it.system?.equipped === true,
+      ) ?? null
+    );
   }
   if (slotKey === 'offhand') {
     return items.find((it) => it.type === 'shield' && it.system?.equipped === true) ?? null;
@@ -325,6 +331,40 @@ export async function persistWeaponSets(actor: any, state: WeaponSetsState): Pro
   }
 }
 
+/**
+ * True when the active Weapon Set stores weapons that are not reflected in
+ * hand-slot / equipped state (e.g. two-handed Artifact assigned to both hands
+ * but still sitting in inventory with `equipped: false`).
+ *
+ * Empty active sets do not force-unequip here — that path belongs to Weapon
+ * Swap / explicit stow so a pruned set cannot wipe legitimate gear.
+ */
+export function activeWeaponSetNeedsEquipmentSync(actor: any, state?: WeaponSetsState): boolean {
+  if (!actor) return false;
+  const resolved = state ?? peekWeaponSets(actor);
+  if (resolved.stowed) return false;
+  const desired = resolved.sets[resolved.active] || emptyHands();
+  if (!desired.mainhand && !desired.offhand) return false;
+  return !handsEqual(desired, readHandsFromEquippedItems(actor));
+}
+
+/**
+ * Re-apply the active set's hands onto items when flags say a weapon is ready
+ * but equipment state drifted (common for two-handed Artifacts and unlinked
+ * token actors that never ran Weapon Swap after a world-actor edit).
+ */
+export async function reconcileActiveWeaponSetEquipment(
+  actor: any,
+  state?: WeaponSetsState,
+): Promise<boolean> {
+  if (!actor || swapLocks.has(actorKey(actor))) return false;
+  const resolved = state ?? peekWeaponSets(actor);
+  if (!activeWeaponSetNeedsEquipmentSync(actor, resolved)) return false;
+  const desired = resolved.sets[resolved.active] || emptyHands();
+  await applyWeaponSetHands(actor, desired);
+  return true;
+}
+
 export async function ensureWeaponSets(actor: any): Promise<WeaponSetsState> {
   const raw = readStoredState(actor);
   if (isInitializedWeaponSets(raw)) {
@@ -354,10 +394,20 @@ export async function ensureWeaponSets(actor: any): Promise<WeaponSetsState> {
     if (countChanged || handsChanged || normalized.active !== raw.active) {
       await persistWeaponSets(actor, normalized);
     }
+    try {
+      await reconcileActiveWeaponSetEquipment(actor, normalized);
+    } catch (err) {
+      console.warn('Mastery System | Active weapon set equipment reconcile failed', err);
+    }
     return normalized;
   }
   const initial = buildInitialWeaponSets(readHandsFromEquippedItems(actor));
   await persistWeaponSets(actor, initial);
+  try {
+    await reconcileActiveWeaponSetEquipment(actor, initial);
+  } catch (err) {
+    console.warn('Mastery System | Active weapon set equipment reconcile failed', err);
+  }
   return initial;
 }
 
@@ -679,11 +729,28 @@ export interface ActiveWeaponProfile {
   summary: string;
 }
 
+function artifactItemCarriesWeapon(item: any): boolean {
+  if (!item || item.type !== 'artifact') return false;
+  const sys = item.system || {};
+  if (String(sys.artifactKind || '').toLowerCase() === 'weapon') return true;
+  const aw = sys.artifactWeapon;
+  if (typeof aw?.damage === 'string' && aw.damage.trim().length > 0) return true;
+  const profile = String(sys.baseProfile || '');
+  return (
+    profile === 'oneHandedWeapon' ||
+    profile === 'twoHandedWeapon' ||
+    profile === 'oneHandedWeaponRanged' ||
+    profile === 'twoHandedWeaponRanged'
+  );
+}
+
 function profileFromItem(item: any): { attackType: 'melee' | 'ranged'; rangeM: number; damage: string } {
   const sys = item?.system || {};
   if (item?.type === 'artifact') {
     const display = formatArtifactWeaponRangeDisplay(sys.artifactWeapon, sys.baseProfile);
-    const damage = String(sys.artifactWeapon?.damage || '1d8');
+    const baked =
+      typeof sys.artifactWeapon?.damage === 'string' ? sys.artifactWeapon.damage.trim() : '';
+    const damage = baked || '1d8';
     if (display.kind === 'ranged') {
       return { attackType: 'ranged', rangeM: Math.max(8, display.meters || 8), damage };
     }
@@ -703,6 +770,9 @@ function profileFromItem(item: any): { attackType: 'melee' | 'ranged'; rangeM: n
 /**
  * What Basic Attack rolls right now: the active set's main-hand weapon, or
  * Unarmed 1d8 when that set is empty.
+ *
+ * Uses Weapon Set assignment — not `system.equipped` — so a two-handed
+ * Artifact sitting in inventory but assigned to both hands still resolves.
  */
 export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
   const state = peekWeaponSets(actor);
@@ -720,9 +790,7 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
   const hands = state.sets[state.active] || emptyHands();
   const main = itemById(actor, hands.mainhand);
   const carriesWeapon =
-    !!main &&
-    (main.type === 'weapon' ||
-      main.type === 'artifact' && (main.system?.artifactWeapon || main.system?.artifactKind === 'weapon'));
+    !!main && (main.type === 'weapon' || artifactItemCarriesWeapon(main));
   if (!carriesWeapon) {
     const fists = loc('stowName', 'Fists');
     return {
@@ -780,6 +848,17 @@ export async function swapWeaponSet(
     const alreadyThere =
       next === 'unarmed' ? state.stowed === true : state.stowed !== true && state.active === next;
     if (alreadyThere) {
+      // Re-apply hands even when the active index is unchanged — recovers
+      // drifted equipment (Artifact in set but unequipped / inventory).
+      try {
+        await applyWeaponSetHands(
+          actor,
+          next === 'unarmed' ? emptyHands() : state.sets[state.active] || emptyHands(),
+        );
+        await refreshWeaponSetSurfaces(actor);
+      } catch (err) {
+        console.warn('Mastery System | Weapon set re-apply failed', err);
+      }
       return { ok: true, swapped: false, active: state.active };
     }
 

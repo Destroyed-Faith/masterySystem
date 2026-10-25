@@ -159,6 +159,26 @@ describe('resolveEquippedWeaponForAttackType — active Weapon Set', () => {
     expect(resolved?.system?.damage).toBe('3d8');
   });
 
+  it('two-handed Artifact assigned to active set resolves even when equipped=false', () => {
+    const staff = {
+      id: 'lSqKokGmDKKkzyNX',
+      name: "Lor-Keth's Staff - Level 3-1",
+      type: 'artifact',
+      system: {
+        equipped: false,
+        binding: '',
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 3,
+        artifactWeapon: { damage: '7d8', weaponType: 'melee', hands: 2, specials: [] },
+      },
+      getFlag: () => ({ slot: null, container: 'inventory' }),
+    };
+    const actor = makeActor([staff], { active: 1, mainhand: staff.id });
+    const resolved = resolveEquippedWeaponForAttackType([staff], 'melee', actor);
+    expect(resolved?.id).toBe(staff.id);
+    expect(resolved?.system?.damage).toBe('7d8');
+  });
+
   it('stowed fists force Unarmed even when an artifact is still equipped', () => {
     const artifact = {
       id: 'art-claws',

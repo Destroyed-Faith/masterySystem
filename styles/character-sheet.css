@@ -14014,5 +14014,3 @@ aside#tooltip,
 .mastery-system .spec-row .spec-hint { flex-basis: 100%; opacity: 0.7; font-size: 0.8em; }
 .mastery-system .spec-row .spec-rank { font-weight: 700; white-space: nowrap; }
 .mastery-system .spec-row .spec-controls { display: flex; gap: 0.25rem; }
-.mastery-system .legacy-skills-archive { margin-top: 0.75rem; opacity: 0.9; }
-.mastery-system .legacy-skills-archive > summary { cursor: pointer; font-weight: 600; }

@@ -17,12 +17,11 @@ function collectItems(actor: any): any[] {
 }
 
 export function getEquippedWeapon(actor: any): any | null {
-  for (const item of collectItems(actor)) {
-    if (item.type === 'weapon' && (item.system as any)?.equipped === true) {
-      return item;
-    }
-  }
-  return null;
+  const items = collectItems(actor);
+  const resolved = resolveEquippedWeaponForAttackTypeWithUnarmed(items, 'melee', actor);
+  if (!resolved || resolved.system?.virtualUnarmed === true) return null;
+  if (resolved.id === '__mastery_virtual_unarmed__') return null;
+  return resolved;
 }
 
 export function getEquippedArmor(actor: any): any | null {

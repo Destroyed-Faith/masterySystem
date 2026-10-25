@@ -1348,7 +1348,7 @@
 
     </div>
     
-    <!-- SKILLS TAB (DF 2026: Specializations; legacy fixed Skills archived below) -->
+    <!-- SKILLS TAB (DF 2026: Specializations) -->
     <div class="tab skills" data-group="primary" data-tab="skills">
 
       <section class="specializations-panel">
@@ -1425,46 +1425,6 @@
         </div>
         {{/unless}}{{/if}}
       </section>
-
-      <details class="legacy-skills-archive">
-        <summary><i class="fas fa-archive"></i> Legacy Skills (archive)</summary>
-        <p class="stat-summary-hint">Fixed Skills are retired in DF 2026 and kept read-only for migration review. Character creation uses five Rank-2 Specializations. Skill Spend / Redistribute no longer apply.</p>
-
-        {{#each skills}}
-          <div class="skill-category-compact{{#if (eq this.category "Perception")}} skill-category-compact--perception{{/if}}">
-            <h4 class="category-header-compact">
-              {{#if (eq this.category "Perception")}}<i class="fas fa-eye"></i>{{/if}}
-              {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
-              {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
-              {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
-              {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-              {{this.category}}
-            </h4>
-            <div class="skills-list-compact">
-              {{#each this.skills}}
-                <div class="skill-row-compact skill-row-legacy">
-                  <span class="skill-name-compact skill-name-tooltip-wrap" tabindex="0">
-                    {{this.name}}
-                    {{#if this.description}}
-                    <span class="skill-name-tooltip" role="tooltip">{{this.description}}</span>
-                    {{/if}}
-                  </span>
-                  <div class="skill-attrs-compact">
-                    {{#each this.attributes}}
-                      <span class="attr-badge">{{capitalize this}}</span>
-                    {{/each}}
-                  </div>
-                  <div class="skill-value-display-compact">
-                    <div class="skill-rank-block">
-                      <span class="skill-value-compact">{{default this.value 0}}</span>
-                    </div>
-                  </div>
-                </div>
-              {{/each}}
-            </div>
-          </div>
-        {{/each}}
-      </details>
 
     </div>
 

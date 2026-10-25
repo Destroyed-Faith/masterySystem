@@ -3295,6 +3295,21 @@ Hooks.once('ready', async function () {
   }
 });
 
+// Unlinked token actors keep their own item copies + weaponSets. Reconcile on
+// place so a new token does not open combat as Unarmed while Set I still
+// points at a two-handed Artifact in inventory.
+Hooks.on('createToken', async (tokenDoc: any) => {
+  try {
+    if (tokenDoc?.actorLink) return; // linked tokens share the world actor
+    const actor = tokenDoc?.actor;
+    if (!actor?.isToken || actor.type !== 'character') return;
+    const { ensureWeaponSets } = await import('./utils/weapon-sets.js');
+    await ensureWeaponSets(actor);
+  } catch (err) {
+    console.warn('Mastery System | weapon set reconcile on createToken failed', err);
+  }
+});
+
 Hooks.once('ready', async function () {
   try {
     const { maybeAutoRollUnluckOnReady } = await import('./ui/unluck-gm-dialog.js');
