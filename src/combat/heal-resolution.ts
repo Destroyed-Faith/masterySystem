@@ -78,6 +78,8 @@ export function getPowerHlrPoolMax(powerItem: any): number {
     const table = /ranged/i.test(tid) ? R05_RANGED_AOE_POOL : R05_MELEE_AOE_POOL;
     return poolAt(table, rank);
   }
+  // Catalogue Single Target Heal restores HP only — no Scarred Bar pool.
+  if (/single-heal/i.test(tid)) return 0;
   // R-05: Heal + Cleanse mixed is cleanse-only now — no Health Level Recovery pool.
   if (/heal-cleanse/i.test(tid)) return 0;
   return healHealthLevelRecoveryForRank(rank);

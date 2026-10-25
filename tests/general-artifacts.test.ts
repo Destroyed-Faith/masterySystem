@@ -59,7 +59,11 @@ describe('General Artifact catalog', () => {
       const full = resolvedProgression(def);
       expect(full).toHaveLength(10);
       expect(full.map((r: any) => r.level)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      expect(full[9].type === 'Ultimate' || full[9].type === 'Base Completion').toBe(true);
+      expect(
+        full[9].type === 'Ultimate' ||
+          full[9].type === 'Base Completion' ||
+          full[9].type === 'Artifact Function',
+      ).toBe(true);
       expect(full[9].name.length).toBeGreaterThan(0);
     }
   });
@@ -151,68 +155,75 @@ describe('Moonlight Greatsword', () => {
     }
   });
 
-  it('Requiem unlocks at L4 (rank 4) and upgrades at L7 (rank 8)', () => {
-    expect(baseValue(tree, 3, 'Requiem')).toBeUndefined();
-    expect(baseValue(tree, 4, 'Requiem').value).toBe(4);
-    expect(baseValue(tree, 7, 'Requiem').value).toBe(8);
-    expect(baseValue(tree, 10, 'Requiem').value).toBe(8);
-    expect(sysAt(tree, 4).artifactWeapon.specials).toEqual([{ specialId: 'requiem', value: 4 }]);
-    expect(sysAt(tree, 7).artifactWeapon.specials).toEqual([
-      { specialId: 'requiem', value: 8 },
-      { specialId: 'expose', value: 4 },
-    ]);
-  });
-
-  it('Expose unlocks at L7 (rank 4) and upgrades at L10 (rank 8)', () => {
+  it('Spell Focus unlocks at L4; Expose(4) at L7–9 and Expose(5) at L10 (no Requiem)', () => {
+    expect(baseValue(tree, 3, 'Spell Focus (+4d8)')).toBeUndefined();
+    expect(baseValue(tree, 4, 'Spell Focus (+4d8)').value).toBe(4);
+    expect(baseValue(tree, 3, 'Expose')).toBeUndefined();
     expect(baseValue(tree, 6, 'Expose')).toBeUndefined();
     expect(baseValue(tree, 7, 'Expose').value).toBe(4);
-    expect(baseValue(tree, 10, 'Expose').value).toBe(8);
+    expect(baseValue(tree, 9, 'Expose').value).toBe(4);
+    expect(baseValue(tree, 10, 'Expose').value).toBe(5);
+    expect(baseValue(tree, 4, 'Requiem')).toBeUndefined();
+    expect(sysAt(tree, 7).artifactWeapon.specials).toEqual(
+      expect.arrayContaining([
+        { specialId: 'finesse' },
+        { specialId: 'expose', value: 4 },
+      ]),
+    );
+    expect(sysAt(tree, 10).artifactWeapon.specials).toEqual(
+      expect.arrayContaining([
+        { specialId: 'finesse' },
+        { specialId: 'expose', value: 5 },
+      ]),
+    );
   });
 
   it('builds its three signature lines from standard catalog Powers (only renamed)', () => {
     const def = getGeneralArtifact('moonlightGreatsword')!;
-    // The 1–9 rows are standard Powers, not authored text: only the names differ.
+    // Artefacts v0.9.9.5: Mending = ST Heal; Judgment = Limited Ranged AoE Attack Spell; Shadow = Damage Aura.
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
     expect(picks.map((p) => p.powerTemplateId)).toEqual([
-      'active-ranged-health-level-heal',
-      'active-ranged-aoe-targeted-special',
+      'active-ranged-single-heal',
+      'active-ranged-weapon-aoe',
       'ab-damage-aura',
     ]);
-    expect(picks[1].chosenSpecial?.key).toBe('requiem');
+    expect(picks[1].isSpell).toBe(true);
+    expect(picks[1].chosenSpecial?.key).toBeUndefined();
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Mending/);
     for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Judgment/);
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Shadow/);
-    expect((byLevel.get(10) as any).name).toBe('True Moonlight');
+    expect((byLevel.get(10) as any).name).toMatch(/Artifact Awakening/i);
 
     const mending = sysAt(tree, 7).powers.find((p: any) => /Moonlight Mending/.test(p.name));
     expect(mending.category).toBe('active');
 
-    // R-05: Ranged ST Restoration at PL 4 / 10 / 16 (pools 2 / 6 / 10), no heal dice.
+    // Catalogue: Ranged Single Target Heal PL 4 / 10 / 16 → 5d8 / 12d8 / 20d8 HP.
     const mendingRows = resolvedProgression(def).filter((r: any) => /Moonlight Mending/.test(r.name)) as any[];
     expect(mendingRows.map((r) => r.level)).toEqual([1, 4, 7]);
     for (const r of mendingRows) {
-      expect(r.powerTemplateId).toBe('active-ranged-health-level-heal');
-      expect(r.effect).not.toMatch(/\d+d8 HP/);
+      expect(r.powerTemplateId).toBe('active-ranged-single-heal');
+      expect(r.effect).toMatch(/\d+d8 HP/);
     }
-    expect(mendingRows[0].effect).toMatch(/\b2 Scarred Health Bars\b/);
-    expect(mendingRows[1].effect).toMatch(/\b6 Scarred Health Bars\b/);
-    expect(mendingRows[2].effect).toMatch(/\b10 Scarred Health Bars\b/);
+    expect(mendingRows[0].effect).toMatch(/\b5d8 HP\b/);
+    expect(mendingRows[1].effect).toMatch(/\b12d8 HP\b/);
+    expect(mendingRows[2].effect).toMatch(/\b20d8 HP\b/);
     const shadow = sysAt(tree, 6).powers.find((p: any) => /Moonlight Shadow/.test(p.name));
     expect(shadow.category).toBe('activeBuff');
   });
 
-  it('Moonlight Judgment is a ranged AoE Targeted Special with Requiem', () => {
+  it('Moonlight Judgment is Limited Ranged AoE Attack (Spell; no Requiem)', () => {
     const judgment = sysAt(tree, 8).powers.find((p: any) => /Moonlight Judgment/.test(p.name));
     expect(judgment).toBeTruthy();
     expect(judgment.category).toBe('active');
     const byLevel = new Map(resolvedProgression(getGeneralArtifact('moonlightGreatsword')!).map((r: any) => [r.level, r]));
     const row = byLevel.get(8) as any;
-    expect(String(row?.powerTemplateId ?? '')).toBe('active-ranged-aoe-targeted-special');
-    expect(String(row?.chosenSpecialKey ?? row?.chosenSpecial?.key ?? '')).toBe('requiem');
-    expect(baseValue(tree, 8, 'Requiem').value).toBe(8);
+    expect(String(row?.powerTemplateId ?? '')).toBe('active-ranged-weapon-aoe');
+    expect(String(row?.chosenSpecialKey ?? row?.chosenSpecial?.key ?? '')).toBe('');
+    expect(String(row?.effect ?? '')).toMatch(/Limited Ranged AoE Attack/i);
+    expect(baseValue(tree, 8, 'Requiem')).toBeUndefined();
   });
 });
 

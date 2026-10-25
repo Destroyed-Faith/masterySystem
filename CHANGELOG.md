@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.792] - 2026-10-25
+
+### Fixed
+
+- **CI:** Moonlight / Single Target Heal tests and purchase UI filters aligned to Artefacts v0.9.9.5 (HP heal, Limited AoE Judgment, Awakening, Expose 4→5). Catalog audit lists ST Heal + Hollow Crown / Primal Vestment.
+
 ## [0.9.791] - 2026-10-25
 
 ### Added

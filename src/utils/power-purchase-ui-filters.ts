@@ -170,7 +170,9 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFi
   'active-melee-heal-cleanse-mixed': { effects: ['cleanse'], deliveries: ['single-target'] },
   'active-ranged-heal-cleanse-mixed': { effects: ['cleanse'], deliveries: ['single-target'] },
 
-  // Healing / restoration
+  // Healing / restoration (HP Single Target Heal + Scarred Bar Restoration)
+  'active-melee-single-heal': { effects: ['healing'], deliveries: ['single-target'] },
+  'active-ranged-single-heal': { effects: ['healing'], deliveries: ['single-target'] },
   'active-melee-health-level-heal': { effects: ['healing'], deliveries: ['single-target'] },
   'active-ranged-health-level-heal': { effects: ['healing'], deliveries: ['single-target'] },
   'active-melee-aoe-restoration': { effects: ['healing'], deliveries: ['area', 'self'] },

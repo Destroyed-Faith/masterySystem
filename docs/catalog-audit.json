@@ -1,8 +1,8 @@
 {
-  "version": "0.9.791",
-  "generatedAt": "2026-10-25T08:23:02.331Z",
+  "version": "0.9.792",
+  "generatedAt": "2026-10-25T14:22:53.094Z",
   "summary": {
-    "correct": 203,
+    "correct": 207,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -160,6 +160,13 @@
       "category": "active",
       "id": "active-melee-single-dispel",
       "name": "Melee Single-Target Dispel",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-single-heal",
+      "name": "Melee Single Target Heal",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -384,6 +391,13 @@
       "category": "active",
       "id": "active-ranged-single-dispel",
       "name": "Ranged Single-Target Dispel",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-ranged-single-heal",
+      "name": "Ranged Single Target Heal",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -774,6 +788,13 @@
     },
     {
       "category": "artifact",
+      "id": "hollowCrown",
+      "name": "Hollow Crown",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
       "id": "huntersScourge",
       "name": "Hunter's Scourge",
       "status": "correct",
@@ -832,6 +853,13 @@
       "category": "artifact",
       "id": "predatorCrownWits",
       "name": "Predator Crown",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
+      "id": "primalVestment",
+      "name": "Primal Vestment",
       "status": "correct",
       "notes": "Present in echo catalog (curated expected list)"
     },
