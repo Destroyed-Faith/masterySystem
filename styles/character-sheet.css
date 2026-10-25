@@ -6448,6 +6448,7 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .combat-stat-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -6457,6 +6458,16 @@ aside#tooltip,
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
   transition: all 0.3s ease;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card--tooltip {
+  position: relative;
+  overflow: visible;
+  z-index: 1;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card--tooltip:hover {
+  z-index: 40;
 }
 
 .mastery-system.sheet.actor.character .combat-stat-card--wide {
@@ -12217,6 +12228,7 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .combat-stats-chip {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -12228,11 +12240,92 @@ aside#tooltip,
   font-size: 0.92rem;
   cursor: help;
   transition: transform 0.15s ease, border-color 0.15s ease;
+  overflow: visible;
+  z-index: 1;
 }
 
 .mastery-system.sheet.actor.character .combat-stats-chip:hover {
   transform: translateY(-1px);
   border-color: rgba(233, 69, 96, 0.55);
+  z-index: 50;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 60;
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 24px));
+  padding: 8px 10px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  border-radius: 8px;
+  box-shadow: 0 8px 24px var(--df-shadow, rgba(0, 0, 0, 0.65));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  text-align: left;
+  white-space: normal;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip:hover .combat-stats-chip-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip .chip-tip-title {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip li:last-child {
+  margin-bottom: 0;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip .chip-tip-label {
+  opacity: 0.85;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip .chip-tip-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-tooltip .chip-tip-note {
+  margin: 6px 0 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-panel,
+.mastery-system.sheet.actor.character .combat-stats-panel-grid {
+  overflow: visible;
 }
 
 .mastery-system.sheet.actor.character .combat-stats-chip i {

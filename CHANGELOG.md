@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.783] - 2026-10-25
+
+### Fixed
+
+- **Active Buff Armor strength:** Effect Power Level no longer falls back to Mastery Rank when `rank` is missing — that could snapshot Active Buff: Armor at +17 (PL4) while the purchased power was lower. Snapshots prefer live catalog `templateId` rows; bare name "Armor" no longer collides Passive / Reaction / Buff.
+- **NPC / Summon Combat Raises:** NPCs and Summons no longer get a Raise plan panel or declared Raise slots on attack cards.
+- **Armor / Evade / DR hover:** Combat-stat chips and Attributes cards show a readable composition tooltip (sources + Active Buff note).
+
 ## [0.9.782] - 2026-10-25
 
 ### Fixed

@@ -230,11 +230,32 @@ function resolveMechanicsFromCatalog(
   }
   if (!def && name) {
     const lower = canonicalPowerLookupName(name);
+    // Prefer full catalogue heading ("Active Buff: Armor") over shared short
+    // templateName ("Armor") which collides across Passive / Reaction / Buff.
     def = ALL_POWER_TEMPLATES.find(
-      (t: any) =>
-        canonicalPowerLookupName(String(t?.templateName || '')) === lower ||
-        canonicalPowerLookupName(String(t?.name || '')) === lower,
+      (t: any) => canonicalPowerLookupName(String(t?.name || '')) === lower,
     );
+    if (!def) {
+      const catRaw = String(sys.category || sys.powerType || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_]+/g, '-');
+      const catNorm =
+        catRaw === 'activebuff' || catRaw === 'buff' || catRaw === 'active-buff'
+          ? 'activeBuff'
+          : catRaw === 'passive'
+            ? 'passive'
+            : catRaw === 'reaction'
+              ? 'reaction'
+              : catRaw || '';
+      const byTemplateName = ALL_POWER_TEMPLATES.filter(
+        (t: any) => canonicalPowerLookupName(String(t?.templateName || '')) === lower,
+      );
+      if (catNorm) {
+        def = byTemplateName.find((t: any) => t?.category === catNorm);
+      }
+      if (!def && byTemplateName.length === 1) def = byTemplateName[0];
+    }
   }
   if (!def) return null;
 

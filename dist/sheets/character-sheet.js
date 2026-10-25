@@ -1321,10 +1321,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const iniD8Mech = Number(combat.initiativeD8FromMechanics ?? 0) || 0;
                 const iniMR = Number(combat.initiativeMasteryRank ?? sys.mastery?.rank ?? 2) || 2;
                 const iniDice = Math.max(0, iniMR + iniD8Mech);
-                const rowTip = (rows, cap) => (Array.isArray(rows) ? rows : [])
-                    .slice(0, cap)
-                    .map((r) => `${String(r.label ?? '').trim()}: ${r.display ?? r.value}`)
-                    .join(' · ');
+                const takeRows = (rows, cap) => (Array.isArray(rows) ? rows : []).slice(0, cap).map((r) => ({
+                    label: String(r.label ?? '').trim() || 'Source',
+                    display: String(r.display ?? r.value ?? ''),
+                }));
                 context.combatStatsView = {
                     armor: Number(combat.armorTotal ?? 0) || 0,
                     evade: Number(combat.evadeTotal ?? 8) || 8,
@@ -1333,9 +1333,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     initiativeEquipmentDisplay: String(combat.initiativeEquipmentTotalDisplay ?? (iniEqTotal >= 0 ? `+${iniEqTotal}` : String(iniEqTotal))),
                     hp: { current: hp.current, max: hp.max },
                     stress: { current: stress.current, max: stress.max },
-                    armorBreakdownTip: rowTip(combat.armorBreakdownRows, 14),
-                    evadeBreakdownTip: rowTip(combat.evadeBreakdownRows, 14),
-                    drBreakdownTip: rowTip(combat.damageReductionRows, 10),
+                    armorBreakdown: takeRows(combat.armorBreakdownRows, 14),
+                    evadeBreakdown: takeRows(combat.evadeBreakdownRows, 14),
+                    drBreakdown: takeRows(combat.damageReductionRows, 10),
+                    armorFromActiveBuffs: Math.max(0, Math.floor(Number(combat.armorFromActiveBuffs) || 0)),
+                    evadeFromActiveBuffs: Math.max(0, Math.floor(Number(combat.evadeFromActiveBuffs) || 0)),
                 };
             }
         }

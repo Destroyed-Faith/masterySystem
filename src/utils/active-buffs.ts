@@ -47,6 +47,25 @@ function resolvedActiveBuffMechanics(power: any): boolean {
 }
 
 /**
+ * Effect Power Level for an Active Buff snapshot.
+ * Uses the power's purchased `rank` / `level` — never Mastery Rank (that only
+ * sets duration). Missing rank previously fell back to MR and could snapshot
+ * Active Buff: Armor at +17 (PL4) while the sheet still showed PL1/+5.
+ */
+export function resolveActiveBuffEffectLevel(
+  powerSys: any,
+  empowerPowerLevels = 0,
+): number {
+  const pick = (v: unknown): number => {
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 0;
+  };
+  const base = pick(powerSys?.rank) || pick(powerSys?.level) || 1;
+  const bonus = Math.max(0, Math.floor(Number(empowerPowerLevels) || 0));
+  return Math.max(1, Math.min(16, base + bonus));
+}
+
+/**
  * Check if a power is a utility (not a true active buff)
  */
 export function isUtility(power: any): boolean {
@@ -349,21 +368,33 @@ export async function activateActiveBuff(
   
   // Snapshot level-specific mechanics (powers use levels["1"]..["16"]; `rank` is 1–16).
   const powerSys: any = power.system || {};
-  const rawRank = Number(powerSys.rank);
-  const levelFromRank =
-    Number.isFinite(rawRank) && rawRank >= 1 ? Math.floor(rawRank) : masteryRank;
-  const powerLevelKey = Math.max(1, Math.min(16, levelFromRank + empower.powerLevels));
+  const powerLevelKey = resolveActiveBuffEffectLevel(powerSys, empower.powerLevels);
 
   let rankMechanicsRaw: Record<string, unknown> | null = null;
-  const fromLevel = powerSys.levels?.[String(powerLevelKey)]?.mechanics;
-  if (fromLevel && typeof fromLevel === 'object') {
-    rankMechanicsRaw = { ...(fromLevel as Record<string, unknown>) };
-  } else if (powerSys.mechanics && typeof powerSys.mechanics === 'object') {
-    rankMechanicsRaw = { ...(powerSys.mechanics as Record<string, unknown>) };
-  } else {
-    const resolved = resolvePowerMechanics(power);
-    if (resolved && typeof resolved === 'object') {
-      rankMechanicsRaw = { ...(resolved as unknown as Record<string, unknown>) };
+  // Prefer live catalog by templateId so PL strength matches the rulebook row
+  // (avoids stale baked levels / name collisions with Passive: Armor).
+  const tplIdSnap = String(powerSys.templateId || '').trim();
+  if (tplIdSnap) {
+    const tpl = ALL_POWER_TEMPLATES.find((t: any) => t?.templateId === tplIdSnap);
+    const catMech = tpl?.levels?.[String(powerLevelKey) as keyof typeof tpl.levels]?.mechanics;
+    if (catMech && typeof catMech === 'object') {
+      rankMechanicsRaw = { ...(catMech as unknown as Record<string, unknown>) };
+    }
+  }
+  if (!rankMechanicsRaw) {
+    const fromLevel = powerSys.levels?.[String(powerLevelKey)]?.mechanics;
+    if (fromLevel && typeof fromLevel === 'object') {
+      rankMechanicsRaw = { ...(fromLevel as Record<string, unknown>) };
+    } else if (powerSys.mechanics && typeof powerSys.mechanics === 'object') {
+      rankMechanicsRaw = { ...(powerSys.mechanics as Record<string, unknown>) };
+    } else {
+      const resolved = resolvePowerMechanics({
+        ...power,
+        system: { ...powerSys, rank: powerLevelKey, level: powerLevelKey },
+      });
+      if (resolved && typeof resolved === 'object') {
+        rankMechanicsRaw = { ...(resolved as unknown as Record<string, unknown>) };
+      }
     }
   }
 

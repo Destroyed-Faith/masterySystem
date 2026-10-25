@@ -355,9 +355,16 @@ export async function executeAttackRollFromCard(
         freeRaiseSlots = flagFree;
         raiseTn = flagRaiseTn > 0 ? flagRaiseTn : normalTn + flagPaid * RAISE_INCREMENT;
       }
-      const tnImpliedPaid = Math.max(0, Math.round((raiseTn - normalTn) / RAISE_INCREMENT));
-      if (tnImpliedPaid > declaredRaiseSlots) {
-        declaredRaiseSlots = tnImpliedPaid;
+      // NPCs / Summons never declare Combat Raises — force Base TN only.
+      if (flags.npcRaisesDisabled) {
+        declaredRaiseSlots = 0;
+        freeRaiseSlots = 0;
+        raiseTn = normalTn;
+      } else {
+        const tnImpliedPaid = Math.max(0, Math.round((raiseTn - normalTn) / RAISE_INCREMENT));
+        if (tnImpliedPaid > declaredRaiseSlots) {
+          declaredRaiseSlots = tnImpliedPaid;
+        }
       }
       // Keep the attack card flags in sync so every subsequent reroll sees Raises.
       try {

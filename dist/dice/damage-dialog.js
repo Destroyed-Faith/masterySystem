@@ -641,12 +641,16 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         const isSpell = !!flags.powerIsSpell;
         const baseSnap = flags.basePowerSnapshot;
         const outcome = flags.raiseOutcome;
-        raiseAllocSlots = Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
-        raiseAllocOptions = Array.isArray(flags.raiseOptions)
-            ? flags.raiseOptions
-            : buildAvailableRaiseOptions(baseSnap, isSpell, {
-                hasWeaponDamage: Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0)) > 0,
-            });
+        raiseAllocSlots = flags.npcRaisesDisabled
+            ? 0
+            : Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
+        raiseAllocOptions = flags.npcRaisesDisabled
+            ? []
+            : Array.isArray(flags.raiseOptions)
+                ? flags.raiseOptions
+                : buildAvailableRaiseOptions(baseSnap, isSpell, {
+                    hasWeaponDamage: Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0)) > 0,
+                });
         const shareKey = raiseAllocShareKey(flags);
         const shared = shareKey ? peekSharedRaiseAllocation(shareKey) : null;
         let declaredRaises = Array.isArray(flags.declaredRaises)
@@ -1178,8 +1182,14 @@ export function attachDamageCardHandlers(messageId) {
                 return;
             }
             // Post-roll Raise allocation (required before damage when slots remain).
-            const needSlots = Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
-            const raiseOptions = Array.isArray(flags.raiseOptions) ? flags.raiseOptions : [];
+            const needSlots = flags.npcRaisesDisabled
+                ? 0
+                : Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
+            const raiseOptions = flags.npcRaisesDisabled
+                ? []
+                : Array.isArray(flags.raiseOptions)
+                    ? flags.raiseOptions
+                    : [];
             let allocatedPlan = Array.isArray(flags.declaredRaises)
                 ? [...flags.declaredRaises]
                 : [];

@@ -706,6 +706,13 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         }
         raiseContext.raiseOptions = buildAvailableRaiseOptions(raiseOptionSource ?? raiseContext.baseSnapshot, false, { hasWeaponDamage: (raiseContext.weaponDamageDice ?? 0) > 0 });
     }
+    // NPCs / Summons never declare Combat Raises — strip the picker and options.
+    // Keep basePowerSnapshot for on-hit damage / Specials preview.
+    const npcRaisesDisabled = isNpcActor;
+    if (raiseContext && npcRaisesDisabled) {
+        raiseContext.raiseOptions = [];
+        raiseContext.waiveRaiseCost = true;
+    }
     const emptyThreat = {
         appliesRule: false,
         threatened: false,
@@ -824,13 +831,22 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             ? {
                 powerIsSpell: raiseContext.isSpell,
                 basePowerSnapshot: raiseContext.baseSnapshot,
-                raiseOptions: raiseContext.raiseOptions,
+                raiseOptions: npcRaisesDisabled ? [] : raiseContext.raiseOptions,
                 weaponDamageDice: raiseContext.weaponDamageDice ?? 0,
                 weaponName: raiseContext.weaponName || '',
+                npcRaisesDisabled: npcRaisesDisabled || undefined,
             }
             : npcIsSpell
                 ? { powerIsSpell: true }
                 : {}),
+        ...(npcRaisesDisabled
+            ? {
+                declaredRaiseSlots: 0,
+                freeRaiseSlots: 0,
+                raiseTn: normalTn,
+                successfulRaiseSlots: 0,
+            }
+            : {}),
         tnKind,
         ...(castingBaseTn != null ? { castingBaseTn } : {}),
         /** Spell Base TN without this target's SR — used for per-creature Spell AoE checks. */
@@ -1018,7 +1034,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             : `${paid} Raise${paid === 1 ? '' : 's'} — TN ${finalTn}`;
         return `<option value="${paid}">${attackCardEsc(label)}</option>`;
     }).join('');
-    const raisePlanHtml = raiseContext
+    const raisePlanHtml = raiseContext && !npcRaisesDisabled
         ? `
     <div class="raise-plan-panel">
       <p class="raise-tn-rule hint">+${RAISE_INCREMENT} TN je Paid Raise. Free Raises erhöhen die TN nicht. Effekte nach dem Treffer zuweisen.</p>
@@ -1033,10 +1049,14 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       </div>
       <p class="raise-plan-live md-sublabel">Effekte nach einem Treffer zuweisen.</p>
     </div>`
-        : '';
-    const raisesTitle = tnKind === 'casting'
-        ? `Paid Raises im Dropdown wählen (TN steht in der Option). Free Raises nur GM / Stones. Effekte nach dem Treffer.${aoeMelee ? ' AoE: ein Wurf, jede Kreatur gegen ihre eigene Final TN.' : ''}`
-        : `Paid Raises im Dropdown wählen (Base ${normalTn}). Free Raises nur GM / Stones. Effekte nach dem Treffer.${aoeMelee ? ' AoE: ein Wurf, jede Kreatur gegen ihre eigene Final TN.' : ''}`;
+        : npcRaisesDisabled
+            ? `<p class="md-sublabel npc-no-raises-note">NSCs nutzen keine Combat Raises.</p>`
+            : '';
+    const raisesTitle = npcRaisesDisabled
+        ? 'NSCs deklarieren keine Combat Raises — Wurf nur gegen Base TN.'
+        : tnKind === 'casting'
+            ? `Paid Raises im Dropdown wählen (TN steht in der Option). Free Raises nur GM / Stones. Effekte nach dem Treffer.${aoeMelee ? ' AoE: ein Wurf, jede Kreatur gegen ihre eigene Final TN.' : ''}`
+            : `Paid Raises im Dropdown wählen (Base ${normalTn}). Free Raises nur GM / Stones. Effekte nach dem Treffer.${aoeMelee ? ' AoE: ein Wurf, jede Kreatur gegen ihre eigene Final TN.' : ''}`;
     const evadeNote = '';
     const keepShown = useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : masteryRank;
     const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
@@ -1147,20 +1167,21 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         }
         if (message) {
             const messageId = message.id;
-            // Wait a bit for the DOM to be ready
-            setTimeout(() => {
-                const messageElement = $(`.message[data-message-id="${messageId}"]`);
-                if (messageElement.length === 0) {
-                    // Try alternative selector
-                    const altElement = $(`[data-message-id="${messageId}"]`);
-                    if (altElement.length) {
-                        setupRaisesHandler(altElement, messageId, normalTn, raiseContext);
+            if (raiseContext && !npcRaisesDisabled) {
+                // Wait a bit for the DOM to be ready
+                setTimeout(() => {
+                    const messageElement = $(`.message[data-message-id="${messageId}"]`);
+                    if (messageElement.length === 0) {
+                        const altElement = $(`[data-message-id="${messageId}"]`);
+                        if (altElement.length) {
+                            setupRaisesHandler(altElement, messageId, normalTn, raiseContext);
+                        }
                     }
-                }
-                else {
-                    setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
-                }
-            }, 100);
+                    else {
+                        setupRaisesHandler(messageElement, messageId, normalTn, raiseContext);
+                    }
+                }, 100);
+            }
             return String(messageId);
         }
     }
@@ -1213,7 +1234,11 @@ export function registerRaisePlanChatHooks() {
     HooksAny.on('renderChatMessageHTML', (message, htmlRaw) => {
         try {
             const flags = message?.flags?.['mastery-system'];
+            if (flags?.npcRaisesDisabled)
+                return;
             if (!flags?.raiseOptions || !Array.isArray(flags.raiseOptions) || !flags.basePowerSnapshot)
+                return;
+            if (!flags.raiseOptions.length)
                 return;
             const jq = globalThis.$;
             if (!jq)

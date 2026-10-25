@@ -302,20 +302,62 @@
       <span>Aktuelle Kampfwerte</span>
     </div>
     <div class="combat-stats-panel-grid">
-      <div class="combat-stats-chip combat-stats-chip-armor" title="{{#if combatStatsView.armorBreakdownTip}}{{combatStatsView.armorBreakdownTip}}{{else}}Armor total{{/if}}">
+      <div class="combat-stats-chip combat-stats-chip-armor">
         <i class="fas fa-shield-alt"></i>
         <span class="chip-label">Armor</span>
         <span class="chip-value">{{combatStatsView.armor}}</span>
+        <div class="combat-stats-chip-tooltip" role="tooltip">
+          <p class="chip-tip-title">Armor composition</p>
+          {{#if combatStatsView.armorBreakdown}}
+          <ul>
+            {{#each combatStatsView.armorBreakdown}}
+            <li><span class="chip-tip-label">{{this.label}}</span><span class="chip-tip-val">{{this.display}}</span></li>
+            {{/each}}
+          </ul>
+          {{else}}
+          <p class="chip-tip-note">No breakdown available.</p>
+          {{/if}}
+          {{#if combatStatsView.armorFromActiveBuffs}}
+          <p class="chip-tip-note">Active Buff (combat): +{{combatStatsView.armorFromActiveBuffs}} Armor</p>
+          {{/if}}
+        </div>
       </div>
-      <div class="combat-stats-chip combat-stats-chip-evade" title="{{#if combatStatsView.evadeBreakdownTip}}{{combatStatsView.evadeBreakdownTip}}{{else}}Evade total{{/if}}">
+      <div class="combat-stats-chip combat-stats-chip-evade">
         <i class="fas fa-wind"></i>
         <span class="chip-label">Evade</span>
         <span class="chip-value">{{combatStatsView.evade}}</span>
+        <div class="combat-stats-chip-tooltip" role="tooltip">
+          <p class="chip-tip-title">Evade composition</p>
+          {{#if combatStatsView.evadeBreakdown}}
+          <ul>
+            {{#each combatStatsView.evadeBreakdown}}
+            <li><span class="chip-tip-label">{{this.label}}</span><span class="chip-tip-val">{{this.display}}</span></li>
+            {{/each}}
+          </ul>
+          {{else}}
+          <p class="chip-tip-note">No breakdown available.</p>
+          {{/if}}
+          {{#if combatStatsView.evadeFromActiveBuffs}}
+          <p class="chip-tip-note">Active Buff (combat): +{{combatStatsView.evadeFromActiveBuffs}} Evade</p>
+          {{/if}}
+        </div>
       </div>
-      <div class="combat-stats-chip combat-stats-chip-dr" title="{{#if combatStatsView.drBreakdownTip}}{{combatStatsView.drBreakdownTip}}{{else}}Damage reduction % (passive + buff + per-hit reaction rows){{/if}}">
+      <div class="combat-stats-chip combat-stats-chip-dr">
         <i class="fas fa-user-shield"></i>
         <span class="chip-label">DR</span>
         <span class="chip-value">{{combatStatsView.drPct}}%</span>
+        <div class="combat-stats-chip-tooltip" role="tooltip">
+          <p class="chip-tip-title">Damage Reduction</p>
+          {{#if combatStatsView.drBreakdown}}
+          <ul>
+            {{#each combatStatsView.drBreakdown}}
+            <li><span class="chip-tip-label">{{this.label}}</span><span class="chip-tip-val">{{this.display}}</span></li>
+            {{/each}}
+          </ul>
+          {{else}}
+          <p class="chip-tip-note">No DR sources.</p>
+          {{/if}}
+        </div>
       </div>
       <div class="combat-stats-chip combat-stats-chip-initiative" title="Initiative-Wurf: {{combatStatsView.initiativeDice}}d8, plus Equipment-Mod {{combatStatsView.initiativeEquipmentDisplay}}.">
         <i class="fas fa-bolt"></i>

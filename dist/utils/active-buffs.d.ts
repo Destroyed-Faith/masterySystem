@@ -3,6 +3,13 @@
  * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
  */
 /**
+ * Effect Power Level for an Active Buff snapshot.
+ * Uses the power's purchased `rank` / `level` — never Mastery Rank (that only
+ * sets duration). Missing rank previously fell back to MR and could snapshot
+ * Active Buff: Armor at +17 (PL4) while the sheet still showed PL1/+5.
+ */
+export declare function resolveActiveBuffEffectLevel(powerSys: any, empowerPowerLevels?: number): number;
+/**
  * Check if a power is a utility (not a true active buff)
  */
 export declare function isUtility(power: any): boolean;

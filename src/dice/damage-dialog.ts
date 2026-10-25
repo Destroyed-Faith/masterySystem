@@ -799,12 +799,16 @@ export async function showDamageDialog(
     const isSpell = !!flags.powerIsSpell;
     const baseSnap = flags.basePowerSnapshot as PowerSnapshot;
     const outcome = flags.raiseOutcome as RaiseOutcome;
-    raiseAllocSlots = Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
-    raiseAllocOptions = Array.isArray(flags.raiseOptions)
-      ? (flags.raiseOptions as RaiseOption[])
-      : buildAvailableRaiseOptions(baseSnap, isSpell, {
-          hasWeaponDamage: Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0)) > 0,
-        });
+    raiseAllocSlots = flags.npcRaisesDisabled
+      ? 0
+      : Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
+    raiseAllocOptions = flags.npcRaisesDisabled
+      ? []
+      : Array.isArray(flags.raiseOptions)
+        ? (flags.raiseOptions as RaiseOption[])
+        : buildAvailableRaiseOptions(baseSnap, isSpell, {
+            hasWeaponDamage: Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0)) > 0,
+          });
 
     const shareKey = raiseAllocShareKey(flags);
     const shared = shareKey ? peekSharedRaiseAllocation(shareKey) : null;
@@ -1441,8 +1445,14 @@ export function attachDamageCardHandlers(messageId: string): void {
     }
 
     // Post-roll Raise allocation (required before damage when slots remain).
-    const needSlots = Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
-    const raiseOptions: RaiseOption[] = Array.isArray(flags.raiseOptions) ? flags.raiseOptions : [];
+    const needSlots = flags.npcRaisesDisabled
+      ? 0
+      : Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
+    const raiseOptions: RaiseOption[] = flags.npcRaisesDisabled
+      ? []
+      : Array.isArray(flags.raiseOptions)
+        ? flags.raiseOptions
+        : [];
     let allocatedPlan: DeclaredRaise[] = Array.isArray(flags.declaredRaises)
       ? [...flags.declaredRaises]
       : [];
