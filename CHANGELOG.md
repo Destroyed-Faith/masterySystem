@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.798] - 2026-10-25
+
+### Fixed
+
+- **GM „Verbrauchte Powers zurückgeben“:** Lesbare Power-Namen statt `artifact:…`-Keys (z. B. Damage Breath); Layout/Restore-Button überdecken den Text nicht mehr; Klick funktioniert wieder.
+
 ## [0.9.797] - 2026-10-25
 
 ### Fixed

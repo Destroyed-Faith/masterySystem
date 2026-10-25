@@ -118,4 +118,39 @@ describe('listUsedPowersThisRound / refundUsedPowerThisRound', () => {
     ).toBe(true);
     expect(getRoundState(actor, combat).activeBuffUsedThisRound).toBe(false);
   });
+
+  it('shows readable names for artifact usage keys (not raw ids)', async () => {
+    const head = {
+      id: 'IqH2PUiBdJzevU5Q',
+      type: 'artifact',
+      name: 'Dragon Head',
+      system: {
+        currentLevel: 3,
+        levelProgression: [
+          {
+            level: 1,
+            name: 'Breath Weapon I',
+            type: 'Melee AoE',
+          },
+          {
+            level: 3,
+            name: 'Tail Sweep',
+            type: 'Active',
+          },
+        ],
+      },
+    };
+    const actor = makeActor('scurry', [head]) as any;
+    const combat = { id: 'c1', round: 1, turn: 0 } as any;
+    await markPowerUsedThisRound(actor, combat, 'artifact:IqH2PUiBdJzevU5Q:1:Melee AoE:damage');
+    await markPowerUsedThisRound(actor, combat, 'artifact:IqH2PUiBdJzevU5Q:3:Active');
+    const listed = listUsedPowersThisRound(actor, combat);
+    expect(listed.map((e) => e.name)).toEqual([
+      'Damage Breath (Dragon Head)',
+      'Tail Sweep (Dragon Head)',
+    ]);
+    expect(listed.every((e) => !e.name.startsWith('artifact:'))).toBe(true);
+    expect(await refundUsedPowerThisRound(actor, combat, listed[0])).toBe(true);
+    expect(listUsedPowersThisRound(actor, combat)).toHaveLength(1);
+  });
 });

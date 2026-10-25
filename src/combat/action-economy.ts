@@ -18,6 +18,10 @@ import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
+  resolveFullLevelProgression,
+  visibleAbilityRows,
+} from '../utils/artifact-visible-abilities.js';
+import {
   combatReadyRemaining,
   minLivePoolCurrent,
 } from '../stones/stone-combat-ledger.js';
@@ -836,7 +840,67 @@ function collectActorItems(actor: Actor | null | undefined): any[] {
   return [];
 }
 
+/**
+ * Artifact radial usage keys look like:
+ *   `artifact:<itemId>:<level>:<rowType>`
+ *   `artifact:<itemId>:<level>:<rowType>:damage|ruin` (Dragon Breath modes)
+ * Resolve to the player-facing Power name (+ artifact name), never the raw key.
+ */
+function resolveArtifactUsageDisplayName(actor: Actor, key: string): string | null {
+  if (!key.startsWith('artifact:')) return null;
+  const m = /^artifact:([^:]+):(\d+):(.+)$/.exec(key);
+  if (!m) return null;
+  const itemId = m[1];
+  const level = Number(m[2]) || 1;
+  let rest = m[3];
+  let mode: 'damage' | 'ruin' | null = null;
+  const modeMatch = /^(.*):(damage|ruin)$/i.exec(rest);
+  if (modeMatch) {
+    rest = modeMatch[1];
+    mode = modeMatch[2].toLowerCase() as 'damage' | 'ruin';
+  }
+  const rowType = String(rest || '').trim();
+
+  const item =
+    (actor as any).items?.get?.(itemId) ||
+    collectActorItems(actor).find((it) => String(it?.id) === itemId);
+  const artifactName = String(item?.name || '').trim();
+
+  if (mode === 'damage') {
+    return artifactName ? `Damage Breath (${artifactName})` : 'Damage Breath';
+  }
+  if (mode === 'ruin') {
+    return artifactName ? `Ruin Breath (${artifactName})` : 'Ruin Breath';
+  }
+
+  try {
+    const sys = item?.system || {};
+    const full = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks);
+    const visible = visibleAbilityRows(full, Math.max(level, Number(sys.currentLevel) || level));
+    const row =
+      visible.find(
+        (r) => Number(r.level) === level && String(r.type || '').trim() === rowType,
+      ) ||
+      full.find((r) => Number(r.level) === level && String(r.type || '').trim() === rowType) ||
+      visible.find((r) => Number(r.level) === level) ||
+      full.find((r) => Number(r.level) === level);
+    const rowName = String(row?.name || '').trim();
+    if (rowName && artifactName) return `${rowName} (${artifactName})`;
+    if (rowName) return rowName;
+  } catch {
+    /* fall through */
+  }
+
+  if (artifactName && rowType) return `${rowType} — ${artifactName} (L${level})`;
+  if (artifactName) return `${artifactName} (L${level})`;
+  if (rowType) return `${rowType} (L${level})`;
+  return null;
+}
+
 function resolveUsedCombatPowerName(actor: Actor, key: string): string {
+  const artifactName = resolveArtifactUsageDisplayName(actor, key);
+  if (artifactName) return artifactName;
+
   const items = collectActorItems(actor);
   const byId = items.find((it) => String(it?.id) === key);
   if (byId?.name) return String(byId.name);
