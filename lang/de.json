@@ -123,13 +123,14 @@
     },
     "sheetIdentity": {
       "unlinkedTitle": "UNLINKED TOKEN – TEMPORÄRE KOPIE",
-      "unlinkedBody": "Änderungen hier betreffen nur diesen Token. Sie aktualisieren NICHT deinen Original-Charakter. Öffne deinen Charakter im Actor-Verzeichnis für dauerhafte Änderungen.",
+      "unlinkedBody": "Kampf auf diesem Token ist erlaubt (HP, Specials, verbrauchte Stones). Für Spieler ist permanente Progression gesperrt — Powers, XP, Stones, Shop u. Ä. nur am Original-Charakter. Der GM darf Progression hier trotzdem ändern (Test-/Dispatch-Kopie, wegwerfbar).",
       "originalTitle": "ORIGINAL-CHARAKTER – DAUERHAFT",
       "originalBody": "Änderungen an diesem Charakter werden am Original-Actor gespeichert.",
       "openOriginal": "Original-Charakter öffnen",
       "originalMissing": "Original-Charakter konnte nicht gefunden werden.",
       "originalNoPermission": "Du hast keine Berechtigung, den Original-Charakter zu öffnen.",
-      "originalOpenFailed": "Original-Charakterbogen konnte nicht geöffnet werden."
+      "originalOpenFailed": "Original-Charakterbogen konnte nicht geöffnet werden.",
+      "progressionLocked": "Progression ist auf diesem Unlinked-Token gesperrt. Öffne den Original-Charakter für Powers, Stones oder XP."
     },
     "carousel": {
       "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768.",

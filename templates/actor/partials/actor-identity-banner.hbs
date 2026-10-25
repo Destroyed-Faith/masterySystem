@@ -1,5 +1,5 @@
 {{#if sheetIdentity.isUnlinkedToken}}
-  <aside class="ms-actor-identity-banner ms-actor-identity-unlinked" role="status" aria-live="polite">
+  <aside class="ms-actor-identity-banner ms-actor-identity-unlinked{{#if sheetIdentity.progressionLocked}} ms-actor-identity-progression-locked{{/if}}" role="status" aria-live="polite">
     <div class="ms-actor-identity-banner-icon" aria-hidden="true">
       <i class="fas fa-unlink"></i>
     </div>

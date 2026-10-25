@@ -483,6 +483,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   async #onOpenTowerWizard(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     try {
       await showTowerWizardDialog(this.actor);
       this.render();
@@ -498,6 +500,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onAddPower(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     try {
       await showPowerCreationDialog(this.actor);
       this.render();
@@ -511,6 +515,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onReplacePower(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     if (!(game as any).user?.isGM) {
       ui.notifications?.warn('Only the GM can replace powers.');
       return;
@@ -541,6 +547,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   async #onOpenManualCombatPackage(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     try {
       await showTowerWizardDialog(this.actor, { manualBuildMode: true });
       this.render();
@@ -785,6 +793,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Open General Items Storage Window
    */
   async #openGeneralItemsStorage(): Promise<void> {
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     try {
       const { GeneralItemsStorageDialog } = await import('./general-items-storage-dialog.js');
       await GeneralItemsStorageDialog.showForActor(this.actor);
@@ -799,6 +809,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onStoreClick(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     if (!game.user?.isGM) {
       ui.notifications?.warn('Only the GM can access the Store');
       return;
@@ -1679,6 +1691,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.sheetIdentity = {
         kind: 'original',
         isUnlinkedToken: false,
+        progressionLocked: false,
         showOriginalBadge: false,
         originalActorId: null,
         originalActorName: null,
@@ -1863,8 +1876,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!root) return;
 
     try {
-      const { bindActorSheetIdentityControls } = await import('./actor-sheet-identity.js');
+      const { bindActorSheetIdentityControls, buildActorSheetIdentityContext } = await import('./actor-sheet-identity.js');
       bindActorSheetIdentityControls(root, this.actor);
+      root.classList.toggle(
+        'ms-progression-locked',
+        buildActorSheetIdentityContext(this.actor).progressionLocked,
+      );
     } catch (err) {
       console.warn('Mastery System | sheet identity controls failed', err);
     }
@@ -4165,6 +4182,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onConfirmAttributeChanges(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     
     if (!this.actor.isOwner) {
       (ui as any).notifications?.warn('Only the owner can confirm Attribute Point changes.');
@@ -4470,6 +4489,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onConfirmPowerLevelChanges(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     
     // Check if user is owner
     if (!this.actor.isOwner) {
@@ -5845,6 +5866,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       (ui as any).notifications?.warn('Only a GM can refresh XP.');
       return;
     }
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
 
     const preview = computeGroundTruthXp(this.actor);
     const content = formatXpRecalcHtml(String(this.actor.name || 'Charakter'), preview);
@@ -6414,6 +6437,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   async #onSpecializationAdd(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     if (!this.actor.isOwner && !(game as any).user?.isGM) {
       ui.notifications?.warn('Only the owner (or GM) can edit Specializations.');
       return;
@@ -6431,6 +6456,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   async #onSpecializationEdit(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     if (!this.actor.isOwner && !(game as any).user?.isGM) return;
     const specId = String((event.currentTarget as HTMLElement).dataset.specId || '');
     if (!specId) return;
@@ -6446,6 +6473,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   async #onSpecializationDelete(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     if (!this.actor.isOwner && !(game as any).user?.isGM) return;
     const specId = String((event.currentTarget as HTMLElement).dataset.specId || '');
     if (!specId) return;
@@ -6457,6 +6486,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /** Spend 4 XP to raise one Specialization by one Rank (once per Upgrade Step). */
   async #onSpecializationRankUp(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     if (!this.actor.isOwner && !(game as any).user?.isGM) return;
     const specId = String((event.currentTarget as HTMLElement).dataset.specId || '');
     if (!specId) return;
@@ -7704,6 +7735,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   async #onV099StoneSlot(ev?: { currentTarget?: EventTarget | null }): Promise<void> {
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     let sys: any = (this.actor as any).system ?? {};
     if (!usesV099Stones(sys)) {
       const ok = await this.#ensureV099StonesReady();
@@ -7874,6 +7907,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onGmToggleStoneRedistribute(event?: { preventDefault?: () => void }): Promise<void> {
     event?.preventDefault?.();
     if (!(game as any).user?.isGM) return;
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     const on = (this.actor as any).getFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG) === true;
     if (on) await (this.actor as any).unsetFlag('mastery-system', STONE_REDISTRIBUTE_FLAG);
     else await (this.actor as any).setFlag('mastery-system', STONE_REDISTRIBUTE_FLAG, true);
@@ -7883,6 +7918,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onGmReleaseAllStones(event?: { preventDefault?: () => void }): Promise<void> {
     event?.preventDefault?.();
     if (!(game as any).user?.isGM) return;
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     const confirmed = await Dialog.confirm({
       title: 'Alle Steine lösen',
       content: '<p>Alle zugewiesenen Steine werden frei. Lifetime XP bleibt. Die Felder können danach neu belegt werden.</p>',
@@ -8414,6 +8451,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onFinalizeCreation(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(this.actor)) return;
     
     const system = (this.actor as any).system;
     const masteryRank = Math.max(1, Math.floor(Number(system.mastery?.rank) || 2));

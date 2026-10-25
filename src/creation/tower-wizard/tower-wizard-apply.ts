@@ -25,6 +25,9 @@ export async function applyTowerWizardPackage(
     selection: TowerWizardSelection,
     options?: { skipConfirm?: boolean },
 ): Promise<boolean> {
+    const { assertProgressionEditable } = await import('../../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) return false;
+
     const actorMr = Math.max(1, Math.floor(Number((actor.system as any)?.mastery?.rank) || 2));
     const err = validatePackageSpecs(selection, { masteryRank: actorMr });
     if (err) {

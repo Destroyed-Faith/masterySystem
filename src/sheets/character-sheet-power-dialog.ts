@@ -75,6 +75,8 @@ export async function showPowerCreationDialog(
     actor: Actor,
     options?: { presetCategory?: PowerCategory },
 ): Promise<void> {
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) return;
     const system = (actor as any).system;
     const creationComplete = system?.creation?.complete !== false;
 

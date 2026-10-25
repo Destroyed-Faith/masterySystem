@@ -191,6 +191,10 @@ export async function applyPowerReplace(
     entry: CatalogEntry,
     spell: PowerSpellOptions,
 ): Promise<ApplyPowerReplaceResult> {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const existing = (actor as any).items.filter(
         (i: any) => i.type === 'power' && i.id !== oldItem.id,
     );

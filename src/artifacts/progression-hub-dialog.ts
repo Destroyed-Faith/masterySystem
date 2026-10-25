@@ -400,6 +400,8 @@ export async function openProgressionHubDialog(
   actor: Actor,
   options: { expandSection?: ProgressionHubSection } = {},
 ): Promise<void> {
+  const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+  if (!assertProgressionEditable(actor)) return;
   try {
     await repairArtifactEvolutionLinks(actor);
   } catch (err) {

@@ -113,6 +113,77 @@
   opacity: 0.85;
 }
 
+/* Unlinked token: permanent progression controls are visually locked (combat stays editable). */
+.mastery-system.sheet.actor.ms-progression-locked .v099-stone-slot,
+.character-sheet-root.ms-progression-locked .v099-stone-slot,
+.mastery-system.sheet.actor.ms-progression-locked .attr-increase-xp,
+.character-sheet-root.ms-progression-locked .attr-increase-xp,
+.mastery-system.sheet.actor.ms-progression-locked .attr-decrease-xp,
+.character-sheet-root.ms-progression-locked .attr-decrease-xp,
+.mastery-system.sheet.actor.ms-progression-locked .confirm-attribute-changes,
+.character-sheet-root.ms-progression-locked .confirm-attribute-changes,
+.mastery-system.sheet.actor.ms-progression-locked .cancel-attribute-changes,
+.character-sheet-root.ms-progression-locked .cancel-attribute-changes,
+.mastery-system.sheet.actor.ms-progression-locked .power-level-increase,
+.character-sheet-root.ms-progression-locked .power-level-increase,
+.mastery-system.sheet.actor.ms-progression-locked .power-level-decrease,
+.character-sheet-root.ms-progression-locked .power-level-decrease,
+.mastery-system.sheet.actor.ms-progression-locked .confirm-power-level-changes,
+.character-sheet-root.ms-progression-locked .confirm-power-level-changes,
+.mastery-system.sheet.actor.ms-progression-locked .cancel-power-level-changes,
+.character-sheet-root.ms-progression-locked .cancel-power-level-changes,
+.mastery-system.sheet.actor.ms-progression-locked .add-power-btn,
+.character-sheet-root.ms-progression-locked .add-power-btn,
+.mastery-system.sheet.actor.ms-progression-locked .gm-add-power-btn,
+.character-sheet-root.ms-progression-locked .gm-add-power-btn,
+.mastery-system.sheet.actor.ms-progression-locked .power-replace-btn,
+.character-sheet-root.ms-progression-locked .power-replace-btn,
+.mastery-system.sheet.actor.ms-progression-locked .progression-hub-btn,
+.character-sheet-root.ms-progression-locked .progression-hub-btn,
+.mastery-system.sheet.actor.ms-progression-locked .store-btn,
+.character-sheet-root.ms-progression-locked .store-btn,
+.mastery-system.sheet.actor.ms-progression-locked .general-items-btn,
+.character-sheet-root.ms-progression-locked .general-items-btn,
+.mastery-system.sheet.actor.ms-progression-locked .spec-add,
+.character-sheet-root.ms-progression-locked .spec-add,
+.mastery-system.sheet.actor.ms-progression-locked .spec-edit,
+.character-sheet-root.ms-progression-locked .spec-edit,
+.mastery-system.sheet.actor.ms-progression-locked .spec-delete,
+.character-sheet-root.ms-progression-locked .spec-delete,
+.mastery-system.sheet.actor.ms-progression-locked .spec-rank-up,
+.character-sheet-root.ms-progression-locked .spec-rank-up,
+.mastery-system.sheet.actor.ms-progression-locked .finalize-creation,
+.character-sheet-root.ms-progression-locked .finalize-creation,
+.mastery-system.sheet.actor.ms-progression-locked .open-tower-wizard-btn,
+.character-sheet-root.ms-progression-locked .open-tower-wizard-btn,
+.mastery-system.sheet.actor.ms-progression-locked .open-manual-combat-package-btn,
+.character-sheet-root.ms-progression-locked .open-manual-combat-package-btn,
+.mastery-system.sheet.actor.ms-progression-locked .gm-toggle-stone-redistribute,
+.character-sheet-root.ms-progression-locked .gm-toggle-stone-redistribute,
+.mastery-system.sheet.actor.ms-progression-locked .gm-release-all-stones,
+.character-sheet-root.ms-progression-locked .gm-release-all-stones,
+.mastery-system.sheet.actor.ms-progression-locked .gm-refresh-xp,
+.character-sheet-root.ms-progression-locked .gm-refresh-xp,
+.mastery-system.sheet.actor.ms-progression-locked [data-action="openProgressionHub"],
+.character-sheet-root.ms-progression-locked [data-action="openProgressionHub"],
+.mastery-system.sheet.actor.ms-progression-locked [data-action="openProgressionArtifacts"],
+.character-sheet-root.ms-progression-locked [data-action="openProgressionArtifacts"],
+.mastery-system.sheet.actor.ms-progression-locked [data-action="artifact-activate"],
+.character-sheet-root.ms-progression-locked [data-action="artifact-activate"],
+.mastery-system.sheet.actor.ms-progression-locked [data-action="artifact-upgrade"],
+.character-sheet-root.ms-progression-locked [data-action="artifact-upgrade"],
+.mastery-system.sheet.actor.ms-progression-locked .js-sheet-summon-bond-new,
+.character-sheet-root.ms-progression-locked .js-sheet-summon-bond-new,
+.mastery-system.sheet.actor.ms-progression-locked .js-sheet-summon-bond-ritual,
+.character-sheet-root.ms-progression-locked .js-sheet-summon-bond-ritual,
+.mastery-system.sheet.actor.ms-progression-locked .js-sheet-summon-bond-dissolve,
+.character-sheet-root.ms-progression-locked .js-sheet-summon-bond-dissolve {
+  pointer-events: none !important;
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+}
+
 /* ========== Character Sheet Specific ========== */
 .mastery-system.sheet.actor.character {
   width: 1054px;

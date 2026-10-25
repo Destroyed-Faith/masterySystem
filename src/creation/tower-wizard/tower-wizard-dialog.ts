@@ -1116,6 +1116,8 @@ export async function showTowerWizardDialog(
     actor: Actor,
     options?: { manualBuildMode?: boolean },
 ): Promise<void> {
+    const { assertProgressionEditable } = await import('../../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) return;
     const echoContext = buildTowerWizardEchoContext(actor);
     if (!echoContext.hasEcho) {
         ui.notifications?.warn(

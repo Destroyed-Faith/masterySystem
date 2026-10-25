@@ -2,6 +2,7 @@
  * Shared XP progression helpers for the character sheet and Progression Hub.
  */
 
+import { assertProgressionEditable } from '../sheets/actor-sheet-identity.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import {
   ARTIFACT_CAPACITY_DEFAULT,
@@ -396,6 +397,9 @@ export async function applyAttributePendingChanges(
   actor: Actor,
   pendingMap: Record<string, number>,
 ): Promise<{ ok: boolean; error?: string }> {
+  if (!assertProgressionEditable(actor)) {
+    return { ok: false, error: 'Progression locked on unlinked token.' };
+  }
   const xpState = getXpState(actor);
   const netCost = calculateAttributePendingNetCost(actor, pendingMap);
   if (netCost > xpState.available) {
@@ -466,6 +470,9 @@ export async function applySkillPendingChanges(
   actor: Actor,
   pendingMap: Record<string, number>,
 ): Promise<{ ok: boolean; error?: string }> {
+  if (!assertProgressionEditable(actor)) {
+    return { ok: false, error: 'Progression locked on unlinked token.' };
+  }
   const xpState = getXpState(actor);
   const allocation = allocateActorSkillPending(actor, pendingMap);
   const netCost = allocation.xpNet;
@@ -606,6 +613,9 @@ export async function applySpecializationRankUp(
   actor: Actor,
   specId: string,
 ): Promise<{ ok: boolean; error?: string; newRank?: number }> {
+  if (!assertProgressionEditable(actor)) {
+    return { ok: false, error: 'Progression locked on unlinked token.' };
+  }
   const specs = readSpecializations((actor as any).system);
   const spec = specs.find((s) => s.id === specId);
   if (!spec) return { ok: false, error: 'Specialization not found.' };
@@ -631,6 +641,9 @@ export async function applySpecializationLearn(
   actor: Actor,
   input: { name: string; field: string; scope: string },
 ): Promise<{ ok: boolean; error?: string; id?: string }> {
+  if (!assertProgressionEditable(actor)) {
+    return { ok: false, error: 'Progression locked on unlinked token.' };
+  }
   const name = String(input.name || '').trim();
   if (!isSkillField(input.field)) return { ok: false, error: 'Choose a Field.' };
   const field = input.field as SkillField;
@@ -663,6 +676,9 @@ export async function applyPowerPendingChanges(
   actor: Actor,
   pendingMap: Record<string, number>,
 ): Promise<{ ok: boolean; error?: string }> {
+  if (!assertProgressionEditable(actor)) {
+    return { ok: false, error: 'Progression locked on unlinked token.' };
+  }
   const xpState = getXpState(actor);
   const netCost = calculatePowerPendingNetCost(actor, pendingMap);
   if (netCost > xpState.available) {

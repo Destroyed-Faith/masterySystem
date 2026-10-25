@@ -325,6 +325,8 @@ export async function linkArtifactForActor(
   embeddedId: string,
   _stoneAttr?: string,
 ): Promise<boolean> {
+  const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+  if (!assertProgressionEditable(actor)) return false;
   const A = actor as any;
   if (!A.isOwner) return false;
 
@@ -523,6 +525,9 @@ export async function upgradeArtifactForActor(
   targetNodeId: string,
   options: UpgradeArtifactOptions = {},
 ): Promise<boolean> {
+  const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+  if (!assertProgressionEditable(actor)) return false;
+
   const gmFree = options.gmFree === true;
   if (gmFree && !game.user?.isGM) {
     ui.notifications?.warn('Nur der GM kann Artefakte ohne XP upgraden.');

@@ -159,6 +159,8 @@ export class SummonBondDialog extends BaseDialog {
   };
 
   static async showCreate(actor: Actor): Promise<SummonBondRecord | null> {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) return null;
     return new Promise((resolve) => {
       const app = new SummonBondDialog(actor, 'create', null, resolve);
       (app as any).render({ force: true });
@@ -166,6 +168,8 @@ export class SummonBondDialog extends BaseDialog {
   }
 
   static async showRitual(actor: Actor, bondId: string): Promise<SummonBondRecord | null> {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) return null;
     const bond = getSummonBondsFromActor(actor).find((b) => b.id === bondId);
     if (!bond) {
       ui.notifications?.warn('Summon Bond not found.');

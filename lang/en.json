@@ -123,13 +123,14 @@
     },
     "sheetIdentity": {
       "unlinkedTitle": "UNLINKED TOKEN – TEMPORARY COPY",
-      "unlinkedBody": "Changes made here affect only this token. They do NOT update your original character. Open your character from the Actor Directory to make permanent changes.",
+      "unlinkedBody": "Combat on this token is fine (HP, specials, spent stones). For players, permanent progression is locked — powers, XP, stones, shop, and similar changes go on the original character. The GM may still edit progression here for testing (this copy is throwaway).",
       "originalTitle": "ORIGINAL CHARACTER – PERMANENT",
       "originalBody": "Changes to this character are saved to the original Actor.",
       "openOriginal": "Open Original Character",
       "originalMissing": "Original character could not be found.",
       "originalNoPermission": "You do not have permission to open the original character.",
-      "originalOpenFailed": "Could not open the original character sheet."
+      "originalOpenFailed": "Could not open the original character sheet.",
+      "progressionLocked": "Progression is locked on this unlinked token. Open the original character to buy powers, assign stones, or spend XP."
     },
     "carousel": {
       "compactHint": "Compact carousel — window or zoom is below 1024×768.",

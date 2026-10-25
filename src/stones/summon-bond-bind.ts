@@ -622,6 +622,10 @@ export async function applyBondRitual(
   bondDraft: SummonBondRecord,
   ownerSkillRatings: Record<string, number> = {},
 ): Promise<{ bond: SummonBondRecord | null; errors: string[]; warnings: string[] }> {
+  const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+  if (!assertProgressionEditable(actor)) {
+    return { bond: null, errors: ['Progression locked on unlinked token.'], warnings: [] };
+  }
   const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
   // Sync power token costs into spend before validate
   const draft = foundryDuplicate(bondDraft);
@@ -802,6 +806,10 @@ export async function dissolveSummonBond(
   bondId: string,
   deleteActors: (id: string | undefined) => Promise<void> = async () => {},
 ): Promise<{ removed: SummonBondRecord | null; errors: string[] }> {
+  const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+  if (!assertProgressionEditable(actor)) {
+    return { removed: null, errors: ['Progression locked on unlinked token.'] };
+  }
   const bonds = getSummonBondsFromActor(actor);
   const idx = bonds.findIndex((b) => b.id === bondId);
   if (idx < 0) return { removed: null, errors: ['Bond not found.'] };

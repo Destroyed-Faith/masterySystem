@@ -139,6 +139,8 @@ export class StoreDialog extends BaseDialog {
    * Show the dialog for an actor (GM only)
    */
   static async showForActor(actor: any): Promise<void> {
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) return;
     if (!game.user?.isGM) {
       ui.notifications?.warn('Only the GM can access the Store');
       return;

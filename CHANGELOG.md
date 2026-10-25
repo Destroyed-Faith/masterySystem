@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.786] - 2026-10-25
+
+### Changed
+
+- **Unlinked / Dispatch tokens:** Permanent progression (powers, XP, stones, artifacts, shop, …) is locked for players on synthetic token sheets; combat (HP, specials, spent stones) stays editable. GMs may still edit progression on those tokens for testing. Banner + disabled controls for players; Open Original remains available.
+
 ## [0.9.785] - 2026-10-25
 
 ### Fixed
