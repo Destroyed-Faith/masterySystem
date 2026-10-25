@@ -54,14 +54,17 @@ export interface MeleeBurstVolleyContext {
  * One shared Attack/Casting roll is compared separately against each creature's
  * Evade (or Final Spell TN for spell AoEs). One shared Power damage roll is applied
  * to every creature hit, with the full printed Special. There is NO Primary Target:
- * the attack card is anchored to one token only as the roll carrier (TN preview);
- * on Roll, the anchor and every token in `secondaryTokenIds` are resolved equally via
- * `resolveAoeFromSharedRoll`. Instant AoE never adds Weapon Damage or Spell Focus.
+ * the attack card is anchored to one token only as the roll UI carrier (TN preview);
+ * on Roll, the carrier and every other affected token are resolved equally via
+ * `resolveAoeFromSharedRoll`. Instant AoE never adds Weapon Damage or Spell Focus
+ * (Dragon Head Damage Breath is the Bite exception, flagged separately).
  */
 export interface AoeMeleeWeaponContext {
     /**
-     * All other tokens in the area besides the card's roll carrier. The carrier is
-     * NOT a primary target — it is resolved like every other creature.
+     * Other affected tokens besides the card's roll UI carrier. Prefer
+     * `affectedTokenIds` when building new call sites — the carrier is never a
+     * Primary Target; every id is resolved equally.
+     * @deprecated Name is historical; use with carrier id as a flat affected set.
      */
     secondaryTokenIds: string[];
     /**
@@ -70,6 +73,11 @@ export interface AoeMeleeWeaponContext {
      */
     powerBonusDice: number;
 }
+/** Build Instant AoE card context from a flat affected-token list (no Primary). */
+export declare function aoeContextFromAffectedTokenIds(affectedTokenIds: string[], powerBonusDice?: number): {
+    carrierTokenId: string;
+    aoe: AoeMeleeWeaponContext;
+} | null;
 /**
  * Get attribute value from actor
  */

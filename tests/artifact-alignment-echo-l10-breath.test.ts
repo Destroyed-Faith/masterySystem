@@ -160,9 +160,9 @@ describe('Dragon Head Breath Weapon — Core Melee AoE', () => {
     expect(String(b2?.effect)).toMatch(/Ruin\(9\)/);
     expect(String(b3?.effect)).toMatch(/Bite Weapon Damage \+ 13d8/);
     expect(String(b3?.effect)).toMatch(/Ruin\(10\)/);
-    expect(breathWeaponRowDisplay(1).aoe).toBe('Damage: radius 3 m / Ruin: radius 3 m');
-    expect(breathWeaponRowDisplay(4).aoe).toBe('Damage: radius 6 m / Ruin: radius 5 m');
-    expect(breathWeaponRowDisplay(7).aoe).toBe('Damage: radius 8 m / Ruin: radius 7 m');
+    expect(breathWeaponRowDisplay(1).aoe).toBe('Damage: Cone 3 m / Ruin: Cone 3 m');
+    expect(breathWeaponRowDisplay(4).aoe).toBe('Damage: Cone 6 m / Ruin: Cone 5 m');
+    expect(breathWeaponRowDisplay(7).aoe).toBe('Damage: Cone 8 m / Ruin: Cone 7 m');
     expect(breathDamageRadiusMeters(1)).toBe(3);
     expect(breathRuinRadiusMeters(4)).toBe(5);
     expect(breathRuinRadiusMeters(7)).toBe(7);

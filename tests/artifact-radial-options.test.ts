@@ -127,7 +127,7 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(opts.some((o) => o.id.startsWith('natural-weapon-select:'))).toBe(false);
   });
 
-  it('aims Breath Weapon as Damage (+Bite) and Ruin Melee AoE modes', () => {
+  it('aims Breath Weapon as Damage (+Bite) and Ruin Cone Melee Instant AoE modes', () => {
     const head = {
       id: 'dh2',
       type: 'artifact',
@@ -146,8 +146,8 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
             name: 'Breath Weapon I',
             type: 'Melee AoE',
             range: 'Self',
-            aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
-            effect: 'Damage Breath or Ruin Breath (no Bite)',
+            aoe: 'Damage: Cone 3 m / Ruin: Cone 3 m',
+            effect: 'Damage Breath or Ruin Breath',
           },
         ],
       },
@@ -156,12 +156,13 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     const opts = buildArtifactRadialOptions(actor([head]));
     const damage = opts.find((option) => /Damage Breath/i.test(option.name));
     const ruin = opts.find((option) => /Ruin Breath/i.test(option.name));
-    expect(damage?.aoeShape).toBe('radius');
+    expect(damage?.aoeShape).toBe('cone');
     expect(damage?.aoeRadiusMeters).toBe(3);
-    expect(damage?.burstMeleeAoE).toBe(true);
+    expect(damage?.burstMeleeAoE).toBeFalsy();
     expect(damage?.ignoreWeaponDamage).toBe(false);
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('dh2');
+    expect(ruin?.aoeShape).toBe('cone');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
     expect(ruin?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
     expect(ruin?.forcedWeaponItemId).toBeUndefined();

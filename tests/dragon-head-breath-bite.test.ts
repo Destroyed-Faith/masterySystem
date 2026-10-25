@@ -198,9 +198,12 @@ describe('Dragon Head Level 3 always exposes both Breath modes', () => {
     expect(ruin).toBeTruthy();
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('IqH2PUiBdJzevU5Q');
+    expect(damage?.aoeShape).toBe('cone');
+    expect(damage?.burstMeleeAoE).toBeFalsy();
     expect(damageBreathSharedPoolFormula(3)).toBe('3d8+4d8');
     expect(ruin?.dragonHeadBreathMode).toBe('ruin');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
+    expect(ruin?.aoeShape).toBe('cone');
   });
 
   it('exposes both Breath modes even when embed still has stale Artifact Active type', () => {
@@ -210,7 +213,7 @@ describe('Dragon Head Level 3 always exposes both Breath modes', () => {
         name: 'Breath Weapon I',
         type: 'Artifact Active',
         range: 'Self',
-        aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
+        aoe: 'Damage: Cone 3 m / Ruin: Cone 3 m',
         effect: 'Damage or Ruin',
       },
       {
@@ -233,13 +236,14 @@ describe('Dragon Head Level 3 always exposes both Breath modes', () => {
     });
     expect(opts.some((o) => /Damage Breath/i.test(o.name))).toBe(true);
     expect(opts.some((o) => /Ruin Breath/i.test(o.name))).toBe(true);
-    expect(opts.find((o) => /Damage Breath/i.test(o.name))?.burstMeleeRadiusMeters).toBe(3);
+    expect(opts.find((o) => /Damage Breath/i.test(o.name))?.aoeShape).toBe('cone');
+    expect(opts.find((o) => /Damage Breath/i.test(o.name))?.aoeRadiusMeters).toBe(3);
     expect(opts.find((o) => /Ruin Breath/i.test(o.name))?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
   });
 });
 
 describe('Radial emits Damage Breath + Ruin Breath', () => {
-  it('surfaces both modes; Damage carries Bite; Ruin does not', () => {
+  it('surfaces both Cone modes; Damage carries Bite; Ruin does not', () => {
     const flag = (extra: Record<string, unknown> = {}) => (scope: string, key: string) => {
       if (scope !== 'mastery-system') return undefined;
       if (key === 'artifactActivated') return true;
@@ -261,7 +265,7 @@ describe('Radial emits Damage Breath + Ruin Breath', () => {
             name: 'Breath Weapon II',
             type: 'Melee AoE',
             range: 'Self',
-            aoe: 'Damage: radius 6 m / Ruin: radius 5 m',
+            aoe: 'Damage: Cone 6 m / Ruin: Cone 5 m',
             effect: 'Damage or Ruin',
             powerTemplateId: 'active-melee-weapon-aoe',
           },
@@ -288,12 +292,15 @@ describe('Radial emits Damage Breath + Ruin Breath', () => {
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('dh1');
     expect(damage?.ignoreWeaponDamage).toBe(false);
-    expect(damage?.burstMeleeRadiusMeters).toBe(6);
+    expect(damage?.aoeShape).toBe('cone');
+    expect(damage?.aoeRadiusMeters).toBe(6);
+    expect(damage?.burstMeleeAoE).toBeFalsy();
     expect(ruin?.dragonHeadBreathMode).toBe('ruin');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
     expect(ruin?.forcedWeaponItemId).toBeUndefined();
     expect(ruin?.artifactRowSpecial).toMatch(/Ruin\(9\)/);
-    expect(ruin?.burstMeleeRadiusMeters).toBe(5);
+    expect(ruin?.aoeShape).toBe('cone');
+    expect(ruin?.aoeRadiusMeters).toBe(5);
   });
 });
 

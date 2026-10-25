@@ -756,7 +756,7 @@ const DRAGON_HEAD = {
     echoKey: 'dragonborn',
     slot: 'head',
     baseProfile: 'headArmor',
-    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.',
+    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee Cone Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.',
     restriction: 'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
     // Bite Weapon Damage (1d8…10d8): martial weapon source for Powers / Basic
     // Attack (free radial toggle), not a standalone Attack Action. Occupies no hands.
@@ -772,9 +772,9 @@ const DRAGON_HEAD = {
             templateId: 'active-melee-weapon-aoe',
             stagePowerLevels: ['4', '10', '16'],
             stageEffectTexts: [
-                'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
-                'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, radius 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
-                'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, radius 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
             ],
         },
         2: {
@@ -808,9 +808,9 @@ const DRAGON_HEAD = {
             name: 'Breath Weapon I',
             type: 'Melee AoE',
             range: 'Self',
-            aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
+            aoe: 'Damage: Cone 3 m / Ruin: Cone 3 m',
             duration: 'Instant',
-            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
             special: 'Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)',
         },
         {
@@ -837,9 +837,9 @@ const DRAGON_HEAD = {
             name: 'Breath Weapon II',
             type: 'Melee AoE',
             range: 'Self',
-            aoe: 'Damage: radius 6 m / Ruin: radius 5 m',
+            aoe: 'Damage: Cone 6 m / Ruin: Cone 5 m',
             duration: 'Instant',
-            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, radius 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
             special: 'Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)',
         },
         {
@@ -866,9 +866,9 @@ const DRAGON_HEAD = {
             name: 'Breath Weapon III',
             type: 'Melee AoE',
             range: 'Self',
-            aoe: 'Damage: radius 8 m / Ruin: radius 7 m',
+            aoe: 'Damage: Cone 8 m / Ruin: Cone 7 m',
             duration: 'Instant',
-            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, radius 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
             special: 'Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)',
         },
         {

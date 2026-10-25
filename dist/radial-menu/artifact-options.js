@@ -24,7 +24,7 @@ import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifac
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
-import { breathDamageRadiusMeters, breathRuinRadiusMeters, breathRuinValue, damageBreathSharedPoolFormula, isBreathWeaponName, } from '../utils/breath-weapon.js';
+import { breathDamageConeMeters, breathRuinConeMeters, breathRuinValue, damageBreathSharedPoolFormula, isBreathWeaponName, } from '../utils/breath-weapon.js';
 const REACTION_TYPES = new Set(['Reaction']);
 /**
  * Classify a Level Progression row `type` into a radial category. The Type
@@ -417,29 +417,28 @@ export function buildArtifactRadialOptions(actor) {
             else {
                 option.defaultTargetGroup = 'enemy';
             }
-            // Dragon Head Breath: emit Damage Breath + Ruin Breath (shared use counter).
-            // Damage Breath adds this Artifact's Bite (Core exception). Ruin is Special-only.
+            // Dragon Head Breath: Damage + Ruin (shared use). Cone specialty (aimed from
+            // caster) — still Instant Melee AoE: one shared roll vs each Evade, no Primary.
             if (isBreathWeaponName(name)) {
-                const dmgR = breathDamageRadiusMeters(currentLevel);
-                const ruinR = breathRuinRadiusMeters(currentLevel);
+                const dmgL = breathDamageConeMeters(currentLevel);
+                const ruinL = breathRuinConeMeters(currentLevel);
                 const ruinV = breathRuinValue(currentLevel);
                 const poolPreview = damageBreathSharedPoolFormula(currentLevel);
-                const circularBonus = getEffectiveCircularAoeRadiusBonusMeters(actor);
                 const stageSuffix = (name.match(/\s(I{1,3})\b/) || [])[1] || '';
                 const damageOpt = {
                     ...option,
                     id: `${id}:damage`,
                     name: stageSuffix ? `Damage Breath ${stageSuffix}` : 'Damage Breath',
-                    description: `${description} · Damage Breath · shared pool ${poolPreview} · radius ${dmgR} m · Might or Agility`,
-                    aoeShape: 'radius',
-                    aoeRadiusMeters: dmgR + circularBonus,
+                    description: `${description} · Damage Breath · shared pool ${poolPreview} · Cone ${dmgL} m · Might or Agility`,
+                    aoeShape: 'cone',
+                    aoeRadiusMeters: dmgL,
                     range: 0,
                     rangeMeters: 0,
-                    burstMeleeAoE: true,
-                    burstMeleeRadiusMeters: dmgR,
-                    meleeReachMeters: dmgR,
+                    burstMeleeAoE: false,
+                    burstMeleeRadiusMeters: undefined,
+                    meleeReachMeters: undefined,
                     defaultTargetGroup: 'enemy',
-                    allowManualTargetSelection: false,
+                    allowManualTargetSelection: true,
                     aoePlacementProfile: undefined,
                     ignoreWeaponDamage: false,
                     dragonHeadDamageBreath: true,
@@ -451,16 +450,16 @@ export function buildArtifactRadialOptions(actor) {
                     ...option,
                     id: `${id}:ruin`,
                     name: stageSuffix ? `Ruin Breath ${stageSuffix}` : 'Ruin Breath',
-                    description: `${description} · Ruin Breath · Ruin(${ruinV}) · radius ${ruinR} m · no damage · Might or Agility`,
-                    aoeShape: 'radius',
-                    aoeRadiusMeters: ruinR + circularBonus,
+                    description: `${description} · Ruin Breath · Ruin(${ruinV}) · Cone ${ruinL} m · no damage · Might or Agility`,
+                    aoeShape: 'cone',
+                    aoeRadiusMeters: ruinL,
                     range: 0,
                     rangeMeters: 0,
-                    burstMeleeAoE: true,
-                    burstMeleeRadiusMeters: ruinR,
-                    meleeReachMeters: ruinR,
+                    burstMeleeAoE: false,
+                    burstMeleeRadiusMeters: undefined,
+                    meleeReachMeters: undefined,
                     defaultTargetGroup: 'enemy',
-                    allowManualTargetSelection: false,
+                    allowManualTargetSelection: true,
                     aoePlacementProfile: undefined,
                     ignoreWeaponDamage: true,
                     dragonHeadDamageBreath: false,

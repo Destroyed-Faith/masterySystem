@@ -135,6 +135,19 @@ export async function spawnSplitStrike2IfPending(splitPairId) {
         sharedRaiseTn: pending.sharedRaiseTn,
     }, null, null);
 }
+/** Build Instant AoE card context from a flat affected-token list (no Primary). */
+export function aoeContextFromAffectedTokenIds(affectedTokenIds, powerBonusDice = 0) {
+    const ids = [...new Set((affectedTokenIds || []).map(String).filter(Boolean))];
+    if (!ids.length)
+        return null;
+    return {
+        carrierTokenId: ids[0],
+        aoe: {
+            secondaryTokenIds: ids.slice(1),
+            powerBonusDice: Math.max(0, Math.floor(Number(powerBonusDice) || 0)),
+        },
+    };
+}
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -1171,7 +1184,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       <div class="attack-header">
         <h3><i class="fas ${headerIcon}"></i> ${optionName}</h3>
         <p class="attack-participants"><strong>${attackerName}</strong> → ${aoeMelee
-        ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} Ziel(e) — ein Wurf, kein Primärziel)`
+        ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} betroffene Kreatur(en) — ein Wurf vs. Evade je Kreatur, gleicher Schaden)`
         : `<strong>${targetName}</strong>`}</p>
       </div>
       ${threatenedHtml}

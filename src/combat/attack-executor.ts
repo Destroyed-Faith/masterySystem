@@ -234,14 +234,17 @@ export interface MeleeBurstVolleyContext {
  * One shared Attack/Casting roll is compared separately against each creature's
  * Evade (or Final Spell TN for spell AoEs). One shared Power damage roll is applied
  * to every creature hit, with the full printed Special. There is NO Primary Target:
- * the attack card is anchored to one token only as the roll carrier (TN preview);
- * on Roll, the anchor and every token in `secondaryTokenIds` are resolved equally via
- * `resolveAoeFromSharedRoll`. Instant AoE never adds Weapon Damage or Spell Focus.
+ * the attack card is anchored to one token only as the roll UI carrier (TN preview);
+ * on Roll, the carrier and every other affected token are resolved equally via
+ * `resolveAoeFromSharedRoll`. Instant AoE never adds Weapon Damage or Spell Focus
+ * (Dragon Head Damage Breath is the Bite exception, flagged separately).
  */
 export interface AoeMeleeWeaponContext {
   /**
-   * All other tokens in the area besides the card's roll carrier. The carrier is
-   * NOT a primary target — it is resolved like every other creature.
+   * Other affected tokens besides the card's roll UI carrier. Prefer
+   * `affectedTokenIds` when building new call sites — the carrier is never a
+   * Primary Target; every id is resolved equally.
+   * @deprecated Name is historical; use with carrier id as a flat affected set.
    */
   secondaryTokenIds: string[];
   /**
@@ -249,6 +252,22 @@ export interface AoeMeleeWeaponContext {
    * damage is rolled once through the damage dialog.
    */
   powerBonusDice: number;
+}
+
+/** Build Instant AoE card context from a flat affected-token list (no Primary). */
+export function aoeContextFromAffectedTokenIds(
+  affectedTokenIds: string[],
+  powerBonusDice = 0,
+): { carrierTokenId: string; aoe: AoeMeleeWeaponContext } | null {
+  const ids = [...new Set((affectedTokenIds || []).map(String).filter(Boolean))];
+  if (!ids.length) return null;
+  return {
+    carrierTokenId: ids[0]!,
+    aoe: {
+      secondaryTokenIds: ids.slice(1),
+      powerBonusDice: Math.max(0, Math.floor(Number(powerBonusDice) || 0)),
+    },
+  };
 }
 
 function newSplitPairId(): string {
@@ -1464,7 +1483,7 @@ export async function createAttackCard(
         <h3><i class="fas ${headerIcon}"></i> ${optionName}</h3>
         <p class="attack-participants"><strong>${attackerName}</strong> → ${
           aoeMelee
-            ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} Ziel(e) — ein Wurf, kein Primärziel)`
+            ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} betroffene Kreatur(en) — ein Wurf vs. Evade je Kreatur, gleicher Schaden)`
             : `<strong>${targetName}</strong>`
         }</p>
       </div>

@@ -448,13 +448,33 @@ function updateCandidateVisuals(state) {
  * Create UI panel for target selection
  */
 function createTargetSelectionPanel(state) {
-    const confirmLabel = state.option.aoePlacementProfile === 'hostile-zone' ? 'Zone bestätigen' : 'Confirm Utility';
+    const isAttackAoe = state.option.slot === 'attack' &&
+        (state.option.aoePlacementProfile === 'hostile-zone' || state.option.aoeShape === 'cone');
+    const confirmLabel = isAttackAoe
+        ? 'Confirm AoE'
+        : state.option.aoePlacementProfile === 'hostile-zone'
+            ? 'Zone bestätigen'
+            : 'Confirm Utility';
+    const affectedNames = Array.from(state.selectedTargets)
+        .map((id) => {
+        const c = state.candidates.get(id);
+        return String(c?.token?.name || c?.token?.actor?.name || id);
+    })
+        .filter(Boolean);
+    const affectedListHtml = isAttackAoe
+        ? `<div class="panel-affected" style="margin:0.4em 0; max-height:9em; overflow:auto;">
+        <div style="font-weight:600; margin-bottom:0.25em;">Affected creatures</div>
+        <ul style="margin:0; padding-left:1.2em;">${affectedNames.map((n) => `<li>${n}</li>`).join('') || '<li><em>None</em></li>'}</ul>
+        <div style="opacity:0.8; font-size:0.9em; margin-top:0.35em;">Hits are decided after the Attack Roll (vs each Evade).</div>
+      </div>`
+        : '';
     const panelContent = `
     <div class="mastery-utility-panel">
       <div class="panel-header">
         <h4>${state.option.name}</h4>
-        <div class="panel-subtitle">Select Targets</div>
+        <div class="panel-subtitle">${isAttackAoe ? 'Affected creatures in AoE' : 'Select Targets'}</div>
       </div>
+      ${affectedListHtml}
       <div class="panel-controls">
         <button class="panel-btn" data-action="allies">Allies</button>
         <button class="panel-btn" data-action="enemies">Enemies</button>
@@ -478,7 +498,7 @@ function createTargetSelectionPanel(state) {
         <button class="panel-btn cancel" data-action="cancel">Cancel</button>
       </div>
       <div class="panel-info">
-        <div>Selected: <span id="selected-count">0</span></div>
+        <div>Affected: <span id="selected-count">0</span></div>
       </div>
     </div>
   `;
@@ -486,7 +506,11 @@ function createTargetSelectionPanel(state) {
     // DOM box in the top-left corner — the acting player sees it like any dialog.
     const { ApplicationV2 } = foundry.applications.api;
     const isZone = state.option.aoePlacementProfile === 'hostile-zone';
-    const windowTitle = isZone ? `${state.option.name} — Ziele bestätigen` : `${state.option.name} — Select Targets`;
+    const windowTitle = isAttackAoe
+        ? `${state.option.name} — Affected creatures`
+        : isZone
+            ? `${state.option.name} — Ziele bestätigen`
+            : `${state.option.name} — Select Targets`;
     let bindPanel = null;
     class UtilityTargetPanelApp extends ApplicationV2 {
         static DEFAULT_OPTIONS = {
@@ -540,10 +564,20 @@ function createTargetSelectionPanel(state) {
     bindPanel = (root) => {
         const html = $(root);
         panel.element = root;
-        // Update selected count
+        // Update selected / affected count (+ name list for attack AoE)
         const updateCount = () => {
             const count = state.selectedTargets.size;
             html.find('#selected-count').text(count);
+            const list = html.find('.panel-affected ul');
+            if (list.length) {
+                const names = Array.from(state.selectedTargets).map((id) => {
+                    const c = state.candidates.get(id);
+                    return String(c?.token?.name || c?.token?.actor?.name || id);
+                });
+                list.html(names.length
+                    ? names.map((n) => `<li>${n}</li>`).join('')
+                    : '<li><em>None</em></li>');
+            }
         };
         // Button handlers
         html.find('[data-action="allies"]').on('click', () => {
@@ -1083,7 +1117,10 @@ async function confirmUtilityTargets(state) {
     const isHealPlacement = state.option.aoePlacementProfile === 'heal';
     const isCleansePlacement = state.option.aoePlacementProfile === 'cleanse';
     const isSupport = isHealPlacement || isCleansePlacement;
-    if (state.option.costsAction) {
+    // Cone Instant AoE (e.g. Dragon Breath): Attack Action + Breath use are spent
+    // on Roll via the attack card — never on targeting confirm / cancel.
+    const deferActionSpendToAttackCard = state.option.slot === 'attack' && state.option.aoeShape === 'cone';
+    if (state.option.costsAction && !deferActionSpendToAttackCard) {
         if (combat && actor) {
             const available = getAvailableAttackActions(actor, combat);
             if (available <= 0) {
@@ -1110,6 +1147,14 @@ async function confirmUtilityTargets(state) {
             return;
         }
         // Heal/Cleanse outside combat: apply without spending an Action.
+    }
+    else if (deferActionSpendToAttackCard && state.option.costsAction && combat && actor) {
+        const available = getAvailableAttackActions(actor, combat);
+        if (available <= 0) {
+            ui.notifications?.warn('No Actions left this round.');
+            endUtilityTargeting(false);
+            return;
+        }
     }
     if (state.option.source === 'power' && state.option.item?.id && actor && combat) {
         // Prefer the radial option id for artifact rows (item is the artifact).
@@ -1180,19 +1225,19 @@ async function confirmUtilityTargets(state) {
         endUtilityTargeting(true);
         return;
     }
-    if (isAttackZone) {
+    const isConeAttack = state.option.slot === 'attack' && state.option.aoeShape === 'cone';
+    if (isAttackZone || isConeAttack) {
         if (!targets.length) {
-            ui.notifications?.warn('Keine Ziele in der Zone ausgewählt.');
+            ui.notifications?.warn(isConeAttack
+                ? 'No affected creatures in the Cone.'
+                : 'Keine Ziele in der Zone ausgewählt.');
             endUtilityTargeting(false);
             return;
         }
-        // Instant AoE: NO Primary Target. One shared Attack/Casting roll, one shared
-        // Power damage roll, same payload for every creature hit (no Weapon Damage, no
-        // Spell Focus). The attack card is anchored to the first token only as the
-        // roll carrier (casting TN / Raise / Crit UI) — on Roll, the carrier and all
-        // other tokens are resolved equally via resolveAoeFromSharedRoll.
-        const rollCarrier = targets[0];
-        const otherAoeTokenIds = targets.slice(1).map((t) => String(t.id));
+        // Instant AoE: NO Primary Target. Flat affected set → one shared Attack/
+        // Casting roll vs each Evade / Final Spell TN; equal payload. Card carrier
+        // is UI-only; resolveAoeFromSharedRoll treats every token equally.
+        const affectedIds = targets.map((t) => String(t.id));
         let powerBonus = 0;
         if (state.option.source === 'npc-attack' && actor) {
             const row = getNpcAttackByIndex(actor.system, state.option.npcAttackIndex ?? 0, state.option.npcPhaseIndex);
@@ -1203,20 +1248,28 @@ async function confirmUtilityTargets(state) {
         else if (state.option.item) {
             powerBonus = extractMeleeAoePowerBonusD8(state.option.item);
         }
-        // Pass AoE context so every creature gets its own hit check + the shared payload.
         try {
-            const { createRangedAttackCard } = await import('./combat/attack-executor.js');
+            const { aoeContextFromAffectedTokenIds, createMeleeAttackCard, createRangedAttackCard, } = await import('./combat/attack-executor.js');
+            const built = aoeContextFromAffectedTokenIds(affectedIds, powerBonus);
+            if (!built) {
+                endUtilityTargeting(false);
+                return;
+            }
+            const rollCarrier = targets.find((t) => String(t.id) === built.carrierTokenId) || targets[0];
             if (state.center) {
                 state.option.spellZoneCenterX = state.center.x;
                 state.option.spellZoneCenterY = state.center.y;
             }
-            await createRangedAttackCard(state.casterToken, rollCarrier, state.option, {
-                secondaryTokenIds: otherAoeTokenIds,
-                powerBonusDice: powerBonus,
-            });
+            // Cone Breath / Melee Cone: melee attack card. Hostile-zone placement: ranged.
+            if (isConeAttack) {
+                await createMeleeAttackCard(state.casterToken, rollCarrier, state.option, null, built.aoe);
+            }
+            else {
+                await createRangedAttackCard(state.casterToken, rollCarrier, state.option, built.aoe);
+            }
         }
         catch (err) {
-            console.error('Mastery System | Hostile-zone attack resolve failed', err);
+            console.error('Mastery System | AoE attack resolve failed', err);
             ui.notifications?.error('AoE-Angriff konnte nicht erstellt werden.');
             endUtilityTargeting(false);
             return;

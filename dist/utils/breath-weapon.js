@@ -1,12 +1,15 @@
 /**
  * Dragon Head Breath Weapon (Players Guide / Core).
  *
- * Damage Breath = Melee AoE Attack (catalogue radii / power dice) **plus** this
+ * Damage Breath = Melee AoE Attack (catalogue length / power dice) **plus** this
  * Artifact's Bite Weapon Damage (Dragon Head-only exception to no-Weapon-Damage-on-AoE).
- * Ruin Breath = Melee AoE Special: Ruin (catalogue Ruin ranks / radii; no damage, no Bite).
+ * Ruin Breath = Melee AoE Special: Ruin (catalogue Ruin ranks / lengths; no damage, no Bite).
+ *
+ * Geometry specialty: **Cone** (apex on the caster, aimed by facing) — still a Martial
+ * Melee Instant AoE (one shared Attack Roll vs each Evade, equal payload; no Primary Target).
  * Both modes share the Breath Weapon use counter (ceil(MR/2) per Safe Haven Rest
  * and once per Combat). Attack Attribute: Might or Agility (choose before the roll).
- * No Cone/Line geometry. Do not add Dragon Claws or other weapons to Damage Breath.
+ * Do not add Dragon Claws or other weapons to Damage Breath.
  */
 import { weaponDamageForLevel } from './artifact-base-derive.js';
 export function isBreathWeaponName(name) {
@@ -19,8 +22,8 @@ export function isDragonBreathDamageMode(name) {
 export function isDragonBreathRuinMode(name) {
     return /ruin\s*breath/i.test(String(name || ''));
 }
-/** Damage Breath Melee AoE Attack radii at artifact stages → PL 4 / 10 / 16. */
-export function breathDamageRadiusMeters(artifactLevel) {
+/** Damage Breath cone length (m) at artifact stages → PL 4 / 10 / 16. */
+export function breathDamageConeMeters(artifactLevel) {
     const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
     if (level <= 3)
         return 3;
@@ -28,14 +31,22 @@ export function breathDamageRadiusMeters(artifactLevel) {
         return 6;
     return 8;
 }
-/** Ruin Breath Melee AoE Special: Ruin radii at artifact stages → PL 4 / 10 / 16. */
-export function breathRuinRadiusMeters(artifactLevel) {
+/** Ruin Breath cone length (m) at artifact stages → PL 4 / 10 / 16. */
+export function breathRuinConeMeters(artifactLevel) {
     const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
     if (level <= 3)
         return 3;
     if (level <= 6)
         return 5;
     return 7;
+}
+/** @deprecated Prefer `breathDamageConeMeters` (Breath is Cone, not a radius burst). */
+export function breathDamageRadiusMeters(artifactLevel) {
+    return breathDamageConeMeters(artifactLevel);
+}
+/** @deprecated Prefer `breathRuinConeMeters`. */
+export function breathRuinRadiusMeters(artifactLevel) {
+    return breathRuinConeMeters(artifactLevel);
 }
 /** Printed Melee AoE Attack Power Dice at Breath stages (PL 4 / 10 / 16). */
 export function breathPowerDamageDice(artifactLevel) {
@@ -69,31 +80,25 @@ export function damageBreathSharedPoolFormula(artifactLevel) {
     return `${bite}+${power}d8`;
 }
 /**
- * @deprecated Legacy cone lengths (pre–Melee AoE Breath). Prefer
- * `breathDamageRadiusMeters` / `breathRuinRadiusMeters`.
+ * Cone length for a Breath mode. Same catalogue numbers as the printed AoE column.
  */
-export function breathConeMeters(artifactLevel) {
-    const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
-    if (level <= 3)
-        return 6;
-    if (level <= 6)
-        return 10;
-    return 14;
+export function breathConeMeters(artifactLevel, mode = 'damage') {
+    return mode === 'ruin'
+        ? breathRuinConeMeters(artifactLevel)
+        : breathDamageConeMeters(artifactLevel);
 }
 /**
- * Sheet / dialog AoE text for a Breath Weapon row: dual Damage / Ruin catalogue
- * radii (Self-centered Melee AoE). `artifactLevel` is the row's level or the
- * artifact's current level.
+ * Sheet / dialog AoE text for a Breath Weapon row: dual Damage / Ruin cone lengths.
  */
 export function breathWeaponRowDisplay(artifactLevel) {
-    const d = breathDamageRadiusMeters(artifactLevel);
-    const r = breathRuinRadiusMeters(artifactLevel);
+    const d = breathDamageConeMeters(artifactLevel);
+    const r = breathRuinConeMeters(artifactLevel);
     return {
         range: 'Self',
-        aoe: `Damage: radius ${d} m / Ruin: radius ${r} m`,
+        aoe: `Damage: Cone ${d} m / Ruin: Cone ${r} m`,
     };
 }
-/** Range / AoE text for any progression row, with Breath Weapon dual radii applied. */
+/** Range / AoE text for any progression row, with Breath Weapon dual cones applied. */
 export function progressionRowRangeAoe(row, fallbackLevel) {
     if (!row)
         return { range: '', aoe: '' };

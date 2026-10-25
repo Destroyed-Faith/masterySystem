@@ -8,7 +8,6 @@
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
 import { getSegmentIdForOption } from './radial-menu/options.js';
 import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting.js';
-import { excludeAlliesFromAoePool } from './combat/aoe-target-filter.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
@@ -1296,29 +1295,34 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
-            // Instant AoE has NO Primary Target: every valid creature in the burst is an
-            // equal participant of ONE shared Attack roll and ONE shared Power damage
-            // roll (no Weapon Damage, no Spell Focus). Allies/players are excluded.
-            // Attack card is anchored to the first token only as the Roll/Raise carrier;
-            // on Roll, carrier + others resolve equally via resolveAoeFromSharedRoll.
-            const effectiveBurstIds = excludeAlliesFromAoePool(token, collectedBurstIds);
-            if (!effectiveBurstIds.length) {
-                ui.notifications?.warn?.('Melee AoE: no valid targets in the area (only allies in range).');
+            // Instant AoE: NO Primary Target. Preview affected creatures (not hits),
+            // then one shared Attack roll vs each Evade + equal payload.
+            const radiusM = typeof option.burstMeleeRadiusMeters === 'number' && option.burstMeleeRadiusMeters > 0
+                ? option.burstMeleeRadiusMeters
+                : Number(option.aoeRadiusMeters) || Number(option.range) || 0;
+            const { promptMeleeAoeAffectedConfirm } = await import('./combat/aoe-affected-confirm.js');
+            const confirmed = await promptMeleeAoeAffectedConfirm({
+                attackerToken: token,
+                candidateTokenIds: collectedBurstIds,
+                radiusMeters: radiusM,
+                powerName: String(option.name || 'Melee AoE'),
+            });
+            if (confirmed === 'cancelled')
+                return;
+            const effectiveBurstIds = confirmed.affectedTokenIds;
+            const { aoeContextFromAffectedTokenIds, createMeleeAttackCard } = await import('./combat/attack-executor.js');
+            const powerBonus = option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
+            const built = aoeContextFromAffectedTokenIds(effectiveBurstIds, powerBonus);
+            if (!built) {
+                ui.notifications?.warn?.('Melee AoE: no valid targets in the area.');
                 return;
             }
-            const carrierId = effectiveBurstIds[0];
-            const carrierTok = canvas.tokens?.get(carrierId);
+            const carrierTok = canvas.tokens?.get(built.carrierTokenId);
             if (!carrierTok) {
                 ui.notifications?.warn?.('Melee AoE: could not resolve a roll-carrier token.');
                 return;
             }
-            const otherIds = effectiveBurstIds.slice(1);
-            const powerBonus = option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
-            const { createMeleeAttackCard } = await import('./combat/attack-executor.js');
-            await createMeleeAttackCard(token, carrierTok, option, null, {
-                secondaryTokenIds: otherIds,
-                powerBonusDice: powerBonus,
-            });
+            await createMeleeAttackCard(token, carrierTok, option, null, built.aoe);
             return;
         }
         startMeleeTargeting(token, option);

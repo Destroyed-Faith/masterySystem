@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.795] - 2026-10-25
+
+### Fixed
+
+- **Dragon Breath AoE:** Cone specialty restored (aimed Melee Instant AoE, not self-burst). Damage/Ruin share one Attack Roll vs each Evade with equal payload — **no Primary Target**. Affected-creature preview/confirm for Melee AoE; Cone confirm lists affected creatures; misleading Primärziel copy removed. Seed **59**.
+
 ## [0.9.794] - 2026-10-25
 
 ### Fixed
