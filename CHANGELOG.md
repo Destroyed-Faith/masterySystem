@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.785] - 2026-10-25
+
+### Fixed
+
+- **CI:** Tower Wizard Active Buff Armor preview test expects +8 Armor (PL4) after the 0.9.784 rebalance.
+
 ## [0.9.784] - 2026-10-25
 
 ### Changed
