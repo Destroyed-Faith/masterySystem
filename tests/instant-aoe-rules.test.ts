@@ -206,4 +206,14 @@ describe('Shared roll, no primary', () => {
     expect(src).not.toMatch(/promptMeleeAoePrimaryChoice/);
     expect(src).not.toMatch(/melee-aoe-primary-dialog/);
   });
+
+  it('Instant attack AoE does not open Confirm AoE / Allies-Enemies panel', async () => {
+    const { readFileSync } = await import('node:fs');
+    const util = readFileSync(new URL('../src/utility-targeting.ts', import.meta.url), 'utf8');
+    expect(util).toMatch(/finalizeAttackAoeWithoutPanel/);
+    // After Instant attack placement, finalize — never createTargetSelectionPanel
+    expect(util).toMatch(
+      /if \(isAttackInstantAoe\(state\.option\)\) \{\s*\/\/[^\n]*\s*finalizeAttackAoeWithoutPanel\(state\);/,
+    );
+  });
 });

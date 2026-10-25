@@ -82,7 +82,7 @@ function attackRoute(o: any): 'cone' | 'melee-burst' | 'hostile-zone' | 'melee-s
 }
 
 describe('Artifact attack acceptance — Dragon Claws L3', () => {
-  it('1–4: Rending Spiral + Tail Sweep appear and route to interactive Melee burst AoE', () => {
+  it('1–4: Rending Spiral + Tail Sweep appear and route to auto Melee burst AoE (no panel)', () => {
     const opts = buildArtifactRadialOptions(actorWithNode(treeNode('dragonClaws', 3), 3));
     const spiral = opts.find((o) => /Rending Spiral/i.test(o.name));
     const sweep = opts.find((o) => /Tail Sweep/i.test(o.name));

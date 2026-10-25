@@ -252,8 +252,7 @@ export function deriveLevelProgressionFromPicks(picks) {
                         ? optionalWeaponAoeSpecialText(chosenKey, s)
                         : specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1);
                 const rowName = perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`;
-                // Dragon Head Breath Weapon: dual Damage/Ruin Melee AoE catalogue radii
-                // (Core), not legacy cone / ranged-point geometry.
+                // Dragon Head Breath Weapon: dual Damage/Ruin Cone lengths (Core specialty).
                 const rangeAoe = isBreathWeaponName(rowName)
                     ? breathWeaponRowDisplay(level)
                     : { range: clean(renderRange(lr.range ?? null)), aoe: clean(renderAoe(lr.aoe ?? null)) };

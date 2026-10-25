@@ -34,6 +34,7 @@ import {
 import { pickTokenAtPoint } from './utils/token-pick.js';
 import { tokenIsExcludedAsTarget } from './combat/defeated-token.js';
 import { tokenIsHostileTo } from './combat/threatened-ranged.js';
+import { excludeAlliesFromAoePool } from './combat/aoe-target-filter.js';
 import { utilitySingleTargetAllowsSelf } from './utility-targeting-rules.js';
 import { artifactLevelToTemplateRank } from './utils/artifact-spell-pick.js';
 import { getTemplate } from './utils/powers/templates/index.js';
@@ -1020,6 +1021,56 @@ function selectAllCandidates(state: UtilityTargetingState): void {
   }
 }
 
+/** Attack Instant AoE: never show the target-selection panel. */
+function isAttackInstantAoe(option: RadialCombatOption): boolean {
+  if (option.slot !== 'attack') return false;
+  return (
+    option.aoeShape === 'cone' ||
+    option.aoePlacementProfile === 'hostile-zone' ||
+    option.aoePlacementProfile === 'melee-burst' ||
+    option.burstMeleeAoE === true
+  );
+}
+
+/**
+ * Mandatory Instant AoE acquisition: every hostile in the geometry, allies never.
+ * No manual selection — clears and rebuilds `selectedTargets`.
+ */
+function autoAcquireHostileAoeTargets(state: UtilityTargetingState): number {
+  state.selectedTargets.clear();
+  for (const [tokenId, candidate] of state.candidates.entries()) {
+    if (candidate.isAlly || isAlly(state.casterToken, candidate.token)) {
+      candidate.selected = false;
+      continue;
+    }
+    const hostile = candidate.isEnemy || isEnemy(state.casterToken, candidate.token);
+    if (!hostile) {
+      candidate.selected = false;
+      continue;
+    }
+    candidate.selected = true;
+    state.selectedTargets.add(tokenId);
+  }
+  return state.selectedTargets.size;
+}
+
+function finalizeAttackAoeWithoutPanel(state: UtilityTargetingState): void {
+  const n = autoAcquireHostileAoeTargets(state);
+  if (n <= 0) {
+    ui.notifications?.warn?.('AoE: no hostile targets in the area.');
+    // Cone / placed radius: allow re-aim by clearing the locked center.
+    if (state.option.aoeShape === 'cone' || (state.option.aoePlacementProfile === 'hostile-zone' && state.rangeMeters > 0)) {
+      state.center = null;
+      state.candidates.clear();
+      return;
+    }
+    endUtilityTargeting(false);
+    return;
+  }
+  updateCandidateVisuals(state);
+  void confirmUtilityTargets(state);
+}
+
 function finalizeSupportRadiusTargets(state: UtilityTargetingState): void {
   const targetGroup = (state.option.defaultTargetGroup || 'ally') as TargetGroup;
   pruneCandidatesToTargetGroup(state, state.casterToken, targetGroup);
@@ -1208,8 +1259,15 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
             finalizeSupportRadiusTargets(state);
             return;
           }
-          
-          // Default selection (allies never pre-selected while excluded)
+
+          highlightRadiusArea(state);
+          if (isAttackInstantAoe(state.option)) {
+            // Placed Instant AoE: geometry confirm = acquisition. No selection panel.
+            finalizeAttackAoeWithoutPanel(state);
+            return;
+          }
+
+          // Utility (non-attack) placement still uses the selection panel.
           for (const [tokenId, candidate] of state.candidates.entries()) {
             if (state.excludeAllies && candidate.isAlly) {
               candidate.selected = false;
@@ -1219,42 +1277,35 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
               state.selectedTargets.add(tokenId);
             }
           }
-          
-          // Draw radius and update visuals
-          highlightRadiusArea(state);
           updateCandidateVisuals(state);
-          
-          // Create UI panel (framed window, centred by Foundry)
           const panel = createTargetSelectionPanel(state);
           state.panelApp = panel;
           panel.render(true);
         }
-      } else {
-        // Center chosen, clicking toggles targets in manual mode
-        if (state.manualMode) {
-          const worldPos = eventWorldPoint(ev);
-          const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
-            onlyIds: state.candidates.keys(),
-            noCenterFallback: true,
-          });
-          
-          if (clickedToken && state.candidates.has(clickedToken.id)) {
-            const candidate = state.candidates.get(clickedToken.id)!;
-            if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
-              ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
-              return;
-            }
-            candidate.selected = !candidate.selected;
-            if (candidate.selected) {
-              state.selectedTargets.add(clickedToken.id);
-            } else {
-              state.selectedTargets.delete(clickedToken.id);
-            }
-            updateCandidateVisuals(state);
-            if (state.panelApp) {
-              const html = $(state.panelApp.element);
-              html.find('#selected-count').text(state.selectedTargets.size);
-            }
+      } else if (!isAttackInstantAoe(state.option) && state.manualMode) {
+        // Utility only: toggle targets after center is locked.
+        const worldPos = eventWorldPoint(ev);
+        const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+          onlyIds: state.candidates.keys(),
+          noCenterFallback: true,
+        });
+
+        if (clickedToken && state.candidates.has(clickedToken.id)) {
+          const candidate = state.candidates.get(clickedToken.id)!;
+          if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+            ui.notifications?.info('Verbündete/Spieler sind ausgenommen.');
+            return;
+          }
+          candidate.selected = !candidate.selected;
+          if (candidate.selected) {
+            state.selectedTargets.add(clickedToken.id);
+          } else {
+            state.selectedTargets.delete(clickedToken.id);
+          }
+          updateCandidateVisuals(state);
+          if (state.panelApp) {
+            const html = $(state.panelApp.element);
+            html.find('#selected-count').text(state.selectedTargets.size);
           }
         }
       }
@@ -1281,8 +1332,14 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
       finalizeSupportRadiusTargets(state);
       return;
     }
-    
-    // Default selection based on target group (allies never pre-selected while excluded)
+
+    highlightRadiusArea(state);
+    if (isAttackInstantAoe(state.option)) {
+      // Self-centered Instant attack AoE: auto-acquire, no panel.
+      finalizeAttackAoeWithoutPanel(state);
+      return;
+    }
+
     for (const [tokenId, candidate] of state.candidates.entries()) {
       if (state.excludeAllies && candidate.isAlly) {
         candidate.selected = false;
@@ -1292,12 +1349,7 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
         state.selectedTargets.add(tokenId);
       }
     }
-    
-    // Draw radius and update visuals
-    highlightRadiusArea(state);
     updateCandidateVisuals(state);
-    
-    // Create panel immediately (framed window, centred by Foundry)
     const panel = createTargetSelectionPanel(state);
     state.panelApp = panel;
     panel.render(true);
@@ -1319,22 +1371,33 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
  * Confirm utility targets and resolve power
  */
 async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void> {
-  const targets = Array.from(state.selectedTargets).map(id => {
+  let targets = Array.from(state.selectedTargets).map(id => {
     const candidate = state.candidates.get(id);
     return candidate?.token;
   }).filter(t => t !== undefined && !tokenIsExcludedAsTarget(t));
+
+  // Instant attack AoE: allies are NEVER legal targets (pipeline, not a UI toggle).
+  if (isAttackInstantAoe(state.option)) {
+    const ids = excludeAlliesFromAoePool(
+      state.casterToken,
+      targets.map((t: any) => String(t.id)),
+    );
+    const idSet = new Set(ids);
+    targets = targets.filter((t: any) => idSet.has(String(t.id)));
+  }
   
   const combat = game.combat;
   const actor = state.casterToken?.actor;
   const isHealPlacement = state.option.aoePlacementProfile === 'heal';
   const isCleansePlacement = state.option.aoePlacementProfile === 'cleanse';
   const isSupport = isHealPlacement || isCleansePlacement;
-  // Instant AoE attack cards (Cone Breath, self-centered Melee burst): Attack
+  // Instant AoE attack cards (Cone, Melee burst, placed hostile zone): Attack
   // Action / Breath use are spent on Roll — never on targeting confirm / cancel.
   const deferActionSpendToAttackCard =
     state.option.slot === 'attack' &&
     (state.option.aoeShape === 'cone' ||
       state.option.aoePlacementProfile === 'melee-burst' ||
+      state.option.aoePlacementProfile === 'hostile-zone' ||
       state.option.burstMeleeAoE === true);
 
   if (state.option.costsAction && !deferActionSpendToAttackCard) {
@@ -1540,7 +1603,8 @@ export function startConeAttackMode(token: any, option: RadialCombatOption): voi
   token.control?.({ releaseOthers: false });
 
   const lengthSteps = Math.max(1, masteryPowerMaxSteps(option.aoeRadiusMeters || 0));
-  const targetGroup = option.defaultTargetGroup || 'enemy';
+  // Cone Instant AoE (Dragon Breath): aim/place the cone, then auto-acquire hostiles.
+  const targetGroup: TargetGroup = 'creature';
   const previewGraphics = new PIXI.Graphics();
   const effectsContainer = resolveOverlayContainer();
   if (effectsContainer) effectsContainer.addChild(previewGraphics);
@@ -1564,7 +1628,7 @@ export function startConeAttackMode(token: any, option: RadialCombatOption): voi
     onPointerMove: () => {},
     onPointerDown: () => {},
     onKeyDown: () => {},
-    manualMode: option.allowManualTargetSelection !== false,
+    manualMode: false,
     excludeAllies: true,
   };
 
@@ -1598,48 +1662,13 @@ export function startConeAttackMode(token: any, option: RadialCombatOption): voi
     }
     if (ev.button !== 0) return;
     try {
-      if (!state.center) {
-        const world = eventWorldPoint(ev);
-        const cells = paint(world);
-        state.candidates = candidatesInCone(token, cells, world, lengthSteps, targetGroup);
-        if (state.candidates.size === 0) {
-          ui.notifications?.info('Niemand im Kegel.');
-          return;
-        }
-        for (const [tokenId, candidate] of state.candidates.entries()) {
-          if (state.excludeAllies && candidate.isAlly) {
-            candidate.selected = false;
-            continue;
-          }
-          if (candidate.selected) state.selectedTargets.add(tokenId);
-        }
-        state.center = { x: token.center.x, y: token.center.y };
-        updateCandidateVisuals(state);
-        const panel = createTargetSelectionPanel(state);
-        state.panelApp = panel;
-        panel.render(true);
-        return;
-      }
-      if (!state.manualMode) return;
-      const worldPos = eventWorldPoint(ev);
-      const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
-        onlyIds: state.candidates.keys(),
-        noCenterFallback: true,
-      });
-      if (!clickedToken || !state.candidates.has(clickedToken.id)) return;
-      const candidate = state.candidates.get(clickedToken.id)!;
-      if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
-        ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
-        return;
-      }
-      candidate.selected = !candidate.selected;
-      if (candidate.selected) state.selectedTargets.add(clickedToken.id);
-      else state.selectedTargets.delete(clickedToken.id);
-      updateCandidateVisuals(state);
-      if (state.panelApp) {
-        const html = $(state.panelApp.element);
-        html.find('#selected-count').text(state.selectedTargets.size);
-      }
+      if (state.center) return; // already resolving
+      const world = eventWorldPoint(ev);
+      const cells = paint(world);
+      state.candidates = candidatesInCone(token, cells, world, lengthSteps, targetGroup);
+      state.center = { x: token.center.x, y: token.center.y };
+      // Keep directional Cone aim/placement; skip the selection panel entirely.
+      finalizeAttackAoeWithoutPanel(state);
     } catch (err) {
       console.error('Mastery System | cone click failed', err);
     }
@@ -1657,7 +1686,9 @@ export function startConeAttackMode(token: any, option: RadialCombatOption): voi
   canvas.stage.on('pointermove', state.onPointerMove);
   canvas.stage.on('pointerdown', state.onPointerDown);
   window.addEventListener('keydown', state.onKeyDown);
-  ui.notifications?.info(`Kegel ${lengthSteps} m — Spitze an der Figur, Maus dreht ihn, Klick setzt ihn.`);
+  ui.notifications?.info(
+    `Kegel ${lengthSteps} m — Spitze an der Figur, Maus dreht ihn, Klick setzt ihn (Hostiles auto, keine Zielauswahl).`,
+  );
 }
 
 function readGridOffset(raw: any): GridOffset | null {

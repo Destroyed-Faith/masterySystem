@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.797] - 2026-10-25
+
+### Fixed
+
+- **AoE targeting UX:** Removed `mastery-utility-target-panel` (Allies/Enemies/All/None, Exclude Allies, Manual Selection, Confirm AoE) from **all** Instant attack AoE workflows. Geometry auto-acquires hostiles; allies are always excluded in the pipeline; no Primary Target. Self-centered Melee AoE → Attack Card immediately; placed Ranged AoE → auto-card after template place; **Dragon Breath Cone** aim/place kept, then auto-card (cancel spends nothing).
+
 ## [0.9.796] - 2026-10-25
 
 ### Fixed
