@@ -539,6 +539,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
      * Show the dialog for an actor
      */
     static async showForActor(actor) {
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(actor))
+            return;
         // Close existing instance if open
         if (GeneralItemsStorageDialog._instance) {
             await GeneralItemsStorageDialog._instance.close();

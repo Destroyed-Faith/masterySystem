@@ -10,6 +10,7 @@
  *
  * Console filter: `[MS Threatened Ranged]`
  */
+import { isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from "../utils/unarmed-fallback.js";
 const LOG = '[MS Threatened Ranged]';
 function distance(a, b) {
     const dx = a.x - b.x;
@@ -118,8 +119,10 @@ function getEquippedWeapon(actor) {
             : typeof actor.items.values === "function"
                 ? Array.from(actor.items.values())
                 : [];
-    return (items.find((item) => item.type === "weapon" && item.system?.equipped === true) ||
-        null);
+    const resolved = resolveEquippedWeaponForAttackType(items, "melee", actor);
+    if (resolved && !isVirtualUnarmedWeapon(resolved))
+        return resolved;
+    return null;
 }
 function getReachBonusMeters(actor) {
     const w = getEquippedWeapon(actor);

@@ -7,9 +7,11 @@
  */
 import { type SkillRaiseAllowance, type SkillRaiseEffectAllocation } from './skill-raises.js';
 import { type SpecAttributeKey } from './specialization-roll.js';
-import type { SpecializationRecord } from './specializations.js';
+import { PERCEPTION_FOCUS_ATTRIBUTES, isPerceptionFocusAttribute, type SpecializationRecord } from './specializations.js';
 /** Universal free starting Perception acts as Rank 2 when no Spec is present. */
 export declare const UNIVERSAL_PERCEPTION_RANK = 2;
+/** Re-export Focus options for dialogs / tests. */
+export { PERCEPTION_FOCUS_ATTRIBUTES, isPerceptionFocusAttribute };
 export type SkillCheckSkillRef = {
     kind: 'specialization';
     id: string;

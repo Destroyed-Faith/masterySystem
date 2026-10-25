@@ -279,8 +279,11 @@ describe('R-05 Test I — Damage Transfer unchanged', () => {
 });
 
 describe('R-05 Test L — retired heal actives not in catalog', () => {
-  it('removes ordinary heal templates and keeps Restoration', () => {
-    expect(getTemplate('active-melee-single-heal')).toBeFalsy();
+  it('keeps Restoration; AoE Heal stays retired; ST Heal restored for Artifact Technical References', () => {
+    // Artefacts catalogue 2026-10-25 (Moonlight Mending) requires Ranged Single
+    // Target Heal. AoE Heal Actives remain retired under R-05.
+    expect(getTemplate('active-ranged-single-heal')).toBeTruthy();
+    expect(getTemplate('active-melee-single-heal')).toBeTruthy();
     expect(getTemplate('active-ranged-aoe-heal')).toBeFalsy();
     expect(getTemplate('active-melee-health-level-heal')).toBeTruthy();
     expect(getTemplate('active-melee-aoe-restoration')).toBeTruthy();

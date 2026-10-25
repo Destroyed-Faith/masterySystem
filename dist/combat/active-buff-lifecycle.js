@@ -293,7 +293,7 @@ export async function listActivatableActiveBuffPowers(actor) {
             : typeof actor.items[Symbol.iterator] === 'function'
                 ? Array.from(actor.items)
                 : [];
-    return items.filter((it) => {
+    const powers = items.filter((it) => {
         if (it?.type !== 'power')
             return false;
         try {
@@ -303,6 +303,32 @@ export async function listActivatableActiveBuffPowers(actor) {
             return false;
         }
     });
+    // Artifact Active Buff rows (e.g. Moonlight Shadow) — no backing power item.
+    try {
+        const { buildArtifactRadialOptions } = await import('../radial-menu/artifact-options.js');
+        const artifactOpts = buildArtifactRadialOptions(actor) || [];
+        for (const opt of artifactOpts) {
+            if (opt?.powerType !== 'active-buff')
+                continue;
+            powers.push({
+                id: String(opt.id || ''),
+                _id: String(opt.id || ''),
+                name: String(opt.name || 'Artifact Active Buff'),
+                type: 'artifact-active-buff',
+                system: {
+                    rank: Number(opt.artifactRowLevel) || 1,
+                    level: Number(opt.artifactRowLevel) || 1,
+                    templateId: opt.artifactPowerTemplateId || null,
+                },
+                __artifactOption: opt,
+                __artifactItem: opt.item,
+            });
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | Artifact Active Buff list failed', err);
+    }
+    return powers;
 }
 export function formatActiveBuffDurationLabel(activationRound, lastActiveRound, currentRound) {
     const rem = remainingCompleteRounds(lastActiveRound, currentRound);

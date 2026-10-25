@@ -33,6 +33,10 @@
  */
 import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind, CastingAttribute, PowerLevelKey, SpellResolution } from '../types/item.js';
 import { type MartialDelivery } from './artifact-power-pick.js';
+/** Universal Artifact Level 10 effect text (Core / Titan Scars / Hollow Crown). */
+export declare const ARTIFACT_AWAKENING_EFFECT = "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.";
+/** Level-10 Artifact Awakening row — no bespoke True … Ultimate. */
+export declare function artifactAwakeningRow(artifactName: string): ArtifactLevelProgressionRow;
 /**
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
  * The generator copies this onto `system.stoneFunction` (so the actor-side

@@ -66,7 +66,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Your attacks deal **+9d8** damage while the buff is active.",
+        "effect": "Your attacks deal **+4d8** damage while the buff is active.",
         "special": "",
         "powerTemplateId": "ab-damage"
       }
@@ -587,7 +587,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Your attacks deal **+9d8** damage while the buff is active."
+              "text": "Your attacks deal **+4d8** damage while the buff is active."
             },
             "specials": [],
             "lvl": 3
@@ -770,7 +770,7 @@
       ],
       "echoBound": "unbound",
       "echoArtifactKey": "predatorCrownWits",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "yBZSxCjoxayCURMj",

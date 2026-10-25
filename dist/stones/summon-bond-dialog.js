@@ -81,12 +81,18 @@ export class SummonBondDialog extends BaseDialog {
         content: { template: 'systems/mastery-system/templates/dialogs/summon-bond.hbs' },
     };
     static async showCreate(actor) {
+        const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+        if (!assertProgressionEditable(actor))
+            return null;
         return new Promise((resolve) => {
             const app = new SummonBondDialog(actor, 'create', null, resolve);
             app.render({ force: true });
         });
     }
     static async showRitual(actor, bondId) {
+        const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+        if (!assertProgressionEditable(actor))
+            return null;
         const bond = getSummonBondsFromActor(actor).find((b) => b.id === bondId);
         if (!bond) {
             ui.notifications?.warn('Summon Bond not found.');

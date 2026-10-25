@@ -323,6 +323,9 @@ export class ProgressionHubDialog extends BaseDialog {
     }
 }
 export async function openProgressionHubDialog(actor, options = {}) {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor))
+        return;
     try {
         await repairArtifactEvolutionLinks(actor);
     }

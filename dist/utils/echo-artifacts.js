@@ -33,7 +33,21 @@
  */
 import { resolvePickFromUi, tierFromSpecialKey } from './artifact-power-pick.js';
 import { catalogSpecialTierForTemplate } from './artifact-catalog-pick.js';
-import { UNBOUND_ECHO_ARTIFACTS, UNBOUND_ECHO_ARTIFACT_KEYS, UNBOUND_PREDATOR_CROWN_KEYS, } from './echo-artifacts-unbound.js';
+import { UNBOUND_ECHO_ARTIFACTS, UNBOUND_ECHO_ARTIFACT_KEYS, UNBOUND_BEAST_BODY_EXCLUSIVE_KEYS, } from './echo-artifacts-unbound.js';
+/** Universal Artifact Level 10 effect text (Core / Titan Scars / Hollow Crown). */
+export const ARTIFACT_AWAKENING_EFFECT = "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.";
+/** Level-10 Artifact Awakening row — no bespoke True … Ultimate. */
+export function artifactAwakeningRow(artifactName) {
+    return {
+        level: 10,
+        name: 'Artifact Awakening',
+        type: 'Artifact Function',
+        range: 'Self',
+        duration: 'Special',
+        effect: ARTIFACT_AWAKENING_EFFECT,
+        special: `Artifact Level 10: Awakening (${artifactName})`,
+    };
+}
 // ----------------------------------------------------------------------
 // Stonebound Soles (Dwarf)
 // ----------------------------------------------------------------------
@@ -137,15 +151,7 @@ const STONEBOUND_SOLES = {
             effect: 'When you activate an Active Buff that grants Armor, you may increase its Power Level by +3 and duration by +3 rounds (cannot exceed PL 16).',
             special: 'Armor Empowerment',
         },
-        {
-            level: 10,
-            name: 'True Stonebound Soles',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Stonebound Soles fully awaken. Choose or define one final Tremorsense, Armor, Immovable, Safe Movement, or stone defense effect with GM approval.',
-            special: 'True Stonebound Soles',
-        },
+        artifactAwakeningRow('Stonebound Soles'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -181,19 +187,11 @@ const ELORIAN_STRIDE = {
         },
     },
     baseValues: [
-        { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants True Elorian Stride.' },
+        { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants Artifact Awakening.' },
         { slot: 'b', label: 'Movement', note: '+1 to +4 m Movement from Level 4 onward.' },
     ],
     levelProgression: [
-        {
-            level: 10,
-            name: 'True Elorian Stride',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, Crit Support, or agility effect with GM approval.',
-            special: 'True Elorian Stride',
-        },
+        artifactAwakeningRow('Elorian Stride'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -207,14 +205,16 @@ const TITAN_SCARS = {
     baseProfile: 'bodyArmor',
     description: 'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
     restriction: 'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
+    // Slot 1 is authored Transformation Growth (not ab-growth-form Active Buff).
+    // Slots 2–3 are Stone Power Support (Might Damage / Remove Scar).
     progressionPickSpecs: {
-        1: { templateId: 'ab-growth-form', name: 'Titan Growth' },
         2: {
             name: 'Titan Might',
             stoneFunction: {
                 kind: 'stonePowerSupport',
                 attribute: 'might',
                 stonePowerId: 'might.meleeDamage',
+                supportStages: [2, 5, 8],
             },
         },
         3: {
@@ -223,6 +223,7 @@ const TITAN_SCARS = {
                 kind: 'stonePowerSupport',
                 attribute: 'vitality',
                 stonePowerId: 'vitality.removeScar',
+                supportStages: [3, 6, 9],
             },
         },
     },
@@ -237,11 +238,12 @@ const TITAN_SCARS = {
         {
             level: 1,
             name: 'Titan Growth I',
-            type: 'Active Buff',
+            type: 'Transformation',
             range: 'Self',
-            duration: 'Mastery Rank Rounds',
-            effect: 'Use Active Buff: Size + Damage + Armor at Power Level 4.',
-            special: 'Titan Growth',
+            aoe: '7 occupied Hexes',
+            duration: 'Unlimited',
+            effect: 'You may assume **Growth 1** using the universal Transformation rules. Grants one additional 0-penalty Growth Health Bar and +2 m Melee Reach; reduces Push/Pull by **1 × MR m**. Uses: Mastery Rank times per Safe Haven Rest.',
+            special: 'Artifact Function: Transformation (Growth 1)',
         },
         {
             level: 2,
@@ -249,8 +251,8 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Supports Might Ability: Martial Damage and pre-fills Tier 2. Tier 1 must still be paid.',
-            special: 'might.meleeDamage',
+            effect: 'Pre-fill **Rank 2** of Might Ability: Damage. Rank 1 must still be paid.',
+            special: 'Might Ability: Damage (Stone Power Support, Rank 2)',
         },
         {
             level: 3,
@@ -258,17 +260,18 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Supports Vitality Ability: Remove Scar and pre-fills Tier 2. Unresolved Tiers Seal 1 / 2 / 4 / 8 (cumulative). Each newly resolved Tier recovers 1 Scarred Health Bar. Colorless Stones cannot pay this cost.',
-            special: 'vitality.removeScar',
+            effect: 'Pre-fill **Rank 2** of Remove Scar. Rank 1 must still be paid.',
+            special: 'Vitality Ability: Remove Scar (Stone Power Support, Rank 2)',
         },
         {
             level: 4,
             name: 'Titan Growth II',
-            type: 'Active Buff',
+            type: 'Transformation',
             range: 'Self',
-            duration: 'Mastery Rank Rounds',
-            effect: 'Use Active Buff: Size + Damage + Armor at Power Level 10. This replaces Titan Growth I.',
-            special: 'Titan Growth',
+            aoe: '19 occupied Hexes',
+            duration: 'Unlimited',
+            effect: 'You may assume **Growth 2**. Grants two 0-penalty Growth Health Bars and +4 m Melee Reach; reduces Push/Pull by **2 × MR m**. Physical Ranged and Spell Range are doubled once. Replaces Growth I.',
+            special: 'Artifact Function: Transformation (Growth 2)',
         },
         {
             level: 5,
@@ -276,8 +279,8 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fill Tier 3. Tiers 1 and 2 must still be paid.',
-            special: 'might.meleeDamage',
+            effect: 'Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid.',
+            special: 'Might Ability: Damage (Stone Power Support, Rank 3)',
         },
         {
             level: 6,
@@ -285,17 +288,18 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Remove Scar used through Titan Scars follows the cumulative Seal rule. Pay only Tiers not yet resolved since the last Daily Reset. Each newly resolved Tier recovers 1 Scarred Health Bar.',
-            special: 'vitality.removeScar',
+            effect: 'Pre-fill **Rank 3** of Remove Scar. Ranks 1 and 2 must still be paid.',
+            special: 'Vitality Ability: Remove Scar (Stone Power Support, Rank 3)',
         },
         {
             level: 7,
             name: 'Titan Growth III',
-            type: 'Active Buff',
+            type: 'Transformation',
             range: 'Self',
-            duration: 'Mastery Rank Rounds',
-            effect: 'Use Active Buff: Size + Damage + Armor at Power Level 16. This replaces Titan Growth II.',
-            special: 'Titan Growth',
+            aoe: '37 occupied Hexes',
+            duration: 'Unlimited',
+            effect: 'You may assume **Growth 3**. Grants three 0-penalty Growth Health Bars and +6 m Melee Reach; reduces Push/Pull by **3 × MR m**. Physical Ranged and Spell Range remain doubled once. Replaces Growth II.',
+            special: 'Artifact Function: Transformation (Growth 3)',
         },
         {
             level: 8,
@@ -303,8 +307,8 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.',
-            special: 'might.meleeDamage',
+            effect: 'Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.',
+            special: 'Might Ability: Damage (Stone Power Support, Rank 4)',
         },
         {
             level: 9,
@@ -312,18 +316,10 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self / Touch',
             duration: 'Instant',
-            effect: 'Use Remove Scar on yourself or one touched willing creature. Seal costs stay cumulative (1 / 2 / 4 / 8 per unresolved Tier). Colorless Stones cannot pay this cost.',
-            special: 'vitality.removeScar',
+            effect: 'Pre-fill **Rank 4** of Remove Scar. Ranks 1, 2, and 3 must still be paid. Remove Scar may also be used on one willing creature you touch.',
+            special: 'Vitality Ability: Remove Scar (Stone Power Support, Rank 4)',
         },
-        {
-            level: 10,
-            name: 'True Titan Scars',
-            type: 'Ultimate',
-            range: 'Self / Touch',
-            duration: 'Instant',
-            effect: 'Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover 1 Scarred Health Bar and follows all normal limits.',
-            special: 'True Titan Scars',
-        },
+        artifactAwakeningRow('Titan Scars'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -480,15 +476,7 @@ const WYRM_SCALES_HEAVY = {
             effect: 'Wyrm Scales pre-fill Rank 4 of the Vitality Ability ARMOR Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
             special: 'ARMOR Stone Power',
         },
-        {
-            level: 10,
-            name: 'Dragon Transformation',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'You unlock your Wyrm Dragon Form. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits.',
-            special: 'Wyrm Dragon Form',
-        },
+        artifactAwakeningRow('Wyrm Scales'),
     ],
 };
 const WYRM_SCALES_LIGHT = {
@@ -620,15 +608,7 @@ const WYRM_SCALES_LIGHT = {
             effect: 'Serpent Scales pre-fill Rank 4 of the Agility Ability EVADE Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
             special: 'EVADE Stone Power',
         },
-        {
-            level: 10,
-            name: 'True Serpent Form',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Your body becomes perfectly adapted to motion. Choose or define one final mobility, evasion, or light-dragon transformation effect with GM approval.',
-            special: 'True Serpent Form',
-        },
+        artifactAwakeningRow('Serpent Scales'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -764,15 +744,7 @@ const DRAGON_CLAWS = {
             effect: 'Affected creatures take Claw / Tail Damage and are pushed 10 m.',
             special: 'Push',
         },
-        {
-            level: 10,
-            name: 'True Dragon Claws',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Dragon Claws fully awaken. Choose or define one final Claw or Tail effect.',
-            special: 'True Dragon Claws',
-        },
+        artifactAwakeningRow('Dragon Claws'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -784,18 +756,27 @@ const DRAGON_HEAD = {
     echoKey: 'dragonborn',
     slot: 'head',
     baseProfile: 'headArmor',
-    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.',
+    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.',
     restriction: 'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
     // Bite Weapon Damage (1d8…10d8): martial weapon source for Powers / Basic
     // Attack (free radial toggle), not a standalone Attack Action. Occupies no hands.
     naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
-    // The three Level Progression lines are real, editable catalog Powers, just
-    // flavored with the Dragon Head names. Breath Weapon = a Ranged AoE Special
-    // Damage active (Tier 4, default Ruin); Draconic Roar = the Armor Aura
-    // Active Buff; Draconic Recovery = a Stone Refresh (Might). All editable in
-    // the Node Editor; only the names are overridden.
+    // Breath Weapon = Melee AoE Attack (Damage + Dragon Head Bite) OR Melee AoE Special: Ruin
+    // on each use (shared rest + once-per-combat). Damage uses active-melee-weapon-aoe plus
+    // this Artifact's Bite (Dragon Head-only AoE weapon-damage exception). Ruin is Special-only.
+    // Attack Attribute: Might or Agility (choose before the roll). Roar = Armor Aura;
+    // Recovery = Stone Refresh (Might).
     progressionPickSpecs: {
-        1: { name: 'Breath Weapon', delivery: 'ranged-aoe', special: 'ruin' },
+        1: {
+            name: 'Breath Weapon',
+            templateId: 'active-melee-weapon-aoe',
+            stagePowerLevels: ['4', '10', '16'],
+            stageEffectTexts: [
+                'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, radius 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, radius 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
+            ],
+        },
         2: {
             name: 'Draconic Roar',
             templateId: 'ab-armor-aura',
@@ -825,12 +806,12 @@ const DRAGON_HEAD = {
         {
             level: 1,
             name: 'Breath Weapon I',
-            type: 'Active',
+            type: 'Artifact Active',
             range: 'Self',
-            aoe: 'Chosen Breath Shape',
+            aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
             duration: 'Instant',
-            effect: 'Bite Damage + 8d8 damage to affected creatures.',
-            special: 'Chosen Breath Special',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
+            special: 'Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)',
         },
         {
             level: 2,
@@ -840,7 +821,7 @@ const DRAGON_HEAD = {
             aoe: 'Radius 8 m',
             duration: 'Mastery Rank Rounds',
             effect: 'You and allies in the area gain +4 Armor.',
-            special: 'Armor Aura',
+            special: 'Active Buff: Armor Aura (PL 4)',
         },
         {
             level: 3,
@@ -854,12 +835,12 @@ const DRAGON_HEAD = {
         {
             level: 4,
             name: 'Breath Weapon II',
-            type: 'Active',
+            type: 'Artifact Active',
             range: 'Self',
-            aoe: 'Chosen Breath Shape',
+            aoe: 'Damage: radius 6 m / Ruin: radius 5 m',
             duration: 'Instant',
-            effect: 'Bite Damage + 16d8 damage to affected creatures.',
-            special: 'Chosen Breath Special',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, radius 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
+            special: 'Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)',
         },
         {
             level: 5,
@@ -869,7 +850,7 @@ const DRAGON_HEAD = {
             aoe: 'Radius 20 m',
             duration: 'Mastery Rank Rounds',
             effect: 'You and allies in the area gain +10 Armor.',
-            special: 'Armor Aura',
+            special: 'Active Buff: Armor Aura (PL 10)',
         },
         {
             level: 6,
@@ -883,12 +864,12 @@ const DRAGON_HEAD = {
         {
             level: 7,
             name: 'Breath Weapon III',
-            type: 'Active',
+            type: 'Artifact Active',
             range: 'Self',
-            aoe: 'Chosen Breath Shape',
+            aoe: 'Damage: radius 8 m / Ruin: radius 7 m',
             duration: 'Instant',
-            effect: 'Bite Damage + 24d8 damage to affected creatures.',
-            special: 'Chosen Breath Special',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, radius 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
+            special: 'Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)',
         },
         {
             level: 8,
@@ -898,7 +879,7 @@ const DRAGON_HEAD = {
             aoe: 'Radius 32 m',
             duration: 'Mastery Rank Rounds',
             effect: 'You and allies in the area gain +16 Armor.',
-            special: 'Armor Aura',
+            special: 'Active Buff: Armor Aura (PL 16)',
         },
         {
             level: 9,
@@ -909,15 +890,7 @@ const DRAGON_HEAD = {
             effect: 'Restore 4 spent Stones of the chosen Attribute.',
             special: 'Stone Refresh',
         },
-        {
-            level: 10,
-            name: 'True Dragon Head',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Choose or define one final Breath, Bite, Roar, Recovery, or Head effect with GM approval.',
-            special: 'True Dragon Head',
-        },
+        artifactAwakeningRow('Dragon Head'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -1046,15 +1019,7 @@ const SENTINEL_FRAME = {
             effect: 'Pre-fill Tier 4 of Resolve Ability: Ward. Tiers 1, 2, and 3 must still be paid.',
             special: 'resolve.ward',
         },
-        {
-            level: 10,
-            name: 'True Sentinel Frame',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Once per Safe Haven Rest, when you use Healing through Sentinel Frame, treat one required lower Tier as already paid.',
-            special: 'Resolve Stone Power',
-        },
+        artifactAwakeningRow('Sentinel Frame'),
     ],
 };
 const JUDICATOR_FRAME = {
@@ -1172,15 +1137,7 @@ const JUDICATOR_FRAME = {
             effect: 'Pre-fills Tier 4 of Influence Ability: Regeneration.',
             special: 'influence.regeneration',
         },
-        {
-            level: 10,
-            name: 'True Judicator Frame',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Once per Safe Haven Rest, when activating an Armor Active Buff through Armor Hasten, you may also use the supported Regeneration Stone Power as part of the same activation.',
-            special: 'Armor / Regeneration',
-        },
+        artifactAwakeningRow('Judicator Frame'),
     ],
 };
 const ORACLE_FRAME = {
@@ -1304,15 +1261,7 @@ const ORACLE_FRAME = {
             effect: "After each Safe Haven Rest, Oracle Frame stores 8 Influence Stones. These Stones may only be used for Oracle Frame's listed Influence Stone functions.",
             special: 'Influence Stones',
         },
-        {
-            level: 10,
-            name: 'True Oracle Frame',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Once per Safe Haven Rest, when you use Aid Roll through Oracle Frame, you may treat one required lower Tier as already paid.',
-            special: 'Aid Roll Stone Power',
-        },
+        artifactAwakeningRow('Oracle Frame'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -1434,15 +1383,111 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             effect: 'Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.',
             special: 'influence.notATarget',
         },
+        artifactAwakeningRow('Ringchain of Kept Names'),
+    ],
+};
+// ----------------------------------------------------------------------
+// Hollow Crown (Deathless)
+// ----------------------------------------------------------------------
+const HOLLOW_CROWN = {
+    key: 'hollowCrown',
+    name: 'Hollow Crown',
+    echoKey: 'deathless',
+    slot: 'head',
+    baseProfile: 'headArmor',
+    description: 'The Hollow Crown marks the place where death failed. Deathless Body, Life Sense (Life Sight 30 m), Hollow Stillness, and Life Absorption.',
+    restriction: 'Hollow Crown occupies the Head Slot. It cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
+    baseValues: [
         {
-            level: 10,
-            name: 'True Ringchain of Kept Names',
-            type: 'Ultimate',
-            range: 'As defined',
-            duration: 'As defined',
-            effect: 'Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded.',
-            special: 'Artifact Ultimate: GM-Defined Ringchain Effect',
+            slot: 'a',
+            label: 'Life Sense — Life Sight',
+            note: 'Life Sense 30 m. Does not scale with Artifact Level; does not consume a Power Line.',
         },
+    ],
+    // Authored Core lines (Deathless Body / Life Absorption / Hollow Stillness).
+    levelProgression: [
+        {
+            level: 1,
+            name: 'Deathless Body I',
+            type: 'Passive',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Shift Health Penalties 2 steps toward Healthy. Maximum Health Penalty 20%.',
+            special: 'Hollow Crown Passive: Deathless Body I',
+        },
+        {
+            level: 2,
+            name: 'Life Absorption I',
+            type: 'Artifact Function',
+            range: 'Touch',
+            duration: 'Out of combat',
+            effect: 'Drain living creatures for Absorbed Vitality Stones. Maximum 2 Stones per Safe Haven Rest. Not usable in combat.',
+            special: 'Hollow Crown: Life Absorption I',
+        },
+        {
+            level: 3,
+            name: 'Hollow Stillness I',
+            type: 'Passive',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Advantage on Attribute Checks to resist Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and living-body effects.',
+            special: 'Hollow Crown: Hollow Stillness I',
+        },
+        {
+            level: 4,
+            name: 'Deathless Body II',
+            type: 'Passive',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Shift Health Penalties 3 steps. Maximum Health Penalty 10%. Replaces Deathless Body I.',
+            special: 'Hollow Crown Passive: Deathless Body II',
+        },
+        {
+            level: 5,
+            name: 'Life Absorption II',
+            type: 'Artifact Function',
+            range: 'Touch',
+            duration: 'Out of combat',
+            effect: 'Maximum 4 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption I.',
+            special: 'Hollow Crown: Life Absorption II',
+        },
+        {
+            level: 6,
+            name: 'Hollow Stillness II',
+            type: 'Passive',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Keep Advantage and add +1d8 to the Pool of those Attribute Checks. Replaces Hollow Stillness I.',
+            special: 'Hollow Crown: Hollow Stillness II',
+        },
+        {
+            level: 7,
+            name: 'Deathless Body III',
+            type: 'Passive',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Shift Health Penalties 4 steps. Maximum Health Penalty 0%. Replaces Deathless Body II.',
+            special: 'Hollow Crown Passive: Deathless Body III',
+        },
+        {
+            level: 8,
+            name: 'Life Absorption III',
+            type: 'Artifact Function',
+            range: 'Touch',
+            duration: 'Out of combat',
+            effect: 'Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II.',
+            special: 'Hollow Crown: Life Absorption III',
+        },
+        {
+            level: 9,
+            name: 'Hollow Stillness III',
+            type: 'Passive',
+            range: 'Self',
+            duration: 'Permanent',
+            effect: 'Keep Advantage and increase the Pool bonus to +2d8. Replaces Hollow Stillness II.',
+            special: 'Hollow Crown: Hollow Stillness III',
+        },
+        artifactAwakeningRow('Hollow Crown'),
     ],
 };
 // ----------------------------------------------------------------------
@@ -1459,6 +1504,7 @@ export const ECHO_ARTIFACTS = {
     sentinelFrame: SENTINEL_FRAME,
     judicatorFrame: JUDICATOR_FRAME,
     oracleFrame: ORACLE_FRAME,
+    hollowCrown: HOLLOW_CROWN,
     ringchainOfKeptNames: RINGCHAIN_OF_KEPT_NAMES,
     ...UNBOUND_ECHO_ARTIFACTS,
 };
@@ -1508,7 +1554,14 @@ export const ECHO_ARTIFACT_RULES = {
         requiredAtCreation: 1,
         maxAtCreation: 1,
         availableKeys: UNBOUND_ECHO_ARTIFACT_KEYS,
-        exclusiveGroups: [UNBOUND_PREDATOR_CROWN_KEYS],
+        // Predator Crown attribute variants + Primal Vestment are mutually exclusive.
+        exclusiveGroups: [UNBOUND_BEAST_BODY_EXCLUSIVE_KEYS],
+    },
+    deathless: {
+        echoKey: 'deathless',
+        requiredAtCreation: 1,
+        maxAtCreation: 1,
+        availableKeys: ['hollowCrown'],
     },
 };
 /** Lookup an Echo Artifact by key (legacy aliases resolve to current variant keys). */

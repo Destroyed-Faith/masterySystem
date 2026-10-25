@@ -67,12 +67,12 @@
       },
       {
         "level": 10,
-        "name": "True Green Warden Mantle",
-        "type": "Artifact Ultimate",
-        "range": "As defined",
-        "duration": "As defined",
-        "effect": "Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.",
-        "special": "Artifact Ultimate: GM-Defined Green Warden Mantle Effect"
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Green Warden Mantle)"
       }
     ],
     "stoneFunction": {
@@ -744,8 +744,8 @@
       },
       {
         "id": "greenWardenMantle-pw-10",
-        "name": "True Green Warden Mantle",
-        "fluff": "Special: Artifact Ultimate: GM-Defined Green Warden Mantle Effect",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Green Warden Mantle)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -933,18 +933,17 @@
             "specials": []
           },
           "16": {
-            "type": "Artifact Ultimate",
+            "type": "Artifact Function",
             "range": {
-              "kind": "self",
-              "note": "As defined"
+              "kind": "self"
             },
             "aoe": null,
             "duration": {
               "kind": "instant",
-              "note": "As defined"
+              "note": "Special"
             },
             "effect": {
-              "text": "Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -972,7 +971,7 @@
       "childIds": [],
       "echoBound": "unbound",
       "echoArtifactKey": "greenWardenMantle",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "kvPlhCVYotiCEgcU",

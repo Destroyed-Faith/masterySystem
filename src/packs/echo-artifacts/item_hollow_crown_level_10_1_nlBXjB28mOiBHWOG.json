@@ -1,0 +1,1035 @@
+{
+  "name": "Hollow Crown - Level 10-1",
+  "type": "artifact",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "level": 10,
+    "currentLevel": 10,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "gear",
+    "gearSlot": "head",
+    "slot": "head",
+    "baseProfile": "headArmor",
+    "binding": "echo",
+    "echoKey": "deathless",
+    "baseValues": [],
+    "levelProgression": [
+      {
+        "level": 7,
+        "name": "Deathless Body III",
+        "type": "Passive",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Permanent",
+        "effect": "Shift Health Penalties 4 steps. Maximum Health Penalty 0%. Replaces Deathless Body II.",
+        "special": "Hollow Crown Passive: Deathless Body III"
+      },
+      {
+        "level": 8,
+        "name": "Life Absorption III",
+        "type": "Artifact Function",
+        "range": "Touch",
+        "aoe": "",
+        "duration": "Out of combat",
+        "effect": "Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II.",
+        "special": "Hollow Crown: Life Absorption III"
+      },
+      {
+        "level": 9,
+        "name": "Hollow Stillness III",
+        "type": "Passive",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Permanent",
+        "effect": "Keep Advantage and increase the Pool bonus to +2d8. Replaces Hollow Stillness II.",
+        "special": "Hollow Crown: Hollow Stillness III"
+      },
+      {
+        "level": 10,
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Hollow Crown)"
+      }
+    ],
+    "stoneFunction": null,
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Deathless Body I",
+            "type": "Passive",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Shift Health Penalties 2 steps toward Healthy. Maximum Health Penalty 20%.",
+            "special": "Hollow Crown Passive: Deathless Body I"
+          },
+          {
+            "level": 4,
+            "name": "Deathless Body II",
+            "type": "Passive",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Shift Health Penalties 3 steps. Maximum Health Penalty 10%. Replaces Deathless Body I.",
+            "special": "Hollow Crown Passive: Deathless Body II"
+          },
+          {
+            "level": 7,
+            "name": "Deathless Body III",
+            "type": "Passive",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Shift Health Penalties 4 steps. Maximum Health Penalty 0%. Replaces Deathless Body II.",
+            "special": "Hollow Crown Passive: Deathless Body III"
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 2,
+            "name": "Life Absorption I",
+            "type": "Artifact Function",
+            "range": "Touch",
+            "aoe": "",
+            "duration": "Out of combat",
+            "effect": "Drain living creatures for Absorbed Vitality Stones. Maximum 2 Stones per Safe Haven Rest. Not usable in combat.",
+            "special": "Hollow Crown: Life Absorption I"
+          },
+          {
+            "level": 5,
+            "name": "Life Absorption II",
+            "type": "Artifact Function",
+            "range": "Touch",
+            "aoe": "",
+            "duration": "Out of combat",
+            "effect": "Maximum 4 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption I.",
+            "special": "Hollow Crown: Life Absorption II"
+          },
+          {
+            "level": 8,
+            "name": "Life Absorption III",
+            "type": "Artifact Function",
+            "range": "Touch",
+            "aoe": "",
+            "duration": "Out of combat",
+            "effect": "Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II.",
+            "special": "Hollow Crown: Life Absorption III"
+          }
+        ]
+      },
+      {
+        "level": 3,
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 3,
+            "name": "Hollow Stillness I",
+            "type": "Passive",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Advantage on Attribute Checks to resist Fear, Pain, Poison, Disease, Suffocation, Exhaustion, and living-body effects.",
+            "special": "Hollow Crown: Hollow Stillness I"
+          },
+          {
+            "level": 6,
+            "name": "Hollow Stillness II",
+            "type": "Passive",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Keep Advantage and add +1d8 to the Pool of those Attribute Checks. Replaces Hollow Stillness I.",
+            "special": "Hollow Crown: Hollow Stillness II"
+          },
+          {
+            "level": 9,
+            "name": "Hollow Stillness III",
+            "type": "Passive",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Permanent",
+            "effect": "Keep Advantage and increase the Pool bonus to +2d8. Replaces Hollow Stillness II.",
+            "special": "Hollow Crown: Hollow Stillness III"
+          }
+        ]
+      }
+    ],
+    "lore": "The Hollow Crown marks the place where death failed. Deathless Body, Life Sense (Life Sight 30 m), Hollow Stillness, and Life Absorption.",
+    "description": "The Hollow Crown marks the place where death failed. Deathless Body, Life Sense (Life Sight 30 m), Hollow Stillness, and Life Absorption.\n\nHollow Crown occupies the Head Slot. It cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "hollowCrown-pw-7",
+        "name": "Deathless Body III",
+        "fluff": "Special: Hollow Crown Passive: Deathless Body III",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Passive",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Shift Health Penalties 4 steps. Maximum Health Penalty 0%. Replaces Deathless Body II."
+            },
+            "specials": [],
+            "lvl": 7
+          }
+        }
+      },
+      {
+        "id": "hollowCrown-pw-8",
+        "name": "Life Absorption III",
+        "fluff": "Special: Hollow Crown: Life Absorption III",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Artifact Function",
+            "range": {
+              "kind": "touch"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant",
+              "note": "Out of combat"
+            },
+            "effect": {
+              "text": "Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II."
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "hollowCrown-pw-9",
+        "name": "Hollow Stillness III",
+        "fluff": "Special: Hollow Crown: Hollow Stillness III",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Passive",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "scene"
+            },
+            "effect": {
+              "text": "Keep Advantage and increase the Pool bonus to +2d8. Replaces Hollow Stillness II."
+            },
+            "specials": [],
+            "lvl": 9
+          }
+        }
+      },
+      {
+        "id": "hollowCrown-pw-10",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Hollow Crown)",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Artifact Function",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant",
+              "note": "Special"
+            },
+            "effect": {
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
+            },
+            "specials": [],
+            "lvl": 10
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "equipSlots": [
+      "head"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "hollowCrown-l10",
+      "parentIds": [
+        "hollowCrown-l9"
+      ],
+      "childIds": [],
+      "echoBound": "deathless",
+      "echoArtifactKey": "hollowCrown",
+      "seedVersion": 57
+    }
+  },
+  "_id": "nlBXjB28mOiBHWOG",
+  "folder": "EJ46aCzvSFcCi3Gq",
+  "_key": "!items!nlBXjB28mOiBHWOG"
+}

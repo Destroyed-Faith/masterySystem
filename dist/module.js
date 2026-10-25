@@ -1092,6 +1092,13 @@ Hooks.once('init', async function () {
         catch (err) {
             console.error('Mastery System | spell-roll-handler deleteCombat cleanup failed', err);
         }
+        try {
+            const { clearArtifactCombatUsesForCombat } = await import('./combat/artifact-rest-uses.js');
+            await clearArtifactCombatUsesForCombat(combat);
+        }
+        catch (err) {
+            console.error('Mastery System | artifact combat-use clear failed', err);
+        }
     });
     // Active-buff activation mid-combat: the continuous modifiers (armor/evade)
     // are picked up automatically via prepareDerivedData, but trigger-based
@@ -1239,6 +1246,12 @@ Hooks.once('init', async function () {
     Hooks.on('createItem', (item) => {
         if (item?.system?.consumable === true || item?.getFlag?.('mastery-system', 'minorMagic')) {
             refreshConsumableSurfaces(item);
+        }
+        // Primal Vestment auto-grants Primal Rage (2 Points) Disadvantage.
+        if (item?.type === 'artifact' && item?.parent?.documentName === 'Actor') {
+            void import('./utils/primal-rage.js').then(({ ensurePrimalRageDisadvantage }) => {
+                void ensurePrimalRageDisadvantage(item.parent);
+            });
         }
     });
     Hooks.on('deleteItem', (item) => {
@@ -1695,6 +1708,11 @@ function exposeMasterySystemApi() {
         // Force-rebuild every template-backed Power's baked level table from the
         // current catalog templates (use after editing/auditing power templates).
         resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),
+        /** Artifact alignment (seed bump + world library refresh). Default dry-run. */
+        runArtifactAlignmentMigration: async (opts) => {
+            const { runArtifactAlignmentMigration } = await import('./migrations/artifact-alignment-2026-10-25.js');
+            return runArtifactAlignmentMigration(opts);
+        },
     });
 }
 function registerSystemSettings() {
@@ -3037,6 +3055,23 @@ Hooks.once('ready', async function () {
     }
     catch (err) {
         console.warn('Mastery System | weapon set init on ready failed', err);
+    }
+});
+// Unlinked token actors keep their own item copies + weaponSets. Reconcile on
+// place so a new token does not open combat as Unarmed while Set I still
+// points at a two-handed Artifact in inventory.
+Hooks.on('createToken', async (tokenDoc) => {
+    try {
+        if (tokenDoc?.actorLink)
+            return; // linked tokens share the world actor
+        const actor = tokenDoc?.actor;
+        if (!actor?.isToken || actor.type !== 'character')
+            return;
+        const { ensureWeaponSets } = await import('./utils/weapon-sets.js');
+        await ensureWeaponSets(actor);
+    }
+    catch (err) {
+        console.warn('Mastery System | weapon set reconcile on createToken failed', err);
     }
 });
 Hooks.once('ready', async function () {

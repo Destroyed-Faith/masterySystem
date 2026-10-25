@@ -6,6 +6,10 @@
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import type { EchoArtifactDefinition, EchoArtifactProgressionPickSpec, EchoArtifactStoneFunctionHint } from './echo-artifacts.js';
 
+/** Matches Titan Scars / Hollow Crown / Core universal Awakening effect text. */
+const ARTIFACT_AWAKENING_EFFECT =
+  "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.";
+
 interface StageRow {
   name: string;
   type: string;
@@ -14,6 +18,17 @@ interface StageRow {
   duration: string;
   effect: string;
   special?: string;
+}
+
+function artifactAwakeningStage(artifactName: string): StageRow {
+  return {
+    name: 'Artifact Awakening',
+    type: 'Artifact Function',
+    range: 'Self',
+    duration: 'Special',
+    effect: ARTIFACT_AWAKENING_EFFECT,
+    special: `Artifact Level 10: Awakening (${artifactName})`,
+  };
 }
 
 function tenLevels(
@@ -164,14 +179,7 @@ function makePredatorCrown(opts: {
       predatorStoneTrack(opts.stoneLabel, opts.stoneTechnical),
       RETALIATORY_BITE,
       RED_HUNT,
-      {
-        name: 'True Predator Crown',
-        type: 'Artifact Ultimate',
-        range: 'As defined',
-        duration: 'As defined',
-        effect: 'Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.',
-        special: 'Artifact Ultimate: GM-Defined Predator Crown Effect',
-      },
+      artifactAwakeningStage('Predator Crown'),
     ),
   };
 }
@@ -348,14 +356,7 @@ function makeWitchStaff(opts: {
       WITCH_STONE,
       witchOverdrive(opts.special),
       witchMainSpell(opts.mainSpell, opts.special),
-      {
-        name: 'True Witch Staff',
-        type: 'Artifact Ultimate',
-        range: 'As defined',
-        duration: 'As defined',
-        effect: 'Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.',
-        special: 'Artifact Ultimate: GM-Defined Witch Staff Effect',
-      },
+      artifactAwakeningStage('Witch Staff'),
     ),
   };
 }
@@ -500,14 +501,7 @@ const ALCHEMIST_COAT: EchoArtifactDefinition = {
         special: 'Active Buff: Critical (PL 16)',
       },
     ],
-    {
-      name: 'True Alchemist Coat',
-      type: 'Artifact Ultimate',
-      range: 'As defined',
-      duration: 'As defined',
-      effect: 'Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.',
-      special: 'Artifact Ultimate: GM-Defined Alchemist Coat Effect',
-    },
+    artifactAwakeningStage('Alchemist Coat'),
   ),
 };
 
@@ -615,14 +609,7 @@ const GREEN_WARDEN_MANTLE: EchoArtifactDefinition = {
         special: 'Resolve Ability: Ward (Stone Power Support, Tier 4)',
       },
     ],
-    {
-      name: 'True Green Warden Mantle',
-      type: 'Artifact Ultimate',
-      range: 'As defined',
-      duration: 'As defined',
-      effect: 'Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.',
-      special: 'Artifact Ultimate: GM-Defined Green Warden Mantle Effect',
-    },
+    artifactAwakeningStage('Green Warden Mantle'),
   ),
 };
 
@@ -731,21 +718,110 @@ const HUNTERS_SCOURGE: EchoArtifactDefinition = {
         special: 'Melee AoE Attack + Exorcism (PL 16)',
       },
     ],
-    {
-      name: "True Hunter's Scourge",
-      type: 'Artifact Ultimate',
-      range: 'As defined',
-      duration: 'As defined',
-      effect: 'Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.',
-      special: "Artifact Ultimate: GM-Defined Hunter's Scourge Effect",
-    },
+    artifactAwakeningStage("Hunter's Scourge"),
   ),
+};
+
+/** Beast Unbound — Primal Vestment (Body; exclusive with Predator Crown). */
+const PRIMAL_VESTMENT: EchoArtifactDefinition = {
+  key: 'primalVestment',
+  name: 'Primal Vestment',
+  echoKey: 'unbound',
+  slot: 'body',
+  baseProfile: 'noArmorBody',
+  requiresSubChoice: 'beast',
+  description:
+    'Beast Unbound Echo Artifact: the awakened hunting body. No Base Values. Choosing it grants the Primal Rage (2 Points) Disadvantage.',
+  restriction:
+    'A Beast with Primal Vestment cannot use another Body Artifact or Body Armor. Explicit exception: two Stone Power Support functions and Extra Attack support from the Body Slot.',
+  progressionPickSpecs: {
+    2: {
+      name: 'Flesh Remembers',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'resolve',
+        stonePowerId: 'resolve.healing',
+        supportStages: [2, 5, 8],
+      },
+    },
+    3: {
+      name: 'Rage Unbound',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'might',
+        stonePowerId: 'generic.extraAttack',
+        supportStages: [3, 6, 9],
+      },
+    },
+  },
+  baseValues: [],
+  levelProgression: [
+    {
+      level: 2,
+      name: 'Flesh Remembers I',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Rank 2 of Healing for yourself only. Rank 1 must still be paid normally.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 2; Self only)',
+    },
+    {
+      level: 3,
+      name: 'Rage Unbound I',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Rank 2 of Extra Attack. Rank 1 must still be paid normally.',
+      special: 'Stone Ability: Extra Attack (Stone Power Support, Rank 2)',
+    },
+    {
+      level: 5,
+      name: 'Flesh Remembers II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Rank 3 of Healing for yourself only. Replaces Flesh Remembers I.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 3; Self only)',
+    },
+    {
+      level: 6,
+      name: 'Rage Unbound II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Rank 3 of Extra Attack. Replaces Rage Unbound I.',
+      special: 'Stone Ability: Extra Attack (Stone Power Support, Rank 3)',
+    },
+    {
+      level: 8,
+      name: 'Flesh Remembers III',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Rank 4 of Healing for yourself only. Replaces Flesh Remembers II.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 4; Self only)',
+    },
+    {
+      level: 9,
+      name: 'Rage Unbound III',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Rank 4 of Extra Attack. Replaces Rage Unbound II.',
+      special: 'Stone Ability: Extra Attack (Stone Power Support, Rank 4)',
+    },
+    {
+      level: 10,
+      ...artifactAwakeningStage('Primal Vestment'),
+    },
+  ],
 };
 
 export const UNBOUND_ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition> = {
   predatorCrownMight: PREDATOR_CROWN_MIGHT,
   predatorCrownWits: PREDATOR_CROWN_WITS,
   predatorCrownIntellect: PREDATOR_CROWN_INTELLECT,
+  primalVestment: PRIMAL_VESTMENT,
   witchStaffRoot: WITCH_STAFF_ROOT,
   witchStaffRuin: WITCH_STAFF_RUIN,
   witchStaffBlight: WITCH_STAFF_BLIGHT,
@@ -760,4 +836,10 @@ export const UNBOUND_PREDATOR_CROWN_KEYS = [
   'predatorCrownMight',
   'predatorCrownWits',
   'predatorCrownIntellect',
+];
+
+/** Beast Body: Predator Crown OR Primal Vestment (at most one). */
+export const UNBOUND_BEAST_BODY_EXCLUSIVE_KEYS = [
+  ...UNBOUND_PREDATOR_CROWN_KEYS,
+  'primalVestment',
 ];

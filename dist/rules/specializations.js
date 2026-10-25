@@ -10,7 +10,11 @@ export const SKILL_FIELDS = [
     'occult',
     'social',
     'investigation',
+    /** Universal free Spec only — never a paid starting Field. */
+    'perception',
 ];
+/** Fields a player may choose for paid Specializations (excludes universal Perception). */
+export const PAID_SKILL_FIELDS = SKILL_FIELDS.filter((f) => f !== 'perception');
 export const SKILL_FIELD_LABELS = {
     physical: 'Physical',
     finesse: 'Finesse',
@@ -19,6 +23,7 @@ export const SKILL_FIELD_LABELS = {
     occult: 'Occult',
     social: 'Social',
     investigation: 'Investigation',
+    perception: 'Perception (Universal)',
 };
 export const SPECIALIZATION_FIELD_EXAMPLES = {
     physical: [
@@ -91,6 +96,8 @@ export const SPECIALIZATION_FIELD_EXAMPLES = {
         { name: 'Cryptography', scope: 'Breaking codes, ciphers, and hidden writing — code clerk, spy handler, or vault scribe.' },
         { name: 'Search', scope: 'Methodically combing rooms, bodies, and caches for hidden items — customs searcher or tomb explorer.' },
     ],
+    // Universal Skill — not a paid Field. No free-named Spec examples here.
+    perception: [],
 };
 export function normalizeSpecializationName(name) {
     return String(name || '')
@@ -107,14 +114,28 @@ export function isSkillField(value) {
     return SKILL_FIELDS.includes(String(value || ''));
 }
 /** Free universal Perception Spec — not one of the five paid starting Specs. */
-export const CHARACTER_PERCEPTION_FIELD = 'investigation';
+export const CHARACTER_PERCEPTION_FIELD = 'perception';
+/** Legacy id when Perception was wrongly stored under Investigation. */
+export const CHARACTER_PERCEPTION_LEGACY_SPEC_ID = 'investigation:perception';
 export const CHARACTER_PERCEPTION_SPEC_ID = specializationIdentityKey('Perception', CHARACTER_PERCEPTION_FIELD);
 export const CHARACTER_PERCEPTION_SCOPE = 'Notice, search, and read the scene';
 /** Matches `UNIVERSAL_PERCEPTION_RANK` in skill-check.ts. */
 export const CHARACTER_PERCEPTION_MIN_RANK = 2;
+/** Attribute Focus options for every Perception Check (Core Skill rules). */
+export const PERCEPTION_FOCUS_ATTRIBUTES = ['wits', 'intellect', 'resolve'];
+export function isPerceptionFocusAttribute(value) {
+    return PERCEPTION_FOCUS_ATTRIBUTES.includes(String(value || ''));
+}
 export function isCharacterPerceptionSpec(spec) {
-    return (String(spec.id || '') === CHARACTER_PERCEPTION_SPEC_ID ||
-        normalizeSpecializationName(String(spec.name || '')) === 'perception');
+    const id = String(spec.id || '');
+    return (id === CHARACTER_PERCEPTION_SPEC_ID ||
+        id === CHARACTER_PERCEPTION_LEGACY_SPEC_ID ||
+        normalizeSpecializationName(String(spec.name || '')) === 'perception' ||
+        String(spec.field || '') === 'perception');
+}
+/** Paid Specs only — free Perception never consumes a starting / review slot. */
+export function paidSpecializations(specs) {
+    return specs.filter((s) => !isCharacterPerceptionSpec(s));
 }
 /**
  * Every character has Perception at least Rank 2 (free). Adds the Spec when
@@ -158,7 +179,8 @@ export function ensureCharacterHasPerceptionSpec(system) {
     const cur = specializations[foundIdx];
     const nextRank = Math.max(CHARACTER_PERCEPTION_MIN_RANK, Math.floor(Number(cur.rank) || 0));
     const nextScope = String(cur.scope || '').trim() || CHARACTER_PERCEPTION_SCOPE;
-    const nextField = isSkillField(cur.field) ? cur.field : CHARACTER_PERCEPTION_FIELD;
+    // Always the universal Perception Field — never Investigation or another Skill Field.
+    const nextField = CHARACTER_PERCEPTION_FIELD;
     if (nextRank === cur.rank &&
         nextScope === cur.scope &&
         nextField === cur.field &&
@@ -168,6 +190,7 @@ export function ensureCharacterHasPerceptionSpec(system) {
     specializations[foundIdx] = {
         ...cur,
         id: CHARACTER_PERCEPTION_SPEC_ID,
+        name: 'Perception',
         field: nextField,
         scope: nextScope,
         rank: nextRank,
@@ -202,9 +225,9 @@ export function validateSpecializationList(specs, opts) {
     }
     if (opts?.requireStartingBudget) {
         // Free Perception sits alongside the five paid starting Specs.
-        const paid = specs.filter((s) => !isCharacterPerceptionSpec(s));
+        const paid = paidSpecializations(specs);
         if (paid.length !== 5) {
-            errors.push('Starting characters need exactly five Specializations.');
+            errors.push('Starting characters need exactly five Specializations (Perception is free and does not count).');
         }
         const ranks = paid.map((s) => Math.floor(Number(s.rank) || 0));
         if (ranks.length === 5 && !ranks.every((r) => r === 2)) {

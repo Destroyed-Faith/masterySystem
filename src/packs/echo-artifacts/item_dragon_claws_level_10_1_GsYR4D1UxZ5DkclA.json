@@ -73,12 +73,12 @@
       },
       {
         "level": 10,
-        "name": "True Dragon Claws",
-        "type": "Ultimate",
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
         "range": "Self",
         "duration": "Special",
-        "effect": "Dragon Claws fully awaken. Choose or define one final Claw or Tail effect.",
-        "special": "True Dragon Claws"
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Dragon Claws)"
       }
     ],
     "stoneFunction": {
@@ -766,8 +766,8 @@
       },
       {
         "id": "dragonClaws-pw-10",
-        "name": "True Dragon Claws",
-        "fluff": "Special: True Dragon Claws",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Dragon Claws)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -955,7 +955,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },
@@ -965,7 +965,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "Dragon Claws fully awaken. Choose or define one final Claw or Tail effect."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -1005,7 +1005,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "GsYR4D1UxZ5DkclA",

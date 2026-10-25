@@ -256,11 +256,37 @@ export function healPowerItemFromRadialOption(
     };
   }
 
-  // Authored / legacy artifact rows without a template id. R-05: ordinary HP-heal rows
-  // ("Heal 10d8", "Ranged Single Target Heal (PL n)") are migrated to Scarred Bar
-  // Restoration — never to a rolled HP heal.
+  // Authored / legacy artifact rows without a template id.
+  // Catalogue Technical References that print "Ranged Single Target Heal" /
+  // Moonlight Mending map to HP-heal templates (Artefacts 2026-10-25).
+  // Scarred-Bar "Restoration" wording still uses the R-05 restoration templates.
   if (option.item?.type === 'artifact') {
     const blob = `${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`;
+    if (
+      /moonlight\s*mending/i.test(blob) ||
+      /ranged\s+single\s+target\s+heal/i.test(blob) ||
+      /melee\s+single\s+target\s+heal/i.test(blob)
+    ) {
+      const templateId = /melee\s+single\s+target\s+heal/i.test(blob)
+        ? 'active-melee-single-heal'
+        : 'active-ranged-single-heal';
+      const tpl = getTemplate(templateId);
+      const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
+      const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
+      return {
+        type: 'power',
+        id: option.id,
+        name: option.name,
+        system: {
+          templateId,
+          category: 'active',
+          subfamily: 'support-heal',
+          rank,
+          level: rank,
+          levels: tpl?.levels ?? {},
+        },
+      };
+    }
     const inferred = inferRestorationTemplateFromArtifactText(blob);
     if (inferred || artifactRowLooksLikeHeal(option)) {
       const templateId = inferred?.templateId ?? 'active-ranged-health-level-heal';
@@ -300,10 +326,11 @@ export function inferRestorationTemplateFromArtifactText(
   const pl = plMatch ? Math.max(1, Math.min(16, parseInt(plMatch[1], 10))) : null;
   const ranged = /\branged\b/i.test(blob);
   const melee = /\bmelee\b/i.test(blob);
-  if (/\bAoE\s+(?:Restoration|Heal)\b/i.test(blob) || /\bHealing\s+Aura\b/i.test(blob)) {
+  if (/\bAoE\s+Restoration\b/i.test(blob) || /\bHealing\s+Aura\b/i.test(blob)) {
     return { templateId: ranged && !melee ? 'active-ranged-aoe-restoration' : 'active-melee-aoe-restoration', pl };
   }
-  if (/\bSingle\s+Target\s+(?:Restoration|Heal)\b/i.test(blob) || /\bScarred\s+Bar\s+Restoration\b/i.test(blob)) {
+  // Scarred Bar Restoration only — plain "Single Target Heal" is HP dice (catalogue).
+  if (/\bSingle\s+Target\s+Restoration\b/i.test(blob) || /\bScarred\s+Bar\s+Restoration\b/i.test(blob)) {
     return { templateId: melee && !ranged ? 'active-melee-health-level-heal' : 'active-ranged-health-level-heal', pl };
   }
   return null;

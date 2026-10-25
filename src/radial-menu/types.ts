@@ -84,6 +84,15 @@ export interface RadialCombatOption {
   storedAttackPool?: { attribute: string; numDice: number; keepDice: number } | null;
   /** Consumables never add weapon damage dice or weapon Specials. */
   ignoreWeaponDamage?: boolean;
+  /**
+   * Dragon Head Damage Breath only: Instant Melee AoE that still includes this
+   * Artifact's Bite Weapon Damage (Core exception to no-Weapon-Damage-on-AoE).
+   */
+  dragonHeadDamageBreath?: boolean;
+  /** Dragon Head Breath mode selected from the radial (`damage` | `ruin`). */
+  dragonHeadBreathMode?: 'damage' | 'ruin';
+  /** Forced Attack Attribute for Breath (Might or Agility); never combine pools. */
+  attackAttributeOverride?: 'might' | 'agility';
   /** Greyed when no Attack Actions remain (existing economy). */
   disabled?: boolean;
 }

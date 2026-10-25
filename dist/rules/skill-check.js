@@ -7,9 +7,12 @@
  */
 import { clampPaidRaises, finalSkillTn, getSkillRaiseAllowance, paidRaiseSelectOptions, skillCheckSuccessRaiseBudget, validatePaidRaisesDeclaration, validateSkillRaiseEffectAllocation, emptySkillRaiseEffectAllocation, } from './skill-raises.js';
 import { SPEC_ATTRIBUTE_KEYS, findSpecializationById, findSpecializationByName, readSpecializations, } from './specialization-roll.js';
+import { PERCEPTION_FOCUS_ATTRIBUTES, isCharacterPerceptionSpec, isPerceptionFocusAttribute, normalizeSpecializationName, } from './specializations.js';
 import { findSituationalSkillById, readSituationalSkills, } from './npc-situational-skills.js';
 /** Universal free starting Perception acts as Rank 2 when no Spec is present. */
 export const UNIVERSAL_PERCEPTION_RANK = 2;
+/** Re-export Focus options for dialogs / tests. */
+export { PERCEPTION_FOCUS_ATTRIBUTES, isPerceptionFocusAttribute };
 export function isSpecAttributeKey(value) {
     return SPEC_ATTRIBUTE_KEYS.includes(value);
 }
@@ -265,6 +268,15 @@ export function planSkillCheckDraft(input) {
             : '';
     if (!isNpcSituational && !attrKey)
         return emptyFail('Invalid Attribute.');
+    const isPerceptionCheck = ctx.skill.kind === 'perception' ||
+        (resolved.spec != null && isCharacterPerceptionSpec(resolved.spec)) ||
+        normalizeSpecializationName(resolved.name) === 'perception';
+    if (isPerceptionCheck &&
+        !isNpcSituational &&
+        attrKey &&
+        !isPerceptionFocusAttribute(attrKey)) {
+        return emptyFail('Perception Checks use Attribute Focus Wits, Intellect, or Resolve only.');
+    }
     const attributeValue = Math.max(0, Math.floor(Number(system?.attributes?.[attrKey]?.value) || 0));
     const masteryRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
     const baseTn = ctx.baseTn;

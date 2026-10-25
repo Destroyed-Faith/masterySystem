@@ -67,6 +67,19 @@ export interface RoundState {
      * Each use removes one radial copy; max copies = `npcAttacksPerRound` (1–5).
      */
     npcAttackUsesThisRound?: Record<string, number>;
+    /** Shared NPC Maximization remaining (root or active phase pool). */
+    npcMaximizationRemaining?: number;
+    /** Configured grant at last seed (for UI X/Y). */
+    npcMaximizationGranted?: number;
+    /** How the shared pool refreshes. */
+    npcMaximizationRefresh?: 'perRound' | 'perPhase';
+    /** Phase index the remaining belongs to; null = root NPC. */
+    npcMaximizationPhaseIndex?: number | null;
+    /**
+     * Maximization spends per attack usage key this round/phase
+     * (cadence: at most 1 while the key is present with value ≥ 1).
+     */
+    npcMaximizationAttackUses?: Record<string, number>;
     /**
      * When true, a Movement Power already replaced normal Movement this round —
      * base Move/Dash maneuvers are unavailable (Rules v0.9.8).

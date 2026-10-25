@@ -31,6 +31,7 @@ import {
 import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import {
+  applyLimitedPowerDamage,
   applyLimitedToTransferPowerDamage,
   isInstantAoeFlags,
   martialWeaponDamageApplies,
@@ -533,7 +534,9 @@ export async function showDamageDialog(
       ignoreWeaponDamage: flags?.ignoreWeaponDamage === true,
       powerIsSpell: flags?.powerIsSpell === true,
       npcIsSpell: flags?.npcIsSpell === true,
-      // Instant AoE: Power damage only — never Weapon Damage.
+      // Instant AoE: Power damage only — never Weapon Damage,
+      // except Dragon Head Damage Breath (Bite + Power Dice).
+      dragonHeadDamageBreath: flags?.dragonHeadDamageBreath === true,
       aoeMeleeWeapon: flags?.aoeMeleeWeapon,
       instantAoe: flags?.instantAoe,
     });
@@ -734,11 +737,18 @@ export async function showDamageDialog(
         powerSpecials = powerSystem.specials || [];
       }
 
+      const limitedFlag =
+        flags?.limited === true || powerSystem?.limited === true;
+      const isTransfer =
+        flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true;
       powerDamage = applyLimitedToTransferPowerDamage(powerDamage, {
-        damageTransfer:
-          flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true,
-        limited: flags?.limited === true || powerSystem?.limited === true,
+        damageTransfer: isTransfer,
+        limited: limitedFlag,
       });
+      // Non-transfer Limited Instant Actives (e.g. Moonlight Judgment AoE Spell).
+      if (limitedFlag && !isTransfer) {
+        powerDamage = applyLimitedPowerDamage(powerDamage, { limited: true });
+      }
 
       selectedPowerData = {
         id: selectedPower.id,
@@ -1049,7 +1059,9 @@ export async function showDamageDialog(
         spellFocusDice: spellFocusBonusDice,
         weaponName: weaponDisplayName,
         spellFocusSources,
-        castingNoWeapon: !!flags?.ignoreWeaponDamage || isInstantAoeFlags(flags),
+        castingNoWeapon:
+          !!flags?.ignoreWeaponDamage ||
+          (isInstantAoeFlags(flags) && flags?.dragonHeadDamageBreath !== true),
       },
       formatSplitStrikeBanner(flags),
       {

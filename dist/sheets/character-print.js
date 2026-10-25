@@ -48,7 +48,7 @@ import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collecti
 import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
 import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
-import { DF_2026_RULES_SCHEMA_VERSION, ECHO_IMPRINT_MIN_ATTRIBUTE, SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, echoImprintTierFromAttribute, findEchoImprint, getSkillRaiseAllowance, readSpecializations, } from '../rules/index.js';
+import { DF_2026_RULES_SCHEMA_VERSION, ECHO_IMPRINT_MIN_ATTRIBUTE, PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, echoImprintTierFromAttribute, findEchoImprint, getSkillRaiseAllowance, isCharacterPerceptionSpec, readSpecializations, } from '../rules/index.js';
 /**
  * Short table-sheet blurb for a Stone Power (Quick Play style).
  * Linear tiers → "+N per Tier"; irregular → values listed at the end.
@@ -300,16 +300,15 @@ function buildPrintSpecializations(system) {
         };
     };
     // Perception is elevated above Spec groups (same R·paid / pips row as Specs).
-    const groups = SKILL_FIELDS.map((field) => ({
+    const groups = PAID_SKILL_FIELDS.map((field) => ({
         key: field,
         label: SKILL_FIELD_LABELS[field],
         specs: specs
-            .filter((s) => s.field === field)
-            .filter((s) => String(s.name || '').trim().toLowerCase() !== 'perception')
+            .filter((s) => s.field === field && !isCharacterPerceptionSpec(s))
             .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
             .map((s) => mapSpec(s)),
     })).filter((g) => g.specs.length > 0);
-    const perceptionSpec = specs.find((s) => String(s.name || '').trim().toLowerCase() === 'perception');
+    const perceptionSpec = specs.find((s) => isCharacterPerceptionSpec(s));
     const perceptionSpecialization = perceptionSpec
         ? mapSpec(perceptionSpec, perceptionSpec.id === 'perception-gifted')
         : null;

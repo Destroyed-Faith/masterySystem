@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Artefacts
-Version: v0.9.9.5 approved Artifact catalogue (2026-10-16)
+Version: v0.9.9.5 (2026-10-25 rules alignment; October 24 approved updates)
 }}
 
 }}
@@ -206,7 +206,7 @@ A character may not **increase** an Artifact beyond the maximum Artifact Level a
 | Increase an Artifact to Level 7, 8, or 9 | **32 XP per Level** |
 | Increase an Artifact to Level 10 | **64 XP** |
 
-An Artifact may only be increased by **one Level during the same Upgrade Step**.
+An Artifact may be increased by **multiple Levels during the same Upgrade Step**, provided the character pays the XP cost of each Level gained and does not exceed the Artifact Level Cap for their current Mastery Rank. No one-Level-per-Upgrade-Step restriction applies.
 
 The XP cost is determined by the **new Artifact Level reached**, not by the Artifact's current Level.
 
@@ -1818,29 +1818,33 @@ The Moonlight Greatsword is a two-handed Artifact Weapon forged from pale lunar 
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Weapon | Weapon Damage / Spell Focus (+4d8) Base B / Expose Base C / Moonlight Functions | Bound |
+| Main Hand + Off Hand | Two-Handed Weapon | Weapon Damage / Inherent Finesse / Spell Focus (+4d8) Base B / Expose Base C / Moonlight Functions | Bound |
 
 The Moonlight Greatsword occupies both hand Slots.
-A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Moonlight Greatsword attacks may use **Might or Agility**.
+A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. The Moonlight Greatsword has **inherent Finesse**: qualifying weapon attacks made with it may use **Might or Agility**. Finesse belongs to the weapon's inherent profile and does not consume an additional Base Value.
 
 ---
 
 #### Weapon Base
 
+**Weapon Damage progression:** The Moonlight Greatsword has **4d8 base Weapon Damage** and gains **+1d8 for each Artifact Level**. The table shows the complete Weapon Damage total (Level 1 = 5d8, Level 10 = 14d8); do not add the base damage to these totals again. Inherent Finesse does not count as a separate Base Value.
+
 | Artifact Level | Base Value A: Weapon Damage | Base Value B: Spell Focus | Base Value C: Weapon Special |
 |---:|---:|---|---|
-| Level 1 | 4d8 | — | — |
-| Level 2 | 5d8 | — | — |
-| Level 3 | 6d8 | — | — |
+| Level 1 | 5d8 | — | — |
+| Level 2 | 6d8 | — | — |
+| Level 3 | 7d8 | — | — |
 | Level 4 | 8d8 | Spell Focus (+4d8) | — |
 | Level 5 | 9d8 | Spell Focus (+4d8) | — |
 | Level 6 | 10d8 | Spell Focus (+4d8) | — |
-| Level 7 | 12d8 | Spell Focus (+4d8) | Expose(4) |
-| Level 8 | 13d8 | Spell Focus (+4d8) | Expose(4) |
-| Level 9 | 14d8 | Spell Focus (+4d8) | Expose(4) |
-| Level 10 | 16d8 | Spell Focus (+4d8) | Expose(8), True Moonlight |
+| Level 7 | 11d8 | Spell Focus (+4d8) | Expose(4) |
+| Level 8 | 12d8 | Spell Focus (+4d8) | Expose(4) |
+| Level 9 | 13d8 | Spell Focus (+4d8) | Expose(4) |
+| Level 10 | 14d8 | Spell Focus (+4d8) | Expose(5) |
 
-**Spell Focus source:** Base Value B uses the existing **Runestaff's two-handed Spell Focus (+4d8)** property from the Core weapon table; this is not a new damage progression. It applies only to damaging Spells and is **never doubled by Limited**. Moonlight Mending is Healing and therefore gains no damage from the Focus.
+**Spell Focus source:** Base Value B uses the existing **Runestaff's two-handed Spell Focus (+4d8)** property from the Core weapon table; this is not a new damage progression. It applies only to eligible damaging Spells for which the canonical Power rules permit Spell Focus. **Spell Focus does not apply to AoE attacks, including Moonlight Judgment**, and is never doubled by Limited. Moonlight Mending is Healing and therefore gains no damage from the Focus.
+
+**Expose baseline:** Base Value C uses the standard Expose progression (Expose(4) at Levels 7-9 and Expose(5) at Level 10). It grants no additional Level-10 Ultimate or doubled Expose effect.
 
 ---
 }}
@@ -1852,15 +1856,15 @@ A character with the Moonlight Greatsword cannot use another weapon, shield, han
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
 | **1** | **Moonlight Mending I** | Active, Support | 20 m | None | Instant | Heal one creature for **5d8 HP** in its current Health Bar; does not restore Scarred Health Bars. | **Ranged Single Target Heal (PL 4)** |
-| **2** | **Moonlight Judgment I** | Artifact Active, Spell | 20 m | Radius 3 m | Instant | Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8** for this use. Base B is not yet unlocked; no Focus bonus. **2 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No weapon damage and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 4)** |
+| **2** | **Moonlight Judgment I** | Artifact Active, Spell | 20 m | Radius 3 m | Instant | Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8** for this use. Base B is not yet unlocked; no Focus bonus. **2 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 4)** |
 | **3** | **Moonlight Shadow I**¹ | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your Turns, enemies in the aura take **3d8 damage**. Each creature can be affected only once per Round. | **Active Buff: Damage Aura (PL 4)** |
 | **4** | **Moonlight Mending II** | Active, Support | 44 m | None | Instant | Heal one creature for **12d8 HP** in its current Health Bar; does not restore Scarred Health Bars. Replaces Moonlight Mending I. | **Ranged Single Target Heal (PL 10)** |
-| **5** | **Moonlight Judgment II** | Artifact Active, Spell | 44 m | Radius 6 m | Instant | Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8** for this use. Because Base B is unlocked, add the normal **+4d8 Spell Focus** (not doubled). **5 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No weapon damage and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 10)** |
+| **5** | **Moonlight Judgment II** | Artifact Active, Spell | 44 m | Radius 6 m | Instant | Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8** for this use. Although Base B is unlocked, **Spell Focus does not apply to this AoE**. **5 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 10)** |
 | **6** | **Moonlight Shadow II**¹ | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | At the end of each of your Turns, enemies in the aura take **7d8 damage**. Each creature can be affected only once per Round. This replaces Moonlight Shadow I. | **Active Buff: Damage Aura (PL 10)** |
 | **7** | **Moonlight Mending III** | Active, Support | 68 m | None | Instant | Heal one creature for **20d8 HP** in its current Health Bar; does not restore Scarred Health Bars. Replaces Moonlight Mending II. | **Ranged Single Target Heal (PL 16)** |
-| **8** | **Moonlight Judgment III** | Artifact Active, Spell | 68 m | Radius 8 m | Instant | Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8** for this use. Because Base B is unlocked, add the normal **+4d8 Spell Focus** (not doubled). **8 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No weapon damage and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 16)** |
+| **8** | **Moonlight Judgment III** | Artifact Active, Spell | 68 m | Radius 8 m | Instant | Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8** for this use. Although Base B is unlocked, **Spell Focus does not apply to this AoE**. **8 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 16)** |
 | **9** | **Moonlight Shadow III**¹ | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your Turns, enemies in the aura take **11d8 damage**. Each creature can be affected only once per Round. This replaces Moonlight Shadow II. | **Active Buff: Damage Aura (PL 16)** |
-| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Moonlight Greatsword)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. **No separate named Ultimate is granted.** | **Artifact Level 10: Awakening (Moonlight Greatsword)** |
 
 ¹ **Moonlight Shadow Uses:** Moonlight Shadow can be used a number of times per Safe Haven Rest equal to half the wielder's Mastery Rank, rounded up in the player's favor. For example, MR 2 grants 1 use, MR 3 grants 2 uses, MR 4 grants 2 uses, and MR 5 grants 3 uses.
 
@@ -2409,4 +2413,3 @@ All of its power is written into its Level Progression.
 
 
 }}
-

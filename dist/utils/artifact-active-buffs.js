@@ -168,6 +168,7 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
     if (!actor || !artifactItem || !option)
         return false;
     const buffKey = String(option.id || `${artifactItem.id}:${option.name}`);
+    const optionName = String(option.name || '');
     // Already running this exact buff?
     if (isArtifactBuffActive(actor, buffKey)) {
         ui.notifications?.warn(`${option.name} is already active!`);
@@ -178,6 +179,49 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
     if (existing) {
         ui.notifications?.warn(`Cannot activate ${option.name}: ${existing.name || 'Another active buff'} already uses your maintained Active Buff slot.`);
         return false;
+    }
+    // Moonlight Shadow: ceil(MR/2) uses per Safe Haven Rest.
+    const isMoonlightShadow = /moonlight\s*shadow/i.test(optionName);
+    if (isMoonlightShadow) {
+        try {
+            const { assertMoonlightShadowAvailable, spendMoonlightShadowUse, moonlightShadowMaxUses, masteryRankOf, } = await import('../combat/artifact-rest-uses.js');
+            if (!assertMoonlightShadowAvailable(actor)) {
+                const max = moonlightShadowMaxUses(masteryRankOf(actor));
+                ui.notifications?.warn(`Moonlight Shadow: no uses remaining (${max}/Safe Haven Rest = ceil(MR/2)).`);
+                return false;
+            }
+            const spent = await spendMoonlightShadowUse(actor);
+            if (!spent) {
+                ui.notifications?.warn('Moonlight Shadow: use could not be spent.');
+                return false;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Moonlight Shadow use gate failed', err);
+        }
+    }
+    // Titan Growth is Transformation Growth — not Active Buff: Growth Form.
+    const isTitanGrowth = /titan\s*growth/i.test(optionName) ||
+        String(option.artifactRowSpecial || '').toLowerCase().includes('transformation (growth');
+    if (isTitanGrowth) {
+        try {
+            const { activateTitanGrowth } = await import('../combat/transformation-growth.js');
+            const artifactLevel = Math.max(1, Math.floor(Number(option.artifactRowLevel || artifactItem?.system?.currentLevel || 1) || 1));
+            const result = await activateTitanGrowth(actor, artifactLevel);
+            if (!result.ok) {
+                ui.notifications?.warn(result.reason || `${optionName} failed.`);
+                return false;
+            }
+            ui.notifications?.info(result.rank === 0
+                ? `${optionName}: returned to normal size (Growth Bars hidden, state kept).`
+                : `${optionName}: Growth ${result.rank} active.`);
+            return true;
+        }
+        catch (err) {
+            console.error('Mastery System | Titan Growth activation failed', err);
+            ui.notifications?.error(`Failed to activate ${optionName}`);
+            return false;
+        }
     }
     const isGrowth = String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
     const masteryRank = getMasteryRank(actor);
@@ -195,11 +239,46 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
         growthTargetSize = growthTokenSizeForFootprint(footprint);
         growthTokenSizes = await applyGrowthToTokens(actor, growthTargetSize);
     }
-    // Attach the ab-growth-form level mechanics so the aggregator applies the
-    // Growth Form stat package (+Armor, -Evade, -Initiative) like a normal buff.
+    // Catalog-backed artifact Active Buffs (Red Hunt / Red Potion = ab-damage,
+    // Moonlight Shadow = ab-damage-aura, etc.): snapshot live template mechanics
+    // at the staged Power Level (4 / 10 / 16) so reprices apply automatically.
+    const catalogTemplateId = isGrowth
+        ? 'ab-growth-form'
+        : isMoonlightShadow
+            ? 'ab-damage-aura'
+            : String(option.artifactPowerTemplateId || '').trim() || null;
+    const catalogPowerLevel = isGrowth && growthPowerLevel
+        ? growthPowerLevel
+        : catalogTemplateId
+            ? growthPowerLevelFor(option)
+            : 0;
+    let catalogMech = null;
+    if (!isGrowth && catalogTemplateId) {
+        try {
+            const { getTemplate } = await import('./powers/templates/index.js');
+            const tpl = getTemplate(catalogTemplateId);
+            const levels = (tpl?.levels || {});
+            const levelData = levels[String(catalogPowerLevel)] ?? levels[catalogPowerLevel];
+            if (levelData?.mechanics) {
+                catalogMech = levelData.mechanics;
+            }
+        }
+        catch (err) {
+            console.warn(`Mastery System | Artifact Active Buff mechanics load failed (${catalogTemplateId})`, err);
+        }
+    }
+    // Attach level mechanics so the aggregator applies the buff package
+    // (e.g. ab-damage damageRider, Growth Form stats, Damage Aura pulse).
     const mechanicsSnapshot = isGrowth && growthMech
         ? ({ ...growthMech, applyWhen: 'activeBuff-active' })
-        : undefined;
+        : catalogMech
+            ? ({ ...catalogMech, applyWhen: 'activeBuff-active' })
+            : undefined;
+    const effectText = String(option.description || '').trim() ||
+        (catalogTemplateId
+            ? String((ALL_POWER_TEMPLATES.find((t) => t.templateId === catalogTemplateId)
+                ?.levels?.[String(catalogPowerLevel)]?.effect?.text || ''))
+            : '');
     const effectData = {
         name: option.name,
         icon: isGrowth ? 'icons/magic/control/buff-strength-muscle-damage-orange.webp' : 'icons/svg/upgrade.svg',
@@ -210,9 +289,12 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
                 artifactBuffKey: buffKey,
                 artifactItemId: artifactItem.id,
                 powerName: option.name,
-                powerTemplateId: isGrowth ? 'ab-growth-form' : null,
+                powerTemplateId: catalogTemplateId,
                 masteryRank,
                 activatedRound: currentRound,
+                effectiveLevel: catalogPowerLevel || undefined,
+                level: catalogPowerLevel || undefined,
+                effectText: effectText || undefined,
                 isUtility: false,
                 growthForm: isGrowth,
                 growthPowerLevel: growthPowerLevel || undefined,
@@ -221,7 +303,7 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
                 ...(mechanicsSnapshot ? { mechanics: mechanicsSnapshot } : {}),
             },
         },
-        description: option.description || '',
+        description: effectText || option.description || '',
     };
     if (game.combat) {
         effectData.duration = {

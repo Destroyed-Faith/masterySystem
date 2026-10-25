@@ -216,6 +216,9 @@ export function buildArtifactEvolutionCards(actor, opts) {
 }
 /** Attune / bind an artifact — one-time ritual, no Stone reservation, Level 1 is free. */
 export async function linkArtifactForActor(actor, rootWorldId, embeddedId, _stoneAttr) {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor))
+        return false;
     const A = actor;
     if (!A.isOwner)
         return false;
@@ -384,6 +387,9 @@ export async function releaseAllArtifactActivationStones(actor) {
 }
 /** Upgrade an artifact one tree step — costs XP by the new level (unless `gmFree`). */
 export async function upgradeArtifactForActor(actor, rootWorldId, embeddedId, targetWorldItemId, targetNodeId, options = {}) {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor))
+        return false;
     const gmFree = options.gmFree === true;
     if (gmFree && !game.user?.isGM) {
         ui.notifications?.warn('Nur der GM kann Artefakte ohne XP upgraden.');

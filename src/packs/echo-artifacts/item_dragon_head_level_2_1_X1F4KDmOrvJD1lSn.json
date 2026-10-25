@@ -41,14 +41,13 @@
       {
         "level": 1,
         "name": "Breath Weapon I",
-        "type": "Ranged AoE",
+        "type": "Melee AoE",
         "range": "Self",
-        "aoe": "Cone 6m",
+        "aoe": "Damage: radius 3 m / Ruin: radius 3 m",
         "duration": "Instant",
-        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.",
-        "special": "Ruin(4)",
-        "powerTemplateId": "active-ranged-aoe-damage-t4",
-        "chosenSpecialKey": "ruin"
+        "effect": "Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.",
+        "special": "",
+        "powerTemplateId": "active-melee-weapon-aoe"
       },
       {
         "level": 2,
@@ -68,13 +67,18 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "active-ranged-aoe-damage-t4",
-        "delivery": "ranged-aoe",
-        "chosenSpecial": {
-          "key": "ruin",
-          "tier": 4
-        },
-        "displayName": "Breath Weapon"
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "displayName": "Breath Weapon",
+        "stagePowerLevels": [
+          "4",
+          "10",
+          "16"
+        ],
+        "stageEffectTexts": [
+          "Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.",
+          "Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, radius 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.",
+          "Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, radius 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II."
+        ]
       },
       {
         "level": 2,
@@ -97,8 +101,8 @@
         "displayName": "Draconic Recovery"
       }
     ],
-    "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.",
-    "description": "A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.\n\nA Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.",
+    "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.",
+    "description": "A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.\n\nA Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -114,7 +118,6 @@
       {
         "id": "dragonHead-pw-1",
         "name": "Breath Weapon I",
-        "fluff": "Special: Ruin(4)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -158,20 +161,20 @@
             "specials": []
           },
           "4": {
-            "type": "Ranged AoE",
+            "type": "Melee AoE",
             "range": {
               "kind": "self"
             },
             "aoe": {
-              "shape": "cone",
-              "m": 6,
-              "radiusM": 6
+              "shape": "radius",
+              "m": 3,
+              "radiusM": 3
             },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload."
+              "text": "Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter."
             },
             "specials": [],
             "lvl": 1
@@ -565,7 +568,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonHead",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "X1F4KDmOrvJD1lSn",

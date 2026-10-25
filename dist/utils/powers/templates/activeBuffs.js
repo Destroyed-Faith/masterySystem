@@ -23,8 +23,12 @@ const AB_TEMP = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 
 // Active Buff: Healing heals FLAT HP at the start of each turn (4 PP / 1 HP).
 /** R-05: Healing Active Buffs are retired; rows keep this explanatory text and carry no mechanics. */
 const R05_RETIRED_HEALING_BUFF_TEXT = '**Retired (R-05):** ordinary HP healing buffs were removed. Use Scarred Bar Restoration or Passive: Regeneration. Not available at any Power Level.';
-// Active Buff: Damage — +1d8 = 15 PP → +3d8 (L1) … +33d8 (L16).
-const AB_DAMAGE = ['3d8', '5d8', '7d8', '9d8', '11d8', '13d8', '15d8', '17d8', '19d8', '21d8', '23d8', '25d8', '27d8', '29d8', '31d8', '33d8'];
+// Active Buff: Damage — balance correction 2026-10-25: +1d8 per PL at 30 PP / +1d8
+// → +1d8 (L1) … +16d8 (L16). No +5 PP overspend exception. Distinct from Damage Aura.
+const AB_DAMAGE = [
+    '1d8', '2d8', '3d8', '4d8', '5d8', '6d8', '7d8', '8d8',
+    '9d8', '10d8', '11d8', '12d8', '13d8', '14d8', '15d8', '16d8',
+];
 // Active Buff: Penetration — same curve as Armor (Penetration(5) … Penetration(65)).
 const AB_PENETRATION = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
 /** Active Buff: Spell Resistance (+2 per level). */

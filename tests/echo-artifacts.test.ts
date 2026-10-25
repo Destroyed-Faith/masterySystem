@@ -24,7 +24,10 @@ describe('Echo Artifact catalog — shape & coverage', () => {
             expect(typeof def.slot, `${key}.slot`).toBe('string');
             expect(typeof def.baseProfile, `${key}.baseProfile`).toBe('string');
             expect(Array.isArray(def.baseValues), `${key}.baseValues`).toBe(true);
-            expect(def.baseValues.length, `${key}.baseValues.length`).toBeGreaterThanOrEqual(1);
+            // Primal Vestment explicitly has No Base Values (Core).
+            if (key !== 'primalVestment') {
+                expect(def.baseValues.length, `${key}.baseValues.length`).toBeGreaterThanOrEqual(1);
+            }
             expect(Array.isArray(def.levelProgression), `${key}.levelProgression`).toBe(true);
             // Catalog picks can derive rows 1–9; then only the L10 Ultimate needs authoring.
             const pickCount = Object.keys(def.progressionPickSpecs || {}).length;
@@ -115,6 +118,7 @@ describe('Echo Artifact catalog — lookups', () => {
             'predatorCrownMight',
             'predatorCrownWits',
             'predatorCrownIntellect',
+            'primalVestment',
         ]);
     });
 

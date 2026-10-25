@@ -980,6 +980,9 @@ export class TowerWizardDialog extends BaseDialog {
     }
 }
 export async function showTowerWizardDialog(actor, options) {
+    const { assertProgressionEditable } = await import('../../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor))
+        return;
     const echoContext = buildTowerWizardEchoContext(actor);
     if (!echoContext.hasEcho) {
         ui.notifications?.warn('Select your Echo in the Echo dialog before building your combat package.');

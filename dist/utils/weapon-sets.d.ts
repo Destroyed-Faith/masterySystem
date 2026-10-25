@@ -71,6 +71,21 @@ export declare function buildInitialWeaponSets(currentHands: WeaponSetHands): We
 export declare function resolveSwapTarget(active: WeaponSetIndex, requested?: WeaponSetIndex, count?: number): WeaponSetIndex | null;
 export declare function peekWeaponSets(actor: any): WeaponSetsState;
 export declare function persistWeaponSets(actor: any, state: WeaponSetsState): Promise<void>;
+/**
+ * True when the active Weapon Set stores weapons that are not reflected in
+ * hand-slot / equipped state (e.g. two-handed Artifact assigned to both hands
+ * but still sitting in inventory with `equipped: false`).
+ *
+ * Empty active sets do not force-unequip here — that path belongs to Weapon
+ * Swap / explicit stow so a pruned set cannot wipe legitimate gear.
+ */
+export declare function activeWeaponSetNeedsEquipmentSync(actor: any, state?: WeaponSetsState): boolean;
+/**
+ * Re-apply the active set's hands onto items when flags say a weapon is ready
+ * but equipment state drifted (common for two-handed Artifacts and unlinked
+ * token actors that never ran Weapon Swap after a world-actor edit).
+ */
+export declare function reconcileActiveWeaponSetEquipment(actor: any, state?: WeaponSetsState): Promise<boolean>;
 export declare function ensureWeaponSets(actor: any): Promise<WeaponSetsState>;
 export declare function pruneDeletedWeaponSetRefs(actor: any): Promise<WeaponSetsState | null>;
 /** GM: append one empty Weaponslot (III, IV, …). */
@@ -122,6 +137,9 @@ export interface ActiveWeaponProfile {
 /**
  * What Basic Attack rolls right now: the active set's main-hand weapon, or
  * Unarmed 1d8 when that set is empty.
+ *
+ * Uses Weapon Set assignment — not `system.equipped` — so a two-handed
+ * Artifact sitting in inventory but assigned to both hands still resolves.
  */
 export declare function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile;
 /**

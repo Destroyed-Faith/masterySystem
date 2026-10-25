@@ -14,13 +14,40 @@
  * trees. That is exactly what lets the world library and the shipped pack stay
  * in sync with zero drift.
  */
+import type { ArtifactBaseValueType } from '../types/item.js';
 import type { EchoArtifactDefinition } from '../utils/echo-artifacts.js';
 /**
  * Content version of the generated trees. Bump this whenever the generator's
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export declare const ECHO_ARTIFACT_SEED_VERSION = 55;
+/** Bumped 2026-10-25: Breath Bite + Armor Aura Roar + Active Buff Damage rebalance. */
+export declare const ECHO_ARTIFACT_SEED_VERSION = 57;
+/** A single Base Value slot on an echo artifact, with an exact per-level value. */
+interface BaseValueSpec {
+    slot: 'a' | 'b' | 'c';
+    type: ArtifactBaseValueType;
+    label: string;
+    /** Artifact level at which this slot unlocks (a=1, b=4, c=7 per spec). */
+    unlock: number;
+    /** Exact resolved value at the given artifact level. */
+    valueAt: (level: number) => number | string;
+    note?: string;
+    /** Light / Medium / Heavy — `valueAt` returns artifact bonus only; mundane base added at runtime. */
+    armorWeightClass?: 'light' | 'medium' | 'heavy';
+    /** @deprecated Printed per-level Evade on the Armor row — Evade is now its own slot-A Base Value. */
+    evadeModifierAt?: (level: number) => number;
+    /** Printed per-level Initiative drawback override. */
+    initiativeModifierAt?: (level: number) => number;
+}
+/**
+ * Per-echo-artifact Base Value tables. The numbers are the system's canonical
+ * baselines (see `artifact-base-derive.ts` / Artefacts.md). Echo body armor
+ * stores the artifact bonus only; mundane Light/Medium/Heavy base is added at runtime.
+ * Every Artifact Body Armor also stores Final Evade as a second slot-A Base Value.
+ */
+/** Exported for alignment tests / audits — exact per-level Base Value tables. */
+export declare const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]>;
 /** One generated node (artifact item data minus its folder, which is set at seed time). */
 export interface GeneratedArtifactNode {
     nodeId: string;
@@ -52,4 +79,5 @@ export declare function buildEchoArtifactTree(def: EchoArtifactDefinition): Gene
 export declare function buildAllEchoArtifactTrees(): GeneratedArtifactTree[];
 /** Build trees for every General (bound, non-Echo) Artifact in the catalog. */
 export declare function buildAllGeneralArtifactTrees(): GeneratedArtifactTree[];
+export {};
 //# sourceMappingURL=echo-artifact-tree-builder.d.ts.map

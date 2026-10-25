@@ -5,7 +5,7 @@
  * Skills are NOT written here: the legacy fixed-skill ratings are left untouched.
  */
 import { ECHO_IMPRINTS, ECHO_IMPRINT_MIN_ATTRIBUTE, echoImprintTierFromAttribute, } from '../../rules/echo-imprints.js';
-import { SKILL_FIELDS, SKILL_FIELD_LABELS, isSkillField, specializationIdentityKey, } from '../../rules/specializations.js';
+import { PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, isSkillField, specializationIdentityKey, } from '../../rules/specializations.js';
 import { readSpecializations } from '../../rules/specialization-roll.js';
 import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE, startingPackageIsValid, } from '../../progression/v099-rules.js';
 import { TOWER_WIZARD_STARTING_SPECIALIZATIONS, TOWER_WIZARD_STARTING_STONES, resolveWizardMasteryRank, wizardStoneCap, } from './tower-wizard-validation.js';
@@ -92,7 +92,7 @@ export function buildWizardSpecRows(selection) {
             field,
             scope: spec?.scope ?? '',
             rank: 2,
-            fieldOptions: SKILL_FIELDS.map((f) => ({
+            fieldOptions: PAID_SKILL_FIELDS.map((f) => ({
                 value: f,
                 label: SKILL_FIELD_LABELS[f],
                 selected: f === field,
@@ -108,7 +108,8 @@ export function specRecordsFromDraft(rows) {
         const scope = String(row.scope ?? '').trim();
         if (!name && !scope)
             continue;
-        const field = isSkillField(row.field) ? row.field : 'physical';
+        const rawField = String(row.field ?? '');
+        const field = isSkillField(rawField) && rawField !== 'perception' ? rawField : 'physical';
         out.push({ id: specializationIdentityKey(name, field), name, field, scope, rank: 2 });
     }
     return out;

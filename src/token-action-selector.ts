@@ -1711,6 +1711,32 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   // Check if this is a utility option
   const isUtility = option.slot === 'utility';
   if (isUtility) {
+    // Titan Growth / Transformation — self activate, no targeting.
+    const isTransformation =
+      (option.tags || []).includes('transformation') ||
+      /titan\s*growth/i.test(String(option.name || '')) ||
+      /transformation/i.test(String(option.artifactRowSpecial || ''));
+    if (isTransformation && option.item) {
+      if (option.costsAction) {
+        const atkAvail = getAvailableAttackActions(actor, combat);
+        if (atkAvail <= 0) {
+          ui.notifications?.warn('No Actions left this round.');
+          return;
+        }
+      }
+      closeRadialMenu();
+      try {
+        const { activateArtifactActiveBuff } = await import('./utils/artifact-active-buffs.js');
+        const ok = await activateArtifactActiveBuff(actor, option.item, option);
+        if (ok && option.costsAction && combat) {
+          const { consumeAttackAction } = await import('./combat/action-economy.js');
+          await consumeAttackAction(actor, combat);
+        }
+      } catch (err) {
+        console.warn('Mastery System | Transformation activation failed', err);
+      }
+      return;
+    }
     if (option.costsAction) {
       const atkAvail = getAvailableAttackActions(actor, combat);
       if (atkAvail <= 0) {

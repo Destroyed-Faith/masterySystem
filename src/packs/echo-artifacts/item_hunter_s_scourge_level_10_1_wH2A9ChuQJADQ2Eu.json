@@ -68,12 +68,12 @@
       },
       {
         "level": 10,
-        "name": "True Hunter's Scourge",
-        "type": "Artifact Ultimate",
-        "range": "As defined",
-        "duration": "As defined",
-        "effect": "Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded.",
-        "special": "Artifact Ultimate: GM-Defined Hunter's Scourge Effect"
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Hunter's Scourge)"
       }
     ],
     "stoneFunction": null,
@@ -746,8 +746,8 @@
       },
       {
         "id": "huntersScourge-pw-10",
-        "name": "True Hunter's Scourge",
-        "fluff": "Special: Artifact Ultimate: GM-Defined Hunter's Scourge Effect",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Hunter's Scourge)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -935,18 +935,17 @@
             "specials": []
           },
           "16": {
-            "type": "Artifact Ultimate",
+            "type": "Artifact Function",
             "range": {
-              "kind": "self",
-              "note": "As defined"
+              "kind": "self"
             },
             "aoe": null,
             "duration": {
               "kind": "instant",
-              "note": "As defined"
+              "note": "Special"
             },
             "effect": {
-              "text": "Define the complete final effect with the GM. Unavailable until its full profile and Technical Reference are recorded."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -988,7 +987,7 @@
       "childIds": [],
       "echoBound": "unbound",
       "echoArtifactKey": "huntersScourge",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "wH2A9ChuQJADQ2Eu",

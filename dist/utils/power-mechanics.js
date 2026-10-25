@@ -493,6 +493,19 @@ export function collectMechanicsContributions(actor) {
                 const powerItem = findPowerItemOnActor(actor, flags.powerId);
                 mech = resolvePowerMechanics(powerItem);
             }
+            // Artifact Active Buffs (Red Hunt / Red Potion / …) may only stamp
+            // powerTemplateId + level — resolve from the live catalog so template
+            // reprices (e.g. Active Buff: Damage 2026-10-25) apply without resync.
+            if (!mech && flags.powerTemplateId) {
+                const tid = String(flags.powerTemplateId).trim();
+                const plRaw = Number(flags.effectiveLevel ?? flags.level ?? flags.growthPowerLevel ?? 0);
+                const pl = Math.max(1, Math.min(16, Number.isFinite(plRaw) && plRaw > 0 ? Math.floor(plRaw) : 4));
+                const def = ALL_POWER_TEMPLATES.find((t) => t?.templateId === tid);
+                const row = def?.levels?.[String(pl)];
+                if (row?.mechanics && typeof row.mechanics === 'object') {
+                    mech = row.mechanics;
+                }
+            }
             if (!mech) {
                 continue;
             }

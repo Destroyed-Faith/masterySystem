@@ -27,12 +27,15 @@ function clampArtifactLevel(level: number): number {
   return Math.max(1, Math.min(10, Math.floor(Number(level) || 1)));
 }
 
-/** Level-10 capstone rows (e.g. True Dragon Head) — not a fourth staged slot. */
+/** Level-10 capstone rows (Awakening / legacy True … Ultimate) — not a fourth staged slot. */
 export function isUltimateProgressionRow(row: ArtifactLevelProgressionRow): boolean {
   if (Number(row.level) !== 10) return false;
   const type = String(row.type || '').toLowerCase();
+  const name = String(row.name || '').trim();
   if (type === 'ultimate') return true;
-  return /^true\b/i.test(String(row.name || '').trim());
+  if (/artifact\s*function/i.test(type) && /awakening/i.test(name)) return true;
+  if (/^artifact\s+awakening\b/i.test(name)) return true;
+  return /^true\b/i.test(name);
 }
 
 /** Which of the three standard pick slots a staged row belongs to (0..2). */

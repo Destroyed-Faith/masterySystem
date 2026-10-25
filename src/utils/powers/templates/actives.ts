@@ -634,6 +634,11 @@ function buildActiveTemplates(): PowerTemplate[] {
     targetedSpecialAoeAttackTemplate('melee'),
     targetedSpecialAoeAttackTemplate('ranged'),
 
+    // HP Single-Target Heal (docs/Rules/actives.md — still printed; Artifact
+    // Technical References such as Moonlight Mending require these ids).
+    singleTargetHealTemplate('melee'),
+    singleTargetHealTemplate('ranged'),
+
     // Support leftovers + Mental Powers (Rules/actives.md 2026-07)
     healthLevelHealTemplate('melee'),
     healthLevelHealTemplate('ranged'),
@@ -1051,6 +1056,44 @@ function autofireWeaponAttackTemplate(): PowerTemplate {
                 mechanics: p.dice === 0
                     ? { applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } }
                     : { damageRider: { flat: diceText }, applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } },
+            });
+        }),
+    };
+}
+
+// ─── Single-Target HP Heal (docs/Rules/actives.md) ─────────────────────────
+/** Printed Healing Dice for Melee / Ranged Single Target Heal PL 1–16. */
+const ST_HEAL_DICE = [1, 2, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 19, 20] as const;
+
+function singleTargetHealTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    return {
+        templateId: isRanged ? 'active-ranged-single-heal' : 'active-melee-single-heal',
+        templateName: isRanged ? 'Ranged Single Target Heal' : 'Melee Single Target Heal',
+        name: isRanged ? 'Ranged Single Target Heal' : 'Melee Single Target Heal',
+        subfamily: 'support-heal',
+        category: 'active',
+        tags: [],
+        fluff: isRanged
+            ? 'A ranged Active that restores only HP to one creature. It does not restore Scarred Health Bars.'
+            : 'A melee Active that restores only HP to one creature. It does not restore Scarred Health Bars.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const dice = ST_HEAL_DICE[lvl - 1]!;
+            const formula = `${dice}d8`;
+            return activeRow({
+                type: isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl) : { kind: 'touch' },
+                aoe: R_NONE,
+                effectText: `Heal one creature for **${formula} HP** in its current Health Bar; does not restore Scarred Health Bars.`,
+                dice: formula,
+                specials: [],
+                mechanics: {
+                    applyWhen: 'manual',
+                    duration: 'instant',
+                    healing: { flat: formula, target: 'ally' },
+                },
             });
         }),
     };

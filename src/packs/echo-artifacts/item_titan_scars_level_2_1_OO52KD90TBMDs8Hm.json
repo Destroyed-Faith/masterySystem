@@ -36,13 +36,12 @@
       {
         "level": 1,
         "name": "Titan Growth I",
-        "type": "Active Buff",
+        "type": "Transformation",
         "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+4d8 Damage** and **+8 Armor**. **Large Form** (3 hexes, +2 m Reach). Drawback: **-4 Evade**, **-4 Initiative**.",
-        "special": "",
-        "powerTemplateId": "ab-growth-form"
+        "aoe": "7 occupied Hexes",
+        "duration": "Unlimited",
+        "effect": "You may assume **Growth 1** using the universal Transformation rules. Grants one additional 0-penalty Growth Health Bar and +2 m Melee Reach; reduces Push/Pull by **1 × MR m**. Uses: Mastery Rank times per Safe Haven Rest.",
+        "special": "Artifact Function: Transformation (Growth 1)"
       },
       {
         "level": 2,
@@ -60,9 +59,39 @@
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "power",
-        "powerTemplateId": "ab-growth-form",
-        "displayName": "Titan Growth"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Titan Growth I",
+            "type": "Transformation",
+            "range": "Self",
+            "aoe": "7 occupied Hexes",
+            "duration": "Unlimited",
+            "effect": "You may assume **Growth 1** using the universal Transformation rules. Grants one additional 0-penalty Growth Health Bar and +2 m Melee Reach; reduces Push/Pull by **1 × MR m**. Uses: Mastery Rank times per Safe Haven Rest.",
+            "special": "Artifact Function: Transformation (Growth 1)"
+          },
+          {
+            "level": 4,
+            "name": "Titan Growth II",
+            "type": "Transformation",
+            "range": "Self",
+            "aoe": "19 occupied Hexes",
+            "duration": "Unlimited",
+            "effect": "You may assume **Growth 2**. Grants two 0-penalty Growth Health Bars and +4 m Melee Reach; reduces Push/Pull by **2 × MR m**. Physical Ranged and Spell Range are doubled once. Replaces Growth I.",
+            "special": "Artifact Function: Transformation (Growth 2)"
+          },
+          {
+            "level": 7,
+            "name": "Titan Growth III",
+            "type": "Transformation",
+            "range": "Self",
+            "aoe": "37 occupied Hexes",
+            "duration": "Unlimited",
+            "effect": "You may assume **Growth 3**. Grants three 0-penalty Growth Health Bars and +6 m Melee Reach; reduces Push/Pull by **3 × MR m**. Physical Ranged and Spell Range remain doubled once. Replaces Growth II.",
+            "special": "Artifact Function: Transformation (Growth 3)"
+          }
+        ]
       },
       {
         "level": 2,
@@ -70,7 +99,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "might",
-          "stonePowerId": "might.meleeDamage"
+          "stonePowerId": "might.meleeDamage",
+          "supportStages": [
+            2,
+            5,
+            8
+          ]
         },
         "displayName": "Titan Might"
       },
@@ -80,7 +114,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "vitality",
-          "stonePowerId": "vitality.removeScar"
+          "stonePowerId": "vitality.removeScar",
+          "supportStages": [
+            3,
+            6,
+            9
+          ]
         },
         "displayName": "Titan Healing"
       }
@@ -102,10 +141,11 @@
       {
         "id": "titanScars-pw-1",
         "name": "Titan Growth I",
-        "category": "activeBuff",
+        "fluff": "Special: Artifact Function: Transformation (Growth 1)",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -145,17 +185,20 @@
             "specials": []
           },
           "4": {
-            "type": "Active Buff",
+            "type": "Transformation",
             "range": {
               "kind": "self"
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "note": "7 occupied Hexes"
+            },
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant",
+              "note": "Unlimited"
             },
             "effect": {
-              "text": "Gain **+4d8 Damage** and **+8 Armor**. **Large Form** (3 hexes, +2 m Reach). Drawback: **-4 Evade**, **-4 Initiative**."
+              "text": "You may assume **Growth 1** using the universal Transformation rules. Grants one additional 0-penalty Growth Health Bar and +2 m Melee Reach; reduces Push/Pull by **1 × MR m**. Uses: Mastery Rank times per Safe Haven Rest."
             },
             "specials": [],
             "lvl": 1
@@ -538,7 +581,7 @@
       ],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScars",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "OO52KD90TBMDs8Hm",

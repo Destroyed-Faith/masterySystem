@@ -101,7 +101,7 @@ export function planThreatZoneWindows(move, reactors, grid = GRID) {
     });
     return { windows, movementEvent };
 }
-/** Melee Reach used for the Threat Zone: stored reach, else 2 m, plus Growth Form. */
+/** Melee Reach used for the Threat Zone: stored reach, else 2 m, plus Growth Form / Transformation Growth. */
 export function currentMeleeReachMeters(actor) {
     const stored = Number(actor?.system?.combat?.meleeReachMeters);
     const base = Number.isFinite(stored) && stored > 0 ? stored : 2;
@@ -117,6 +117,20 @@ export function currentMeleeReachMeters(actor) {
             const gf = effect?.flags?.['mastery-system']?.mechanics?.growthForm;
             bonus = Math.max(bonus, Math.max(0, Number(gf?.reachBonusM) || 0));
         }
+    }
+    catch {
+        /* ignore */
+    }
+    // Transformation Growth (Titan Scars): +2 m Reach per Growth rank.
+    try {
+        let rank = 0;
+        const fromFlag = actor?.getFlag?.('mastery-system', 'transformationGrowth');
+        if (fromFlag != null)
+            rank = Math.floor(Number(fromFlag?.rank ?? fromFlag) || 0);
+        else
+            rank = Math.floor(Number(actor?.flags?.['mastery-system']?.transformationGrowth?.rank) || 0);
+        const reachBonus = rank >= 3 ? 6 : rank >= 2 ? 4 : rank >= 1 ? 2 : 0;
+        bonus = Math.max(bonus, reachBonus);
     }
     catch {
         /* ignore */

@@ -6,8 +6,8 @@
  * anchors, special curves, healing, ranges, radii, etc.) only changed the
  * *templates*. Power items bake their `levels` table at creation time, so any
  * character that owned a power before a template change still carries the old
- * baked values (e.g. Active Buff: Damage showing +1d8/+2d8/+3d8… instead of
- * +3d8/+5d8/…/+33d8).
+ * baked values (e.g. Active Buff: Damage showing legacy +3d8/+5d8/…/+33d8 instead of
+ * the 2026-10-25 curve +1d8/+2d8/…/+16d8).
  *
  * This migration refreshes those baked tables from the canonical templates while
  * preserving each item's rank, chosen Special and Spell flags. It is:

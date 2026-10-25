@@ -74,12 +74,12 @@
       },
       {
         "level": 10,
-        "name": "True Stonebound Soles",
-        "type": "Ultimate",
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
         "range": "Self",
         "duration": "Special",
-        "effect": "Stonebound Soles fully awaken. Choose or define one final Tremorsense, Armor, Immovable, Safe Movement, or stone defense effect with GM approval.",
-        "special": "True Stonebound Soles"
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Stonebound Soles)"
       }
     ],
     "stoneFunction": null,
@@ -740,8 +740,8 @@
       },
       {
         "id": "stoneboundSoles-pw-10",
-        "name": "True Stonebound Soles",
-        "fluff": "Special: True Stonebound Soles",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Stonebound Soles)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -929,7 +929,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },
@@ -939,7 +939,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "Stonebound Soles fully awaken. Choose or define one final Tremorsense, Armor, Immovable, Safe Movement, or stone defense effect with GM approval."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -961,7 +961,7 @@
       "childIds": [],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "OlYUKC9NxcLCu0Ll",

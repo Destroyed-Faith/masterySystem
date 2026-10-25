@@ -439,6 +439,9 @@ export function getAttackAttribute(
   option: RadialCombatOption,
   attackType: "melee" | "ranged"
 ): string {
+  if (option.attackAttributeOverride === 'might' || option.attackAttributeOverride === 'agility') {
+    return option.attackAttributeOverride;
+  }
   const resolvedWeapon = resolveWeaponForAttribute(actor, weapon, option, attackType);
   const attributeOverride = attackAttributeOverrideFromWeapon(resolvedWeapon);
   if (option.storedAttackPool?.attribute) {
@@ -526,8 +529,12 @@ export async function createAttackCard(
   aoeMelee: AoeMeleeWeaponContext | null = null,
 ): Promise<string | null> {
   // Instant AoE: Power damage only. Never Weapon Damage; never Spell Focus
-  // (the damage dialog also skips both when the aoeMeleeWeapon/instantAoe flag is set).
-  if (aoeMelee && option.ignoreWeaponDamage !== true) {
+  // — except Dragon Head Damage Breath (Core: Bite + Power Dice on shared pool).
+  if (
+    aoeMelee &&
+    option.ignoreWeaponDamage !== true &&
+    option.dragonHeadDamageBreath !== true
+  ) {
     option = { ...option, ignoreWeaponDamage: true };
   }
 
@@ -567,6 +574,103 @@ export async function createAttackCard(
       hasTarget: !!target
     });
     return null;
+  }
+
+  // Artifact Safe Haven / Combat use gates (Judgment Limited, Dragon Breath once/combat).
+  try {
+    const optionName = String(option.name || '');
+    const artifactLevel = Math.max(
+      1,
+      Math.floor(
+        Number(
+          (option as any).artifactRowLevel ||
+            (option.item as any)?.system?.currentLevel ||
+            1,
+        ) || 1,
+      ),
+    );
+    if (/moonlight\s*judgment/i.test(optionName)) {
+      const {
+        assertMoonlightJudgmentAvailable,
+        spendMoonlightJudgmentUse,
+        moonlightJudgmentMaxUses,
+      } = await import('./artifact-rest-uses.js');
+      if (!assertMoonlightJudgmentAvailable(attacker, artifactLevel)) {
+        const max = moonlightJudgmentMaxUses(artifactLevel);
+        ui.notifications?.warn(
+          `Moonlight Judgment: no uses remaining (${max}/Safe Haven Rest).`,
+        );
+        return null;
+      }
+      const spent = await spendMoonlightJudgmentUse(attacker, artifactLevel);
+      if (!spent) {
+        ui.notifications?.warn('Moonlight Judgment: use could not be spent.');
+        return null;
+      }
+      (option as any).artifactLimited = true;
+      (option as any).ignoreWeaponDamage = true;
+    } else if (
+      /breath\s*weapon/i.test(optionName) ||
+      /damage\s*breath/i.test(optionName) ||
+      /ruin\s*breath/i.test(optionName) ||
+      option.dragonHeadBreathMode === 'damage' ||
+      option.dragonHeadBreathMode === 'ruin'
+    ) {
+      const { assertDragonBreathAvailable, spendDragonBreathUse } = await import(
+        './artifact-rest-uses.js'
+      );
+      const gate = assertDragonBreathAvailable(attacker);
+      if (!gate.ok) {
+        ui.notifications?.warn(
+          gate.reason === 'combat'
+            ? 'Breath Weapon: already used this Combat (shared Damage/Ruin limit).'
+            : 'Breath Weapon: no Safe Haven Rest uses remaining.',
+        );
+        return null;
+      }
+      const spent = await spendDragonBreathUse(attacker);
+      if (!spent) {
+        ui.notifications?.warn('Breath Weapon: use could not be spent.');
+        return null;
+      }
+      const mode =
+        option.dragonHeadBreathMode ||
+        (/ruin\s*breath/i.test(optionName) ? 'ruin' : 'damage');
+      if (mode === 'ruin') {
+        option = { ...option, ignoreWeaponDamage: true, dragonHeadDamageBreath: false };
+      } else {
+        // Damage Breath: keep Bite on the shared Instant AoE pool.
+        option = {
+          ...option,
+          ignoreWeaponDamage: false,
+          dragonHeadDamageBreath: true,
+          dragonHeadBreathMode: 'damage',
+        };
+      }
+      // Might or Agility — choose before the Attack Roll; never combine pools.
+      if (!option.attackAttributeOverride && !option.storedAttackPool?.attribute) {
+        const Dialog = (globalThis as any).Dialog;
+        let attr: 'might' | 'agility' = 'might';
+        if (Dialog?.wait) {
+          const choice = await Dialog.wait({
+            title: 'Breath Weapon — Attack Attribute',
+            content:
+              '<p>Choose <strong>Might</strong> or <strong>Agility</strong> for this Breath Attack Roll. Do not combine Attribute Pools.</p>',
+            buttons: {
+              might: { label: 'Might', callback: () => 'might' },
+              agility: { label: 'Agility', callback: () => 'agility' },
+            },
+            default: 'might',
+            close: () => null,
+          });
+          if (choice !== 'might' && choice !== 'agility') return null;
+          attr = choice;
+        }
+        option = { ...option, attackAttributeOverride: attr };
+      }
+    }
+  } catch (err) {
+    console.warn('Mastery System | Artifact use gate failed', err);
   }
 
   try {
@@ -993,11 +1097,15 @@ export async function createAttackCard(
     selectedPowerDamage: selectedPowerDamage || "",
     consumableItemId: option.consumableItemId || null,
     ignoreWeaponDamage: option.ignoreWeaponDamage === true || tnKind === 'casting',
+    dragonHeadDamageBreath: option.dragonHeadDamageBreath === true || undefined,
     damageTransfer:
       isDamageTransferTemplateId((option as any).artifactPowerTemplateId) ||
       (option.source === 'power' &&
         (isDamageTransferPower(option.item) || resolvePowerMechanics(option.item)?.damageTransfer === true)),
-    limited: (option.item as any)?.system?.limited === true || undefined,
+    limited:
+      (option as any).artifactLimited === true ||
+      (option.item as any)?.system?.limited === true ||
+      undefined,
     // Split-attack bookkeeping (both strikes share pairId for "Strike N of 2"
     // labels). Damage is full per successful strike — only the attack pool is split.
     splitAttack: !!split,

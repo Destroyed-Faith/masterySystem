@@ -28,6 +28,31 @@ export function isUnlinkedTokenActor(actor) {
         return true;
     return false;
 }
+/** True when the current user is a GM (Foundry `game.user.isGM`). */
+export function isCurrentUserGm() {
+    try {
+        return !!globalThis.game?.user?.isGM;
+    }
+    catch {
+        return false;
+    }
+}
+/**
+ * Permanent progression edits are blocked on unlinked token sheets for players.
+ * GMs may still edit (Dispatch/test tokens are throwaway). Combat stays editable for everyone.
+ * Returns false after a warning when locked.
+ */
+export function assertProgressionEditable(actor, opts) {
+    if (!isUnlinkedTokenActor(actor))
+        return true;
+    if (isCurrentUserGm())
+        return true;
+    if (!opts?.silent) {
+        const ui = globalThis.ui;
+        ui?.notifications?.warn?.(localize('MASTERY.sheetIdentity.progressionLocked', 'Progression is locked on this unlinked token. Open the original character to buy powers, assign stones, or spend XP.'));
+    }
+    return false;
+}
 /** World Actor that seeded this unlinked token, or null. */
 export function resolveOriginalActorFromTokenActor(actor) {
     if (!isUnlinkedTokenActor(actor))
@@ -63,9 +88,12 @@ export function buildActorSheetIdentityContext(actor) {
     if (isUnlinkedTokenActor(actor)) {
         const original = resolveOriginalActorFromTokenActor(actor);
         const canOpen = !!original && userCanViewActor(original);
+        const gm = isCurrentUserGm();
         return {
             kind: 'unlinked-token',
             isUnlinkedToken: true,
+            // Players locked; GM keeps progression controls for throwaway Dispatch tests.
+            progressionLocked: !gm,
             showOriginalBadge: false,
             originalActorId: original ? String(original.id) : null,
             originalActorName: original ? String(original.name || '') : null,
@@ -75,6 +103,7 @@ export function buildActorSheetIdentityContext(actor) {
     return {
         kind: 'original',
         isUnlinkedToken: false,
+        progressionLocked: false,
         showOriginalBadge: true,
         originalActorId: actor?.id ? String(actor.id) : null,
         originalActorName: actor?.name ? String(actor.name) : null,

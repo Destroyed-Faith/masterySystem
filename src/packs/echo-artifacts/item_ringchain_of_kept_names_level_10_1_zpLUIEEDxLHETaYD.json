@@ -47,12 +47,12 @@
       },
       {
         "level": 10,
-        "name": "True Ringchain of Kept Names",
-        "type": "Ultimate",
-        "range": "As defined",
-        "duration": "As defined",
-        "effect": "Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded.",
-        "special": "Artifact Ultimate: GM-Defined Ringchain Effect"
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Ringchain of Kept Names)"
       }
     ],
     "stoneFunction": null,
@@ -824,8 +824,8 @@
       },
       {
         "id": "ringchainOfKeptNames-pw-10",
-        "name": "True Ringchain of Kept Names",
-        "fluff": "Special: Artifact Ultimate: GM-Defined Ringchain Effect",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Ringchain of Kept Names)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -1013,18 +1013,17 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
-              "kind": "self",
-              "note": "As defined"
+              "kind": "self"
             },
             "aoe": null,
             "duration": {
               "kind": "instant",
-              "note": "As defined"
+              "note": "Special"
             },
             "effect": {
-              "text": "Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -1047,7 +1046,7 @@
       "childIds": [],
       "echoBound": "halflings",
       "echoArtifactKey": "ringchainOfKeptNames",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "zpLUIEEDxLHETaYD",

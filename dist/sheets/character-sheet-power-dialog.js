@@ -27,6 +27,9 @@ import { creationBaselineRank } from '../utils/power-xp-refund.js';
  * Show the template-based Power picker.
  */
 export async function showPowerCreationDialog(actor, options) {
+    const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor))
+        return;
     const system = actor.system;
     const creationComplete = system?.creation?.complete !== false;
     if (!creationComplete) {

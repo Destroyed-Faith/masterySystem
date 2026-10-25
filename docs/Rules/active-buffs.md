@@ -161,7 +161,7 @@ No standard Active Buff grants **Attack Dice, additional Attack Actions, additio
 
 **Named offensive defense bypasses.** Active Buff: Armor Reduction, Enemy Evade Reduction, and Spell Resistance Piercing are dedicated, one-axis exceptions that adjust only the defense component stated in their own entries. They grant no Attack Dice, do not apply a Special, and do not create generic Penetration or modify an unrelated defense.
 
-**Approved exception:** Active Buff: Damage may exceed its PP target by **5 PP** across its printed progression. Closed premium subsystems retain their printed milestone progressions even when not filling every PP tier. A table entry marked **Unavailable** grants nothing and cannot be purchased, selected, activated or received at that Power Level.
+Closed premium subsystems retain their printed milestone progressions even when not filling every PP tier. A table entry marked **Unavailable** grants nothing and cannot be purchased, selected, activated or received at that Power Level.
 
 ### Critical and Invisibility
 
@@ -603,7 +603,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   Active Buff: Damage
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      Pure offensive damage axis, +1d8 = 15 PP. The approved +5 PP budget allowance applies to each printed Level. No additional Attack Dice or Specials.<br>
+      Pure offensive damage axis. Balance correction 2026-10-25: +1d8 damage per Power Level at 30 PP per +1d8 (PL4 = +4d8, PL10 = +10d8, PL16 = +16d8). No +5 PP overspend exception. No additional Attack Dice or Specials.<br>
       Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
@@ -614,22 +614,22 @@ Your legal damaging **attacks** gain the listed additional d8. This does not gra
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+3d8 damage**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+5d8 damage**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+7d8 damage**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+9d8 damage**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+11d8 damage**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+13d8 damage**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+15d8 damage**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+17d8 damage**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+19d8 damage**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+21d8 damage**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+23d8 damage**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+25d8 damage**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+27d8 damage**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+29d8 damage**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+31d8 damage**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+33d8 damage**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+1d8 damage**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+2d8 damage**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+3d8 damage**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+4d8 damage**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+5d8 damage**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+6d8 damage**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+7d8 damage**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+8d8 damage**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+9d8 damage**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+10d8 damage**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+11d8 damage**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+12d8 damage**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+13d8 damage**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+14d8 damage**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+15d8 damage**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+16d8 damage**. |
 
 }}
 \page

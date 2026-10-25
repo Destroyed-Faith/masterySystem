@@ -11,6 +11,9 @@ function isCreationMode(actor) {
     return actor.system?.creation?.complete === false;
 }
 export async function applyTowerWizardPackage(actor, selection, options) {
+    const { assertProgressionEditable } = await import('../../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor))
+        return false;
     const actorMr = Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 2));
     const err = validatePackageSpecs(selection, { masteryRank: actorMr });
     if (err) {

@@ -14,7 +14,7 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { listAvailableMaximizationSources, remainingMaximizations, } from '../stones/stone-combat-effects.js';
 import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
-import { applyLimitedToTransferPowerDamage, isInstantAoeFlags, martialWeaponDamageApplies, settleDamageTransfer, spellFocusDamageApplies, } from '../combat/damage-transfer.js';
+import { applyLimitedPowerDamage, applyLimitedToTransferPowerDamage, isInstantAoeFlags, martialWeaponDamageApplies, settleDamageTransfer, spellFocusDamageApplies, } from '../combat/damage-transfer.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
 import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
@@ -392,7 +392,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             ignoreWeaponDamage: flags?.ignoreWeaponDamage === true,
             powerIsSpell: flags?.powerIsSpell === true,
             npcIsSpell: flags?.npcIsSpell === true,
-            // Instant AoE: Power damage only — never Weapon Damage.
+            // Instant AoE: Power damage only — never Weapon Damage,
+            // except Dragon Head Damage Breath (Bite + Power Dice).
+            dragonHeadDamageBreath: flags?.dragonHeadDamageBreath === true,
             aoeMeleeWeapon: flags?.aoeMeleeWeapon,
             instantAoe: flags?.instantAoe,
         });
@@ -577,10 +579,16 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 }
                 powerSpecials = powerSystem.specials || [];
             }
+            const limitedFlag = flags?.limited === true || powerSystem?.limited === true;
+            const isTransfer = flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true;
             powerDamage = applyLimitedToTransferPowerDamage(powerDamage, {
-                damageTransfer: flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true,
-                limited: flags?.limited === true || powerSystem?.limited === true,
+                damageTransfer: isTransfer,
+                limited: limitedFlag,
             });
+            // Non-transfer Limited Instant Actives (e.g. Moonlight Judgment AoE Spell).
+            if (limitedFlag && !isTransfer) {
+                powerDamage = applyLimitedPowerDamage(powerDamage, { limited: true });
+            }
             selectedPowerData = {
                 id: selectedPower.id,
                 name: selectedPower.name,
@@ -830,7 +838,25 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         ? listActorSpellFocusSources(actorToUse)
         : [];
     // Create damage card as chat message instead of dialog
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
+        let npcMaximizationUi = null;
+        if (isNpcAttackFlow && actorToUse) {
+            try {
+                const { getNpcMaximizationUiState } = await import('../combat/npc-maximization.js');
+                const attackIndex = Math.max(0, Math.floor(Number(flags?.npcAttackIndex) || 0));
+                const phaseRaw = flags?.npcPhaseIndex;
+                const phaseIndex = phaseRaw === undefined || phaseRaw === null || phaseRaw === ''
+                    ? null
+                    : Math.floor(Number(phaseRaw));
+                const ui = getNpcMaximizationUiState(actorToUse, { attackIndex, phaseIndex });
+                if (ui) {
+                    npcMaximizationUi = { ...ui, attackIndex, phaseIndex };
+                }
+            }
+            catch (err) {
+                console.warn('Mastery System | NPC Maximization UI state failed', err);
+            }
+        }
         const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue, {
             // Keep Power line free of Focus dice when the Focus row is shown.
             power: shownPowerDamage || powerDamageBeforeFocus,
@@ -843,7 +869,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             spellFocusDice: spellFocusBonusDice,
             weaponName: weaponDisplayName,
             spellFocusSources,
-            castingNoWeapon: !!flags?.ignoreWeaponDamage || isInstantAoeFlags(flags),
+            castingNoWeapon: !!flags?.ignoreWeaponDamage ||
+                (isInstantAoeFlags(flags) && flags?.dragonHeadDamageBreath !== true),
         }, formatSplitStrikeBanner(flags), {
             slots: raiseAllocSlots,
             options: raiseAllocOptions,
@@ -852,7 +879,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             masteryRank: actorToUse
                 ? getRulesMasteryRank(actorToUse)
                 : Math.max(1, Math.floor(Number(flags?.masteryRank) || 2)),
-        });
+        }, npcMaximizationUi);
         const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
         const chatData = {
             user: game.user?.id,
@@ -931,7 +958,9 @@ function formatSplitStrikeBanner(flags) {
     const title = powerName || `${attackKind} Split Attack`;
     return `${title} — Strike ${idx} of 2`;
 }
-function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}, splitBanner = '', raiseAlloc = {}) {
+function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}, splitBanner = '', raiseAlloc = {}, 
+/** NPC shared-pool Maximization (overrides player stone/passive/buff UI when set). */
+npcMaximizationUi = null) {
     const allocPanel = buildRaiseAllocPanelHtml(Math.max(0, Math.floor(Number(raiseAlloc.slots) || 0)), Array.isArray(raiseAlloc.options) ? raiseAlloc.options : [], Array.isArray(raiseAlloc.preset) ? raiseAlloc.preset : [], !!raiseAlloc.locked, Math.max(1, Math.floor(Number(raiseAlloc.masteryRank) || 2)));
     const raisesSection = [
         raiseOutcomeLine
@@ -1049,6 +1078,14 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
           <i class="fas fa-dice"></i> Roll
         </button>
         ${(() => {
+        if (npcMaximizationUi) {
+            if (!npcMaximizationUi.canSpend || npcMaximizationUi.remaining <= 0)
+                return '';
+            const pi = npcMaximizationUi.phaseIndex == null ? '' : String(npcMaximizationUi.phaseIndex);
+            return `<span class="max-source-hint">${damageCardHtmlEsc(npcMaximizationUi.label)}</span><button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" data-max-source="npc" data-npc-attack-index="${npcMaximizationUi.attackIndex}" data-npc-phase-index="${pi}" title="Spend 1 NPC Maximization (${npcMaximizationUi.remaining} left). Every d8 becomes 8 (artificial, not natural).">
+          <i class="fas fa-arrow-up"></i> Roll Maximum
+        </button>`;
+        }
         const maxLeft = remainingMaximizations(attacker);
         if (maxLeft <= 0)
             return '';
@@ -1301,8 +1338,22 @@ export function attachDamageCardHandlers(messageId) {
             const deferredMaximization = wantMax
                 ? async () => {
                     try {
+                        if (maxSourceRawForRoll === 'npc') {
+                            const { spendNpcMaximization } = await import('../combat/npc-maximization.js');
+                            const attackIndex = Math.max(0, Math.floor(Number($btn.attr('data-npc-attack-index') ??
+                                flags.npcAttackIndex ??
+                                0) || 0));
+                            const phaseRaw = $btn.attr('data-npc-phase-index') ??
+                                (flags.npcPhaseIndex != null ? String(flags.npcPhaseIndex) : '');
+                            const phaseIndex = phaseRaw === '' || phaseRaw == null
+                                ? null
+                                : Math.floor(Number(phaseRaw));
+                            return await spendNpcMaximization(attacker, { attackIndex, phaseIndex });
+                        }
                         const { spendMaximization } = await import('../stones/stone-combat-effects.js');
-                        const src = maxSourceRawForRoll === 'stone' || maxSourceRawForRoll === 'passive'
+                        const src = maxSourceRawForRoll === 'stone' ||
+                            maxSourceRawForRoll === 'passive' ||
+                            maxSourceRawForRoll === 'activeBuff'
                             ? maxSourceRawForRoll
                             : null;
                         return await spendMaximization(attacker, src);

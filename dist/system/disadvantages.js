@@ -43,6 +43,13 @@ export const DISADVANTAGES = [
         effect: 'Trigger: Wounds ≥ Vitality → Resolve k1 TN 8 or Berserk (1d8/2 rounds). Berserk: +1k1 damage, must attack nearest. Each round: Resolve k1 TN 8 to end.'
     },
     {
+        id: 'primal-rage',
+        name: 'Primal Rage',
+        basePoints: 2,
+        description: 'A Beast who chooses Primal Vestment automatically gains Primal Rage (2 Points). These points count toward the Disadvantage Point total and Reroll Point maximum. Primal Rage cannot be removed while Primal Vestment remains. Trigger: when you lose your second Health Level, and each time you lose another Health Level thereafter, make a Resolve k1 roll against TN 6 (one roll per threshold crossed in a single damage instance; no Raises). On failure, enter Primal Rage for 1d8/2 Rounds (rounded up). While in Primal Rage you must attack the nearest creature (friend or foe) with a legal Attack Action when able; you cannot use Movement Powers to flee combat; at the start of each of your Turns make Resolve k1 TN 6 to end the Rage. On success, Primal Rage ends. It never forces Stone spends.',
+        effect: 'Trigger: lose 2nd+ Health Level → Resolve k1 TN 6 or Primal Rage (1d8/2 Rounds). Must attack nearest; Resolve k1 TN 6 each Turn to end. Bound to Primal Vestment.',
+    },
+    {
         id: 'hunted',
         name: 'Hunted',
         basePoints: [1, 2, 3],

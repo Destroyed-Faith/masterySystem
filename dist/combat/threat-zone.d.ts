@@ -68,7 +68,7 @@ export declare function tokenBox(token: {
 export declare function edgeGap(a: MeterBox, b: MeterBox): number;
 export declare function insideThreat(gap: number, reachMeters: number): boolean;
 export declare function planThreatZoneWindows(move: ThreatMove, reactors: ThreatReactor[], grid?: GridScale): ThreatPlan;
-/** Melee Reach used for the Threat Zone: stored reach, else 2 m, plus Growth Form. */
+/** Melee Reach used for the Threat Zone: stored reach, else 2 m, plus Growth Form / Transformation Growth. */
 export declare function currentMeleeReachMeters(actor: any): number;
 export type ThreatOpener = (window: ThreatWindow, reactor: ThreatReactor) => Promise<void> | void;
 export declare function setThreatZoneOpener(fn: ThreatOpener | null): void;

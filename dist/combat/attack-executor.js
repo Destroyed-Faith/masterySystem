@@ -307,6 +307,9 @@ function resolveWeaponForAttribute(actor, weapon, option, attackType) {
     return resolveWeaponForAttack(items, attackType, actor);
 }
 export function getAttackAttribute(actor, weapon, option, attackType) {
+    if (option.attackAttributeOverride === 'might' || option.attackAttributeOverride === 'agility') {
+        return option.attackAttributeOverride;
+    }
     const resolvedWeapon = resolveWeaponForAttribute(actor, weapon, option, attackType);
     const attributeOverride = attackAttributeOverrideFromWeapon(resolvedWeapon);
     if (option.storedAttackPool?.attribute) {
@@ -375,8 +378,10 @@ export async function openSplitPair(attackerToken, targetToken, option, attackTy
  */
 export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null, burstVolley = null, aoeMelee = null) {
     // Instant AoE: Power damage only. Never Weapon Damage; never Spell Focus
-    // (the damage dialog also skips both when the aoeMeleeWeapon/instantAoe flag is set).
-    if (aoeMelee && option.ignoreWeaponDamage !== true) {
+    // — except Dragon Head Damage Breath (Core: Bite + Power Dice on shared pool).
+    if (aoeMelee &&
+        option.ignoreWeaponDamage !== true &&
+        option.dragonHeadDamageBreath !== true) {
         option = { ...option, ignoreWeaponDamage: true };
     }
     // Autofire is handled before createAttackCard (chain targeting → one card
@@ -411,6 +416,85 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             hasTarget: !!target
         });
         return null;
+    }
+    // Artifact Safe Haven / Combat use gates (Judgment Limited, Dragon Breath once/combat).
+    try {
+        const optionName = String(option.name || '');
+        const artifactLevel = Math.max(1, Math.floor(Number(option.artifactRowLevel ||
+            option.item?.system?.currentLevel ||
+            1) || 1));
+        if (/moonlight\s*judgment/i.test(optionName)) {
+            const { assertMoonlightJudgmentAvailable, spendMoonlightJudgmentUse, moonlightJudgmentMaxUses, } = await import('./artifact-rest-uses.js');
+            if (!assertMoonlightJudgmentAvailable(attacker, artifactLevel)) {
+                const max = moonlightJudgmentMaxUses(artifactLevel);
+                ui.notifications?.warn(`Moonlight Judgment: no uses remaining (${max}/Safe Haven Rest).`);
+                return null;
+            }
+            const spent = await spendMoonlightJudgmentUse(attacker, artifactLevel);
+            if (!spent) {
+                ui.notifications?.warn('Moonlight Judgment: use could not be spent.');
+                return null;
+            }
+            option.artifactLimited = true;
+            option.ignoreWeaponDamage = true;
+        }
+        else if (/breath\s*weapon/i.test(optionName) ||
+            /damage\s*breath/i.test(optionName) ||
+            /ruin\s*breath/i.test(optionName) ||
+            option.dragonHeadBreathMode === 'damage' ||
+            option.dragonHeadBreathMode === 'ruin') {
+            const { assertDragonBreathAvailable, spendDragonBreathUse } = await import('./artifact-rest-uses.js');
+            const gate = assertDragonBreathAvailable(attacker);
+            if (!gate.ok) {
+                ui.notifications?.warn(gate.reason === 'combat'
+                    ? 'Breath Weapon: already used this Combat (shared Damage/Ruin limit).'
+                    : 'Breath Weapon: no Safe Haven Rest uses remaining.');
+                return null;
+            }
+            const spent = await spendDragonBreathUse(attacker);
+            if (!spent) {
+                ui.notifications?.warn('Breath Weapon: use could not be spent.');
+                return null;
+            }
+            const mode = option.dragonHeadBreathMode ||
+                (/ruin\s*breath/i.test(optionName) ? 'ruin' : 'damage');
+            if (mode === 'ruin') {
+                option = { ...option, ignoreWeaponDamage: true, dragonHeadDamageBreath: false };
+            }
+            else {
+                // Damage Breath: keep Bite on the shared Instant AoE pool.
+                option = {
+                    ...option,
+                    ignoreWeaponDamage: false,
+                    dragonHeadDamageBreath: true,
+                    dragonHeadBreathMode: 'damage',
+                };
+            }
+            // Might or Agility — choose before the Attack Roll; never combine pools.
+            if (!option.attackAttributeOverride && !option.storedAttackPool?.attribute) {
+                const Dialog = globalThis.Dialog;
+                let attr = 'might';
+                if (Dialog?.wait) {
+                    const choice = await Dialog.wait({
+                        title: 'Breath Weapon — Attack Attribute',
+                        content: '<p>Choose <strong>Might</strong> or <strong>Agility</strong> for this Breath Attack Roll. Do not combine Attribute Pools.</p>',
+                        buttons: {
+                            might: { label: 'Might', callback: () => 'might' },
+                            agility: { label: 'Agility', callback: () => 'agility' },
+                        },
+                        default: 'might',
+                        close: () => null,
+                    });
+                    if (choice !== 'might' && choice !== 'agility')
+                        return null;
+                    attr = choice;
+                }
+                option = { ...option, attackAttributeOverride: attr };
+            }
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | Artifact use gate failed', err);
     }
     try {
         const { notATargetDecision, NOT_A_TARGET_FLAG } = await import('../stones/stone-combat-effects.js');
@@ -777,10 +861,13 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         selectedPowerDamage: selectedPowerDamage || "",
         consumableItemId: option.consumableItemId || null,
         ignoreWeaponDamage: option.ignoreWeaponDamage === true || tnKind === 'casting',
+        dragonHeadDamageBreath: option.dragonHeadDamageBreath === true || undefined,
         damageTransfer: isDamageTransferTemplateId(option.artifactPowerTemplateId) ||
             (option.source === 'power' &&
                 (isDamageTransferPower(option.item) || resolvePowerMechanics(option.item)?.damageTransfer === true)),
-        limited: option.item?.system?.limited === true || undefined,
+        limited: option.artifactLimited === true ||
+            option.item?.system?.limited === true ||
+            undefined,
         // Split-attack bookkeeping (both strikes share pairId for "Strike N of 2"
         // labels). Damage is full per successful strike — only the attack pool is split.
         splitAttack: !!split,

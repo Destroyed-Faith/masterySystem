@@ -272,6 +272,12 @@ export async function applySafeHavenRest(
   } catch (err) {
     console.warn('Mastery System | Safe Haven HLR pool clear failed', err);
   }
+  try {
+    const { clearArtifactRestUses } = await import('../combat/artifact-rest-uses.js');
+    await clearArtifactRestUses(actor);
+  } catch (err) {
+    console.warn('Mastery System | Safe Haven artifact rest-use clear failed', err);
+  }
   // Minor Expression uses (Mastery Rank × 2 per Safe Haven Rest) refresh here.
   if (actor.getFlag?.('mastery-system', 'minorExpressionUses') != null) {
     updates['flags.mastery-system.minorExpressionUses'] = 0;

@@ -28,7 +28,13 @@ import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifac
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
-import { breathConeMeters, isBreathWeaponName } from '../utils/breath-weapon.js';
+import {
+  breathDamageRadiusMeters,
+  breathRuinRadiusMeters,
+  breathRuinValue,
+  damageBreathSharedPoolFormula,
+  isBreathWeaponName,
+} from '../utils/breath-weapon.js';
 
 const REACTION_TYPES = new Set(['Reaction']);
 
@@ -56,6 +62,8 @@ function classifyArtifactRowType(rowType: string): ArtifactRowCategory {
     if (t.includes('active buff') || t.includes('active-buff') || (t.includes('buff') && !t.includes('debuff'))) {
         return 'activeBuff';
     }
+    // Titan Growth / size Transformation — activatable utility (not a Passive).
+    if (t.includes('transformation')) return 'utility';
     // "Support" / "Stone Power Support" rows (e.g. Soul Shell 1) only pre-fill
     // Stone Power lanes. There is nothing to click, so they stay out of the radial.
     if (t.includes('stone') || t.includes('support')) return 'support';
@@ -296,7 +304,30 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                     defaultTargetGroup: 'self',
                     artifactRowSpecial: row.special || '',
                     artifactRowLevel: lvl,
-                });
+                    artifactPowerTemplateId: row.powerTemplateId || undefined,
+                } as any);
+                continue;
+            }
+
+            if (category === 'utility' && /transformation/i.test(rowType)) {
+                out.push({
+                    id,
+                    name,
+                    description,
+                    slot: 'utility',
+                    source: 'power',
+                    range: 0,
+                    item,
+                    powerType: 'utility',
+                    tags: ['artifact', 'transformation', typeTag],
+                    costsMovement: false,
+                    costsAction: true,
+                    defaultTargetGroup: 'self',
+                    aoeShape: 'none',
+                    aoePlacementProfile: 'utility',
+                    artifactRowSpecial: row.special || '',
+                    artifactRowLevel: lvl,
+                } as any);
                 continue;
             }
 
@@ -345,6 +376,11 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             if (!(row.isSpell && row.powerTemplateId) && artifactCarriesWeaponProfile(item)) {
                 option.forcedWeaponItemId = item.id;
             }
+            // Limited Instant AoE Spells (Moonlight Judgment): no weapon/focus, Limited dice.
+            if (/moonlight\s*judgment/i.test(name) || /limited/i.test(String(row.special || ''))) {
+                option.ignoreWeaponDamage = true;
+                (option as any).artifactLimited = true;
+            }
             if (row.powerTemplateId) {
                 option.artifactPowerTemplateId = row.powerTemplateId;
                 option.artifactChosenSpecialKey = row.chosenSpecialKey;
@@ -380,24 +416,64 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             } else {
                 option.defaultTargetGroup = 'enemy';
             }
-            // Dragon Head Breath is a cone from the figure, not the generic
-            // ranged radius the catalog template prints (Radius 3 m / 20 m).
+            // Dragon Head Breath: emit Damage Breath + Ruin Breath (shared use counter).
+            // Damage Breath adds this Artifact's Bite (Core exception). Ruin is Special-only.
             if (isBreathWeaponName(name)) {
-                const coneM = breathConeMeters(currentLevel);
-                option.aoeShape = 'cone';
-                option.aoeRadiusMeters = coneM;
-                option.range = 0;
-                option.rangeMeters = 0;
-                option.burstMeleeAoE = false;
-                option.burstMeleeRadiusMeters = undefined;
-                option.defaultTargetGroup = 'enemy';
-                option.allowManualTargetSelection = true;
-                option.aoePlacementProfile = 'hostile-zone';
-                option.description = `${description} · Kegel ${coneM} m`;
-                // Bite / natural weapon on this artifact rides with Breath — not a separate Attack entry.
-                if (!option.forcedWeaponItemId && artifactCarriesWeaponProfile(item)) {
-                    option.forcedWeaponItemId = item.id;
-                }
+                const dmgR = breathDamageRadiusMeters(currentLevel);
+                const ruinR = breathRuinRadiusMeters(currentLevel);
+                const ruinV = breathRuinValue(currentLevel);
+                const poolPreview = damageBreathSharedPoolFormula(currentLevel);
+                const circularBonus = getEffectiveCircularAoeRadiusBonusMeters(actor);
+
+                const stageSuffix = (name.match(/\s(I{1,3})\b/) || [])[1] || '';
+                const damageOpt: RadialCombatOption = {
+                    ...option,
+                    id: `${id}:damage`,
+                    name: stageSuffix ? `Damage Breath ${stageSuffix}` : 'Damage Breath',
+                    description: `${description} · Damage Breath · shared pool ${poolPreview} · radius ${dmgR} m · Might or Agility`,
+                    aoeShape: 'radius',
+                    aoeRadiusMeters: dmgR + circularBonus,
+                    range: 0,
+                    rangeMeters: 0,
+                    burstMeleeAoE: true,
+                    burstMeleeRadiusMeters: dmgR,
+                    meleeReachMeters: dmgR,
+                    defaultTargetGroup: 'enemy',
+                    allowManualTargetSelection: false,
+                    aoePlacementProfile: undefined,
+                    ignoreWeaponDamage: false,
+                    dragonHeadDamageBreath: true,
+                    dragonHeadBreathMode: 'damage',
+                    forcedWeaponItemId: item.id,
+                    artifactRowSpecial: '',
+                };
+
+                const ruinOpt: RadialCombatOption = {
+                    ...option,
+                    id: `${id}:ruin`,
+                    name: stageSuffix ? `Ruin Breath ${stageSuffix}` : 'Ruin Breath',
+                    description: `${description} · Ruin Breath · Ruin(${ruinV}) · radius ${ruinR} m · no damage · Might or Agility`,
+                    aoeShape: 'radius',
+                    aoeRadiusMeters: ruinR + circularBonus,
+                    range: 0,
+                    rangeMeters: 0,
+                    burstMeleeAoE: true,
+                    burstMeleeRadiusMeters: ruinR,
+                    meleeReachMeters: ruinR,
+                    defaultTargetGroup: 'enemy',
+                    allowManualTargetSelection: false,
+                    aoePlacementProfile: undefined,
+                    ignoreWeaponDamage: true,
+                    dragonHeadDamageBreath: false,
+                    dragonHeadBreathMode: 'ruin',
+                    forcedWeaponItemId: undefined,
+                    artifactPowerTemplateId: undefined,
+                    artifactRowSpecial: `Ruin(${ruinV})`,
+                };
+
+                out.push(damageOpt);
+                out.push(ruinOpt);
+                continue;
             }
             // Support heals/cleanses are type "Active" but must not use hostile red aim.
             const support = artifactRowSupportProfile(row);

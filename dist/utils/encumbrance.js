@@ -115,7 +115,36 @@ export function applyHealthAndEncumbrancePenalties(basePool, actor) {
     const loadZone = getActorInventoryLoadZone(actor);
     const healthBars = actor.system?.health?.bars || [];
     const currentBar = actor.system?.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar, pool);
+    let deathlessBodyStage = 0;
+    try {
+        const items = Array.isArray(actor.items)
+            ? actor.items
+            : typeof actor.items?.[Symbol.iterator] === 'function'
+                ? Array.from(actor.items)
+                : [];
+        for (const it of items) {
+            if (it?.type !== 'artifact')
+                continue;
+            const key = String(it.system?.echoKey || it.system?.artifactKey || it.system?.key || '');
+            const name = String(it.name || '');
+            const isHollow = /hollowCrown/i.test(key) ||
+                /hollow\s*crown/i.test(name) ||
+                String(it.system?.definitionKey || '') === 'hollowCrown';
+            if (!isHollow)
+                continue;
+            const lvl = Math.max(0, Math.floor(Number(it.system?.currentLevel) || 1));
+            if (lvl >= 7)
+                deathlessBodyStage = 3;
+            else if (lvl >= 4)
+                deathlessBodyStage = Math.max(deathlessBodyStage, 2);
+            else if (lvl >= 1)
+                deathlessBodyStage = Math.max(deathlessBodyStage, 1);
+        }
+    }
+    catch {
+        /* ignore */
+    }
+    const healthPenalty = getCurrentPenalty(healthBars, currentBar, pool, { deathlessBodyStage });
     const healthPenaltyDice = healthPenalty < 0 ? -healthPenalty : 0;
     const numDice = Math.max(0, pool - healthPenaltyDice);
     return { numDice, healthPenaltyDice, loadZone };

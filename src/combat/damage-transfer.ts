@@ -63,14 +63,21 @@ export function isInstantAoeFlags(flags: InstantAoeFlagBag | null | undefined): 
 /**
  * Martial delivery includes weapon damage. Spell delivery, an explicit
  * ignore flag and Instant AoE do not. NPC spell rows are spell delivery.
+ *
+ * Exception: Dragon Head Damage Breath (`dragonHeadDamageBreath`) is Instant
+ * AoE that still adds this Artifact's Bite Weapon Damage only.
  */
 export function martialWeaponDamageApplies(
   flags: {
     ignoreWeaponDamage?: boolean;
     powerIsSpell?: boolean;
     npcIsSpell?: boolean;
+    dragonHeadDamageBreath?: boolean;
   } & InstantAoeFlagBag,
 ): boolean {
+  if (flags.dragonHeadDamageBreath === true && flags.ignoreWeaponDamage !== true) {
+    return flags.powerIsSpell !== true && flags.npcIsSpell !== true;
+  }
   return (
     flags.ignoreWeaponDamage !== true &&
     flags.powerIsSpell !== true &&
@@ -102,6 +109,15 @@ export function applyLimitedToTransferPowerDamage(
   opts: { damageTransfer?: boolean; limited?: boolean },
 ): string {
   if (opts.damageTransfer !== true || opts.limited !== true) return formula;
+  return doublePrintedPowerDice(formula);
+}
+
+/** Limited Instant Actives (incl. Moonlight Judgment): double printed Power Dice only. */
+export function applyLimitedPowerDamage(
+  formula: string,
+  opts: { limited?: boolean },
+): string {
+  if (opts.limited !== true) return formula;
   return doublePrintedPowerDice(formula);
 }
 

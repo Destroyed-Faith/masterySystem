@@ -2167,6 +2167,24 @@ export class StonePowersDialog extends BaseDialog {
                     return;
                 const item = this.actor.items?.get?.(powerId) ||
                     this.actor.items?.find?.((it) => it.id === powerId || it._id === powerId);
+                // Artifact Active Buff (e.g. Moonlight Shadow) — synthetic prep entry.
+                if (!item && powerId.startsWith('artifact:')) {
+                    try {
+                        const { listActivatableActiveBuffPowers } = await import('../combat/active-buff-lifecycle.js');
+                        const listed = await listActivatableActiveBuffPowers(this.actor);
+                        const synth = listed.find((p) => String(p.id || p._id || '') === powerId);
+                        if (synth?.__artifactOption && synth?.__artifactItem) {
+                            const { activateArtifactActiveBuff } = await import('../utils/artifact-active-buffs.js');
+                            const ok = await activateArtifactActiveBuff(this.actor, synth.__artifactItem, synth.__artifactOption);
+                            if (ok)
+                                await this.#renderKeepingScroll();
+                            return;
+                        }
+                    }
+                    catch (err) {
+                        console.warn('Mastery System | Artifact Active Buff activate failed', err);
+                    }
+                }
                 if (!item) {
                     ui.notifications?.warn('Active Buff power not found on this character.');
                     return;

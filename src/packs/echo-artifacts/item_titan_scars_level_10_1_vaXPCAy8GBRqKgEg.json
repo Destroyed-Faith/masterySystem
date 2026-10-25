@@ -36,13 +36,12 @@
       {
         "level": 7,
         "name": "Titan Growth III",
-        "type": "Active Buff",
+        "type": "Transformation",
         "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+16d8 Damage** and **+32 Armor**. **True Giant Form** (7 hexes, +5 m Reach). Drawback: **-12 Evade**, **-16 Initiative**, **-2d8 Physical Skills** (except Strength and Body).",
-        "special": "",
-        "powerTemplateId": "ab-growth-form"
+        "aoe": "37 occupied Hexes",
+        "duration": "Unlimited",
+        "effect": "You may assume **Growth 3**. Grants three 0-penalty Growth Health Bars and +6 m Melee Reach; reduces Push/Pull by **3 × MR m**. Physical Ranged and Spell Range remain doubled once. Replaces Growth II.",
+        "special": "Artifact Function: Transformation (Growth 3)"
       },
       {
         "level": 8,
@@ -66,12 +65,12 @@
       },
       {
         "level": 10,
-        "name": "True Titan Scars",
-        "type": "Ultimate",
-        "range": "Self / Touch",
-        "duration": "Instant",
-        "effect": "Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover 1 Scarred Health Bar and follows all normal limits.",
-        "special": "True Titan Scars"
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Titan Scars)"
       }
     ],
     "stoneFunction": null,
@@ -79,9 +78,39 @@
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "power",
-        "powerTemplateId": "ab-growth-form",
-        "displayName": "Titan Growth"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Titan Growth I",
+            "type": "Transformation",
+            "range": "Self",
+            "aoe": "7 occupied Hexes",
+            "duration": "Unlimited",
+            "effect": "You may assume **Growth 1** using the universal Transformation rules. Grants one additional 0-penalty Growth Health Bar and +2 m Melee Reach; reduces Push/Pull by **1 × MR m**. Uses: Mastery Rank times per Safe Haven Rest.",
+            "special": "Artifact Function: Transformation (Growth 1)"
+          },
+          {
+            "level": 4,
+            "name": "Titan Growth II",
+            "type": "Transformation",
+            "range": "Self",
+            "aoe": "19 occupied Hexes",
+            "duration": "Unlimited",
+            "effect": "You may assume **Growth 2**. Grants two 0-penalty Growth Health Bars and +4 m Melee Reach; reduces Push/Pull by **2 × MR m**. Physical Ranged and Spell Range are doubled once. Replaces Growth I.",
+            "special": "Artifact Function: Transformation (Growth 2)"
+          },
+          {
+            "level": 7,
+            "name": "Titan Growth III",
+            "type": "Transformation",
+            "range": "Self",
+            "aoe": "37 occupied Hexes",
+            "duration": "Unlimited",
+            "effect": "You may assume **Growth 3**. Grants three 0-penalty Growth Health Bars and +6 m Melee Reach; reduces Push/Pull by **3 × MR m**. Physical Ranged and Spell Range remain doubled once. Replaces Growth II.",
+            "special": "Artifact Function: Transformation (Growth 3)"
+          }
+        ]
       },
       {
         "level": 2,
@@ -89,7 +118,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "might",
-          "stonePowerId": "might.meleeDamage"
+          "stonePowerId": "might.meleeDamage",
+          "supportStages": [
+            2,
+            5,
+            8
+          ]
         },
         "displayName": "Titan Might"
       },
@@ -99,7 +133,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "vitality",
-          "stonePowerId": "vitality.removeScar"
+          "stonePowerId": "vitality.removeScar",
+          "supportStages": [
+            3,
+            6,
+            9
+          ]
         },
         "displayName": "Titan Healing"
       }
@@ -121,10 +160,11 @@
       {
         "id": "titanScars-pw-7",
         "name": "Titan Growth III",
-        "category": "activeBuff",
+        "fluff": "Special: Artifact Function: Transformation (Growth 3)",
+        "category": "passive",
         "tags": [],
         "cost": {
-          "action": "full"
+          "action": "none"
         },
         "levels": {
           "1": {
@@ -308,17 +348,20 @@
             "specials": []
           },
           "16": {
-            "type": "Active Buff",
+            "type": "Transformation",
             "range": {
               "kind": "self"
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "note": "37 occupied Hexes"
+            },
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant",
+              "note": "Unlimited"
             },
             "effect": {
-              "text": "Gain **+16d8 Damage** and **+32 Armor**. **True Giant Form** (7 hexes, +5 m Reach). Drawback: **-12 Evade**, **-16 Initiative**, **-2d8 Physical Skills** (except Strength and Body)."
+              "text": "You may assume **Growth 3**. Grants three 0-penalty Growth Health Bars and +6 m Melee Reach; reduces Push/Pull by **3 × MR m**. Physical Ranged and Spell Range remain doubled once. Replaces Growth II."
             },
             "specials": [],
             "lvl": 7
@@ -745,8 +788,8 @@
       },
       {
         "id": "titanScars-pw-10",
-        "name": "True Titan Scars",
-        "fluff": "Special: True Titan Scars",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Titan Scars)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -934,16 +977,17 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
-              "kind": "touch"
+              "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "instant",
+              "note": "Special"
             },
             "effect": {
-              "text": "Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover 1 Scarred Health Bar and follows all normal limits."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -971,7 +1015,7 @@
       "childIds": [],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScars",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "vaXPCAy8GBRqKgEg",

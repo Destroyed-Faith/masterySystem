@@ -128,16 +128,31 @@ export function updateHealthBars(bars: HealthBar[], vitality: number): void {
  * @param _currentBar legacy index — ignored; we derive the active bar
  * @param pool        optional pre-penalty dice pool (Attribute, MR, etc.)
  */
-export function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?: number): number {
+export function getCurrentPenalty(
+  bars: HealthBar[],
+  _currentBar: number,
+  pool?: number,
+  opts?: { deathlessBodyStage?: 0 | 1 | 2 | 3; skipGrowthBars?: boolean },
+): number {
   if (!bars || bars.length === 0) {
     return 0;
   }
 
   // Active bar = first bar with boxes remaining (scarred bars are skipped).
+  // Growth Bars sit before Healthy; Deathless Body still uses the effective
+  // wound index among *normal* bars when Growth Bars are present.
   let activeIndex = -1;
+  let normalIndex = -1;
+  let normalSeen = -1;
   for (let i = 0; i < bars.length; i++) {
+    const isGrowth =
+      (bars[i] as any)?.growthBar === true || /^Growth\s+\d+/i.test(String((bars[i] as any)?.name || ''));
+    if (!isGrowth) {
+      normalSeen += 1;
+    }
     if ((Number(bars[i]?.current) || 0) > 0) {
       activeIndex = i;
+      if (!isGrowth) normalIndex = normalSeen;
       break;
     }
   }
@@ -145,7 +160,33 @@ export function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?:
   if (activeIndex < 0) activeIndex = bars.length - 1;
 
   if (typeof pool === 'number' && Number.isFinite(pool)) {
-    const fraction = HEALTH_PENALTY_FRACTIONS[activeIndex] ?? 0;
+    let fraction = HEALTH_PENALTY_FRACTIONS[activeIndex] ?? 0;
+    const stage = opts?.deathlessBodyStage ?? 0;
+    if (stage > 0) {
+      // Deathless Body shifts normal Health Penalties; Growth Bars are 0-penalty.
+      const isGrowthActive =
+        (bars[activeIndex] as any)?.growthBar === true ||
+        /^Growth\s+\d+/i.test(String((bars[activeIndex] as any)?.name || ''));
+      if (!isGrowthActive) {
+        const idxForShift = normalIndex >= 0 ? normalIndex : activeIndex;
+        try {
+          // Lazy require avoided — inline the same shift as hollow-crown.ts.
+          const shift = stage >= 3 ? 4 : stage >= 2 ? 3 : stage >= 1 ? 2 : 0;
+          const cap = stage >= 3 ? 0 : stage >= 2 ? 0.1 : stage >= 1 ? 0.2 : 1;
+          const shifted = Math.max(0, idxForShift - shift);
+          fraction = HEALTH_PENALTY_FRACTIONS[shifted] ?? 0;
+          if (fraction > cap) fraction = cap;
+          // Full Incapacitated (no open bars) still zeroes the pool.
+          if (activeIndex >= bars.length - 1 && (HEALTH_PENALTY_FRACTIONS[activeIndex] ?? 0) >= 1) {
+            fraction = 1;
+          }
+        } catch {
+          /* keep base fraction */
+        }
+      } else {
+        fraction = 0;
+      }
+    }
     if (fraction <= 0) return 0;
     // `|| 0` normalises -0 (e.g. -⌊0.8⌋) to a clean +0.
     const penalty = -Math.floor(pool * fraction) || 0;

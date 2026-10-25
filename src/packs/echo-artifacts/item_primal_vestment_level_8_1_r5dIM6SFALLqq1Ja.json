@@ -1,0 +1,533 @@
+{
+  "name": "Primal Vestment - Level 8-1",
+  "type": "artifact",
+  "img": "icons/svg/statue.svg",
+  "system": {
+    "level": 8,
+    "currentLevel": 8,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "",
+    "slot": "body",
+    "baseProfile": "noArmorBody",
+    "binding": "echo",
+    "echoKey": "unbound",
+    "baseValues": [],
+    "levelProgression": [
+      {
+        "level": 8,
+        "name": "Flesh Remembers III",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
+        "special": "resolve.healing"
+      },
+      {
+        "level": 6,
+        "name": "Rage Unbound II",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Supports the Might Ability: Extra Attack Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
+        "special": "generic.extraAttack"
+      }
+    ],
+    "stoneFunction": null,
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "resolve",
+          "stonePowerId": "resolve.healing",
+          "supportStages": [
+            2,
+            5,
+            8
+          ]
+        },
+        "displayName": "Flesh Remembers"
+      },
+      {
+        "level": 3,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "generic.extraAttack",
+          "supportStages": [
+            3,
+            6,
+            9
+          ]
+        },
+        "displayName": "Rage Unbound"
+      }
+    ],
+    "lore": "Beast Unbound Echo Artifact: the awakened hunting body. No Base Values. Choosing it grants the Primal Rage (2 Points) Disadvantage.",
+    "description": "Beast Unbound Echo Artifact: the awakened hunting body. No Base Values. Choosing it grants the Primal Rage (2 Points) Disadvantage.\n\nA Beast with Primal Vestment cannot use another Body Artifact or Body Armor. Explicit exception: two Stone Power Support functions and Extra Attack support from the Body Slot.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "primalVestment-pw-8",
+        "name": "Flesh Remembers III",
+        "fluff": "Special: resolve.healing",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "primalVestment-pw-6",
+        "name": "Rage Unbound II",
+        "fluff": "Special: generic.extraAttack",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Supports the Might Ability: Extra Attack Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
+            },
+            "specials": [],
+            "lvl": 6
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactArmor": null,
+    "equipSlots": [
+      "body"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "primalVestment-l8",
+      "parentIds": [
+        "primalVestment-l7"
+      ],
+      "childIds": [
+        "primalVestment-l9"
+      ],
+      "echoBound": "unbound",
+      "echoArtifactKey": "primalVestment",
+      "seedVersion": 57
+    }
+  },
+  "_id": "r5dIM6SFALLqq1Ja",
+  "folder": "zzVXkCEN7OjCTkiG",
+  "_key": "!items!r5dIM6SFALLqq1Ja"
+}

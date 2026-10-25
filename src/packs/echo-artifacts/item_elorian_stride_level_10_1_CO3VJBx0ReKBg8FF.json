@@ -64,12 +64,12 @@
       },
       {
         "level": 10,
-        "name": "True Elorian Stride",
-        "type": "Ultimate",
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
         "range": "Self",
         "duration": "Special",
-        "effect": "Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, Crit Support, or agility effect with GM approval.",
-        "special": "True Elorian Stride"
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Elorian Stride)"
       }
     ],
     "stoneFunction": null,
@@ -745,8 +745,8 @@
       },
       {
         "id": "elorianStride-pw-10",
-        "name": "True Elorian Stride",
-        "fluff": "Special: True Elorian Stride",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Elorian Stride)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -934,7 +934,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },
@@ -944,7 +944,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, Crit Support, or agility effect with GM approval."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -966,7 +966,7 @@
       "childIds": [],
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "CO3VJBx0ReKBg8FF",

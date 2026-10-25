@@ -1,6 +1,7 @@
 /**
  * Shared XP progression helpers for the character sheet and Progression Hub.
  */
+import { assertProgressionEditable } from '../sheets/actor-sheet-identity.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { ARTIFACT_CAPACITY_DEFAULT, countBoundArtifacts, } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts, listUnwiredEmbeddedArtifacts, } from '../utils/artifact-tree-grant.js';
@@ -292,6 +293,9 @@ export function buildProgressionHubContext(actor) {
     };
 }
 export async function applyAttributePendingChanges(actor, pendingMap) {
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const xpState = getXpState(actor);
     const netCost = calculateAttributePendingNetCost(actor, pendingMap);
     if (netCost > xpState.available) {
@@ -355,6 +359,9 @@ export async function applyAttributePendingChanges(actor, pendingMap) {
     return { ok: true };
 }
 export async function applySkillPendingChanges(actor, pendingMap) {
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const xpState = getXpState(actor);
     const allocation = allocateActorSkillPending(actor, pendingMap);
     const netCost = allocation.xpNet;
@@ -480,6 +487,9 @@ async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, t
 }
 /** Raise an existing Specialization by one Rank for 4 XP. */
 export async function applySpecializationRankUp(actor, specId) {
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const specs = readSpecializations(actor.system);
     const spec = specs.find((s) => s.id === specId);
     if (!spec)
@@ -494,6 +504,9 @@ export async function applySpecializationRankUp(actor, specId) {
 }
 /** Learn a new Specialization at Rank 1 for 4 XP. */
 export async function applySpecializationLearn(actor, input) {
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const name = String(input.name || '').trim();
     if (!isSkillField(input.field))
         return { ok: false, error: 'Choose a Field.' };
@@ -517,6 +530,9 @@ export async function applySpecializationLearn(actor, input) {
     return res.ok ? { ok: true, id: record.id } : res;
 }
 export async function applyPowerPendingChanges(actor, pendingMap) {
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const xpState = getXpState(actor);
     const netCost = calculatePowerPendingNetCost(actor, pendingMap);
     if (netCost > xpState.available) {

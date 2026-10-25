@@ -113,6 +113,10 @@ export function planPowerReplace(oldItem, entry, spell = { isSpell: false }) {
  * favorites. Never adjusts XP pools.
  */
 export async function applyPowerReplace(actor, oldItem, entry, spell) {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) {
+        return { ok: false, error: 'Progression locked on unlinked token.' };
+    }
     const existing = actor.items.filter((i) => i.type === 'power' && i.id !== oldItem.id);
     if (actorAlreadyHasPower(existing, entry)) {
         const specialSuffix = entry.chosenSpecial?.key ? ` (${entry.chosenSpecial.key})` : '';

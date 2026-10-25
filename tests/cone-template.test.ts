@@ -89,19 +89,22 @@ describe('widening cone', () => {
   });
 });
 
-describe('breath cone length', () => {
-  it('follows the Dragon Head table', () => {
+describe('breath weapon catalogue radii (Core Melee AoE)', () => {
+  it('prints dual Damage / Ruin radii; legacy cone helpers retained', () => {
     expect(breathConeMeters(1)).toBe(6);
-    expect(breathConeMeters(3)).toBe(6);
     expect(breathConeMeters(4)).toBe(10);
-    expect(breathConeMeters(6)).toBe(10);
     expect(breathConeMeters(7)).toBe(14);
     expect(isBreathWeaponName('Breath Weapon II')).toBe(true);
-    // Sheet text: Breath is a cone from the figure, not the catalog "20m + Radius 3m".
-    expect(breathWeaponRowDisplay(1)).toEqual({ range: 'Self', aoe: 'Cone 6m' });
+    expect(breathWeaponRowDisplay(1)).toEqual({
+      range: 'Self',
+      aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
+    });
     expect(
       progressionRowRangeAoe({ level: 4, name: 'Breath Weapon II', range: '20m', aoe: 'Radius 5m' }),
-    ).toEqual({ range: 'Self', aoe: 'Cone 10m' });
+    ).toEqual({ range: 'Self', aoe: 'Damage: radius 6 m / Ruin: radius 5 m' });
+    expect(
+      progressionRowRangeAoe({ level: 7, name: 'Breath Weapon III', range: 'Self', aoe: 'x' }),
+    ).toEqual({ range: 'Self', aoe: 'Damage: radius 8 m / Ruin: radius 7 m' });
     expect(progressionRowRangeAoe({ level: 2, name: 'Draconic Roar I', range: 'Self', aoe: 'Aura 8m' })).toEqual({
       range: 'Self',
       aoe: 'Aura 8m',

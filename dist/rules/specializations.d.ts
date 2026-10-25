@@ -2,8 +2,10 @@
  * Free-named Specializations organized into seven Fields.
  * Replaces the fixed purchasable Skill catalog.
  */
-export declare const SKILL_FIELDS: readonly ["physical", "finesse", "survival", "science-craft", "occult", "social", "investigation"];
+export declare const SKILL_FIELDS: readonly ["physical", "finesse", "survival", "science-craft", "occult", "social", "investigation", "perception"];
 export type SkillField = (typeof SKILL_FIELDS)[number];
+/** Fields a player may choose for paid Specializations (excludes universal Perception). */
+export declare const PAID_SKILL_FIELDS: readonly SkillField[];
 export declare const SKILL_FIELD_LABELS: Record<SkillField, string>;
 /** Example free-named Specs per Field (inspiration only — not a closed list). */
 export interface SpecializationFieldExample {
@@ -30,11 +32,19 @@ export interface SpecializationValidation {
 }
 /** Free universal Perception Spec — not one of the five paid starting Specs. */
 export declare const CHARACTER_PERCEPTION_FIELD: SkillField;
+/** Legacy id when Perception was wrongly stored under Investigation. */
+export declare const CHARACTER_PERCEPTION_LEGACY_SPEC_ID = "investigation:perception";
 export declare const CHARACTER_PERCEPTION_SPEC_ID: string;
 export declare const CHARACTER_PERCEPTION_SCOPE = "Notice, search, and read the scene";
 /** Matches `UNIVERSAL_PERCEPTION_RANK` in skill-check.ts. */
 export declare const CHARACTER_PERCEPTION_MIN_RANK = 2;
-export declare function isCharacterPerceptionSpec(spec: Pick<Partial<SpecializationRecord>, 'id' | 'name'>): boolean;
+/** Attribute Focus options for every Perception Check (Core Skill rules). */
+export declare const PERCEPTION_FOCUS_ATTRIBUTES: readonly ["wits", "intellect", "resolve"];
+export type PerceptionFocusAttribute = (typeof PERCEPTION_FOCUS_ATTRIBUTES)[number];
+export declare function isPerceptionFocusAttribute(value: string | null | undefined): value is PerceptionFocusAttribute;
+export declare function isCharacterPerceptionSpec(spec: Pick<Partial<SpecializationRecord>, 'id' | 'name' | 'field'>): boolean;
+/** Paid Specs only — free Perception never consumes a starting / review slot. */
+export declare function paidSpecializations(specs: Array<Partial<SpecializationRecord>>): Array<Partial<SpecializationRecord>>;
 /**
  * Every character has Perception at least Rank 2 (free). Adds the Spec when
  * missing; raises Rank when below the floor. Never lowers a higher Rank.

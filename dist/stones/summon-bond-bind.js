@@ -436,6 +436,10 @@ export async function upsertSummonBond(actor, bond) {
  * restore dormant bodies to full HP.
  */
 export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) {
+        return { bond: null, errors: ['Progression locked on unlinked token.'], warnings: [] };
+    }
     const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
     // Sync power token costs into spend before validate
     const draft = foundryDuplicate(bondDraft);
@@ -602,6 +606,10 @@ export async function setBondBonusTokens(actor, bondId, bonusTokens) {
  * Dissolve / release a Summon Bond via Bond Ritual: return Bound Stones, delete body actors.
  */
 export async function dissolveSummonBond(actor, bondId, deleteActors = async () => { }) {
+    const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
+    if (!assertProgressionEditable(actor)) {
+        return { removed: null, errors: ['Progression locked on unlinked token.'] };
+    }
     const bonds = getSummonBondsFromActor(actor);
     const idx = bonds.findIndex((b) => b.id === bondId);
     if (idx < 0)

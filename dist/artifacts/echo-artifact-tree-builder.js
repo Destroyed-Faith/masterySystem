@@ -27,7 +27,8 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 55;
+/** Bumped 2026-10-25: Breath Bite + Armor Aura Roar + Active Buff Damage rebalance. */
+export const ECHO_ARTIFACT_SEED_VERSION = 57;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -214,7 +215,8 @@ function bodyArmorBaseValueSpecs(weight, opts) {
  * stores the artifact bonus only; mundane Light/Medium/Heavy base is added at runtime.
  * Every Artifact Body Armor also stores Final Evade as a second slot-A Base Value.
  */
-const BASE_VALUE_TABLES = {
+/** Exported for alignment tests / audits — exact per-level Base Value tables. */
+export const BASE_VALUE_TABLES = {
     // PG "Stonebound Soles Base": A = Armor (+1 L1 … +5 L9-10), B = Tunneling
     // (+1 m L4-5 … +4 m L10). Tremor Sense is a Sense Slot option, not A/B.
     stoneboundSoles: [
@@ -325,9 +327,30 @@ const BASE_VALUE_TABLES = {
     ],
     // --- General artifacts (Artifact Examples) ---
     moonlightGreatsword: [
-        { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => twoHandedEchoDamageForLevel(l) },
-        { slot: 'b', type: 'weaponSpecial', label: 'Requiem', unlock: 4, valueAt: (l) => weaponSpecialRankForLevel([0, 4, 8, 8], l) },
-        { slot: 'c', type: 'weaponSpecial', label: 'Expose', unlock: 7, valueAt: (l) => weaponSpecialRankForLevel([0, 0, 4, 8], l) },
+        {
+            slot: 'a',
+            type: 'weaponDamage',
+            label: 'Weapon Damage',
+            unlock: 1,
+            valueAt: (l) => twoHandedEchoDamageForLevel(l),
+            note: '4d8 base + 1d8 per Artifact Level. Inherent Finesse is separate.',
+        },
+        {
+            slot: 'b',
+            type: 'spellFocus',
+            label: 'Spell Focus (+4d8)',
+            unlock: 4,
+            valueAt: () => 4,
+            note: 'Runestaff two-handed Spell Focus. Never on AoE / Moonlight Judgment; never doubled by Limited.',
+        },
+        {
+            slot: 'c',
+            type: 'weaponSpecial',
+            label: 'Expose',
+            unlock: 7,
+            valueAt: (l) => weaponSpecialRankForLevel([0, 0, 4, 5], l),
+            note: 'Expose(4) L7–9; Expose(5) L10.',
+        },
     ],
     soulSigil: bodyArmorBaseValueSpecs('light', {
         armorLabel: 'Light Armor',
@@ -663,6 +686,19 @@ function weaponProfileAtLevel(def, level) {
         innateAbilities: [],
         specials: [],
     };
+    if (def.key === 'moonlightGreatsword') {
+        return {
+            ...base,
+            weaponType: 'melee',
+            hands: 2,
+            innateAbilities: ['Finesse'],
+            specials: [
+                { specialId: 'finesse' },
+                ...specialRefsFromBaseValueRows(baseValuesAtLevel(def.key, level)),
+            ],
+            attackAttributes: ['might', 'agility'],
+        };
+    }
     if (def.key === 'huntersScourge') {
         const reachBv = table.find((b) => b.type === 'weaponSpecial' && b.label === 'Reach');
         const extra = reachBv && level >= reachBv.unlock ? String(reachBv.valueAt(level) || '') : '';

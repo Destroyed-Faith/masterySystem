@@ -127,7 +127,7 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(opts.some((o) => o.id.startsWith('natural-weapon-select:'))).toBe(false);
   });
 
-  it('aims Breath Weapon as a cone and carries Bite via forcedWeaponItemId', () => {
+  it('aims Breath Weapon as Damage (+Bite) and Ruin Melee AoE modes', () => {
     const head = {
       id: 'dh2',
       type: 'artifact',
@@ -144,21 +144,27 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
           {
             level: 1,
             name: 'Breath Weapon I',
-            type: 'Ranged AoE',
-            range: '20m',
-            aoe: 'Radius 3m',
-            effect: 'payload',
+            type: 'Melee AoE',
+            range: 'Self',
+            aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
+            effect: 'Damage Breath or Ruin Breath (no Bite)',
           },
         ],
       },
       getFlag: flag({ artifactActivated: true }),
     };
     const opts = buildArtifactRadialOptions(actor([head]));
-    const breath = opts.find((option) => option.name === 'Breath Weapon I');
-    expect(breath?.aoeShape).toBe('cone');
-    expect(breath?.aoeRadiusMeters).toBe(6);
-    expect(breath?.burstMeleeAoE).toBe(false);
-    expect(breath?.forcedWeaponItemId).toBe('dh2');
+    const damage = opts.find((option) => /Damage Breath/i.test(option.name));
+    const ruin = opts.find((option) => /Ruin Breath/i.test(option.name));
+    expect(damage?.aoeShape).toBe('radius');
+    expect(damage?.aoeRadiusMeters).toBe(3);
+    expect(damage?.burstMeleeAoE).toBe(true);
+    expect(damage?.ignoreWeaponDamage).toBe(false);
+    expect(damage?.dragonHeadDamageBreath).toBe(true);
+    expect(damage?.forcedWeaponItemId).toBe('dh2');
+    expect(ruin?.ignoreWeaponDamage).toBe(true);
+    expect(ruin?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
+    expect(ruin?.forcedWeaponItemId).toBeUndefined();
     expect(opts.some((option) => option.id === 'natural-weapon-select:dh2')).toBe(false);
     expect(opts.some((option) => option.id.startsWith('artifact-weapon:'))).toBe(false);
   });

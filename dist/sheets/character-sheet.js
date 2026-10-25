@@ -322,6 +322,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     async #onOpenTowerWizard(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         try {
             await showTowerWizardDialog(this.actor);
             this.render();
@@ -337,6 +340,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onAddPower(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         try {
             await showPowerCreationDialog(this.actor);
             this.render();
@@ -350,6 +356,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onReplacePower(event) {
         event.preventDefault();
         event.stopPropagation();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!game.user?.isGM) {
             ui.notifications?.warn('Only the GM can replace powers.');
             return;
@@ -380,6 +389,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     async #onOpenManualCombatPackage(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         try {
             await showTowerWizardDialog(this.actor, { manualBuildMode: true });
             this.render();
@@ -631,6 +643,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Open General Items Storage Window
      */
     async #openGeneralItemsStorage() {
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         try {
             const { GeneralItemsStorageDialog } = await import('./general-items-storage-dialog.js');
             await GeneralItemsStorageDialog.showForActor(this.actor);
@@ -645,6 +660,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onStoreClick(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!game.user?.isGM) {
             ui.notifications?.warn('Only the GM can access the Store');
             return;
@@ -1147,7 +1165,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Note: armorTotal and evadeTotal are now calculated in actor.prepareDerivedData()
         // No need to calculate here - just use the derived values from system.combat
         // Add skills list (sorted alphabetically)
-        context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
+        // Legacy fixed Skills are retired — Specializations are the only Skills UI.
+        context.skills = [];
         // DF 2026 Specializations (live path); legacy fixed Skills stay as archive.
         this.#prepareSpecializations(context);
         // Prepare disadvantages (named-card layout for physical / mental limitations)
@@ -1463,6 +1482,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             context.sheetIdentity = {
                 kind: 'original',
                 isUnlinkedToken: false,
+                progressionLocked: false,
                 showOriginalBadge: false,
                 originalActorId: null,
                 originalActorName: null,
@@ -1629,8 +1649,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!root)
             return;
         try {
-            const { bindActorSheetIdentityControls } = await import('./actor-sheet-identity.js');
+            const { bindActorSheetIdentityControls, buildActorSheetIdentityContext } = await import('./actor-sheet-identity.js');
             bindActorSheetIdentityControls(root, this.actor);
+            root.classList.toggle('ms-progression-locked', buildActorSheetIdentityContext(this.actor).progressionLocked);
         }
         catch (err) {
             console.warn('Mastery System | sheet identity controls failed', err);
@@ -3781,6 +3802,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onConfirmAttributeChanges(event) {
         event.preventDefault();
         event.stopPropagation();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!this.actor.isOwner) {
             ui.notifications?.warn('Only the owner can confirm Attribute Point changes.');
             return;
@@ -4040,6 +4064,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onConfirmPowerLevelChanges(event) {
         event.preventDefault();
         event.stopPropagation();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         // Check if user is owner
         if (!this.actor.isOwner) {
             ui.notifications?.warn('Only the owner can confirm Power Level changes.');
@@ -5256,6 +5283,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn('Only a GM can refresh XP.');
             return;
         }
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         const preview = computeGroundTruthXp(this.actor);
         const content = formatXpRecalcHtml(String(this.actor.name || 'Charakter'), preview);
         if (!preview.ok) {
@@ -5761,6 +5791,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     async #onSpecializationAdd(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!this.actor.isOwner && !game.user?.isGM) {
             ui.notifications?.warn('Only the owner (or GM) can edit Specializations.');
             return;
@@ -5778,6 +5811,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     async #onSpecializationEdit(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!this.actor.isOwner && !game.user?.isGM)
             return;
         const specId = String(event.currentTarget.dataset.specId || '');
@@ -5795,6 +5831,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     async #onSpecializationDelete(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!this.actor.isOwner && !game.user?.isGM)
             return;
         const specId = String(event.currentTarget.dataset.specId || '');
@@ -5808,6 +5847,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /** Spend 4 XP to raise one Specialization by one Rank (once per Upgrade Step). */
     async #onSpecializationRankUp(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         if (!this.actor.isOwner && !game.user?.isGM)
             return;
         const specId = String(event.currentTarget.dataset.specId || '');
@@ -5848,8 +5890,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         // No open GM request — record verbally announced GM check (not server-verified).
+        // Perception is the universal Skill (Wits / Intellect / Resolve Focus), not a Field Spec.
         const skillRef = spec
-            ? { kind: 'specialization', id: spec.id }
+            ? isCharacterPerceptionSpec(spec)
+                ? ({ kind: 'perception' })
+                : { kind: 'specialization', id: spec.id }
             : { kind: 'untrained' };
         const choice = await promptSkillCheckRollDialog({
             actor: this.actor,
@@ -6968,6 +7013,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     async #onV099StoneSlot(ev) {
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         let sys = this.actor.system ?? {};
         if (!usesV099Stones(sys)) {
             const ok = await this.#ensureV099StonesReady();
@@ -7139,6 +7187,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         event?.preventDefault?.();
         if (!game.user?.isGM)
             return;
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         const on = this.actor.getFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG) === true;
         if (on)
             await this.actor.unsetFlag('mastery-system', STONE_REDISTRIBUTE_FLAG);
@@ -7149,6 +7200,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onGmReleaseAllStones(event) {
         event?.preventDefault?.();
         if (!game.user?.isGM)
+            return;
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
             return;
         const confirmed = await Dialog.confirm({
             title: 'Alle Steine lösen',
@@ -7637,6 +7691,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onFinalizeCreation(event) {
         event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
         const system = this.actor.system;
         const masteryRank = Math.max(1, Math.floor(Number(system.mastery?.rank) || 2));
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];

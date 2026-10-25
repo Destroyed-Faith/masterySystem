@@ -66,12 +66,12 @@
       },
       {
         "level": 10,
-        "name": "True Oracle Frame",
-        "type": "Ultimate",
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
         "range": "Self",
         "duration": "Special",
-        "effect": "Once per Safe Haven Rest, when you use Aid Roll through Oracle Frame, you may treat one required lower Tier as already paid.",
-        "special": "Aid Roll Stone Power"
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Oracle Frame)"
       }
     ],
     "stoneFunction": null,
@@ -758,8 +758,8 @@
       },
       {
         "id": "oracleFrame-pw-10",
-        "name": "True Oracle Frame",
-        "fluff": "Special: Aid Roll Stone Power",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Oracle Frame)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -947,7 +947,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },
@@ -957,7 +957,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "Once per Safe Haven Rest, when you use Aid Roll through Oracle Frame, you may treat one required lower Tier as already paid."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -985,7 +985,7 @@
       "childIds": [],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "Y8FH8DJleP9D4N3X",

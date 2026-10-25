@@ -67,12 +67,12 @@
       },
       {
         "level": 10,
-        "name": "Dragon Transformation",
-        "type": "Ultimate",
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
         "range": "Self",
         "duration": "Special",
-        "effect": "You unlock your Wyrm Dragon Form. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits.",
-        "special": "Wyrm Dragon Form"
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Wyrm Scales)"
       }
     ],
     "stoneFunction": null,
@@ -749,8 +749,8 @@
       },
       {
         "id": "wyrmScalesHeavy-pw-10",
-        "name": "Dragon Transformation",
-        "fluff": "Special: Wyrm Dragon Form",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Wyrm Scales)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -938,7 +938,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },
@@ -948,7 +948,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "You unlock your Wyrm Dragon Form. Choose the shape of this form when this Artifact reaches Level 10. The form occupies a large space, uses the transformation rules below, and grants the listed Dragon Form benefits."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -976,7 +976,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "uMjiKfz7qLO7vRI9",

@@ -7,7 +7,7 @@
 import type { ArtifactLevelProgressionRow, ArtifactProgressionPick } from '../types/item.js';
 /** Full 1–10 table: picks-derived rows when present, else the authored definition. */
 export declare function resolveFullLevelProgression(authored: ArtifactLevelProgressionRow[] | null | undefined, picks: ArtifactProgressionPick[] | null | undefined): ArtifactLevelProgressionRow[];
-/** Level-10 capstone rows (e.g. True Dragon Head) — not a fourth staged slot. */
+/** Level-10 capstone rows (Awakening / legacy True … Ultimate) — not a fourth staged slot. */
 export declare function isUltimateProgressionRow(row: ArtifactLevelProgressionRow): boolean;
 /** Which of the three standard pick slots a staged row belongs to (0..2). */
 export declare function progressionSlotIndex(row: ArtifactLevelProgressionRow): number;

@@ -1,0 +1,92 @@
+{
+  "name": "Primal Vestment - Level 1-1",
+  "type": "artifact",
+  "img": "icons/svg/statue.svg",
+  "system": {
+    "level": 1,
+    "currentLevel": 1,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "",
+    "slot": "body",
+    "baseProfile": "noArmorBody",
+    "binding": "echo",
+    "echoKey": "unbound",
+    "baseValues": [],
+    "levelProgression": [],
+    "stoneFunction": null,
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "resolve",
+          "stonePowerId": "resolve.healing",
+          "supportStages": [
+            2,
+            5,
+            8
+          ]
+        },
+        "displayName": "Flesh Remembers"
+      },
+      {
+        "level": 3,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "generic.extraAttack",
+          "supportStages": [
+            3,
+            6,
+            9
+          ]
+        },
+        "displayName": "Rage Unbound"
+      }
+    ],
+    "lore": "Beast Unbound Echo Artifact: the awakened hunting body. No Base Values. Choosing it grants the Primal Rage (2 Points) Disadvantage.",
+    "description": "Beast Unbound Echo Artifact: the awakened hunting body. No Base Values. Choosing it grants the Primal Rage (2 Points) Disadvantage.\n\nA Beast with Primal Vestment cannot use another Body Artifact or Body Armor. Explicit exception: two Stone Power Support functions and Extra Attack support from the Body Slot.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [],
+    "inventorySize": "1x1",
+    "artifactArmor": null,
+    "equipSlots": [
+      "body"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "primalVestment-l1",
+      "parentIds": [],
+      "childIds": [
+        "primalVestment-l2"
+      ],
+      "isRoot": true,
+      "echoBound": "unbound",
+      "echoArtifactKey": "primalVestment",
+      "seedVersion": 57
+    }
+  },
+  "_id": "MlmNZB7NBWaBqVz6",
+  "folder": "zzVXkCEN7OjCTkiG",
+  "_key": "!items!MlmNZB7NBWaBqVz6"
+}

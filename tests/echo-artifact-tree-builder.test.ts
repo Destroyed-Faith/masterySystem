@@ -131,9 +131,10 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
         const sys = node.itemData.system as any;
         expect(sys.levelProgression).toEqual(visibleAbilityRows(full, node.level));
         expect(sys.levelProgression.length).toBeLessThanOrEqual(node.level >= 10 ? 4 : 3);
-        if (node.level === 1) expect(sys.levelProgression).toHaveLength(1);
-        if (node.level === 2) expect(sys.levelProgression).toHaveLength(2);
-        if (node.level >= 3 && node.level <= 9) expect(sys.levelProgression).toHaveLength(3);
+        // Some Core tables leave early slots blank (e.g. Primal Vestment L1/4/7).
+        if (node.level === 1) expect(sys.levelProgression.length).toBeLessThanOrEqual(1);
+        if (node.level === 2) expect(sys.levelProgression.length).toBeLessThanOrEqual(2);
+        if (node.level >= 3 && node.level <= 9) expect(sys.levelProgression.length).toBeLessThanOrEqual(3);
       }
     }
   });
@@ -251,7 +252,8 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
     expect(l5Rows.some((r: any) => r.name === 'Mobility Extension II')).toBe(true);
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression as any[];
-    expect(l10.some((r: any) => r.name === 'True Serpent Form')).toBe(true);
+    expect(l10.some((r: any) => r.name === 'Artifact Awakening')).toBe(true);
+    expect(l10.some((r: any) => /True Serpent/i.test(String(r.name)))).toBe(false);
   });
 
   it('Dragon Claws bind Lacerate on the melee AoE special template and Push on Tail Sweep', () => {
@@ -496,36 +498,33 @@ describe('Echo Artifact tree builder — Titan Scars', () => {
     ]);
 
     const growth = l3rows.find((r) => r.name === 'Titan Growth I');
-    expect(String(growth.type)).toBe('Active Buff');
-    expect(String(growth.effect)).toMatch(/Size|Armor|Damage/i);
+    expect(String(growth.type)).toMatch(/Transformation/i);
+    expect(String(growth.effect)).toMatch(/Growth 1/i);
 
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
     const l2pick = picks.find((p) => p.level === 2);
     expect(l2pick.kind).toBe('stoneFunction');
-    expect(l2pick.stoneFunction).toEqual({
-      kind: 'stonePowerSupport',
-      attribute: 'might',
-      stonePowerId: 'might.meleeDamage',
-    });
-    expect(picks.find((p) => p.level === 1).kind).toBe('power');
+    expect(l2pick.stoneFunction.kind).toBe('stonePowerSupport');
+    expect(l2pick.stoneFunction.attribute).toBe('might');
+    expect(l2pick.stoneFunction.stonePowerId).toBe('might.meleeDamage');
+    expect(picks.find((p) => p.level === 1).kind).toBe('authored');
     const l3pick = picks.find((p) => p.level === 3);
     expect(l3pick.kind).toBe('stoneFunction');
-    expect(l3pick.stoneFunction).toEqual({
-      kind: 'stonePowerSupport',
-      attribute: 'vitality',
-      stonePowerId: 'vitality.removeScar',
-    });
+    expect(l3pick.stoneFunction.kind).toBe('stonePowerSupport');
+    expect(l3pick.stoneFunction.attribute).toBe('vitality');
+    expect(l3pick.stoneFunction.stonePowerId).toBe('vitality.removeScar');
   });
 
-  it('Titan Growth upgrades to PL 16 by L7 and keeps the True capstone', () => {
+  it('Titan Growth upgrades by L7 and keeps Artifact Awakening at L10', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     const l7 = (tree.nodes[6].itemData.system as any).levelProgression as any[];
     const growth7 = l7.find((r) => r.name === 'Titan Growth III');
     expect(growth7).toBeTruthy();
-    expect(String(growth7.effect)).toMatch(/16|Size|Armor|Damage/i);
+    expect(String(growth7.effect)).toMatch(/Growth 3|Size|Armor|Damage/i);
 
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression.map((r: any) => r.name);
-    expect(l10).toContain('True Titan Scars');
+    expect(l10).toContain('Artifact Awakening');
+    expect(l10.some((n: string) => /True Titan/i.test(n))).toBe(false);
   });
 });
 
@@ -548,7 +547,8 @@ describe('Echo Artifact tree builder — Dragon Head', () => {
     expect(l3).toEqual(['Breath Weapon I', 'Draconic Roar I', 'Draconic Recovery I']);
 
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression.map((r: any) => r.name);
-    expect(l10).toContain('True Dragon Head');
+    expect(l10).toContain('Artifact Awakening');
+    expect(l10.some((n: string) => /True Dragon Head/i.test(n))).toBe(false);
     expect(l10).toHaveLength(4);
   });
 });

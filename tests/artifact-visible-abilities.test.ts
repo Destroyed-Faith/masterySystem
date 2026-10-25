@@ -16,7 +16,7 @@ const DRAGON_HEAD_ROWS: ArtifactLevelProgressionRow[] = [
   { level: 7, name: 'Breath Weapon III', type: 'Active', effect: 'a3' },
   { level: 8, name: 'Draconic Roar III', type: 'Active Buff', effect: 'b3' },
   { level: 9, name: 'Draconic Recovery III', type: 'Stone Refresh', effect: 'c3' },
-  { level: 10, name: 'True Dragon Head', type: 'Ultimate', effect: 'ult' },
+  { level: 10, name: 'Artifact Awakening', type: 'Artifact Function', effect: 'ult' },
 ];
 
 describe('artifact-visible-abilities', () => {
@@ -29,6 +29,7 @@ describe('artifact-visible-abilities', () => {
   });
 
   it('detects level-10 ultimate rows', () => {
+    expect(isUltimateProgressionRow({ level: 10, name: 'Artifact Awakening', type: 'Artifact Function' })).toBe(true);
     expect(isUltimateProgressionRow({ level: 10, name: 'True Dragon Head', type: 'Ultimate' })).toBe(true);
     expect(isUltimateProgressionRow({ level: 4, name: 'Breath II', type: 'Active' })).toBe(false);
   });
@@ -64,6 +65,6 @@ describe('artifact-visible-abilities', () => {
     expect(visibleAbilityRows(DRAGON_HEAD_ROWS, 9).some((r) => r.type === 'Ultimate')).toBe(false);
     const l10 = visibleAbilityRows(DRAGON_HEAD_ROWS, 10);
     expect(l10).toHaveLength(4);
-    expect(l10[l10.length - 1].name).toBe('True Dragon Head');
+    expect(l10[l10.length - 1].name).toBe('Artifact Awakening');
   });
 });

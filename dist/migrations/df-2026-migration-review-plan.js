@@ -13,7 +13,7 @@
  * - Saving writes ONLY `system.specializations`, `system.echoImprints` and a
  *   review-stamp flag. XP / Stones / Powers / Artifacts are never touched.
  */
-import { ECHO_IMPRINTS, findEchoImprint, isSkillField, normalizeSpecializationName, specializationIdentityKey, validateEchoImprintSelections, validateSpecializationList, readSpecializations, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, } from '../rules/index.js';
+import { ECHO_IMPRINTS, findEchoImprint, isSkillField, normalizeSpecializationName, specializationIdentityKey, validateEchoImprintSelections, validateSpecializationList, readSpecializations, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, ensureCharacterHasPerceptionSpec, isCharacterPerceptionSpec, paidSpecializations, } from '../rules/index.js';
 import { DF_2026_RULES_SCHEMA_VERSION } from '../rules/index.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
@@ -31,6 +31,7 @@ const IMPRINT_ATTRIBUTES = [
 ];
 /** Legacy Skill category → closest Specialization Field (suggestion only). */
 const CATEGORY_TO_FIELD = {
+    // Perception is a free universal Skill — do not suggest it as Investigation.
     [SKILL_CATEGORIES.AWARENESS]: 'investigation',
     [SKILL_CATEGORIES.PHYSICAL]: 'physical',
     [SKILL_CATEGORIES.KNOWLEDGE_CRAFT]: 'science-craft',
@@ -100,8 +101,10 @@ export function buildDf2026ReviewPlan(actor) {
     const legacySkills = snapshot?.skills ?? system.skills ?? null;
     const legacyExpressions = snapshot?.minorExpressions ?? system.minorExpressions ?? null;
     const mr = masteryRankOf(system);
-    const currentSpecs = readSpecializations(system);
-    const haveNames = new Set(currentSpecs.map((s) => normalizeSpecializationName(s.name)));
+    const currentSpecsAll = readSpecializations(system);
+    // Review UI picks five *paid* Specs; free Perception is auto-ensured on save.
+    const currentSpecs = paidSpecializations(currentSpecsAll);
+    const haveNames = new Set(currentSpecsAll.map((s) => normalizeSpecializationName(s.name)));
     const legacySkillsList = [];
     const specSuggestions = [];
     if (legacySkills && typeof legacySkills === 'object') {
@@ -111,6 +114,17 @@ export function buildDf2026ReviewPlan(actor) {
                 continue;
             const def = SKILLS[skillKey];
             const name = def?.name ?? titleCase(skillKey);
+            // Universal Perception is never a paid Spec suggestion.
+            if (skillKey === 'perception' || normalizeSpecializationName(name) === 'perception') {
+                legacySkillsList.push({
+                    skillKey,
+                    name,
+                    field: 'perception',
+                    rating,
+                    categoryLabel: def?.category ? String(def.category) : 'Perception',
+                });
+                continue;
+            }
             const field = (def && CATEGORY_TO_FIELD[def.category]) || 'physical';
             legacySkillsList.push({
                 skillKey,
@@ -160,7 +174,7 @@ export function buildDf2026ReviewPlan(actor) {
         : null;
     const warnings = [];
     if (legacySkillsList.length && currentSpecs.length < STARTING_SPECIALIZATION_COUNT) {
-        warnings.push(`Pick exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK}. Legacy Skill ratings are not converted.`);
+        warnings.push(`Pick exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK} (Perception is free and does not use a slot). Legacy Skill ratings are not converted.`);
     }
     for (const u of unmappedExpressions) {
         warnings.push(`Minor Expression "${u.name}" needs a manual Echo Imprint choice.`);
@@ -219,7 +233,11 @@ export function normalizeReviewSpecialization(raw) {
     const name = String(raw?.name ?? '').trim();
     if (!name)
         return null;
-    const field = isSkillField(String(raw?.field ?? '')) ? raw.field : 'physical';
+    // Perception is free universal — never saved as one of the five paid review Specs.
+    if (isCharacterPerceptionSpec({ name, field: raw?.field, id: raw?.id }))
+        return null;
+    const fieldRaw = String(raw?.field ?? '');
+    const field = isSkillField(fieldRaw) && fieldRaw !== 'perception' ? fieldRaw : 'physical';
     return {
         id: specializationIdentityKey(name, field),
         name,
@@ -242,8 +260,12 @@ export function buildDf2026ReviewUpdate(actor, input, now = new Date()) {
             specs.push(spec);
     }
     const imprintIds = [...new Set((input?.echoImprints ?? []).map((v) => String(v ?? '').trim()).filter(Boolean))];
+    // Always keep free Perception alongside the five paid Specs.
+    const withPerception = ensureCharacterHasPerceptionSpec({
+        specializations: specs,
+    }).specializations;
     const errors = [];
-    errors.push(...validateSpecializationList(specs, { requireStartingBudget: true }).errors);
+    errors.push(...validateSpecializationList(withPerception, { requireStartingBudget: true }).errors);
     const attributes = {};
     for (const attr of IMPRINT_ATTRIBUTES) {
         attributes[attr] = Math.floor(Number(system?.attributes?.[attr]?.value) || 0);
@@ -254,17 +276,17 @@ export function buildDf2026ReviewUpdate(actor, input, now = new Date()) {
         attributes,
     }).errors);
     if (errors.length) {
-        return { ok: false, errors, update: null, specializations: specs, echoImprints: imprintIds };
+        return { ok: false, errors, update: null, specializations: withPerception, echoImprints: imprintIds };
     }
     return {
         ok: true,
         errors: [],
         update: {
-            'system.specializations': specs,
+            'system.specializations': withPerception,
             'system.echoImprints': imprintIds,
             [`flags.mastery-system.${DF_2026_REVIEWED_FLAG}`]: now.toISOString(),
         },
-        specializations: specs,
+        specializations: withPerception,
         echoImprints: imprintIds,
     };
 }

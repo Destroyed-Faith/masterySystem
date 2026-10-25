@@ -35,36 +35,65 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
   slot: 'bothHands',
   baseProfile: 'twoHandedWeapon',
   description:
-    'A two-handed Artifact Weapon forged from pale lunar radiance. Moonlight Greatsword attacks may use Might or Agility.',
+    'A two-handed Artifact Weapon forged from pale lunar radiance. Inherent Finesse: qualifying weapon attacks may use Might or Agility.',
   restriction:
     'The Moonlight Greatsword occupies both hand Slots. A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.',
   baseValues: [
-    { slot: 'a', label: 'Weapon Damage', note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).' },
-    { slot: 'b', label: 'Weapon Special', note: 'Requiem(4) from L4, Requiem(8) from L7.' },
-    { slot: 'c', label: 'Weapon Special', note: 'Expose(4) from L7, Expose(8) + True Moonlight at L10.' },
+    {
+      slot: 'a',
+      label: 'Weapon Damage',
+      note: '4d8 base + 1d8 per Artifact Level (L1 = 5d8 … L10 = 14d8). Inherent Finesse is not a Base Value.',
+    },
+    {
+      slot: 'b',
+      label: 'Spell Focus (+4d8)',
+      note: 'Unlocked at Level 4. Runestaff two-handed Spell Focus; never applies to AoE (incl. Moonlight Judgment); never doubled by Limited.',
+    },
+    {
+      slot: 'c',
+      label: 'Weapon Special: Expose',
+      note: 'Expose(4) at Levels 7–9; Expose(5) at Level 10. No separate Level-10 Ultimate.',
+    },
   ],
-  // The three Level Progression lines are standard catalog Powers, only renamed:
-  //   L1 Moonlight Mending  → Ranged Single Target Restoration (R-05; stages I/II/III
-  //                           @ L1/4/7 = PL 4/10/16, pools 2/6/10 Scarred Bars),
-  //   L2 Moonlight Judgment → Ranged AoE Targeted Special (Requiem),
-  //   L3 Moonlight Shadow   → Damage Aura Active Buff (stages I/II/III @ L3/6/9).
-  // The 1–9 rows are derived from these picks; only the bespoke L10 Ultimate
-  // ("True Moonlight") is authored verbatim below.
+  // Catalogue Technical References (Artefacts v0.9.9.5, 2026-10-25):
+  //   L1/4/7 Moonlight Mending  → Ranged Single Target Heal (PL 4/10/16)
+  //   L2/5/8 Moonlight Judgment → Limited Ranged AoE Attack (Spell; PL 4/10/16)
+  //   L3/6/9 Moonlight Shadow   → Active Buff: Damage Aura (PL 4/10/16)
+  //   L10 Artifact Awakening (universal; no True Moonlight Ultimate, no Requiem)
   progressionPickSpecs: {
-    1: { templateId: 'active-ranged-health-level-heal', name: 'Moonlight Mending' },
-    2: { templateId: 'active-ranged-aoe-targeted-special', special: 'requiem', name: 'Moonlight Judgment' },
-    3: { templateId: 'ab-damage-aura', name: 'Moonlight Shadow' },
+    1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
+    2: {
+      templateId: 'active-ranged-weapon-aoe',
+      name: 'Moonlight Judgment',
+      isSpell: true,
+      castingAttribute: 'intellect',
+      spellResolution: 'spellAttack',
+      stageEffectTexts: [
+        'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8**. No Weapon Damage, no Spell Focus Damage, and no Specials. **2 uses/Safe Haven Rest**.',
+        'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8**. Spell Focus does not apply to this AoE. **5 uses/Safe Haven Rest**.',
+        'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8**. Spell Focus does not apply to this AoE. **8 uses/Safe Haven Rest**.',
+      ],
+    },
+    3: {
+      templateId: 'ab-damage-aura',
+      name: 'Moonlight Shadow',
+      stageEffectTexts: [
+        'At the end of each of your Turns, enemies in a **2 m** aura take **3d8 damage**. Each creature once per Round. Uses/Safe Haven Rest = ceil(MR/2).',
+        'At the end of each of your Turns, enemies in a **3 m** aura take **7d8 damage**. Replaces Moonlight Shadow I. Uses/Safe Haven Rest = ceil(MR/2).',
+        'At the end of each of your Turns, enemies in a **4 m** aura take **11d8 damage**. Replaces Moonlight Shadow II. Uses/Safe Haven Rest = ceil(MR/2).',
+      ],
+    },
   },
   levelProgression: [
     {
       level: 10,
-      name: 'True Moonlight',
-      type: 'Ultimate',
+      name: 'Artifact Awakening',
+      type: 'Artifact Function',
       range: 'Self',
       duration: 'Special',
       effect:
-        'The Moonlight Greatsword fully awakens. Choose or define one final Moonlight effect with GM approval.',
-      special: 'True Moonlight',
+        'Apply the universal Artifact Awakening benefits to this Artifact\'s highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. No separate named Ultimate is granted.',
+      special: 'Artifact Level 10: Awakening (Moonlight Greatsword)',
     },
   ],
 };

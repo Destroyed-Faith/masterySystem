@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.791] - 2026-10-25
+
+### Added
+
+- **Artifact alignment (v0.9.9.5):** Hollow Crown, Primal Vestment / Primal Rage, Titan Growth runtime, Moonlight Judgment/Shadow rest uses, Dragon Head Breath (Damage + Bite / Ruin), seed **57** migration with library refresh.
+- **Active Buff: Damage rebalance:** +1d8 per PL (30 PP/+1d8); PL4/10/16 = +4/+10/+16d8; Red Hunt / Red Potion inherit `ab-damage`.
+- **GM API:** `game.masterySystem.runArtifactAlignmentMigration({ dryRun })` for safe Actor/token refresh.
+
+### Fixed
+
+- **Draconic Roar / Oracle Field:** Core Armor values synced to canonical Armor Aura (+4/+10/+16 and +1/+3/+5); audit contradictions removed.
+- **Migration:** Actors already at seed 56 still receive catalogue embeds when target seed is 57.
+
+### Changed
+
+- Echo Artifact packs rebuilt (seed 57); `ARTIFACT_ALIGNMENT_AUDIT.md` pre-live checklist.
+
 ## [0.9.790] - 2026-10-25
 
 ### Fixed

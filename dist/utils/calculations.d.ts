@@ -68,7 +68,10 @@ export declare function updateHealthBars(bars: HealthBar[], vitality: number): v
  * @param _currentBar legacy index — ignored; we derive the active bar
  * @param pool        optional pre-penalty dice pool (Attribute, MR, etc.)
  */
-export declare function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?: number): number;
+export declare function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?: number, opts?: {
+    deathlessBodyStage?: 0 | 1 | 2 | 3;
+    skipGrowthBars?: boolean;
+}): number;
 /**
  * Apply damage to health bars
  * Returns the new current bar index (clamped to max bars - 1)

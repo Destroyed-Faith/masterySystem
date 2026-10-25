@@ -67,12 +67,12 @@
       },
       {
         "level": 10,
-        "name": "True Serpent Form",
-        "type": "Ultimate",
+        "name": "Artifact Awakening",
+        "type": "Artifact Function",
         "range": "Self",
         "duration": "Special",
-        "effect": "Your body becomes perfectly adapted to motion. Choose or define one final mobility, evasion, or light-dragon transformation effect with GM approval.",
-        "special": "True Serpent Form"
+        "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
+        "special": "Artifact Level 10: Awakening (Serpent Scales)"
       }
     ],
     "stoneFunction": null,
@@ -753,8 +753,8 @@
       },
       {
         "id": "wyrmScalesLight-pw-10",
-        "name": "True Serpent Form",
-        "fluff": "Special: True Serpent Form",
+        "name": "Artifact Awakening",
+        "fluff": "Special: Artifact Level 10: Awakening (Serpent Scales)",
         "category": "passive",
         "tags": [],
         "cost": {
@@ -942,7 +942,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ultimate",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },
@@ -952,7 +952,7 @@
               "note": "Special"
             },
             "effect": {
-              "text": "Your body becomes perfectly adapted to motion. Choose or define one final mobility, evasion, or light-dragon transformation effect with GM approval."
+              "text": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged."
             },
             "specials": [],
             "lvl": 10
@@ -980,7 +980,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 55
+      "seedVersion": 57
     }
   },
   "_id": "JoNIlEYBz9jEnYa1",

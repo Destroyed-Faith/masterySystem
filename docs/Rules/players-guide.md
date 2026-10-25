@@ -2523,13 +2523,13 @@ The Oracle Frame channels **Influence** through protective fields, coordination,
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
-| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 1)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. |
+| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 1)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | You and allies in the area gain **+1 Armor**. |
 | **2** | **Oracle Evade Reduction I**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **3** | **Influence Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (2)</span> | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. |
-| **4** | **Oracle Field III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 3)</span> | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+9 Armor**. This replaces Oracle Field I. |
+| **4** | **Oracle Field III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 3)</span> | Active Buff Upgrade | Self | Radius 6 m | Mastery Rank Rounds | You and allies in the area gain **+3 Armor**. This replaces Oracle Field I. |
 | **5** | **Oracle Evade Reduction II**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **6** | **Influence Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. |
-| **7** | **Oracle Field V**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 5)</span> | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+14 Armor**. This replaces Oracle Field III. |
+| **7** | **Oracle Field V**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 5)</span> | Active Buff Upgrade | Self | Radius 10 m | Mastery Rank Rounds | You and allies in the area gain **+5 Armor**. This replaces Oracle Field III. |
 | **8** | **Oracle Evade Reduction III**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **9** | **Influence Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Oracle Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -2872,9 +2872,15 @@ Dragon Head grants **Predator Sense** as an available Special Sense Slot option.
 
 #### Breath Weapon Rules
 
-Breath Weapon grants **two alternative catalogue modes** at the same Artifact Level: **Damage Breath = Melee AoE Attack** and **Ruin Breath = Melee AoE Special: Ruin**, both at the listed Power Level. Choose exactly one mode on each use. These are not a combined Power and use the same Breath Weapon use counter. Both modes are **self-centered Martial AoE Powers** using their exact catalogue radii. No Cone/Line geometry or separate dragon-specific damage is granted. Damage Breath deals **only the printed Melee AoE Attack Power Damage Dice**, without Bite Weapon Damage. Ruin Breath applies the printed **Ruin(X)** only. Neither AoE adds Weapon Damage or Spell Focus Damage.
+Breath Weapon grants **two alternative catalogue modes** at the same Artifact Level: **Damage Breath = Melee AoE Attack** and **Ruin Breath = Melee AoE Special: Ruin**, both at the listed Power Level. Choose exactly one mode on each use. These are not a combined Power and use the same Breath Weapon use counter. Both modes are **self-centered Martial AoE Powers** using their exact catalogue radii. No Cone/Line geometry is granted.
 
-Make one Martial AoE Attack Roll, compare it separately to each affected creature's Evade, and use the normal Dive for Cover and other defenses. Neither mode creates additional attacks or special riders. Damage Breath uses one shared Power Damage Roll for all hit creatures; Bite damage never multiplies across targets. It has no additional Bite Special by default.
+**Damage Breath** uses the canonical **Melee AoE Attack** Power at its printed Power Level and — as an **explicit Dragon Head-only exception** to the universal no-Weapon-Damage-on-AoE rule — **adds this Artifact's own Bite Weapon Damage** to the shared damage pool. Do not add Dragon Claws damage or any other weapon's damage. Roll **one shared Damage Pool** (Bite + printed Power Dice + other eligible bonuses) and apply that same result to each successful AoE target after individual defenses. Dive for Cover and other catalogue AoE defenses apply normally.
+
+**Ruin Breath** remains the canonical **Melee AoE Special: Ruin**. It applies the printed **Ruin(X)** only. It adds **no Bite Damage**, **no Power Damage**, and **no additional Specials**.
+
+**Attack Attribute:** Both Breath modes may use either **Might** or **Agility**. Choose the Attribute before each Attack Roll. Never combine the two Attribute Pools.
+
+Bite remains available separately as this Artifact's natural melee weapon attack.
 
 ---
 
@@ -2885,6 +2891,8 @@ Make one Martial AoE Attack Roll, compare it separately to each affected creatur
 #### Breath Weapon Uses
 
 Breath Weapon can be used a number of times per Safe Haven Rest equal to half the character's Mastery Rank, rounded up.
+
+**Breath Weapon may be used only ONCE PER COMBAT.** Damage Breath and Ruin Breath share this combat restriction and the Safe Haven Rest counter. Artifact Awakening does not grant an extra combat use of Breath Weapon.
 
 | Mastery Rank | Breath Weapon Uses per Safe Haven Rest |
 |:---:|:---:|
@@ -2901,14 +2909,14 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **4d8** Power Damage (no Bite damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage). Use one AoE attack and the shared Breath Weapon counter. |
-| **2** | **Draconic Roar I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 4)</span> | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. |
+| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, radius 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. |
+| **2** | **Draconic Roar I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 4)</span> | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+4 Armor**. |
 | **3** | **Draconic Recovery I**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 4)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. |
-| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (no Bite damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
-| **5** | **Draconic Roar II**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 10)</span> | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. This replaces Draconic Roar I. |
+| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, radius 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
+| **5** | **Draconic Roar II**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 10)</span> | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+10 Armor**. This replaces Draconic Roar I. |
 | **6** | **Draconic Recovery II**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 10)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. |
-| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (no Bite damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
-| **8** | **Draconic Roar III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 16)</span> | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. This replaces Draconic Roar II. |
+| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, radius 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
+| **8** | **Draconic Roar III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 16)</span> | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+16 Armor**. This replaces Draconic Roar II. |
 | **9** | **Draconic Recovery III**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 16)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Dragon Head)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 

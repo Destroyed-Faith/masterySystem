@@ -2,7 +2,7 @@
  * Specializations dialogs for the character sheet (DF Players Guide 2026-10-23).
  * Add / Edit / Delete a free-named Specialization and the pre-roll option picker.
  */
-import { SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_FIELD_EXAMPLES, SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, isSkillField, readSpecializations, removeSpecialization, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_FIELD_EXAMPLES, SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, isSkillField, readSpecializations, removeSpecialization, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 function escapeHtml(value) {
     return String(value ?? '')
@@ -46,7 +46,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     const startRank = fixedStartingRank
         ? STARTING_SPECIALIZATION_RANK
         : (existing?.rank ?? 1);
-    const fieldOptions = SKILL_FIELDS.map((f) => `<option value="${f}" ${existing?.field === f ? 'selected' : ''}>${escapeHtml(SKILL_FIELD_LABELS[f])}</option>`).join('');
+    const fieldOptions = PAID_SKILL_FIELDS.map((f) => `<option value="${f}" ${existing?.field === f ? 'selected' : ''}>${escapeHtml(SKILL_FIELD_LABELS[f])}</option>`).join('');
     const rankBlock = fixedStartingRank
         ? `<div class="md-group">
         <label class="md-label">${masteryLocalize('MASTERY.df2026.specializations.rank', 'Rank')}</label>
@@ -57,7 +57,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'})</span></label>
         <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${allowRankEdit ? '' : 'disabled'} />
       </div>`;
-    const exampleOptions = SKILL_FIELDS.flatMap((f) => (SPECIALIZATION_FIELD_EXAMPLES[f] ?? []).map((ex) => `<option value="${escapeHtml(f)}::${escapeHtml(ex.name)}" data-field="${escapeHtml(f)}" data-name="${escapeHtml(ex.name)}" data-scope="${escapeHtml(ex.scope)}">${escapeHtml(SKILL_FIELD_LABELS[f])} — ${escapeHtml(ex.name)}</option>`)).join('');
+    const exampleOptions = PAID_SKILL_FIELDS.flatMap((f) => (SPECIALIZATION_FIELD_EXAMPLES[f] ?? []).map((ex) => `<option value="${escapeHtml(f)}::${escapeHtml(ex.name)}" data-field="${escapeHtml(f)}" data-name="${escapeHtml(ex.name)}" data-scope="${escapeHtml(ex.scope)}">${escapeHtml(SKILL_FIELD_LABELS[f])} — ${escapeHtml(ex.name)}</option>`)).join('');
     const content = `
     <form class="mastery-dialog-form spec-edit-form">
       <div class="md-group">
@@ -107,8 +107,12 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             : allowRankEdit
                                 ? Math.floor(Number(readValue(root, 'rank')) || 0)
                                 : (existing?.rank ?? 1);
-                        if (!isSkillField(fieldRaw)) {
+                        if (!isSkillField(fieldRaw) || fieldRaw === 'perception') {
                             globalThis.ui?.notifications?.warn?.('Choose a Field.');
+                            return done(false);
+                        }
+                        if (isCharacterPerceptionSpec({ name })) {
+                            globalThis.ui?.notifications?.warn?.('Perception is free for every character — it is not one of the five Specializations.');
                             return done(false);
                         }
                         const field = fieldRaw;

@@ -10,6 +10,12 @@ export interface ActorSheetIdentityContext {
     kind: ActorSheetIdentityKind;
     /** True only for synthetic actors from unlinked tokens. */
     isUnlinkedToken: boolean;
+    /**
+     * Permanent progression (XP, powers, stones, shop, …) is locked for the current user.
+     * Players are locked on unlinked tokens; GMs may still edit for testing.
+     * Combat state (HP, specials, spent stones) remains editable for everyone.
+     */
+    progressionLocked: boolean;
     /** Show the optional unobtrusive "original character" chip. */
     showOriginalBadge: boolean;
     /** World Actor id behind an unlinked token, when known. */
@@ -20,6 +26,16 @@ export interface ActorSheetIdentityContext {
 }
 /** True when `actor` is a synthetic Actor from an unlinked Token. */
 export declare function isUnlinkedTokenActor(actor: any): boolean;
+/** True when the current user is a GM (Foundry `game.user.isGM`). */
+export declare function isCurrentUserGm(): boolean;
+/**
+ * Permanent progression edits are blocked on unlinked token sheets for players.
+ * GMs may still edit (Dispatch/test tokens are throwaway). Combat stays editable for everyone.
+ * Returns false after a warning when locked.
+ */
+export declare function assertProgressionEditable(actor: any, opts?: {
+    silent?: boolean;
+}): boolean;
 /** World Actor that seeded this unlinked token, or null. */
 export declare function resolveOriginalActorFromTokenActor(actor: any): any | null;
 export declare function userCanViewActor(actor: any, user?: any): boolean;

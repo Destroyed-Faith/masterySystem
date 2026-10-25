@@ -13,7 +13,7 @@
  * Saving writes only `system.specializations` + `system.echoImprints` (+ a
  * review-stamp flag). XP / Stones / Powers / Artifacts are left untouched.
  */
-import { SKILL_FIELDS, SKILL_FIELD_LABELS, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findEchoImprint, } from '../rules/index.js';
+import { PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findEchoImprint, } from '../rules/index.js';
 import { applyDf2026Review, imprintsByAttribute, listDf2026ReviewPlans, } from './df-2026-migration-review-plan.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 const { ApplicationV2 } = foundry.applications.api;
@@ -32,7 +32,7 @@ function cap(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 function specRowHtml(row) {
-    const fieldOptions = SKILL_FIELDS.map((f) => `<option value="${f}" ${row.field === f ? 'selected' : ''}>${esc(SKILL_FIELD_LABELS[f])}</option>`).join('');
+    const fieldOptions = PAID_SKILL_FIELDS.map((f) => `<option value="${f}" ${row.field === f ? 'selected' : ''}>${esc(SKILL_FIELD_LABELS[f])}</option>`).join('');
     return `
     <div class="dfr-spec-row">
       <input type="text" class="dfr-spec-name" placeholder="Name" maxlength="60" value="${esc(row.name ?? '')}" />
@@ -122,7 +122,7 @@ function planHtml(plan, attrValue) {
         <h4>${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecs', 'Starting Specializations'))}
           <small>(<span class="dfr-spec-count">${count}</span> / ${STARTING_SPECIALIZATION_COUNT} × Rank ${STARTING_SPECIALIZATION_RANK})</small>
         </h4>
-        <p class="dfr-hint">${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecsHint', 'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation).'))}</p>
+        <p class="dfr-hint">${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecsHint', 'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation). Perception is free for every character and does not use one of these five slots.'))}</p>
         <div class="dfr-spec-rows">${starterSpecs.join('')}</div>
         <button type="button" data-action="add-spec" ${count >= STARTING_SPECIALIZATION_COUNT ? 'disabled' : ''}><i class="fas fa-plus"></i> ${esc(masteryLocalize('MASTERY.df2026.specializations.add', 'Add Specialization'))}</button>
       </section>
