@@ -195,6 +195,21 @@ export interface MasteryRollRecipe {
     attackCardMessageId?: string;
     guaranteedEights?: number;
 }
+/**
+ * Roll the initial pool. Standard rule: every face of 8 explodes. With
+ * Disadvantage, only one chosen 8 explodes; with Advantage, every initial
+ * face of 1 is rerolled exactly once before resolving explosions.
+ */
+/** @internal Exported for Crit / Disadvantage pool unit tests. */
+export declare function rollMasteryPoolDice(numDice: number, options?: {
+    explodeOn78?: boolean;
+    rollAdvantage?: boolean;
+    rollDisadvantage?: boolean;
+}): {
+    dice: number[];
+    exploded: number[];
+    dieChains: number[][];
+};
 /** Margin raises: each full +4 over TN = 1 Raise (echo, ritual, skill checks). */
 export declare function countMarginRaises(total: number, tn: number): number;
 /**

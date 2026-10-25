@@ -50,6 +50,10 @@ function rollFlatD8() {
  * Disadvantage, only one chosen 8 explodes; with Advantage, every initial
  * face of 1 is rerolled exactly once before resolving explosions.
  */
+/** @internal Exported for Crit / Disadvantage pool unit tests. */
+export function rollMasteryPoolDice(numDice, options) {
+    return rollDice(numDice, options);
+}
 function rollDice(numDice, options) {
     const explodeOn78 = !!options?.explodeOn78;
     const rollAdvantage = !!options?.rollAdvantage;
@@ -58,9 +62,9 @@ function rollDice(numDice, options) {
     const exploded = [];
     const dieChains = [];
     if (rollDisadvantage) {
-        // Phase 1: roll every die flat (no explosions yet). Phase 2: of the dice
-        // that came up 8, explode exactly one (we pick the first index, but any
-        // choice is mathematically equivalent for the explosion expectation).
+        // Phase 1: roll every die flat (no explosions yet). Phase 2: explode
+        // exactly one eligible die (8 normally; 7–8 with Crit). Any choice among
+        // eligible faces is equivalent for the explosion expectation.
         const initial = [];
         for (let i = 0; i < numDice; i++) {
             let face = rollFlatD8();
@@ -68,13 +72,12 @@ function rollDice(numDice, options) {
                 face = rollFlatD8();
             initial.push(face);
         }
-        const eightIndex = initial.findIndex((f) => f === 8);
+        const explodeFaceMin = explodeOn78 ? 7 : 8;
+        const explodeIndex = initial.findIndex((f) => f >= explodeFaceMin);
         for (let i = 0; i < numDice; i++) {
             const face = initial[i];
-            if (i === eightIndex) {
-                // Explode this 8 only (recursive face=8 chain) and prepend the
-                // initial 8 to the chain so display shows 8 + ... = total.
-                const tail = rollExplodingDieChain();
+            if (i === explodeIndex) {
+                const tail = explodeOn78 ? rollExplodingDieChain78() : rollExplodingDieChain();
                 const faces = [face, ...tail.faces];
                 const total = faces.reduce((a, b) => a + b, 0);
                 dieChains.push(faces);
@@ -405,7 +408,9 @@ export async function masteryRoll(options) {
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
     if (rollDisadvantage) {
-        const note = 'Disadvantage: only one 8 may explode';
+        const note = explodeAttack78
+            ? 'Disadvantage: only one 7–8 may explode'
+            : 'Disadvantage: only one 8 may explode';
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
     // Both may apply at once — the book does not cancel them into a normal roll.

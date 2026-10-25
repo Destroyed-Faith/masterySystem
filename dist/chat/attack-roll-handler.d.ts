@@ -17,5 +17,7 @@ export declare function executeAttackRollFromCard(button: JQuery, messageId: str
         spenderName: string;
         free?: boolean;
     };
+    /** Original roll used Crit (7–8 explode). Faith reroll must keep that without re-spending. */
+    preserveAttackExplode78?: boolean;
 }): Promise<void>;
 //# sourceMappingURL=attack-roll-handler.d.ts.map

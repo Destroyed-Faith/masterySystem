@@ -211,6 +211,7 @@ export async function executeFaithFractureReroll(
     // rerolled hit can continue into the damage dialog. A bare roll replay
     // (below) would post a disconnected roll message with no damage flow.
     const attackCardMessageId = String((recipe as any).attackCardMessageId || '').trim();
+    const preserveAttackExplode78 = !!(recipe as any).attackExplodeDiceOn78;
     if (attackCardMessageId) {
       const recipeActor = recipe.actorId ? (game as any).actors?.get(recipe.actorId) : null;
       const requesterOwnsAttacker = recipeActor
@@ -221,10 +222,14 @@ export async function executeFaithFractureReroll(
         if (!requesterOwnsAttacker || requesterUserId === (game as any).user?.id) {
           // GM-forced reroll of an NPC attack, or the GM rerolled their own
           // roll — the attack flow (incl. damage dialog) runs on this client.
-          await triggerAttackFaithReroll(attackCardMessageId, {
-            spenderName: gmFree ? 'GM' : String(spender.name),
-            free: gmFree,
-          });
+          await triggerAttackFaithReroll(
+            attackCardMessageId,
+            {
+              spenderName: gmFree ? 'GM' : String(spender.name),
+              free: gmFree,
+            },
+            { preserveAttackExplode78 },
+          );
         } else {
           // Player reroll: run the attack flow on the player's client, where
           // the raise plan on the card's Roll button is still in the DOM.
@@ -232,7 +237,8 @@ export async function executeFaithFractureReroll(
             type: 'faithFractureAttackReroll',
             userId: requesterUserId,
             attackCardMessageId,
-            spenderName: String(spender.name)
+            spenderName: String(spender.name),
+            preserveAttackExplode78,
           });
         }
       } catch (rollErr) {
@@ -299,8 +305,17 @@ export async function executeFaithFractureReroll(
 async function triggerAttackFaithReroll(
   attackCardMessageId: string,
   note: { spenderName: string; free?: boolean },
+  opts: { preserveAttackExplode78?: boolean } = {},
 ): Promise<void> {
-  const button = $(`.message[data-message-id="${attackCardMessageId}"] .roll-attack-btn`).first();
+  const cardRoot = $(`.message[data-message-id="${attackCardMessageId}"]`);
+  // Prefer the Crit button when the original roll exploded on 7–8 so data-use-crit
+  // is present; explode is still forced via preserveAttackExplode78 if charges are gone.
+  let button = opts.preserveAttackExplode78
+    ? cardRoot.find('.roll-attack-btn--crit, .roll-attack-btn[data-use-crit="1"]').first()
+    : $();
+  if (!button.length) {
+    button = cardRoot.find('.roll-attack-btn').first();
+  }
   if (!button.length) {
     (ui as any).notifications?.warn('Attack card not found in the chat log — cannot rerun the attack roll.');
     return;
@@ -330,7 +345,10 @@ async function triggerAttackFaithReroll(
     console.warn('Mastery System | restore raise flags for faith reroll failed', restoreErr);
   }
   const { executeAttackRollFromCard } = await import('./attack-roll-handler.js');
-  await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: note });
+  await executeAttackRollFromCard(button, attackCardMessageId, {
+    faithReroll: note,
+    preserveAttackExplode78: opts.preserveAttackExplode78 === true,
+  });
 }
 
 async function onFaithFractureRerollClick(message: ChatMessage): Promise<void> {
@@ -421,9 +439,11 @@ function onRenderChatMessageFaithReroll(message: ChatMessage, htmlRaw: HTMLEleme
 async function onFaithFractureSocket(payload: any): Promise<void> {
   if (payload?.type === 'faithFractureAttackReroll') {
     if (payload.userId === (game as any).user?.id) {
-      await triggerAttackFaithReroll(String(payload.attackCardMessageId || ''), {
-        spenderName: String(payload.spenderName || ''),
-      });
+      await triggerAttackFaithReroll(
+        String(payload.attackCardMessageId || ''),
+        { spenderName: String(payload.spenderName || '') },
+        { preserveAttackExplode78: payload.preserveAttackExplode78 === true },
+      );
     }
     return;
   }

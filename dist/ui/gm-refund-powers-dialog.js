@@ -113,7 +113,7 @@ export async function openGmRefundPowersDialog(actor, combat) {
                 };
                 body.addEventListener('click', onClick);
             },
-        }, { width: 480, height: 'auto', jQuery: true });
+        }, { width: 480, jQuery: true });
         dialog.render(true);
     });
 }

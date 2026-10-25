@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.799] - 2026-10-25
+
+### Fixed
+
+- **Roll with Crit + Faith/GM Reroll:** A Crit Attack that is rerolled (Faith Fracture / GM Reroll) keeps explode-on-7–8 without spending another Crit charge. Previously the reroll used the plain Roll button and a natural 7 stayed flat. Disadvantage + Crit also treats 7 as an eligible explode face.
+
 ## [0.9.798] - 2026-10-25
 
 ### Fixed

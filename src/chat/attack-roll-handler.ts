@@ -65,10 +65,15 @@ export function registerAttackRollClickHandler(): void {
 export async function executeAttackRollFromCard(
   button: JQuery,
   messageId: string,
-  opts: { faithReroll?: { spenderName: string; free?: boolean } } = {},
+  opts: {
+    faithReroll?: { spenderName: string; free?: boolean };
+    /** Original roll used Crit (7–8 explode). Faith reroll must keep that without re-spending. */
+    preserveAttackExplode78?: boolean;
+  } = {},
 ): Promise<void> {
   {
     const isFaithReroll = !!opts.faithReroll;
+    const preserveAttackExplode78 = opts.preserveAttackExplode78 === true;
     const message = (game as any).messages?.get(messageId);
     if (!message) {
       const allMessageIds = (game as any).messages ? Array.from((game as any).messages.keys()) : [];
@@ -719,7 +724,10 @@ export async function executeAttackRollFromCard(
         spell: tnKind === 'casting',
         damageDice: spellDamageDice,
       });
-      const critDeclared = button.attr('data-use-crit') === '1';
+      // Faith reroll of a Crit roll: keep 7–8 explode even though the charge
+      // was already spent and `.roll-attack-btn`.first() is the non-Crit button.
+      const critDeclared =
+        button.attr('data-use-crit') === '1' || (isFaithReroll && preserveAttackExplode78);
       const preferredRaw = String(button.attr('data-crit-source') || '');
       const preferredSource =
         preferredRaw === 'active-buff' ||
@@ -743,14 +751,16 @@ export async function executeAttackRollFromCard(
         buffQuotaRemaining: critLegal ? syncedQuota.remaining : 0,
         stoneCritCharges: critLegal ? critBank : 0,
         passiveCritCharges: critLegal ? passiveCritCharges : 0,
-        declared: critDeclared,
+        // On Faith Crit-preserve, skip charge resolution — explode is forced below.
+        declared: critDeclared && !(isFaithReroll && preserveAttackExplode78),
         preferredSource,
       });
       const npcCrit =
         !!sheetToHit?.crit ||
         (flags as any).npcCrit === true ||
         (flags as any).npcCrit === 'true';
-      const attackExplodeDiceOn78 = critMod.explodeOn78 || npcCrit;
+      const attackExplodeDiceOn78 =
+        critMod.explodeOn78 || npcCrit || (isFaithReroll && preserveAttackExplode78);
 
       const bloodRaises = 0;
       let raiseTnRollBonus = 0;

@@ -66,6 +66,26 @@ describe('GM faith reroll', () => {
     expect(String(masteryRoll.mock.calls[0][0].flavor)).not.toContain('spent 1 Reroll Point');
   });
 
+  it('keeps Crit explode-on-7–8 when replaying a non-attack-card recipe', async () => {
+    const message = recipeMessage();
+    (message.flags['mastery-system'].rollRecipe as any).attackExplodeDiceOn78 = true;
+    (globalThis as any).game = {
+      user: { id: 'gm', isGM: true },
+      users: { get: (id: string) => (id === 'gm' ? { id: 'gm', isGM: true, character: null } : null) },
+      actors: { get: vi.fn() },
+      messages: { get: () => message },
+    };
+
+    const res = await executeFaithFractureReroll('msg-1', '', 'gm', { gmFree: true });
+    expect(res).toEqual({ ok: true });
+    expect(masteryRoll).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attackExplodeDiceOn78: true,
+        isRerollResult: true,
+      }),
+    );
+  });
+
   it('still refuses a free reroll from a player', async () => {
     const message = recipeMessage();
     (globalThis as any).game = {

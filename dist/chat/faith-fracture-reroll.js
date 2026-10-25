@@ -183,6 +183,7 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
         // rerolled hit can continue into the damage dialog. A bare roll replay
         // (below) would post a disconnected roll message with no damage flow.
         const attackCardMessageId = String(recipe.attackCardMessageId || '').trim();
+        const preserveAttackExplode78 = !!recipe.attackExplodeDiceOn78;
         if (attackCardMessageId) {
             const recipeActor = recipe.actorId ? game.actors?.get(recipe.actorId) : null;
             const requesterOwnsAttacker = recipeActor
@@ -196,7 +197,7 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                     await triggerAttackFaithReroll(attackCardMessageId, {
                         spenderName: gmFree ? 'GM' : String(spender.name),
                         free: gmFree,
-                    });
+                    }, { preserveAttackExplode78 });
                 }
                 else {
                     // Player reroll: run the attack flow on the player's client, where
@@ -205,7 +206,8 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                         type: 'faithFractureAttackReroll',
                         userId: requesterUserId,
                         attackCardMessageId,
-                        spenderName: String(spender.name)
+                        spenderName: String(spender.name),
+                        preserveAttackExplode78,
                     });
                 }
             }
@@ -271,8 +273,16 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
  * success the damage dialog + follow-ups. Action costs and one-time side
  * effects are skipped inside `executeAttackRollFromCard` (faithReroll mode).
  */
-async function triggerAttackFaithReroll(attackCardMessageId, note) {
-    const button = $(`.message[data-message-id="${attackCardMessageId}"] .roll-attack-btn`).first();
+async function triggerAttackFaithReroll(attackCardMessageId, note, opts = {}) {
+    const cardRoot = $(`.message[data-message-id="${attackCardMessageId}"]`);
+    // Prefer the Crit button when the original roll exploded on 7–8 so data-use-crit
+    // is present; explode is still forced via preserveAttackExplode78 if charges are gone.
+    let button = opts.preserveAttackExplode78
+        ? cardRoot.find('.roll-attack-btn--crit, .roll-attack-btn[data-use-crit="1"]').first()
+        : $();
+    if (!button.length) {
+        button = cardRoot.find('.roll-attack-btn').first();
+    }
     if (!button.length) {
         ui.notifications?.warn('Attack card not found in the chat log — cannot rerun the attack roll.');
         return;
@@ -304,7 +314,10 @@ async function triggerAttackFaithReroll(attackCardMessageId, note) {
         console.warn('Mastery System | restore raise flags for faith reroll failed', restoreErr);
     }
     const { executeAttackRollFromCard } = await import('./attack-roll-handler.js');
-    await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: note });
+    await executeAttackRollFromCard(button, attackCardMessageId, {
+        faithReroll: note,
+        preserveAttackExplode78: opts.preserveAttackExplode78 === true,
+    });
 }
 async function onFaithFractureRerollClick(message) {
     if (game.user?.isGM) {
@@ -390,9 +403,7 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
 async function onFaithFractureSocket(payload) {
     if (payload?.type === 'faithFractureAttackReroll') {
         if (payload.userId === game.user?.id) {
-            await triggerAttackFaithReroll(String(payload.attackCardMessageId || ''), {
-                spenderName: String(payload.spenderName || ''),
-            });
+            await triggerAttackFaithReroll(String(payload.attackCardMessageId || ''), { spenderName: String(payload.spenderName || '') }, { preserveAttackExplode78: payload.preserveAttackExplode78 === true });
         }
         return;
     }
