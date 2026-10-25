@@ -27,8 +27,8 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-/** Bumped 2026-10-25: Breath Bite + Armor Aura Roar + Active Buff Damage rebalance. */
-export const ECHO_ARTIFACT_SEED_VERSION = 57;
+/** Bumped 2026-10-25: re-queue seed-57 embeds so Breath Melee AoE content pushes (was stamped without combat-usable type). */
+export const ECHO_ARTIFACT_SEED_VERSION = 58;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',

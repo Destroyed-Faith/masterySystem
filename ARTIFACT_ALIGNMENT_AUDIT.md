@@ -6,8 +6,8 @@ Version stamp: **v0.9.9.5 (2026-10-25)**.
 
 **Echo authority:** `docs/Rules/players-guide.md` (DF Core v0.9.9.5).
 
-**Seed:** `ECHO_ARTIFACT_SEED_VERSION = 57`  
-(Bumped from 56 so Actors already stamped at 56 still receive Breath Bite / Roar / Damage Buff catalogue embeds.)
+**Seed:** `ECHO_ARTIFACT_SEED_VERSION = 58`  
+(Bumped from 57 after live Scurry: seed-57 stamps hid Breath when rows still said `type: "Artifact Active"` — combat radial treated that as passive.)
 
 **Echo Artifacts verified:** **22** registry keys (Predator Crown / Witch Staff variants counted separately).
 
@@ -23,7 +23,8 @@ Version stamp: **v0.9.9.5 (2026-10-25)**.
 | # | Issue | Result |
 |---|--------|--------|
 | 1 | Dragon Breath Bite on Damage Breath (implementation + report) | **PASS** |
-| 2 | Seed 57 + migration refreshes seed-56 Actors | **PASS** |
+| 1b | Dragon Breath visible in combat UI (Artifact Active → attack) | **PASS** (fix: classifier + seed 58 content repair) |
+| 2 | Seed 58 + migration refreshes seed-56/57 Actors + broken Breath | **PASS** |
 | 3 | Draconic Roar vs Armor Aura | **PASS** (resolved — catalogue applied; see below) |
 | 4 | Active Buff: Damage PL4/10/16 = +4/+10/+16d8 in pipeline | **PASS** |
 | 5 | Rebuild / tests / GM import path | **PASS** (after this build) |
@@ -41,7 +42,7 @@ Version stamp: **v0.9.9.5 (2026-10-25)**.
 | Hollow Crown Deathless Body / Life Absorption caps | **PASS** (penalty shift + cap helpers; Life Absorption out-of-combat drain UI still GM-mediated) |
 | Primal Vestment → Primal Rage (2) Disadvantage | **PASS** |
 | All Echo L10 → Artifact Awakening | **PASS** |
-| Dragon Head Breath (Bite on Damage; Ruin no damage; shared uses; Might/Agility) | **PASS** |
+| Dragon Head Breath (Bite on Damage; Ruin no damage; shared uses; Might/Agility; combat UI) | **PASS** (live miss: `Artifact Active` was filtered as passive) |
 | Draconic Roar vs Armor Aura numerics | **PASS** (catalogue applied; Core text synced) |
 | Echo catalog-backed numeric stages (Armor / d8 / radius) | **PASS** (`tests/artifact-alignment-numeric-echo.test.ts`) |
 | Active Buff: Damage rebalance in combat rider path | **PASS** |
@@ -78,14 +79,15 @@ Covered by `tests/dragon-head-breath-bite.test.ts` and Active Buff Damage rebala
 
 | Item | Detail |
 |------|--------|
-| Previous | `ECHO_ARTIFACT_SEED_VERSION = 56` — Actors at 56 were skipped |
-| Current | **`57`** |
-| Comparison | `seed < 57` → refresh (includes previous **56**) |
-| Content path | Apply calls `seedArtifactLibrary()` → rebuilds world trees on seed mismatch → `pushWorldArtifactNodeToEmbeddedActors` |
-| Actor stamp | After apply, embed `flags.mastery-system.seedVersion = 57` (idempotent) |
-| Dry-run | Lists `wouldUpdate` with `previousSeed`; **no writes** |
+| Previous | `57` — could stamp embeds without combat-usable Breath type |
+| Current | **`58`** |
+| Comparison | `seed < 58` → refresh (includes **56** and **57**) |
+| Content path | Apply calls `seedArtifactLibrary()` → rebuilds world trees on seed mismatch → push to world **and unlinked Token** Actors |
+| Breath health | Dragon Head embeds with missing Breath or `type: "Artifact Active"` queued even if seed already matches (`reason: breath-content`) |
+| Actor stamp | After apply, embed `flags.mastery-system.seedVersion = 58` (idempotent when healthy) |
+| Dry-run | Lists `wouldUpdate` with `previousSeed` / `reason`; **no writes** |
 
-Fixtures tested: older seed (50) and **seedVersion 56** both queue; current seed 57 skips.
+Fixtures tested: older seed (50), **56**, healthy **58**, and **58 + Artifact Active Breath** (content repair).
 
 ---
 
@@ -206,9 +208,10 @@ Or the same `import` path with `{ dryRun: false }`.
 
 This:
 
-1. Runs `seedArtifactLibrary()` — rebuilds world Echo/General trees whose seed ≠ 57 and pushes `system` to embedded Actor copies.
-2. Stamps Actor / unlinked-token Artifact embeds to `seedVersion: 57`.
-3. Preserves Item IDs, Artifact Levels, XP, equipment, custom names.
+1. Runs `seedArtifactLibrary()` — rebuilds world Echo/General trees whose seed ≠ 58 and pushes `system` to embedded Actor **and unlinked Token** copies.
+2. Content-repairs Dragon Head embeds whose Breath row is still `Artifact Active` / missing.
+3. Stamps Actor / unlinked-token Artifact embeds to `seedVersion: 58`.
+4. Preserves Item IDs, Artifact Levels, XP, equipment, custom names.
 
 Optional: also run `game.masterySystem.resyncPowers()` so owned **Active Buff: Damage** items bake +4d8…+16d8.
 
@@ -220,9 +223,9 @@ Migration scans `scene.tokens` for `actor.isToken`. After apply, spot-check any 
 
 1. **Lor-Keth** — Titan Scars L2: Growth is Transformation (not Armor/TempHP buff).
 2. **Alaris** — Moonlight: Judgment Limited Ranged AoE Spell; Shadow uses ceil(MR/2).
-3. **Scurry (Dragon Head L3)** — Damage Breath shared pool **3d8 Bite + 4d8 Power**; with Active Buff: Damage PL4 → **+4d8** (11d8); Might or Agility; Damage/Ruin share once/Combat; Ruin deals no damage; Draconic Roar (when unlocked) = Armor Aura **+4/+10/+16**.
+3. **Scurry (Dragon Head L3)** — **Damage Breath** and **Ruin Breath** both appear in the combat Attack radial; shared pool **3d8 Bite + 4d8 Power** (11d8 with Damage Buff PL4); Might or Agility; shared once/Combat; Ruin deals no damage; Roar = Armor Aura **+4/+10/+16** (Preparation).
 4. **Beast with Primal Vestment** — Primal Rage (2) under Disadvantages.
-5. Echo Artifacts library — Hollow Crown + Primal Vestment present; seed **57**.
+5. Echo Artifacts library — Hollow Crown + Primal Vestment present; seed **58**.
 
 ### 7. If a sheet still shows stale text
 
@@ -246,13 +249,14 @@ Then re-open the Actor sheet.
 
 ## Files touched this consistency pass
 
-- `src/artifacts/echo-artifact-tree-builder.ts` — seed **57**
-- `src/migrations/artifact-alignment-2026-10-25.ts` — library refresh + seed-56 refresh
-- `src/module.ts` — `game.masterySystem.runArtifactAlignmentMigration`
-- `tests/dragon-head-breath-bite.test.ts` — Scurry L3 7d8 / 11d8
-- `tests/artifact-alignment-runtime.test.ts` — seed 56 + 57 fixtures
-- `tests/active-buff-damage-rebalance-2026-10-25.test.ts` — Breath pipeline rider
-- `docs/Rules/players-guide.md` — Roar / Oracle Field catalogue Armor (prior fix)
-- This audit file — contradictions removed
+- `src/radial-menu/artifact-options.ts` — `Artifact Active` / Breath name → attack (combat UI fix)
+- `src/utils/echo-artifacts.ts` — handwritten Breath type → `Melee AoE`
+- `src/utils/dragon-head-breath-repair.ts` — Breath content-health + catalogue rebuild
+- `src/utils/artifact-embedded-sync.ts` — push/resync includes unlinked Token Actors
+- `src/artifacts/echo-artifact-tree-builder.ts` — seed **58**
+- `src/migrations/artifact-alignment-2026-10-25.ts` — seed + Breath-content repair
+- `tests/dragon-head-breath-bite.test.ts` — L3 tree + stale Artifact Active radial
+- `tests/artifact-alignment-runtime.test.ts` — breath-content at current seed
+- This audit file
 
-Do not treat unchecked live-world play as PASS until the GM apply step above is done.
+**Live Foundry after this build:** F5 reload restores Breath in the combat UI (classifier fix). Also re-run migration apply once to stamp seed 58 and rewrite any remaining `Artifact Active` Breath rows on Scurry / unlinked tokens.

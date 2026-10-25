@@ -195,9 +195,12 @@ describe('Migration dry-run (fixture Actors)', () => {
     delete (globalThis as any).game;
   });
 
-  it('skips embeds already at the current seedVersion', async () => {
+  it('skips healthy embeds already at the current seedVersion', async () => {
     const { ECHO_ARTIFACT_SEED_VERSION } = await import(
       '../src/artifacts/echo-artifact-tree-builder.js'
+    );
+    const { rebuildDragonHeadVisibleProgression } = await import(
+      '../src/utils/dragon-head-breath-repair.js'
     );
     const fixtures = [
       {
@@ -208,7 +211,10 @@ describe('Migration dry-run (fixture Actors)', () => {
             id: 'dh1',
             type: 'artifact',
             name: 'Dragon Head',
-            system: { currentLevel: 3 },
+            system: {
+              currentLevel: 3,
+              levelProgression: rebuildDragonHeadVisibleProgression(3),
+            },
             flags: {
               'mastery-system': {
                 echoArtifactKey: 'dragonHead',
@@ -236,6 +242,65 @@ describe('Migration dry-run (fixture Actors)', () => {
     };
     const report = await runArtifactAlignmentMigration({ dryRun: true });
     expect(report.wouldUpdate.some((u) => u.actorId === 'scurry')).toBe(false);
+    delete (globalThis as any).game;
+  });
+
+  it('queues Dragon Head embeds with stale Artifact Active Breath even at current seed', async () => {
+    const { ECHO_ARTIFACT_SEED_VERSION } = await import(
+      '../src/artifacts/echo-artifact-tree-builder.js'
+    );
+    const fixtures = [
+      {
+        id: 'NkKUS1LAD4iLnjzf',
+        name: 'Scurry',
+        items: [
+          {
+            id: 'IqH2PUiBdJzevU5Q',
+            type: 'artifact',
+            name: 'Dragon Head',
+            system: {
+              currentLevel: 3,
+              levelProgression: [
+                {
+                  level: 1,
+                  name: 'Breath Weapon I',
+                  type: 'Artifact Active',
+                  range: 'Self',
+                  aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
+                },
+                { level: 2, name: 'Draconic Roar I', type: 'Active Buff' },
+                { level: 3, name: 'Draconic Recovery I', type: 'Stone Refresh' },
+              ],
+            },
+            flags: {
+              'mastery-system': {
+                echoArtifactKey: 'dragonHead',
+                seedVersion: ECHO_ARTIFACT_SEED_VERSION,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    (globalThis as any).game = {
+      actors: {
+        values: () =>
+          fixtures.map((f) => ({
+            id: f.id,
+            name: f.name,
+            items: f.items.map((it) => ({
+              ...it,
+              getFlag: (scope: string, key: string) =>
+                (it as any).flags?.[scope]?.[key],
+            })),
+          })),
+      },
+      scenes: [],
+    };
+    const report = await runArtifactAlignmentMigration({ dryRun: true });
+    const hit = report.wouldUpdate.find((u) => u.itemId === 'IqH2PUiBdJzevU5Q');
+    expect(hit).toBeTruthy();
+    expect(hit?.reason).toBe('breath-content');
     delete (globalThis as any).game;
   });
 });

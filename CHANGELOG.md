@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.794] - 2026-10-25
+
+### Fixed
+
+- **Dragon Head Breath missing in combat UI:** Core/`Artifact Active` Breath rows were classified as passive and skipped by the radial menu. Classifier + Breath-name override restore Damage/Ruin Breath; seed **58** re-queues seed-57 embeds and content-repairs stale Breath progression (including unlinked Token Actors).
+
 ## [0.9.793] - 2026-10-25
 
 ### Fixed

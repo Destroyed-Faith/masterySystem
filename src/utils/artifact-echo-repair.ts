@@ -9,6 +9,10 @@ import {
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
 import { wireEmbeddedArtifactToWorldTree, inferArtifactKeyFromName } from './artifact-tree-grant.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
+import {
+  dragonHeadBreathProgressionBroken,
+  isDragonHeadArtifactKey,
+} from './dragon-head-breath-repair.js';
 
 /** True when the embedded copy looks stale (missing progression data). */
 export function embeddedArtifactNeedsSync(emb: any): boolean {
@@ -18,7 +22,10 @@ export function embeddedArtifactNeedsSync(emb: any): boolean {
   const bv = sys.baseValues;
   const hasLp = Array.isArray(lp) && lp.length > 0;
   const hasBv = Array.isArray(bv) && bv.length > 0;
-  const echoKey = emb.getFlag?.('mastery-system', 'echoArtifactKey');
+  const echoKey =
+    emb.getFlag?.('mastery-system', 'echoArtifactKey') ||
+    emb.flags?.['mastery-system']?.echoArtifactKey ||
+    sys.echoArtifactKey;
   const isTree =
     !!emb.getFlag?.('mastery-system', 'evolutionRootItemId') ||
     emb.getFlag?.('mastery-system', 'echoBound') ||
@@ -26,7 +33,12 @@ export function embeddedArtifactNeedsSync(emb: any): boolean {
     sys.binding === 'bound' ||
     echoKey;
   if (!isTree) return false;
-  return !hasLp || !hasBv;
+  if (!hasLp || !hasBv) return true;
+  if (isDragonHeadArtifactKey(String(echoKey || ''))) {
+    const level = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
+    if (dragonHeadBreathProgressionBroken(lp, level)) return true;
+  }
+  return false;
 }
 
 /** @deprecated Use embeddedArtifactNeedsSync */

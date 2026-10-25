@@ -4,6 +4,27 @@
  */
 import { getWorldArtifactItemsInFolder, resolveWorldItemByNodeId } from './artifact-actor-tree.js';
 import { buildArtifactNodeIdMap, findRootItem } from './artifact-tree-lineage.js';
+/** World Actors plus unlinked Token Actors on scenes (Breath / seed push targets). */
+function collectActorsIncludingUnlinkedTokens() {
+    const game = globalThis.game;
+    if (!game?.actors)
+        return [];
+    const world = Array.from(game.actors.values?.() ?? game.actors);
+    const tokens = [];
+    try {
+        for (const scene of game.scenes ?? []) {
+            for (const td of scene.tokens ?? []) {
+                const a = td.actor;
+                if (a?.isToken)
+                    tokens.push(a);
+            }
+        }
+    }
+    catch {
+        /* scenes optional in unit tests */
+    }
+    return [...world, ...tokens];
+}
 /**
  * Updates every embedded Item on actors where evolutionRootItemId matches the tree root
  * and evolutionNodeId matches this world item's node.
@@ -22,8 +43,8 @@ export async function pushWorldArtifactNodeToEmbeddedActors(worldItem) {
     const nodeIdMap = buildArtifactNodeIdMap(folderItems);
     const root = findRootItem(fresh, nodeIdMap);
     const rootId = root.id;
-    const actors = game.actors;
-    if (!actors)
+    const actors = collectActorsIncludingUnlinkedTokens();
+    if (actors.length === 0)
         return 0;
     let total = 0;
     for (const actor of actors) {
@@ -77,8 +98,8 @@ export async function resyncArtifactTreeToAllActors(worldItem) {
     const nodeIdMap = buildArtifactNodeIdMap(folderItems);
     const root = findRootItem(fresh, nodeIdMap);
     const rootId = root.id;
-    const actors = game.actors;
-    if (!actors)
+    const actors = collectActorsIncludingUnlinkedTokens();
+    if (actors.length === 0)
         return { actors: 0, items: 0 };
     let itemCount = 0;
     let actorCount = 0;

@@ -148,6 +148,96 @@ describe('Shared Combat / Rest Breath uses', () => {
   });
 });
 
+describe('Dragon Head Level 3 always exposes both Breath modes', () => {
+  function activatedHead(progression: any[], level = 3) {
+    const flag = (extra: Record<string, unknown> = {}) => (scope: string, key: string) => {
+      if (scope !== 'mastery-system') return undefined;
+      if (key === 'artifactActivated') return true;
+      if (key === 'equipment') return { equipped: true, slot: 'head' };
+      return (extra as any)[key];
+    };
+    return {
+      id: 'IqH2PUiBdJzevU5Q',
+      type: 'artifact',
+      name: 'Dragon Head - Level 3-1',
+      system: {
+        binding: 'echo',
+        currentLevel: level,
+        naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
+        artifactWeapon: { damage: `${level}d8`, name: 'Bite', isNatural: true },
+        baseProfile: 'headArmor',
+        levelProgression: progression,
+      },
+      getFlag: flag({ echoArtifactKey: 'dragonHead', seedVersion: 57 }),
+      flags: {
+        'mastery-system': {
+          artifactActivated: true,
+          equipment: { equipped: true, slot: 'head' },
+          echoArtifactKey: 'dragonHead',
+        },
+      },
+    };
+  }
+
+  it('exposes Damage + Ruin Breath from catalogue tree node at L3 (7d8 shared pool)', async () => {
+    const { buildAllEchoArtifactTrees } = await import(
+      '../src/artifacts/echo-artifact-tree-builder.js'
+    );
+    const tree = buildAllEchoArtifactTrees().find((t) => t.echoArtifactKey === 'dragonHead');
+    const node = tree!.nodes.find((n) => n.nodeId === 'dragonHead-l3')!;
+    const head = activatedHead(node.itemData.system.levelProgression as any[], 3);
+    head.system = { ...node.itemData.system, equipped: true, currentLevel: 3 };
+    const opts = buildArtifactRadialOptions({
+      items: [head],
+      system: { mastery: { rank: 3 } },
+      getFlag: () => undefined,
+    });
+    const damage = opts.find((o) => /Damage Breath/i.test(o.name));
+    const ruin = opts.find((o) => /Ruin Breath/i.test(o.name));
+    expect(damage).toBeTruthy();
+    expect(ruin).toBeTruthy();
+    expect(damage?.dragonHeadDamageBreath).toBe(true);
+    expect(damage?.forcedWeaponItemId).toBe('IqH2PUiBdJzevU5Q');
+    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+4d8');
+    expect(ruin?.dragonHeadBreathMode).toBe('ruin');
+    expect(ruin?.ignoreWeaponDamage).toBe(true);
+  });
+
+  it('exposes both Breath modes even when embed still has stale Artifact Active type', () => {
+    const head = activatedHead([
+      {
+        level: 1,
+        name: 'Breath Weapon I',
+        type: 'Artifact Active',
+        range: 'Self',
+        aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
+        effect: 'Damage or Ruin',
+      },
+      {
+        level: 2,
+        name: 'Draconic Roar I',
+        type: 'Active Buff',
+        range: 'Self',
+        aoe: 'Radius 8 m',
+      },
+      {
+        level: 3,
+        name: 'Draconic Recovery I',
+        type: 'Stone Refresh',
+      },
+    ]);
+    const opts = buildArtifactRadialOptions({
+      items: [head],
+      system: { mastery: { rank: 3 } },
+      getFlag: () => undefined,
+    });
+    expect(opts.some((o) => /Damage Breath/i.test(o.name))).toBe(true);
+    expect(opts.some((o) => /Ruin Breath/i.test(o.name))).toBe(true);
+    expect(opts.find((o) => /Damage Breath/i.test(o.name))?.burstMeleeRadiusMeters).toBe(3);
+    expect(opts.find((o) => /Ruin Breath/i.test(o.name))?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
+  });
+});
+
 describe('Radial emits Damage Breath + Ruin Breath', () => {
   it('surfaces both modes; Damage carries Bite; Ruin does not', () => {
     const flag = (extra: Record<string, unknown> = {}) => (scope: string, key: string) => {

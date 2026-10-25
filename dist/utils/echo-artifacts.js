@@ -806,7 +806,7 @@ const DRAGON_HEAD = {
         {
             level: 1,
             name: 'Breath Weapon I',
-            type: 'Artifact Active',
+            type: 'Melee AoE',
             range: 'Self',
             aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
             duration: 'Instant',
@@ -835,7 +835,7 @@ const DRAGON_HEAD = {
         {
             level: 4,
             name: 'Breath Weapon II',
-            type: 'Artifact Active',
+            type: 'Melee AoE',
             range: 'Self',
             aoe: 'Damage: radius 6 m / Ruin: radius 5 m',
             duration: 'Instant',
@@ -864,7 +864,7 @@ const DRAGON_HEAD = {
         {
             level: 7,
             name: 'Breath Weapon III',
-            type: 'Artifact Active',
+            type: 'Melee AoE',
             range: 'Self',
             aoe: 'Damage: radius 8 m / Ruin: radius 7 m',
             duration: 'Instant',

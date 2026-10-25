@@ -63,8 +63,12 @@ function classifyArtifactRowType(rowType) {
         t.startsWith('ranged ')) {
         return 'attack';
     }
-    if (t.startsWith('active') || t === 'ultimate')
+    // Core handwritten Dragon Head Breath rows use "Artifact Active" (not "Active"
+    // and not "Melee AoE"). That label must surface as a combat attack — otherwise
+    // Breath Weapon is classified as passive and never reaches the radial menu.
+    if (t.includes('artifact active') || t.startsWith('active') || t === 'ultimate') {
         return 'attack';
+    }
     return 'passive';
 }
 /** Parse a range string ("8m", "12 m", "Self", "Touch") to meters. */
@@ -255,14 +259,19 @@ export function buildArtifactRadialOptions(actor) {
             if (lvl > currentLevel)
                 continue;
             const rowType = String(row.type || '').trim();
-            const category = classifyArtifactRowType(rowType);
+            const name = row.name || `${item.name} L${lvl}`;
+            // Breath Weapon must always be an attack option (Damage + Ruin modes),
+            // even when an older embed still carries a non-martial type label.
+            let category = classifyArtifactRowType(rowType);
+            if (category === 'passive' && isBreathWeaponName(name)) {
+                category = 'attack';
+            }
             // Passives are descriptive only; Reactions are surfaced via the
             // defender-reactions pipeline; Stone Power Supports have no action
             // at all. None of them belong in the active radial.
             if (category === 'passive' || category === 'reaction' || category === 'support')
                 continue;
             const id = `artifact:${item.id}:${lvl}:${rowType}`;
-            const name = row.name || `${item.name} L${lvl}`;
             const description = rowDescription(row);
             const typeTag = rowType.toLowerCase().replace(/\s+/g, '-') || 'active';
             if (category === 'movement') {
