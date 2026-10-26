@@ -16,7 +16,12 @@ import {
 } from '../src/chat/skill-check-request-state.js';
 import { buildConsolidatedResultsHtml } from '../src/chat/skill-check-request.js';
 import { resolveComparativeSkillCheck } from '../src/rules/index.js';
-import { listActorSkillOptions, resolveSkillRank, skillRefFromKey } from '../src/epic-roll/rolls-skill-panel.js';
+import {
+  listActorSpecializationOptions,
+  listActorSkillOptions,
+  resolveSkillRank,
+  skillRefFromKey,
+} from '../src/epic-roll/rolls-skill-panel.js';
 
 function basePayload(partial?: Partial<SkillCheckRequestPayload>): SkillCheckRequestPayload {
   return {
@@ -98,15 +103,27 @@ describe('Join / decline / propose', () => {
     expect(p.participants.alaris?.rollTotal).toBeUndefined();
   });
 
-  it('lists existing Specs with ranks plus Perception and Untrained', () => {
+  it('player proposal options are stored Specs only (no synthetic Perception/Untrained)', () => {
+    const actor = mockActor('oda', [
+      { id: 'mental:investigation', name: 'Investigation', rank: 2 },
+      { id: 'physical:tracking', name: 'Tracking', rank: 2 },
+    ]);
+    const opts = listActorSpecializationOptions(actor);
+    expect(opts.some((o) => o.key === 'perception')).toBe(false);
+    expect(opts.some((o) => o.key === 'untrained')).toBe(false);
+    expect(opts.map((o) => o.key).sort()).toEqual([
+      'mental:investigation',
+      'physical:tracking',
+    ]);
+    expect(opts.find((o) => o.key === 'physical:tracking')?.label).toMatch(/Tracking · Rank 2/);
+    expect(resolveSkillRank(actor, skillRefFromKey('mental:investigation'))).toBe(2);
+  });
+
+  it('GM helper list still includes Untrained for overrides', () => {
     const actor = mockActor('oda', [
       { id: 'mental:investigation', name: 'Investigation', rank: 2 },
     ]);
-    const opts = listActorSkillOptions(actor);
-    expect(opts.some((o) => o.key === 'perception')).toBe(true);
-    expect(opts.some((o) => o.key === 'untrained')).toBe(true);
-    expect(opts.find((o) => o.key === 'mental:investigation')?.rank).toBe(2);
-    expect(resolveSkillRank(actor, skillRefFromKey('mental:investigation'))).toBe(2);
+    expect(listActorSkillOptions(actor).some((o) => o.key === 'untrained')).toBe(true);
   });
 });
 
@@ -216,7 +233,7 @@ describe('Rolling gates and results', () => {
     expect(readyToFinalize(p)).toBe(true);
   });
 
-  it('buildConsolidatedResultsHtml renders Standard table', () => {
+  it('buildConsolidatedResultsHtml renders Standard table (helper only; no Publish Results)', () => {
     let p = basePayload({ title: 'Footprints Outside the City' });
     p = applyProposal(p, 'alaris', {
       skill: { kind: 'specialization', id: 'physical:tracking' },
@@ -232,6 +249,21 @@ describe('Rolling gates and results', () => {
     expect(html).toMatch(/Footprints Outside the City/);
     expect(html).toMatch(/19/);
     expect(html).toMatch(/Success/);
+  });
+
+  it('source no longer exposes Publish Results; uses Close Check', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const file = fs.readFileSync(
+      path.resolve(__dirname, '../src/chat/skill-check-request.ts'),
+      'utf8',
+    );
+    expect(file).toMatch(/ms-scr-close/);
+    expect(file).toMatch(/Close Check/);
+    expect(file).not.toMatch(/Publish results/);
+    expect(file).toMatch(/skillCheckRequestAck/);
+    expect(file).toMatch(/executeApprovedSkillRoll/);
+    expect(file).toMatch(/listActorSpecializationOptions/);
   });
 });
 

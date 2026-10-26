@@ -226,6 +226,82 @@
   color: var(--ms-accent, #c9a227);
 }
 
+.ms-scr-btn-primary {
+  background: var(--ms-accent, #c9a227);
+  border-color: var(--ms-accent, #c9a227);
+  color: #111;
+  font-weight: 600;
+}
+
+.ms-scr-btn-primary:hover {
+  color: #111;
+  filter: brightness(1.05);
+}
+
+/* Proposal / Modify dialogs — readable selects in light & dark themes */
+.mastery-system.ms-scr-propose-dialog .window-content,
+.mastery-system.ms-skill-check-dialog.ms-scr-propose-dialog .window-content {
+  color-scheme: light dark;
+}
+
+.mastery-system.ms-scr-propose-dialog .ms-scr-propose-form .md-select,
+.mastery-system.ms-scr-propose-dialog .ms-scr-propose-form .md-input,
+.mastery-system.ms-skill-check-dialog .ms-scr-propose-form .md-select,
+.mastery-system.ms-skill-check-dialog .ms-scr-propose-form .md-input {
+  width: 100%;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  border-radius: 6px;
+  border: 1px solid #8a9099;
+  background: #ffffff;
+  color: #1a1a1a;
+  color-scheme: light;
+}
+
+.mastery-system.ms-scr-propose-dialog .ms-scr-propose-form .md-select option,
+.mastery-system.ms-skill-check-dialog .ms-scr-propose-form .md-select option {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.mastery-system.ms-scr-propose-dialog .ms-scr-propose-form .md-select:focus,
+.mastery-system.ms-scr-propose-dialog .ms-scr-propose-form .md-input:focus,
+.mastery-system.ms-skill-check-dialog .ms-scr-propose-form .md-select:focus,
+.mastery-system.ms-skill-check-dialog .ms-scr-propose-form .md-input:focus {
+  outline: 2px solid rgba(139, 0, 0, 0.35);
+  border-color: #8b0000;
+}
+
+.ms-scr-roll-panel {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ms-scr-roll-summary {
+  font-size: 12px;
+}
+
+.ms-scr-paid-inline,
+.ms-scr-crit-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.ms-scr-final-tn {
+  font-weight: 600;
+}
+
 .ms-scr-approve {
   border-color: #3d7a4a;
 }

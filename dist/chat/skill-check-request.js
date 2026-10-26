@@ -2,20 +2,21 @@
  * Chat-driven Skill Check requests (Destroyed Faith).
  *
  * GM publishes one interactive ChatMessage from Rolls.
- * Players join voluntarily, propose Skill + Attribute.
- * GM approves / modifies / rejects inline.
- * Approved players roll via the existing Skill Check engine.
- * GM finalizes → one consolidated results card.
+ * Players join / propose via socket → GM applies ChatMessage updates.
+ * Approved players roll with compact controls (no second full Skill dialog).
+ * Results update the same card automatically; GM may Close Check.
  */
-import { SPEC_ATTRIBUTE_KEYS, isSpecAttributeKey, readSpecializations, resolveComparativeSkillCheck, skillAdvantageRerollMax, } from '../rules/index.js';
-import { promptSkillCheckRollDialog } from '../sheets/skill-check-roll-dialog.js';
+import { SPEC_ATTRIBUTE_KEYS, findSpecializationById, isSpecAttributeKey, readSpecializations, resolveComparativeSkillCheck, skillAdvantageRerollMax, } from '../rules/index.js';
 import { executeSkillCheck } from '../sheets/skill-check-execute.js';
 import { canonicalChatControls, syncChatRollChrome } from '../ui/quick-d8-bar.js';
-import { listActorSkillOptions, skillRefFromKey, skillKeyFromRef } from '../epic-roll/rolls-skill-panel.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import { listActorSpecializationOptions, listActorSkillOptions, participantSkillPreview, skillKeyFromRef, skillRefFromKey, } from '../epic-roll/rolls-skill-panel.js';
 import { SKILL_CHECK_REQUEST_SCHEMA, applyApprove, applyDecline, applyProposal, applyReject, applyRollResult, approvedAssignment, canActorJoinRequest, } from './skill-check-request-state.js';
 export { SKILL_CHECK_REQUEST_SCHEMA, approvedAssignment, canActorJoinRequest, readyToFinalize, } from './skill-check-request-state.js';
 const FLAG_SCOPE = 'mastery-system';
 const SOCKET_NAME = 'system.mastery-system';
+/** Dedupe rapid double-clicks (propose / roll). */
+const recentActionKeys = new Map();
 function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -46,6 +47,14 @@ function userOwnsActor(user, actor) {
 function isGm() {
     return !!globalThis.game?.user?.isGM;
 }
+function actionKeyOnce(key, windowMs = 1500) {
+    const now = Date.now();
+    const prev = recentActionKeys.get(key) || 0;
+    if (now - prev < windowMs)
+        return false;
+    recentActionKeys.set(key, now);
+    return true;
+}
 export function readSkillCheckRequest(message) {
     const flags = message?.flags?.[FLAG_SCOPE] ?? {};
     const raw = flags.skillCheckRequest;
@@ -60,21 +69,13 @@ function skillRefLabel(actor, ref) {
         return 'Perception';
     const specs = readSpecializations(actor?.system);
     const s = specs.find((x) => x.id === ref.id);
-    return s ? `${s.name} (R${s.rank})` : ref.id;
+    return s ? `${s.name} · Rank ${s.rank}` : ref.id;
 }
-/**
- * Authoritative assignment for an approved (or rolled) participant.
- * Used by the roll dialog / sheet entry points.
- */
 export function assignmentForActor(payload, actorId) {
     const assigned = approvedAssignment(payload, actorId);
     if (assigned) {
-        return {
-            ...assigned,
-            allowedSkills: [assigned.skill],
-        };
+        return { ...assigned, allowedSkills: [assigned.skill] };
     }
-    // Fallback for legacy callers — unapproved must not roll
     return {
         skill: { kind: 'untrained' },
         attributeKey: 'wits',
@@ -83,7 +84,6 @@ export function assignmentForActor(payload, actorId) {
         mode: payload.mode,
     };
 }
-/** Competing standalone dialog retired → open Rolls. */
 export async function showSkillCheckRequestDialog() {
     const { showEpicMasteryRollConfigDialog } = await import('../epic-roll/epic-mastery-roll-config-dialog.js');
     showEpicMasteryRollConfigDialog();
@@ -122,7 +122,7 @@ export async function createSkillCheckRequest(input) {
 function lifecycleBadge(payload) {
     switch (payload.lifecycle) {
         case 'completed':
-            return 'DONE';
+            return 'CLOSED';
         case 'cancelled':
             return 'CANCELLED';
         case 'rolling':
@@ -131,28 +131,72 @@ function lifecycleBadge(payload) {
             return 'OPEN';
     }
 }
+function renderInlineRollControls(payload, p, actor) {
+    if (p.status !== 'approved' || !p.skill || !p.attributeKey)
+        return '';
+    const preview = participantSkillPreview(actor, {
+        actorId: p.actorId,
+        skillRef: p.skill,
+        attributeKey: p.attributeKey,
+        baseTn: p.baseTn ?? payload.baseTn,
+    });
+    const baseTn = p.baseTn ?? payload.baseTn;
+    const isComparative = payload.mode === 'comparative';
+    const showCrit = preview.critAllowance > 0;
+    const paidBlock = isComparative
+        ? ''
+        : `<div class="ms-scr-paid-inline" data-actor-id="${escapeHtml(p.actorId)}" data-base-tn="${baseTn}">
+        <span>Paid Raises</span>
+        <button type="button" class="ms-scr-btn ms-scr-paid-minus" data-actor-id="${escapeHtml(p.actorId)}">−</button>
+        <strong class="ms-scr-paid-val" data-actor-id="${escapeHtml(p.actorId)}">0</strong>
+        <button type="button" class="ms-scr-btn ms-scr-paid-plus" data-actor-id="${escapeHtml(p.actorId)}">+</button>
+        <span class="ms-scr-final-tn" data-actor-id="${escapeHtml(p.actorId)}">Final TN ${baseTn}</span>
+      </div>`;
+    const critBlock = showCrit
+        ? `<label class="ms-scr-crit-inline">
+        <input type="checkbox" class="ms-scr-crit-check" data-actor-id="${escapeHtml(p.actorId)}" />
+        Skill Crit (${preview.critRemaining}/${preview.critAllowance} left)
+      </label>`
+        : '';
+    return `<div class="ms-scr-roll-panel" data-actor-id="${escapeHtml(p.actorId)}">
+    <div class="ms-scr-roll-summary">
+      <strong>${escapeHtml(actor?.name ?? p.actorId)}</strong>
+      · ${escapeHtml(preview.skillLabel)} ${preview.rank}
+      · ${escapeHtml(cap(p.attributeKey))} ${escapeHtml(preview.poolLabel)}
+      · ${escapeHtml(preview.advantageLabel)}
+    </div>
+    ${paidBlock}
+    ${critBlock}
+    <button type="button" class="ms-scr-btn ms-scr-btn-primary ms-scr-roll"
+      data-actor-id="${escapeHtml(p.actorId)}"
+      data-pool="${escapeHtml(preview.poolLabel)}"
+      data-comparative="${isComparative ? '1' : '0'}">
+      Roll · ${escapeHtml(preview.poolLabel)}${isComparative ? '' : ` vs TN ${baseTn}`}
+    </button>
+  </div>`;
+}
 function renderParticipantRow(payload, p) {
     const actor = globalThis.game?.actors?.get?.(p.actorId);
     const name = actor?.name ?? p.actorId;
     const gm = isGm();
+    const user = globalThis.game?.user;
+    const owns = userOwnsActor(user, actor);
     const skill = p.skill || p.proposedSkill
         ? skillRefLabel(actor, (p.skill || p.proposedSkill))
         : '—';
     const attr = cap(p.attributeKey || p.proposedAttributeKey || '—');
-    const tn = payload.mode === 'standard' && payload.showTn
+    const tnShown = payload.mode === 'standard' && (payload.showTn || gm)
         ? ` · TN ${p.baseTn ?? payload.baseTn}`
-        : payload.mode === 'standard' && gm
-            ? ` · TN ${p.baseTn ?? payload.baseTn}`
-            : '';
-    const expl = p.explanation ? ` — ${escapeHtml(p.explanation)}` : '';
+        : '';
     let detail = '';
     let actions = '';
+    let rollPanel = '';
     switch (p.status) {
         case 'declined':
             detail = 'Not participating';
             break;
         case 'proposed':
-            detail = `Proposed: ${skill} / ${attr}${expl}`;
+            detail = `Pending approval: ${skill} / ${attr}`;
             if (gm && payload.lifecycle !== 'completed' && payload.lifecycle !== 'cancelled') {
                 actions = `
           <button type="button" class="ms-scr-btn ms-scr-approve" data-actor-id="${escapeHtml(p.actorId)}">Approve</button>
@@ -161,22 +205,20 @@ function renderParticipantRow(payload, p) {
             }
             break;
         case 'rejected':
-            detail = `Rejected — revise proposal (${skill} / ${attr})`;
-            if (!gm && userOwnsActor(globalThis.game?.user, actor)) {
+            detail = `Rejected — revise (${skill} / ${attr})`;
+            if (!gm && owns) {
                 actions = `<button type="button" class="ms-scr-btn ms-scr-revise" data-actor-id="${escapeHtml(p.actorId)}">Revise</button>`;
             }
             break;
         case 'approved':
-            detail = `Approved: ${skill} / ${attr}${tn}`;
-            if (!gm &&
-                userOwnsActor(globalThis.game?.user, actor) &&
-                payload.lifecycle !== 'completed') {
-                actions = `<button type="button" class="ms-scr-btn ms-scr-roll" data-actor-id="${escapeHtml(p.actorId)}">Roll</button>`;
-            }
-            else if (gm) {
-                actions = `
-          <button type="button" class="ms-scr-btn ms-scr-modify" data-actor-id="${escapeHtml(p.actorId)}">Modify</button>
-          <button type="button" class="ms-scr-btn ms-scr-roll" data-actor-id="${escapeHtml(p.actorId)}">Roll (GM)</button>`;
+            detail = `Approved: ${skill} / ${attr}${tnShown}`;
+            if (payload.lifecycle !== 'completed' && payload.lifecycle !== 'cancelled') {
+                if (owns || gm) {
+                    rollPanel = renderInlineRollControls(payload, p, actor);
+                }
+                if (gm) {
+                    actions = `<button type="button" class="ms-scr-btn ms-scr-modify" data-actor-id="${escapeHtml(p.actorId)}">Modify</button>`;
+                }
             }
             break;
         case 'rolled': {
@@ -185,7 +227,7 @@ function renderParticipantRow(payload, p) {
                 : p.success
                     ? 'Success'
                     : 'Failure';
-            detail = `Rolled ${p.rollTotal ?? '—'} → ${outcome}${payload.mode === 'standard' ? ` (Final TN ${p.finalTn ?? '—'})` : ''}`;
+            detail = `Result ${p.rollTotal ?? '—'} → ${outcome}${payload.mode === 'standard' ? ` (Final TN ${p.finalTn ?? '—'})` : ''}`;
             break;
         }
     }
@@ -195,17 +237,16 @@ function renderParticipantRow(payload, p) {
       <span class="ms-scr-status ms-scr-status-${escapeHtml(p.status)}">${detail}</span>
     </div>
     <div class="ms-scr-participant-actions">${actions}</div>
+    ${rollPanel}
   </div>`;
 }
 function renderRequestCardHtml(payload) {
     const isComparative = payload.mode === 'comparative';
     const isAmbush = !!payload.comparative?.groupAmbush;
     const closed = payload.lifecycle === 'completed' || payload.lifecycle === 'cancelled';
-    const tnLine = !isComparative && payload.showTn
+    const tnLine = !isComparative && (payload.showTn || isGm())
         ? ` · Default TN <strong>${payload.baseTn}</strong>`
-        : !isComparative && isGm()
-            ? ` · Default TN <strong>${payload.baseTn}</strong> (GM)`
-            : '';
+        : '';
     const modeLine = isAmbush
         ? 'Group Ambush (Comparative)'
         : isComparative
@@ -217,9 +258,9 @@ function renderRequestCardHtml(payload) {
         .join('');
     const joinControls = !closed
         ? `<div class="ms-scr-join-row">
-          <button type="button" class="ms-scr-btn ms-scr-join">Participate</button>
-          <button type="button" class="ms-scr-btn ms-scr-decline">Not Participating</button>
-        </div>`
+        <button type="button" class="ms-scr-btn ms-scr-btn-primary ms-scr-join">Participate</button>
+        <button type="button" class="ms-scr-btn ms-scr-decline">Not Participating</button>
+      </div>`
         : '';
     let ambushGm = '';
     if (isAmbush && isGm() && !closed) {
@@ -240,13 +281,16 @@ function renderRequestCardHtml(payload) {
     }
     const gmFooter = isGm() && !closed
         ? `<div class="ms-scr-gm-footer">
-          <button type="button" class="ms-scr-btn ms-scr-finalize">Publish results</button>
-          <button type="button" class="ms-scr-btn ms-scr-cancel">Cancel request</button>
+          <button type="button" class="ms-scr-btn ms-scr-gm-assign">Assign character…</button>
+          <button type="button" class="ms-scr-btn ms-scr-close">Close Check</button>
         </div>`
+        : '';
+    const oppLine = payload.opposition?.rolled && isGm()
+        ? `<div class="ms-scr-note">Opposition (GM): ${escapeHtml(payload.opposition.label)} = ${payload.opposition.total}</div>`
         : '';
     const inviteHint = payload.invitedActorIds.length > 0
         ? `<p class="ms-scr-hint">Invitation limited to ${payload.invitedActorIds.length} character(s).</p>`
-        : `<p class="ms-scr-hint">Open invitation — eligible players may join voluntarily.</p>`;
+        : `<p class="ms-scr-hint">Open invitation — eligible players may join.</p>`;
     return `
     <div class="ms-skill-check-request" data-request-id="${escapeHtml(payload.requestId)}" data-mode="${escapeHtml(payload.mode)}" data-lifecycle="${escapeHtml(payload.lifecycle)}">
       <div class="ms-scr-head">
@@ -255,6 +299,7 @@ function renderRequestCardHtml(payload) {
       </div>
       <div class="ms-scr-meta">${escapeHtml(payload.taskDescription)} · <strong>${modeLine}</strong>${tnLine}</div>
       ${payload.note ? `<div class="ms-scr-note">${escapeHtml(payload.note)}</div>` : ''}
+      ${oppLine}
       ${inviteHint}
       ${joinControls}
       <div class="ms-scr-list">${participants || '<p class="ms-scr-hint">No participants yet.</p>'}</div>
@@ -264,19 +309,36 @@ function renderRequestCardHtml(payload) {
 }
 async function persistPayload(messageId, payload) {
     const msg = globalThis.game?.messages?.get?.(messageId);
-    if (!msg)
+    if (!msg) {
+        console.warn('[mastery-system] skill-check persist: message not found', messageId);
         return;
+    }
     const content = renderRequestCardHtml(payload);
-    await msg.update({
-        content,
-        flags: { [FLAG_SCOPE]: { skillCheckRequest: payload } },
-    });
+    try {
+        await msg.update({
+            content,
+            [`flags.${FLAG_SCOPE}.skillCheckRequest`]: payload,
+        });
+    }
+    catch (err) {
+        console.error('[mastery-system] skill-check persist failed', err);
+        // Fallback: full flags namespace (may clobber sibling flags on this message)
+        try {
+            await msg.update({
+                content,
+                flags: { [FLAG_SCOPE]: { skillCheckRequest: payload } },
+            });
+        }
+        catch (err2) {
+            console.error('[mastery-system] skill-check persist fallback failed', err2);
+            globalThis.ui?.notifications?.error?.('Failed to update Skill Check card.');
+        }
+    }
 }
 async function updatePayloadOnGm(messageId, mutator) {
     const msg = globalThis.game?.messages?.get?.(messageId);
-    if (!msg) {
+    if (!msg)
         return null;
-    }
     if (!isGm() && !msg.canUserModify?.(globalThis.game.user, 'update')) {
         return null;
     }
@@ -289,50 +351,138 @@ async function updatePayloadOnGm(messageId, mutator) {
     await persistPayload(messageId, next);
     return next;
 }
-/** Emit a player action for the GM to apply authoritatively. */
-function emitPlayerAction(data) {
-    globalThis.game?.socket?.emit?.(SOCKET_NAME, {
-        type: 'skillCheckRequestAction',
-        ...data,
+function findMessageByIdOrRequestId(messageId, requestId) {
+    const byId = messageId
+        ? globalThis.game?.messages?.get?.(messageId)
+        : null;
+    if (byId && readSkillCheckRequest(byId))
+        return byId;
+    if (!requestId)
+        return byId;
+    return Array.from(globalThis.game?.messages ?? []).find((m) => {
+        const r = readSkillCheckRequest(m);
+        return r?.requestId === requestId;
     });
+}
+function emitPlayerAction(data) {
+    const socket = globalThis.game?.socket;
+    if (!socket) {
+        globalThis.ui?.notifications?.error?.('No game socket — cannot reach the GM. Is the GM connected?');
+        return;
+    }
+    const payload = {
+        type: 'skillCheckRequestAction',
+        requesterUserId: String(globalThis.game?.user?.id || ''),
+        ...data,
+    };
+    socket.emit(SOCKET_NAME, payload);
+}
+function emitAckToUser(userId, ack) {
+    if (!userId)
+        return;
+    globalThis.game?.socket?.emit?.(SOCKET_NAME, {
+        type: 'skillCheckRequestAck',
+        targetUserId: userId,
+        ...ack,
+    });
+}
+function skillOwnedByActor(actor, skill) {
+    if (!skill)
+        return false;
+    if (skill.kind === 'specialization') {
+        return !!findSpecializationById(readSpecializations(actor?.system), skill.id);
+    }
+    // Player proposals must be real Specs only
+    return false;
 }
 async function applyPlayerActionAsGm(data) {
     if (!isGm())
         return;
     const messageId = String(data.messageId || '');
+    const requestId = String(data.requestId || '');
     const actorId = String(data.actorId || '');
     const action = String(data.action || '');
-    const msg = globalThis.game?.messages?.get?.(messageId);
+    const requesterUserId = String(data.requesterUserId || '');
+    const msg = findMessageByIdOrRequestId(messageId, requestId);
     const payload = msg ? readSkillCheckRequest(msg) : null;
-    if (!payload || payload.lifecycle === 'completed' || payload.lifecycle === 'cancelled')
+    if (!payload || !msg) {
+        emitAckToUser(requesterUserId, { ok: false, error: 'Skill Check request not found.' });
         return;
+    }
+    if (payload.lifecycle === 'completed' || payload.lifecycle === 'cancelled') {
+        emitAckToUser(requesterUserId, { ok: false, error: 'This Skill Check is closed.' });
+        return;
+    }
     const actor = globalThis.game?.actors?.get?.(actorId);
-    // Ownership was validated client-side; GM re-checks actor exists
-    if (!actor)
+    if (!actor) {
+        emitAckToUser(requesterUserId, { ok: false, error: 'Character not found.' });
         return;
+    }
+    const requester = globalThis.game?.users?.get?.(requesterUserId);
+    if (requesterUserId && requester && !userOwnsActor(requester, actor) && !requester.isGM) {
+        emitAckToUser(requesterUserId, { ok: false, error: 'You do not own that character.' });
+        console.warn('[mastery-system] skill-check reject: ownership', requesterUserId, actorId);
+        return;
+    }
+    const mid = String(msg.id);
     let next = null;
     if (action === 'decline') {
-        if (!canActorJoinRequest(payload, actorId) && payload.participants[actorId]?.status !== 'rejected') {
-            // already engaged — still allow decline from proposed? Spec: decline before propose
-        }
         next = applyDecline(payload, actorId);
     }
     else if (action === 'propose') {
         if (!canActorJoinRequest(payload, actorId) && payload.participants[actorId]?.status !== 'rejected') {
+            emitAckToUser(requesterUserId, {
+                ok: false,
+                error: 'Cannot propose for this character right now.',
+            });
             return;
         }
         const skill = data.skill;
         const attributeKey = String(data.attributeKey || '');
-        if (!skill || !isSpecAttributeKey(attributeKey))
+        if (!skill || !isSpecAttributeKey(attributeKey)) {
+            emitAckToUser(requesterUserId, { ok: false, error: 'Invalid Skill or Attribute.' });
             return;
-        next = applyProposal(payload, actorId, {
-            skill,
-            attributeKey,
-            explanation: String(data.explanation || ''),
-        });
+        }
+        if (!skillOwnedByActor(actor, skill)) {
+            emitAckToUser(requesterUserId, {
+                ok: false,
+                error: 'Skill must be an existing Specialization on this character.',
+            });
+            return;
+        }
+        next = applyProposal(payload, actorId, { skill, attributeKey });
     }
-    if (next)
-        await persistPayload(messageId, next);
+    else if (action === 'rolled') {
+        if (payload.participants[actorId]?.status === 'rolled') {
+            emitAckToUser(requesterUserId, {
+                ok: true,
+                requestId: payload.requestId,
+                action: 'rolled',
+            });
+            return;
+        }
+        if (payload.participants[actorId]?.status !== 'approved') {
+            emitAckToUser(requesterUserId, {
+                ok: false,
+                error: 'Approach is not approved for rolling.',
+            });
+            return;
+        }
+        next = applyRollResult(payload, actorId, data.patch || {});
+        if (next && next.mode === 'comparative' && next.opposition?.rolled) {
+            next = annotateComparativeOutcomes(next);
+        }
+    }
+    if (!next) {
+        emitAckToUser(requesterUserId, { ok: false, error: 'Update rejected.' });
+        return;
+    }
+    await persistPayload(mid, next);
+    emitAckToUser(requesterUserId, {
+        ok: true,
+        requestId: payload.requestId,
+        action,
+    });
 }
 function eligibleOwnedActors(payload) {
     const user = globalThis.game?.user;
@@ -342,16 +492,19 @@ function eligibleOwnedActors(payload) {
             continue;
         if (!userOwnsActor(user, a))
             continue;
-        if (user?.isGM && String(user.character?.id || '') !== String(a.id)) {
-            // GM may still join with selected character only for participate; allow all owned for GM testing
-            if (!user.character) {
-                /* allow */
-            }
-        }
         if (payload.invitedActorIds.length && !payload.invitedActorIds.includes(a.id))
             continue;
         out.push(a);
     }
+    // Prefer user.character first
+    out.sort((a, b) => {
+        const pref = String(user?.character?.id || '');
+        if (a.id === pref)
+            return -1;
+        if (b.id === pref)
+            return 1;
+        return String(a.name).localeCompare(String(b.name));
+    });
     return out;
 }
 async function promptProposalDialog(payload, preferredActorId) {
@@ -366,20 +519,30 @@ async function promptProposalDialog(payload, preferredActorId) {
     const initial = actors.find((a) => a.id === preferredActorId) ||
         actors.find((a) => a.id === globalThis.game?.user?.character?.id) ||
         actors[0];
-    const buildSkillOpts = (actor) => listActorSkillOptions(actor)
-        .map((o) => `<option value="${escapeHtml(o.key)}">${escapeHtml(o.label)}</option>`)
-        .join('');
+    const buildSkillOpts = (actor) => {
+        const opts = listActorSpecializationOptions(actor);
+        if (!opts.length) {
+            return `<option value="">— no Specializations —</option>`;
+        }
+        return opts
+            .map((o) => `<option value="${escapeHtml(o.key)}">${escapeHtml(o.label)}</option>`)
+            .join('');
+    };
     const attrOpts = SPEC_ATTRIBUTE_KEYS.map((k) => `<option value="${k}" ${k === 'wits' ? 'selected' : ''}>${cap(k)}</option>`).join('');
-    const actorOpts = actors
-        .map((a) => `<option value="${escapeHtml(a.id)}" ${a.id === initial.id ? 'selected' : ''}>${escapeHtml(a.name)}</option>`)
-        .join('');
+    const needsActorPicker = actors.length > 1;
+    const actorBlock = needsActorPicker
+        ? `<div class="md-group">
+        <label class="md-label">Character</label>
+        <select name="actor" class="md-select">${actors
+            .map((a) => `<option value="${escapeHtml(a.id)}" ${a.id === initial.id ? 'selected' : ''}>${escapeHtml(a.name)}</option>`)
+            .join('')}</select>
+      </div>`
+        : `<input type="hidden" name="actor" value="${escapeHtml(initial.id)}" />
+       <p class="md-sublabel"><strong>${escapeHtml(initial.name)}</strong></p>`;
     const content = `
     <form class="mastery-dialog-form ms-scr-propose-form">
-      <p class="md-sublabel"><strong>Task:</strong> ${escapeHtml(payload.taskDescription)}</p>
-      <div class="md-group">
-        <label class="md-label">Character</label>
-        <select name="actor" class="md-select">${actorOpts}</select>
-      </div>
+      <p class="md-sublabel">${escapeHtml(payload.taskDescription)}</p>
+      ${actorBlock}
       <div class="md-group">
         <label class="md-label">Skill / Specialization</label>
         <select name="skill" class="md-select ms-scr-propose-skill">${buildSkillOpts(initial)}</select>
@@ -388,52 +551,60 @@ async function promptProposalDialog(payload, preferredActorId) {
         <label class="md-label">Attribute</label>
         <select name="attribute" class="md-select">${attrOpts}</select>
       </div>
-      <div class="md-group">
-        <label class="md-label">How does your character approach this? (optional)</label>
-        <input type="text" name="explanation" class="md-input" maxlength="200" />
-      </div>
-      <p class="md-sublabel">Submitting does not roll. The GM must approve your approach.</p>
+      <p class="md-sublabel">Submitting does not roll. The GM must approve.</p>
     </form>`;
     return new Promise((resolve) => {
+        let settled = false;
+        const done = (v) => {
+            if (settled)
+                return;
+            settled = true;
+            resolve(v);
+        };
         new DialogCls({
             title: 'Propose approach',
             content,
             buttons: {
                 submit: {
-                    label: 'Submit proposal',
+                    label: 'Submit Proposal',
                     callback: (html) => {
                         const root = html?.[0] ?? html;
-                        const actorId = String(root.querySelector('[name="actor"]')?.value || '');
-                        const skillKey = String(root.querySelector('[name="skill"]')?.value || 'untrained');
+                        const actorId = String(root.querySelector('[name="actor"]')
+                            ?.value || '');
+                        const skillKey = String(root.querySelector('[name="skill"]')?.value || '');
                         const attributeKey = String(root.querySelector('[name="attribute"]')?.value || '');
-                        const explanation = String(root.querySelector('[name="explanation"]')?.value || '').trim();
-                        if (!isSpecAttributeKey(attributeKey)) {
-                            resolve(null);
+                        if (!skillKey || !isSpecAttributeKey(attributeKey)) {
+                            globalThis.ui?.notifications?.warn?.('Choose a Skill and Attribute.');
+                            done(null);
                             return;
                         }
-                        resolve({
+                        done({
                             actorId,
-                            skill: skillRefFromKey(skillKey),
+                            skill: { kind: 'specialization', id: skillKey },
                             attributeKey,
-                            explanation,
                         });
                     },
                 },
-                cancel: { label: 'Cancel', callback: () => resolve(null) },
+                cancel: { label: 'Cancel', callback: () => done(null) },
             },
             default: 'submit',
             render: (html) => {
                 const root = html?.[0] ?? html;
                 const actorSel = root?.querySelector?.('[name="actor"]');
                 const skillSel = root?.querySelector?.('[name="skill"]');
-                actorSel?.addEventListener('change', () => {
-                    const actor = globalThis.game?.actors?.get?.(actorSel.value);
-                    if (skillSel && actor)
-                        skillSel.innerHTML = buildSkillOpts(actor);
-                });
+                if (actorSel?.tagName === 'SELECT') {
+                    actorSel.addEventListener('change', () => {
+                        const actor = globalThis.game?.actors?.get?.(actorSel.value);
+                        if (skillSel && actor)
+                            skillSel.innerHTML = buildSkillOpts(actor);
+                    });
+                }
             },
-            close: () => resolve(null),
-        }, { width: 440, classes: ['mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog'] }).render(true);
+            close: () => done(null),
+        }, {
+            width: 420,
+            classes: ['mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog', 'ms-scr-propose-dialog'],
+        }).render(true);
     });
 }
 async function promptGmModifyDialog(payload, actorId) {
@@ -442,12 +613,13 @@ async function promptGmModifyDialog(payload, actorId) {
     if (!DialogCls || !actor)
         return null;
     const p = payload.participants[actorId];
-    const currentSkill = p?.skill || p?.proposedSkill || { kind: 'untrained' };
+    const currentSkill = p?.skill || p?.proposedSkill;
     const currentAttr = p?.attributeKey || p?.proposedAttributeKey || 'wits';
     const currentTn = p?.baseTn ?? payload.baseTn;
+    // GM may use full list including Untrained when overriding
     const skillOpts = listActorSkillOptions(actor)
         .map((o) => {
-        const sel = skillKeyFromRef(currentSkill) === o.key ? 'selected' : '';
+        const sel = currentSkill && skillKeyFromRef(currentSkill) === o.key ? 'selected' : '';
         return `<option value="${escapeHtml(o.key)}" ${sel}>${escapeHtml(o.label)}</option>`;
     })
         .join('');
@@ -459,7 +631,7 @@ async function promptGmModifyDialog(payload, actorId) {
         </div>`
         : `<input type="hidden" name="baseTn" value="0" />`;
     const content = `
-    <form class="mastery-dialog-form">
+    <form class="mastery-dialog-form ms-scr-propose-form">
       <p><strong>${escapeHtml(actor.name)}</strong></p>
       <div class="md-group">
         <label class="md-label">Skill</label>
@@ -472,6 +644,13 @@ async function promptGmModifyDialog(payload, actorId) {
       ${tnBlock}
     </form>`;
     return new Promise((resolve) => {
+        let settled = false;
+        const done = (v) => {
+            if (settled)
+                return;
+            settled = true;
+            resolve(v);
+        };
         new DialogCls({
             title: 'Modify approach',
             content,
@@ -484,95 +663,264 @@ async function promptGmModifyDialog(payload, actorId) {
                         const attributeKey = String(root.querySelector('[name="attribute"]')?.value || 'wits');
                         const baseTn = Math.max(0, Math.floor(Number(root.querySelector('[name="baseTn"]')?.value) || 0));
                         if (!isSpecAttributeKey(attributeKey)) {
-                            resolve(null);
+                            done(null);
                             return;
                         }
-                        resolve({ skill: skillRefFromKey(skillKey), attributeKey, baseTn });
+                        done({ skill: skillRefFromKey(skillKey), attributeKey, baseTn });
+                    },
+                },
+                cancel: { label: 'Cancel', callback: () => done(null) },
+            },
+            default: 'save',
+            close: () => done(null),
+        }, {
+            width: 400,
+            classes: ['mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog', 'ms-scr-propose-dialog'],
+        }).render(true);
+    });
+}
+async function promptGmAssignCharacter(payload) {
+    const DialogCls = globalThis.Dialog;
+    if (!DialogCls)
+        return null;
+    const pcs = [];
+    for (const a of globalThis.game?.actors ?? []) {
+        if (a?.type === 'character')
+            pcs.push(a);
+    }
+    if (!pcs.length)
+        return null;
+    const opts = pcs
+        .map((a) => `<option value="${escapeHtml(a.id)}">${escapeHtml(a.name)}</option>`)
+        .join('');
+    return new Promise((resolve) => {
+        new DialogCls({
+            title: 'Assign character',
+            content: `<form class="mastery-dialog-form ms-scr-propose-form">
+          <div class="md-group">
+            <label class="md-label">Character</label>
+            <select name="actor" class="md-select">${opts}</select>
+          </div>
+        </form>`,
+            buttons: {
+                ok: {
+                    label: 'Continue',
+                    callback: (html) => {
+                        const root = html?.[0] ?? html;
+                        resolve(String(root.querySelector('[name="actor"]')?.value || ''));
                     },
                 },
                 cancel: { label: 'Cancel', callback: () => resolve(null) },
             },
-            default: 'save',
+            default: 'ok',
             close: () => resolve(null),
-        }, { width: 400, classes: ['mastery-system', 'mastery-roll-dialog'] }).render(true);
+        }, { width: 360, classes: ['mastery-system', 'mastery-roll-dialog', 'ms-scr-propose-dialog'] }).render(true);
     });
 }
-export async function openSkillCheckForRequest(actor, payload, messageId) {
-    const assigned = approvedAssignment(payload, String(actor.id));
+/**
+ * Execute an already-approved Skill Check without the large configuration dialog.
+ */
+export async function executeApprovedSkillRoll(opts) {
+    const actor = opts.actor;
+    const actorId = String(actor.id);
+    const assigned = approvedAssignment(opts.payload, actorId);
     if (!assigned) {
-        globalThis.ui?.notifications?.warn?.('This approach is not approved yet. Wait for the GM or submit a proposal.');
+        globalThis.ui?.notifications?.warn?.('Approach is not approved.');
         return;
     }
-    if (payload.participants[String(actor.id)]?.status === 'rolled') {
+    if (opts.payload.participants[actorId]?.status === 'rolled') {
         globalThis.ui?.notifications?.info?.('Already rolled for this request.');
         return;
     }
-    const source = {
-        kind: 'gm-request',
-        requestId: payload.requestId,
-        requestMessageId: messageId,
-        gmVerified: true,
-        taskDescription: assigned.taskDescription,
+    if (!actionKeyOnce(`roll:${opts.payload.requestId}:${actorId}`)) {
+        return;
+    }
+    const isComparative = assigned.mode === 'comparative';
+    const paidRaises = isComparative
+        ? 0
+        : Math.max(0, Math.floor(Number(opts.paidRaises) || 0));
+    const draft = {
+        actorId,
+        paidRaises,
+        declareSkillCrit: !!opts.declareSkillCrit,
+        skill: assigned.skill,
         attributeKey: assigned.attributeKey,
         baseTn: assigned.baseTn,
-        skill: assigned.skill,
-        mode: assigned.mode,
-        allowedSkills: [assigned.skill],
+        taskDescription: assigned.taskDescription,
+        source: {
+            kind: 'gm-request',
+            requestId: opts.payload.requestId,
+            requestMessageId: opts.messageId,
+            gmVerified: true,
+            taskDescription: assigned.taskDescription,
+            attributeKey: assigned.attributeKey,
+            baseTn: assigned.baseTn,
+            skill: assigned.skill,
+            mode: assigned.mode,
+            allowedSkills: [assigned.skill],
+        },
     };
-    const choice = await promptSkillCheckRollDialog({
-        actor,
-        source,
-        lockGmFields: true,
-        allowedSkills: [assigned.skill],
-        comparative: assigned.mode === 'comparative',
-        title: `${assigned.taskDescription || 'Skill Check'} · ${actor.name}`,
-    });
-    if (!choice)
-        return;
-    choice.draft.source = source;
-    choice.draft.skill = assigned.skill;
-    choice.draft.attributeKey = assigned.attributeKey;
-    choice.draft.baseTn = assigned.baseTn;
-    choice.draft.taskDescription = assigned.taskDescription;
-    if (assigned.mode === 'comparative')
-        choice.draft.paidRaises = 0;
     const result = await executeSkillCheck({
         actor,
-        draft: choice.draft,
+        draft,
         gmAssignment: {
             skill: assigned.skill,
             attributeKey: assigned.attributeKey,
             baseTn: assigned.baseTn,
             allowedSkills: [assigned.skill],
         },
-        comparative: assigned.mode === 'comparative',
-        flavorExtra: payload.note ? `Note: ${payload.note}` : undefined,
+        comparative: isComparative,
+        flavorExtra: opts.payload.note ? `Note: ${opts.payload.note}` : undefined,
     });
     if (!result.ok) {
         globalThis.ui?.notifications?.warn?.(result.error ?? 'Roll failed.');
         return;
     }
+    const patch = {
+        paidRaises: result.snapshot?.paidRaisesDeclared,
+        finalTn: result.snapshot?.finalTn,
+        rollTotal: result.snapshot?.rollTotal,
+        success: result.snapshot?.success,
+    };
     if (isGm()) {
-        await updatePayloadOnGm(messageId, (p) => applyRollResult(p, String(actor.id), {
-            paidRaises: result.snapshot?.paidRaisesDeclared,
-            finalTn: result.snapshot?.finalTn,
-            rollTotal: result.snapshot?.rollTotal,
-            success: result.snapshot?.success,
-        }));
+        let next = await updatePayloadOnGm(opts.messageId, (p) => {
+            let n = applyRollResult(p, actorId, patch);
+            if (n.mode === 'comparative') {
+                // Ensure opposition exists once, then annotate
+                return n;
+            }
+            return n;
+        });
+        if (next?.mode === 'comparative' && !next.comparative?.groupAmbush) {
+            next = await ensureOppositionRolled(next);
+            next = annotateComparativeOutcomes(next);
+            await persistPayload(opts.messageId, next);
+        }
     }
     else {
         emitPlayerAction({
-            messageId,
-            actorId: String(actor.id),
+            messageId: opts.messageId,
+            requestId: opts.payload.requestId,
+            actorId,
             action: 'rolled',
-            patch: {
-                paidRaises: result.snapshot?.paidRaisesDeclared,
-                finalTn: result.snapshot?.finalTn,
-                rollTotal: result.snapshot?.rollTotal,
-                success: result.snapshot?.success,
-            },
+            patch,
         });
     }
+}
+/**
+ * Sheet entry for an approved chat request: compact Paid Raises / Crit confirm only
+ * (never the full Skill Check configuration dialog).
+ */
+export async function openSkillCheckForRequest(actor, payload, messageId) {
+    const actorId = String(actor?.id || '');
+    const assigned = approvedAssignment(payload, actorId);
+    if (!assigned) {
+        globalThis.ui?.notifications?.warn?.('Approach is not approved.');
+        return;
+    }
+    if (payload.participants[actorId]?.status === 'rolled') {
+        globalThis.ui?.notifications?.info?.('Already rolled for this request.');
+        return;
+    }
+    const isComparative = assigned.mode === 'comparative';
+    const preview = participantSkillPreview(actor, {
+        actorId,
+        skillRef: assigned.skill,
+        attributeKey: assigned.attributeKey,
+        baseTn: assigned.baseTn,
+    });
+    const showCrit = preview.critAllowance > 0;
+    const DialogCls = globalThis.Dialog;
+    if (!DialogCls) {
+        await executeApprovedSkillRoll({ actor, payload, messageId, paidRaises: 0 });
+        return;
+    }
+    const paidBlock = isComparative
+        ? ''
+        : `<div class="md-group ms-scr-paid-inline" data-base-tn="${assigned.baseTn}">
+        <label class="md-label">Paid Raises</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button type="button" class="ms-scr-btn ms-scr-compact-minus">−</button>
+          <strong class="ms-scr-compact-paid">0</strong>
+          <button type="button" class="ms-scr-btn ms-scr-compact-plus">+</button>
+          <span class="ms-scr-compact-final">Final TN ${assigned.baseTn}</span>
+        </div>
+      </div>`;
+    const critBlock = showCrit
+        ? `<label class="ms-scr-crit-inline"><input type="checkbox" name="crit" /> Skill Crit (${preview.critRemaining}/${preview.critAllowance} left)</label>`
+        : '';
+    const choice = await new Promise((resolve) => {
+        let settled = false;
+        const done = (v) => {
+            if (settled)
+                return;
+            settled = true;
+            resolve(v);
+        };
+        new DialogCls({
+            title: 'Roll Skill Check',
+            content: `<form class="mastery-dialog-form ms-scr-propose-form">
+            <p class="md-sublabel">${escapeHtml(payload.taskDescription)}</p>
+            <p><strong>${escapeHtml(actor.name)}</strong> · ${escapeHtml(preview.skillLabel)} ${preview.rank}
+              · ${escapeHtml(cap(assigned.attributeKey))} ${escapeHtml(preview.poolLabel)}</p>
+            ${paidBlock}
+            ${critBlock}
+          </form>`,
+            buttons: {
+                roll: {
+                    label: `Roll · ${preview.poolLabel}`,
+                    callback: (html) => {
+                        const root = html?.[0] ?? html;
+                        const paid = Math.max(0, Math.floor(Number(root.querySelector('.ms-scr-compact-paid')?.textContent) || 0));
+                        const crit = !!root.querySelector('[name="crit"]')
+                            ?.checked;
+                        done({ paidRaises: isComparative ? 0 : paid, declareSkillCrit: crit });
+                    },
+                },
+                cancel: { label: 'Cancel', callback: () => done(null) },
+            },
+            default: 'roll',
+            render: (html) => {
+                const root = html?.[0] ?? html;
+                const sync = () => {
+                    const paidEl = root.querySelector('.ms-scr-compact-paid');
+                    const finalEl = root.querySelector('.ms-scr-compact-final');
+                    const paid = Math.max(0, Math.floor(Number(paidEl?.textContent) || 0));
+                    if (finalEl)
+                        finalEl.textContent = `Final TN ${assigned.baseTn + paid * 4}`;
+                };
+                root.querySelector('.ms-scr-compact-minus')?.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const paidEl = root.querySelector('.ms-scr-compact-paid');
+                    if (!paidEl)
+                        return;
+                    paidEl.textContent = String(Math.max(0, Math.floor(Number(paidEl.textContent) || 0) - 1));
+                    sync();
+                });
+                root.querySelector('.ms-scr-compact-plus')?.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const paidEl = root.querySelector('.ms-scr-compact-paid');
+                    if (!paidEl)
+                        return;
+                    paidEl.textContent = String(Math.max(0, Math.floor(Number(paidEl.textContent) || 0) + 1));
+                    sync();
+                });
+            },
+            close: () => done(null),
+        }, {
+            width: 380,
+            classes: ['mastery-system', 'mastery-roll-dialog', 'ms-scr-propose-dialog'],
+        }).render(true);
+    });
+    if (!choice)
+        return;
+    await executeApprovedSkillRoll({
+        actor,
+        payload,
+        messageId,
+        paidRaises: choice.paidRaises,
+        declareSkillCrit: choice.declareSkillCrit,
+    });
 }
 async function ensureOppositionRolled(payload) {
     if (payload.mode !== 'comparative')
@@ -597,7 +945,7 @@ async function ensureOppositionRolled(payload) {
             findSituationalSkillByName(skills, 'Perception') ||
             skills[0];
         const pool = Math.max(0, Math.floor(Number(byName?.poolDice) || 0));
-        const mr = Math.max(1, Math.floor(Number(npc?.system?.mastery?.rank) || 1));
+        const mr = Math.max(1, Math.floor(Number(getRulesMasteryRank(npc)) || 1));
         const keep = Math.max(1, Math.min(pool || 1, mr));
         const rank = Math.max(0, Math.floor(Number(byName?.skillRank) || 0));
         const result = await masteryRoll({
@@ -681,6 +1029,7 @@ function annotateComparativeOutcomes(payload) {
     }
     return { ...payload, participants };
 }
+/** Kept for tests — consolidated HTML helper (no longer auto-published). */
 export function buildConsolidatedResultsHtml(payload) {
     const rows = Object.values(payload.participants).filter((p) => p.status === 'rolled');
     const body = rows
@@ -710,38 +1059,11 @@ export function buildConsolidatedResultsHtml(payload) {
     const head = payload.mode === 'comparative'
         ? `<tr><th>Character</th><th>Skill</th><th>Attribute</th><th>Result</th><th>Outcome</th></tr>`
         : `<tr><th>Character</th><th>Skill</th><th>Attribute</th><th>TN</th><th>Result</th><th>Outcome</th></tr>`;
-    const opp = payload.mode === 'comparative' && payload.opposition?.rolled
-        ? `<p>Opposition: <strong>${escapeHtml(payload.opposition.label)}</strong> = ${payload.opposition.total}</p>`
-        : '';
     return `<div class="ms-scr-results">
     <strong>${escapeHtml(payload.title || payload.taskDescription)}</strong>
-    <div class="ms-scr-meta">${escapeHtml(payload.taskDescription)}</div>
-    ${opp}
-    <table class="ms-scr-results-table">
-      <thead>${head}</thead>
-      <tbody>${body || '<tr><td colspan="6">No rolls recorded.</td></tr>'}</tbody>
-    </table>
+    <table class="ms-scr-results-table"><thead>${head}</thead>
+    <tbody>${body || '<tr><td colspan="6">No rolls recorded.</td></tr>'}</tbody></table>
   </div>`;
-}
-async function publishConsolidatedResults(messageId, payload) {
-    if (payload.resultsPublished)
-        return;
-    let next = payload;
-    if (next.mode === 'comparative' && !next.comparative?.groupAmbush) {
-        next = await ensureOppositionRolled(next);
-        next = annotateComparativeOutcomes(next);
-    }
-    next = {
-        ...next,
-        lifecycle: 'completed',
-        resultsPublished: true,
-    };
-    await persistPayload(messageId, next);
-    await ChatMessage.create({
-        user: globalThis.game?.user?.id,
-        speaker: ChatMessage.getSpeaker({ alias: 'Skill Check Results' }),
-        content: buildConsolidatedResultsHtml(next),
-    });
 }
 async function resolveGroupAmbushFromChat(messageId, payload) {
     const cfg = payload.comparative;
@@ -763,13 +1085,11 @@ async function resolveGroupAmbushFromChat(messageId, payload) {
         .filter(Boolean);
     const approved = payload.participants[specialistId];
     const attributeKey = approved?.attributeKey || approved?.proposedAttributeKey || 'agility';
-    // Roll opposition once
     let withOpp = await ensureOppositionRolled({
         ...payload,
-        comparative: { ...cfg, groupAmbush: false }, // temporary so ensureOpposition rolls
+        comparative: { ...cfg, groupAmbush: false },
         opposition: undefined,
     });
-    // restore ambush flag
     withOpp = {
         ...withOpp,
         comparative: { ...cfg, ambushParticipantIds: ambushIds, stealthSpecialistId: specialistId },
@@ -791,27 +1111,21 @@ async function resolveGroupAmbushFromChat(messageId, payload) {
         globalThis.ui?.notifications?.warn?.(ambush.error || 'Group Ambush failed.');
         return;
     }
-    const obs = ambush.observerResults?.[0];
-    const unaware = !!obs?.stealthWins;
+    const unaware = !!ambush.observerResults?.[0]?.stealthWins;
     const html = `<div class="ms-scr-results ms-group-ambush-result">
     <strong>Group Ambush</strong>
     <div>${escapeHtml(payload.taskDescription)}</div>
     <ul>
       <li>Specialist: <strong>${escapeHtml(specialist.name)}</strong></li>
-      <li>Participants: ${ambushIds
-        .map((id) => escapeHtml(globalThis.game?.actors?.get?.(id)?.name ?? id))
-        .join(', ')}</li>
       <li>Combined equipment penalty: −${ambush.plan?.combinedPenalty ?? 0}d8</li>
-      <li>Final pool: ${ambush.plan?.finalPool}k${ambush.plan?.keepDice}</li>
       <li>Stealth total: <strong>${ambush.stealthTotal}</strong></li>
       <li>Opposition: ${escapeHtml(withOpp.opposition?.label || '—')} = ${withOpp.opposition?.total ?? '—'}</li>
-      <li>Outcome: <strong>${unaware ? 'Observers unaware (ambush succeeds)' : 'Detected'}</strong></li>
+      <li>Outcome: <strong>${unaware ? 'Observers unaware' : 'Detected'}</strong></li>
     </ul>
   </div>`;
     const next = {
         ...withOpp,
         lifecycle: 'completed',
-        resultsPublished: true,
         participants: {
             ...withOpp.participants,
             [specialistId]: {
@@ -833,18 +1147,19 @@ async function resolveGroupAmbushFromChat(messageId, payload) {
     });
 }
 function findMessageForRequest(requestId, messageId) {
-    if (messageId) {
-        const m = globalThis.game?.messages?.get?.(messageId);
-        if (m)
-            return m;
-    }
-    return Array.from(globalThis.game?.messages ?? []).find((m) => {
-        const r = readSkillCheckRequest(m);
-        return r?.requestId === requestId;
-    });
+    return findMessageByIdOrRequestId(messageId || '', requestId);
+}
+function readPaidRaisesFromCard(root, actorId) {
+    const el = root.querySelector(`.ms-scr-paid-val[data-actor-id="${actorId}"]`);
+    return Math.max(0, Math.floor(Number(el?.textContent) || 0));
+}
+function readCritFromCard(root, actorId) {
+    const el = root.querySelector(`.ms-scr-crit-check[data-actor-id="${actorId}"]`);
+    return !!el?.checked;
 }
 async function handleChatAction(btn, messageEl) {
-    const requestId = String(btn.closest('.ms-skill-check-request')?.getAttribute('data-request-id') || '');
+    const requestRoot = btn.closest('.ms-skill-check-request');
+    const requestId = String(requestRoot?.getAttribute('data-request-id') || '');
     const messageId = String(messageEl.dataset?.messageId || messageEl.getAttribute?.('data-message-id') || '');
     const msg = findMessageForRequest(requestId, messageId);
     const payload = msg ? readSkillCheckRequest(msg) : null;
@@ -853,7 +1168,33 @@ async function handleChatAction(btn, messageEl) {
         return;
     }
     const mid = String(msg.id);
+    const cardRoot = requestRoot || messageEl;
+    if (btn.classList.contains('ms-scr-paid-minus') || btn.classList.contains('ms-scr-paid-plus')) {
+        const actorId = String(btn.dataset.actorId || '');
+        const valEl = cardRoot.querySelector(`.ms-scr-paid-val[data-actor-id="${actorId}"]`);
+        const tnEl = cardRoot.querySelector(`.ms-scr-final-tn[data-actor-id="${actorId}"]`);
+        const wrap = cardRoot.querySelector(`.ms-scr-paid-inline[data-actor-id="${actorId}"]`);
+        const rollBtn = cardRoot.querySelector(`.ms-scr-roll[data-actor-id="${actorId}"]`);
+        const baseTn = Math.max(0, Math.floor(Number(wrap?.dataset.baseTn) || payload.baseTn));
+        let paid = Math.max(0, Math.floor(Number(valEl?.textContent) || 0));
+        if (btn.classList.contains('ms-scr-paid-plus'))
+            paid += 1;
+        else
+            paid = Math.max(0, paid - 1);
+        const finalTn = baseTn + paid * 4;
+        if (valEl)
+            valEl.textContent = String(paid);
+        if (tnEl)
+            tnEl.textContent = `Final TN ${finalTn}`;
+        if (rollBtn && rollBtn.dataset.comparative !== '1') {
+            const pool = rollBtn.dataset.pool || '';
+            rollBtn.textContent = `Roll · ${pool} vs TN ${finalTn}`;
+        }
+        return;
+    }
     if (btn.classList.contains('ms-scr-join') || btn.classList.contains('ms-scr-revise')) {
+        if (!actionKeyOnce(`join:${requestId}:${globalThis.game?.user?.id}`))
+            return;
         const proposal = await promptProposalDialog(payload, btn.dataset.actorId);
         if (!proposal)
             return;
@@ -862,17 +1203,21 @@ async function handleChatAction(btn, messageEl) {
             globalThis.ui?.notifications?.warn?.('You cannot propose for this character.');
             return;
         }
+        if (!skillOwnedByActor(actor, proposal.skill)) {
+            globalThis.ui?.notifications?.warn?.('Choose one of your Specializations.');
+            return;
+        }
         if (isGm()) {
             await updatePayloadOnGm(mid, (p) => applyProposal(p, proposal.actorId, proposal));
         }
         else {
             emitPlayerAction({
                 messageId: mid,
+                requestId: payload.requestId,
                 actorId: proposal.actorId,
                 action: 'propose',
                 skill: proposal.skill,
                 attributeKey: proposal.attributeKey,
-                explanation: proposal.explanation,
             });
         }
         return;
@@ -888,7 +1233,12 @@ async function handleChatAction(btn, messageEl) {
             await updatePayloadOnGm(mid, (p) => applyDecline(p, actor.id));
         }
         else {
-            emitPlayerAction({ messageId: mid, actorId: actor.id, action: 'decline' });
+            emitPlayerAction({
+                messageId: mid,
+                requestId: payload.requestId,
+                actorId: actor.id,
+                action: 'decline',
+            });
         }
         return;
     }
@@ -925,25 +1275,48 @@ async function handleChatAction(btn, messageEl) {
             return;
         }
         const fresh = readSkillCheckRequest(msg) || payload;
-        await openSkillCheckForRequest(actor, fresh, mid);
+        const paidRaises = readPaidRaisesFromCard(cardRoot, actorId);
+        const declareSkillCrit = readCritFromCard(cardRoot, actorId);
+        await executeApprovedSkillRoll({
+            actor,
+            payload: fresh,
+            messageId: mid,
+            paidRaises,
+            declareSkillCrit,
+        });
         return;
     }
-    if (btn.classList.contains('ms-scr-finalize')) {
+    if (btn.classList.contains('ms-scr-gm-assign')) {
         if (!isGm())
             return;
-        let current = readSkillCheckRequest(msg) || payload;
-        if (current.mode === 'comparative' && !current.comparative?.groupAmbush) {
-            current = await ensureOppositionRolled(current);
-            current = annotateComparativeOutcomes(current);
-            await persistPayload(mid, current);
-        }
-        await publishConsolidatedResults(mid, current);
+        const id = await promptGmAssignCharacter(payload);
+        if (!id)
+            return;
+        const mod = await promptGmModifyDialog(payload, id);
+        if (!mod)
+            return;
+        await updatePayloadOnGm(mid, (p) => {
+            const seeded = p.participants[id]
+                ? p
+                : applyProposal(p, id, {
+                    skill: mod.skill.kind === 'specialization' ? mod.skill : { kind: 'untrained' },
+                    attributeKey: mod.attributeKey,
+                });
+            return applyApprove(seeded, id, {
+                skill: mod.skill,
+                attributeKey: mod.attributeKey,
+                baseTn: mod.baseTn,
+            });
+        });
         return;
     }
-    if (btn.classList.contains('ms-scr-cancel')) {
+    if (btn.classList.contains('ms-scr-close')) {
         if (!isGm())
             return;
-        await updatePayloadOnGm(mid, (p) => ({ ...p, lifecycle: 'cancelled' }));
+        await updatePayloadOnGm(mid, (p) => ({
+            ...p,
+            lifecycle: 'completed',
+        }));
         return;
     }
     if (btn.classList.contains('ms-scr-ambush-roll')) {
@@ -956,11 +1329,9 @@ async function handleChatAction(btn, messageEl) {
 }
 function onChatClick(event) {
     const target = event.target;
-    const btn = target?.closest?.('.ms-scr-join, .ms-scr-decline, .ms-scr-revise, .ms-scr-approve, .ms-scr-modify, .ms-scr-reject, .ms-scr-roll, .ms-scr-finalize, .ms-scr-cancel, .ms-scr-ambush-roll');
-    if (!btn) {
-        // Specialist select change is handled separately
+    const btn = target?.closest?.('.ms-scr-join, .ms-scr-decline, .ms-scr-revise, .ms-scr-approve, .ms-scr-modify, .ms-scr-reject, .ms-scr-roll, .ms-scr-close, .ms-scr-gm-assign, .ms-scr-ambush-roll, .ms-scr-paid-minus, .ms-scr-paid-plus');
+    if (!btn)
         return;
-    }
     event.preventDefault();
     const messageEl = btn.closest('.chat-message');
     if (!messageEl)
@@ -990,7 +1361,6 @@ function onChatChange(event) {
         },
     }));
 }
-/** Find an open approved request for this actor (sheet entry). */
 export function findOpenSkillCheckRequestForActor(actorId, preferredSkillId) {
     const messages = Array.from(globalThis.game?.messages ?? []);
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -1008,7 +1378,6 @@ export function findOpenSkillCheckRequestForActor(actorId, preferredSkillId) {
         }
         return { message: m, payload };
     }
-    // Any approved for actor
     for (let i = messages.length - 1; i >= 0; i--) {
         const m = messages[i];
         const payload = readSkillCheckRequest(m);
@@ -1016,9 +1385,9 @@ export function findOpenSkillCheckRequestForActor(actorId, preferredSkillId) {
             continue;
         if (payload.lifecycle === 'completed' || payload.lifecycle === 'cancelled')
             continue;
-        const p = payload.participants[actorId];
-        if (p?.status === 'approved')
+        if (payload.participants[actorId]?.status === 'approved') {
             return { message: m, payload };
+        }
     }
     return null;
 }
@@ -1054,20 +1423,47 @@ export function registerSkillCheckRequestHandlers() {
     if (!socketRegistered) {
         socketRegistered = true;
         const bindSocket = () => {
-            globalThis.game?.socket?.on?.(SOCKET_NAME, async (data) => {
+            const socket = globalThis.game?.socket;
+            if (!socket) {
+                console.warn('[mastery-system] skill-check: game.socket missing at bind time');
+                return;
+            }
+            socket.on(SOCKET_NAME, async (data) => {
                 if (!data || typeof data !== 'object')
                     return;
-                if (data.type === 'skillCheckRequestAction' && isGm()) {
-                    if (data.action === 'rolled') {
-                        const messageId = String(data.messageId || '');
-                        const actorId = String(data.actorId || '');
-                        await updatePayloadOnGm(messageId, (p) => applyRollResult(p, actorId, data.patch || {}));
+                // Player receives ack from GM
+                if (data.type === 'skillCheckRequestAck') {
+                    const me = String(globalThis.game?.user?.id || '');
+                    if (data.targetUserId && data.targetUserId !== me)
                         return;
+                    if (data.ok) {
+                        const kind = String(data.action || '');
+                        const msg = kind === 'rolled'
+                            ? 'Roll recorded on the Skill Check card.'
+                            : kind === 'decline'
+                                ? 'Marked as not participating.'
+                                : 'Proposal received — awaiting GM approval.';
+                        globalThis.ui?.notifications?.info?.(msg);
                     }
-                    await applyPlayerActionAsGm(data);
+                    else if (data.error) {
+                        globalThis.ui?.notifications?.warn?.(String(data.error));
+                    }
                     return;
                 }
+                if (data.type === 'skillCheckRequestAction' && isGm()) {
+                    try {
+                        await applyPlayerActionAsGm(data);
+                    }
+                    catch (err) {
+                        console.error('[mastery-system] skill-check GM action failed', err);
+                        emitAckToUser(String(data.requesterUserId || ''), {
+                            ok: false,
+                            error: 'GM failed to apply your action.',
+                        });
+                    }
+                }
             });
+            console.log('[mastery-system] skill-check socket listener registered');
         };
         if (globalThis.game?.ready)
             bindSocket();

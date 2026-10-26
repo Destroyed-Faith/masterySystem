@@ -59,17 +59,32 @@ export function skillKeyFromRef(ref) {
         return 'untrained';
     return ref.id;
 }
-export function listActorSkillOptions(actor) {
+/**
+ * Specializations actually stored on the character only (no synthetic Perception/Untrained).
+ * Used by the player proposal dialog.
+ */
+export function listActorSpecializationOptions(actor) {
     const specs = readSpecializations(actor?.system);
+    return specs.map((s) => ({
+        key: s.id,
+        label: `${s.name} · Rank ${s.rank}`,
+        rank: s.rank,
+    }));
+}
+/** Includes synthetic Perception / Untrained — GM modify / legacy helpers. */
+export function listActorSkillOptions(actor) {
+    const specs = listActorSpecializationOptions(actor);
+    const hasPerception = specs.some((s) => {
+        const name = String(s.label || '')
+            .split('·')[0]
+            ?.trim();
+        return /^perception$/i.test(name || '');
+    });
     const out = [
-        { key: 'perception', label: 'Perception', rank: 2 },
+        ...(hasPerception ? [] : [{ key: 'perception', label: 'Perception', rank: 2 }]),
         { key: 'untrained', label: 'Untrained', rank: 0 },
+        ...specs,
     ];
-    for (const s of specs) {
-        if (/^perception$/i.test(s.name))
-            continue; // Perception already listed
-        out.push({ key: s.id, label: `${s.name} · Rank ${s.rank}`, rank: s.rank });
-    }
     return out;
 }
 export function resolveSkillRank(actor, ref) {

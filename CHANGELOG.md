@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.805] - 2026-10-26
+
+### Fixed
+
+- **Skill Check multi-client sync:** Player proposals relay to the GM over the system socket with ownership checks, request-id fallback, and ack feedback so Pending Approval appears without refresh.
+
+### Changed
+
+- **Skill Check UX:** Propose dialog is Spec + Attribute only (no character picker for a single PC, no synthetic Perception/Untrained, no explanation). Approved rolls use inline Paid Raises / Crit / Roll (no second full Skill dialog). Publish Results removed; GM uses Close Check; results update the chat card automatically.
+
 ## [0.9.804] - 2026-10-26
 
 ### Changed

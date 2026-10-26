@@ -129,7 +129,7 @@ describe('Competing GM Skill Check dialog retired; Rolls publishes chat request'
       'utf8',
     );
     expect(file).toMatch(/showEpicMasteryRollConfigDialog/);
-    expect(file).toMatch(/Retire|retired|Competing standalone/i);
+    expect(file).toMatch(/export async function showSkillCheckRequestDialog/);
   });
 
   it('Rolls Skill Start publishes open chat request (no mandatory per-char Skills)', () => {

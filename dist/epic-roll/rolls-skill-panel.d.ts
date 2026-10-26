@@ -46,6 +46,16 @@ export declare function defaultVirtualOpponent(): RollsVirtualOpponent;
 export declare function defaultComparativeConfig(): RollsComparativeConfig;
 export declare function skillRefFromKey(key: string): SkillCheckSkillRef;
 export declare function skillKeyFromRef(ref: SkillCheckSkillRef): string;
+/**
+ * Specializations actually stored on the character only (no synthetic Perception/Untrained).
+ * Used by the player proposal dialog.
+ */
+export declare function listActorSpecializationOptions(actor: any): Array<{
+    key: string;
+    label: string;
+    rank: number;
+}>;
+/** Includes synthetic Perception / Untrained — GM modify / legacy helpers. */
 export declare function listActorSkillOptions(actor: any): Array<{
     key: string;
     label: string;
