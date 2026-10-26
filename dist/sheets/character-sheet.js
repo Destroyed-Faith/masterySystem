@@ -3,7 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, readSpecializations, SPECIALIZATION_XP_PER_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
+import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
@@ -5786,7 +5786,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.canEditSpecializations = isOwner;
         // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
         context.canEditSpecializationRank = !!context.isGM || context.creationComplete === false;
-        context.specializationXpPerRank = SPECIALIZATION_XP_PER_RANK;
+        context.specializationXpPerRank = null;
+        context.specializationXpLadder = true;
         context.showSpecializationRankUp = isOwner && context.creationComplete !== false;
     }
     async #onSpecializationAdd(event) {
@@ -5861,7 +5862,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn(res.error || 'Could not raise Specialization.');
             return;
         }
-        ui.notifications?.info(`Specialization raised to Rank ${res.newRank} (${SPECIALIZATION_XP_PER_RANK} XP).`);
+        const cost = specializationRankUpCost((res.newRank ?? 1) - 1);
+        ui.notifications?.info(`Specialization raised to Rank ${res.newRank} (${cost} XP).`);
         this.render(false);
     }
     /**

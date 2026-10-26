@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.803] - 2026-10-26
+
+### Changed
+
+- **Unified GM Rolls dialog:** Skill Checks (Standard / Comparative), Allowed Approaches, per-character Skill / Attribute / TN, virtual or NPC opposition, and Group Ambush live inside `mastery-epic-roll-config`. Competing standalone **GM · Request Skill Check** dialog and chat Skill Check button retired; Group Ambush scene control opens Rolls.
+
 ## [0.9.802] - 2026-10-26
 
 ### Fixed

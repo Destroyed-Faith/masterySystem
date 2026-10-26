@@ -3,7 +3,7 @@
  * GM configures Task, Attribute, per-actor Skill, Base TN and targets.
  * Players only choose Paid Raises in the shared overlay.
  */
-import { SPEC_ATTRIBUTE_KEYS, baseTnPresets, isSpecAttributeKey, readSpecializations, taskLevelFromBaseTn, } from '../rules/index.js';
+import { readSpecializations, } from '../rules/index.js';
 import { promptSkillCheckRollDialog } from '../sheets/skill-check-roll-dialog.js';
 import { executeSkillCheck } from '../sheets/skill-check-execute.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
@@ -30,14 +30,6 @@ function newRequestId() {
         return `scr-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     }
 }
-function listPcActors() {
-    const actors = [];
-    for (const a of globalThis.game?.actors ?? []) {
-        if (a?.type === 'character')
-            actors.push(a);
-    }
-    return actors;
-}
 function userOwnsActor(user, actor) {
     if (!user || !actor)
         return false;
@@ -54,18 +46,6 @@ export function readSkillCheckRequest(message) {
         return null;
     return raw;
 }
-function taskHint(baseTn) {
-    const level = taskLevelFromBaseTn(baseTn);
-    return `Task Level ${level}`;
-}
-function skillRefFromSelect(value) {
-    const v = String(value || '').trim();
-    if (v === 'perception')
-        return { kind: 'perception' };
-    if (v === 'untrained' || !v)
-        return { kind: 'untrained' };
-    return { kind: 'specialization', id: v };
-}
 function skillRefLabel(actor, ref) {
     if (ref.kind === 'untrained')
         return 'Untrained';
@@ -77,147 +57,29 @@ function skillRefLabel(actor, ref) {
 }
 export function assignmentForActor(payload, actorId) {
     const skill = payload.perActorSkill[actorId] ?? payload.defaultSkill;
+    const attributeKey = payload.perActorAttribute?.[actorId] || payload.attributeKey || 'wits';
+    const mode = payload.mode === 'comparative' ? 'comparative' : 'standard';
+    const baseTn = mode === 'comparative'
+        ? 0
+        : payload.perActorBaseTn?.[actorId] != null
+            ? Math.max(0, Math.floor(Number(payload.perActorBaseTn[actorId]) || 0))
+            : payload.baseTn;
     return {
         skill,
-        attributeKey: payload.attributeKey,
-        baseTn: payload.baseTn,
+        attributeKey,
+        baseTn,
         taskDescription: payload.taskDescription,
+        mode,
         ...(payload.allowedSkills?.length ? { allowedSkills: payload.allowedSkills } : {}),
     };
 }
-/** GM dialog to create a Skill Check request. */
+/**
+ * Competing standalone "GM · Request Skill Check" dialog is retired.
+ * All Skill Check configuration goes through the unified Rolls application.
+ */
 export async function showSkillCheckRequestDialog() {
-    const Dialog = globalThis.Dialog;
-    if (!Dialog)
-        return;
-    if (!globalThis.game?.user?.isGM) {
-        globalThis.ui?.notifications?.warn?.('Only the GM can request Skill Checks.');
-        return;
-    }
-    const pcs = listPcActors();
-    if (pcs.length === 0) {
-        globalThis.ui?.notifications?.warn?.('No player characters found.');
-        return;
-    }
-    const presets = baseTnPresets()
-        .map((tn) => `<option value="${tn}" ${tn === 12 ? 'selected' : ''}>${tn} — ${taskHint(tn)}</option>`)
-        .join('');
-    const attrOptions = SPEC_ATTRIBUTE_KEYS.map((k) => `<option value="${k}" ${k === 'wits' ? 'selected' : ''}>${cap(k)}</option>`).join('');
-    const actorRows = pcs
-        .map((a) => {
-        const specs = readSpecializations(a.system);
-        const opts = [
-            `<option value="perception">Perception</option>`,
-            `<option value="untrained">Untrained</option>`,
-            ...specs.map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)} · Rank ${s.rank}</option>`),
-        ].join('');
-        return `<div class="ms-scr-actor-row" data-actor-id="${escapeHtml(a.id)}">
-        <label class="ms-scr-actor">
-          <input type="checkbox" name="target" value="${escapeHtml(a.id)}" checked />
-          ${escapeHtml(a.name)}
-        </label>
-        <select name="skill-${escapeHtml(a.id)}" class="md-select ms-scr-actor-skill">${opts}</select>
-      </div>`;
-    })
-        .join('');
-    const content = `
-    <form class="mastery-dialog-form ms-scr-gm-form">
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillRequest.task', 'Task')}</label>
-        <input type="text" name="task" class="md-input" value="" placeholder="e.g. Examine tracks at the north gate" maxlength="200" />
-      </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillRequest.attribute', 'Attribute (GM-defined)')}</label>
-        <select name="attribute" class="md-select">${attrOptions}</select>
-      </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillRequest.baseTn', 'Base Target Number (TN)')}</label>
-        <select name="baseTn" class="md-select">${presets}<option value="custom">Custom…</option></select>
-        <input type="number" name="baseTnCustom" class="md-input" min="0" step="1" value="12" style="display:none;margin-top:6px" />
-      </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillRequest.targets', 'Players / characters + assigned Skill')}</label>
-        <div class="ms-scr-actors-map">${actorRows}</div>
-        <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillRequest.mapHint', 'Map each recipient to a matching Specialization, Perception, or Untrained. Do not silently accept unrelated Skills.')}</small>
-      </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillRequest.note', 'Note (optional)')}</label>
-        <textarea name="note" class="md-input" rows="2" placeholder="What should they watch for?"></textarea>
-      </div>
-      <p class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillRequest.hint', 'You define Task, Attribute, Skill and Base TN. Each player only chooses Paid Raises.')}</p>
-    </form>`;
-    await new Promise((resolve) => {
-        new Dialog({
-            title: masteryLocalize('MASTERY.df2026.skillRequest.title', 'GM · Request Skill Check'),
-            content,
-            buttons: {
-                send: {
-                    label: masteryLocalize('MASTERY.df2026.skillRequest.send', 'Send request'),
-                    callback: async (html) => {
-                        const root = html instanceof HTMLElement
-                            ? html
-                            : html?.[0] ?? null;
-                        const taskDescription = String(root?.querySelector('[name="task"]')?.value || '').trim() || 'Skill Check';
-                        const attributeKey = String(root?.querySelector('[name="attribute"]')?.value ||
-                            '');
-                        if (!isSpecAttributeKey(attributeKey)) {
-                            globalThis.ui?.notifications?.warn?.('Choose a valid Attribute.');
-                            return;
-                        }
-                        const baseSel = String(root?.querySelector('[name="baseTn"]')?.value || '12');
-                        let baseTn = 12;
-                        if (baseSel === 'custom') {
-                            baseTn = Math.max(0, Math.floor(Number(root?.querySelector('[name="baseTnCustom"]')
-                                ?.value) || 0));
-                        }
-                        else {
-                            baseTn = Math.max(0, Math.floor(Number(baseSel) || 12));
-                        }
-                        const note = String(root?.querySelector('[name="note"]')?.value || '').trim();
-                        const targetActorIds = Array.from(root?.querySelectorAll('input[name="target"]:checked') ?? []).map((el) => el.value);
-                        if (!targetActorIds.length) {
-                            globalThis.ui?.notifications?.warn?.('Select at least one character.');
-                            return;
-                        }
-                        const perActorSkill = {};
-                        for (const id of targetActorIds) {
-                            const sel = root?.querySelector(`[name="skill-${id}"]`);
-                            perActorSkill[id] = skillRefFromSelect(sel?.value || 'untrained');
-                        }
-                        const firstSkill = perActorSkill[targetActorIds[0]] ?? { kind: 'untrained' };
-                        await createSkillCheckRequest({
-                            taskDescription,
-                            note,
-                            baseTn,
-                            attributeKey,
-                            defaultSkill: firstSkill,
-                            perActorSkill,
-                            targetActorIds,
-                        });
-                        resolve();
-                    },
-                },
-                cancel: {
-                    label: masteryLocalize('MASTERY.df2026.skillCheck.cancel', 'Cancel'),
-                    callback: () => resolve(),
-                },
-            },
-            default: 'send',
-            render: (html) => {
-                const root = html instanceof HTMLElement ? html : html?.[0];
-                if (!root)
-                    return;
-                root.closest?.('.window-app')?.classList?.add?.('mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog');
-                const sel = root.querySelector('[name="baseTn"]');
-                const custom = root.querySelector('[name="baseTnCustom"]');
-                sel?.addEventListener('change', () => {
-                    if (custom)
-                        custom.style.display = sel.value === 'custom' ? '' : 'none';
-                });
-            },
-            close: () => resolve(),
-        }, { width: 520, classes: ['mastery-system', 'mastery-roll-dialog', 'ms-skill-check-dialog'] }).render(true);
-    });
+    const { showEpicMasteryRollConfigDialog } = await import('../epic-roll/epic-mastery-roll-config-dialog.js');
+    showEpicMasteryRollConfigDialog();
 }
 export async function createSkillCheckRequest(input) {
     const requestId = newRequestId();
@@ -225,6 +87,7 @@ export async function createSkillCheckRequest(input) {
     for (const id of input.targetActorIds) {
         responses[id] = { status: 'pending' };
     }
+    const mode = input.mode === 'comparative' ? 'comparative' : 'standard';
     const payload = {
         schema: REQUEST_SCHEMA,
         requestId,
@@ -234,7 +97,13 @@ export async function createSkillCheckRequest(input) {
         attributeKey: input.attributeKey,
         defaultSkill: input.defaultSkill,
         perActorSkill: { ...input.perActorSkill },
+        ...(input.perActorAttribute ? { perActorAttribute: { ...input.perActorAttribute } } : {}),
+        ...(input.perActorBaseTn ? { perActorBaseTn: { ...input.perActorBaseTn } } : {}),
         ...(input.allowedSkills?.length ? { allowedSkills: input.allowedSkills } : {}),
+        mode,
+        showTn: mode === 'comparative' ? false : input.showTn !== false,
+        ...(input.allowPlayerSuggestions ? { allowPlayerSuggestions: true } : {}),
+        ...(input.comparative ? { comparative: input.comparative } : {}),
         targetActorIds: [...input.targetActorIds],
         responses,
         createdBy: String(globalThis.game?.user?.id || ''),
@@ -254,6 +123,7 @@ export async function createSkillCheckRequest(input) {
     return msg;
 }
 function renderRequestCardHtml(payload) {
+    const isComparative = payload.mode === 'comparative';
     const participants = payload.targetActorIds
         .map((id) => {
         const actor = globalThis.game?.actors?.get?.(id);
@@ -262,10 +132,15 @@ function renderRequestCardHtml(payload) {
         const skillTxt = actor ? skillRefLabel(actor, assigned.skill) : assigned.skill.kind;
         const r = payload.responses[id];
         let status = 'pending';
-        let detail = `${skillTxt} · awaiting`;
+        let detail = `${skillTxt} · ${cap(assigned.attributeKey)} · awaiting`;
+        if (!isComparative) {
+            detail = `${skillTxt} · ${cap(assigned.attributeKey)} · TN ${assigned.baseTn} · awaiting`;
+        }
         if (r?.status === 'rolled') {
-            status = r.success ? 'ok' : 'fail';
-            detail = `${skillTxt} · Paid ${r.paidRaises ?? 0} · Final TN ${r.finalTn ?? '—'} · roll ${r.rollTotal ?? '—'}`;
+            status = isComparative ? 'ok' : r.success ? 'ok' : 'fail';
+            detail = isComparative
+                ? `${skillTxt} · roll ${r.rollTotal ?? '—'}`
+                : `${skillTxt} · Paid ${r.paidRaises ?? 0} · Final TN ${r.finalTn ?? '—'} · roll ${r.rollTotal ?? '—'}`;
         }
         return `<div class="ms-scr-participant" data-actor-id="${escapeHtml(id)}">
         <span>${escapeHtml(name)}</span>
@@ -274,16 +149,21 @@ function renderRequestCardHtml(payload) {
       </div>`;
     })
         .join('');
+    const meta = isComparative
+        ? `${escapeHtml(payload.taskDescription)} · <strong>Comparative</strong> (no Task TN)`
+        : `${escapeHtml(payload.taskDescription)} · per-character Skills / Attributes / TNs`;
     return `
-    <div class="ms-skill-check-request" data-request-id="${escapeHtml(payload.requestId)}">
+    <div class="ms-skill-check-request" data-request-id="${escapeHtml(payload.requestId)}" data-mode="${escapeHtml(payload.mode || 'standard')}">
       <div class="ms-scr-head">
-        <strong>${masteryLocalize('MASTERY.df2026.skillRequest.cardTitle', 'GM requests Skill Check')}</strong>
+        <strong>${masteryLocalize('MASTERY.df2026.skillRequest.cardTitle', isComparative ? 'GM requests Comparative Skill Check' : 'GM requests Skill Check')}</strong>
         <span class="ms-scr-badge">OPEN</span>
       </div>
-      <div class="ms-scr-meta">${escapeHtml(payload.taskDescription)} · ${escapeHtml(cap(payload.attributeKey))} · Base TN <strong>${payload.baseTn}</strong> (${escapeHtml(taskHint(payload.baseTn))})</div>
+      <div class="ms-scr-meta">${meta}</div>
       ${payload.note ? `<div class="ms-scr-note">${escapeHtml(payload.note)}</div>` : ''}
       <div class="ms-scr-list">${participants}</div>
-      <p class="ms-scr-hint">Players choose only Paid Raises. Closing the overlay does not cancel — reopen here.</p>
+      <p class="ms-scr-hint">${isComparative
+        ? 'Compare totals directly. No Paid Raises. Closing the overlay does not cancel — reopen here.'
+        : 'Players choose only Paid Raises. Closing the overlay does not cancel — reopen here.'}</p>
     </div>`;
 }
 function emitOpenOverlays(payload, messageId) {
@@ -320,6 +200,7 @@ export async function openSkillCheckForRequest(actor, payload, messageId) {
         attributeKey: assigned.attributeKey,
         baseTn: assigned.baseTn,
         skill: assigned.skill,
+        mode: assigned.mode,
         ...(assigned.allowedSkills?.length ? { allowedSkills: assigned.allowedSkills } : {}),
     };
     const choice = await promptSkillCheckRollDialog({
@@ -327,6 +208,7 @@ export async function openSkillCheckForRequest(actor, payload, messageId) {
         source,
         lockGmFields: true,
         allowedSkills: assigned.allowedSkills,
+        comparative: assigned.mode === 'comparative',
         title: `${assigned.taskDescription || 'Skill Check'} · ${actor.name}`,
     });
     if (!choice)
@@ -337,10 +219,14 @@ export async function openSkillCheckForRequest(actor, payload, messageId) {
     choice.draft.attributeKey = assigned.attributeKey;
     choice.draft.baseTn = assigned.baseTn;
     choice.draft.taskDescription = assigned.taskDescription;
+    if (assigned.mode === 'comparative') {
+        choice.draft.paidRaises = 0;
+    }
     const result = await executeSkillCheck({
         actor,
         draft: choice.draft,
         gmAssignment: assigned,
+        comparative: assigned.mode === 'comparative',
         flavorExtra: payload.note ? `Note: ${payload.note}` : undefined,
     });
     if (!result.ok) {
@@ -385,6 +271,111 @@ async function updateRequestParticipant(messageId, actorId, patch) {
         content,
         flags: { [FLAG_SCOPE]: { skillCheckRequest: payload } },
     });
+    if (payload.mode === 'comparative' &&
+        globalThis.game?.user?.isGM &&
+        payload.targetActorIds.every((id) => payload.responses[id]?.status === 'rolled')) {
+        await resolveComparativeOppositionCard(payload);
+    }
+}
+async function resolveComparativeOppositionCard(payload) {
+    const meta = payload.comparative;
+    if (!meta)
+        return;
+    try {
+        const { resolveComparativeSkillCheck, skillAdvantageRerollMax } = await import('../rules/index.js');
+        const { masteryRoll } = await import('../dice/roll-handler.js');
+        let oppTotal = 0;
+        let oppLabel = 'Opposition';
+        if (meta.source === 'npc' && meta.npcActorId) {
+            const npc = globalThis.game?.actors?.get?.(meta.npcActorId);
+            const { readSituationalSkills, findSituationalSkillByName, findSituationalSkillById } = await import('../rules/index.js');
+            const skills = readSituationalSkills(npc?.system);
+            const byId = findSituationalSkillById(skills, meta.npcSkillKey || '');
+            const byName = byId ||
+                findSituationalSkillByName(skills, meta.npcSkillKey || '') ||
+                findSituationalSkillByName(skills, 'Perception') ||
+                skills[0];
+            const pool = Math.max(0, Math.floor(Number(byName?.poolDice) || 0));
+            const mr = Math.max(1, Math.floor(Number(npc?.system?.mastery?.rank) || 1));
+            const keep = Math.max(1, Math.min(pool || 1, mr));
+            const rank = Math.max(0, Math.floor(Number(byName?.skillRank) || 0));
+            const result = await masteryRoll({
+                numDice: pool,
+                keepDice: keep,
+                skill: 0,
+                tn: 0,
+                normalTn: 0,
+                raiseTn: 0,
+                declaredRaiseSlots: 0,
+                stoneBonusRaises: 0,
+                freeRaisesAvailableAtSuccess: 0,
+                raiseModel: 'skill',
+                rollDisadvantage: rank <= 0,
+                skillAdvantageRerollMax: rank <= 0 ? 0 : skillAdvantageRerollMax(rank),
+                label: `${npc?.name ?? 'NPC'} · ${byName?.name ?? 'Skill'}`,
+                flavor: `Comparative opposition · ${payload.taskDescription}`,
+                actorId: String(npc?.id || ''),
+                isSkillRoll: true,
+                rollKind: 'skill',
+                applyPoolPenalties: false,
+            });
+            oppTotal = Math.floor(Number(result?.total) || 0);
+            oppLabel = `${npc?.name ?? 'NPC'} (${byName?.name ?? 'Skill'} ${pool}k${keep})`;
+        }
+        else if (meta.virtual) {
+            const v = meta.virtual;
+            const pool = Math.max(0, Math.floor(Number(v.poolDice) || 0));
+            const mr = Math.max(1, Math.floor(Number(v.masteryRank) || 1));
+            const keep = Math.max(1, Math.min(pool || 1, mr));
+            const rank = Math.max(0, Math.floor(Number(v.skillRank) || 0));
+            const result = await masteryRoll({
+                numDice: pool,
+                keepDice: keep,
+                skill: 0,
+                tn: 0,
+                normalTn: 0,
+                raiseTn: 0,
+                declaredRaiseSlots: 0,
+                stoneBonusRaises: 0,
+                freeRaisesAvailableAtSuccess: 0,
+                raiseModel: 'skill',
+                rollDisadvantage: rank <= 0,
+                skillAdvantageRerollMax: rank <= 0 ? 0 : skillAdvantageRerollMax(rank),
+                attackExplodeDiceOn78: !!v.allowSkillCrit && rank >= 5,
+                label: `${v.name} · ${v.skillName}`,
+                flavor: `Comparative opposition · ${payload.taskDescription}`,
+                isSkillRoll: true,
+                rollKind: 'skill',
+                applyPoolPenalties: false,
+            });
+            oppTotal = Math.floor(Number(result?.total) || 0);
+            oppLabel = `${v.name} (${v.skillName} ${pool}k${keep})`;
+        }
+        const lines = payload.targetActorIds
+            .map((id) => {
+            const actor = globalThis.game?.actors?.get?.(id);
+            const total = Math.floor(Number(payload.responses[id]?.rollTotal) || 0);
+            const outcome = resolveComparativeSkillCheck({
+                challengerTotal: total,
+                defenderTotal: oppTotal,
+            });
+            return `<li><strong>${escapeHtml(actor?.name ?? id)}</strong>: ${total} vs ${oppTotal} → ${outcome.challengerWins ? 'wins' : outcome.tieFavorsDefender ? 'tie (defender)' : 'loses'}</li>`;
+        })
+            .join('');
+        await ChatMessage.create({
+            user: globalThis.game?.user?.id,
+            speaker: ChatMessage.getSpeaker({ alias: 'Comparative Skill Check' }),
+            content: `<div class="ms-comparative-result">
+        <strong>Comparative resolution</strong>
+        <div>${escapeHtml(payload.taskDescription)}</div>
+        <div>Opposition: <strong>${escapeHtml(oppLabel)}</strong> = ${oppTotal}</div>
+        <ul>${lines}</ul>
+      </div>`,
+        });
+    }
+    catch (err) {
+        console.error('Mastery System | Comparative opposition resolve failed', err);
+    }
 }
 /** Find an open GM request targeting this actor (optionally matching a Spec id). */
 export function findOpenSkillCheckRequestForActor(actorId, preferredSkillId) {
@@ -461,31 +452,8 @@ function injectSkillCheckButton(controlsEl) {
     const parent = controlsEl.parentElement;
     if (!parent)
         return;
-    let row = parent.querySelector(':scope > .ms-chat-rolls-row');
-    if (!row) {
-        row = document.createElement('div');
-        row.className = 'ms-chat-rolls-row';
-        const d8 = parent.querySelector(':scope > .ms-chat-roll-row');
-        if (d8)
-            d8.before(row);
-        else
-            controlsEl.before(row);
-    }
-    let button = document.querySelector('.ms-skill-check-launch');
-    if (!button) {
-        button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'ms-skill-check-launch';
-        button.title = 'Skill Check — GM-defined ordinary Skill / Perception checks';
-        button.innerHTML = '<i class="fas fa-search"></i><span>Skill Check</span>';
-        button.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            void showSkillCheckRequestDialog();
-        });
-    }
-    if (button.parentElement !== row)
-        row.append(button);
+    // Retire the competing Skill Check chat button — Rolls is the sole GM entry.
+    parent.querySelectorAll('.ms-skill-check-launch').forEach((el) => el.remove());
     syncChatRollChrome();
 }
 let socketRegistered = false;

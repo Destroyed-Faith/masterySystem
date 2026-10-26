@@ -136,6 +136,16 @@ const handleHealingBar = onceAtATime(async () => {
         ui.notifications?.error('Healing bar failed - see console');
     }
 });
+const handleGroupAmbush = onceAtATime(async () => {
+    try {
+        const { showEpicMasteryRollConfigDialogForGroupAmbush } = await import('../epic-roll/epic-mastery-roll-config-dialog.js');
+        showEpicMasteryRollConfigDialogForGroupAmbush();
+    }
+    catch (err) {
+        console.error('Mastery System | [ERROR] Group Ambush failed', err);
+        ui.notifications?.error('Group Ambush failed - see console');
+    }
+});
 const handleEchoImprints = onceAtATime(async () => {
     try {
         const { showEchoImprintsFromMenu } = await import('./echo-imprints-menu.js');
@@ -155,6 +165,7 @@ const MASTERY_TOOL_HANDLERS = {
     firstAid: handleFirstAid,
     echoImprints: handleEchoImprints,
     healingBar: handleHealingBar,
+    groupAmbush: handleGroupAmbush,
 };
 function bindMasteryToolClicks() {
     const sceneControls = document.querySelector('#scene-controls');
@@ -222,6 +233,13 @@ export function initializeSceneControls() {
                     visible: isGM,
                     button: true,
                     onClick: handleDayOfRest,
+                },
+                {
+                    name: 'groupAmbush',
+                    title: 'Group Ambush',
+                    icon: 'fas fa-user-secret',
+                    button: true,
+                    onClick: handleGroupAmbush,
                 },
                 {
                     name: 'unluckMenu',

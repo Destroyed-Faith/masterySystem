@@ -24,6 +24,8 @@ export interface ExecuteSkillCheckOptions {
   actor: any;
   draft: SkillCheckDraft;
   flavorExtra?: string;
+  /** Comparative Skill Check — no Task TN, no Paid Raises. */
+  comparative?: boolean;
   /**
    * When rolling from a GM request, pass the authoritative assignment so
    * client-forged Skill / Attribute / TN overrides are rejected.
@@ -98,6 +100,14 @@ export async function executeSkillCheck(
     };
   }
 
+  const isComparative = !!opts.comparative || draft.source.mode === 'comparative';
+  if (isComparative) {
+    draft = { ...draft, paidRaises: 0, baseTn: 0 };
+    if (draft.source.kind === 'gm-request' || draft.source.kind === 'sheet-verbal') {
+      draft.source = { ...draft.source, baseTn: 0, mode: 'comparative' };
+    }
+  }
+
   const plan = planSkillCheckDraft({ system, draft, requireKnownSkill: true });
   if (!plan.ok) return { ok: false, error: plan.error || 'Invalid Skill Check.' };
 
@@ -134,7 +144,13 @@ export async function executeSkillCheck(
 
   const advLabel = skillAdvantageLabel(plan.rank);
   let flavor = '';
-  if (isNpcSituational) {
+  if (isComparative) {
+    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}Comparative · ${plan.skillName} (Rank ${plan.rank}) · ${
+      isNpcSituational
+        ? `Pool ${numDice}k${keepDice}`
+        : `${attrLabel} ${plan.attributeValue}d8 keep ${keepDice}`
+    } · ${advLabel}${verified}. No Task TN · No Raises.`;
+  } else if (isNpcSituational) {
     flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}NPC ${plan.skillName} (Rank ${plan.rank}) · Pool ${numDice}k${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn} · ${advLabel}${verified}.`;
   } else {
     flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn} · ${advLabel}${verified}.`;
@@ -157,17 +173,17 @@ export async function executeSkillCheck(
     numDice,
     keepDice,
     skill: 0,
-    tn: plan.baseTn,
-    normalTn: plan.baseTn,
-    raiseTn: plan.finalTn,
-    declaredRaiseSlots: plan.paidRaises,
+    tn: isComparative ? 0 : plan.baseTn,
+    normalTn: isComparative ? 0 : plan.baseTn,
+    raiseTn: isComparative ? 0 : plan.finalTn,
+    declaredRaiseSlots: isComparative ? 0 : plan.paidRaises,
     stoneBonusRaises: 0,
     freeRaisesAvailableAtSuccess: 0,
     raiseModel: 'skill',
     rollDisadvantage: plan.rollDisadvantage,
     skillAdvantageRerollMax: plan.rollDisadvantage ? 0 : plan.skillAdvantageRerollMax,
     attackExplodeDiceOn78: skillCritActive,
-    label,
+    label: isComparative ? `${plan.skillName} (Comparative)` : label,
     flavor,
     actorId: String(actor.id),
     ...(normalizedName === 'stealth' ? { skillKey: 'stealth' } : {}),
@@ -185,17 +201,18 @@ export async function executeSkillCheck(
     skillCheckMeta: {
       source: draft.source,
       skillRankAtRoll: plan.rank,
-      paidRaisesDeclared: plan.paidRaises,
+      paidRaisesDeclared: isComparative ? 0 : plan.paidRaises,
       freeRaisesAvailableAtSuccess: 0,
       skillName: plan.skillName,
       attributeKey: plan.attributeKey,
       taskDescription: plan.taskDescription,
       gmVerified: plan.gmVerified,
+      comparative: isComparative,
     },
   } as any);
 
-  const success = !!result?.success;
   const rollTotal = Number(result?.total) || 0;
+  const success = isComparative ? true : !!result?.success;
   const snapshot = buildSkillCheckResolvedSnapshot({
     plan: { ...plan, keepDice, numDice },
     actorId: String(actor.id),

@@ -7,6 +7,8 @@ export interface ExecuteSkillCheckOptions {
     actor: any;
     draft: SkillCheckDraft;
     flavorExtra?: string;
+    /** Comparative Skill Check — no Task TN, no Paid Raises. */
+    comparative?: boolean;
     /**
      * When rolling from a GM request, pass the authoritative assignment so
      * client-forged Skill / Attribute / TN overrides are rejected.

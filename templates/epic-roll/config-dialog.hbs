@@ -23,9 +23,14 @@
           <h4>Selected</h4>
           <ul class="emr-actor-ul">
             {{#each selectedActors as |actor|}}
-            <li class="emr-actor-row">
+            <li class="emr-actor-row emr-actor-row-selected">
               <img src="{{actor.img}}" alt="" class="emr-actor-thumb" />
-              <span class="emr-actor-name">{{actor.name}}</span>
+              <div class="emr-actor-meta">
+                <span class="emr-actor-name">{{actor.name}}</span>
+                {{#if actor.assignmentSummary}}
+                <span class="emr-actor-assign">{{actor.assignmentSummary}}</span>
+                {{/if}}
+              </div>
               <button type="button" class="emr-icon-btn" data-action="emr-remove-actor" data-actor-id="{{actor.id}}" title="Remove">
                 <i class="fas fa-minus"></i>
               </button>
@@ -50,13 +55,115 @@
       </div>
 
       {{#if (eq rollKind "skill")}}
-      <div class="emr-field">
-        <label class="emr-label">Skill</label>
-        <select name="emr-skill-key" class="emr-select">
-          {{#each skills as |sk|}}
-          <option value="{{sk.key}}" {{#if (eq ../skillKey sk.key)}}selected{{/if}}>{{sk.name}}</option>
-          {{/each}}
-        </select>
+      <div class="emr-skill-panel emr-scroll-panel">
+        <div class="emr-field">
+          <label class="emr-label">Task / Obstacle</label>
+          <input type="text" name="emr-task" class="emr-input" value="{{taskDescription}}" placeholder="e.g. Examine footprints near the northern gate" maxlength="200" />
+        </div>
+
+        <div class="emr-field">
+          <label class="emr-label">Mode</label>
+          <div class="emr-mode-toggle">
+            <label class="emr-mode-opt"><input type="radio" name="emr-skill-mode" value="standard" {{#if (eq skillMode "standard")}}checked{{/if}} /> Standard</label>
+            <label class="emr-mode-opt"><input type="radio" name="emr-skill-mode" value="comparative" {{#if (eq skillMode "comparative")}}checked{{/if}} /> Comparative</label>
+          </div>
+        </div>
+
+        <div class="emr-field">
+          <label class="emr-label">Allowed Approaches</label>
+          <p class="emr-hint">Each approach may have its own Attribute and Base TN. Assigning an approach to a character populates their row.</p>
+          <div class="emr-approaches">
+            {{#each approaches as |ap|}}
+            <div class="emr-approach-row" data-approach-id="{{ap.id}}">
+              <select name="emr-ap-skill" class="emr-select emr-ap-skill" data-approach-id="{{ap.id}}" title="Specialization">
+                {{#each ../catalogSkillOptions as |opt|}}
+                <option value="{{opt.key}}" {{#if (eq ap.skillKey opt.key)}}selected{{/if}}>{{opt.label}}</option>
+                {{/each}}
+              </select>
+              <select name="emr-ap-attr" class="emr-select emr-ap-attr" data-approach-id="{{ap.id}}" title="Suggested Attribute">
+                {{#each ../attributes as |attr|}}
+                <option value="{{attr}}" {{#if (eq ap.suggestedAttribute attr)}}selected{{/if}}>{{attr}}</option>
+                {{/each}}
+              </select>
+              <select name="emr-ap-tn" class="emr-select emr-ap-tn" data-approach-id="{{ap.id}}" title="Base TN">
+                {{#each ../taskLevelPresets as |p|}}
+                <option value="{{p.tn}}" {{#if (eqNum ap.baseTn p.tn)}}selected{{/if}}>{{p.label}}</option>
+                {{/each}}
+                <option value="custom" {{#if ap.isCustomTn}}selected{{/if}}>Custom…</option>
+              </select>
+              <input type="number" name="emr-ap-tn-custom" class="emr-input emr-ap-tn-custom" data-approach-id="{{ap.id}}" value="{{ap.baseTn}}" min="0" step="1" title="Custom TN" />
+              <button type="button" class="emr-icon-btn" data-action="emr-remove-approach" data-approach-id="{{ap.id}}" title="Remove approach"><i class="fas fa-times"></i></button>
+            </div>
+            {{else}}
+            <p class="emr-hint">No approaches yet — add one or assign Skills per character below.</p>
+            {{/each}}
+          </div>
+          <button type="button" class="emr-btn emr-btn-sm" data-action="emr-add-approach"><i class="fas fa-plus"></i> Add approach</button>
+        </div>
+
+        <div class="emr-field">
+          <label class="emr-label">Per-character Skill / Attribute{{#if (eq skillMode "standard")}} / TN{{/if}}</label>
+          <div class="emr-participant-assigns">
+            {{#each participantAssigns as |row|}}
+            <div class="emr-assign-card" data-actor-id="{{row.actorId}}">
+              <div class="emr-assign-head">{{row.actorName}}</div>
+              <div class="emr-assign-grid">
+                <label>Skill
+                  <select name="emr-row-skill" class="emr-select" data-actor-id="{{row.actorId}}">
+                    {{#each row.skillOptions as |opt|}}
+                    <option value="{{opt.key}}" {{#if (eq row.skillKey opt.key)}}selected{{/if}}>{{opt.label}}</option>
+                    {{/each}}
+                  </select>
+                </label>
+                <label>Attribute
+                  <select name="emr-row-attr" class="emr-select" data-actor-id="{{row.actorId}}">
+                    {{#each ../attributes as |attr|}}
+                    <option value="{{attr}}" {{#if (eq row.attributeKey attr)}}selected{{/if}}>{{attr}}</option>
+                    {{/each}}
+                  </select>
+                </label>
+                {{#if (eq ../skillMode "standard")}}
+                <label>Base TN
+                  <input type="number" name="emr-row-tn" class="emr-input" data-actor-id="{{row.actorId}}" value="{{row.baseTn}}" min="0" step="1" />
+                </label>
+                {{/if}}
+              </div>
+              <div class="emr-assign-preview">{{row.previewLine}}</div>
+              {{#if ../approaches.length}}
+              <div class="emr-assign-apply">
+                <select name="emr-row-approach" class="emr-select" data-actor-id="{{row.actorId}}">
+                  <option value="">— apply approach —</option>
+                  {{#each ../approaches as |ap|}}
+                  <option value="{{ap.id}}">{{ap.label}} · {{ap.suggestedAttribute}} · TN {{ap.baseTn}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              {{/if}}
+              {{#if row.suggestion}}
+              <div class="emr-suggestion">
+                <span>Suggestion: {{row.suggestion.skillLabel}} · {{row.suggestion.attributeKey}}{{#if row.suggestion.note}} — {{row.suggestion.note}}{{/if}}</span>
+                <button type="button" class="emr-btn emr-btn-sm" data-action="emr-accept-suggestion" data-actor-id="{{row.actorId}}">Accept</button>
+                <button type="button" class="emr-btn emr-btn-sm" data-action="emr-reject-suggestion" data-actor-id="{{row.actorId}}">Reject</button>
+              </div>
+              {{/if}}
+            </div>
+            {{else}}
+            <p class="emr-hint">Select participants to assign Skills.</p>
+            {{/each}}
+          </div>
+        </div>
+
+        {{#if (eq skillMode "standard")}}
+        <div class="emr-field emr-checkbox-field">
+          <label>
+            <input type="checkbox" name="emr-allow-suggestions" {{#if allowPlayerSuggestions}}checked{{/if}} />
+            Allow player Skill suggestions (optional stage)
+          </label>
+        </div>
+        {{#if allowPlayerSuggestions}}
+        <button type="button" class="emr-btn emr-btn-sm" data-action="emr-request-suggestions"><i class="fas fa-comment"></i> Request suggestions</button>
+        {{/if}}
+        {{/if}}
       </div>
       {{/if}}
 
@@ -99,6 +206,117 @@
       <div class="emr-field">
         <p class="emr-hint">Bands are fixed (8 / 16). Challenge MR and difficulty do not apply.</p>
       </div>
+      {{else if (eq rollKind "skill")}}
+        {{#if (eq skillMode "standard")}}
+        <div class="emr-field">
+          <p class="emr-hint">Standard Skill Checks use per-character Base TNs from Allowed Approaches / assignments. Challenge MR (8×MR−2) does not override Skill Task TNs.</p>
+        </div>
+        <div class="emr-field">
+          <label class="emr-label">Task Level presets (reference)</label>
+          <ul class="emr-hint-list">
+            {{#each taskLevelPresets as |p|}}
+            <li>Level {{p.level}}: TN {{p.tn}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        <div class="emr-field emr-checkbox-field">
+          <label>
+            <input type="checkbox" name="emr-show-tn" {{#if showTn}}checked{{/if}} />
+            Show TN to players
+          </label>
+        </div>
+        {{else}}
+        <div class="emr-field">
+          <label class="emr-label">Opposition source</label>
+          <select name="emr-opp-source" class="emr-select">
+            <option value="virtual" {{#if (eq comparative.source "virtual")}}selected{{/if}}>Virtual Opponent</option>
+            <option value="npc" {{#if (eq comparative.source "npc")}}selected{{/if}}>Existing NPC Actor</option>
+          </select>
+        </div>
+        {{#if (eq comparative.source "npc")}}
+        <div class="emr-field">
+          <label class="emr-label">NPC Actor</label>
+          <select name="emr-opp-npc" class="emr-select">
+            <option value="">— select NPC —</option>
+            {{#each npcActors as |npc|}}
+            <option value="{{npc.id}}" {{#if (eq ../comparative.npcActorId npc.id)}}selected{{/if}}>{{npc.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="emr-field">
+          <label class="emr-label">Opposing Skill key / name</label>
+          <input type="text" name="emr-opp-npc-skill" class="emr-input" value="{{comparative.npcSkillKey}}" placeholder="Perception" />
+        </div>
+        <div class="emr-field">
+          <label class="emr-label">Opposing Attribute</label>
+          <select name="emr-opp-npc-attr" class="emr-select">
+            {{#each attributes as |attr|}}
+            <option value="{{attr}}" {{#if (eq ../comparative.npcAttributeKey attr)}}selected{{/if}}>{{attr}}</option>
+            {{/each}}
+          </select>
+        </div>
+        {{else}}
+        <div class="emr-field">
+          <label class="emr-label">Opponent name</label>
+          <input type="text" name="emr-virt-name" class="emr-input" value="{{comparative.virtual.name}}" />
+        </div>
+        <div class="emr-field">
+          <label class="emr-label">Opposing Skill</label>
+          <input type="text" name="emr-virt-skill" class="emr-input" value="{{comparative.virtual.skillName}}" />
+        </div>
+        <div class="emr-field emr-inline-3">
+          <label>Pool <input type="number" name="emr-virt-pool" class="emr-input" value="{{comparative.virtual.poolDice}}" min="0" step="1" /></label>
+          <label>MR <input type="number" name="emr-virt-mr" class="emr-input" value="{{comparative.virtual.masteryRank}}" min="1" max="8" step="1" /></label>
+          <label>Rank <input type="number" name="emr-virt-rank" class="emr-input" value="{{comparative.virtual.skillRank}}" min="0" max="8" step="1" /></label>
+        </div>
+        <div class="emr-field emr-checkbox-field">
+          <label>
+            <input type="checkbox" name="emr-virt-crit" {{#if comparative.virtual.allowSkillCrit}}checked{{/if}} />
+            Permit Skill Crit for virtual opponent
+          </label>
+        </div>
+        {{/if}}
+
+        <div class="emr-field emr-checkbox-field">
+          <label>
+            <input type="checkbox" name="emr-group-ambush" {{#if comparative.groupAmbush}}checked{{/if}} />
+            Group Ambush (one Stealth specialist + combined equipment penalties)
+          </label>
+        </div>
+        {{#if comparative.groupAmbush}}
+        <div class="emr-ambush-panel">
+          <div class="emr-field">
+            <label class="emr-label">Ambush participants</label>
+            {{#each ambushCandidateActors as |a|}}
+            <label class="emr-check-row">
+              <input type="checkbox" name="emr-ambush-part" value="{{a.id}}" {{#if a.inAmbush}}checked{{/if}} />
+              {{a.name}}
+            </label>
+            {{/each}}
+          </div>
+          <div class="emr-field">
+            <label class="emr-label">Stealth specialist</label>
+            <select name="emr-ambush-specialist" class="emr-select">
+              {{#each ambushCandidateActors as |a|}}
+              {{#if a.inAmbush}}
+              <option value="{{a.id}}" {{#if (eq ../comparative.stealthSpecialistId a.id)}}selected{{/if}}>{{a.name}}</option>
+              {{/if}}
+              {{/each}}
+            </select>
+          </div>
+          {{#if ambushPreview}}
+          <div class="emr-tn-preview">
+            Specialist pool {{ambushPreview.basePool}} − {{ambushPreview.combinedPenalty}} equipment = <strong>{{ambushPreview.finalPool}}k{{ambushPreview.keepDice}}</strong>
+            <ul class="emr-hint-list">
+              {{#each ambushPreview.participantPenalties as |p|}}
+              <li>{{p.name}}: −{{p.penalty}}d8</li>
+              {{/each}}
+            </ul>
+          </div>
+          {{/if}}
+        </div>
+        {{/if}}
+        {{/if}}
       {{else}}
       <div class="emr-field">
         <label class="emr-label">Challenge MR <span class="emr-sublabel">Standard TN = (8 × MR) − 2</span></label>
@@ -132,14 +350,13 @@
       <div class="emr-tn-preview">
         Normal TN: <strong>{{tn.baseTN}}</strong> · Raise TN: <strong>{{raiseTn}}</strong>
       </div>
-      {{/if}}
-
       <div class="emr-field emr-checkbox-field">
         <label>
           <input type="checkbox" name="emr-show-tn" {{#if showTn}}checked{{/if}} />
           Show TN to players during the roll
         </label>
       </div>
+      {{/if}}
     </section>
   </div>
 

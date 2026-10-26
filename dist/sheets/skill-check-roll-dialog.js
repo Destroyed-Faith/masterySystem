@@ -4,7 +4,7 @@
  * GM defines task, Attribute, Skill and Base TN.
  * The only player gameplay control before the roll is Paid Raises.
  */
-import { PERCEPTION_FOCUS_ATTRIBUTES, SPEC_ATTRIBUTE_KEYS, baseTnPresets, isCharacterPerceptionSpec, planSkillCheckDraft, resolveSkillForDraft, taskLevelFromBaseTn, } from '../rules/index.js';
+import { PERCEPTION_FOCUS_ATTRIBUTES, SPEC_ATTRIBUTE_KEYS, baseTnPresets, getSkillCritUsesRemaining, isCharacterPerceptionSpec, planSkillCheckDraft, resolveSkillForDraft, skillAdvantageLabel, taskLevelFromBaseTn, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 function attributeKeysForSkill(skill, system) {
     if (skill.kind === 'perception')
@@ -89,6 +89,7 @@ export async function promptSkillCheckRollDialog(opts) {
     const system = actor?.system ?? {};
     const source = opts.source;
     const lockGmFields = opts.lockGmFields ?? source.kind === 'gm-request';
+    const isComparative = !!opts.comparative || source.mode === 'comparative';
     const npcSit = opts.npcSituational;
     const ctxSkill = npcSit
         ? { kind: 'npc-situational', id: npcSit.skillId }
@@ -107,7 +108,9 @@ export async function promptSkillCheckRollDialog(opts) {
         : source.kind === 'gm-request'
             ? masteryLocalize('MASTERY.df2026.skillCheck.sourceGm', 'GM REQUEST · VERIFIED')
             : masteryLocalize('MASTERY.df2026.skillCheck.sourceVerbal', 'GM-ANNOUNCED (local record)');
-    const tnAuthority = masteryLocalize('MASTERY.df2026.skillCheck.tnLocked', 'SET BY GM');
+    const tnAuthority = isComparative
+        ? masteryLocalize('MASTERY.df2026.skillCheck.comparativeTag', 'COMPARATIVE · NO TASK TN')
+        : masteryLocalize('MASTERY.df2026.skillCheck.tnLocked', 'SET BY GM');
     const focusAttrs = attributeKeysForSkill(ctxSkill, system);
     const perceptionFocusHint = focusAttrs === PERCEPTION_FOCUS_ATTRIBUTES
         ? masteryLocalize('MASTERY.df2026.skillCheck.perceptionFocus', 'Perception Focus: Wits, Intellect, or Resolve.')
@@ -135,8 +138,8 @@ export async function promptSkillCheckRollDialog(opts) {
         ? masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesNpc', 'Paid Raises (optional)')
         : masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesPlayer', 'Paid Raises (your decision)');
     const paidHint = npcSit
-        ? masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesNpcHint', 'Optional. Each Paid Raise adds +4 to Final TN before the roll (cap = Skill Rank). Leave at 0 to roll vs Base TN only. Rank 0 = no Raises.')
-        : masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesPlayerHint', 'Your only pre-roll choice. Each Paid Raise adds +4 to Final TN (cap = Skill Rank).');
+        ? masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesNpcHint', 'Optional. Each Paid Raise adds +4 to Final TN. No Rank cap. Leave at 0 to roll vs Base TN only. Rank 0 = no Raises.')
+        : masteryLocalize('MASTERY.df2026.skillCheck.paidRaisesPlayerHint', 'Optional. Each Paid Raise adds +4 to Final TN (uncapped). Skill Rank grants Advantage / Crit instead of Free Raises.');
     const mrForNpc = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
     const skillReadOnly = npcSit
         ? `<div class="md-attr-display ms-sc-readonly">${escapeHtml(npcSit.skillName)} · Rank ${npcSit.skillRank} · Pool ${npcSit.poolDice}k${Math.min(npcSit.poolDice, mrForNpc)}</div>
@@ -179,34 +182,19 @@ export async function promptSkillCheckRollDialog(opts) {
        <input type="hidden" name="task" value="${escapeHtml(ctxTask)}" />`
         : `<input type="text" name="task" class="md-input" value="${escapeHtml(ctxTask)}" maxlength="200" placeholder="${escapeHtml(masteryLocalize('MASTERY.df2026.skillCheck.taskPlaceholder', 'Record the task the GM announced…'))}" />
        <small class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.gmAnnouncedTask', 'GM-vorgegeben / vom SL genannt.')}</small>`;
-    const content = `
-    <form class="mastery-dialog-form ms-skill-check-form" data-lock-gm="${lockGmFields ? '1' : '0'}">
-      <div class="ms-sc-source-row">
-        <span class="ms-sc-tag">${escapeHtml(sourceTag)}</span>
-        <span class="ms-sc-tag ms-sc-tag-gold">${escapeHtml(tnAuthority)}</span>
-      </div>
-      <div class="ms-sc-missing" hidden></div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.task', 'Task')}</label>
-        ${taskField}
-      </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.skill', 'Skill')}</label>
-        ${skillReadOnly}
-      </div>
-      ${attrBlock}
-      <div class="md-group">
+    const tnBlock = isComparative
+        ? `<div class="md-group">
+        <p class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.comparativeHint', 'Comparative check: your total is compared directly to the opposing roll. No Task TN. No Paid Raises.')}</p>
+        <input type="hidden" name="baseTn" value="0" />
+        <input type="hidden" name="baseTnLocked" value="0" />
+      </div>`
+        : `<div class="md-group">
         <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.baseTn', 'Base Target Number (TN)')}</label>
         ${baseReadOnly}
-      </div>
-      <div class="ms-sc-free-notice" hidden>
-        <span class="ms-sc-free-icon" aria-hidden="true">✦</span>
-        <div>
-          <strong class="ms-sc-free-label"></strong>
-          <small>${masteryLocalize('MASTERY.df2026.skillCheck.freeHint', 'Available automatically after a successful roll — not chosen now.')}</small>
-        </div>
-      </div>
-      <div class="md-group ms-sc-paid-group">
+      </div>`;
+    const paidBlock = isComparative
+        ? `<input type="hidden" name="paid" value="0" />`
+        : `<div class="md-group ms-sc-paid-group">
         <label class="md-label">${escapeHtml(paidLabel)}</label>
         <select name="paid" class="md-select ms-sc-paid"></select>
         <small class="md-sublabel">${escapeHtml(paidHint)}</small>
@@ -223,8 +211,15 @@ export async function promptSkillCheckRollDialog(opts) {
           <li><b>Safety:</b> mitigate a foreseeable complication</li>
         </ul>
         <p class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.effectsAfterSuccess', 'Concrete effects are assigned on the chat card after success.')}</p>
-      </details>
-      <div class="ms-sc-mathbox">
+      </details>`;
+    const mathBlock = isComparative
+        ? `<div class="ms-sc-mathbox">
+        <div class="ms-sc-mathrow ms-sc-mathrow-compact">
+          <span class="ms-sc-pool"></span>
+        </div>
+        <div class="ms-sc-subtitle md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.comparativeMath', 'Higher total wins. Ties favor the defender / observer.')}</div>
+      </div>`
+        : `<div class="ms-sc-mathbox">
         <div class="ms-sc-formula md-sublabel"></div>
         <div class="ms-sc-mathrow">
           <strong>${masteryLocalize('MASTERY.df2026.skillCheck.finalTn', 'Final Target Number')}</strong>
@@ -235,7 +230,40 @@ export async function promptSkillCheckRollDialog(opts) {
           <span class="ms-sc-success-raises"></span>
         </div>
         <div class="ms-sc-subtitle md-sublabel"></div>
+      </div>`;
+    const content = `
+    <form class="mastery-dialog-form ms-skill-check-form" data-lock-gm="${lockGmFields ? '1' : '0'}" data-comparative="${isComparative ? '1' : '0'}">
+      <div class="ms-sc-source-row">
+        <span class="ms-sc-tag">${escapeHtml(sourceTag)}</span>
+        <span class="ms-sc-tag ms-sc-tag-gold">${escapeHtml(tnAuthority)}</span>
       </div>
+      <div class="ms-sc-missing" hidden></div>
+      <div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.task', 'Task')}</label>
+        ${taskField}
+      </div>
+      <div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.skill', 'Skill')}</label>
+        ${skillReadOnly}
+      </div>
+      ${attrBlock}
+      ${tnBlock}
+      <div class="ms-sc-advantage-notice">
+        <span class="ms-sc-free-icon" aria-hidden="true">✦</span>
+        <div>
+          <strong class="ms-sc-advantage-label"></strong>
+          <small class="ms-sc-crit-hint"></small>
+        </div>
+      </div>
+      <div class="md-group ms-sc-crit-group" hidden>
+        <label class="md-label ms-sc-crit-check-label">
+          <input type="checkbox" name="declareSkillCrit" class="ms-sc-crit-check" />
+          ${masteryLocalize('MASTERY.df2026.skillCheck.skillCrit', 'Declare Skill Crit (explode on 7–8)')}
+        </label>
+        <small class="md-sublabel ms-sc-crit-remaining"></small>
+      </div>
+      ${paidBlock}
+      ${mathBlock}
     </form>`;
     const title = opts.title ||
         masteryLocalize('MASTERY.df2026.skillCheck.title', 'Skill Check');
@@ -294,7 +322,13 @@ export async function promptSkillCheckRollDialog(opts) {
         };
         const readDraft = (root) => {
             const nextSource = buildSourceFromForm(root);
-            const paid = Math.max(0, Math.floor(Number(root?.querySelector('[name="paid"]')?.value) || 0));
+            if (isComparative && (nextSource.kind === 'gm-request' || nextSource.kind === 'sheet-verbal')) {
+                nextSource.mode = 'comparative';
+                nextSource.baseTn = 0;
+            }
+            const paid = isComparative
+                ? 0
+                : Math.max(0, Math.floor(Number(root?.querySelector('[name="paid"]')?.value) || 0));
             const skill = npcSit
                 ? { kind: 'npc-situational', id: npcSit.skillId }
                 : nextSource.skill;
@@ -302,12 +336,14 @@ export async function promptSkillCheckRollDialog(opts) {
             if (npcSit && nextSource.kind === 'sheet-verbal') {
                 nextSource.skill = skill;
             }
+            const declareSkillCrit = !!root?.querySelector('[name="declareSkillCrit"]')?.checked;
             return {
                 actorId: String(actor?.id ?? ''),
                 paidRaises: paid,
+                declareSkillCrit,
                 skill,
                 attributeKey: nextSource.attributeKey,
-                baseTn: nextSource.baseTn,
+                baseTn: isComparative ? 0 : nextSource.baseTn,
                 taskDescription: nextSource.taskDescription,
                 source: nextSource,
                 ...(npcSit ? { npcSituational: { ...npcSit } } : {}),
@@ -378,20 +414,43 @@ export async function promptSkillCheckRollDialog(opts) {
                             missingEl.textContent = '';
                         }
                     }
-                    const freeNotice = root.querySelector('.ms-sc-free-notice');
-                    const freeLabel = root.querySelector('.ms-sc-free-label');
-                    if (freeNotice)
-                        freeNotice.hidden = !plan.showFreeBanner;
-                    if (freeLabel && plan.showFreeBanner) {
-                        const n = plan.freeRaisesOnSuccess;
-                        freeLabel.textContent =
-                            n === 1
-                                ? 'On success: 1 Free Raise available'
-                                : `On success: ${n} Free Raises available`;
+                    const advLabel = root.querySelector('.ms-sc-advantage-label');
+                    if (advLabel) {
+                        advLabel.textContent = plan.ok
+                            ? `Skill Advantage: ${skillAdvantageLabel(plan.rank)}`
+                            : '';
+                    }
+                    const critGroup = root.querySelector('.ms-sc-crit-group');
+                    const critHint = root.querySelector('.ms-sc-crit-hint');
+                    const critRemaining = root.querySelector('.ms-sc-crit-remaining');
+                    const critCheck = root.querySelector('.ms-sc-crit-check');
+                    const critLeft = plan.skillCritTrackId
+                        ? getSkillCritUsesRemaining(actor, plan.skillCritTrackId, plan.rank)
+                        : 0;
+                    if (critGroup)
+                        critGroup.hidden = !(plan.ok && plan.skillCritDailyAllowance > 0);
+                    if (critHint) {
+                        critHint.textContent =
+                            plan.ok && plan.skillCritDailyAllowance > 0
+                                ? `Skill Crit ${plan.skillCritDailyAllowance}/day · ${critLeft} remaining`
+                                : '';
+                    }
+                    if (critRemaining) {
+                        critRemaining.textContent =
+                            critLeft > 0
+                                ? `${critLeft} use${critLeft === 1 ? '' : 's'} remaining today`
+                                : plan.skillCritDailyAllowance > 0
+                                    ? 'No Skill Crit uses remaining today'
+                                    : '';
+                    }
+                    if (critCheck) {
+                        critCheck.disabled = critLeft <= 0;
+                        if (critLeft <= 0)
+                            critCheck.checked = false;
                     }
                     const paidGroup = root.querySelector('.ms-sc-paid-group');
                     const paidSel = root.querySelector('.ms-sc-paid');
-                    const noPaid = plan.allowance.maxPaid <= 0 || plan.rank === 0;
+                    const noPaid = plan.rank === 0;
                     if (paidGroup) {
                         // Rank 0 (default NPC Perception): hide — GM only needs Base TN.
                         paidGroup.hidden = noPaid;
@@ -401,7 +460,10 @@ export async function promptSkillCheckRollDialog(opts) {
                         paidSel.innerHTML = plan.paidOptions
                             .map((o) => `<option value="${o.paid}" title="${escapeHtml(o.label)}">${escapeHtml(o.label)}</option>`)
                             .join('');
-                        const next = noPaid ? 0 : Math.min(prev, plan.allowance.maxPaid);
+                        const maxOpt = plan.paidOptions.length
+                            ? plan.paidOptions[plan.paidOptions.length - 1].paid
+                            : 0;
+                        const next = noPaid ? 0 : Math.min(prev, maxOpt);
                         paidSel.value = String(Number.isFinite(next) ? next : 0);
                         paidSel.disabled = noPaid;
                     }
@@ -426,17 +488,19 @@ export async function promptSkillCheckRollDialog(opts) {
                     if (finalEl)
                         finalEl.textContent = livePlan.ok ? String(livePlan.finalTn) : '—';
                     if (poolEl) {
+                        const advBit = livePlan.skillAdvantageRerollMax > 0
+                            ? ` · Adv 1–${livePlan.skillAdvantageRerollMax}`
+                            : '';
                         poolEl.textContent = livePlan.ok
-                            ? `Pool · ${livePlan.numDice}k${livePlan.keepDice}${livePlan.rollDisadvantage ? ' (Disadvantage)' : ''}`
+                            ? `Pool · ${livePlan.numDice}k${livePlan.keepDice}${livePlan.rollDisadvantage ? ' (Disadvantage)' : advBit}`
                             : 'Pool · —';
                     }
                     if (successEl) {
-                        const total = livePlan.paidRaises + livePlan.freeRaisesOnSuccess;
                         successEl.textContent =
-                            livePlan.ok && total > 0
-                                ? `On success: up to ${total} Raises (${livePlan.paidRaises} Paid + ${livePlan.freeRaisesOnSuccess} Free)`
+                            livePlan.ok && livePlan.paidRaises > 0
+                                ? `On success: ${livePlan.paidRaises} Paid Raise effect${livePlan.paidRaises === 1 ? '' : 's'}`
                                 : livePlan.ok
-                                    ? 'No Raises on success'
+                                    ? 'No Paid Raises declared'
                                     : '';
                     }
                     if (subEl) {

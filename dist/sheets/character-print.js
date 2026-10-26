@@ -48,7 +48,7 @@ import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collecti
 import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
 import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
-import { DF_2026_RULES_SCHEMA_VERSION, ECHO_IMPRINT_MIN_ATTRIBUTE, PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, echoImprintTierFromAttribute, findEchoImprint, getSkillRaiseAllowance, isCharacterPerceptionSpec, readSpecializations, } from '../rules/index.js';
+import { DF_2026_RULES_SCHEMA_VERSION, ECHO_IMPRINT_MIN_ATTRIBUTE, PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, echoImprintTierFromAttribute, findEchoImprint, isCharacterPerceptionSpec, readSpecializations, skillAdvantageLabel, skillCritDailyAllowance, } from '../rules/index.js';
 /**
  * Short table-sheet blurb for a Stone Power (Quick Play style).
  * Linear tiers → "+N per Tier"; irregular → values listed at the end.
@@ -287,14 +287,13 @@ function buildPrintSpecializations(system) {
         });
     }
     const mapSpec = (s, gifted = false) => {
-        const allowance = getSkillRaiseAllowance(s.rank);
+        const adv = skillAdvantageLabel(s.rank);
+        const crit = skillCritDailyAllowance(s.rank);
         return {
             name: s.name,
             scope: s.scope,
             rank: s.rank,
-            raises: allowance.maxTotal
-                ? `${allowance.maxPaid} paid${allowance.maxFree ? ` + ${allowance.maxFree} free` : ''}`
-                : 'no Raises',
+            raises: crit > 0 ? `${adv} · Crit ${crit}/day` : adv,
             pips: PRINT_SPEC_PIPS.map((n) => ({ filled: n <= s.rank })),
             gifted,
         };

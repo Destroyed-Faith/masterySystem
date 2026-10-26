@@ -1,9 +1,10 @@
 /**
- * Ordinary Skill Check helpers (DF 2026-10-24 — GM-defined checks).
+ * Ordinary Skill Check helpers (Destroyed Faith Skill System).
  *
  * GM defines: task, Attribute, Specialization/Untrained, Base TN.
- * Player declares only Paid Raises before rolling.
- * Free Raises unlock on success; effects allocate on the result chat card.
+ * Player declares optional uncapped Paid Raises before rolling.
+ * Skill Rank grants Skill Advantage / Skill Crit (not Free Raises).
+ * Paid Raise effects allocate on the result chat card.
  */
 import { type SkillRaiseAllowance, type SkillRaiseEffectAllocation } from './skill-raises.js';
 import { type SpecAttributeKey } from './specialization-roll.js';
@@ -41,6 +42,8 @@ export type SkillRollSource = {
     skill: SkillCheckSkillRef;
     /** Limited GM-approved alternatives (optional). */
     allowedSkills?: SkillCheckSkillRef[];
+    /** Standard vs TN, or Comparative (no Task TN / no Raises). */
+    mode?: 'standard' | 'comparative';
 } | {
     kind: 'sheet-verbal';
     gmVerified: false;
@@ -48,12 +51,15 @@ export type SkillRollSource = {
     attributeKey: string;
     baseTn: number;
     skill: SkillCheckSkillRef;
+    mode?: 'standard' | 'comparative';
 };
 export type SkillCheckAllocationStatus = 'pending' | 'finalized' | 'not-applicable';
 export interface SkillCheckDraft {
     actorId: string;
-    /** Only player-chosen pre-roll value. */
+    /** Only player-chosen pre-roll values. */
     paidRaises: number;
+    /** Declare Skill Crit before the roll (consumes one daily charge when available). */
+    declareSkillCrit?: boolean;
     /**
      * Skill / Attribute / Base TN / task — mirrored for convenience; authoritative
      * values always come from `source` via `authoritativeCheckContext`.
@@ -121,16 +127,22 @@ export interface SkillCheckPlan {
     baseTn: number;
     taskDescription: string;
     paidRaises: number;
+    /** Always 0 — Skill Free Raises retired. */
     freeRaisesOnSuccess: number;
     finalTn: number;
     numDice: number;
     keepDice: number;
     rollDisadvantage: boolean;
+    skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5;
+    skillCritDailyAllowance: 0 | 1 | 2;
+    /** Skill id for Crit charge tracking (Spec id / situational id / ''). */
+    skillCritTrackId: string;
     paidOptions: Array<{
         paid: number;
         finalTn: number;
         label: string;
     }>;
+    /** Always false — Free Raise banner retired. */
     showFreeBanner: boolean;
     gmVerified: boolean;
     sourceKind: 'gm-request' | 'sheet-verbal';

@@ -27,6 +27,8 @@ export interface SkillCheckDialogOptions {
     allowedSkills?: SkillCheckSkillRef[];
     initialPaidRaises?: number;
     title?: string;
+    /** Hide TN / Paid Raises — Comparative Skill Check. */
+    comparative?: boolean;
     /** NPC situational pool — Attribute optional; pool from entry, not Attribute. */
     npcSituational?: {
         skillId: string;

@@ -57,6 +57,8 @@ export interface SkillCheckDialogOptions {
   allowedSkills?: SkillCheckSkillRef[];
   initialPaidRaises?: number;
   title?: string;
+  /** Hide TN / Paid Raises — Comparative Skill Check. */
+  comparative?: boolean;
   /** NPC situational pool — Attribute optional; pool from entry, not Attribute. */
   npcSituational?: {
     skillId: string;
@@ -139,6 +141,8 @@ export async function promptSkillCheckRollDialog(
   const system = actor?.system ?? {};
   const source = opts.source;
   const lockGmFields = opts.lockGmFields ?? source.kind === 'gm-request';
+  const isComparative =
+    !!opts.comparative || source.mode === 'comparative';
   const npcSit = opts.npcSituational;
   const ctxSkill = npcSit
     ? ({ kind: 'npc-situational', id: npcSit.skillId } as SkillCheckSkillRef)
@@ -163,10 +167,9 @@ export async function promptSkillCheckRollDialog(
           'MASTERY.df2026.skillCheck.sourceVerbal',
           'GM-ANNOUNCED (local record)',
         );
-  const tnAuthority = masteryLocalize(
-    'MASTERY.df2026.skillCheck.tnLocked',
-    'SET BY GM',
-  );
+  const tnAuthority = isComparative
+    ? masteryLocalize('MASTERY.df2026.skillCheck.comparativeTag', 'COMPARATIVE · NO TASK TN')
+    : masteryLocalize('MASTERY.df2026.skillCheck.tnLocked', 'SET BY GM');
 
   const focusAttrs = attributeKeysForSkill(ctxSkill, system);
   const perceptionFocusHint =
@@ -318,47 +321,26 @@ export async function promptSkillCheckRollDialog(
          'GM-vorgegeben / vom SL genannt.',
        )}</small>`;
 
-  const content = `
-    <form class="mastery-dialog-form ms-skill-check-form" data-lock-gm="${lockGmFields ? '1' : '0'}">
-      <div class="ms-sc-source-row">
-        <span class="ms-sc-tag">${escapeHtml(sourceTag)}</span>
-        <span class="ms-sc-tag ms-sc-tag-gold">${escapeHtml(tnAuthority)}</span>
-      </div>
-      <div class="ms-sc-missing" hidden></div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.task', 'Task')}</label>
-        ${taskField}
-      </div>
-      <div class="md-group">
-        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.skill', 'Skill')}</label>
-        ${skillReadOnly}
-      </div>
-      ${attrBlock}
-      <div class="md-group">
+  const tnBlock = isComparative
+    ? `<div class="md-group">
+        <p class="md-sublabel">${masteryLocalize(
+          'MASTERY.df2026.skillCheck.comparativeHint',
+          'Comparative check: your total is compared directly to the opposing roll. No Task TN. No Paid Raises.',
+        )}</p>
+        <input type="hidden" name="baseTn" value="0" />
+        <input type="hidden" name="baseTnLocked" value="0" />
+      </div>`
+    : `<div class="md-group">
         <label class="md-label">${masteryLocalize(
           'MASTERY.df2026.skillCheck.baseTn',
           'Base Target Number (TN)',
         )}</label>
         ${baseReadOnly}
-      </div>
-      <div class="ms-sc-advantage-notice">
-        <span class="ms-sc-free-icon" aria-hidden="true">✦</span>
-        <div>
-          <strong class="ms-sc-advantage-label"></strong>
-          <small class="ms-sc-crit-hint"></small>
-        </div>
-      </div>
-      <div class="md-group ms-sc-crit-group" hidden>
-        <label class="md-label ms-sc-crit-check-label">
-          <input type="checkbox" name="declareSkillCrit" class="ms-sc-crit-check" />
-          ${masteryLocalize(
-            'MASTERY.df2026.skillCheck.skillCrit',
-            'Declare Skill Crit (explode on 7–8)',
-          )}
-        </label>
-        <small class="md-sublabel ms-sc-crit-remaining"></small>
-      </div>
-      <div class="md-group ms-sc-paid-group">
+      </div>`;
+
+  const paidBlock = isComparative
+    ? `<input type="hidden" name="paid" value="0" />`
+    : `<div class="md-group ms-sc-paid-group">
         <label class="md-label">${escapeHtml(paidLabel)}</label>
         <select name="paid" class="md-select ms-sc-paid"></select>
         <small class="md-sublabel">${escapeHtml(paidHint)}</small>
@@ -381,8 +363,19 @@ export async function promptSkillCheckRollDialog(
           'MASTERY.df2026.skillCheck.effectsAfterSuccess',
           'Concrete effects are assigned on the chat card after success.',
         )}</p>
-      </details>
-      <div class="ms-sc-mathbox">
+      </details>`;
+
+  const mathBlock = isComparative
+    ? `<div class="ms-sc-mathbox">
+        <div class="ms-sc-mathrow ms-sc-mathrow-compact">
+          <span class="ms-sc-pool"></span>
+        </div>
+        <div class="ms-sc-subtitle md-sublabel">${masteryLocalize(
+          'MASTERY.df2026.skillCheck.comparativeMath',
+          'Higher total wins. Ties favor the defender / observer.',
+        )}</div>
+      </div>`
+    : `<div class="ms-sc-mathbox">
         <div class="ms-sc-formula md-sublabel"></div>
         <div class="ms-sc-mathrow">
           <strong>${masteryLocalize('MASTERY.df2026.skillCheck.finalTn', 'Final Target Number')}</strong>
@@ -393,7 +386,44 @@ export async function promptSkillCheckRollDialog(
           <span class="ms-sc-success-raises"></span>
         </div>
         <div class="ms-sc-subtitle md-sublabel"></div>
+      </div>`;
+
+  const content = `
+    <form class="mastery-dialog-form ms-skill-check-form" data-lock-gm="${lockGmFields ? '1' : '0'}" data-comparative="${isComparative ? '1' : '0'}">
+      <div class="ms-sc-source-row">
+        <span class="ms-sc-tag">${escapeHtml(sourceTag)}</span>
+        <span class="ms-sc-tag ms-sc-tag-gold">${escapeHtml(tnAuthority)}</span>
       </div>
+      <div class="ms-sc-missing" hidden></div>
+      <div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.task', 'Task')}</label>
+        ${taskField}
+      </div>
+      <div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.skill', 'Skill')}</label>
+        ${skillReadOnly}
+      </div>
+      ${attrBlock}
+      ${tnBlock}
+      <div class="ms-sc-advantage-notice">
+        <span class="ms-sc-free-icon" aria-hidden="true">✦</span>
+        <div>
+          <strong class="ms-sc-advantage-label"></strong>
+          <small class="ms-sc-crit-hint"></small>
+        </div>
+      </div>
+      <div class="md-group ms-sc-crit-group" hidden>
+        <label class="md-label ms-sc-crit-check-label">
+          <input type="checkbox" name="declareSkillCrit" class="ms-sc-crit-check" />
+          ${masteryLocalize(
+            'MASTERY.df2026.skillCheck.skillCrit',
+            'Declare Skill Crit (explode on 7–8)',
+          )}
+        </label>
+        <small class="md-sublabel ms-sc-crit-remaining"></small>
+      </div>
+      ${paidBlock}
+      ${mathBlock}
     </form>`;
 
   const title =
@@ -464,12 +494,18 @@ export async function promptSkillCheckRollDialog(
 
     const readDraft = (root: HTMLElement | null): SkillCheckDraft => {
       const nextSource = buildSourceFromForm(root);
-      const paid = Math.max(
-        0,
-        Math.floor(
-          Number((root?.querySelector('[name="paid"]') as HTMLSelectElement | null)?.value) || 0,
-        ),
-      );
+      if (isComparative && (nextSource.kind === 'gm-request' || nextSource.kind === 'sheet-verbal')) {
+        nextSource.mode = 'comparative';
+        nextSource.baseTn = 0;
+      }
+      const paid = isComparative
+        ? 0
+        : Math.max(
+            0,
+            Math.floor(
+              Number((root?.querySelector('[name="paid"]') as HTMLSelectElement | null)?.value) || 0,
+            ),
+          );
       const skill = npcSit
         ? ({ kind: 'npc-situational', id: npcSit.skillId } as SkillCheckSkillRef)
         : nextSource.skill;
@@ -486,7 +522,7 @@ export async function promptSkillCheckRollDialog(
         declareSkillCrit,
         skill,
         attributeKey: nextSource.attributeKey,
-        baseTn: nextSource.baseTn,
+        baseTn: isComparative ? 0 : nextSource.baseTn,
         taskDescription: nextSource.taskDescription,
         source: nextSource,
         ...(npcSit ? { npcSituational: { ...npcSit } } : {}),

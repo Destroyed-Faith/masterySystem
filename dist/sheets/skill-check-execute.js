@@ -2,7 +2,7 @@
  * Shared execution path for ordinary Skill Checks (sheet + GM request).
  * Authoritative Attribute / Skill / Base TN come from the draft source.
  */
-import { authoritativeCheckContext, buildSkillCheckResolvedSnapshot, findSpecializationById, planSkillCheckDraft, readSpecializations, validateAgainstGmAssignment, } from '../rules/index.js';
+import { authoritativeCheckContext, buildSkillCheckResolvedSnapshot, consumeSkillCritUse, findSpecializationById, getSkillCritUsesRemaining, planSkillCheckDraft, readSpecializations, skillAdvantageLabel, validateAgainstGmAssignment, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 export async function executeSkillCheck(opts) {
@@ -56,6 +56,13 @@ export async function executeSkillCheck(opts) {
             skillRank: s.skillRank,
         };
     }
+    const isComparative = !!opts.comparative || draft.source.mode === 'comparative';
+    if (isComparative) {
+        draft = { ...draft, paidRaises: 0, baseTn: 0 };
+        if (draft.source.kind === 'gm-request' || draft.source.kind === 'sheet-verbal') {
+            draft.source = { ...draft.source, baseTn: 0, mode: 'comparative' };
+        }
+    }
     const plan = planSkillCheckDraft({ system, draft, requireKnownSkill: true });
     if (!plan.ok)
         return { ok: false, error: plan.error || 'Invalid Skill Check.' };
@@ -73,18 +80,36 @@ export async function executeSkillCheck(opts) {
     const attrLabel = plan.attributeKey.charAt(0).toUpperCase() + plan.attributeKey.slice(1);
     const label = `${plan.skillName} Check`;
     const verified = plan.gmVerified ? ' · GM-verified request' : ' · GM-announced (local)';
-    const freeInfo = plan.freeRaisesOnSuccess > 0
-        ? ` · Free on success ${plan.freeRaisesOnSuccess}`
-        : '';
+    let skillCritActive = false;
+    if (draft.declareSkillCrit && plan.skillCritTrackId) {
+        const remaining = getSkillCritUsesRemaining(actor, plan.skillCritTrackId, plan.rank);
+        if (remaining <= 0) {
+            return { ok: false, error: 'No Skill Crit uses remaining for this Skill today.' };
+        }
+        const spent = await consumeSkillCritUse(actor, plan.skillCritTrackId, plan.rank);
+        if (!spent) {
+            return { ok: false, error: 'Failed to spend Skill Crit use.' };
+        }
+        skillCritActive = true;
+    }
+    const advLabel = skillAdvantageLabel(plan.rank);
     let flavor = '';
-    if (isNpcSituational) {
-        flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}NPC ${plan.skillName} (Rank ${plan.rank}) · Pool ${numDice}k${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
+    if (isComparative) {
+        flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}Comparative · ${plan.skillName} (Rank ${plan.rank}) · ${isNpcSituational
+            ? `Pool ${numDice}k${keepDice}`
+            : `${attrLabel} ${plan.attributeValue}d8 keep ${keepDice}`} · ${advLabel}${verified}. No Task TN · No Raises.`;
+    }
+    else if (isNpcSituational) {
+        flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}NPC ${plan.skillName} (Rank ${plan.rank}) · Pool ${numDice}k${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn} · ${advLabel}${verified}.`;
     }
     else {
-        flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
+        flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn} · ${advLabel}${verified}.`;
         if (plan.rollDisadvantage) {
             flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}Untrained · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} with Disadvantage · Base TN ${plan.baseTn} · Final TN ${plan.finalTn} · 0 Raises${verified}.`;
         }
+    }
+    if (skillCritActive) {
+        flavor += ' Skill Crit: explode on 7–8.';
     }
     if (equipPenalty > 0) {
         flavor += ` Equipped armor/shield physical penalty: −${equipPenalty}d8.`;
@@ -97,15 +122,17 @@ export async function executeSkillCheck(opts) {
         numDice,
         keepDice,
         skill: 0,
-        tn: plan.baseTn,
-        normalTn: plan.baseTn,
-        raiseTn: plan.finalTn,
-        declaredRaiseSlots: plan.paidRaises,
+        tn: isComparative ? 0 : plan.baseTn,
+        normalTn: isComparative ? 0 : plan.baseTn,
+        raiseTn: isComparative ? 0 : plan.finalTn,
+        declaredRaiseSlots: isComparative ? 0 : plan.paidRaises,
         stoneBonusRaises: 0,
-        freeRaisesAvailableAtSuccess: plan.freeRaisesOnSuccess,
+        freeRaisesAvailableAtSuccess: 0,
         raiseModel: 'skill',
         rollDisadvantage: plan.rollDisadvantage,
-        label,
+        skillAdvantageRerollMax: plan.rollDisadvantage ? 0 : plan.skillAdvantageRerollMax,
+        attackExplodeDiceOn78: skillCritActive,
+        label: isComparative ? `${plan.skillName} (Comparative)` : label,
         flavor,
         actorId: String(actor.id),
         ...(normalizedName === 'stealth' ? { skillKey: 'stealth' } : {}),
@@ -123,16 +150,17 @@ export async function executeSkillCheck(opts) {
         skillCheckMeta: {
             source: draft.source,
             skillRankAtRoll: plan.rank,
-            paidRaisesDeclared: plan.paidRaises,
-            freeRaisesAvailableAtSuccess: plan.freeRaisesOnSuccess,
+            paidRaisesDeclared: isComparative ? 0 : plan.paidRaises,
+            freeRaisesAvailableAtSuccess: 0,
             skillName: plan.skillName,
             attributeKey: plan.attributeKey,
             taskDescription: plan.taskDescription,
             gmVerified: plan.gmVerified,
+            comparative: isComparative,
         },
     });
-    const success = !!result?.success;
     const rollTotal = Number(result?.total) || 0;
+    const success = isComparative ? true : !!result?.success;
     const snapshot = buildSkillCheckResolvedSnapshot({
         plan: { ...plan, keepDice, numDice },
         actorId: String(actor.id),

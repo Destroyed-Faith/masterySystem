@@ -1,7 +1,6 @@
 /**
  * Core Ritual TN / Stone costs — DF Players Guide 2026-10-23.
  */
-import { getSkillRaiseAllowance } from './skill-raises.js';
 /** Base Ritual TN = 4 × max(3, taskLevel). Minimum 12. */
 export function ritualBaseTn(taskLevel) {
     const level = Math.max(3, Math.floor(Number(taskLevel) || 3));
@@ -22,9 +21,12 @@ export function ritualSealedStoneCost(totalRaises) {
 }
 export const RITUAL_MAX_TOTAL_RAISES = 8;
 export const RITUAL_MAX_NAMED_TIER = 4;
-/** Free Raises a relevant Specialization contributes to a Ritual (Ranks 4/6/8). */
-export function ritualFreeRaisesFromSpecialization(rank) {
-    return getSkillRaiseAllowance(rank).maxFree;
+/**
+ * Free Raises a relevant Specialization contributes to a Ritual.
+ * Skill Free Raise progression is retired — always 0 from Spec Rank.
+ */
+export function ritualFreeRaisesFromSpecialization(_rank) {
+    return 0;
 }
 export function planRitualRaises(opts) {
     const named = Math.max(0, Math.min(RITUAL_MAX_NAMED_TIER, Math.floor(Number(opts.namedTier) || 0)));

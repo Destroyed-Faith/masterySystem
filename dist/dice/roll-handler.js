@@ -45,10 +45,21 @@ function rollExplodingDieChain78() {
 function rollFlatD8() {
     return Math.floor(Math.random() * 8) + 1;
 }
+function resolveAdvantageRerollMax(options) {
+    const explicit = Math.max(0, Math.floor(Number(options?.skillAdvantageRerollMax) || 0));
+    if (explicit > 0)
+        return Math.min(5, explicit);
+    return options?.rollAdvantage ? 1 : 0;
+}
+function applyAdvantageReroll(face, rerollMax) {
+    if (rerollMax > 0 && face <= rerollMax)
+        return rollFlatD8();
+    return face;
+}
 /**
  * Roll the initial pool. Standard rule: every face of 8 explodes. With
- * Disadvantage, only one chosen 8 explodes; with Advantage, every initial
- * face of 1 is rerolled exactly once before resolving explosions.
+ * Disadvantage, only one chosen 8 explodes; with Advantage, each initial
+ * face ≤ N is rerolled exactly once before resolving explosions.
  */
 /** @internal Exported for Crit / Disadvantage pool unit tests. */
 export function rollMasteryPoolDice(numDice, options) {
@@ -56,7 +67,7 @@ export function rollMasteryPoolDice(numDice, options) {
 }
 function rollDice(numDice, options) {
     const explodeOn78 = !!options?.explodeOn78;
-    const rollAdvantage = !!options?.rollAdvantage;
+    const rerollMax = resolveAdvantageRerollMax(options);
     const rollDisadvantage = !!options?.rollDisadvantage;
     const dice = [];
     const exploded = [];
@@ -68,8 +79,7 @@ function rollDice(numDice, options) {
         const initial = [];
         for (let i = 0; i < numDice; i++) {
             let face = rollFlatD8();
-            if (rollAdvantage && face === 1)
-                face = rollFlatD8();
+            face = applyAdvantageReroll(face, rerollMax);
             initial.push(face);
         }
         const explodeFaceMin = explodeOn78 ? 7 : 8;
@@ -93,12 +103,10 @@ function rollDice(numDice, options) {
         return { dice, exploded, dieChains };
     }
     for (let i = 0; i < numDice; i++) {
-        if (rollAdvantage) {
-            // Initial face — reroll only if it lands on 1, then run the normal
-            // explosion chain (both for face=8 and for the optional 7–8 mode).
+        if (rerollMax > 0) {
+            // Initial face — Skill/Combat Advantage reroll, then explosion chain.
             let initialFace = rollFlatD8();
-            if (initialFace === 1)
-                initialFace = rollFlatD8();
+            initialFace = applyAdvantageReroll(initialFace, rerollMax);
             const explodes = explodeOn78 ? initialFace >= 7 : initialFace === 8;
             if (!explodes) {
                 dieChains.push([initialFace]);
@@ -403,8 +411,12 @@ export async function masteryRoll(options) {
     }
     const rollAdvantage = !!options.rollAdvantage;
     const rollDisadvantage = !!options.rollDisadvantage;
-    if (rollAdvantage) {
-        const note = 'Advantage: reroll any face of 1 once';
+    const skillAdvMax = Math.max(0, Math.min(5, Math.floor(Number(options.skillAdvantageRerollMax) || 0)));
+    const effectiveAdvMax = skillAdvMax > 0 ? skillAdvMax : rollAdvantage ? 1 : 0;
+    if (effectiveAdvMax > 0) {
+        const note = effectiveAdvMax === 1
+            ? 'Advantage: reroll any face of 1 once'
+            : `Skill Advantage: reroll initial faces 1–${effectiveAdvMax} once`;
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
     if (rollDisadvantage) {
@@ -414,11 +426,11 @@ export async function masteryRoll(options) {
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
     // Both may apply at once — the book does not cancel them into a normal roll.
-    const useAdv = rollAdvantage;
     const useDis = rollDisadvantage;
     const rolled = rollDice(numDice, {
         explodeOn78: explodeAttack78,
-        rollAdvantage: useAdv,
+        rollAdvantage: effectiveAdvMax === 1 && skillAdvMax <= 0,
+        skillAdvantageRerollMax: effectiveAdvMax,
         rollDisadvantage: useDis,
     });
     const geChains = [];
@@ -534,6 +546,7 @@ export async function masteryRoll(options) {
             : {}),
         ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
         ...(rollAdvantage ? { rollAdvantage: true } : {}),
+        ...(effectiveAdvMax > 0 ? { skillAdvantageRerollMax: effectiveAdvMax } : {}),
         ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
         ...(guaranteedEights > 0 ? { guaranteedEights } : {}),
         ...(options.attackCardMessageId ? { attackCardMessageId: options.attackCardMessageId } : {}),

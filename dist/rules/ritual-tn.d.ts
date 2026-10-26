@@ -8,8 +8,11 @@ export declare function finalRitualTn(baseTn: number, paidRaises: number): numbe
 export declare function ritualSealedStoneCost(totalRaises: number): number;
 export declare const RITUAL_MAX_TOTAL_RAISES = 8;
 export declare const RITUAL_MAX_NAMED_TIER = 4;
-/** Free Raises a relevant Specialization contributes to a Ritual (Ranks 4/6/8). */
-export declare function ritualFreeRaisesFromSpecialization(rank: number): number;
+/**
+ * Free Raises a relevant Specialization contributes to a Ritual.
+ * Skill Free Raise progression is retired — always 0 from Spec Rank.
+ */
+export declare function ritualFreeRaisesFromSpecialization(_rank: number): number;
 export interface RitualRaisePlan {
     namedTier: number;
     genericRaises: number;

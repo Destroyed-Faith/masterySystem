@@ -88,8 +88,15 @@ export interface RollOptions {
      * Combat Advantage (Players Guide ~6457–6467): once, after the initial pool
      * is rolled, every die showing **1** is rerolled (replacement value is kept).
      * Only applies to the initial pool, never to explosion dice.
+     * Equivalent to `skillAdvantageRerollMax: 1` when that field is omitted.
      */
     rollAdvantage?: boolean;
+    /**
+     * Skill Advantage: each initial face ≤ this value is rerolled once (keep new
+     * face), then explosions resolve. 0 / omitted with rollAdvantage false = none.
+     * When set > 0, overrides the combat `rollAdvantage` face-1 shortcut.
+     */
+    skillAdvantageRerollMax?: number;
     /**
      * Combat Disadvantage (Players Guide ~6471–6477): of all initial-pool dice
      * that show **8**, only **one** chosen die explodes; the others stay flat 8.
@@ -184,6 +191,8 @@ export interface MasteryRollRecipe {
     attackExplodeDiceOn78?: boolean;
     /** Mirrors `RollOptions.rollAdvantage` for Faith Fracture rerolls. */
     rollAdvantage?: boolean;
+    /** Mirrors `RollOptions.skillAdvantageRerollMax` for Faith Fracture / Skill Crit rerolls. */
+    skillAdvantageRerollMax?: number;
     /** Mirrors `RollOptions.rollDisadvantage` for Faith Fracture rerolls. */
     rollDisadvantage?: boolean;
     /**
@@ -195,17 +204,20 @@ export interface MasteryRollRecipe {
     attackCardMessageId?: string;
     guaranteedEights?: number;
 }
-/**
- * Roll the initial pool. Standard rule: every face of 8 explodes. With
- * Disadvantage, only one chosen 8 explodes; with Advantage, every initial
- * face of 1 is rerolled exactly once before resolving explosions.
- */
-/** @internal Exported for Crit / Disadvantage pool unit tests. */
-export declare function rollMasteryPoolDice(numDice: number, options?: {
+type PoolRollOpts = {
     explodeOn78?: boolean;
     rollAdvantage?: boolean;
+    /** Reroll each initial face ≤ max once. Overrides rollAdvantage when > 0. */
+    skillAdvantageRerollMax?: number;
     rollDisadvantage?: boolean;
-}): {
+};
+/**
+ * Roll the initial pool. Standard rule: every face of 8 explodes. With
+ * Disadvantage, only one chosen 8 explodes; with Advantage, each initial
+ * face ≤ N is rerolled exactly once before resolving explosions.
+ */
+/** @internal Exported for Crit / Disadvantage pool unit tests. */
+export declare function rollMasteryPoolDice(numDice: number, options?: PoolRollOpts): {
     dice: number[];
     exploded: number[];
     dieChains: number[][];

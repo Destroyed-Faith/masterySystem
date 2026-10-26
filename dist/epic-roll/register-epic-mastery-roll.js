@@ -4,7 +4,7 @@
 import { registerEpicMasteryRollSettings, loadEpicRollRecentPresets } from './epic-mastery-roll-settings.js';
 import { registerEpicMasteryRollSocket } from './epic-mastery-roll-socket.js';
 import { getActiveEpicMasteryRollSession } from './epic-mastery-roll-session.js';
-import { requestEpicMasteryRoll, showEpicMasteryRollConfigDialog, } from './epic-mastery-roll-config-dialog.js';
+import { registerRollsSkillSuggestionHandlers, requestEpicMasteryRoll, showEpicMasteryRollConfigDialog, } from './epic-mastery-roll-config-dialog.js';
 import { canonicalChatControls, syncChatRollChrome } from '../ui/quick-d8-bar.js';
 function resolveChatControls(elements, htmlRoot) {
     const live = canonicalChatControls();
@@ -81,6 +81,7 @@ function tryInjectEpicRollButton(elements, htmlRoot) {
 export function initializeEpicMasteryRoll() {
     registerEpicMasteryRollSettings();
     registerEpicMasteryRollSocket();
+    registerRollsSkillSuggestionHandlers();
     // Foundry v13: chat input + #chat-controls are re-parented outside renderChatLog.
     Hooks.on('renderChatInput', (_app, elements) => {
         tryInjectEpicRollButton(elements);

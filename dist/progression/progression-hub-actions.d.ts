@@ -68,7 +68,7 @@ export interface ProgressionHubContext {
             value: number;
         }>;
     }>;
-    /** DF 2026 Specializations — Rank-up costs SPECIALIZATION_XP_PER_RANK (4 XP) each. */
+    /** Specializations — Rank-up uses the Skill XP ladder (cost to reach next Rank). */
     specializations: Array<{
         id: string;
         name: string;
@@ -80,7 +80,8 @@ export interface ProgressionHubContext {
         canRankUp: boolean;
         bumpedThisStep: boolean;
     }>;
-    specializationXpPerRank: number;
+    /** @deprecated Flat cost retired — each Spec row carries its own `cost`. */
+    specializationXpPerRank: number | null;
     powers: Array<{
         id: string;
         name: string;
@@ -104,13 +105,13 @@ export declare function applySkillPendingChanges(actor: Actor, pendingMap: Recor
     ok: boolean;
     error?: string;
 }>;
-/** Raise an existing Specialization by one Rank for 4 XP. */
+/** Raise an existing Specialization by one Rank (ladder XP for next Rank). */
 export declare function applySpecializationRankUp(actor: Actor, specId: string): Promise<{
     ok: boolean;
     error?: string;
     newRank?: number;
 }>;
-/** Learn a new Specialization at Rank 1 for 4 XP. */
+/** Learn a new Specialization at Rank 1 (4 XP). */
 export declare function applySpecializationLearn(actor: Actor, input: {
     name: string;
     field: string;

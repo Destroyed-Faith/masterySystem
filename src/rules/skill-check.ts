@@ -72,6 +72,8 @@ export type SkillRollSource =
       skill: SkillCheckSkillRef;
       /** Limited GM-approved alternatives (optional). */
       allowedSkills?: SkillCheckSkillRef[];
+      /** Standard vs TN, or Comparative (no Task TN / no Raises). */
+      mode?: 'standard' | 'comparative';
     }
   | {
       kind: 'sheet-verbal';
@@ -80,6 +82,7 @@ export type SkillRollSource =
       attributeKey: string;
       baseTn: number;
       skill: SkillCheckSkillRef;
+      mode?: 'standard' | 'comparative';
     };
 
 export type SkillCheckAllocationStatus = 'pending' | 'finalized' | 'not-applicable';

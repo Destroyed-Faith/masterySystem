@@ -20,6 +20,11 @@ export declare function powerCostPaysAction(cost: {
  */
 export declare function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[];
 /**
+ * Name/description cues for Active Buff / Stance — word boundaries only.
+ * Substring `includes('stance')` falsely matches Transfer Life fluff ("damage instance").
+ */
+export declare function textSuggestsActiveBuff(name: string, description?: string): boolean;
+/**
  * Map an option to one of the 4 inner segment IDs
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */

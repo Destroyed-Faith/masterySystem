@@ -139,8 +139,10 @@ const handleHealingBar = onceAtATime(async () => {
 
 const handleGroupAmbush = onceAtATime(async () => {
   try {
-    const { openGroupAmbushDialog } = await import('./group-ambush-dialog.js');
-    await openGroupAmbushDialog();
+    const { showEpicMasteryRollConfigDialogForGroupAmbush } = await import(
+      '../epic-roll/epic-mastery-roll-config-dialog.js'
+    );
+    showEpicMasteryRollConfigDialogForGroupAmbush();
   } catch (err) {
     console.error('Mastery System | [ERROR] Group Ambush failed', err);
     ui.notifications?.error('Group Ambush failed - see console');

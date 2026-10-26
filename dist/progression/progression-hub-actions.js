@@ -9,7 +9,7 @@ import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE } from 
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, SPECIALIZATION_XP_PER_RANK, isSkillField, readSpecializations, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, isSkillField, readSpecializations, specializationIdentityKey, specializationRankUpCost, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import * as stepRule from '../utils/xp-step-rule.js';
 import { appendXpHistory, buildBandedStepEntries, currentXpUser, } from '../utils/xp-history.js';
 import { allocateSkillPending, readSkillPointPool, skillPointPoolUpdate, } from './skill-point-pool.js';
@@ -281,11 +281,11 @@ export function buildProgressionHubContext(actor) {
             fieldLabel: SKILL_FIELD_LABELS[s.field] ?? s.field,
             scope: s.scope,
             rank: s.rank,
-            cost: SPECIALIZATION_XP_PER_RANK,
+            cost: specializationRankUpCost(s.rank),
             canRankUp: s.rank < SPECIALIZATION_MAX_RANK,
             bumpedThisStep: hasFreeXp(actor) ? false : stepRule.isBumped(stepRule.readStep(actor), 'skill', s.id),
         })),
-        specializationXpPerRank: SPECIALIZATION_XP_PER_RANK,
+        specializationXpPerRank: null,
         powers: powers.sort((a, b) => a.name.localeCompare(b.name)),
         artifactCards: buildArtifactEvolutionCards(actor),
         unwiredArtifacts: unwired.map((e) => ({ id: e.id, name: e.name })),
@@ -432,12 +432,13 @@ export async function applySkillPendingChanges(actor, pendingMap) {
     return { ok: true };
 }
 /**
- * DF 2026: spend SPECIALIZATION_XP_PER_RANK XP to raise one Specialization by one Rank
+ * Spend ladder XP to raise one Specialization by one Rank
  * (or learn a new one at Rank 1 via learn). One increase per Specialization per Upgrade Step.
+ * Costs apply to future advancements only — never refund past ranks.
  */
 async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, toRank, name) {
     const xpState = getXpState(actor);
-    const cost = SPECIALIZATION_XP_PER_RANK;
+    const cost = specializationRankUpCost(fromRank);
     if (cost > xpState.available) {
         return { ok: false, error: `Not enough XP (need ${cost}, have ${xpState.available}).` };
     }
@@ -485,7 +486,7 @@ async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, t
     });
     return { ok: true };
 }
-/** Raise an existing Specialization by one Rank for 4 XP. */
+/** Raise an existing Specialization by one Rank (ladder XP for next Rank). */
 export async function applySpecializationRankUp(actor, specId) {
     if (!assertProgressionEditable(actor)) {
         return { ok: false, error: 'Progression locked on unlinked token.' };
@@ -502,7 +503,7 @@ export async function applySpecializationRankUp(actor, specId) {
     const res = await spendSpecializationXp(actor, specId, next, `${spec.name} ${spec.rank} → ${to} (Specialization)`, spec.rank, to, spec.name);
     return res.ok ? { ok: true, newRank: to } : res;
 }
-/** Learn a new Specialization at Rank 1 for 4 XP. */
+/** Learn a new Specialization at Rank 1 (4 XP). */
 export async function applySpecializationLearn(actor, input) {
     if (!assertProgressionEditable(actor)) {
         return { ok: false, error: 'Progression locked on unlinked token.' };

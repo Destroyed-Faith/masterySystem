@@ -145,7 +145,7 @@ export class ProgressionHubDialog extends BaseDialog {
                 this.#bumpPending(this.pendingAttributes, key, 1);
             };
         });
-        // DF 2026: Skill XP retired — Specializations rank up for SPECIALIZATION_XP_PER_RANK (4 XP) each.
+        // Spec rank-ups use specializationRankUpCost ladder (shown per row as this.cost).
         root.querySelectorAll('[data-action="ph-spec-rankup"]').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();

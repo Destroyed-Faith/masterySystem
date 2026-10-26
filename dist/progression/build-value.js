@@ -13,7 +13,7 @@ import { actorHasPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { attributeBandCost, powerLevelCost, skillBandCost, totalArtifactXpToLevel } from '../utils/constants.js';
 import { CREATION_DEFENSIVE_RANK, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, resolvePowerCategoryFromItem, } from '../utils/power-catalog.js';
 import { readSkillPointPool } from './skill-point-pool.js';
-import { readSpecializations, SPECIALIZATION_XP_PER_RANK, STARTING_SPECIALIZATION_RANK, } from '../rules/index.js';
+import { readSpecializations, specializationXpCostFromTo, STARTING_SPECIALIZATION_RANK, } from '../rules/index.js';
 function n(value) {
     const v = Math.floor(Number(value) || 0);
     return v > 0 ? v : 0;
@@ -60,13 +60,14 @@ function skillXp(system) {
         for (const spec of specs) {
             const rank = Math.max(0, Math.floor(Number(spec.rank) || 0));
             if (rank > startRank) {
-                xp += (rank - startRank) * SPECIALIZATION_XP_PER_RANK;
+                // Valuation uses the new ladder from startRank → current (display only).
+                xp += specializationXpCostFromTo(startRank, rank);
             }
         }
         return {
             xp,
             basis: 'creation-cap',
-            note: `Specialization-Start: Rank ${startRank} free; +${SPECIALIZATION_XP_PER_RANK} XP per Rank above.`,
+            note: `Specialization-Start: Rank ${startRank} free; ladder XP for Ranks above (3→8: 6/8/10/12/14/16).`,
         };
     }
     // Legacy archive fallback (pre-DF-2026 sheets without Specs).

@@ -3,6 +3,8 @@
  * Sheets, builders, and roll dialogs must consume these — do not duplicate constants.
  */
 export * from './skill-raises.js';
+export * from './skill-advantage.js';
+export * from './comparative-skill-check.js';
 export * from './skill-check.js';
 export * from './spell-tn.js';
 export * from './ritual-tn.js';
