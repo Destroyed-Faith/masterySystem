@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.804] - 2026-10-26
+
+### Changed
+
+- **Chat-driven Skill Checks:** Rolls publishes one interactive ChatMessage. Players join voluntarily, propose Skill/Attribute; GM approves, modifies, or rejects (including per-approach TN). Approved players roll via the existing Skill engine; GM publishes one consolidated results card. Comparative opposition and Group Ambush resolve from the same chat card. Allowed Approaches / per-character preconfiguration removed from the initial Rolls Skill setup.
+
 ## [0.9.803] - 2026-10-26
 
 ### Changed

@@ -201,6 +201,78 @@
   color: #f39f9f;
 }
 
+.ms-scr-join-row,
+.ms-scr-gm-footer,
+.ms-scr-ambush-gm,
+.ms-scr-participant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ms-scr-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-text, #d0d0d0);
+  cursor: pointer;
+}
+
+.ms-scr-btn:hover {
+  border-color: var(--ms-accent, #c9a227);
+  color: var(--ms-accent, #c9a227);
+}
+
+.ms-scr-approve {
+  border-color: #3d7a4a;
+}
+
+.ms-scr-reject {
+  border-color: #8a3a3a;
+}
+
+.ms-scr-participant-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ms-scr-status-proposed {
+  color: #c9a227;
+}
+
+.ms-scr-status-approved {
+  color: #6cbd7a;
+}
+
+.ms-scr-status-rejected,
+.ms-scr-status-declined {
+  color: #a07070;
+}
+
+.ms-scr-status-rolled {
+  color: #8ab4f8;
+}
+
+.ms-scr-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.ms-scr-results-table th,
+.ms-scr-results-table td {
+  border: 1px solid var(--ms-border, #3a3f44);
+  padding: 4px 6px;
+  text-align: left;
+}
+
 .ms-scr-open {
   border: 1px solid #4b5964;
   background: #28343d;
