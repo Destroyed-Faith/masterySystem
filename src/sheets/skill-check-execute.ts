@@ -6,9 +6,12 @@
 import {
   authoritativeCheckContext,
   buildSkillCheckResolvedSnapshot,
+  consumeSkillCritUse,
   findSpecializationById,
+  getSkillCritUsesRemaining,
   planSkillCheckDraft,
   readSpecializations,
+  skillAdvantageLabel,
   validateAgainstGmAssignment,
   type SkillCheckDraft,
   type SkillCheckResolvedSnapshot,
@@ -115,18 +118,32 @@ export async function executeSkillCheck(
     plan.attributeKey.charAt(0).toUpperCase() + plan.attributeKey.slice(1);
   const label = `${plan.skillName} Check`;
   const verified = plan.gmVerified ? ' · GM-verified request' : ' · GM-announced (local)';
-  const freeInfo =
-    plan.freeRaisesOnSuccess > 0
-      ? ` · Free on success ${plan.freeRaisesOnSuccess}`
-      : '';
+
+  let skillCritActive = false;
+  if (draft.declareSkillCrit && plan.skillCritTrackId) {
+    const remaining = getSkillCritUsesRemaining(actor, plan.skillCritTrackId, plan.rank);
+    if (remaining <= 0) {
+      return { ok: false, error: 'No Skill Crit uses remaining for this Skill today.' };
+    }
+    const spent = await consumeSkillCritUse(actor, plan.skillCritTrackId, plan.rank);
+    if (!spent) {
+      return { ok: false, error: 'Failed to spend Skill Crit use.' };
+    }
+    skillCritActive = true;
+  }
+
+  const advLabel = skillAdvantageLabel(plan.rank);
   let flavor = '';
   if (isNpcSituational) {
-    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}NPC ${plan.skillName} (Rank ${plan.rank}) · Pool ${numDice}k${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
+    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}NPC ${plan.skillName} (Rank ${plan.rank}) · Pool ${numDice}k${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn} · ${advLabel}${verified}.`;
   } else {
-    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn}${freeInfo}${verified}.`;
+    flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}${plan.skillName} (Rank ${plan.rank}) · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} · Base TN ${plan.baseTn} · Paid ${plan.paidRaises} (+${plan.paidRaises * 4}) · Final TN ${plan.finalTn} · ${advLabel}${verified}.`;
     if (plan.rollDisadvantage) {
       flavor = `${plan.taskDescription ? `${plan.taskDescription} · ` : ''}Untrained · ${attrLabel} ${plan.attributeValue}d8 keep ${keepDice} with Disadvantage · Base TN ${plan.baseTn} · Final TN ${plan.finalTn} · 0 Raises${verified}.`;
     }
+  }
+  if (skillCritActive) {
+    flavor += ' Skill Crit: explode on 7–8.';
   }
   if (equipPenalty > 0) {
     flavor += ` Equipped armor/shield physical penalty: −${equipPenalty}d8.`;
@@ -145,9 +162,11 @@ export async function executeSkillCheck(
     raiseTn: plan.finalTn,
     declaredRaiseSlots: plan.paidRaises,
     stoneBonusRaises: 0,
-    freeRaisesAvailableAtSuccess: plan.freeRaisesOnSuccess,
+    freeRaisesAvailableAtSuccess: 0,
     raiseModel: 'skill',
     rollDisadvantage: plan.rollDisadvantage,
+    skillAdvantageRerollMax: plan.rollDisadvantage ? 0 : plan.skillAdvantageRerollMax,
+    attackExplodeDiceOn78: skillCritActive,
     label,
     flavor,
     actorId: String(actor.id),
@@ -167,7 +186,7 @@ export async function executeSkillCheck(
       source: draft.source,
       skillRankAtRoll: plan.rank,
       paidRaisesDeclared: plan.paidRaises,
-      freeRaisesAvailableAtSuccess: plan.freeRaisesOnSuccess,
+      freeRaisesAvailableAtSuccess: 0,
       skillName: plan.skillName,
       attributeKey: plan.attributeKey,
       taskDescription: plan.taskDescription,

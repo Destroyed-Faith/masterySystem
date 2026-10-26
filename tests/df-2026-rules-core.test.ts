@@ -50,14 +50,15 @@ describe('DF 2026 rules schema', () => {
 });
 
 describe('Skill Raises', () => {
-  it('Rank 4 allows 3 Paid + 1 Free', () => {
-    expect(getSkillRaiseAllowance(4)).toEqual({ maxPaid: 3, maxFree: 1, maxTotal: 4 });
+  it('Rank 4: Free retired; Paid uncapped', () => {
+    expect(getSkillRaiseAllowance(4).maxFree).toBe(0);
+    expect(getSkillRaiseAllowance(4).maxPaid).toBe(Number.POSITIVE_INFINITY);
   });
 
-  it('Blacksmithing Rank4 Scope2+Speed1 on BaseTN8 → TN16', () => {
+  it('Blacksmithing Rank4 Paid2 on BaseTN8 → TN16 (Free no longer granted)', () => {
     const base = skillTaskBaseTn(2);
     expect(base).toBe(8);
-    const check = validateSkillRaiseAllocation(4, 2, 1);
+    const check = validateSkillRaiseAllocation(4, 2, 0);
     expect(check.ok).toBe(true);
     expect(finalSkillTn(base, check.paid)).toBe(16);
   });
@@ -123,9 +124,10 @@ describe('Rituals', () => {
     expect(ritualSealedStoneCost(2)).toBe(2);
     expect(ritualSealedStoneCost(4)).toBe(3);
     const withSpec = planRitualRaises({ taskLevel: 3, namedTier: 2, specializationRank: 4 });
-    expect(withSpec.freeRaises).toBe(1);
-    expect(withSpec.paidRaises).toBe(1);
-    expect(withSpec.finalTn).toBe(16);
+    // Spec Rank no longer grants Ritual Free Raises from Skill progression.
+    expect(withSpec.freeRaises).toBe(0);
+    expect(withSpec.paidRaises).toBe(2);
+    expect(withSpec.finalTn).toBe(20);
     expect(withSpec.sealedStones).toBe(2);
     const noSpec = planRitualRaises({ taskLevel: 3, namedTier: 2, specializationRank: 0 });
     expect(noSpec.paidRaises).toBe(2);

@@ -79,10 +79,11 @@ describe('NPC situational skills (DF Guide pools)', () => {
     expect(suggestNpcPool(4, 'specialist')).toBe(12);
   });
 
-  it('Rank maps to Paid/Free allowances; Rank 0 has no Raises', () => {
+  it('Rank 0 has no Raises; trained Ranks have uncapped Paid and 0 Free', () => {
     expect(getSkillRaiseAllowance(0)).toMatchObject({ maxPaid: 0, maxFree: 0 });
-    expect(getSkillRaiseAllowance(2)).toMatchObject({ maxPaid: 2, maxFree: 0 });
-    expect(getSkillRaiseAllowance(4)).toMatchObject({ maxPaid: 3, maxFree: 1 });
+    expect(getSkillRaiseAllowance(2).maxFree).toBe(0);
+    expect(getSkillRaiseAllowance(2).maxPaid).toBe(Number.POSITIVE_INFINITY);
+    expect(getSkillRaiseAllowance(4).maxFree).toBe(0);
   });
 
   it('resolves Perception situational before legacy', () => {

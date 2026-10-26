@@ -1,9 +1,10 @@
 /**
- * Canonical Skill Raise allowances (DF Players Guide 2026-10-24).
- * Paid Raises (+4 TN) are chosen before the roll.
- * Free Raises (+0 TN) become available automatically on success.
- * Effect allocation (Scope/Speed/…) happens after success on the result card.
- * Combat and Ritual Raises keep their own pre-roll allocation elsewhere.
+ * Skill Raises + Spec XP (Destroyed Faith Skill System).
+ *
+ * Standard Skill Checks: optional uncapped Paid Raises (+4 TN each) declared
+ * before the roll. Free Raises from Skill Rank are retired.
+ * Effect allocation (Scope/Speed/…) uses Paid Raises only after success.
+ * Combat and Ritual Raises keep their own paths elsewhere.
  */
 
 export const SKILL_RAISE_EFFECTS = [
@@ -29,36 +30,39 @@ export const SKILL_RAISE_EFFECT_LABELS: Record<SkillRaiseEffect, { label: string
 };
 
 export interface SkillRaiseAllowance {
+  /** Paid Raises are uncapped for trained Skills; 0 when untrained (Rank 0). */
   maxPaid: number;
+  /** Always 0 — Skill Free Raise progression retired. */
   maxFree: number;
   maxTotal: number;
 }
 
-const ALLOWANCE: Record<number, SkillRaiseAllowance> = {
-  0: { maxPaid: 0, maxFree: 0, maxTotal: 0 },
-  1: { maxPaid: 1, maxFree: 0, maxTotal: 1 },
-  2: { maxPaid: 2, maxFree: 0, maxTotal: 2 },
-  3: { maxPaid: 3, maxFree: 0, maxTotal: 3 },
-  4: { maxPaid: 3, maxFree: 1, maxTotal: 4 },
-  5: { maxPaid: 4, maxFree: 1, maxTotal: 5 },
-  6: { maxPaid: 4, maxFree: 2, maxTotal: 6 },
-  7: { maxPaid: 5, maxFree: 2, maxTotal: 7 },
-  8: { maxPaid: 5, maxFree: 3, maxTotal: 8 },
-};
+/** Soft UI hint for Paid Raise steppers (not a hard rules cap). */
+export const SKILL_PAID_RAISE_UI_HINT_MAX = 8;
 
+/**
+ * Raise allowance for UI/legacy callers.
+ * Rank 0 (untrained): no Raises. Rank 1+: Paid uncapped (maxPaid = Infinity proxy via large number).
+ */
 export function getSkillRaiseAllowance(rank: number): SkillRaiseAllowance {
   const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
-  return { ...ALLOWANCE[r] };
+  if (r <= 0) return { maxPaid: 0, maxFree: 0, maxTotal: 0 };
+  // Uncapped Paid — UI may still hint at SKILL_PAID_RAISE_UI_HINT_MAX.
+  return { maxPaid: Number.POSITIVE_INFINITY, maxFree: 0, maxTotal: Number.POSITIVE_INFINITY };
 }
 
-/** Free Raises unlocked by Rank; available only after a successful Skill Check. */
-export function freeAllowance(rank: number): number {
-  return getSkillRaiseAllowance(rank).maxFree;
+/** @deprecated Free Raises retired; always 0. */
+export function freeAllowance(_rank: number): number {
+  return 0;
 }
 
-/** Maximum Paid Raises that may be declared before the roll. */
+/**
+ * Hard Paid Raise cap for validation.
+ * Untrained (Rank 0) → 0; otherwise uncapped (no finite Rank table).
+ */
 export function paidCap(rank: number): number {
-  return getSkillRaiseAllowance(rank).maxPaid;
+  const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
+  return r <= 0 ? 0 : Number.POSITIVE_INFINITY;
 }
 
 /** Base Task TN = Task Level × 4. */
@@ -73,27 +77,30 @@ export function finalSkillTn(baseTn: number, paidRaises: number): number {
 }
 
 /**
- * Clamp a requested Paid Raise count to the Rank paid cap.
- * Returns the clamped value and whether it was reduced.
+ * Normalize Paid Raises: ≥ 0 integer; Rank 0 forces 0.
+ * Never clamps trained Paid Raises to a Rank table.
  */
 export function clampPaidRaises(rank: number, paid: number): { paid: number; clamped: boolean } {
-  const cap = paidCap(rank);
   const raw = Math.max(0, Math.floor(Number(paid) || 0));
-  const next = Math.min(cap, raw);
-  return { paid: next, clamped: next !== raw };
+  const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
+  if (r <= 0) {
+    return { paid: 0, clamped: raw !== 0 };
+  }
+  return { paid: raw, clamped: false };
 }
 
-/** Dropdown options: `0 Paid — Final TN 12`, … */
+/** Dropdown / stepper options for dialogs (UI hint range, not a hard cap). */
 export function paidRaiseSelectOptions(
   rank: number,
   baseTn: number,
+  uiMax: number = SKILL_PAID_RAISE_UI_HINT_MAX,
 ): Array<{ paid: number; finalTn: number; label: string }> {
-  const cap = paidCap(rank);
+  const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
+  const cap = r <= 0 ? 0 : Math.max(0, Math.floor(Number(uiMax) || SKILL_PAID_RAISE_UI_HINT_MAX));
   const base = Math.max(0, Math.floor(Number(baseTn) || 0));
   const out: Array<{ paid: number; finalTn: number; label: string }> = [];
   for (let paid = 0; paid <= cap; paid++) {
     const tn = finalSkillTn(base, paid);
-    const noun = paid === 1 ? 'Raise' : 'Raises';
     out.push({ paid, finalTn: tn, label: `${paid} Paid → TN ${tn}` });
   }
   return out;
@@ -108,45 +115,39 @@ export interface RaiseAllocationCheck {
 }
 
 /**
- * Validate Paid (+ optional Free) against Rank caps.
- * For ordinary Skill Checks, Free is not chosen pre-roll — pass free=0 when
- * validating the pre-roll declaration; use `skillCheckSuccessRaiseBudget` after success.
+ * Validate Paid Raises. Free must be 0 (retired).
+ * Untrained Rank 0 cannot declare Paid Raises.
  */
 export function validateSkillRaiseAllocation(
   rank: number,
   paid: number,
   free: number,
 ): RaiseAllocationCheck {
-  const allowance = getSkillRaiseAllowance(rank);
   const p = Math.max(0, Math.floor(Number(paid) || 0));
   const f = Math.max(0, Math.floor(Number(free) || 0));
   const total = p + f;
-  if (p > allowance.maxPaid) {
-    return { ok: false, paid: p, free: f, total, error: `Paid Raises exceed Rank ${rank} max (${allowance.maxPaid}).` };
+  const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
+  if (f > 0) {
+    return { ok: false, paid: p, free: f, total, error: 'Free Raises are no longer granted by Skill Rank.' };
   }
-  if (f > allowance.maxFree) {
-    return { ok: false, paid: p, free: f, total, error: `Free Raises exceed Rank ${rank} max (${allowance.maxFree}).` };
+  if (r <= 0 && p > 0) {
+    return { ok: false, paid: p, free: f, total, error: 'Untrained rolls get 0 Raises.' };
   }
-  if (total > allowance.maxTotal) {
-    return { ok: false, paid: p, free: f, total, error: `Total Raises exceed Rank ${rank} max (${allowance.maxTotal}).` };
-  }
-  return { ok: true, paid: p, free: f, total };
+  return { ok: true, paid: p, free: 0, total: p };
 }
 
-/** Validate only the pre-roll Paid declaration (Free is auto on success). */
+/** Validate only the pre-roll Paid declaration. */
 export function validatePaidRaisesDeclaration(rank: number, paid: number): RaiseAllocationCheck {
   return validateSkillRaiseAllocation(rank, paid, 0);
 }
 
-/** Raise budget after a successful ordinary Skill Check (at-roll Rank snapshot). */
+/** Raise budget after success — Paid only (Free retired). */
 export function skillCheckSuccessRaiseBudget(
   skillRankAtRoll: number,
   paidRaisesDeclared: number,
 ): { available: number; paid: number; free: number } {
-  const allowance = getSkillRaiseAllowance(skillRankAtRoll);
-  const paid = Math.max(0, Math.min(allowance.maxPaid, Math.floor(Number(paidRaisesDeclared) || 0)));
-  const free = allowance.maxFree;
-  return { available: paid + free, paid, free };
+  const { paid } = clampPaidRaises(skillRankAtRoll, paidRaisesDeclared);
+  return { available: paid, paid, free: 0 };
 }
 
 export function emptySkillRaiseEffectAllocation(): SkillRaiseEffectAllocation {
@@ -188,7 +189,7 @@ export interface EffectAllocationCheck {
   error?: string;
 }
 
-/** Post-success: total allocated effects must be ≤ available (Paid + Free). */
+/** Post-success: total allocated effects must be ≤ available (Paid only). */
 export function validateSkillRaiseEffectAllocation(
   available: number,
   allocation: Partial<SkillRaiseEffectAllocation> | null | undefined,
@@ -222,4 +223,38 @@ export const SKILL_CREATION_POINTS = 20;
 export const SKILL_CREATION_COST_PER_RANK = 2;
 export const STARTING_SPECIALIZATION_COUNT = 5;
 export const STARTING_SPECIALIZATION_RANK = 2;
+
+/**
+ * XP to purchase the given Rank (1–8). Future advancements only —
+ * never used to refund or reprice existing character ranks.
+ */
+export const SPECIALIZATION_XP_COST_BY_RANK: Record<number, number> = {
+  1: 4,
+  2: 4,
+  3: 6,
+  4: 8,
+  5: 10,
+  6: 12,
+  7: 14,
+  8: 16,
+};
+
+/** @deprecated Prefer specializationXpCostToReach — flat 4 was the old ladder. */
 export const SPECIALIZATION_XP_PER_RANK = 4;
+
+/** XP cost to buy Rank `nextRank` (1–8). 0 if out of range. */
+export function specializationXpCostToReach(nextRank: number): number {
+  const r = Math.floor(Number(nextRank) || 0);
+  return SPECIALIZATION_XP_COST_BY_RANK[r] ?? 0;
+}
+
+/** Total XP to go from `fromRank` (inclusive start after) to `toRank` inclusive. */
+export function specializationXpCostFromTo(fromRank: number, toRank: number): number {
+  const from = Math.max(0, Math.floor(Number(fromRank) || 0));
+  const to = Math.max(0, Math.min(8, Math.floor(Number(toRank) || 0)));
+  let total = 0;
+  for (let r = from + 1; r <= to; r++) {
+    total += specializationXpCostToReach(r);
+  }
+  return total;
+}

@@ -137,6 +137,16 @@ const handleHealingBar = onceAtATime(async () => {
   }
 });
 
+const handleGroupAmbush = onceAtATime(async () => {
+  try {
+    const { openGroupAmbushDialog } = await import('./group-ambush-dialog.js');
+    await openGroupAmbushDialog();
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Group Ambush failed', err);
+    ui.notifications?.error('Group Ambush failed - see console');
+  }
+});
+
 const handleEchoImprints = onceAtATime(async () => {
   try {
     const { showEchoImprintsFromMenu } = await import('./echo-imprints-menu.js');
@@ -156,6 +166,7 @@ const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
   firstAid: handleFirstAid,
   echoImprints: handleEchoImprints,
   healingBar: handleHealingBar,
+  groupAmbush: handleGroupAmbush,
 };
 
 function bindMasteryToolClicks(): void {
@@ -226,6 +237,13 @@ export function initializeSceneControls(): void {
           visible: isGM,
           button: true,
           onClick: handleDayOfRest,
+        },
+        {
+          name: 'groupAmbush',
+          title: 'Group Ambush',
+          icon: 'fas fa-user-secret',
+          button: true,
+          onClick: handleGroupAmbush,
         },
         {
           name: 'unluckMenu',

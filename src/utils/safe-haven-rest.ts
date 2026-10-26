@@ -225,6 +225,11 @@ export function buildSafeHavenRestUpdates(
     updates['system.statusEffects'] = [];
   }
 
+  // Skill Crit daily uses refresh with other daily resources (Safe Haven / Day of Rest).
+  Object.assign(updates, {
+    'flags.mastery-system.skillCritUses': {},
+  });
+
   return updates;
 }
 
@@ -361,6 +366,8 @@ export async function applyDayOfRest(actor: any): Promise<boolean> {
     ...(Object.prototype.hasOwnProperty.call(actor.system?.health ?? {}, 'scarred')
       ? { 'system.health.scarred': scarredCount }
       : {}),
+    // Day of Rest refreshes daily Skill Crit uses (same day-cycle as Safe Haven).
+    'flags.mastery-system.skillCritUses': {},
   });
   return true;
 }

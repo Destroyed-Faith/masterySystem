@@ -90,9 +90,10 @@ import {
   SPECIALIZATION_MAX_RANK,
   echoImprintTierFromAttribute,
   findEchoImprint,
-  getSkillRaiseAllowance,
   isCharacterPerceptionSpec,
   readSpecializations,
+  skillAdvantageLabel,
+  skillCritDailyAllowance,
 } from '../rules/index.js';
 
 /**
@@ -448,14 +449,13 @@ function buildPrintSpecializations(system: any): {
     } as any);
   }
   const mapSpec = (s: (typeof specs)[number], gifted = false) => {
-    const allowance = getSkillRaiseAllowance(s.rank);
+    const adv = skillAdvantageLabel(s.rank);
+    const crit = skillCritDailyAllowance(s.rank);
     return {
       name: s.name,
       scope: s.scope,
       rank: s.rank,
-      raises: allowance.maxTotal
-        ? `${allowance.maxPaid} paid${allowance.maxFree ? ` + ${allowance.maxFree} free` : ''}`
-        : 'no Raises',
+      raises: crit > 0 ? `${adv} · Crit ${crit}/day` : adv,
       pips: PRINT_SPEC_PIPS.map((n) => ({ filled: n <= s.rank })),
       gifted,
     };

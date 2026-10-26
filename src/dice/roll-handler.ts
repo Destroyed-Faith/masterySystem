@@ -109,8 +109,15 @@ export interface RollOptions {
    * Combat Advantage (Players Guide ~6457–6467): once, after the initial pool
    * is rolled, every die showing **1** is rerolled (replacement value is kept).
    * Only applies to the initial pool, never to explosion dice.
+   * Equivalent to `skillAdvantageRerollMax: 1` when that field is omitted.
    */
   rollAdvantage?: boolean;
+  /**
+   * Skill Advantage: each initial face ≤ this value is rerolled once (keep new
+   * face), then explosions resolve. 0 / omitted with rollAdvantage false = none.
+   * When set > 0, overrides the combat `rollAdvantage` face-1 shortcut.
+   */
+  skillAdvantageRerollMax?: number;
   /**
    * Combat Disadvantage (Players Guide ~6471–6477): of all initial-pool dice
    * that show **8**, only **one** chosen die explodes; the others stay flat 8.
@@ -206,6 +213,8 @@ export interface MasteryRollRecipe {
   attackExplodeDiceOn78?: boolean;
   /** Mirrors `RollOptions.rollAdvantage` for Faith Fracture rerolls. */
   rollAdvantage?: boolean;
+  /** Mirrors `RollOptions.skillAdvantageRerollMax` for Faith Fracture / Skill Crit rerolls. */
+  skillAdvantageRerollMax?: number;
   /** Mirrors `RollOptions.rollDisadvantage` for Faith Fracture rerolls. */
   rollDisadvantage?: boolean;
   /**
@@ -255,25 +264,44 @@ function rollFlatD8(): number {
   return Math.floor(Math.random() * 8) + 1;
 }
 
+type PoolRollOpts = {
+  explodeOn78?: boolean;
+  rollAdvantage?: boolean;
+  /** Reroll each initial face ≤ max once. Overrides rollAdvantage when > 0. */
+  skillAdvantageRerollMax?: number;
+  rollDisadvantage?: boolean;
+};
+
+function resolveAdvantageRerollMax(options?: PoolRollOpts): number {
+  const explicit = Math.max(0, Math.floor(Number(options?.skillAdvantageRerollMax) || 0));
+  if (explicit > 0) return Math.min(5, explicit);
+  return options?.rollAdvantage ? 1 : 0;
+}
+
+function applyAdvantageReroll(face: number, rerollMax: number): number {
+  if (rerollMax > 0 && face <= rerollMax) return rollFlatD8();
+  return face;
+}
+
 /**
  * Roll the initial pool. Standard rule: every face of 8 explodes. With
- * Disadvantage, only one chosen 8 explodes; with Advantage, every initial
- * face of 1 is rerolled exactly once before resolving explosions.
+ * Disadvantage, only one chosen 8 explodes; with Advantage, each initial
+ * face ≤ N is rerolled exactly once before resolving explosions.
  */
 /** @internal Exported for Crit / Disadvantage pool unit tests. */
 export function rollMasteryPoolDice(
   numDice: number,
-  options?: { explodeOn78?: boolean; rollAdvantage?: boolean; rollDisadvantage?: boolean },
+  options?: PoolRollOpts,
 ): { dice: number[]; exploded: number[]; dieChains: number[][] } {
   return rollDice(numDice, options);
 }
 
 function rollDice(
   numDice: number,
-  options?: { explodeOn78?: boolean; rollAdvantage?: boolean; rollDisadvantage?: boolean },
+  options?: PoolRollOpts,
 ): { dice: number[]; exploded: number[]; dieChains: number[][] } {
   const explodeOn78 = !!options?.explodeOn78;
-  const rollAdvantage = !!options?.rollAdvantage;
+  const rerollMax = resolveAdvantageRerollMax(options);
   const rollDisadvantage = !!options?.rollDisadvantage;
   const dice: number[] = [];
   const exploded: number[] = [];
@@ -286,7 +314,7 @@ function rollDice(
     const initial: number[] = [];
     for (let i = 0; i < numDice; i++) {
       let face = rollFlatD8();
-      if (rollAdvantage && face === 1) face = rollFlatD8();
+      face = applyAdvantageReroll(face, rerollMax);
       initial.push(face);
     }
     const explodeFaceMin = explodeOn78 ? 7 : 8;
@@ -309,11 +337,10 @@ function rollDice(
   }
 
   for (let i = 0; i < numDice; i++) {
-    if (rollAdvantage) {
-      // Initial face — reroll only if it lands on 1, then run the normal
-      // explosion chain (both for face=8 and for the optional 7–8 mode).
+    if (rerollMax > 0) {
+      // Initial face — Skill/Combat Advantage reroll, then explosion chain.
       let initialFace = rollFlatD8();
-      if (initialFace === 1) initialFace = rollFlatD8();
+      initialFace = applyAdvantageReroll(initialFace, rerollMax);
       const explodes = explodeOn78 ? initialFace >= 7 : initialFace === 8;
       if (!explodes) {
         dieChains.push([initialFace]);
@@ -633,8 +660,16 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
 
   const rollAdvantage = !!options.rollAdvantage;
   const rollDisadvantage = !!options.rollDisadvantage;
-  if (rollAdvantage) {
-    const note = 'Advantage: reroll any face of 1 once';
+  const skillAdvMax = Math.max(
+    0,
+    Math.min(5, Math.floor(Number(options.skillAdvantageRerollMax) || 0)),
+  );
+  const effectiveAdvMax = skillAdvMax > 0 ? skillAdvMax : rollAdvantage ? 1 : 0;
+  if (effectiveAdvMax > 0) {
+    const note =
+      effectiveAdvMax === 1
+        ? 'Advantage: reroll any face of 1 once'
+        : `Skill Advantage: reroll initial faces 1–${effectiveAdvMax} once`;
     flavor = flavor ? `${flavor} | ${note}` : note;
   }
   if (rollDisadvantage) {
@@ -644,11 +679,11 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     flavor = flavor ? `${flavor} | ${note}` : note;
   }
   // Both may apply at once — the book does not cancel them into a normal roll.
-  const useAdv = rollAdvantage;
   const useDis = rollDisadvantage;
   const rolled = rollDice(numDice, {
     explodeOn78: explodeAttack78,
-    rollAdvantage: useAdv,
+    rollAdvantage: effectiveAdvMax === 1 && skillAdvMax <= 0,
+    skillAdvantageRerollMax: effectiveAdvMax,
     rollDisadvantage: useDis,
   });
   const geChains: number[][] = [];
@@ -776,6 +811,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       : {}),
     ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
     ...(rollAdvantage ? { rollAdvantage: true } : {}),
+    ...(effectiveAdvMax > 0 ? { skillAdvantageRerollMax: effectiveAdvMax } : {}),
     ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
     ...(guaranteedEights > 0 ? { guaranteedEights } : {}),
     ...(options.attackCardMessageId ? { attackCardMessageId: options.attackCardMessageId } : {}),

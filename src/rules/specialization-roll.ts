@@ -1,21 +1,26 @@
 /**
- * Pure Specialization roll planning + list helpers (DF Players Guide 2026-10-24).
+ * Pure Specialization roll planning + list helpers (Destroyed Faith Skill System).
  *
- * - Trained roll: Attribute dice, Keep = Mastery Rank, Raises from Spec Rank.
- * - Untrained roll (no matching Spec): full Attribute pool with Disadvantage, 0 Raises.
- * - Task Level × 4 = Base TN; each Paid Raise adds +4 TN.
- * - Free Raises are NOT chosen pre-roll; they unlock automatically on success.
+ * - Trained roll: Attribute dice, Keep = Mastery Rank; Rank grants Skill Advantage / Crit.
+ * - Untrained: full Attribute pool with Disadvantage, 0 Raises.
+ * - Task Level × 4 = Base TN; optional uncapped Paid Raises (+4 TN each).
+ * - Free Raises from Skill Rank are retired.
  */
 
 import {
-  SPECIALIZATION_XP_PER_RANK,
   finalSkillTn,
   getSkillRaiseAllowance,
   passiveSkillValue,
   skillTaskBaseTn,
+  specializationXpCostToReach,
   validatePaidRaisesDeclaration,
   type SkillRaiseAllowance,
 } from './skill-raises.js';
+import {
+  skillAdvantageLabel,
+  skillAdvantageRerollMax,
+  skillCritDailyAllowance,
+} from './skill-advantage.js';
 import {
   SKILL_FIELD_LABELS,
   isSkillField,
@@ -26,6 +31,9 @@ import {
 } from './specializations.js';
 
 export const SPECIALIZATION_MAX_RANK = 8;
+
+/** Soft UI hint when Paid Raises are uncapped. */
+const SKILL_PAID_RAISE_UI_HINT = 8;
 
 export const SPEC_ATTRIBUTE_KEYS = [
   'might',
@@ -49,8 +57,7 @@ export interface SpecializationRollPlanInput {
   baseTn?: number;
   paidRaises?: number;
   /**
-   * @deprecated Free Raises are automatic on success — ignored for TN / pre-roll validation.
-   * Retained so older callers compile; output `freeRaises` is the Rank free allowance.
+   * @deprecated Free Raises retired — ignored.
    */
   freeRaises?: number;
 }
@@ -64,15 +71,17 @@ export interface SpecializationRollPlan {
   taskLevel: number;
   baseTn: number;
   paidRaises: number;
-  /** Free Raises available after a successful check (not chosen pre-roll). */
+  /** Always 0 — Free Raises retired. */
   freeRaises: number;
   finalTn: number;
   numDice: number;
   keepDice: number;
   rollDisadvantage: boolean;
+  skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5;
+  skillCritDailyAllowance: 0 | 1 | 2;
 }
 
-/** Validate Paid Raises BEFORE the roll and compute pool / TN. Free = Rank allowance on success. */
+/** Validate Paid Raises BEFORE the roll and compute pool / TN. */
 export function planSpecializationRoll(input: SpecializationRollPlanInput): SpecializationRollPlan {
   const rank = Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(input.rank) || 0)));
   const trained = rank > 0;
@@ -96,8 +105,6 @@ export function planSpecializationRoll(input: SpecializationRollPlanInput): Spec
 
   const check = validatePaidRaisesDeclaration(rank, requestedPaid);
   const paid = check.ok ? check.paid : 0;
-  // Free Raises are informational / post-success only — never selected pre-roll.
-  const free = allowance.maxFree;
 
   let error = check.error;
   if (!trained && requestedPaid > 0) {
@@ -113,11 +120,13 @@ export function planSpecializationRoll(input: SpecializationRollPlanInput): Spec
     taskLevel,
     baseTn,
     paidRaises: paid,
-    freeRaises: free,
+    freeRaises: 0,
     finalTn: finalSkillTn(baseTn, paid),
     numDice,
     keepDice: mr,
     rollDisadvantage: !trained,
+    skillAdvantageRerollMax: skillAdvantageRerollMax(rank),
+    skillCritDailyAllowance: skillCritDailyAllowance(rank),
   };
 }
 
@@ -175,9 +184,11 @@ export function removeSpecialization(specs: SpecializationRecord[], id: string):
   return specs.filter((s) => s.id !== id);
 }
 
-/** XP cost to advance one Spec Rank (flat). */
+/** XP cost to advance from `currentRank` to currentRank+1 (new ladder; future buys only). */
 export function specializationRankUpCost(currentRank: number): number {
-  return currentRank >= SPECIALIZATION_MAX_RANK ? 0 : SPECIALIZATION_XP_PER_RANK;
+  const cur = Math.max(0, Math.floor(Number(currentRank) || 0));
+  if (cur >= SPECIALIZATION_MAX_RANK) return 0;
+  return specializationXpCostToReach(cur + 1);
 }
 
 export function canRankUpSpecialization(spec: Pick<SpecializationRecord, 'rank'>): boolean {
@@ -205,13 +216,16 @@ export interface SpecializationSheetRow {
   maxFree: number;
   maxTotal: number;
   allowanceLabel: string;
+  skillAdvantageLabel: string;
+  skillCritDailyAllowance: 0 | 1 | 2;
+  nextRankXpCost: number;
   /** Passive Skill Value with the character's best Attribute (2 × Attribute). */
   passiveBest: number;
   passiveBestAttribute: string;
   passiveHint: string;
 }
 
-/** Sheet-ready rows: Field label, raise allowance, passive hint. */
+/** Sheet-ready rows: Field label, Advantage/Crit, passive hint. */
 export function buildSpecializationSheetRows(
   specs: SpecializationRecord[],
   attributeValues: Partial<Record<string, number>>,
@@ -231,6 +245,8 @@ export function buildSpecializationSheetRows(
 
   return specs.map((s) => {
     const a = getSkillRaiseAllowance(s.rank);
+    const crit = skillCritDailyAllowance(s.rank);
+    const adv = skillAdvantageLabel(s.rank);
     return {
       id: s.id,
       name: s.name,
@@ -238,10 +254,13 @@ export function buildSpecializationSheetRows(
       fieldLabel: SKILL_FIELD_LABELS[s.field] ?? s.field,
       scope: s.scope,
       rank: s.rank,
-      maxPaid: a.maxPaid,
-      maxFree: a.maxFree,
-      maxTotal: a.maxTotal,
-      allowanceLabel: `${a.maxPaid} Paid${a.maxFree ? ` + ${a.maxFree} Free` : ''}`,
+      maxPaid: Number.isFinite(a.maxPaid) ? a.maxPaid : SKILL_PAID_RAISE_UI_HINT,
+      maxFree: 0,
+      maxTotal: Number.isFinite(a.maxTotal) ? a.maxTotal : SKILL_PAID_RAISE_UI_HINT,
+      allowanceLabel: crit > 0 ? `${adv} · Skill Crit ${crit}/day` : adv,
+      skillAdvantageLabel: adv,
+      skillCritDailyAllowance: crit,
+      nextRankXpCost: specializationRankUpCost(s.rank),
       passiveBest,
       passiveBestAttribute: bestLabel,
       passiveHint: `Passive ${passiveBest} (2 × ${bestLabel} ${bestAttr}); beats TN ≤ ${passiveBest}`,

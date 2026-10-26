@@ -93,33 +93,21 @@ function gmRequestDraft(
 }
 
 describe('DF 2026 Skill Check dual entry — Rank table', () => {
-  it('Paid cap and Free allowance for Ranks 0–8', () => {
-    const expected: Array<[number, number, number]> = [
-      [0, 0, 0],
-      [1, 1, 0],
-      [2, 2, 0],
-      [3, 3, 0],
-      [4, 3, 1],
-      [5, 4, 1],
-      [6, 4, 2],
-      [7, 5, 2],
-      [8, 5, 3],
-    ];
-    for (const [rank, paid, free] of expected) {
-      expect(paidCap(rank)).toBe(paid);
-      expect(freeAllowance(rank)).toBe(free);
-      expect(getSkillRaiseAllowance(rank)).toEqual({
-        maxPaid: paid,
-        maxFree: free,
-        maxTotal: paid + free,
-      });
+  it('Free Raises retired; Paid uncapped when trained', () => {
+    expect(paidCap(0)).toBe(0);
+    expect(freeAllowance(4)).toBe(0);
+    for (const rank of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      expect(paidCap(rank)).toBe(Number.POSITIVE_INFINITY);
+      expect(freeAllowance(rank)).toBe(0);
+      expect(getSkillRaiseAllowance(rank).maxFree).toBe(0);
     }
   });
 
-  it('Rank 4 Paid options 0..3 with Final TN labels', () => {
+  it('Rank 4 Paid UI options 0..8 with Final TN labels', () => {
     const r4 = paidRaiseSelectOptions(4, 12);
-    expect(r4.map((o) => o.paid)).toEqual([0, 1, 2, 3]);
-    expect(r4.map((o) => o.finalTn)).toEqual([12, 16, 20, 24]);
+    expect(r4.map((o) => o.paid)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(r4[0].finalTn).toBe(12);
+    expect(r4[3].finalTn).toBe(24);
   });
 });
 
@@ -144,11 +132,12 @@ describe('DF 2026 GM-defined check — Tracking / Wits / TN 12', () => {
     expect(plan.finalTn).toBe(20);
     expect(plan.numDice).toBe(6);
     expect(plan.keepDice).toBe(3);
-    expect(plan.showFreeBanner).toBe(true);
-    expect(plan.freeRaisesOnSuccess).toBe(1);
+    expect(plan.showFreeBanner).toBe(false);
+    expect(plan.freeRaisesOnSuccess).toBe(0);
+    expect(plan.skillAdvantageRerollMax).toBe(3);
   });
 
-  it('Paid 0/1/2/3 → Final TN 12/16/20/24; success budget Paid+Free', () => {
+  it('Paid 0/1/2/3 → Final TN 12/16/20/24; success budget = Paid only', () => {
     for (const [paid, tn] of [
       [0, 12],
       [1, 16],
@@ -173,7 +162,7 @@ describe('DF 2026 GM-defined check — Tracking / Wits / TN 12', () => {
       success: true,
     });
     expect(ok.allocationStatus).toBe('pending');
-    expect(skillCheckSuccessRaiseBudget(4, 2).available).toBe(3);
+    expect(skillCheckSuccessRaiseBudget(4, 2).available).toBe(2);
 
     const fail = buildSkillCheckResolvedSnapshot({
       plan,
@@ -360,9 +349,9 @@ describe('DF 2026 sheet-verbal — missing GM context', () => {
 });
 
 describe('DF 2026 Skill Check — validation & allocation', () => {
-  it('rejects forged paidRaises=8 for Rank 2; untrained 0 Raises', () => {
-    expect(validatePaidRaisesDeclaration(2, 8).ok).toBe(false);
-    expect(clampPaidRaises(2, 8)).toEqual({ paid: 2, clamped: true });
+  it('allows high Paid when trained; untrained 0 Raises', () => {
+    expect(validatePaidRaisesDeclaration(2, 8).ok).toBe(true);
+    expect(clampPaidRaises(2, 8)).toEqual({ paid: 8, clamped: false });
     const untrained = planSkillCheckDraft({
       system: trackingSystem,
       draft: {
@@ -388,7 +377,7 @@ describe('DF 2026 Skill Check — validation & allocation', () => {
     expect(untrained.freeRaisesOnSuccess).toBe(0);
   });
 
-  it('effect allocation + finalize; high roll never exceeds Paid+Free', () => {
+  it('effect allocation + finalize; available = Paid only', () => {
     const plan = planSkillCheckDraft({
       system: trackingSystem,
       draft: gmRequestDraft(2),
@@ -400,20 +389,20 @@ describe('DF 2026 Skill Check — validation & allocation', () => {
       rollTotal: 25,
       success: true,
     });
-    expect(validateSkillRaiseEffectAllocation(3, { scope: 2, insight: 2 }).ok).toBe(false);
+    expect(validateSkillRaiseEffectAllocation(2, { scope: 2, insight: 1 }).ok).toBe(false);
     const done = finalizeSkillCheckAllocation(
       snap,
-      { scope: 2, insight: 1, speed: 0, quality: 0, efficiency: 0, safety: 0 },
+      { scope: 1, insight: 1, speed: 0, quality: 0, efficiency: 0, safety: 0 },
       'Two more track groups',
     );
     expect(done.ok).toBe(true);
     expect(done.snapshot.allocationStatus).toBe('finalized');
-    expect(skillCheckSuccessRaiseBudget(4, 2).available).toBe(3);
+    expect(skillCheckSuccessRaiseBudget(4, 2).available).toBe(2);
     expect(finalSkillTn(12, 2)).toBe(20);
     expect(authoritativeBaseTn(gmRequestDraft(0))).toBe(12);
   });
 
-  it('planSpecializationRoll still ignores Free pre-select', () => {
+  it('planSpecializationRoll Free pre-select is ignored (always 0)', () => {
     const plan = planSpecializationRoll({
       rank: 4,
       attributeValue: 6,
@@ -424,6 +413,6 @@ describe('DF 2026 Skill Check — validation & allocation', () => {
     });
     expect(plan.ok).toBe(true);
     expect(plan.finalTn).toBe(20);
-    expect(plan.freeRaises).toBe(1);
+    expect(plan.freeRaises).toBe(0);
   });
 });

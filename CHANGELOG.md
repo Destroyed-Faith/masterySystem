@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.801] - 2026-10-26
+
+### Changed
+
+- **Skill System (Destroyed Faith):** Attribute k MR; Skill Rank grants Skill Advantage / Skill Crit (not dice). Free Raises retired; Paid Raises uncapped. Future Spec XP ladder 4/4/6/8/10/12/14/16. Comparative Skill Checks + Group Ambush. Existing Spec IDs/ranks/XP balances preserved.
+
+### Fixed
+
+- **Life Taken radial:** Transfer Life fluff (“damage instance”) no longer false-matches `stance` Active Buff filter; Life Taken stays on the combat Attack ring.
+
 ## [0.9.800] - 2026-10-25
 
 ### Added

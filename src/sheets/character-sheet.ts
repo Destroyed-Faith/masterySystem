@@ -11,7 +11,7 @@ import {
   findSpecializationById,
   isCharacterPerceptionSpec,
   readSpecializations,
-  SPECIALIZATION_XP_PER_RANK,
+  specializationRankUpCost,
   STARTING_SPECIALIZATION_COUNT,
   STARTING_SPECIALIZATION_RANK,
   validateSpecializationList,
@@ -6432,7 +6432,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.canEditSpecializations = isOwner;
     // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
     context.canEditSpecializationRank = !!context.isGM || context.creationComplete === false;
-    context.specializationXpPerRank = SPECIALIZATION_XP_PER_RANK;
+    context.specializationXpPerRank = null;
+    context.specializationXpLadder = true;
     context.showSpecializationRankUp = isOwner && context.creationComplete !== false;
   }
 
@@ -6498,7 +6499,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ui.notifications?.warn(res.error || 'Could not raise Specialization.');
       return;
     }
-    ui.notifications?.info(`Specialization raised to Rank ${res.newRank} (${SPECIALIZATION_XP_PER_RANK} XP).`);
+    const cost = specializationRankUpCost((res.newRank ?? 1) - 1);
+    ui.notifications?.info(`Specialization raised to Rank ${res.newRank} (${cost} XP).`);
     this.render(false);
   }
 

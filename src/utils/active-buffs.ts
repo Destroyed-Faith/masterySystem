@@ -3,7 +3,7 @@
  * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
  */
 
-import { powerCostPaysAction } from '../radial-menu/options.js';
+import { powerCostPaysAction, textSuggestsActiveBuff } from '../radial-menu/options.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
@@ -106,10 +106,7 @@ export function isTrueActiveBuff(power: any): boolean {
   
   // Check if power type is 'active' but has buff-like characteristics
   if (powerType === 'active' && pays) {
-    const nameLower = power.name?.toLowerCase() || '';
-    const descLower = (power.system?.description || '').toLowerCase();
-    if (nameLower.includes('buff') || descLower.includes('buff') || 
-        nameLower.includes('stance') || descLower.includes('stance')) {
+    if (textSuggestsActiveBuff(power.name || '', power.system?.description)) {
       return true;
     }
   }
@@ -145,10 +142,7 @@ export function isActiveBuff(power: any): boolean {
   
   // Check if power type is 'active' but has buff-like characteristics
   if (powerType === 'active' && pays) {
-    const nameLower = power.name?.toLowerCase() || '';
-    const descLower = (power.system?.description || '').toLowerCase();
-    if (nameLower.includes('buff') || descLower.includes('buff') || 
-        nameLower.includes('stance') || descLower.includes('stance')) {
+    if (textSuggestsActiveBuff(power.name || '', power.system?.description)) {
       return true;
     }
   }
@@ -164,11 +158,7 @@ export function isActiveBuff(power: any): boolean {
     if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
       return true;
     }
-    // Check name/description for buff indicators
-    const nameLower = power.name?.toLowerCase() || '';
-    const descLower = (power.system?.description || '').toLowerCase();
-    if (nameLower.includes('buff') || descLower.includes('buff') || 
-        nameLower.includes('stance') || descLower.includes('stance')) {
+    if (textSuggestsActiveBuff(power.name || '', power.system?.description)) {
       return true;
     }
   }

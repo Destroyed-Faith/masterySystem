@@ -1,9 +1,10 @@
 /**
- * Ordinary Skill Check helpers (DF 2026-10-24 — GM-defined checks).
+ * Ordinary Skill Check helpers (Destroyed Faith Skill System).
  *
  * GM defines: task, Attribute, Specialization/Untrained, Base TN.
- * Player declares only Paid Raises before rolling.
- * Free Raises unlock on success; effects allocate on the result chat card.
+ * Player declares optional uncapped Paid Raises before rolling.
+ * Skill Rank grants Skill Advantage / Skill Crit (not Free Raises).
+ * Paid Raise effects allocate on the result chat card.
  */
 
 import {
@@ -18,6 +19,10 @@ import {
   type SkillRaiseAllowance,
   type SkillRaiseEffectAllocation,
 } from './skill-raises.js';
+import {
+  skillAdvantageRerollMax,
+  skillCritDailyAllowance,
+} from './skill-advantage.js';
 import {
   SPEC_ATTRIBUTE_KEYS,
   findSpecializationById,
@@ -81,8 +86,10 @@ export type SkillCheckAllocationStatus = 'pending' | 'finalized' | 'not-applicab
 
 export interface SkillCheckDraft {
   actorId: string;
-  /** Only player-chosen pre-roll value. */
+  /** Only player-chosen pre-roll values. */
   paidRaises: number;
+  /** Declare Skill Crit before the roll (consumes one daily charge when available). */
+  declareSkillCrit?: boolean;
   /**
    * Skill / Attribute / Base TN / task — mirrored for convenience; authoritative
    * values always come from `source` via `authoritativeCheckContext`.
@@ -153,12 +160,18 @@ export interface SkillCheckPlan {
   baseTn: number;
   taskDescription: string;
   paidRaises: number;
+  /** Always 0 — Skill Free Raises retired. */
   freeRaisesOnSuccess: number;
   finalTn: number;
   numDice: number;
   keepDice: number;
   rollDisadvantage: boolean;
+  skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5;
+  skillCritDailyAllowance: 0 | 1 | 2;
+  /** Skill id for Crit charge tracking (Spec id / situational id / ''). */
+  skillCritTrackId: string;
   paidOptions: Array<{ paid: number; finalTn: number; label: string }>;
+  /** Always false — Free Raise banner retired. */
   showFreeBanner: boolean;
   gmVerified: boolean;
   sourceKind: 'gm-request' | 'sheet-verbal';
@@ -406,6 +419,9 @@ export function planSkillCheckDraft(input: {
     numDice: 0,
     keepDice: 1,
     rollDisadvantage: true,
+    skillAdvantageRerollMax: 0,
+    skillCritDailyAllowance: 0,
+    skillCritTrackId: '',
     paidOptions: paidRaiseSelectOptions(0, ctx.baseTn || 0),
     showFreeBanner: false,
     gmVerified: ctx.gmVerified,
@@ -517,6 +533,14 @@ export function planSkillCheckDraft(input: {
   const keepDice = masteryRank;
   // Untrained PC Spec path uses Disadvantage; NPC situational Rank 0 is "no Raises", not Disadvantage.
   const rollDisadvantage = !isNpcSituational && !resolved.trained;
+  const skillCritTrackId =
+    ctx.skill.kind === 'specialization'
+      ? String(ctx.skill.id || '')
+      : ctx.skill.kind === 'npc-situational'
+        ? String(ctx.skill.id || '')
+        : ctx.skill.kind === 'perception'
+          ? 'perception:perception'
+          : '';
 
   return {
     ok: !error && paidCheck.ok,
@@ -531,13 +555,16 @@ export function planSkillCheckDraft(input: {
     baseTn,
     taskDescription: ctx.taskDescription,
     paidRaises: paidCheck.ok && !error ? paid : clampedPaid,
-    freeRaisesOnSuccess: allowance.maxFree,
+    freeRaisesOnSuccess: 0,
     finalTn: paidCheck.ok && !error ? finalSkillTn(baseTn, paid) : finalSkillTn(baseTn, clampedPaid),
     numDice,
     keepDice,
     rollDisadvantage,
+    skillAdvantageRerollMax: skillAdvantageRerollMax(rank),
+    skillCritDailyAllowance: skillCritDailyAllowance(rank),
+    skillCritTrackId,
     paidOptions: paidRaiseSelectOptions(rank, baseTn),
-    showFreeBanner: allowance.maxFree > 0,
+    showFreeBanner: false,
     gmVerified: ctx.gmVerified,
     sourceKind: ctx.sourceKind,
   };

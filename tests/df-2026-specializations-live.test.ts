@@ -27,14 +27,15 @@ const lockpicking: SpecializationRecord = {
 };
 
 describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
-  it('raise allowance by Rank', () => {
+  it('raise allowance by Rank — Free retired; Paid uncapped when trained', () => {
     expect(getSkillRaiseAllowance(0)).toEqual({ maxPaid: 0, maxFree: 0, maxTotal: 0 });
-    expect(getSkillRaiseAllowance(1)).toEqual({ maxPaid: 1, maxFree: 0, maxTotal: 1 });
-    expect(getSkillRaiseAllowance(4)).toEqual({ maxPaid: 3, maxFree: 1, maxTotal: 4 });
-    expect(getSkillRaiseAllowance(8)).toEqual({ maxPaid: 5, maxFree: 3, maxTotal: 8 });
+    expect(getSkillRaiseAllowance(1).maxFree).toBe(0);
+    expect(getSkillRaiseAllowance(1).maxPaid).toBe(Number.POSITIVE_INFINITY);
+    expect(getSkillRaiseAllowance(4).maxFree).toBe(0);
+    expect(getSkillRaiseAllowance(8).maxFree).toBe(0);
   });
 
-  it('Base TN = Task Level × 4; each Paid Raise +4; Free auto on success (not pre-selected)', () => {
+  it('Base TN = Task Level × 4; each Paid Raise +4; Free Raises retired', () => {
     expect(skillTaskBaseTn(2)).toBe(8);
     expect(finalSkillTn(8, 0)).toBe(8);
     expect(finalSkillTn(8, 2)).toBe(16);
@@ -44,13 +45,14 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
       masteryRank: 3,
       taskLevel: 2,
       paidRaises: 2,
-      freeRaises: 99, // ignored pre-roll; Rank free allowance is reported
+      freeRaises: 99, // ignored — Free Raises retired
     });
     expect(plan.ok).toBe(true);
     expect(plan.baseTn).toBe(8);
     expect(plan.finalTn).toBe(16);
     expect(plan.paidRaises).toBe(2);
-    expect(plan.freeRaises).toBe(1);
+    expect(plan.freeRaises).toBe(0);
+    expect(plan.skillAdvantageRerollMax).toBe(3);
   });
 
   it('trained pool: Attribute dice, Keep = MR, no Disadvantage', () => {
@@ -60,10 +62,11 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
     expect(plan.keepDice).toBe(3);
     expect(plan.rollDisadvantage).toBe(false);
     expect(plan.baseTn).toBe(12);
+    expect(plan.skillAdvantageRerollMax).toBe(1);
   });
 
-  it('rejects Raises above the Rank allowance BEFORE rolling', () => {
-    expect(validateSkillRaiseAllocation(2, 3, 0).ok).toBe(false);
+  it('rejects Free Raises; allows uncapped Paid when trained', () => {
+    expect(validateSkillRaiseAllocation(2, 3, 0).ok).toBe(true);
     expect(validateSkillRaiseAllocation(3, 3, 1).ok).toBe(false);
     const plan = planSpecializationRoll({
       rank: 2,
@@ -72,9 +75,9 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
       taskLevel: 2,
       paidRaises: 3,
     });
-    expect(plan.ok).toBe(false);
-    expect(plan.error).toMatch(/Paid Raises exceed/);
-    expect(plan.finalTn).toBe(8);
+    expect(plan.ok).toBe(true);
+    expect(plan.paidRaises).toBe(3);
+    expect(plan.finalTn).toBe(20);
   });
 
   it('untrained: full Attribute pool + Disadvantage and 0 Raises', () => {
@@ -136,8 +139,9 @@ describe('DF 2026 Specializations — Acceptance C (Passive Value / sheet rows)'
     });
     expect(rows).toHaveLength(1);
     expect(rows[0].fieldLabel).toBe('Finesse');
-    expect(rows[0].maxPaid).toBe(3);
-    expect(rows[0].maxFree).toBe(1);
+    expect(rows[0].maxFree).toBe(0);
+    expect(rows[0].skillAdvantageLabel).toMatch(/1–3|1-3/);
+    expect(rows[0].skillCritDailyAllowance).toBe(0);
     expect(rows[0].passiveBest).toBe(12);
     expect(rows[0].passiveBestAttribute).toBe('Agility');
     expect(rows[0].passiveHint).toContain('12');
@@ -154,9 +158,10 @@ describe('DF 2026 Specializations — Acceptance C (Passive Value / sheet rows)'
 });
 
 describe('Specialization list helpers + Rank-up', () => {
-  it('Rank-up costs 4 XP and caps at Rank 8', () => {
-    expect(SPECIALIZATION_XP_PER_RANK).toBe(4);
-    expect(specializationRankUpCost(3)).toBe(4);
+  it('Rank-up uses XP ladder and caps at Rank 8', () => {
+    expect(SPECIALIZATION_XP_PER_RANK).toBe(4); // deprecated constant retained
+    expect(specializationRankUpCost(2)).toBe(6);
+    expect(specializationRankUpCost(3)).toBe(8);
     expect(specializationRankUpCost(8)).toBe(0);
     const up = rankUpSpecialization([lockpicking], lockpicking.id);
     expect(up?.[0].rank).toBe(5);

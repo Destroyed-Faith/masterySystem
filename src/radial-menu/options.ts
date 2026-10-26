@@ -584,6 +584,15 @@ function determineTargetGroup(option: RadialCombatOption): TargetGroup {
 
 
 /**
+ * Name/description cues for Active Buff / Stance — word boundaries only.
+ * Substring `includes('stance')` falsely matches Transfer Life fluff ("damage instance").
+ */
+export function textSuggestsActiveBuff(name: string, description?: string): boolean {
+  const blob = `${name || ''} ${description || ''}`;
+  return /\bbuff\b/i.test(blob) || /\bstance\b/i.test(blob);
+}
+
+/**
  * Map an option to one of the 4 inner segment IDs
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
@@ -647,11 +656,7 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
     
     // Also check if power type is 'active' but has buff-like characteristics
     if (powerType === 'active' && option.slot === 'attack') {
-      // Check if description or name suggests it's a buff
-      const nameLower = option.name.toLowerCase();
-      const descLower = (option.description || '').toLowerCase();
-      if (nameLower.includes('buff') || descLower.includes('buff') || 
-          nameLower.includes('stance') || descLower.includes('stance')) {
+      if (textSuggestsActiveBuff(option.name, option.description)) {
         return 'active-buff';
       }
     }
@@ -667,11 +672,7 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
       if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
         return 'active-buff';
       }
-      // Check name/description for buff indicators
-      const nameLower = option.name.toLowerCase();
-      const descLower = (option.description || '').toLowerCase();
-      if (nameLower.includes('buff') || descLower.includes('buff') || 
-          nameLower.includes('stance') || descLower.includes('stance')) {
+      if (textSuggestsActiveBuff(option.name, option.description)) {
         return 'active-buff';
       }
     }

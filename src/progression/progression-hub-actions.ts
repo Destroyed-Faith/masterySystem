@@ -19,10 +19,10 @@ import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import {
   SKILL_FIELD_LABELS,
   SPECIALIZATION_MAX_RANK,
-  SPECIALIZATION_XP_PER_RANK,
   isSkillField,
   readSpecializations,
   specializationIdentityKey,
+  specializationRankUpCost,
   upsertSpecialization,
   validateSpecializationList,
   type SkillField,
@@ -286,7 +286,7 @@ export interface ProgressionHubContext {
     category: string;
     skills: Array<{ key: string; name: string; value: number }>;
   }>;
-  /** DF 2026 Specializations — Rank-up costs SPECIALIZATION_XP_PER_RANK (4 XP) each. */
+  /** Specializations — Rank-up uses the Skill XP ladder (cost to reach next Rank). */
   specializations: Array<{
     id: string;
     name: string;
@@ -298,7 +298,8 @@ export interface ProgressionHubContext {
     canRankUp: boolean;
     bumpedThisStep: boolean;
   }>;
-  specializationXpPerRank: number;
+  /** @deprecated Flat cost retired — each Spec row carries its own `cost`. */
+  specializationXpPerRank: number | null;
   powers: Array<{ id: string; name: string; level: number; minLevel: number; maxLevel: number }>;
   artifactCards: ReturnType<typeof buildArtifactEvolutionCards>;
   unwiredArtifacts: Array<{ id: string; name: string }>;
@@ -381,11 +382,11 @@ export function buildProgressionHubContext(actor: Actor): ProgressionHubContext 
       fieldLabel: SKILL_FIELD_LABELS[s.field] ?? s.field,
       scope: s.scope,
       rank: s.rank,
-      cost: SPECIALIZATION_XP_PER_RANK,
+      cost: specializationRankUpCost(s.rank),
       canRankUp: s.rank < SPECIALIZATION_MAX_RANK,
       bumpedThisStep: hasFreeXp(actor) ? false : stepRule.isBumped(stepRule.readStep(actor), 'skill', s.id),
     })),
-    specializationXpPerRank: SPECIALIZATION_XP_PER_RANK,
+    specializationXpPerRank: null,
     powers: powers.sort((a, b) => a.name.localeCompare(b.name)),
     artifactCards: buildArtifactEvolutionCards(actor),
     unwiredArtifacts: unwired.map((e: any) => ({ id: e.id, name: e.name })),
@@ -546,8 +547,9 @@ export async function applySkillPendingChanges(
 }
 
 /**
- * DF 2026: spend SPECIALIZATION_XP_PER_RANK XP to raise one Specialization by one Rank
+ * Spend ladder XP to raise one Specialization by one Rank
  * (or learn a new one at Rank 1 via learn). One increase per Specialization per Upgrade Step.
+ * Costs apply to future advancements only — never refund past ranks.
  */
 async function spendSpecializationXp(
   actor: Actor,
@@ -559,7 +561,7 @@ async function spendSpecializationXp(
   name: string,
 ): Promise<{ ok: boolean; error?: string }> {
   const xpState = getXpState(actor);
-  const cost = SPECIALIZATION_XP_PER_RANK;
+  const cost = specializationRankUpCost(fromRank);
   if (cost > xpState.available) {
     return { ok: false, error: `Not enough XP (need ${cost}, have ${xpState.available}).` };
   }
@@ -608,7 +610,7 @@ async function spendSpecializationXp(
   return { ok: true };
 }
 
-/** Raise an existing Specialization by one Rank for 4 XP. */
+/** Raise an existing Specialization by one Rank (ladder XP for next Rank). */
 export async function applySpecializationRankUp(
   actor: Actor,
   specId: string,
@@ -636,7 +638,7 @@ export async function applySpecializationRankUp(
   return res.ok ? { ok: true, newRank: to } : res;
 }
 
-/** Learn a new Specialization at Rank 1 for 4 XP. */
+/** Learn a new Specialization at Rank 1 (4 XP). */
 export async function applySpecializationLearn(
   actor: Actor,
   input: { name: string; field: string; scope: string },
