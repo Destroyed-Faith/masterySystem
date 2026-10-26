@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.802] - 2026-10-26
+
+### Fixed
+
+- **Character print test:** Spec row asserts Skill Advantage label (Rank 2 Perception), not retired paid-Raise text.
+
 ## [0.9.801] - 2026-10-26
 
 ### Changed
