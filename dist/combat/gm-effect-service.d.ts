@@ -49,7 +49,7 @@ export interface GmEffectOperationResult {
 }
 export declare function dispositionSide(d: number): GmEffectSideFilter;
 export declare function matchesSide(disposition: number | undefined, filter: GmEffectSideFilter): boolean;
-/** Legal persistent Specials for the GM picker (instants/support excluded except Cleanse). */
+/** Legal persistent Specials for the GM picker (Cleanse + Core selectable statuses). */
 export declare function listGmAssignableSpecials(): SpecialEffect[];
 export declare function formatSpecialLine(specialId: string, value?: number | null): string;
 export declare function resolveGmEffectActor(ref: GmEffectTargetRef): {

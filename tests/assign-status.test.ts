@@ -74,15 +74,31 @@ function mockUnlinkedNpc() {
 }
 
 describe('assign catalog status', () => {
-  it('offers persistent statuses and skips instants', () => {
+  it('offers Core persistent Specials and skips retired, instant, and derived entries', () => {
     const ids = listAssignableStatuses().map((c) => c.id);
     expect(ids).toContain('slow');
-    expect(ids).toContain('surprise');
-    expect(ids).toContain('stunned');
+    expect(ids).toContain('brace');
+    expect(ids).toContain('bulwark');
+    expect(ids).toContain('immovable');
+    expect(ids).toContain('grappled');
+    expect(ids).toContain('prone');
+    expect(ids).not.toContain('surprise');
+    expect(ids).not.toContain('stunned');
+    expect(ids).not.toContain('regeneration');
+    expect(ids).not.toContain('crit');
+    expect(ids).not.toContain('charmed');
+    expect(ids).not.toContain('curse');
+    expect(ids).not.toContain('entangled');
+    expect(ids).not.toContain('exorcism');
+    expect(ids).not.toContain('requiem');
+    expect(ids).not.toContain('suppress');
     expect(ids).not.toContain('knockback');
     expect(ids).not.toContain('cleanse');
     expect(isAssignableStatusId('prone')).toBe(true);
+    expect(isAssignableStatusId('regeneration')).toBe(true);
+    expect(isAssignableStatusId('stunned')).toBe(true);
     expect(isAssignableStatusId('push')).toBe(false);
+    expect(isAssignableStatusId('charmed')).toBe(false);
   });
 
   it('lists assignable statuses A–Z by name for dropdowns', () => {
@@ -100,8 +116,8 @@ describe('assign catalog status', () => {
     expect(kept).toEqual([{ id: 'slow', name: 'Slow', value: 1 }]);
     const raised = upsertStatusEntry(kept, 'slow', 4);
     expect(raised).toEqual([{ id: 'slow', name: 'Slow', value: 4 }]);
-    const surprise = upsertStatusEntry(raised, 'surprise');
-    expect(surprise[1]).toEqual({ id: 'surprise', name: 'Surprise' });
+    const braced = upsertStatusEntry(raised, 'brace', 2);
+    expect(braced[1]).toEqual({ id: 'brace', name: 'Brace', value: 2 });
   });
 
   it('removes a status by id', () => {

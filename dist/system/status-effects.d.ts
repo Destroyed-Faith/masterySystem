@@ -27,11 +27,31 @@ export interface MasteryStatusEffect {
     name: string;
     img: string;
     statuses?: string[];
+    /**
+     * When false, Foundry's Token HUD palette hides this entry.
+     * Combat / Powers may still resolve the id. Default true.
+     */
+    hud?: boolean;
 }
 /**
- * Single source of truth for the token HUD radial.
- * Keep ordered by gameplay category (debuffs first, then damage-over-time,
- * then buffs, then rider-style effects) for a predictable radial layout.
+ * Ongoing Specials a GM may newly pick in the Status dialog / Token HUD.
+ * Authoritative list matches DF Core Special Effects Reference (persistent).
+ */
+export declare const SELECTABLE_STATUS_IDS: readonly string[];
+/**
+ * System-managed statuses that stay writable and keep token icons, but are not
+ * offered as generic "add Special" choices (instant / derived / Passive / Crit).
+ */
+export declare const SYSTEM_MANAGED_STATUS_IDS: readonly string[];
+export declare function isSelectableStatusId(id: string | null | undefined): boolean;
+/** Writable via setActorCatalogStatus / token icon sync (selectable + system-managed). */
+export declare function isSystemStatusId(id: string | null | undefined): boolean;
+/**
+ * Token HUD / CONFIG registry.
+ * Selectable Specials appear in the palette. System-managed and Invisible stay
+ * registered for icons with `hud: false`. Retired names (Charmed, Cursed, …)
+ * are intentionally omitted so they cannot be newly selected; stored Actor
+ * records with those ids are left untouched.
  */
 export declare const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[];
 /**

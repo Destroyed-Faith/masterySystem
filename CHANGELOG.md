@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.818] - 2026-11-03
+
+### Changed
+
+- **Status picker:** The add-status menu and Token HUD palette follow the DF Core Special Effects Reference. Brace, Bulwark, and Immovable are available. Retired and derived entries are no longer offered for new assignment. Existing Actor and Token status records are left as stored.
+
 ## [0.9.817] - 2026-11-03
 
 ### Changed

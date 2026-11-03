@@ -31,6 +31,11 @@ export interface MasteryStatusEffect {
   name: string;
   img: string;
   statuses?: string[];
+  /**
+   * When false, Foundry's Token HUD palette hides this entry.
+   * Combat / Powers may still resolve the id. Default true.
+   */
+  hud?: boolean;
 }
 
 /** Core `icons/svg/*` paths are not guaranteed; ship minimal SVGs with the system. */
@@ -40,50 +45,95 @@ const ICON = (name: string) => `systems/mastery-system/assets/icons/status/${nam
 const STATUS_IMG = (id: string, fallback: string) => specialTokenIcon(id) ?? ICON(fallback);
 
 /**
- * Single source of truth for the token HUD radial.
- * Keep ordered by gameplay category (debuffs first, then damage-over-time,
- * then buffs, then rider-style effects) for a predictable radial layout.
+ * Ongoing Specials a GM may newly pick in the Status dialog / Token HUD.
+ * Authoritative list matches DF Core Special Effects Reference (persistent).
+ */
+export const SELECTABLE_STATUS_IDS: readonly string[] = [
+  'blight',
+  'brace',
+  'bulwark',
+  'challenge',
+  'corrode',
+  'disoriented',
+  'expose',
+  'grappled',
+  'hex',
+  'immovable',
+  'lacerate',
+  'mark',
+  'prone',
+  'root',
+  'ruin',
+  'slow',
+  'soulburn',
+  'sundered',
+  'weaken',
+];
+
+/**
+ * System-managed statuses that stay writable and keep token icons, but are not
+ * offered as generic "add Special" choices (instant / derived / Passive / Crit).
+ */
+export const SYSTEM_MANAGED_STATUS_IDS: readonly string[] = [
+  'stunned',
+  'surprise',
+  'regeneration',
+  'crit',
+  /** Fiend / Deathless power Specials — applied by Powers, not the generic picker. */
+  'exorcism',
+  'requiem',
+];
+
+const SELECTABLE_SET = new Set(SELECTABLE_STATUS_IDS);
+const SYSTEM_MANAGED_SET = new Set(SYSTEM_MANAGED_STATUS_IDS);
+
+export function isSelectableStatusId(id: string | null | undefined): boolean {
+  return SELECTABLE_SET.has(String(id || '').trim().toLowerCase());
+}
+
+/** Writable via setActorCatalogStatus / token icon sync (selectable + system-managed). */
+export function isSystemStatusId(id: string | null | undefined): boolean {
+  const key = String(id || '').trim().toLowerCase();
+  return SELECTABLE_SET.has(key) || SYSTEM_MANAGED_SET.has(key);
+}
+
+/**
+ * Token HUD / CONFIG registry.
+ * Selectable Specials appear in the palette. System-managed and Invisible stay
+ * registered for icons with `hud: false`. Retired names (Charmed, Cursed, …)
+ * are intentionally omitted so they cannot be newly selected; stored Actor
+ * records with those ids are left untouched.
  */
 export const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[] = [
-  { id: 'lacerate',     name: 'Lacerate',     img: ICON('blood') },
-  { id: 'ruin',         name: 'Ruin',         img: STATUS_IMG('ruin', 'fire') },
-  { id: 'slow',         name: 'Slow',         img: STATUS_IMG('slow', 'frozen') },
-  { id: 'corrode',      name: 'Corrode',      img: STATUS_IMG('corrode', 'acid') },
-  { id: 'blight',       name: 'Blight',       img: STATUS_IMG('blight', 'poison') },
-  { id: 'soulburn',     name: 'Soulburn',     img: ICON('aura') },
-  { id: 'challenge',    name: 'Challenge',    img: STATUS_IMG('challenge', 'challenge') },
+  { id: 'blight', name: 'Blight', img: STATUS_IMG('blight', 'poison') },
+  { id: 'brace', name: 'Brace', img: ICON('falling') },
+  { id: 'bulwark', name: 'Bulwark', img: ICON('holy-shield') },
+  { id: 'challenge', name: 'Challenge', img: STATUS_IMG('challenge', 'challenge') },
+  { id: 'corrode', name: 'Corrode', img: STATUS_IMG('corrode', 'acid') },
+  { id: 'disoriented', name: 'Disoriented', img: ICON('stoned') },
+  { id: 'expose', name: 'Expose', img: STATUS_IMG('expose', 'eye') },
+  { id: 'grappled', name: 'Grappled', img: ICON('net') },
+  { id: 'hex', name: 'Hex', img: STATUS_IMG('hex', 'hazard') },
+  { id: 'immovable', name: 'Immovable', img: ICON('direction') },
+  { id: 'lacerate', name: 'Lacerate', img: ICON('blood') },
+  { id: 'mark', name: 'Mark', img: STATUS_IMG('mark', 'target') },
+  { id: 'prone', name: 'Prone', img: ICON('falling') },
+  { id: 'root', name: 'Root', img: STATUS_IMG('root', 'net') },
+  { id: 'ruin', name: 'Ruin', img: STATUS_IMG('ruin', 'fire') },
+  { id: 'slow', name: 'Slow', img: STATUS_IMG('slow', 'frozen') },
+  { id: 'soulburn', name: 'Soulburn', img: ICON('aura') },
+  { id: 'sundered', name: 'Sundered', img: STATUS_IMG('sundered', 'sword-broken') },
+  { id: 'weaken', name: 'Weakened', img: ICON('down') },
 
-  { id: 'stunned',      name: 'Stunned',      img: ICON('daze') },
-  { id: 'prone',        name: 'Prone',        img: ICON('falling') },
-  { id: 'surprise',     name: 'Surprise',     img: ICON('terror') },
-  { id: 'entangled',    name: 'Entangled',    img: ICON('net') },
-  { id: 'grappled',     name: 'Grappled',     img: ICON('net') },
-  { id: 'charmed',      name: 'Charmed',      img: ICON('ice-aura') },
-  { id: 'disoriented',  name: 'Disoriented',  img: ICON('stoned') },
-
-  { id: 'mark',         name: 'Mark',         img: STATUS_IMG('mark', 'target') },
-  { id: 'expose',       name: 'Expose',       img: STATUS_IMG('expose', 'eye') },
-  { id: 'weaken',       name: 'Weakened',     img: ICON('down') },
-  { id: 'sundered',     name: 'Sundered',     img: STATUS_IMG('sundered', 'sword-broken') },
-  { id: 'hex',          name: 'Hex',          img: STATUS_IMG('hex', 'hazard') },
-  { id: 'root',         name: 'Root',         img: STATUS_IMG('root', 'net') },
-  { id: 'curse',        name: 'Cursed',       img: ICON('skull') },
-  { id: 'suppress',     name: 'Suppressed',   img: ICON('silenced') },
-
-  { id: 'regeneration', name: 'Regeneration', img: ICON('regen') },
-  { id: 'cleanse',      name: 'Cleansed',     img: ICON('light') },
-  { id: 'advantage',    name: 'Advantage',    img: ICON('up') },
+  { id: 'stunned', name: 'Stunned', img: ICON('daze'), hud: false },
+  { id: 'surprise', name: 'Surprise', img: ICON('terror'), hud: false },
+  { id: 'regeneration', name: 'Regeneration', img: ICON('regen'), hud: false },
+  { id: 'crit', name: 'Crit', img: ICON('explosion'), hud: false },
+  { id: 'exorcism', name: 'Exorcism', img: ICON('holy-shield'), hud: false },
+  { id: 'requiem', name: 'Requiem', img: ICON('skull'), hud: false },
 
   /** Presentation for live Passive/Buff Invisibility (not a cleansable Special). */
-  { id: 'invisible',    name: 'Invisible',    img: ICON('invisible') },
-
-  { id: 'crit',         name: 'Crit',         img: ICON('explosion') },
-  { id: 'penetration',  name: 'Penetration',  img: ICON('sword') },
-  { id: 'exorcism',     name: 'Exorcism',     img: ICON('holy-shield') },
-  { id: 'requiem',      name: 'Requiem',      img: ICON('skull') },
-  { id: 'knockback',    name: 'Knockback',    img: ICON('direction') },
-  { id: 'pull',         name: 'Pull',         img: ICON('pawprint') },
-  { id: 'push',         name: 'Push',         img: ICON('direction') },
+  { id: 'invisible', name: 'Invisible', img: ICON('invisible'), hud: false },
 ];
 
 /**
@@ -96,6 +146,7 @@ export function buildMasteryStatusEffects(): Required<MasteryStatusEffect>[] {
     name: e.name,
     img: e.img,
     statuses: e.statuses && e.statuses.length > 0 ? e.statuses : [e.id],
+    hud: e.hud !== false,
   }));
 }
 
@@ -104,13 +155,14 @@ function upsertV14StatusEffect(
   effect: MasteryStatusEffect,
   order: number,
 ): boolean {
+  const showHud = effect.hud !== false;
   const existing = store[effect.id];
   if (existing && typeof existing === 'object') {
     existing.id = effect.id;
     existing.name = effect.name;
     existing.img = effect.img;
     existing.order = order;
-    existing.hud = true;
+    existing.hud = showHud;
     try {
       existing.statuses = new Set([effect.id]);
     } catch {
@@ -120,9 +172,9 @@ function upsertV14StatusEffect(
   }
 
   const attempts: Record<string, unknown>[] = [
-    { id: effect.id, name: effect.name, img: effect.img, order, hud: true, statuses: new Set([effect.id]) },
-    { id: effect.id, name: effect.name, img: effect.img, order, hud: true, statuses: [effect.id] },
-    { id: effect.id, name: effect.name, img: effect.img, order, hud: true },
+    { id: effect.id, name: effect.name, img: effect.img, order, hud: showHud, statuses: new Set([effect.id]) },
+    { id: effect.id, name: effect.name, img: effect.img, order, hud: showHud, statuses: [effect.id] },
+    { id: effect.id, name: effect.name, img: effect.img, order, hud: showHud },
   ];
 
   for (const data of attempts) {
@@ -141,6 +193,7 @@ function upsertV14StatusEffect(
     cfg.name = effect.name;
     cfg.img = effect.img;
     cfg.order = order;
+    cfg.hud = showHud;
     return true;
   } catch {
     return false;

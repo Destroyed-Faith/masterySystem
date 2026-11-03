@@ -5,6 +5,7 @@
 import { ALL_SPECIAL_EFFECTS, getEffectById, getEffectBaseName, sortSpecialEffectsByName, } from '../utils/special-effects.js';
 import { coerceStatusEffectsArray, encodeStatusFlag, readActorStatusEffects, statusEntryId, } from '../system/active-specials.js';
 import { isAssignableStatusId, removeStatusById, writeActorStatusList, } from '../system/assign-status.js';
+import { isSelectableStatusId } from '../system/status-effects.js';
 import { resolveLiveActor, tokenDocOfActor, tokenIdOfActor } from '../system/status-target.js';
 import { applySpecialStringsToTarget } from './apply-special-effects.js';
 import { specialDisplayName } from './special-application.js';
@@ -21,15 +22,12 @@ export function matchesSide(disposition, filter) {
         return true;
     return dispositionSide(Math.floor(Number(disposition) || 0)) === filter;
 }
-/** Legal persistent Specials for the GM picker (instants/support excluded except Cleanse). */
+/** Legal persistent Specials for the GM picker (Cleanse + Core selectable statuses). */
 export function listGmAssignableSpecials() {
     const list = ALL_SPECIAL_EFFECTS.filter((e) => {
         if (e.id === 'cleanse')
             return true;
-        if (e.category === 'instant' || e.category === 'support' || e.category === 'multiAttack') {
-            return false;
-        }
-        return isAssignableStatusId(e.id) || !!getEffectById(e.id);
+        return isSelectableStatusId(e.id);
     });
     return sortSpecialEffectsByName(list);
 }

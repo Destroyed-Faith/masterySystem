@@ -12,9 +12,16 @@ export interface StatusAddChoice {
     hasValue: boolean;
     img: string;
 }
-/** Persistent conditions a GM can put on by hand. Instants resolve and vanish. */
+/**
+ * Statuses combat / Powers / Grapple may write via setActorCatalogStatus.
+ * Broader than the GM add menu (includes Stunned, Surprise, Regeneration, Crit).
+ */
 export declare function isAssignableStatusId(id: string): boolean;
+/** Statuses offered in the sheet / Token HUD add menus (DF Core persistent Specials). */
+export declare function isMenuAssignableStatusId(id: string): boolean;
 export declare function listAssignableStatuses(): StatusAddChoice[];
+/** Selectable + system-managed choices for token icon sync. */
+export declare function listSystemStatusChoices(): StatusAddChoice[];
 export declare function choiceForStatus(id: string): StatusAddChoice | undefined;
 /** Add a missing status, or replace its rank when `value` is given. */
 export declare function upsertStatusEntry(list: unknown, statusId: string, value?: number | null): RawStatusEntry[];

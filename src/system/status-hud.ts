@@ -6,7 +6,7 @@
  * Core only toggles an ActiveEffect, and a double click toggles it back off.
  */
 
-import { isAssignableStatusId, setActorCatalogStatus, tokenHasStatus } from './assign-status.js';
+import { isMenuAssignableStatusId, setActorCatalogStatus, tokenHasStatus } from './assign-status.js';
 import { hasActiveSpecial } from './active-specials.js';
 
 const CLICK_DELAY_MS = 240;
@@ -17,10 +17,10 @@ export function statusIdFromHudTarget(target: any): string {
   const el = target.closest('[data-status-id], [data-action="effect"]');
   if (!el?.dataset) return '';
   const raw = String(el.dataset.statusId || el.dataset.status || '').trim().toLowerCase();
-  if (isAssignableStatusId(raw)) return raw;
+  if (isMenuAssignableStatusId(raw)) return raw;
   if (el.dataset.action === 'effect') {
     const fallback = String(el.dataset.id || '').trim().toLowerCase();
-    if (isAssignableStatusId(fallback)) return fallback;
+    if (isMenuAssignableStatusId(fallback)) return fallback;
   }
   return '';
 }

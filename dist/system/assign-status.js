@@ -8,46 +8,69 @@
 import { canCurrentUserUpdateDocument, hasActiveGm } from '../combat/combat-permissions.js';
 import { compareSpecialDisplayNames, getEffectById } from '../utils/special-effects.js';
 import { coerceStatusEffectsArray, encodeStatusFlag, hasActiveSpecial, readActorStatusEffects, statusEntryId, } from './active-specials.js';
-import { MASTERY_STATUS_EFFECTS } from './status-effects.js';
+import { isSelectableStatusId, isSystemStatusId, MASTERY_STATUS_EFFECTS, } from './status-effects.js';
 import { tokenDocOfActor } from './status-target.js';
 const mirroring = new Map();
 function catalogById(id) {
     const key = String(id || '').trim().toLowerCase();
     return MASTERY_STATUS_EFFECTS.find((e) => e.id === key);
 }
-/** Persistent conditions a GM can put on by hand. Instants resolve and vanish. */
+function choiceFromCatalog(id) {
+    const key = String(id || '').trim().toLowerCase();
+    const effect = catalogById(key);
+    if (!effect)
+        return undefined;
+    const def = getEffectById(key);
+    return {
+        id: effect.id,
+        name: effect.name,
+        hasValue: def?.hasValue === true,
+        img: effect.img,
+    };
+}
+/**
+ * Statuses combat / Powers / Grapple may write via setActorCatalogStatus.
+ * Broader than the GM add menu (includes Stunned, Surprise, Regeneration, Crit).
+ */
 export function isAssignableStatusId(id) {
     const key = String(id || '').trim().toLowerCase();
-    // Power-driven presentation — not assigned from the Token HUD palette.
     if (key === 'invisible')
         return false;
-    const catalog = catalogById(key);
-    if (!catalog)
-        return false;
-    const def = getEffectById(key);
-    if (!def)
-        return true;
-    return def.category !== 'instant' && def.category !== 'support';
+    return isSystemStatusId(key);
+}
+/** Statuses offered in the sheet / Token HUD add menus (DF Core persistent Specials). */
+export function isMenuAssignableStatusId(id) {
+    return isSelectableStatusId(id);
 }
 export function listAssignableStatuses() {
     const out = [];
     for (const effect of MASTERY_STATUS_EFFECTS) {
-        if (!isAssignableStatusId(effect.id))
+        if (!isSelectableStatusId(effect.id))
             continue;
-        const def = getEffectById(effect.id);
-        out.push({
-            id: effect.id,
-            name: effect.name,
-            hasValue: def?.hasValue === true,
-            img: effect.img,
-        });
+        const choice = choiceFromCatalog(effect.id);
+        if (choice)
+            out.push(choice);
     }
     out.sort((a, b) => compareSpecialDisplayNames(a.name, b.name));
     return out;
 }
+/** Selectable + system-managed choices for token icon sync. */
+export function listSystemStatusChoices() {
+    const out = [];
+    for (const effect of MASTERY_STATUS_EFFECTS) {
+        if (!isSystemStatusId(effect.id))
+            continue;
+        const choice = choiceFromCatalog(effect.id);
+        if (choice)
+            out.push(choice);
+    }
+    return out;
+}
 export function choiceForStatus(id) {
     const key = String(id || '').trim().toLowerCase();
-    return listAssignableStatuses().find((c) => c.id === key);
+    if (!isSystemStatusId(key))
+        return undefined;
+    return choiceFromCatalog(key);
 }
 function entryMatches(entry, id) {
     const resolved = statusEntryId(entry) || String(entry?.id || '').trim().toLowerCase();
@@ -208,7 +231,7 @@ export function syncTokenStatusIcons(actor) {
     if (!shouldMirrorIcons(actor))
         return Promise.resolve();
     const job = (async () => {
-        for (const choice of listAssignableStatuses()) {
+        for (const choice of listSystemStatusChoices()) {
             const want = hasActiveSpecial(actor, choice.id);
             const have = tokenHasStatus(actor, choice.id);
             if (want && have) {

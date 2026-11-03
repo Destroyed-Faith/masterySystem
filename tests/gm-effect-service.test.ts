@@ -14,8 +14,16 @@ describe('GM effect service helpers', () => {
     expect(ids).toContain('slow');
     expect(ids).toContain('root');
     expect(ids).toContain('challenge');
+    expect(ids).toContain('brace');
+    expect(ids).toContain('bulwark');
+    expect(ids).toContain('immovable');
+    expect(ids).toContain('cleanse');
     expect(ids).not.toContain('penetration');
     expect(ids).not.toContain('push');
+    expect(ids).not.toContain('stunned');
+    expect(ids).not.toContain('regeneration');
+    expect(ids).not.toContain('exorcism');
+    expect(ids).not.toContain('requiem');
   });
 
   it('lists GM assignable Specials A–Z by display name', () => {
