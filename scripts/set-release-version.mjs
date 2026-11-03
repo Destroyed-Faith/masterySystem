@@ -9,7 +9,7 @@
  *   package.json version
  *   system.json version
  *   system.json download (GitHub Release ZIP)
- *   docs/catalog-audit.json version (if present)
+ *   reports/catalog-audit.json version (if present)
  *
  * Does not edit CHANGELOG.md — add the heading yourself before tagging.
  */
@@ -50,7 +50,7 @@ sys.version = version;
 sys.download = download;
 writeJson('system.json', sys);
 
-const auditRel = 'docs/catalog-audit.json';
+const auditRel = 'reports/catalog-audit.json';
 if (existsSync(join(root, auditRel))) {
   const audit = readJson(auditRel);
   audit.version = version;
@@ -62,6 +62,6 @@ console.log(`  package.json version`);
 console.log(`  system.json version`);
 console.log(`  system.json download = ${download}`);
 if (existsSync(join(root, auditRel))) {
-  console.log(`  docs/catalog-audit.json version`);
+  console.log(`  reports/catalog-audit.json version`);
 }
 console.log(`Add CHANGELOG.md heading ## [${version}] before tagging.`);

@@ -473,9 +473,10 @@ export class CombatCarouselApp extends BaseCarousel {
       const visibleStatusIcons = prefs.showStatusIcons
         ? statusIcons.filter((item: any) => item && item.icon)
         : [];
+      const displayName = resolveCombatantDisplayName(combatant, token, actor);
       const tip = buildCarouselTooltip({
         mode: prefs.tooltipMode,
-      name: resolveCombatantDisplayName(combatant, token, actor),
+        name: displayName,
       initiative: combatant.initiative ?? 0,
       statusTooltips: visibleStatusIcons.map((s) => String(s.tooltip || s.name || '')).filter(Boolean),
       hideVitals: hideHpNumbers,
@@ -524,7 +525,7 @@ export class CombatCarouselApp extends BaseCarousel {
 
     combatants.push({
       id: combatant.id,
-      name: resolveCombatantDisplayName(combatant, token, actor),
+      name: displayName,
         img: portraitImg,
         initiative: combatant.initiative ?? 0,
         isEffectSelected: CombatCarouselApp._selectedCombatantIds.has(String(combatant.id)),

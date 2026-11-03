@@ -85,7 +85,6 @@ npm test
 | `npm run release:validate` | Version / changelog consistency |
 | `npm run release:package` | Build player ZIP (allowlist) |
 | `npm run release:check` | Validate + build + test + audit + package |
-| `npm run test:e2e` | Playwright (needs a Foundry world; optional) |
 
 Power templates live under `src/utils/powers/templates/`. Put one-off developer helpers in `scripts/dev/` (excluded from the player ZIP).
 
@@ -121,7 +120,7 @@ This game system is designed for use with a legally licensed copy of Foundry Vir
 - **World map:** Pena Negra
 - **Full-page art:** Dzmitry Zasimovich
 
-Rulebook source markdown lives under [`docs/Rules/`](docs/Rules/). Artwork rights checklist for owner verification: [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).
+Rulebook source markdown lives under [`docs/Rules/`](docs/Rules/). Import examples: [`docs/examples/`](docs/examples/).
 
 ---
 

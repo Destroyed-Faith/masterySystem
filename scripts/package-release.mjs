@@ -170,7 +170,6 @@ if (missing.length) {
 const forbiddenPrefixes = [
   'src/',
   'tests/',
-  'e2e/',
   'tools/',
   'scripts/',
   'reports/',

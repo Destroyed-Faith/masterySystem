@@ -1,7 +1,7 @@
 /**
  * Homepage → Foundry character import schema (v1).
  *
- * See `docs/character-import-schema.md` for the full specification and examples.
+ * See `docs/examples/` for import JSON examples.
  */
 export const CHARACTER_IMPORT_SCHEMA_VERSION = 1;
 export const CHARACTER_IMPORT_EXPORT_KIND = 'mastery-character-import';

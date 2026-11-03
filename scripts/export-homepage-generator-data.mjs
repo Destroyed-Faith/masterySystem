@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Dump the character-creation data catalogs as JSON for the homepage
- * character generator (docs/homepage-character-generator/data/*.json).
+ * character generator (exports/homepage-character-generator/data/*.json).
  *
  * Reads the compiled dist/ modules so the exported data is exactly what the
  * Foundry system uses. Run `npm run build` first.
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const outDir = join(root, 'docs', 'homepage-character-generator', 'data');
+const outDir = join(root, 'exports', 'homepage-character-generator', 'data');
 mkdirSync(outDir, { recursive: true });
 
 function write(name, data) {

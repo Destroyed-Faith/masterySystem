@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.809] - 2026-11-03
+
+### Changed
+
+- **Repo cleanup:** Removed Playwright `e2e/` harness; `docs/` keeps only `Rules/` and `examples/`; dropped root `ARCHITECTURE.md` / `ARTIFACT_ALIGNMENT_AUDIT.md`. Catalog audit output moves to `reports/catalog-audit.json`.
+
+### Fixed
+
+- **Combat Carousel rename:** Token and Actor renames during combat sync `combatant.name` (and linked token names) and force-refresh the carousel; display prefers the synced combatant label, with a Token-rename fallback when actor/combatant still share the old name.
+
 ## [0.9.808] - 2026-11-03
 
 ### Fixed

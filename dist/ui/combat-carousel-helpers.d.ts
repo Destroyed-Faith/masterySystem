@@ -7,9 +7,8 @@ export declare function carouselSideClass(actorType: string | undefined): 'disp-
 export declare function isCombatantActorLinked(combatant: any, token?: any): boolean;
 /**
  * Label for a carousel combatant.
- * Linked: prefer Actor (sheet rename); token names often lag behind.
- * Unlinked: prefer Token (placeable identity); synthetic Actor may lag.
- * Combatant.name is only a fallback snapshot until sync catches up.
+ * Prefer combatant.name — rename hooks keep it synced from Token and Actor updates.
+ * If the Token was renamed but combatant/actor still agree on the old label, use the Token.
  */
 export declare function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string;
 /** True when a Foundry update diff touches the document display name. */

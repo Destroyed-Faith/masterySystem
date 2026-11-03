@@ -881,16 +881,16 @@ export function runCatalogRulesAudit(options = {}) {
     // Recompute summary after sort (already tallied on push)
     return { version, generatedAt, summary, entries };
 }
-/** Write audit report JSON to docs/catalog-audit.json (or custom path). */
+/** Write audit report JSON to reports/catalog-audit.json (or custom path). */
 export function writeCatalogAuditReport(report, outPath) {
     mkdirSync(dirname(outPath), { recursive: true });
     writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 }
-/** Convenience: run audit and write docs/catalog-audit.json under rootDir. */
+/** Convenience: run audit and write reports/catalog-audit.json under rootDir. */
 export function runAndWriteCatalogAudit(options = {}) {
     const rootDir = options.rootDir ?? defaultRootDir();
     const report = runCatalogRulesAudit(options);
-    const outPath = options.outPath ?? join(rootDir, 'docs', 'catalog-audit.json');
+    const outPath = options.outPath ?? join(rootDir, 'reports', 'catalog-audit.json');
     writeCatalogAuditReport(report, outPath);
     return report;
 }

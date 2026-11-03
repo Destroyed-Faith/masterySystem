@@ -26,7 +26,7 @@ Credits currently documented in project materials:
 | Pena Negra | World map |
 | Dzmitry Zasimovich | Full-page art |
 
-These works may remain subject to commission agreements and copyrights retained by their creators. Repository presence does not by itself prove copyright assignment. See [`ASSET-LICENSE.md`](ASSET-LICENSE.md) and [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).
+These works may remain subject to commission agreements and copyrights retained by their creators. Repository presence does not by itself prove copyright assignment. See [`ASSET-LICENSE.md`](ASSET-LICENSE.md).
 
 ## Runtime fonts loaded by styles (not vendored in-repo)
 
@@ -42,7 +42,7 @@ These entries require owner verification before any standalone redistribution cl
 
 ## Shipped project assets without per-file notices
 
-Files under `assets/` (icons, item images, logos, banners, and related media) are distributed with the system for gameplay use. Many files lack embedded copyright headers. Treat them under [`ASSET-LICENSE.md`](ASSET-LICENSE.md) and confirm provenance via the asset-rights checklist before extracting or relicensing them.
+Files under `assets/` (icons, item images, logos, banners, and related media) are distributed with the system for gameplay use. Many files lack embedded copyright headers. Treat them under [`ASSET-LICENSE.md`](ASSET-LICENSE.md) before extracting or relicensing them.
 
 ## Development-only npm packages
 
@@ -52,12 +52,10 @@ Direct `devDependencies` observed in this workspace (license text verified from 
 
 | Package | License (package metadata) | Notes |
 |---|---|---|
-| `@playwright/test` | Apache-2.0 | Test tooling |
 | `@foundryvtt/foundryvtt-cli` | MIT | Foundry CLI tooling |
 | `@league-of-foundry-developers/foundry-vtt-types` | MIT | Type definitions |
 | `@typescript-eslint/eslint-plugin` | MIT | Lint tooling |
 | `@typescript-eslint/parser` | BSD-2-Clause | Lint tooling |
-| `dotenv` | BSD-2-Clause | Local env loading for tools/tests |
 | `eslint` | MIT | Lint tooling |
 | `prettier` | MIT | Formatting |
 | `rimraf` | ISC | Clean script helper |

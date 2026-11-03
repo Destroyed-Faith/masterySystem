@@ -16,30 +16,44 @@ describe('carouselSideClass', () => {
 });
 
 describe('resolveCombatantDisplayName', () => {
-  it('linked: prefers actor sheet name over a stale token/combatant snapshot', () => {
+  it('uses combatant.name once rename hooks have synced it', () => {
     expect(
       resolveCombatantDisplayName(
-        { name: 'Old', token: { name: 'Old', actorLink: true }, actor: { name: 'Renamed' } },
-        { name: 'Old', actorLink: true },
-        { name: 'Renamed' },
+        { name: 'Synced', token: { name: 'Synced', actorLink: true }, actor: { name: 'Synced' } },
+        { name: 'Synced', actorLink: true },
+        { name: 'Synced' },
       ),
-    ).toBe('Renamed');
+    ).toBe('Synced');
   });
 
-  it('unlinked: prefers live token name over actor/combatant snapshot', () => {
+  it('prefers a renamed token while combatant/actor still share the old name', () => {
     expect(
       resolveCombatantDisplayName(
-        { name: 'Old', token: { name: 'Old', actorLink: false }, actor: { name: 'Actor' } },
-        { name: 'Renamed Token', document: { name: 'Renamed Token', actorLink: false } },
+        { name: 'Old', token: { name: 'Old', actorLink: true }, actor: { name: 'Old' } },
+        { document: { name: 'Token Rename', actorLink: true } },
+        { name: 'Old' },
+      ),
+    ).toBe('Token Rename');
+  });
+
+  it('keeps intentional token nicknames when combatant matches the token', () => {
+    expect(
+      resolveCombatantDisplayName(
+        { name: 'Goblin A', token: { name: 'Goblin A', actorLink: true }, actor: { name: 'Goblin' } },
+        { document: { name: 'Goblin A', actorLink: true } },
+        { name: 'Goblin' },
+      ),
+    ).toBe('Goblin A');
+  });
+
+  it('falls back to live names when combatant name is empty', () => {
+    expect(
+      resolveCombatantDisplayName(
+        { name: '', token: { name: 'Token', actorLink: true } },
+        { document: { name: 'Token', actorLink: true } },
         { name: 'Actor' },
       ),
-    ).toBe('Renamed Token');
-  });
-
-  it('falls back through the linked chain when some names are missing', () => {
-    expect(resolveCombatantDisplayName({ name: 'Combatant' }, null, { name: 'Actor' })).toBe(
-      'Actor',
-    );
+    ).toBe('Actor');
     expect(resolveCombatantDisplayName({ name: 'Combatant' }, null, null)).toBe('Combatant');
   });
 });

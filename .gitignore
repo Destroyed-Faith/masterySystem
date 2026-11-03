@@ -47,21 +47,14 @@ _splatter-preview/
 dist-release/
 release/
 *.zip
-!e2e/**/*.zip
 
 # Generated audit / translation reports (regenerate via npm run audit:* / scripts)
 reports/
+
+# Homepage generator dump (npm run export:homepage-generator)
+exports/
 
 # Coverage / test output
 coverage/
 .nyc_output/
 /test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-
-# Playwright credentials stay local — never commit Forge/login secrets
-e2e/.env
-e2e/.env.local
-e2e/.env.*
-!e2e/.env.example

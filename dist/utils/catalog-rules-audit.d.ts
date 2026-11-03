@@ -121,9 +121,9 @@ export declare function readMechanicsCurve(template: PowerTemplate, field: 'armo
  * Run the full Rules ↔ Foundry catalog audit and return a report object.
  */
 export declare function runCatalogRulesAudit(options?: CatalogAuditOptions): CatalogAuditReport;
-/** Write audit report JSON to docs/catalog-audit.json (or custom path). */
+/** Write audit report JSON to reports/catalog-audit.json (or custom path). */
 export declare function writeCatalogAuditReport(report: CatalogAuditReport, outPath: string): void;
-/** Convenience: run audit and write docs/catalog-audit.json under rootDir. */
+/** Convenience: run audit and write reports/catalog-audit.json under rootDir. */
 export declare function runAndWriteCatalogAudit(options?: CatalogAuditOptions & {
     outPath?: string;
 }): CatalogAuditReport;

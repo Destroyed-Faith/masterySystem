@@ -495,16 +495,20 @@ Hooks.once('init', async function () {
             carousel.render({ force: false });
         }
     });
-    // Token/Actor rename during combat: combatant.name is a snapshot, and linked Token names
-    // often lag behind Actor sheet renames — sync combatant (+ linked token) then re-render.
+    // Token/Actor rename during combat: keep combatant.name in sync, then force-refresh carousel.
     const refreshCarouselOnRename = () => {
         try {
             const carousel = CombatCarouselApp.instance;
-            if (carousel?.rendered)
-                carousel.render({ force: true });
+            const rendered = !!(carousel?.rendered || carousel?.state?.rendered);
+            if (carousel && rendered) {
+                void carousel.render({ force: true });
+            }
+            else {
+                CombatCarouselApp.refresh();
+            }
         }
-        catch {
-            /* ignore */
+        catch (err) {
+            console.warn('Mastery System | carousel rename refresh failed', err);
         }
     };
     const combatantsList = (combat) => {
@@ -523,8 +527,10 @@ Hooks.once('init', async function () {
             return;
         }
         const matched = combatantsList(combat).filter(match);
-        if (!matched.length)
+        if (!matched.length) {
+            refreshCarouselOnRename();
             return;
+        }
         if (game.user?.isGM) {
             const combatantUpdates = matched
                 .filter((c) => String(c?.name || '').trim() !== newName)
@@ -539,7 +545,9 @@ Hooks.once('init', async function () {
             }
             if (opts?.syncLinkedToken) {
                 for (const c of matched) {
-                    const tokenDoc = c?.token?.document ?? c?.token ?? (c?.tokenId ? canvas.tokens?.get(c.tokenId)?.document : null);
+                    const tokenDoc = c?.token?.document ??
+                        c?.token ??
+                        (c?.tokenId ? canvas.tokens?.get(c.tokenId)?.document : null);
                     if (!tokenDoc || tokenDoc.actorLink === false)
                         continue;
                     if (String(tokenDoc.name || '').trim() === newName)
@@ -562,10 +570,17 @@ Hooks.once('init', async function () {
         if (!combat)
             return;
         const tokenId = String(tokenDoc?.id ?? '');
+        const actorId = String(tokenDoc?.actorId ?? tokenDoc?.actor?.id ?? '');
         const newName = nameFromUpdateDiff(changed, tokenDoc?.name);
         if (!newName)
             return;
-        void syncCombatantNames(combat, (c) => String(c.tokenId ?? c.token?.id ?? '') === tokenId, newName);
+        void syncCombatantNames(combat, (c) => {
+            const cToken = String(c.tokenId ?? c.token?.id ?? '');
+            if (cToken && cToken === tokenId)
+                return true;
+            const cActor = String(c.actorId ?? c.actor?.id ?? '');
+            return !!actorId && !!cActor && cActor === actorId;
+        }, newName);
     });
     Hooks.on('updateActor', (actor, changed) => {
         if (!updateDiffHasNameChange(changed))

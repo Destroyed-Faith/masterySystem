@@ -84,7 +84,7 @@ describe('catalog-rules-audit helpers', () => {
 });
 
 describe('catalog-rules-audit report', () => {
-    it('writes docs/catalog-audit.json and has no undocument missing/obsolete', () => {
+    it('writes reports/catalog-audit.json and has no undocument missing/obsolete', () => {
         const report = runAndWriteCatalogAudit({
             rootDir: repoRoot,
             correctedIds: AUDIT_CORRECTED_TEMPLATE_IDS,

@@ -1,6 +1,6 @@
 {
   "name": "mastery-system",
-  "version": "0.9.808",
+  "version": "0.9.809",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
@@ -22,9 +22,6 @@
     "release:package": "node scripts/package-release.mjs",
     "release:check": "npm run release:validate && npm run build && npm test && npm run audit:catalog && npm run release:package",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -41,10 +38,8 @@
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.3",
     "@league-of-foundry-developers/foundry-vtt-types": "^13.0.0",
-    "@playwright/test": "^1.52.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
-    "dotenv": "^16.5.0",
     "eslint": "^8.57.0",
     "jsdom": "^29.1.1",
     "marked": "^15.0.12",

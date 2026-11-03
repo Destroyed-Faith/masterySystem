@@ -39,7 +39,7 @@ The ZIP contains only runtime files (`system.json`, `template.json`, `dist/**/*.
    ```
    npm run version:set -- X.Y.Z
    ```
-   That updates `package.json`, `system.json` `version` + `download`, and `docs/catalog-audit.json`. Branding, homepage, and media stay untouched.
+   That updates `package.json`, `system.json` `version` + `download`, and `reports/catalog-audit.json` when present. Branding, homepage, and media stay untouched.
 2. Add `## [X.Y.Z] - YYYY-MM-DD` to `CHANGELOG.md`
 3. Keep `manifest` as:
    ```
@@ -72,6 +72,6 @@ node scripts/validate-release-version.mjs --tag vX.Y.Z --require-release-downloa
 ## Do not
 
 - Publish from an unclean tree
-- Ship `src/`, `tests/`, `e2e/`, `scripts/`, generated `reports/`, or `docs/` in the player ZIP
+- Ship `src/`, `tests/`, `scripts/`, generated `reports/`, or `docs/` in the player ZIP
 - Rely on a previously committed `dist/` without rebuilding
 - Force-push tags or rewrite release history

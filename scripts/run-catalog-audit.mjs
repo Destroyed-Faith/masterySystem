@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Run Rules ↔ Foundry catalog audit and write docs/catalog-audit.json.
+ * Run Rules ↔ Foundry catalog audit and write reports/catalog-audit.json.
  *
  * Prefers compiled dist/; falls back to tsx for TypeScript sources.
  *
@@ -16,7 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const distModule = join(root, 'dist', 'utils', 'catalog-rules-audit.js');
 const srcModule = join(root, 'src', 'utils', 'catalog-rules-audit.ts');
-const outPath = join(root, 'docs', 'catalog-audit.json');
+const outPath = join(root, 'reports', 'catalog-audit.json');
 
 async function runFromDist() {
   const mod = await import(pathToFileURL(distModule).href);

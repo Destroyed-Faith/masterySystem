@@ -1068,7 +1068,7 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
     return { version, generatedAt, summary, entries };
 }
 
-/** Write audit report JSON to docs/catalog-audit.json (or custom path). */
+/** Write audit report JSON to reports/catalog-audit.json (or custom path). */
 export function writeCatalogAuditReport(
     report: CatalogAuditReport,
     outPath: string,
@@ -1077,13 +1077,13 @@ export function writeCatalogAuditReport(
     writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 }
 
-/** Convenience: run audit and write docs/catalog-audit.json under rootDir. */
+/** Convenience: run audit and write reports/catalog-audit.json under rootDir. */
 export function runAndWriteCatalogAudit(
     options: CatalogAuditOptions & { outPath?: string } = {},
 ): CatalogAuditReport {
     const rootDir = options.rootDir ?? defaultRootDir();
     const report = runCatalogRulesAudit(options);
-    const outPath = options.outPath ?? join(rootDir, 'docs', 'catalog-audit.json');
+    const outPath = options.outPath ?? join(rootDir, 'reports', 'catalog-audit.json');
     writeCatalogAuditReport(report, outPath);
     return report;
 }

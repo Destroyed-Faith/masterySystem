@@ -1,7 +1,7 @@
 /**
  * Homepage → Foundry character import schema (v1).
  *
- * See `docs/character-import-schema.md` for the full specification and examples.
+ * See `docs/examples/` for import JSON examples.
  */
 import type { TowerWizardSelection } from '../creation/tower-wizard/tower-wizard-types.js';
 import type { PowerGrantSpec } from '../utils/power-item-builder.js';

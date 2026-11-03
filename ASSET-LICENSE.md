@@ -65,4 +65,4 @@ Runtime references to Foundry Virtual Tabletop core icons, fonts, or interface e
 
 ## Owner verification
 
-Some asset files under `assets/` lack per-file license metadata in the repository. Commission scopes, modification rights, and redistribution rights should be confirmed against the owner’s contracts or licenses before any broader standalone redistribution. See also [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).
+Some asset files under `assets/` lack per-file license metadata in the repository. Commission scopes, modification rights, and redistribution rights should be confirmed against the owner’s contracts or licenses before any broader standalone redistribution.

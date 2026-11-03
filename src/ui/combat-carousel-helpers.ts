@@ -19,20 +19,31 @@ export function isCombatantActorLinked(combatant: any, token?: any): boolean {
 
 /**
  * Label for a carousel combatant.
- * Linked: prefer Actor (sheet rename); token names often lag behind.
- * Unlinked: prefer Token (placeable identity); synthetic Actor may lag.
- * Combatant.name is only a fallback snapshot until sync catches up.
+ * Prefer combatant.name — rename hooks keep it synced from Token and Actor updates.
+ * If the Token was renamed but combatant/actor still agree on the old label, use the Token.
  */
 export function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string {
   const tokenDoc = tokenDocFrom(combatant, token);
   const resolvedActor = actor ?? combatant?.actor;
+  const linked = isCombatantActorLinked(combatant, token);
   const actorName = String(resolvedActor?.name || '').trim();
   const tokenName = String(tokenDoc?.name ?? token?.name ?? '').trim();
   const combatantName = String(combatant?.name || '').trim();
-  if (isCombatantActorLinked(combatant, token)) {
-    return actorName || tokenName || combatantName;
+
+  // Token renamed; combatant snapshot (+ actor) still on the old shared name.
+  if (
+    tokenName &&
+    actorName &&
+    combatantName &&
+    tokenName !== actorName &&
+    actorName === combatantName
+  ) {
+    return tokenName;
   }
-  return tokenName || actorName || combatantName;
+
+  if (combatantName) return combatantName;
+  if (linked) return actorName || tokenName;
+  return tokenName || actorName;
 }
 
 /** True when a Foundry update diff touches the document display name. */
