@@ -36,14 +36,14 @@ describe('resolveCombatantDisplayName', () => {
     ).toBe('Token Rename');
   });
 
-  it('keeps intentional token nicknames when combatant matches the token', () => {
+  it('prefers actor sheet rename while combatant/token still share the old name', () => {
     expect(
       resolveCombatantDisplayName(
-        { name: 'Goblin A', token: { name: 'Goblin A', actorLink: true }, actor: { name: 'Goblin' } },
-        { document: { name: 'Goblin A', actorLink: true } },
-        { name: 'Goblin' },
+        { name: 'Old', token: { name: 'Old', actorLink: true }, actor: { name: 'Sheet Rename' } },
+        { document: { name: 'Old', actorLink: true } },
+        { name: 'Sheet Rename' },
       ),
-    ).toBe('Goblin A');
+    ).toBe('Sheet Rename');
   });
 
   it('falls back to live names when combatant name is empty', () => {

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.811] - 2026-11-03
+
+### Fixed
+
+- **Combat Carousel rename (debug pass):** Sheet name Save button, submit-on-close, and verbose `[CAROUSEL-RENAME]` console tracing; sync combatant/token names from Actor sheet renames and force-refresh the carousel.
+
 ## [0.9.810] - 2026-11-03
 
 ### Fixed

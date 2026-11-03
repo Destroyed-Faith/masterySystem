@@ -6,7 +6,11 @@
     <div class="npc-name-row">
       <div class="character-name-box">
         {{#if editable}}
-          <input name="name" type="text" value="{{actor.name}}" placeholder="{{#if isSummon}}Summon Name{{else}}NPC Name{{/if}}" />
+          <input name="name" type="text" value="{{actor.name}}" placeholder="{{#if isSummon}}Summon Name{{else}}NPC Name{{/if}}" class="js-actor-display-name" />
+          <button type="button" class="ms-save-actor-name js-save-actor-name" title="Name speichern / Save name">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            <span>Save</span>
+          </button>
         {{else}}
           <h1>{{actor.name}}</h1>
         {{/if}}

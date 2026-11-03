@@ -125,7 +125,11 @@
           <span class="sheet-echo-btn-label">{{#if echoView}}{{echoView.def.name}}{{else}}{{localize "MASTERY.echo.info.choose"}}{{/if}}</span>
         </button>
         {{#if editable}}
-          <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
+          <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" class="js-actor-display-name" />
+          <button type="button" class="ms-save-actor-name js-save-actor-name" title="Name speichern / Save name">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            <span>Save</span>
+          </button>
         {{else}}
           <h1>{{actor.name}}</h1>
         {{/if}}

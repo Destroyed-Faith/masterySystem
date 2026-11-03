@@ -41,6 +41,17 @@ export function resolveCombatantDisplayName(combatant: any, token?: any, actor?:
     return tokenName;
   }
 
+  // Actor/sheet renamed; combatant snapshot (+ token) still on the old shared name.
+  if (
+    tokenName &&
+    actorName &&
+    combatantName &&
+    tokenName !== actorName &&
+    tokenName === combatantName
+  ) {
+    return actorName;
+  }
+
   if (combatantName) return combatantName;
   if (linked) return actorName || tokenName;
   return tokenName || actorName;

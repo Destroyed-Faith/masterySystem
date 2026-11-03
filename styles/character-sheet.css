@@ -4885,10 +4885,15 @@
 .mastery-system.sheet.actor.npc .character-name-box {
   width: 100%;
   flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .mastery-system.sheet.actor.npc .character-name-box input {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 4px;
@@ -4897,6 +4902,27 @@
   font-weight: 700;
   padding: 6px 10px;
   transition: border-color 0.3s;
+}
+
+.mastery-system.sheet.actor .ms-save-actor-name {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f0f0f0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor .ms-save-actor-name:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .mastery-system.sheet.actor.npc .character-name-box input:focus {

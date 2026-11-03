@@ -47,10 +47,7 @@ import {
 } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
-import {
-  nameFromUpdateDiff,
-  updateDiffHasNameChange,
-} from './ui/combat-carousel-helpers.js';
+import { registerCombatCarouselRenameHooks } from './ui/combat-carousel-rename.js';
 import { installTooltipPassthrough } from './ui/tooltip-passthrough.js';
 import {
   installFadedUiUnlock,
@@ -608,105 +605,7 @@ Hooks.once('init', async function() {
     }
   });
 
-  // Token/Actor rename during combat: keep combatant.name in sync, then force-refresh carousel.
-  const refreshCarouselOnRename = () => {
-    try {
-      const carousel = CombatCarouselApp.instance as any;
-      const rendered = !!(carousel?.rendered || carousel?.state?.rendered);
-      if (carousel && rendered) {
-        void carousel.render({ force: true });
-      } else {
-        CombatCarouselApp.refresh();
-      }
-    } catch (err) {
-      console.warn('Mastery System | carousel rename refresh failed', err);
-    }
-  };
-  const combatantsList = (combat: any): any[] => {
-    const raw = combat?.combatants;
-    if (!raw) return [];
-    if (typeof raw.contents !== 'undefined') return Array.from(raw.contents);
-    if (typeof raw.values === 'function') return Array.from(raw.values());
-    return Array.isArray(raw) ? raw : [];
-  };
-  const syncCombatantNames = async (
-    combat: any,
-    match: (c: any) => boolean,
-    newName: string,
-    opts?: { syncLinkedToken?: boolean },
-  ) => {
-    if (!combat || !newName) {
-      refreshCarouselOnRename();
-      return;
-    }
-    const matched = combatantsList(combat).filter(match);
-    if (!matched.length) {
-      refreshCarouselOnRename();
-      return;
-    }
-
-    if (game.user?.isGM) {
-      const combatantUpdates = matched
-        .filter((c) => String(c?.name || '').trim() !== newName)
-        .map((c) => ({ _id: c.id, name: newName }));
-      if (combatantUpdates.length) {
-        try {
-          await combat.updateEmbeddedDocuments('Combatant', combatantUpdates);
-        } catch (err) {
-          console.warn('Mastery System | combatant rename sync failed', err);
-        }
-      }
-      if (opts?.syncLinkedToken) {
-        for (const c of matched) {
-          const tokenDoc =
-            c?.token?.document ??
-            c?.token ??
-            (c?.tokenId ? canvas.tokens?.get(c.tokenId)?.document : null);
-          if (!tokenDoc || tokenDoc.actorLink === false) continue;
-          if (String(tokenDoc.name || '').trim() === newName) continue;
-          try {
-            await tokenDoc.update({ name: newName });
-          } catch (err) {
-            console.warn('Mastery System | token rename sync failed', err);
-          }
-        }
-      }
-    }
-    refreshCarouselOnRename();
-  };
-  Hooks.on('updateToken', (tokenDoc: any, changed: any) => {
-    if (!updateDiffHasNameChange(changed)) return;
-    const combat = game.combats?.active;
-    if (!combat) return;
-    const tokenId = String(tokenDoc?.id ?? '');
-    const actorId = String(tokenDoc?.actorId ?? tokenDoc?.actor?.id ?? '');
-    const newName = nameFromUpdateDiff(changed, tokenDoc?.name);
-    if (!newName) return;
-    void syncCombatantNames(
-      combat,
-      (c: any) => {
-        const cToken = String(c.tokenId ?? c.token?.id ?? '');
-        if (cToken && cToken === tokenId) return true;
-        const cActor = String(c.actorId ?? c.actor?.id ?? '');
-        return !!actorId && !!cActor && cActor === actorId;
-      },
-      newName,
-    );
-  });
-  Hooks.on('updateActor', (actor: Actor, changed: any) => {
-    if (!updateDiffHasNameChange(changed)) return;
-    const combat = game.combats?.active;
-    if (!combat) return;
-    const actorId = String((actor as any)?.id ?? '');
-    const newName = nameFromUpdateDiff(changed, (actor as any)?.name);
-    if (!newName) return;
-    void syncCombatantNames(
-      combat,
-      (c: any) => String(c.actorId ?? c.actor?.id ?? '') === actorId,
-      newName,
-      { syncLinkedToken: true },
-    );
-  });
+  registerCombatCarouselRenameHooks();
 
   function bindStartEncounterClick(): void {
     const w = window as unknown as { _msStartEncounterClickBound?: boolean };

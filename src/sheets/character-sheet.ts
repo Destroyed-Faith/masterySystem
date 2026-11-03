@@ -335,7 +335,74 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.#closeEquipSlotFillMenu();
     this.#sheetGmMenuAbort?.abort();
     this.#sheetGmMenuAbort = null;
+    // Flush the name field (and any other pending form edits) before teardown.
+    try {
+      if (this.isEditable) {
+        await (this as any).submit?.({ preventClose: true, preventRender: true });
+      }
+    } catch (err) {
+      console.warn('Mastery System | [CAROUSEL-RENAME] sheet submit-on-close failed', err);
+    }
+    try {
+      const { syncCombatCarouselNamesForActor, logCarouselRename } = await import(
+        '../ui/combat-carousel-rename.js'
+      );
+      logCarouselRename('character-sheet close()', {
+        actorId: this.actor?.id,
+        actorName: this.actor?.name,
+      });
+      await syncCombatCarouselNamesForActor(this.actor, 'sheet.close');
+    } catch (err) {
+      console.warn('Mastery System | [CAROUSEL-RENAME] sync on sheet close failed', err);
+    }
     return super.close(options);
+  }
+
+  /** Name field Save + change/blur → Actor update + carousel sync (debug-logged). */
+  #bindActorDisplayNameControls(html: JQuery): void {
+    const root = html instanceof HTMLElement ? html : ((html as any)?.[0] as HTMLElement | undefined);
+    if (!root) return;
+    const input = root.querySelector(
+      'input.js-actor-display-name, input[name="name"]',
+    ) as HTMLInputElement | null;
+    const saveBtn = root.querySelector('.js-save-actor-name') as HTMLButtonElement | null;
+    if (!input && !saveBtn) return;
+
+    const apply = async (reason: string) => {
+      const value = String(input?.value ?? this.actor?.name ?? '').trim();
+      console.log('Mastery System | [CAROUSEL-RENAME] sheet name control', {
+        reason,
+        actorId: this.actor?.id,
+        actorType: this.actor?.type,
+        inputValue: input?.value,
+        actorNameBefore: this.actor?.name,
+      });
+      try {
+        const { applyActorDisplayName } = await import('../ui/combat-carousel-rename.js');
+        await applyActorDisplayName(this.actor, value, reason);
+      } catch (err) {
+        console.warn('Mastery System | [CAROUSEL-RENAME] apply name from sheet failed', err);
+      }
+    };
+
+    if (input) {
+      input.addEventListener('change', () => {
+        void apply('name-input-change');
+      });
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          void apply('name-input-enter');
+        }
+      });
+    }
+    if (saveBtn) {
+      saveBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        void apply('name-save-button');
+      });
+    }
   }
 
   #bindSheetGmMenu(html: JQuery): void {
@@ -417,7 +484,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         },
       ],
     },
-    form: { submitOnChange: true, closeOnSubmit: false },
+    form: { submitOnChange: true, closeOnSubmit: false, submitOnClose: true },
     actions: {
       msPrintSheet: function (this: any) {
         void openCharacterPrintSheet(this.actor, { theme: 'light' });
@@ -2688,6 +2755,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     this.#bindSheetGmMenu(html);
+    this.#bindActorDisplayNameControls(html);
 
     // Character Creation buttons
     const unlockButton = html.find('.force-unlock-creation');
