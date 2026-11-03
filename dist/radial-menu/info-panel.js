@@ -1,7 +1,7 @@
 /**
  * Info Panel for Radial Menu
  */
-import { getSegmentIdForOption } from './options.js';
+import { getSegmentIdForOption } from './options';
 import { artifactToVirtualWeapon, isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
 import { getActiveAmmoPair, quiverAmmunitionLabel, requiresAmmunition } from '../utils/ammunition.js';
 /**

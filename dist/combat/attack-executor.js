@@ -14,6 +14,7 @@ import { parseD8Count } from "../utils/dice-formula.js";
 import { basicAttackMrDamageFormula } from "./basic-combat.js";
 import { mergeWeaponSpecialsIntoSnapshot, parkWeaponSpecialsForRaises, weaponSpecialEntries, } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
+import { userMayUpdateChatMessage } from "../chat/chat-message-permission.js";
 import { getRulesMasteryRank } from "../utils/mastery-rank-sync.js";
 import { castingBaseTnForPowerLevel, mentalFinalTnSurchargeForTemplate } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
@@ -1065,7 +1066,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             });
             if (npcCrit || sources.length > 0) {
                 const sourceSelect = sources.length > 1
-                    ? `<select class="crit-source-select" title="Choose Crit source">${sources
+                    ? `<select class="crit-source-select" title="Choose Crit source" name="ms-crit-source-select" form="ms-ui-only">${sources
                         .map((s) => `<option value="${s.source}">${attackCardEsc(s.label)}</option>`)
                         .join('')}</select>`
                     : sources.length === 1
@@ -1141,11 +1142,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       <p class="raise-tn-rule hint">+${RAISE_INCREMENT} TN je Paid Raise. Free Raises erhöhen die TN nicht. Effekte nach dem Treffer zuweisen.</p>
       <div class="raise-count-row">
         <label class="raise-count-label">Paid Raises
-          <select class="raise-paid-count" aria-label="Paid Raises">${raisePaidOptions}</select>
+          <select class="raise-paid-count" aria-label="Paid Raises" name="ms-raise-paid-count" form="ms-ui-only">${raisePaidOptions}</select>
         </label>
         <label class="raise-count-label raise-free-gm-only" title="Nur GM — oder aus Intellect Stone Free Raises">
           Free Raises <span class="raise-free-pool-hint md-sublabel"></span>
-          <input type="number" class="raise-free-count" min="0" max="8" step="1" value="0" />
+          <input type="number" class="raise-free-count" min="0" max="8" step="1" value="0"  name="ms-raise-free-count" form="ms-ui-only"/>
         </label>
       </div>
       <p class="raise-plan-live md-sublabel">Effekte nach einem Treffer zuweisen.</p>
@@ -1199,7 +1200,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ? `<div class="detail-row"><span class="detail-label">Nachteil:</span><span class="detail-value">nur eine 8 explodiert</span></div>`
         : ""}
         ${tnKind === 'casting'
-        ? `<label class="detail-row willing-spell-target-label"><input type="checkbox" class="willing-spell-target" /> Willing target — Spell Resistance 0 (chosen before the Casting Roll)</label>`
+        ? `<label class="detail-row willing-spell-target-label"><input type="checkbox" class="willing-spell-target"  name="ms-willing-spell-target" form="ms-ui-only"/> Willing target — Spell Resistance 0 (chosen before the Casting Roll)</label>`
         : ''}
         <div class="detail-row">
           <span class="detail-label">${tnLabel}:</span>
@@ -1461,16 +1462,43 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     const persistCounts = async (paid, free, finalTn) => {
         try {
             const m = gameAny?.messages?.get?.(messageId);
-            if (!m?.setFlag)
+            if (!m?.update)
                 return;
-            await m.setFlag('mastery-system', 'declaredRaiseSlots', paid);
-            await m.setFlag('mastery-system', 'freeRaiseSlots', free);
-            await m.setFlag('mastery-system', 'raiseTn', finalTn);
-            await m.setFlag('mastery-system', 'normalTn', normalTn);
+            // Every client renders the card. Only the author or GM may write it.
+            if (!userMayUpdateChatMessage(m, gameAny?.user))
+                return;
+            const current = m.flags?.['mastery-system'] || {};
+            const same = Math.floor(Number(current.declaredRaiseSlots) || 0) === paid &&
+                Math.floor(Number(current.freeRaiseSlots) || 0) === free &&
+                (Math.floor(Number(current.raiseTn) || 0) || normalTn) === finalTn &&
+                (Math.floor(Number(current.normalTn) || 0) || normalTn) === normalTn;
+            if (same)
+                return;
+            await m.update({
+                'flags.mastery-system.declaredRaiseSlots': paid,
+                'flags.mastery-system.freeRaiseSlots': free,
+                'flags.mastery-system.raiseTn': finalTn,
+                'flags.mastery-system.normalTn': normalTn,
+            });
         }
         catch (err) {
             console.warn('Mastery System | persist raise counts failed', err);
         }
+    };
+    const persistPreRollPlan = (plan) => {
+        const m = gameAny?.messages?.get?.(messageId);
+        if (!m?.setFlag)
+            return;
+        if (!userMayUpdateChatMessage(m, gameAny?.user))
+            return;
+        const current = m.flags?.['mastery-system']?.preRollRaisePlan;
+        const next = JSON.stringify(plan);
+        const prev = JSON.stringify(Array.isArray(current) ? current : []);
+        if (prev === next)
+            return;
+        void m.setFlag('mastery-system', 'preRollRaisePlan', plan).catch(() => {
+            /* best-effort */
+        });
     };
     // DF 2026: Spell Raises allocate their effects BEFORE the casting roll.
     // Renders one effect select per declared Raise; the plan is mirrored into
@@ -1490,14 +1518,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             messageElement.find('.roll-attack-btn').each((_, el) => {
                 globalThis.$(el).attr('data-raise-plan', '[]');
             });
-            void (async () => {
-                try {
-                    await gameAny?.messages?.get?.(messageId)?.setFlag?.('mastery-system', 'preRollRaisePlan', []);
-                }
-                catch {
-                    /* best-effort */
-                }
-            })();
+            persistPreRollPlan([]);
             return;
         }
         const prior = host
@@ -1518,7 +1539,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
                 .map((o) => `<option value="${esc(o.id)}"${o.id === preId ? ' selected' : ''}>${esc(o.label)}</option>`)
                 .join('');
             rows.push(`<div class="raise-alloc-row"><span class="raise-alloc-index">${i + 1}.</span>` +
-                `<select class="raise-alloc-select" data-slot="${i}"><option value="">— choose effect —</option>${opts}</select></div>`);
+                `<select class="raise-alloc-select" data-slot="${i}" name="ms-raise-alloc-select" form="ms-ui-only"><option value="">— choose effect —</option>${opts}</select></div>`);
         }
         host.html(`<p class="raises-description"><strong>Allocate ${slots} Spell Raise${slots === 1 ? '' : 's'} before casting</strong> (Damage or existing Special).</p>` +
             `<div class="raise-alloc-rows">${rows.join('')}</div>`);
@@ -1538,14 +1559,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
                 $el.attr('data-raise-plan', complete ? JSON.stringify(plan) : '[]');
                 $el.prop('disabled', !complete);
             });
-            void (async () => {
-                try {
-                    await gameAny?.messages?.get?.(messageId)?.setFlag?.('mastery-system', 'preRollRaisePlan', complete ? plan : []);
-                }
-                catch {
-                    /* best-effort */
-                }
-            })();
+            persistPreRollPlan(complete ? plan : []);
         };
         host.find('.raise-alloc-select').off('change.msSpellAlloc').on('change.msSpellAlloc', applyPlan);
         applyPlan();

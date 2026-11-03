@@ -97,10 +97,10 @@ export async function openGmApplySpecialDialog(targets: GmEffectTargetRef[]): Pr
       title: `Apply Special (${targets.length})`,
       content: `<form class="ms-gm-effect-dialog">
         <label class="ms-gm-fx-field">Special
-          <select class="js-gm-fx-special">${opts}</select>
+          <select class="js-gm-fx-special" name="ms-js-gm-fx-special" form="ms-ui-only">${opts}</select>
         </label>
         <label class="ms-gm-fx-field js-gm-fx-value-wrap">Value (X)
-          <input type="number" class="js-gm-fx-value" min="1" max="40" value="1" />
+          <input type="number" class="js-gm-fx-value" min="1" max="40" value="1"  name="ms-js-gm-fx-value" form="ms-ui-only"/>
         </label>
         <details class="ms-gm-fx-explain">
           <summary>Explanation</summary>
@@ -205,7 +205,7 @@ export async function openGmRemoveSpecialDialog(targets: GmEffectTargetRef[]): P
   await new Promise<void>((resolve) => {
     new DialogCtor({
       title: 'Remove Special',
-      content: `<form><select class="js-gm-fx-special">${opts}</select></form>`,
+      content: `<form><select class="js-gm-fx-special" name="ms-js-gm-fx-special" form="ms-ui-only">${opts}</select></form>`,
       buttons: {
         remove: {
           label: 'Remove',
@@ -251,8 +251,8 @@ export async function openGmAdjustSpecialDialog(targets: GmEffectTargetRef[]): P
     new DialogCtor({
       title: 'Adjust Existing Special',
       content: `<form>
-        <select class="js-gm-fx-special">${opts}</select>
-        <label>Exact X <input type="number" class="js-gm-fx-value" min="0" max="40" value="1" /></label>
+        <select class="js-gm-fx-special" name="ms-js-gm-fx-special" form="ms-ui-only">${opts}</select>
+        <label>Exact X <input type="number" class="js-gm-fx-value" min="0" max="40" value="1"  name="ms-js-gm-fx-value" form="ms-ui-only"/></label>
         <p class="md-sublabel">GM Override — sets the exact stored value.</p>
       </form>`,
       buttons: {
@@ -293,14 +293,14 @@ export async function openGmApplyToAreaDialog(selected: GmEffectTargetRef[]): Pr
       title: 'Apply to Area / Auf Bereich anwenden',
       content: `<form class="ms-gm-area-dialog">
         <label>Scope
-          <select class="js-gm-scope">
+          <select class="js-gm-scope" name="ms-js-gm-scope" form="ms-ui-only">
             <option value="selected">Selected Combatants</option>
             <option value="allCombatants">All Combatants (this Combat)</option>
             <option value="allSceneTokens">All Scene Tokens</option>
           </select>
         </label>
         <label>Side filter
-          <select class="js-gm-side">
+          <select class="js-gm-side" name="ms-js-gm-side" form="ms-ui-only">
             <option value="all">All</option>
             <option value="friendly">Friendly</option>
             <option value="neutral">Neutral</option>
@@ -308,10 +308,10 @@ export async function openGmApplyToAreaDialog(selected: GmEffectTargetRef[]): Pr
           </select>
         </label>
         <label>Special
-          <select class="js-gm-fx-special">${opts}</select>
+          <select class="js-gm-fx-special" name="ms-js-gm-fx-special" form="ms-ui-only">${opts}</select>
         </label>
         <label class="js-gm-fx-value-wrap">X
-          <input type="number" class="js-gm-fx-value" min="1" max="40" value="1" />
+          <input type="number" class="js-gm-fx-value" min="1" max="40" value="1"  name="ms-js-gm-fx-value" form="ms-ui-only"/>
         </label>
         <div class="js-gm-fx-preview"></div>
       </form>`,

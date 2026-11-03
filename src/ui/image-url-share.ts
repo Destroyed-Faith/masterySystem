@@ -252,7 +252,7 @@ export function buildImageUrlBarHtml(src: string): string {
   const copy = escapeHtml(localizeImageUrl('copyLink'));
   return `<div class="ms-image-url-bar">
     <label class="ms-image-url-label">${label}</label>
-    <input type="text" class="ms-image-url-input" readonly value="${escaped}" spellcheck="false" />
+    <input type="text" class="ms-image-url-input" readonly value="${escaped}" spellcheck="false"  name="ms-ms-image-url-input" form="ms-ui-only"/>
     <button type="button" class="ms-image-url-copy" title="${copy}">
       <i class="fas fa-copy"></i>
     </button>
@@ -337,6 +337,8 @@ async function writeClipboardText(text: string): Promise<boolean> {
   }
   try {
     const ta = document.createElement('textarea');
+    ta.name = 'ms-clipboard-buffer';
+    ta.setAttribute('form', 'ms-ui-only');
     ta.value = text;
     ta.setAttribute('readonly', 'true');
     ta.style.position = 'fixed';

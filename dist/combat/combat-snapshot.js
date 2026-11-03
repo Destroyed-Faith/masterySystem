@@ -624,6 +624,8 @@ export async function promptImportCombatSnapshot() {
     }
     const input = document.createElement('input');
     input.type = 'file';
+    input.name = 'ms-combat-snapshot-file';
+    input.setAttribute('form', 'ms-ui-only');
     input.accept = 'application/json,.json';
     input.style.display = 'none';
     document.body.appendChild(input);

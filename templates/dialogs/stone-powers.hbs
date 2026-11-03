@@ -239,7 +239,7 @@
         <span>Pick spent stones to take back — up to <b>{{recovery.points}}</b> (Mastery Rank), shared by Attribute Stones and designated Colorless Stones. Confirm anytime; unused recovery is lost.</span>
         {{#each recovery.colorlessChoices}}
         <label>
-          <input type="checkbox" class="js-recover-colorless" data-stone-id="{{id}}" {{#if picked}}checked{{/if}} {{#unless canPick}}disabled{{/unless}} />
+          <input type="checkbox" class="js-recover-colorless" data-stone-id="{{id}}" {{#if picked}}checked{{/if}} {{#unless canPick}}disabled{{/unless}}  name="ms-js-recover-colorless" form="ms-ui-only"/>
           {{label}}
         </label>
         {{/each}}
@@ -479,7 +479,7 @@
       <label class="stone-prefs-label">
         <input type="checkbox" class="js-stone-prefs-use-defaults"
                {{#if prefsUseDefaults}}checked{{/if}}
-               {{#unless canSavePrefs}}disabled{{/unless}} />
+               {{#unless canSavePrefs}}disabled{{/unless}}  name="ms-js-stone-prefs-use-defaults" form="ms-ui-only"/>
         <span>Apply last-used defaults each round (last attribute used on General Powers)</span>
       </label>
       <button type="button"

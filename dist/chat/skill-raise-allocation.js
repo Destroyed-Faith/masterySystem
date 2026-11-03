@@ -90,7 +90,7 @@ function buildPanelHtml(snapshot, interactive) {
       ${rows}
       <div class="ms-sra-field">
         <label for="ms-sra-benefit">Specific benefit (agree with GM)</label>
-        <textarea class="ms-sra-benefit-input" rows="2" placeholder="e.g. two more related track groups">${escapeHtml(snapshot.proposedBenefit || '')}</textarea>
+        <textarea class="ms-sra-benefit-input" rows="2" placeholder="e.g. two more related track groups" name="ms-ms-sra-benefit-input" form="ms-ui-only">${escapeHtml(snapshot.proposedBenefit || '')}</textarea>
       </div>
       <div class="ms-sra-actions">
         <button type="button" class="ms-sra-finish-empty">Finish without effects</button>

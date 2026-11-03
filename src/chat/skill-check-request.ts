@@ -231,7 +231,7 @@ function renderInlineRollControls(
 
   const critBlock = showCrit
     ? `<label class="ms-scr-crit-inline">
-        <input type="checkbox" class="ms-scr-crit-check" data-actor-id="${escapeHtml(p.actorId)}" />
+        <input type="checkbox" class="ms-scr-crit-check" data-actor-id="${escapeHtml(p.actorId)}"  name="ms-ms-scr-crit-check" form="ms-ui-only"/>
         Skill Crit (${preview.critRemaining}/${preview.critAllowance} left)
       </label>`
     : '';
@@ -375,7 +375,7 @@ function renderRequestCardHtml(payload: SkillCheckRequestPayload): string {
       .join('');
     ambushGm = `<div class="ms-scr-ambush-gm">
       <label>Stealth specialist
-        <select class="ms-scr-ambush-specialist">${opts || '<option value="">— join first —</option>'}</select>
+        <select class="ms-scr-ambush-specialist" name="ms-ms-scr-ambush-specialist" form="ms-ui-only">${opts || '<option value="">— join first —</option>'}</select>
       </label>
       <button type="button" class="ms-scr-btn ms-scr-ambush-roll">Resolve Group Ambush</button>
     </div>`;

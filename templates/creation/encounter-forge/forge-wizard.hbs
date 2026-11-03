@@ -13,11 +13,11 @@
       <div class="encounter-gen-form">
         <div class="encounter-gen-field encounter-gen-field--wide">
           <label>Encounter-Name</label>
-          <input type="text" value="{{party.name}}" data-field="name" placeholder="z. B. Nargat, Herr der Grube"/>
+          <input type="text" value="{{party.name}}" data-field="name" placeholder="z. B. Nargat, Herr der Grube" name="ms-name" form="ms-ui-only"/>
         </div>
         <div class="encounter-gen-field">
           <label>Phasen</label>
-          <select data-field="phase-count">
+          <select data-field="phase-count" name="ms-phase-count" form="ms-ui-only">
             {{#each party.phaseOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
           </select>
         </div>
@@ -25,7 +25,7 @@
       <div class="encounter-gen-party-grid">
         {{#each party.actors}}
           <label class="encounter-gen-pc">
-            <input type="checkbox" data-field="party-actor" data-actor="{{id}}" {{#if checked}}checked{{/if}}/>
+            <input type="checkbox" data-field="party-actor" data-actor="{{id}}" {{#if checked}}checked{{/if}} name="ms-party-actor" form="ms-ui-only"/>
             <span class="encounter-gen-pc-name">{{name}}</span>
             <span class="encounter-gen-pc-meta">MR {{mr}}</span>
           </label>
@@ -40,11 +40,11 @@
           <div class="encounter-gen-form">
             <div class="encounter-gen-field">
               <label>Name</label>
-              <input type="text" value="{{name}}" data-field="enemy-name" data-enemy="{{id}}"/>
+              <input type="text" value="{{name}}" data-field="enemy-name" data-enemy="{{id}}" name="ms-enemy-name" form="ms-ui-only"/>
             </div>
             <div class="encounter-gen-field encounter-gen-field--wide">
               <label>Konzept (Fiktion)</label>
-              <input type="text" value="{{concept}}" data-field="enemy-concept" data-enemy="{{id}}" placeholder="z. B. gepanzerter Grubenwächter mit Kettenpeitsche"/>
+              <input type="text" value="{{concept}}" data-field="enemy-concept" data-enemy="{{id}}" placeholder="z. B. gepanzerter Grubenwächter mit Kettenpeitsche" name="ms-enemy-concept" form="ms-ui-only"/>
             </div>
             {{#if ../enemies.canRemove}}
               <button type="button" class="encounter-gen-btn" data-action="remove-enemy" data-enemy="{{id}}"><i class="fas fa-trash"></i></button>
@@ -53,19 +53,19 @@
           <div class="encounter-gen-form">
             <div class="encounter-gen-field">
               <label>Primärverteidigung</label>
-              <select data-field="defense-primary" data-enemy="{{id}}" data-phase="0">
+              <select data-field="defense-primary" data-enemy="{{id}}" data-phase="0" name="ms-defense-primary" form="ms-ui-only">
                 {{#each primaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
               </select>
             </div>
             <div class="encounter-gen-field">
               <label>Sekundär</label>
-              <select data-field="defense-secondary" data-enemy="{{id}}" data-phase="0">
+              <select data-field="defense-secondary" data-enemy="{{id}}" data-phase="0" name="ms-defense-secondary" form="ms-ui-only">
                 {{#each secondaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
               </select>
             </div>
             <div class="encounter-gen-field">
               <label>Tertiär</label>
-              <select data-field="defense-tertiary" data-enemy="{{id}}" data-phase="0">
+              <select data-field="defense-tertiary" data-enemy="{{id}}" data-phase="0" name="ms-defense-tertiary" form="ms-ui-only">
                 {{#each tertiaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
               </select>
             </div>
@@ -74,12 +74,12 @@
           <div class="encounter-gen-form">
             <div class="encounter-gen-field">
               <label>Bewegung</label>
-              <select data-field="movement-kind" data-enemy="{{id}}">
+              <select data-field="movement-kind" data-enemy="{{id}}" name="ms-movement-kind" form="ms-ui-only">
                 {{#each movementOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
               </select>
             </div>
             <label class="encounter-gen-field encounter-gen-field--checkbox">
-              <input type="checkbox" data-field="escapes-melee" data-enemy="{{id}}" {{#if escapesMelee}}checked{{/if}}/>
+              <input type="checkbox" data-field="escapes-melee" data-enemy="{{id}}" {{#if escapesMelee}}checked{{/if}} name="ms-escapes-melee" form="ms-ui-only"/>
               Entzieht sich zuverlässig dem Nahkampf
             </label>
           </div>
@@ -87,34 +87,34 @@
             <span class="encounter-gen-card-text">Reaktionen (max. 2):</span>
             {{#each reactionOptions}}
               <label class="encounter-gen-field encounter-gen-field--checkbox">
-                <input type="checkbox" data-field="reaction-toggle" data-enemy="{{../id}}" data-reaction="{{value}}" {{#if selected}}checked{{/if}}/>
+                <input type="checkbox" data-field="reaction-toggle" data-enemy="{{../id}}" data-reaction="{{value}}" {{#if selected}}checked{{/if}} name="ms-reaction-toggle" form="ms-ui-only"/>
                 {{label}}
               </label>
             {{/each}}
           </div>
           <div class="encounter-gen-form">
             <label class="encounter-gen-field encounter-gen-field--checkbox">
-              <input type="checkbox" data-field="copies-enabled" data-enemy="{{id}}" {{#if copies.enabled}}checked{{/if}}/>
+              <input type="checkbox" data-field="copies-enabled" data-enemy="{{id}}" {{#if copies.enabled}}checked{{/if}} name="ms-copies-enabled" form="ms-ui-only"/>
               Kopien / Illusionen
             </label>
             {{#if copies.enabled}}
               <div class="encounter-gen-field">
                 <label>Anzahl</label>
-                <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{copies.count}}" data-field="copies-count" data-enemy="{{id}}"/>
+                <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{copies.count}}" data-field="copies-count" data-enemy="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
               </div>
               <div class="encounter-gen-field">
                 <label>Health</label>
-                <select data-field="copies-health" data-enemy="{{id}}">
+                <select data-field="copies-health" data-enemy="{{id}}" name="ms-copies-health" form="ms-ui-only">
                   <option value="independent" {{#unless (eq copies.health 'shared')}}selected{{/unless}}>unabhängig</option>
                   <option value="shared" {{#if (eq copies.health 'shared')}}selected{{/if}}>geteilt</option>
                 </select>
               </div>
               <label class="encounter-gen-field encounter-gen-field--checkbox">
-                <input type="checkbox" data-field="copies-fragile" data-enemy="{{id}}" {{#if copies.fragile}}checked{{/if}}/>
+                <input type="checkbox" data-field="copies-fragile" data-enemy="{{id}}" {{#if copies.fragile}}checked{{/if}} name="ms-copies-fragile" form="ms-ui-only"/>
                 zerbrechlich (1 Treffer)
               </label>
               <label class="encounter-gen-field encounter-gen-field--checkbox">
-                <input type="checkbox" data-field="copies-attack" data-enemy="{{id}}" {{#if copies.attack}}checked{{/if}}/>
+                <input type="checkbox" data-field="copies-attack" data-enemy="{{id}}" {{#if copies.attack}}checked{{/if}} name="ms-copies-attack" form="ms-ui-only"/>
                 greifen mit an
               </label>
             {{/if}}
@@ -135,48 +135,48 @@
             <span class="encounter-gen-card-title">{{name}}</span>
             <div class="encounter-gen-field">
               <label>Aktionen/Runde (empfohlen: {{recommended}})</label>
-              <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{override}}" placeholder="{{recommended}}" data-field="actions-override" data-enemy="{{id}}"/>
+              <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{override}}" placeholder="{{recommended}}" data-field="actions-override" data-enemy="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
             </div>
           </div>
           {{#each attacks}}
             <div class="encounter-gen-form encounter-gen-form--inline">
               <div class="encounter-gen-field">
                 <label>Angriff</label>
-                <input type="text" value="{{name}}" data-field="attack-name" data-enemy="{{enemyId}}" data-attack="{{id}}" placeholder="z. B. Kettenpeitsche"/>
+                <input type="text" value="{{name}}" data-field="attack-name" data-enemy="{{enemyId}}" data-attack="{{id}}" placeholder="z. B. Kettenpeitsche" name="ms-attack-name" form="ms-ui-only"/>
               </div>
               <label class="encounter-gen-field encounter-gen-field--checkbox">
-                <input type="checkbox" data-field="attack-spell" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if isSpell}}checked{{/if}}/>
+                <input type="checkbox" data-field="attack-spell" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if isSpell}}checked{{/if}} name="ms-attack-spell" form="ms-ui-only"/>
                 Spell
               </label>
               <label class="encounter-gen-field encounter-gen-field--checkbox">
-                <input type="checkbox" data-field="attack-ranged" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if isRanged}}checked{{/if}}/>
+                <input type="checkbox" data-field="attack-ranged" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if isRanged}}checked{{/if}} name="ms-attack-ranged" form="ms-ui-only"/>
                 Fernkampf
               </label>
               <div class="encounter-gen-field">
                 <label>Fläche</label>
-                <select data-field="attack-area" data-enemy="{{enemyId}}" data-attack="{{id}}">
+                <select data-field="attack-area" data-enemy="{{enemyId}}" data-attack="{{id}}" name="ms-attack-area" form="ms-ui-only">
                   {{#each areaOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
                 </select>
               </div>
               {{#unless (eq area 'single')}}
                 <div class="encounter-gen-field">
                   <label>Fläche (m)</label>
-                  <input type="number" class="encounter-gen-input--small" min="2" max="24" value="{{areaSize}}" data-field="attack-area-size" data-enemy="{{enemyId}}" data-attack="{{id}}"/>
+                  <input type="number" class="encounter-gen-input--small" min="2" max="24" value="{{areaSize}}" data-field="attack-area-size" data-enemy="{{enemyId}}" data-attack="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
                 </div>
               {{/unless}}
               <div class="encounter-gen-field">
                 <label>Reichweite (m)</label>
-                <input type="number" class="encounter-gen-input--small" min="0" max="48" value="{{range}}" data-field="attack-range" data-enemy="{{enemyId}}" data-attack="{{id}}"/>
+                <input type="number" class="encounter-gen-input--small" min="0" max="48" value="{{range}}" data-field="attack-range" data-enemy="{{enemyId}}" data-attack="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
               </div>
               <div class="encounter-gen-field">
                 <label>Special</label>
-                <select data-field="attack-special" data-enemy="{{enemyId}}" data-attack="{{id}}">
+                <select data-field="attack-special" data-enemy="{{enemyId}}" data-attack="{{id}}" name="ms-attack-special" form="ms-ui-only">
                   {{#each specialOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
                 </select>
               </div>
               {{#if false}}
               <label class="encounter-gen-field encounter-gen-field--checkbox">
-                <input type="checkbox" data-field="attack-stress" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if stress}}checked{{/if}}/>
+                <input type="checkbox" data-field="attack-stress" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if stress}}checked{{/if}} name="ms-attack-stress" form="ms-ui-only"/>
                 +1d8 Stress
               </label>
               {{/if}}
@@ -203,26 +203,26 @@
                 <span class="encounter-gen-card-text">{{name}}</span>
                 <div class="encounter-gen-field">
                   <label>Primärverteidigung</label>
-                  <select data-field="defense-primary" data-enemy="{{enemyId}}" data-phase="{{../index}}">
+                  <select data-field="defense-primary" data-enemy="{{enemyId}}" data-phase="{{../index}}" name="ms-defense-primary" form="ms-ui-only">
                     {{#each primaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
                   </select>
                 </div>
                 <div class="encounter-gen-field">
                   <label>Sekundär</label>
-                  <select data-field="defense-secondary" data-enemy="{{enemyId}}" data-phase="{{../index}}">
+                  <select data-field="defense-secondary" data-enemy="{{enemyId}}" data-phase="{{../index}}" name="ms-defense-secondary" form="ms-ui-only">
                     {{#each secondaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
                   </select>
                 </div>
                 <div class="encounter-gen-field encounter-gen-field--wide">
                   <label>Mechanik-Notiz</label>
-                  <input type="text" value="{{mechanicsNote}}" data-field="phase-note" data-enemy="{{enemyId}}" data-phase="{{../index}}" placeholder="z. B. Boden brennt, Arena schrumpft"/>
+                  <input type="text" value="{{mechanicsNote}}" data-field="phase-note" data-enemy="{{enemyId}}" data-phase="{{../index}}" placeholder="z. B. Boden brennt, Arena schrumpft" name="ms-phase-note" form="ms-ui-only"/>
                 </div>
               </div>
               <div class="encounter-gen-form">
                 <span class="encounter-gen-card-text">Aktive Angriffe:</span>
                 {{#each attacks}}
                   <label class="encounter-gen-field encounter-gen-field--checkbox">
-                    <input type="checkbox" data-field="phase-attack-toggle" data-enemy="{{../enemyId}}" data-phase="{{../../index}}" data-attack="{{id}}" {{#if active}}checked{{/if}}/>
+                    <input type="checkbox" data-field="phase-attack-toggle" data-enemy="{{../enemyId}}" data-phase="{{../../index}}" data-attack="{{id}}" {{#if active}}checked{{/if}} name="ms-phase-attack-toggle" form="ms-ui-only"/>
                     {{name}}
                   </label>
                 {{/each}}
@@ -241,50 +241,50 @@
           <div class="encounter-gen-form encounter-gen-form--inline">
             <div class="encounter-gen-field">
               <label>Name</label>
-              <input type="text" value="{{name}}" data-field="group-name" data-group="{{id}}"/>
+              <input type="text" value="{{name}}" data-field="group-name" data-group="{{id}}" name="ms-group-name" form="ms-ui-only"/>
             </div>
             <div class="encounter-gen-field">
               <label>Anzahl</label>
-              <input type="number" class="encounter-gen-input--small" min="1" max="12" value="{{count}}" data-field="group-count" data-group="{{id}}"/>
+              <input type="number" class="encounter-gen-input--small" min="1" max="12" value="{{count}}" data-field="group-count" data-group="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
             </div>
             <div class="encounter-gen-field">
               <label>Zweck</label>
-              <select data-field="group-role" data-group="{{id}}">
+              <select data-field="group-role" data-group="{{id}}" name="ms-group-role" form="ms-ui-only">
                 {{#each roleOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
               </select>
             </div>
             <div class="encounter-gen-field">
               <label>Auftritt</label>
-              <select data-field="group-arrival" data-group="{{id}}">
+              <select data-field="group-arrival" data-group="{{id}}" name="ms-group-arrival" form="ms-ui-only">
                 {{#each arrivalOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
               </select>
             </div>
             {{#if isReinforcement}}
               <div class="encounter-gen-field">
                 <label>Runde</label>
-                <input type="number" class="encounter-gen-input--small" min="1" max="8" value="{{arrivalRound}}" data-field="group-round" data-group="{{id}}"/>
+                <input type="number" class="encounter-gen-input--small" min="1" max="8" value="{{arrivalRound}}" data-field="group-round" data-group="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
               </div>
             {{/if}}
             {{#if isSummon}}
               <div class="encounter-gen-field">
                 <label>Beschwörer</label>
-                <select data-field="group-summoner" data-group="{{id}}">
+                <select data-field="group-summoner" data-group="{{id}}" name="ms-group-summoner" form="ms-ui-only">
                   {{#each summonerOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
                 </select>
               </div>
             {{/if}}
             <div class="encounter-gen-field">
               <label>Treffer bis Tod</label>
-              <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{hitsToKill}}" data-field="group-hits" data-group="{{id}}"/>
+              <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{hitsToKill}}" data-field="group-hits" data-group="{{id}}" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
             </div>
             <label class="encounter-gen-field encounter-gen-field--checkbox">
-              <input type="checkbox" data-field="group-attacks" data-group="{{id}}" {{#if attacks}}checked{{/if}}/>
+              <input type="checkbox" data-field="group-attacks" data-group="{{id}}" {{#if attacks}}checked{{/if}} name="ms-group-attacks" form="ms-ui-only"/>
               greifen an
             </label>
             {{#if isSpecialRole}}
               <div class="encounter-gen-field">
                 <label>Special</label>
-                <select data-field="group-special" data-group="{{id}}">
+                <select data-field="group-special" data-group="{{id}}" name="ms-group-special" form="ms-ui-only">
                   {{#each specialOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
                 </select>
               </div>
@@ -351,8 +351,8 @@
                       {{#each attacks}}<div><strong>{{name}}</strong>: {{line}}</div>{{/each}}
                     </td>
                     <td>
-                      <input type="number" class="encounter-gen-input--small" placeholder="HP" value="{{healthOverride}}" data-field="override-health" data-enemy="{{enemyId}}" data-phase="{{phaseIndex}}" title="Health-Override — Validierung läuft erneut"/>
-                      <input type="number" class="encounter-gen-input--small" placeholder="Akt." value="{{actionsOverride}}" data-field="override-actions" data-enemy="{{enemyId}}" data-phase="{{phaseIndex}}" title="Aktionen-Override — Validierung läuft erneut"/>
+                      <input type="number" class="encounter-gen-input--small" placeholder="HP" value="{{healthOverride}}" data-field="override-health" data-enemy="{{enemyId}}" data-phase="{{phaseIndex}}" title="Health-Override — Validierung läuft erneut" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
+                      <input type="number" class="encounter-gen-input--small" placeholder="Akt." value="{{actionsOverride}}" data-field="override-actions" data-enemy="{{enemyId}}" data-phase="{{phaseIndex}}" title="Aktionen-Override — Validierung läuft erneut" name="ms-encounter-gen-input--small" form="ms-ui-only"/>
                     </td>
                   </tr>
                 {{/each}}

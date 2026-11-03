@@ -60,19 +60,19 @@ export async function openCustomCatalogItemDialog(
           <span>${esc(loc('name', 'Name'))}</span>
           <input type="text" class="js-custom-item-name" maxlength="80" required placeholder="${esc(
             loc('namePlaceholder', 'e.g. Travel Lantern'),
-          )}" />
+          )}"  name="ms-js-custom-item-name" form="ms-ui-only"/>
         </label>
         <label class="ms-custom-catalog-field">
           <span>${esc(loc('description', 'Description'))}</span>
           <textarea class="js-custom-item-description" rows="3" placeholder="${esc(
             loc('descriptionPlaceholder', 'What it looks like…'),
-          )}"></textarea>
+          )}" name="ms-js-custom-item-description" form="ms-ui-only"></textarea>
         </label>
         <label class="ms-custom-catalog-field">
           <span>${esc(loc('effect', 'What it does'))}</span>
           <textarea class="js-custom-item-effect" rows="2" placeholder="${esc(
             loc('effectPlaceholder', 'Optional rules note…'),
-          )}"></textarea>
+          )}" name="ms-js-custom-item-effect" form="ms-ui-only"></textarea>
         </label>
         <fieldset class="ms-custom-catalog-icons">
           <legend>${esc(loc('icon', 'Icon'))}</legend>
@@ -81,7 +81,7 @@ export async function openCustomCatalogItemDialog(
         <div class="ms-custom-catalog-options">
           ${
             isGM
-              ? `<label class="ms-custom-catalog-check"><input type="checkbox" class="js-custom-item-world" checked /> <span>${esc(
+              ? `<label class="ms-custom-catalog-check"><input type="checkbox" class="js-custom-item-world" checked  name="ms-js-custom-item-world" form="ms-ui-only"/> <span>${esc(
                   loc('addToWorld', 'Add to General Items Storage (shared catalog)'),
                 )}</span></label>`
               : ''
@@ -90,7 +90,7 @@ export async function openCustomCatalogItemDialog(
             hasActor
               ? `<label class="ms-custom-catalog-check"><input type="checkbox" class="js-custom-item-give"${
                   isGM ? '' : ' checked'
-                } /> <span>${esc(
+                }  name="ms-js-custom-item-give" form="ms-ui-only"/> <span>${esc(
                   loc('giveToActor', 'Also give a copy to this character'),
                 )}</span></label>`
               : ''

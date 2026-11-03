@@ -153,7 +153,7 @@
             {{#if (eq phaseIndex @root.system.npcActivePhaseIndex)}}
             <input type="number" name="system.npcMovementSlots" value="{{default @root.system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number"/>
             {{else}}
-            <input type="number" value="{{default @root.system.npcMovementSlots 1}}" min="1" max="10" step="1" disabled title="Switch to this phase (tab) to edit Move"/>
+            <input type="number" value="{{default @root.system.npcMovementSlots 1}}" min="1" max="10" step="1" disabled title="Switch to this phase (tab) to edit Move" name="ms-field" form="ms-ui-only"/>
             {{/if}}
           </div>
           <div class="npc-phase-economy__chip">
@@ -335,7 +335,7 @@
                   {{#if @root.npcPhaseCopyTargets.length}}
                   <label class="npc-power-copy" title="Power in eine andere Phase kopieren">
                     <span>→</span>
-                    <select class="npc-power-copy-select" data-phase-index="{{phaseIndex}}" data-attack-index="{{index}}">
+                    <select class="npc-power-copy-select" data-phase-index="{{phaseIndex}}" data-attack-index="{{index}}" name="ms-npc-power-copy-select" form="ms-ui-only">
                       <option value="">Phase…</option>
                       {{#each @root.npcPhaseCopyTargets as |tgt|}}
                       {{#unless (eq tgt.index phaseIndex)}}
@@ -735,7 +735,7 @@
         <label>Blood Color (Blutfarbe):</label>
         <div class="blood-color-input-group">
           <input type="color" name="system.bloodColor" class="blood-color-picker" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this NPC takes damage"/>
-          <input type="text" class="blood-color-text" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)"/>
+          <input type="text" class="blood-color-text" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)" name="ms-blood-color-text" form="ms-ui-only"/>
         </div>
         <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this NPC takes damage.</p>
       </div>

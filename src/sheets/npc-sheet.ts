@@ -1371,7 +1371,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
     html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
     html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
-    // Native <select> change must not race a full form submit that expands
+    // Native <select name="ms-field" form="ms-ui-only"> change must not race a full form submit that expands
     // specials.0 as an object and wipes the choice on re-render.
     html
       .find('select.special-select, .npc-attack-special-row select[name$=".specialValue"]')
@@ -1382,7 +1382,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         void this.#onNpcAttackSpecialFieldChange(ev);
       });
 
-    // Stress (d8): same race as specials — persist immediately; tooltip must not block <select>.
+    // Stress (d8): same race as specials — persist immediately; tooltip must not block <select name="ms-field" form="ms-ui-only">.
     html.find('select.npc-stress-d8-select, select[name$=".npcStressD8"]').on('change', (ev: JQuery.ChangeEvent) => {
       ev.preventDefault();
       ev.stopPropagation();

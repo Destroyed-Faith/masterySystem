@@ -61,7 +61,7 @@
     <div class="rw-perform">
       <div class="rw-controls">
         <label class="rw-field">{{localize "MASTERY.df2026.rituals.approach"}}
-          <input type="text" class="js-rw-approach" value="{{approach}}" placeholder="How do you perform it?" />
+          <input type="text" class="js-rw-approach" value="{{approach}}" placeholder="How do you perform it?"  name="ms-js-rw-approach" form="ms-ui-only"/>
         </label>
         {{#if approachChips.length}}
         <div class="rw-approach-chips">
@@ -71,30 +71,30 @@
         </div>
         {{/if}}
         <label class="rw-field">{{localize "MASTERY.df2026.rituals.taskLevel"}}
-          <input type="number" class="js-rw-task-level" min="1" step="1" value="{{taskLevel}}" />
+          <input type="number" class="js-rw-task-level" min="1" step="1" value="{{taskLevel}}"  name="ms-js-rw-task-level" form="ms-ui-only"/>
         </label>
         <label class="rw-field">Situational TN
-          <input type="number" class="js-rw-gm-mod" step="4" value="{{gmMod}}" />
+          <input type="number" class="js-rw-gm-mod" step="4" value="{{gmMod}}"  name="ms-js-rw-gm-mod" form="ms-ui-only"/>
         </label>
         <label class="rw-field">{{localize "MASTERY.df2026.rituals.namedTier"}}
-          <select class="js-rw-tier">
+          <select class="js-rw-tier" name="ms-js-rw-tier" form="ms-ui-only">
             {{#each tierOptions}}
             <option value="{{this.level}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="rw-field">{{localize "MASTERY.df2026.rituals.genericRaises"}}
-          <input type="number" class="js-rw-generic" min="0" max="{{maxGenericRaises}}" step="1" value="{{genericRaises}}" />
+          <input type="number" class="js-rw-generic" min="0" max="{{maxGenericRaises}}" step="1" value="{{genericRaises}}"  name="ms-js-rw-generic" form="ms-ui-only"/>
         </label>
         <label class="rw-field">{{localize "MASTERY.df2026.rituals.specialization"}}
-          <select class="js-rw-spec">
+          <select class="js-rw-spec" name="ms-js-rw-spec" form="ms-ui-only">
             {{#each specOptions}}
             <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
         </label>
         <label class="rw-field">Attribute
-          <select class="js-rw-attr">
+          <select class="js-rw-attr" name="ms-js-rw-attr" form="ms-ui-only">
             {{#each attrOptions}}
             <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
             {{/each}}

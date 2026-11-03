@@ -20,7 +20,7 @@
         data-sense-id="{{this.id}}"
         {{#if this.selected}}checked{{/if}}
         {{#unless ../editable}}disabled{{/unless}}
-      />
+       name="ms-js-combat-sense-grant" form="ms-ui-only"/>
       <span class="combat-sense-grant-label">{{this.label}} ({{this.rangeM}} m)</span>
     </label>
     {{/if}}
@@ -33,7 +33,7 @@
       class="js-combat-sense-darkvision"
       {{#if combatSensesPanel.hasDarkvision}}checked{{/if}}
       {{#unless editable}}disabled{{/unless}}
-    />
+     name="ms-js-combat-sense-darkvision" form="ms-ui-only"/>
     <span>Darkvision — minor upgrade (augments Normal Combat Awareness in darkness)</span>
   </label>
 </details>

@@ -130,15 +130,15 @@ function renderForm(m: PowerMechanics | null): string {
     <fieldset class="pme-section">
       <legend>Static bonuses</legend>
       <div class="pme-grid">
-        <label>Armor <input type="number" data-mech="armor" value="${numAttr(mech.armor)}" step="1"/></label>
-        <label>Evade <input type="number" data-mech="evade" value="${numAttr(mech.evade)}" step="1"/></label>
-        <label>Initiative d8 <input type="number" data-mech="initiativeD8" value="${numAttr(mech.initiativeD8)}" step="1"/></label>
-        <label>Regen <input type="number" data-mech="regen" value="${numAttr(mech.regen)}" step="1"/></label>
-        <label>Movement +m <input type="number" data-mech="movementBonus" value="${numAttr(mech.movementBonus)}" step="1"/></label>
-        <label>Temp HP <input type="text" data-mech="tempHP" value="${esc(mech.tempHP ?? '')}" placeholder="1d8 or 3"/></label>
+        <label>Armor <input type="number" data-mech="armor" value="${numAttr(mech.armor)}" step="1" name="ms-armor" form="ms-ui-only"/></label>
+        <label>Evade <input type="number" data-mech="evade" value="${numAttr(mech.evade)}" step="1" name="ms-evade" form="ms-ui-only"/></label>
+        <label>Initiative d8 <input type="number" data-mech="initiativeD8" value="${numAttr(mech.initiativeD8)}" step="1" name="ms-initiativeD8" form="ms-ui-only"/></label>
+        <label>Regen <input type="number" data-mech="regen" value="${numAttr(mech.regen)}" step="1" name="ms-regen" form="ms-ui-only"/></label>
+        <label>Movement +m <input type="number" data-mech="movementBonus" value="${numAttr(mech.movementBonus)}" step="1" name="ms-movementBonus" form="ms-ui-only"/></label>
+        <label>Temp HP <input type="text" data-mech="tempHP" value="${esc(mech.tempHP ?? '')}" placeholder="1d8 or 3" name="ms-tempHP" form="ms-ui-only"/></label>
       </div>
       <label class="pme-checkbox">
-        <input type="checkbox" data-mech="ignoreTerrain" ${mech.ignoreTerrain ? 'checked' : ''}/>
+        <input type="checkbox" data-mech="ignoreTerrain" ${mech.ignoreTerrain ? 'checked' : ''} name="ms-ignoreTerrain" form="ms-ui-only"/>
         Ignore difficult terrain
       </label>
     </fieldset>
@@ -146,54 +146,54 @@ function renderForm(m: PowerMechanics | null): string {
     <fieldset class="pme-section">
       <legend>Roll-dice bonuses</legend>
       <div class="pme-grid">
-        <label>Attack <input type="number" data-mech="rollDice.attack" value="${numAttr(rd.attack)}" step="1"/></label>
-        <label>Skill <input type="number" data-mech="rollDice.skill" value="${numAttr(rd.skill)}" step="1"/></label>
-        <label>Damage <input type="number" data-mech="rollDice.damage" value="${numAttr(rd.damage)}" step="1"/></label>
+        <label>Attack <input type="number" data-mech="rollDice.attack" value="${numAttr(rd.attack)}" step="1" name="ms-rollDiceattack" form="ms-ui-only"/></label>
+        <label>Skill <input type="number" data-mech="rollDice.skill" value="${numAttr(rd.skill)}" step="1" name="ms-rollDiceskill" form="ms-ui-only"/></label>
+        <label>Damage <input type="number" data-mech="rollDice.damage" value="${numAttr(rd.damage)}" step="1" name="ms-rollDicedamage" form="ms-ui-only"/></label>
       </div>
     </fieldset>
 
     <fieldset class="pme-section">
       <legend>Damage rider</legend>
       <div class="pme-grid">
-        <label>Flat (+Nd8) <input type="text" data-mech="damageRider.flat" value="${esc(dr.flat ?? '')}" placeholder="+1d8"/></label>
+        <label>Flat (+Nd8) <input type="text" data-mech="damageRider.flat" value="${esc(dr.flat ?? '')}" placeholder="+1d8" name="ms-damageRiderflat" form="ms-ui-only"/></label>
         <label>vs Condition
-          <select data-mech="damageRider.vsCondition">${vsCondHtml}</select>
+          <select data-mech="damageRider.vsCondition" name="ms-damageRidervsCondition" form="ms-ui-only">${vsCondHtml}</select>
         </label>
-        <label>vs dmg <input type="text" data-mech="damageRider.vsConditionDamage" value="${esc(dr.vsConditionDamage ?? '')}" placeholder="+2d8"/></label>
+        <label>vs dmg <input type="text" data-mech="damageRider.vsConditionDamage" value="${esc(dr.vsConditionDamage ?? '')}" placeholder="+2d8" name="ms-damageRidervsConditionDamage" form="ms-ui-only"/></label>
       </div>
     </fieldset>
 
     <fieldset class="pme-section">
       <legend>Healing (mechanics)</legend>
       <div class="pme-grid">
-        <label>flat <input type="text" data-mech="healing.flat" value="${esc(heal.flat ?? '')}" placeholder="2d8"/></label>
-        <label>target <input type="text" data-mech="healing.target" value="${esc(heal.target ?? '')}" placeholder="self / alliesInArea"/></label>
-        <label>trigger <input type="text" data-mech="healing.trigger" value="${esc(heal.trigger ?? '')}" placeholder="endOfTurn"/></label>
-        <label>condition <input type="text" data-mech="healing.condition" value="${esc(heal.condition ?? '')}"/></label>
-        <label>maxTargets <input type="number" data-mech="healing.maxTargets" value="${numAttr(heal.maxTargets)}" step="1" min="0"/></label>
+        <label>flat <input type="text" data-mech="healing.flat" value="${esc(heal.flat ?? '')}" placeholder="2d8" name="ms-healingflat" form="ms-ui-only"/></label>
+        <label>target <input type="text" data-mech="healing.target" value="${esc(heal.target ?? '')}" placeholder="self / alliesInArea" name="ms-healingtarget" form="ms-ui-only"/></label>
+        <label>trigger <input type="text" data-mech="healing.trigger" value="${esc(heal.trigger ?? '')}" placeholder="endOfTurn" name="ms-healingtrigger" form="ms-ui-only"/></label>
+        <label>condition <input type="text" data-mech="healing.condition" value="${esc(heal.condition ?? '')}" name="ms-healingcondition" form="ms-ui-only"/></label>
+        <label>maxTargets <input type="number" data-mech="healing.maxTargets" value="${numAttr(heal.maxTargets)}" step="1" min="0" name="ms-healingmaxTargets" form="ms-ui-only"/></label>
       </div>
     </fieldset>
 
     <fieldset class="pme-section">
       <legend>modifySpecial</legend>
       <div class="pme-grid">
-        <label>type <input type="text" data-mech="modifySpecial.type" value="${esc(ms.type ?? '')}" placeholder="ruin"/></label>
-        <label>mode <select data-mech="modifySpecial.mode">${modifyModeHtml}</select></label>
-        <label>amount <input type="number" data-mech="modifySpecial.amount" value="${numAttr(ms.amount)}" step="1"/></label>
-        <label>minExisting <input type="number" data-mech="modifySpecial.minExisting" value="${numAttr(ms.minExisting)}" step="1" min="0"/></label>
-        <label>maxValue <input type="number" data-mech="modifySpecial.maxValue" value="${numAttr(ms.maxValue)}" step="1" min="0"/></label>
-        <label>target <input type="text" data-mech="modifySpecial.target" value="${esc(ms.target ?? '')}"/></label>
-        <label>condition <input type="text" data-mech="modifySpecial.condition" value="${esc(ms.condition ?? '')}"/></label>
+        <label>type <input type="text" data-mech="modifySpecial.type" value="${esc(ms.type ?? '')}" placeholder="ruin" name="ms-modifySpecialtype" form="ms-ui-only"/></label>
+        <label>mode <select data-mech="modifySpecial.mode" name="ms-modifySpecialmode" form="ms-ui-only">${modifyModeHtml}</select></label>
+        <label>amount <input type="number" data-mech="modifySpecial.amount" value="${numAttr(ms.amount)}" step="1" name="ms-modifySpecialamount" form="ms-ui-only"/></label>
+        <label>minExisting <input type="number" data-mech="modifySpecial.minExisting" value="${numAttr(ms.minExisting)}" step="1" min="0" name="ms-modifySpecialminExisting" form="ms-ui-only"/></label>
+        <label>maxValue <input type="number" data-mech="modifySpecial.maxValue" value="${numAttr(ms.maxValue)}" step="1" min="0" name="ms-modifySpecialmaxValue" form="ms-ui-only"/></label>
+        <label>target <input type="text" data-mech="modifySpecial.target" value="${esc(ms.target ?? '')}" name="ms-modifySpecialtarget" form="ms-ui-only"/></label>
+        <label>condition <input type="text" data-mech="modifySpecial.condition" value="${esc(ms.condition ?? '')}" name="ms-modifySpecialcondition" form="ms-ui-only"/></label>
       </div>
     </fieldset>
 
     <fieldset class="pme-section">
       <legend>grantNextHitEffect</legend>
       <div class="pme-grid">
-        <label>expires <input type="text" data-mech="grantNextHitEffect.expires" value="${esc(gnh.expires ?? '')}" placeholder="endOfTurn"/></label>
-        <label>qualifier <input type="text" data-mech="grantNextHitEffect.qualifier" value="${esc(gnh.qualifier ?? '')}" placeholder="nextHit"/></label>
-        <label>dmg rider flat <input type="text" data-mech="grantNextHitEffect.damageRiderFlat" value="${esc(gnh.damageRiderFlat ?? '')}" placeholder="+2d8"/></label>
-        <label>condition <input type="text" data-mech="grantNextHitEffect.condition" value="${esc(gnh.condition ?? '')}"/></label>
+        <label>expires <input type="text" data-mech="grantNextHitEffect.expires" value="${esc(gnh.expires ?? '')}" placeholder="endOfTurn" name="ms-grantNextHitEffectexpires" form="ms-ui-only"/></label>
+        <label>qualifier <input type="text" data-mech="grantNextHitEffect.qualifier" value="${esc(gnh.qualifier ?? '')}" placeholder="nextHit" name="ms-grantNextHitEffectqualifier" form="ms-ui-only"/></label>
+        <label>dmg rider flat <input type="text" data-mech="grantNextHitEffect.damageRiderFlat" value="${esc(gnh.damageRiderFlat ?? '')}" placeholder="+2d8" name="ms-grantNextHitEffectdamageRiderFlat" form="ms-ui-only"/></label>
+        <label>condition <input type="text" data-mech="grantNextHitEffect.condition" value="${esc(gnh.condition ?? '')}" name="ms-grantNextHitEffectcondition" form="ms-ui-only"/></label>
       </div>
       <p class="pme-hint">Use Raw JSON to attach <code>grantNextHitEffect.specials</code> (array of <code>PowerSpecial</code>).</p>
     </fieldset>
@@ -202,21 +202,21 @@ function renderForm(m: PowerMechanics | null): string {
       <legend>Timing</legend>
       <div class="pme-grid">
         <label>applyWhen
-          <select data-mech="applyWhen">${applyWhenHtml}</select>
+          <select data-mech="applyWhen" name="ms-applyWhen" form="ms-ui-only">${applyWhenHtml}</select>
         </label>
-        <label>mechanics trigger <input type="text" data-mech="trigger" value="${esc(mech.trigger ?? '')}" placeholder="endOfTurn"/></label>
+        <label>mechanics trigger <input type="text" data-mech="trigger" value="${esc(mech.trigger ?? '')}" placeholder="endOfTurn" name="ms-trigger" form="ms-ui-only"/></label>
         <label>duration
-          <select data-mech="duration">${durationHtml}</select>
+          <select data-mech="duration" name="ms-duration" form="ms-ui-only">${durationHtml}</select>
         </label>
         <label>usage per
-          <select data-mech="usageLimit.per">${usagePerHtml}</select>
+          <select data-mech="usageLimit.per" name="ms-usageLimitper" form="ms-ui-only">${usagePerHtml}</select>
         </label>
-        <label>usage max <input type="number" data-mech="usageLimit.max" value="${numAttr(ul.max)}" step="1" min="0"/></label>
+        <label>usage max <input type="number" data-mech="usageLimit.max" value="${numAttr(ul.max)}" step="1" min="0" name="ms-usageLimitmax" form="ms-ui-only"/></label>
         <label>condition gate
-          <select data-mech="condition">${conditionHtml}</select>
+          <select data-mech="condition" name="ms-condition" form="ms-ui-only">${conditionHtml}</select>
         </label>
         <label class="pme-span-2">conditionExpr (free text)
-          <input type="text" data-mech="conditionExpr" value="${esc(mech.conditionExpr ?? '')}" placeholder="targetRuin / custom"/>
+          <input type="text" data-mech="conditionExpr" value="${esc(mech.conditionExpr ?? '')}" placeholder="targetRuin / custom" name="ms-conditionExpr" form="ms-ui-only"/>
         </label>
       </div>
     </fieldset>
@@ -316,7 +316,7 @@ export async function openPowerMechanicsEditor({ actor, power }: OpenOptions): P
           <div class="pme-form-panel">${formHtml}</div>
           <details class="pme-raw">
             <summary>Raw JSON (advanced)</summary>
-            <textarea class="pme-json" rows="10" placeholder='{ "armor": 2, "applyWhen": "passive-slotted-active" }'>${jsonText}</textarea>
+            <textarea class="pme-json" rows="10" placeholder='{ "armor": 2, "applyWhen": "passive-slotted-active" }' name="ms-pme-json" form="ms-ui-only">${jsonText}</textarea>
             <p class="pme-hint">Takes precedence over the form fields when non-empty and parseable. Leave empty to use the form.</p>
           </details>
         </div>

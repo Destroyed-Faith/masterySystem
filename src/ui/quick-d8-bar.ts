@@ -207,6 +207,8 @@ function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
   const dice = document.createElement('input');
   dice.type = 'number';
   dice.className = 'ms-quick-d8-count';
+  dice.name = 'ms-quick-d8-count';
+  dice.setAttribute('form', 'ms-ui-only');
   dice.min = '1';
   dice.max = String(MAX_DICE);
   dice.step = '1';
@@ -226,6 +228,8 @@ function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
 
   const keep = document.createElement('select');
   keep.className = 'ms-quick-d8-keep';
+  keep.name = 'ms-quick-d8-keep';
+  keep.setAttribute('form', 'ms-ui-only');
   keep.title = 'Mastery Rank — how many d8 to keep';
   keep.setAttribute('aria-label', 'Keep, Mastery Rank');
   const initialKeep = rememberedKeep ?? defaultKeep();

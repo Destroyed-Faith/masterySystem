@@ -89,20 +89,20 @@
           {{#each specBaseValueRows as |row|}}
           <div class="node-select-row node-spec-bv-row" data-bv-slot="{{row.slot}}">
             <span class="node-spec-bv-slot-label" title="Unlocks at the shown Artifact Level">{{row.slotLabel}}</span>
-            <select class="node-spec-bv-type">
+            <select class="node-spec-bv-type" name="ms-node-spec-bv-type" form="ms-ui-only">
               <option value="none" {{#if row.isNone}}selected{{/if}}>— None —</option>
               {{#each ../specBaseValueTypeOptions as |opt|}}
               <option value="{{opt.key}}" {{#if (eq row.type opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <select class="node-spec-bv-special {{#unless row.isSpecial}}hidden{{/unless}}" data-current="{{row.specialId}}">
+            <select class="node-spec-bv-special {{#unless row.isSpecial}}hidden{{/unless}}" data-current="{{row.specialId}}" name="ms-node-spec-bv-special" form="ms-ui-only">
               <option value="">— Choose Special —</option>
               {{#each ../specSpecialOptions as |opt|}}
               <option value="{{opt.id}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
             <span class="node-spec-bv-derived" data-derived="{{row.derivedValue}}" title="Auto-calculated from Armor type + Artifact Level">{{#unless row.unlocked}}— (unlocks L{{row.unlockLevel}}){{else}}{{#if row.derivedDisplay}}auto: {{row.derivedDisplay}}{{else}}—{{/if}}{{/unless}}</span>
-            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="{{#unless row.unlocked}}Unlocks at L{{row.unlockLevel}}{{else}}Value{{/unless}}" title="The Base Value for this slot. Leave blank to use the auto-scaled value shown on the left." {{#unless row.unlocked}}disabled{{/unless}} />
+            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="{{#unless row.unlocked}}Unlocks at L{{row.unlockLevel}}{{else}}Value{{/unless}}" title="The Base Value for this slot. Leave blank to use the auto-scaled value shown on the left." {{#unless row.unlocked}}disabled{{/unless}}  name="ms-node-spec-bv-override" form="ms-ui-only"/>
           </div>
           {{/each}}
         </div>
@@ -120,31 +120,31 @@
         <div class="node-select-row node-progression-pick" data-level="{{row.level}}">
           <span class="node-pick-level-label" title="Introduced at Basic Level {{row.level}}">Level {{row.level}}</span>
           {{#if row.isAuthored}}
-          <input type="hidden" class="node-pick-kind" value="authored" />
+          <input type="hidden" class="node-pick-kind" value="authored"  name="ms-node-pick-kind" form="ms-ui-only"/>
           <span class="node-pick-authored" title="Bespoke, hand-authored line. Shown read-only; preserved on save. Its staged rows appear in the table below.">
             <i class="fas fa-lock"></i> Authored{{#if row.authoredSummary}}: {{row.authoredSummary}}{{/if}}
           </span>
           {{else}}
-          <select class="node-pick-kind">
+          <select class="node-pick-kind" name="ms-node-pick-kind" form="ms-ui-only">
             <option value="none" {{#if (eq row.kind "none")}}selected{{/if}}>— Empty —</option>
             <option value="power" {{#if (eq row.kind "power")}}selected{{/if}}>Power</option>
             <option value="stoneFunction" {{#if (eq row.kind "stoneFunction")}}selected{{/if}}>Stone Function</option>
           </select>
           <span class="node-pick-power-wrap {{#unless row.isPower}}hidden{{/unless}}">
-            <select class="node-pick-power-mode" title="What kind of Power this slot grants">
+            <select class="node-pick-power-mode" title="What kind of Power this slot grants" name="ms-node-pick-power-mode" form="ms-ui-only">
               {{#each ../powerModeOptions as |opt|}}
               <option value="{{opt.value}}" {{#if (eq row.powerMode opt.value)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
             <span class="node-pick-template-wrap" title="Catalog Power for this slot">
-              <select class="node-pick-template" data-current="{{row.selectedTemplateId}}">
+              <select class="node-pick-template" data-current="{{row.selectedTemplateId}}" name="ms-node-pick-template" form="ms-ui-only">
                 <option value="">— Choose Power —</option>
                 {{#each (lookup ../powerCatalogOptions row.powerMode) as |opt|}}
                 <option value="{{opt.id}}" {{#if (eq row.selectedTemplateId opt.id)}}selected{{/if}}>{{opt.name}}</option>
                 {{/each}}
               </select>
               <span class="node-pick-catalog-special-wrap {{#unless row.needsCatalogSpecial}}hidden{{/unless}}" title="Special applied by this Power">
-                <select class="node-pick-catalog-special" data-current="{{row.specialKey}}">
+                <select class="node-pick-catalog-special" data-current="{{row.specialKey}}" name="ms-node-pick-catalog-special" form="ms-ui-only">
                   <option value="">— Choose Special —</option>
                   {{#each row.catalogSpecialOptions as |opt|}}
                   <option value="{{opt.key}}" title="{{opt.description}}" {{#if (eq ../row.specialKey opt.key)}}selected{{/if}}>{{opt.label}}</option>
@@ -155,39 +155,39 @@
                 {{/unless}}{{/if}}
               </span>
             </span>
-            <input type="text" class="node-pick-name" value="{{row.displayName}}" placeholder="Flavor name (optional)" title="Optional display name shown to players (e.g. 'Breath Weapon'). The mechanics stay editable." />
+            <input type="text" class="node-pick-name" value="{{row.displayName}}" placeholder="Flavor name (optional)" title="Optional display name shown to players (e.g. 'Breath Weapon'). The mechanics stay editable."  name="ms-node-pick-name" form="ms-ui-only"/>
             <span class="node-pick-spell-wrap {{#unless row.showSpellConfig}}hidden{{/unless}}" title="Cast this ranged Active as a Spell">
               <label class="node-pick-spell-label">
-                <input type="checkbox" class="node-pick-is-spell" {{#if row.isSpell}}checked{{/if}} />
+                <input type="checkbox" class="node-pick-is-spell" {{#if row.isSpell}}checked{{/if}}  name="ms-node-pick-is-spell" form="ms-ui-only"/>
                 Cast as Spell
               </label>
               <span class="node-pick-spell-fields {{#unless row.isSpell}}hidden{{/unless}}">
-                <select class="node-pick-casting-attr" title="Casting attribute">
+                <select class="node-pick-casting-attr" title="Casting attribute" name="ms-node-pick-casting-attr" form="ms-ui-only">
                   <option value="intellect" {{#if (eq row.castingAttribute "intellect")}}selected{{/if}}>Intellect</option>
                   <option value="resolve" {{#if (eq row.castingAttribute "resolve")}}selected{{/if}}>Resolve</option>
                 </select>
-                <select class="node-pick-spell-resolution" title="Spell resolution">
+                <select class="node-pick-spell-resolution" title="Spell resolution" name="ms-node-pick-spell-resolution" form="ms-ui-only">
                   <option value="spellAttack" {{#if (eq row.spellResolution "spellAttack")}}selected{{/if}}>Spell Attack</option>
                 </select>
               </span>
             </span>
           </span>
           <span class="node-pick-stonefn {{#unless row.isStoneFn}}hidden{{/unless}}">
-            <select class="node-pick-stone-kind">
+            <select class="node-pick-stone-kind" name="ms-node-pick-stone-kind" form="ms-ui-only">
               <option value="">— Stone Function —</option>
               <option value="stonePowerSupport" {{#if (eq row.stoneKind "stonePowerSupport")}}selected{{/if}}>Stone Power Support</option>
               <option value="stonePool" {{#if (eq row.stoneKind "stonePool")}}selected{{/if}}>Stone Pool</option>
               <option value="stoneRefresh" {{#if (eq row.stoneKind "stoneRefresh")}}selected{{/if}}>Stone Refresh</option>
               <option value="stoneBattery" {{#if (eq row.stoneKind "stoneBattery")}}selected{{/if}}>Stone Battery</option>
             </select>
-            <select class="node-pick-stone-attr">
+            <select class="node-pick-stone-attr" name="ms-node-pick-stone-attr" form="ms-ui-only">
               <option value="">— Attribute (slot-gated) —</option>
               {{#each ../specStoneFnAttrOptions as |opt|}}
               <option value="{{opt.key}}" {{#if (eq row.stoneAttr opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
             <span class="node-pick-stone-power-wrap {{#unless (eq row.stoneKind "stonePowerSupport")}}hidden{{/unless}}" title="Stone Power supported by this artifact (4 per attribute)">
-              <select class="node-pick-stone-power" data-current="{{row.stonePowerId}}">
+              <select class="node-pick-stone-power" data-current="{{row.stonePowerId}}" name="ms-node-pick-stone-power" form="ms-ui-only">
                 <option value="">— Choose Stone Power —</option>
               </select>
             </span>
@@ -278,7 +278,7 @@
         <div id="node-weapon-innates" class="node-multi-select">
           {{#each weaponInnateRows as |row|}}
           <div class="node-select-row {{#if row.locked}}node-row-locked{{/if}}">
-            <select class="node-weapon-innate" disabled>
+            <select class="node-weapon-innate" disabled name="ms-node-weapon-innate" form="ms-ui-only">
               <option value="">—</option>
               {{#each ../innateOptions as |opt|}}
               <option value="{{opt}}" {{#if (eq row.value opt)}}selected{{/if}}>{{opt}}</option>
@@ -295,7 +295,7 @@
         <div id="node-weapon-specials" class="node-multi-select">
           {{#each weaponSpecialRows as |row|}}
           <div class="node-select-row node-special-row {{#if row.locked}}node-row-locked{{/if}}">
-            <select class="node-weapon-special-id" disabled>
+            <select class="node-weapon-special-id" disabled name="ms-node-weapon-special-id" form="ms-ui-only">
               <option value="">—</option>
               {{#each ../specialSelectOptions as |opt|}}
               <option value="{{opt.id}}" data-has-value="{{#if opt.hasValue}}true{{else}}false{{/if}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
@@ -303,7 +303,7 @@
             </select>
             <div class="node-weapon-special-val-wrap {{#unless row.showValueInput}}hidden{{/unless}}">
               <label class="node-special-strength-label" title="Numeric strength or rank when the effect uses a value (e.g. Push 2)">Strength</label>
-              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank for this effect" {{#if row.locked}}disabled{{/if}} />
+              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank for this effect" {{#if row.locked}}disabled{{/if}}  name="ms-node-weapon-special-val" form="ms-ui-only"/>
             </div>
             <button type="button" class="node-row-remove {{#if row.locked}}hidden{{/if}}" title="Remove this row">Remove</button>
           </div>

@@ -36,14 +36,14 @@
     {{#if snapshot}}
     <div class="mm-fields">
       <label class="mm-field">Form
-        <select class="js-mm-form">
+        <select class="js-mm-form" name="ms-js-mm-form" form="ms-ui-only">
           {{#each formOptions}}
           <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
           {{/each}}
         </select>
       </label>
       <label class="mm-field mm-field-wide">Name
-        <input type="text" class="js-mm-name" value="{{itemName}}" maxlength="80" autocomplete="off" spellcheck="false" />
+        <input type="text" class="js-mm-name" value="{{itemName}}" maxlength="80" autocomplete="off" spellcheck="false"  name="ms-js-mm-name" form="ms-ui-only"/>
       </label>
     </div>
 

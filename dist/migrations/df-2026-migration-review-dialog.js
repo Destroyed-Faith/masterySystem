@@ -35,9 +35,9 @@ function specRowHtml(row) {
     const fieldOptions = PAID_SKILL_FIELDS.map((f) => `<option value="${f}" ${row.field === f ? 'selected' : ''}>${esc(SKILL_FIELD_LABELS[f])}</option>`).join('');
     return `
     <div class="dfr-spec-row">
-      <input type="text" class="dfr-spec-name" placeholder="Name" maxlength="60" value="${esc(row.name ?? '')}" />
-      <select class="dfr-spec-field">${fieldOptions}</select>
-      <input type="text" class="dfr-spec-scope" placeholder="Scope (one sentence)" maxlength="200" value="${esc(row.scope ?? '')}" />
+      <input type="text" class="dfr-spec-name" placeholder="Name" maxlength="60" value="${esc(row.name ?? '')}"  name="ms-dfr-spec-name" form="ms-ui-only"/>
+      <select class="dfr-spec-field" name="ms-dfr-spec-field" form="ms-ui-only">${fieldOptions}</select>
+      <input type="text" class="dfr-spec-scope" placeholder="Scope (one sentence)" maxlength="200" value="${esc(row.scope ?? '')}"  name="ms-dfr-spec-scope" form="ms-ui-only"/>
       <span class="dfr-spec-rank-fixed" title="Starting Specializations are always Rank ${STARTING_SPECIALIZATION_RANK}">Rank ${STARTING_SPECIALIZATION_RANK}</span>
       <button type="button" data-action="remove-spec" title="Remove"><i class="fas fa-trash"></i></button>
     </div>`;
@@ -96,7 +96,7 @@ function planHtml(plan, attrValue) {
             .map((i) => `
             <label class="dfr-imprint${plan.mappedImprintIds.includes(i.id) ? ' is-mapped' : ''}">
               <input type="checkbox" class="dfr-imprint-pick" value="${esc(i.id)}"
-                ${checked.has(i.id) ? 'checked' : ''} ${eligible ? '' : 'disabled'} />
+                ${checked.has(i.id) ? 'checked' : ''} ${eligible ? '' : 'disabled'}  name="ms-dfr-imprint-pick" form="ms-ui-only"/>
               ${esc(findEchoImprint(i.id)?.name ?? i.id)}
             </label>`)
             .join('')}

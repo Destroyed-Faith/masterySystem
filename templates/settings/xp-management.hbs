@@ -18,7 +18,7 @@
         <div class="bulk-grant-controls">
           <div class="bulk-grant-group">
             <label title="{{localize 'MASTERY.xp.freeHint'}}">{{localize "MASTERY.xp.freeLabel"}}:</label>
-            <input type="number" class="bulk-free-xp-amount" min="0" value="0" title="{{localize 'MASTERY.xp.freeHint'}}" />
+            <input type="number" class="bulk-free-xp-amount" min="0" value="0" title="{{localize 'MASTERY.xp.freeHint'}}"  name="ms-bulk-free-xp-amount" form="ms-ui-only"/>
             <button type="button" class="bulk-grant-free-btn" title="{{localize 'MASTERY.xp.freeHint'}}">
               <i class="fas fa-star"></i> Grant Free to All
             </button>
@@ -53,7 +53,7 @@
               <th title="Netto plus übrige XP (= Lifetime XP auf dem Bogen).">Nach Ausgabe</th>
               <th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">
                 Bis Ziel
-                <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen." />
+                <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen."  name="ms-xp-target-input" form="ms-ui-only"/>
               </th>
               <th></th>
             </tr>
@@ -75,7 +75,7 @@
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group grant-group-free">
-                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.freeHint'}}" />
+                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.freeHint'}}"  name="ms-free-xp-amount-input" form="ms-ui-only"/>
                     <button type="button" class="grant-free-xp-btn" data-character-id="{{this.id}}" title="{{localize 'MASTERY.xp.freeHint'}}">
                       <i class="fas fa-star"></i>
                     </button>

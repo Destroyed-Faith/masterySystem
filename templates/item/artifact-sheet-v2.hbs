@@ -131,7 +131,7 @@
     {{#if actorActions.manyPaths}}
     <label class="artifact-card-path">
       <span>{{labels.path}}</span>
-      <select class="artifact-sheet-path-select">
+      <select class="artifact-sheet-path-select" name="ms-artifact-sheet-path-select" form="ms-ui-only">
         {{#each actorActions.paths}}
         <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
           {{#if disabledReason}}{{#unless @root.isGM}}disabled{{/unless}}{{/if}}
@@ -143,7 +143,7 @@
     </label>
     {{else}}
     {{#each actorActions.paths}}
-    <input type="hidden" class="artifact-sheet-path-select" value="{{nodeId}}" data-world-id="{{worldItemId}}" />
+    <input type="hidden" class="artifact-sheet-path-select" value="{{nodeId}}" data-world-id="{{worldItemId}}"  name="ms-artifact-sheet-path-select" form="ms-ui-only"/>
     {{/each}}
     {{/if}}
     <button type="button" class="artifact-card-edit artifact-card-upgrade" data-action="sheet-upgrade"

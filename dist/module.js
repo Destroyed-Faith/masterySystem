@@ -34,6 +34,7 @@ import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { registerCombatCarouselRenameHooks } from './ui/combat-carousel-rename.js';
 import { installTooltipPassthrough } from './ui/tooltip-passthrough.js';
+import { registerFormFieldStampHooks, rootFromHookHtml, stampUnnamedFormFields } from './ui/stamp-form-fields.js';
 import { installFadedUiUnlock, installStuckOverlayCleanup, } from './ui/foundry-chrome.js';
 import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
@@ -152,6 +153,7 @@ function registerAllMasteryInitSettings() {
  * This hook is called once when Foundry first starts up
  */
 Hooks.once('init', async function () {
+    registerFormFieldStampHooks();
     const sysVer = typeof game !== 'undefined' && game.system?.version
         ? String(game.system.version)
         : '?.?.?';
@@ -554,6 +556,7 @@ Hooks.once('init', async function () {
     // Hide initiative roll button (d20) and add passive selection button in combat tracker
     // Also add End Turn button for current combatant
     Hooks.on('renderCombatTracker', (_app, html) => {
+        stampUnnamedFormFields(rootFromHookHtml(html));
         // Convert html to jQuery if needed (Foundry v13 compatibility)
         let $html;
         try {
@@ -1909,7 +1912,7 @@ function setupXpManagementInline() {
         htmlContent += '<div class="bulk-grant-section"><h4>Bonus-XP an alle</h4>';
         htmlContent += '<div class="bulk-grant-controls">';
         htmlContent += `<div class="bulk-grant-group"><label title="${freeHint}">${freeLabel}:</label>`;
-        htmlContent += `<input type="number" class="bulk-free-xp-amount" min="0" value="0" title="${freeHint}" />`;
+        htmlContent += `<input type="number" class="bulk-free-xp-amount" min="0" value="0" title="${freeHint}"  name="ms-bulk-free-xp-amount" form="ms-ui-only"/>`;
         htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Bonus-XP an alle</button>`;
         htmlContent += `<p class="bulk-grant-help" title="${freeHint}">${freeHint}</p></div>`;
         htmlContent += '</div></div>';

@@ -32,7 +32,7 @@
         {{#times raises}}
         <div class="raise-item" data-raise-index="{{this}}">
           <label>Raise {{inc this}}:</label>
-          <select class="raise-selection" data-raise-index="{{this}}">
+          <select class="raise-selection" data-raise-index="{{this}}" name="ms-raise-selection" form="ms-ui-only">
             <option value="">-- Select --</option>
             <option value="damage">+1d8 Damage</option>
             {{#if availableSpecials}}
@@ -44,7 +44,7 @@
           
           {{#if availableSpecials}}
           {{#if availableSpecials.length}}
-          <select class="special-select" data-raise-index="{{this}}" style="display: none;">
+          <select class="special-select" data-raise-index="{{this}}" style="display: none;" name="ms-special-select" form="ms-ui-only">
             <option value="">-- Select Special Effect --</option>
             {{#each availableSpecials}}
             <option value="{{this.id}}">{{this.name}} ({{this.type}})</option>

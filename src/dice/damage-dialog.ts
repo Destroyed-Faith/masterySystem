@@ -38,6 +38,7 @@ import {
   settleDamageTransfer,
   spellFocusDamageApplies,
 } from '../combat/damage-transfer.js';
+import { hitCountsAsSpell, vulnerabilityRiderForHit } from '../combat/vulnerability-riders.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
 import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
@@ -108,7 +109,7 @@ function buildRaiseAllocPanelHtml(
     rows.push(`
       <div class="raise-alloc-row">
         <span class="raise-alloc-index">${i + 1}.</span>
-        <select class="raise-alloc-select" data-slot="${i}" ${locked ? 'disabled' : ''}>
+        <select class="raise-alloc-select" data-slot="${i}" ${locked ? 'disabled' : ''} name="ms-raise-alloc-select" form="ms-ui-only">
           <option value="">— choose effect —</option>
           ${opts}
         </select>
@@ -1447,7 +1448,7 @@ function createDamageCardContent(
           const sources = listAvailableMaximizationSources(attacker);
           const sourceSelect =
             sources.length > 1
-              ? `<select class="max-source-select" title="Choose Maximization source">${sources
+              ? `<select class="max-source-select" title="Choose Maximization source" name="ms-max-source-select" form="ms-ui-only">${sources
                   .map((s) => `<option value="${s.source}">${s.label}</option>`)
                   .join('')}</select>`
               : sources.length === 1
@@ -1778,6 +1779,7 @@ export function attachDamageCardHandlers(messageId: string): void {
         raiseBonusDice: Math.max(0, Math.floor(Number(flags.raiseBonusDice) || 0)),
         raiseBonusLabel: String(flags.raiseBonusLabel || ''),
         spellFocusDice: Math.max(0, Math.floor(Number(flags.spellFocusDice) || 0)),
+        isSpell: flags.powerIsSpell === true || flags.npcIsSpell === true,
       },
     );
     // Mechanical npcStressD8 / Stress on hit retired.
@@ -3241,6 +3243,12 @@ export async function calculateDamageResult(
     raiseBonusLabel?: string;
     /** Spell Focus d8 count — rolled as its own pool, never merged into Power. */
     spellFocusDice?: number;
+    /**
+     * Attack card already resolved this hit as a Spell (`powerIsSpell` /
+     * `npcIsSpell`). Artifact spells keep the artifact item id in
+     * `selectedPowerId`, which is not a power and has no spell tag.
+     */
+    isSpell?: boolean;
   },
 ): Promise<DamageResult> {
   // Rulebook attack sequence step 7: Phasing resolves after the hit is
@@ -3660,19 +3668,22 @@ export async function calculateDamageResult(
       const selectedPower = selectedPowerId
         ? resolvePowerItemForDamage(attacker as any, selectedPowerId)
         : null;
-      const isSpell = selectedPower ? isSpellPowerItem(selectedPower) : false;
+      const isSpell = hitCountsAsSpell({
+        declaredSpell: damageRollOpts?.isSpell === true,
+        powerItemIsSpell: selectedPower ? isSpellPowerItem(selectedPower) : false,
+      });
 
-      const hex = getActiveSpecialValue(target, 'hex');
-      const sundered = getActiveSpecialValue(target, 'sundered');
-      const vulnValue = isSpell ? hex : sundered;
-      if (vulnValue > 0) {
-        const bonusDice = Math.ceil(vulnValue / 2);
-        const label = isSpell ? `Hex(${hex})` : `Sundered(${sundered})`;
-        const r = await rollDiceWithDetail(`${bonusDice}d8`, `${label} vulnerability`);
+      const rider = vulnerabilityRiderForHit({
+        isSpell,
+        hex: getActiveSpecialValue(target, 'hex'),
+        sundered: getActiveSpecialValue(target, 'sundered'),
+      });
+      if (rider) {
+        const r = await rollDiceWithDetail(`${rider.dice}d8`, `${rider.label} vulnerability`);
         vulnerabilityBonusRolled += r.total;
         if (r.line) rollDetails.push(r.line);
         if (r.roll) damageChatRolls.push(r.roll);
-        specialsUsed.push(`${label} → +${bonusDice}d8`);
+        specialsUsed.push(rider.specialLine);
       }
     }
   } catch (e) {
@@ -3798,6 +3809,7 @@ export async function calculateDamageResult(
             Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice,
           ),
           raiseBonusLabel: damageRollOpts?.raiseBonusLabel,
+          isSpell: damageRollOpts?.isSpell === true,
         },
       );
       rerolled.rollDetails = [

@@ -36,7 +36,7 @@ function tierScaleBlock(def, attrVal, eligible) {
     return `
     <div class="me-tier-scale-block">
       <label class="me-tier-scale-label">Tiers (Preview)</label>
-      <select class="me-tier-scale" data-attr-val="${attrVal}" aria-label="Tiers for ${escapeHtml(def.name)}">
+      <select class="me-tier-scale" data-attr-val="${attrVal}" aria-label="Tiers for ${escapeHtml(def.name)}" name="ms-me-tier-scale" form="ms-ui-only">
         ${options}
       </select>
       <p class="me-tier-scale-preview${lockedClass}">${previewText}</p>

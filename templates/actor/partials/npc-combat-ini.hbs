@@ -3,13 +3,13 @@
 <div class="npc-combat-chip npc-combat-chip--ini" data-npc-ini-chip>
   <span class="npc-combat-chip__label">Ini</span>
   <div class="npc-ini-controls">
-    <select class="npc-ini-malus" title="Initiative malus">
+    <select class="npc-ini-malus" title="Initiative malus" name="ms-npc-ini-malus" form="ms-ui-only">
       <option value="0" {{#if (eq iniMalus 0)}}selected{{/if}}>0</option>
       {{#each (range 1 10)}}
       <option value="-{{this}}" {{#if (eqNum ../iniMalus (multiply this -1))}}selected{{/if}}>−{{this}}</option>
       {{/each}}
     </select>
-    <select class="npc-ini-bonus" title="Initiative bonus">
+    <select class="npc-ini-bonus" title="Initiative bonus" name="ms-npc-ini-bonus" form="ms-ui-only">
       <option value="0" {{#if (eq iniBonus 0)}}selected{{/if}}>0</option>
       {{#each (range 1 10)}}
       <option value="{{this}}" {{#if (eqNum ../iniBonus this)}}selected{{/if}}>+{{this}}</option>

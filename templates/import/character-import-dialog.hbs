@@ -9,13 +9,13 @@
   <div class="ci-file-row">
     <label class="ci-file-label">
       <span>JSON file</span>
-      <input type="file" class="js-ci-file" accept="application/json,.json" />
+      <input type="file" class="js-ci-file" accept="application/json,.json"  name="ms-js-ci-file" form="ms-ui-only"/>
     </label>
   </div>
 
   <label class="ci-json-label">
     <span>JSON content</span>
-    <textarea class="js-ci-json" rows="14" spellcheck="false" placeholder='{ "schemaVersion": 1, "exportKind": "mastery-character-import", ... }'>{{jsonText}}</textarea>
+    <textarea class="js-ci-json" rows="14" spellcheck="false" placeholder='{ "schemaVersion": 1, "exportKind": "mastery-character-import", ... }' name="ms-js-ci-json" form="ms-ui-only">{{jsonText}}</textarea>
   </label>
 
   <div class="ci-validation {{#if validationOk}}ci-validation-ok{{else}}ci-validation-pending{{/if}}">

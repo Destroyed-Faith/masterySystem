@@ -117,7 +117,7 @@ function buildPanelHtml(snapshot: SkillCheckResolvedSnapshot, interactive: boole
       ${rows}
       <div class="ms-sra-field">
         <label for="ms-sra-benefit">Specific benefit (agree with GM)</label>
-        <textarea class="ms-sra-benefit-input" rows="2" placeholder="e.g. two more related track groups">${escapeHtml(
+        <textarea class="ms-sra-benefit-input" rows="2" placeholder="e.g. two more related track groups" name="ms-ms-sra-benefit-input" form="ms-ui-only">${escapeHtml(
           snapshot.proposedBenefit || '',
         )}</textarea>
       </div>

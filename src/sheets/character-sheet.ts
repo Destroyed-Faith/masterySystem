@@ -2676,7 +2676,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         .map((n) => `<option value="${n}"${n === rank ? ' selected' : ''}>${n}</option>`)
         .join('');
       box.find('.rank-value').replaceWith(
-        `<select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank">${options}</select>`
+        `<select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank" name="ms-mastery-rank-select" form="ms-ui-only">${options}</select>`
       );
       select = box.find('.mastery-rank-select');
     }

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.814] - 2026-11-03
+
+### Fixed
+
+- **Spell vulnerability:** Hex on a spell hit and Sundered on a martial hit now add their bonus d8s when the attack comes from an artifact spell such as Life Taken. Those hits were treated as martial because the selected item is the artifact, not a power.
+- **Form fields:** Inputs, selects, and textareas in sheets, dialogs, and stored attack cards receive a name and stay out of ancestor forms. Chat cards are stamped when the log renders, so Chrome stops repeating the unnamed-field warning.
+- **Attack card permissions:** Only the message author or the GM writes raise counts and the spell pre-roll plan. Other players no longer see a permission error when someone rolls or picks a power target.
+
 ## [0.9.813] - 2026-11-03
 
 ### Fixed

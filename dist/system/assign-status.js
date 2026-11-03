@@ -431,11 +431,11 @@ export async function openStatusAddDialog(actor) {
         <p class="ms-status-add-dialog__hint">Status auf ${who} setzen.</p>
         <label class="ms-status-add-dialog__field">
           <span>Status</span>
-          <select class="js-status-add-pick" aria-label="Status">${options}</select>
+          <select class="js-status-add-pick" aria-label="Status" name="ms-js-status-add-pick" form="ms-ui-only">${options}</select>
         </label>
         <label class="ms-status-add-dialog__field js-status-add-value-wrap">
           <span>Stufe</span>
-          <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe"/>
+          <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe" name="ms-js-status-add-value" form="ms-ui-only"/>
         </label>
       </form>`,
             buttons: {

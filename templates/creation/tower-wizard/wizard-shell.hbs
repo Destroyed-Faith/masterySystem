@@ -394,7 +394,7 @@
           {{#if this.variantOptions.length}}
           <label class="tower-wizard-field">
             <span>{{../copy.review.variant}}</span>
-            <select class="js-tw-variant" data-grant-key="{{this.grantKey}}">
+            <select class="js-tw-variant" data-grant-key="{{this.grantKey}}" name="ms-js-tw-variant" form="ms-ui-only">
               {{#each this.variantOptions}}
               <option value="{{this.id}}" {{#if (eq this.id ../override.variant)}}selected{{/if}}>{{this.label}}</option>
               {{/each}}
@@ -402,19 +402,19 @@
           </label>
           {{/if}}
           <label class="tower-wizard-field tower-wizard-checkbox">
-            <input type="checkbox" class="js-tw-is-spell" data-grant-key="{{this.grantKey}}" {{#if this.override.isSpell}}checked{{/if}} />
+            <input type="checkbox" class="js-tw-is-spell" data-grant-key="{{this.grantKey}}" {{#if this.override.isSpell}}checked{{/if}}  name="ms-js-tw-is-spell" form="ms-ui-only"/>
             <span>{{../copy.review.castAsSpell}}</span>
           </label>
           <label class="tower-wizard-field js-tw-spell-fields" data-grant-key="{{this.grantKey}}" {{#unless this.override.isSpell}}style="display:none"{{/unless}}>
             <span>{{../copy.review.castingAttribute}}</span>
-            <select class="js-tw-casting-attr" data-grant-key="{{this.grantKey}}">
+            <select class="js-tw-casting-attr" data-grant-key="{{this.grantKey}}" name="ms-js-tw-casting-attr" form="ms-ui-only">
               <option value="intellect" {{#if (eq this.override.castingAttribute 'intellect')}}selected{{/if}}>Intellect</option>
               <option value="resolve" {{#if (eq this.override.castingAttribute 'resolve')}}selected{{/if}}>Resolve</option>
             </select>
           </label>
           <label class="tower-wizard-field js-tw-spell-fields" data-grant-key="{{this.grantKey}}" {{#unless this.override.isSpell}}style="display:none"{{/unless}}>
             <span>{{../copy.review.resolution}}</span>
-            <select class="js-tw-spell-resolution" data-grant-key="{{this.grantKey}}">
+            <select class="js-tw-spell-resolution" data-grant-key="{{this.grantKey}}" name="ms-js-tw-spell-resolution" form="ms-ui-only">
               <option value="spellAttack" {{#if (eq this.override.spellResolution 'spellAttack')}}selected{{/if}}>Spell Attack</option>
             </select>
           </label>

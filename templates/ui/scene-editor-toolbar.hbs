@@ -48,7 +48,7 @@
       <i class="fas fa-file-import"></i>
     </button>
     <label class="ms-se-probe-label" title="{{localize 'MASTERY.sceneEditor.hoverProbeHint'}}">
-      <input type="checkbox" class="js-hover-probe" {{#if hoverProbe}}checked{{/if}} />
+      <input type="checkbox" class="js-hover-probe" {{#if hoverProbe}}checked{{/if}}  name="ms-js-hover-probe" form="ms-ui-only"/>
       {{localize "MASTERY.sceneEditor.hoverProbe"}}
     </label>
   </div>
@@ -56,7 +56,7 @@
   <div class="ms-se-layers" title="{{localize 'MASTERY.sceneEditor.analysisView'}}">
     {{#each layers}}
     <label class="ms-se-layer{{#if on}} is-on{{/if}}">
-      <input type="checkbox" data-layer="{{id}}" {{#if on}}checked{{/if}} />
+      <input type="checkbox" data-layer="{{id}}" {{#if on}}checked{{/if}}  name="ms-field" form="ms-ui-only"/>
       {{label}}
     </label>
     {{/each}}

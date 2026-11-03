@@ -211,6 +211,12 @@ damageRollOpts?: {
     raiseBonusLabel?: string;
     /** Spell Focus d8 count — rolled as its own pool, never merged into Power. */
     spellFocusDice?: number;
+    /**
+     * Attack card already resolved this hit as a Spell (`powerIsSpell` /
+     * `npcIsSpell`). Artifact spells keep the artifact item id in
+     * `selectedPowerId`, which is not a power and has no spell tag.
+     */
+    isSpell?: boolean;
 }): Promise<DamageResult>;
 /**
  * After HP is applied for a hit, open Push/Pull destination picking when the

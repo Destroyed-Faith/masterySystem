@@ -18,7 +18,7 @@
   <div class="npc-reactions-standard">
     <label>Standardmanöver</label>
     <div class="npc-reactions-standard-row">
-      <select class="npc-reaction-standard-select">
+      <select class="npc-reaction-standard-select" name="ms-npc-reaction-standard-select" form="ms-ui-only">
         <option value="">— auswählen —</option>
         {{#each @root.npcStandardReactions as |std|}}
         <option value="{{std.id}}">{{std.name}}</option>
@@ -31,9 +31,9 @@
   <details class="npc-reactions-catalog">
     <summary>Katalog-Reactions einblenden</summary>
     <div class="npc-reactions-catalog-body">
-      <input type="search" class="npc-reaction-catalog-filter" placeholder="Filtern…" />
+      <input type="search" class="npc-reaction-catalog-filter" placeholder="Filtern…"  name="ms-npc-reaction-catalog-filter" form="ms-ui-only"/>
       <div class="npc-reactions-catalog-row">
-        <select class="npc-reaction-catalog-select">
+        <select class="npc-reaction-catalog-select" name="ms-npc-reaction-catalog-select" form="ms-ui-only">
           <option value="">— Katalog —</option>
           {{#each @root.npcCatalogReactions as |cat|}}
           <option value="{{cat.templateId}}" data-label="{{cat.name}}">{{cat.name}}</option>
@@ -41,7 +41,7 @@
         </select>
         <label class="npc-reactions-rank">
           Stufe
-          <select class="npc-reaction-catalog-rank" data-dtype="Number">
+          <select class="npc-reaction-catalog-rank" data-dtype="Number" name="ms-npc-reaction-catalog-rank" form="ms-ui-only">
             {{#each (range 1 16)}}
             <option value="{{this}}" {{#if (eq this 4)}}selected{{/if}}>{{this}}</option>
             {{/each}}

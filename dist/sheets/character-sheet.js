@@ -2,14 +2,14 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
 import { isContestAttributeKey } from '../contests/opposed-attribute-contest.js';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
-import { getAllSchticks } from '../utils/schticks.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages';
+import { getAllSchticks } from '../utils/schticks';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
 import { isPowerFavorited, togglePowerFavorite } from '../ui/power-favorites.js';
@@ -22,7 +22,7 @@ import { showPowerReplaceDialog } from './character-sheet-power-replace-dialog.j
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -42,12 +42,12 @@ import { findLegacyDialogRoot, scheduleCenterLegacyDialog } from '../utils/legac
 import { masteryLocalize } from '../utils/mastery-localize.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, isSkillsRedistributing, } from '../utils/skills-redistribute.js';
-import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
+import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
 import { addWeaponSetSlot, canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, listEquipmentWeaponSetChoices, MAX_WEAPON_SET_COUNT, parseWeaponSwapTarget, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, weaponSetCount, } from '../utils/weapon-sets.js';
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
-import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants.js';
+import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { buildStoneProgressionSlots, chunkLifetimeSlots, effectiveStoneAssignments, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
 import { lifetimeXpForActor } from '../progression/build-value.js';
@@ -59,7 +59,7 @@ import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { resolvePowerSheetLevelDisplay } from '../utils/power-rendering.js';
 import { calculatePowerDeletionRefund, getPowerMinLevel as resolvePowerMinLevel, } from '../utils/power-xp-refund.js';
-import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { buildRadialManeuverPrefsContext, isOptInRadialManeuverId } from '../utils/radial-maneuver-prefs.js';
 import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
@@ -2402,7 +2402,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const options = [1, 2, 3, 4, 5, 6, 7, 8]
                 .map((n) => `<option value="${n}"${n === rank ? ' selected' : ''}>${n}</option>`)
                 .join('');
-            box.find('.rank-value').replaceWith(`<select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank">${options}</select>`);
+            box.find('.rank-value').replaceWith(`<select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank" name="ms-mastery-rank-select" form="ms-ui-only">${options}</select>`);
             select = box.find('.mastery-rank-select');
         }
         select.val(String(rank));

@@ -40,7 +40,7 @@ function buildLanguageDialogContent(known, lockedKey, lockOthers) {
         return `
             <li class="lang-row${disabled ? ' is-locked' : ''}" data-lang="${lang.key}">
                 <label class="lang-label">
-                    <input type="checkbox" class="lang-checkbox" value="${lang.key}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} />
+                    <input type="checkbox" class="lang-checkbox" value="${lang.key}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}  name="ms-lang-checkbox" form="ms-ui-only"/>
                     <span class="lang-name">${escapeHtml(lang.name)}${flag}</span>
                 </label>
                 <p class="lang-description">${escapeHtml(lang.description)}</p>
