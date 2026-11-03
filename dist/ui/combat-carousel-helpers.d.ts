@@ -3,8 +3,19 @@
  * Not Foundry token disposition — that was always hostile for most NPCs.
  */
 export declare function carouselSideClass(actorType: string | undefined): 'disp-pc' | 'disp-npc';
-/** Live token name first — combatant.name is a snapshot and can lag behind renames. */
+/** Whether the placeable is linked to the world Actor (sheet renames are authoritative). */
+export declare function isCombatantActorLinked(combatant: any, token?: any): boolean;
+/**
+ * Label for a carousel combatant.
+ * Linked: prefer Actor (sheet rename); token names often lag behind.
+ * Unlinked: prefer Token (placeable identity); synthetic Actor may lag.
+ * Combatant.name is only a fallback snapshot until sync catches up.
+ */
 export declare function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string;
+/** True when a Foundry update diff touches the document display name. */
+export declare function updateDiffHasNameChange(changed: any): boolean;
+/** New name from an update diff, or empty string. */
+export declare function nameFromUpdateDiff(changed: any, fallback?: unknown): string;
 /** @deprecated Use carouselSideClass — kept for older tests/callers. */
 export declare function carouselDispositionClass(disposition: number): 'disp-friendly' | 'disp-neutral' | 'disp-hostile';
 export type CarouselTurnRow = {

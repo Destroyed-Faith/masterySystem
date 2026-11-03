@@ -32,6 +32,7 @@ import { downloadMasteryCharacterJson, exportMasteryCharacterJson, } from './imp
 import { importMasteryCharacter, importMasteryCharacterFromJson, validateCharacterImportDocument, validateCharacterImportJson, parseCharacterImportJson, } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
+import { nameFromUpdateDiff, updateDiffHasNameChange, } from './ui/combat-carousel-helpers.js';
 import { installTooltipPassthrough } from './ui/tooltip-passthrough.js';
 import { installFadedUiUnlock, installStuckOverlayCleanup, } from './ui/foundry-chrome.js';
 import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
@@ -494,38 +495,89 @@ Hooks.once('init', async function () {
             carousel.render({ force: false });
         }
     });
-    // Token/Actor rename: combatant.name is a snapshot — re-render so the carousel picks up the live name.
+    // Token/Actor rename during combat: combatant.name is a snapshot, and linked Token names
+    // often lag behind Actor sheet renames — sync combatant (+ linked token) then re-render.
     const refreshCarouselOnRename = () => {
         try {
             const carousel = CombatCarouselApp.instance;
             if (carousel?.rendered)
-                carousel.render({ force: false });
+                carousel.render({ force: true });
         }
         catch {
             /* ignore */
         }
     };
+    const combatantsList = (combat) => {
+        const raw = combat?.combatants;
+        if (!raw)
+            return [];
+        if (typeof raw.contents !== 'undefined')
+            return Array.from(raw.contents);
+        if (typeof raw.values === 'function')
+            return Array.from(raw.values());
+        return Array.isArray(raw) ? raw : [];
+    };
+    const syncCombatantNames = async (combat, match, newName, opts) => {
+        if (!combat || !newName) {
+            refreshCarouselOnRename();
+            return;
+        }
+        const matched = combatantsList(combat).filter(match);
+        if (!matched.length)
+            return;
+        if (game.user?.isGM) {
+            const combatantUpdates = matched
+                .filter((c) => String(c?.name || '').trim() !== newName)
+                .map((c) => ({ _id: c.id, name: newName }));
+            if (combatantUpdates.length) {
+                try {
+                    await combat.updateEmbeddedDocuments('Combatant', combatantUpdates);
+                }
+                catch (err) {
+                    console.warn('Mastery System | combatant rename sync failed', err);
+                }
+            }
+            if (opts?.syncLinkedToken) {
+                for (const c of matched) {
+                    const tokenDoc = c?.token?.document ?? c?.token ?? (c?.tokenId ? canvas.tokens?.get(c.tokenId)?.document : null);
+                    if (!tokenDoc || tokenDoc.actorLink === false)
+                        continue;
+                    if (String(tokenDoc.name || '').trim() === newName)
+                        continue;
+                    try {
+                        await tokenDoc.update({ name: newName });
+                    }
+                    catch (err) {
+                        console.warn('Mastery System | token rename sync failed', err);
+                    }
+                }
+            }
+        }
+        refreshCarouselOnRename();
+    };
     Hooks.on('updateToken', (tokenDoc, changed) => {
-        if (changed?.name === undefined)
+        if (!updateDiffHasNameChange(changed))
             return;
         const combat = game.combats?.active;
         if (!combat)
             return;
         const tokenId = String(tokenDoc?.id ?? '');
-        const inCombat = combat.combatants?.some?.((c) => String(c.tokenId ?? c.token?.id ?? '') === tokenId);
-        if (inCombat)
-            refreshCarouselOnRename();
+        const newName = nameFromUpdateDiff(changed, tokenDoc?.name);
+        if (!newName)
+            return;
+        void syncCombatantNames(combat, (c) => String(c.tokenId ?? c.token?.id ?? '') === tokenId, newName);
     });
     Hooks.on('updateActor', (actor, changed) => {
-        if (changed?.name === undefined)
+        if (!updateDiffHasNameChange(changed))
             return;
         const combat = game.combats?.active;
         if (!combat)
             return;
         const actorId = String(actor?.id ?? '');
-        const inCombat = combat.combatants?.some?.((c) => String(c.actorId ?? c.actor?.id ?? '') === actorId);
-        if (inCombat)
-            refreshCarouselOnRename();
+        const newName = nameFromUpdateDiff(changed, actor?.name);
+        if (!newName)
+            return;
+        void syncCombatantNames(combat, (c) => String(c.actorId ?? c.actor?.id ?? '') === actorId, newName, { syncLinkedToken: true });
     });
     function bindStartEncounterClick() {
         const w = window;

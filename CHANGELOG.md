@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.808] - 2026-11-03
+
+### Fixed
+
+- **Combat Carousel rename:** Actor sheet renames during combat sync the combatant (and linked token) name and refresh the carousel; linked cards prefer the Actor name so a stale Token label no longer sticks.
+
 ## [0.9.807] - 2026-11-03
 
 ### Changed

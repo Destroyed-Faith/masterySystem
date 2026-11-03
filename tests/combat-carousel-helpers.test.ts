@@ -16,21 +16,31 @@ describe('carouselSideClass', () => {
 });
 
 describe('resolveCombatantDisplayName', () => {
-  it('prefers the live token name over a stale combatant snapshot', () => {
+  it('linked: prefers actor sheet name over a stale token/combatant snapshot', () => {
     expect(
       resolveCombatantDisplayName(
-        { name: 'Old Name', token: { name: 'Also Old' }, actor: { name: 'Actor' } },
-        { name: 'Renamed Token' },
+        { name: 'Old', token: { name: 'Old', actorLink: true }, actor: { name: 'Renamed' } },
+        { name: 'Old', actorLink: true },
+        { name: 'Renamed' },
+      ),
+    ).toBe('Renamed');
+  });
+
+  it('unlinked: prefers live token name over actor/combatant snapshot', () => {
+    expect(
+      resolveCombatantDisplayName(
+        { name: 'Old', token: { name: 'Old', actorLink: false }, actor: { name: 'Actor' } },
+        { name: 'Renamed Token', document: { name: 'Renamed Token', actorLink: false } },
         { name: 'Actor' },
       ),
     ).toBe('Renamed Token');
   });
 
-  it('falls back to combatant then actor when no token name is present', () => {
+  it('falls back through the linked chain when some names are missing', () => {
     expect(resolveCombatantDisplayName({ name: 'Combatant' }, null, { name: 'Actor' })).toBe(
-      'Combatant',
+      'Actor',
     );
-    expect(resolveCombatantDisplayName({}, null, { name: 'Actor' })).toBe('Actor');
+    expect(resolveCombatantDisplayName({ name: 'Combatant' }, null, null)).toBe('Combatant');
   });
 });
 

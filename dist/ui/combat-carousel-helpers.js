@@ -5,20 +5,49 @@
 export function carouselSideClass(actorType) {
     return String(actorType || '').toLowerCase() === 'character' ? 'disp-pc' : 'disp-npc';
 }
-/** Live token name first — combatant.name is a snapshot and can lag behind renames. */
+function tokenDocFrom(combatant, token) {
+    return token?.document ?? token ?? combatant?.token?.document ?? combatant?.token ?? null;
+}
+/** Whether the placeable is linked to the world Actor (sheet renames are authoritative). */
+export function isCombatantActorLinked(combatant, token) {
+    const tokenDoc = tokenDocFrom(combatant, token);
+    if (tokenDoc?.actorLink === false || tokenDoc?.actorLink === 0)
+        return false;
+    return true;
+}
+/**
+ * Label for a carousel combatant.
+ * Linked: prefer Actor (sheet rename); token names often lag behind.
+ * Unlinked: prefer Token (placeable identity); synthetic Actor may lag.
+ * Combatant.name is only a fallback snapshot until sync catches up.
+ */
 export function resolveCombatantDisplayName(combatant, token, actor) {
-    const liveToken = token?.document?.name ??
-        token?.name ??
-        combatant?.token?.name ??
-        combatant?.token?.document?.name;
-    const fromToken = String(liveToken || '').trim();
-    if (fromToken)
-        return fromToken;
-    const fromCombatant = String(combatant?.name || '').trim();
-    if (fromCombatant)
-        return fromCombatant;
+    const tokenDoc = tokenDocFrom(combatant, token);
     const resolvedActor = actor ?? combatant?.actor;
-    return String(resolvedActor?.name || '').trim();
+    const actorName = String(resolvedActor?.name || '').trim();
+    const tokenName = String(tokenDoc?.name ?? token?.name ?? '').trim();
+    const combatantName = String(combatant?.name || '').trim();
+    if (isCombatantActorLinked(combatant, token)) {
+        return actorName || tokenName || combatantName;
+    }
+    return tokenName || actorName || combatantName;
+}
+/** True when a Foundry update diff touches the document display name. */
+export function updateDiffHasNameChange(changed) {
+    if (!changed || typeof changed !== 'object')
+        return false;
+    if (changed.name !== undefined)
+        return true;
+    if (changed.delta?.name !== undefined)
+        return true;
+    if (changed.actorData?.name !== undefined)
+        return true;
+    return false;
+}
+/** New name from an update diff, or empty string. */
+export function nameFromUpdateDiff(changed, fallback) {
+    const raw = changed?.name ?? changed?.delta?.name ?? changed?.actorData?.name ?? fallback ?? '';
+    return String(raw || '').trim();
 }
 /** @deprecated Use carouselSideClass — kept for older tests/callers. */
 export function carouselDispositionClass(disposition) {
