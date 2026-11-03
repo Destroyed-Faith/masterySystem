@@ -192,10 +192,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return super.close(options);
     }
     /**
-     * Explicit name Save / Enter only. Do not sync on open, close, or every form
-     * re-render — that force-refreshed the Combat Carousel and made names jump.
-     * Normal `submitOnChange` still persists `name` via the form; `updateActor`
-     * keeps combatant labels in sync when the name actually changes.
+     * Name Save / Enter / trusted change → Actor update + combatant sync.
+     * Save always syncs (even when the Actor already has the typed name) so a
+     * lagging Combat Carousel `combatant.name` snapshot is corrected.
+     * Open/close alone never syncs (that made labels jump).
      */
     #bindActorDisplayNameControls(html) {
         this.#actorDisplayNameAbort?.abort();
@@ -208,9 +208,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const saveBtn = root.querySelector('.js-save-actor-name');
         if (!input && !saveBtn)
             return;
-        const apply = async (reason) => {
+        const apply = async (reason, opts) => {
             const value = String(input?.value ?? this.actor?.name ?? '').trim();
-            if (!value || value === String(this.actor?.name || '').trim())
+            if (!value)
+                return;
+            const current = String(this.actor?.name || '').trim();
+            // Ignore no-op change events from re-renders; Save/Enter always sync.
+            if (!opts?.forceSync && value === current)
                 return;
             try {
                 const { applyActorDisplayName } = await import('../ui/combat-carousel-rename.js');
@@ -221,24 +225,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         };
         if (input) {
-            // change: only when the typed value differs (avoids open/render noise).
             input.addEventListener('change', (ev) => {
                 if (!ev.isTrusted)
                     return;
-                void apply('name-input-change');
+                void apply('name-input-change', { forceSync: true });
             }, { signal });
             input.addEventListener('keydown', (ev) => {
                 if (ev.key !== 'Enter')
                     return;
                 ev.preventDefault();
-                void apply('name-input-enter');
+                void apply('name-input-enter', { forceSync: true });
             }, { signal });
         }
         if (saveBtn) {
             saveBtn.addEventListener('click', (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                void apply('name-save-button');
+                void apply('name-save-button', { forceSync: true });
             }, { signal });
         }
     }

@@ -1,14 +1,28 @@
 /**
  * Keep Combat Carousel (and combatant.name) in sync when a sheet renames an Actor.
- * Only writes / re-renders when a displayed name actually changes.
+ *
+ * Unlinked NPC copies must match by Token id only — never by shared actorId.
+ * Save always pushes combatant.name even when the Actor already holds the new name.
  */
 import { CombatCarouselApp } from './combat-carousel.js';
-import { nameFromUpdateDiff, resolveCombatantDisplayName, updateDiffHasNameChange, } from './combat-carousel-helpers.js';
+import { actorMatchesCombatant, actorTokenId, nameFromUpdateDiff, resolveCombatantDisplayName, updateDiffHasNameChange, } from './combat-carousel-helpers.js';
+export { actorMatchesCombatant, actorTokenId } from './combat-carousel-helpers.js';
 const LOG = 'Mastery System | [CAROUSEL-RENAME]';
-/** Opt-in console tracing: `game.masteryCarouselRenameDebug(true)`. */
-export let CAROUSEL_RENAME_DEBUG = false;
+/**
+ * Debug defaults ON while rename sync is being verified.
+ * Silence with: game.masteryCarouselRenameDebug(false)
+ */
+export let CAROUSEL_RENAME_DEBUG = true;
 export function setCarouselRenameDebug(on) {
     CAROUSEL_RENAME_DEBUG = !!on;
+    console.log(LOG, `debug ${CAROUSEL_RENAME_DEBUG ? 'ON' : 'OFF'}`);
+}
+/** Always-on one-liner (readable without expanding Objects). */
+function note(msg, parts = {}) {
+    const flat = Object.entries(parts)
+        .map(([k, v]) => `${k}=${v === undefined || v === null ? '∅' : String(v)}`)
+        .join(' ');
+    console.log(LOG, msg, flat);
 }
 export function logCarouselRename(...args) {
     if (!CAROUSEL_RENAME_DEBUG)
@@ -29,7 +43,7 @@ function refreshCarousel(reason) {
     try {
         const carousel = CombatCarouselApp.instance;
         const rendered = !!(carousel?.rendered || carousel?.state?.rendered);
-        logCarouselRename('refresh', { reason, hasInstance: !!carousel, rendered });
+        note('refresh', { reason, rendered: rendered ? 1 : 0 });
         if (carousel && rendered) {
             void carousel.render({ force: true });
         }
@@ -41,39 +55,40 @@ function refreshCarousel(reason) {
         console.warn(LOG, 'refresh failed', err);
     }
 }
-function actorMatchesCombatant(actor, combatant) {
-    const actorId = String(actor?.id ?? '');
-    const cActorId = String(combatant?.actorId ?? combatant?.actor?.id ?? '');
-    if (actorId && cActorId && actorId === cActorId)
-        return true;
-    if (combatant?.actor && actor && combatant.actor === actor)
-        return true;
-    const tokenId = String(actor?.token?.id ?? actor?.token?.document?.id ?? '');
-    const cTokenId = String(combatant?.tokenId ?? combatant?.token?.id ?? '');
-    if (tokenId && cTokenId && tokenId === cTokenId)
-        return true;
-    return false;
-}
 /**
  * Push the live Actor name onto matching combatants (+ linked tokens) and re-render
- * only when something actually changed.
+ * when the displayed label would change.
  */
 export async function syncCombatCarouselNamesForActor(actor, reason = 'sync') {
     const combat = game.combats?.active;
     const newName = String(actor?.name || '').trim();
-    logCarouselRename('syncForActor', {
+    const tokenId = actorTokenId(actor);
+    note('syncForActor', {
         reason,
         actorId: actor?.id,
         actorName: newName,
-        isToken: !!actor?.isToken,
-        isGM: !!game.user?.isGM,
-        hasActiveCombat: !!combat,
+        tokenId: tokenId || '∅',
+        isToken: actor?.isToken ? 1 : 0,
+        isGM: game.user?.isGM ? 1 : 0,
+        combat: combat?.id || '∅',
     });
-    if (!combat || !newName)
+    if (!combat || !newName) {
+        note('sync abort', { why: !combat ? 'no-combat' : 'empty-name' });
         return false;
-    const matched = combatantsList(combat).filter((c) => actorMatchesCombatant(actor, c));
-    if (!matched.length)
+    }
+    const all = combatantsList(combat);
+    const matched = all.filter((c) => actorMatchesCombatant(actor, c));
+    note('matched', {
+        reason,
+        count: matched.length,
+        ids: matched.map((c) => c?.id).join(',') || '∅',
+        names: matched.map((c) => c?.name).join(' | ') || '∅',
+        tokenIds: matched.map((c) => c?.tokenId ?? c?.token?.id).join(',') || '∅',
+    });
+    if (!matched.length) {
+        note('sync abort', { why: 'no-matching-combatant', actorId: actor?.id, tokenId: tokenId || '∅' });
         return false;
+    }
     let wrote = false;
     if (game.user?.isGM) {
         const combatantUpdates = matched
@@ -81,7 +96,11 @@ export async function syncCombatCarouselNamesForActor(actor, reason = 'sync') {
             .map((c) => ({ _id: c.id, name: newName }));
         if (combatantUpdates.length) {
             try {
-                logCarouselRename('updateEmbeddedDocuments Combatant', combatantUpdates);
+                note('write combatants', {
+                    n: combatantUpdates.length,
+                    to: newName,
+                    ids: combatantUpdates.map((u) => u._id).join(','),
+                });
                 await combat.updateEmbeddedDocuments('Combatant', combatantUpdates);
                 wrote = true;
             }
@@ -89,17 +108,23 @@ export async function syncCombatCarouselNamesForActor(actor, reason = 'sync') {
                 console.warn(LOG, 'combatant rename sync failed', err);
             }
         }
+        else {
+            note('combatant names already equal', { newName });
+        }
         for (const c of matched) {
             const tokenDoc = c?.token?.document ??
                 c?.token ??
                 (c?.tokenId ? canvas.tokens?.get(c.tokenId)?.document : null);
-            if (!tokenDoc || tokenDoc.actorLink === false)
+            if (!tokenDoc)
                 continue;
+            // Linked tokens: keep token.name aligned with Actor.
+            // Unlinked: still update the placeable name so the canvas label matches.
             if (String(tokenDoc.name || '').trim() === newName)
                 continue;
             try {
-                logCarouselRename('sync linked token name', {
+                note('write token name', {
                     tokenId: tokenDoc.id,
+                    actorLink: tokenDoc.actorLink === false ? 0 : 1,
                     from: tokenDoc.name,
                     to: newName,
                 });
@@ -111,50 +136,56 @@ export async function syncCombatCarouselNamesForActor(actor, reason = 'sync') {
             }
         }
     }
-    // Non-GM: carousel label may still need a soft refresh if combatant.name lagged.
-    const needsVisualRefresh = wrote ||
-        matched.some((c) => resolveCombatantDisplayName(c, c?.token, c?.actor) !== newName);
-    if (needsVisualRefresh) {
+    else {
+        note('non-GM — no combatant/token write');
+    }
+    const displayLag = matched.some((c) => {
+        const shown = resolveCombatantDisplayName(c, c?.token, c?.actor);
+        return shown !== newName || String(c?.name || '').trim() !== newName;
+    });
+    if (wrote || displayLag) {
         refreshCarousel(`${reason}:done`);
         return true;
     }
-    logCarouselRename('sync skipped — names already match', { reason, newName });
+    note('sync skipped — already in sync', { reason, newName });
     return false;
 }
-/** Persist a typed name on the Actor, then sync the carousel if needed. */
+/** Persist a typed name on the Actor, then always attempt combatant sync. */
 export async function applyActorDisplayName(actor, rawName, reason = 'applyName') {
     const newName = String(rawName || '').trim();
-    logCarouselRename('applyActorDisplayName', {
+    note('applyActorDisplayName', {
         reason,
         actorId: actor?.id,
         from: actor?.name,
         to: newName,
+        tokenId: actorTokenId(actor) || '∅',
+        isToken: actor?.isToken ? 1 : 0,
     });
     if (!actor || !newName)
         return;
-    if (String(actor.name || '').trim() === newName) {
-        // Name already persisted — only sync combatant snapshots if they lag.
-        await syncCombatCarouselNamesForActor(actor, reason);
-        return;
+    if (String(actor.name || '').trim() !== newName) {
+        try {
+            await actor.update({ name: newName });
+            note('actor.update name ok', { actorId: actor.id, name: actor.name });
+        }
+        catch (err) {
+            console.warn(LOG, 'actor.update name failed', err);
+            return;
+        }
     }
-    try {
-        await actor.update({ name: newName });
-        logCarouselRename('actor.update({ name }) ok', { actorId: actor.id, name: actor.name });
+    else {
+        note('actor name already set — syncing combatants anyway', { newName });
     }
-    catch (err) {
-        console.warn(LOG, 'actor.update name failed', err);
-        return;
-    }
-    // updateActor hook also syncs; call here so Save works even if the hook is late.
     await syncCombatCarouselNamesForActor(actor, reason);
 }
 export function registerCombatCarouselRenameHooks() {
     Hooks.on('updateToken', (tokenDoc, changed) => {
         const hasName = updateDiffHasNameChange(changed);
-        logCarouselRename('hook updateToken', {
+        note('hook updateToken', {
             tokenId: tokenDoc?.id,
-            hasNameChange: hasName,
-            nameFromDiff: nameFromUpdateDiff(changed, tokenDoc?.name),
+            hasName: hasName ? 1 : 0,
+            name: nameFromUpdateDiff(changed, tokenDoc?.name),
+            actorLink: tokenDoc?.actorLink === false ? 0 : 1,
         });
         if (!hasName)
             return;
@@ -162,19 +193,16 @@ export function registerCombatCarouselRenameHooks() {
         if (!combat)
             return;
         const tokenId = String(tokenDoc?.id ?? '');
-        const actorId = String(tokenDoc?.actorId ?? tokenDoc?.actor?.id ?? '');
         const newName = nameFromUpdateDiff(changed, tokenDoc?.name);
-        if (!newName)
+        if (!newName || !tokenId)
             return;
         void (async () => {
             let wrote = false;
             if (game.user?.isGM) {
+                // Token rename: only the combatant on THIS token (never all copies of actorId).
                 const matched = combatantsList(combat).filter((c) => {
                     const cToken = String(c.tokenId ?? c.token?.id ?? '');
-                    if (cToken && cToken === tokenId)
-                        return true;
-                    const cActor = String(c.actorId ?? c.actor?.id ?? '');
-                    return !!actorId && !!cActor && cActor === actorId;
+                    return !!cToken && cToken === tokenId;
                 });
                 const updates = matched
                     .filter((c) => String(c?.name || '').trim() !== newName)
@@ -191,26 +219,28 @@ export function registerCombatCarouselRenameHooks() {
             }
             if (wrote)
                 refreshCarousel('updateToken');
+            else
+                refreshCarousel('updateToken:display');
         })();
     });
     Hooks.on('updateActor', (actor, changed) => {
         const hasName = updateDiffHasNameChange(changed);
-        logCarouselRename('hook updateActor', {
+        note('hook updateActor', {
             actorId: actor?.id,
-            hasNameChange: hasName,
-            nameFromDiff: nameFromUpdateDiff(changed, actor?.name),
+            hasName: hasName ? 1 : 0,
+            name: nameFromUpdateDiff(changed, actor?.name),
+            isToken: actor?.isToken ? 1 : 0,
+            tokenId: actorTokenId(actor) || '∅',
         });
         if (!hasName)
             return;
         void syncCombatCarouselNamesForActor(actor, 'updateActor');
     });
-    // Do NOT sync on sheet open/close — that force-refreshed the carousel and
-    // made names jump whenever a Character/NPC sheet was opened.
     Hooks.once('ready', () => {
         try {
             game.masteryCarouselRenameDebug = setCarouselRenameDebug;
             game.masterySyncCarouselName = (actor) => syncCombatCarouselNamesForActor(actor, 'console');
-            logCarouselRename('hooks registered');
+            note('hooks registered', { debug: CAROUSEL_RENAME_DEBUG ? 1 : 0 });
         }
         catch {
             /* ignore */

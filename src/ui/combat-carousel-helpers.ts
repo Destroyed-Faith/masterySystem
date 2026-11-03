@@ -19,8 +19,10 @@ export function isCombatantActorLinked(combatant: any, token?: any): boolean {
 
 /**
  * Label for a carousel combatant.
- * Prefer combatant.name — rename hooks keep it synced from Token and Actor updates.
- * If the Token was renamed but combatant/actor still agree on the old label, use the Token.
+ *
+ * Live Actor / Token names beat a stale `combatant.name` snapshot. Rename hooks
+ * still write the combatant for persistence, but the card must update as soon as
+ * the sheet (or token) name changes — especially for unlinked NPC copies.
  */
 export function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string {
   const tokenDoc = tokenDocFrom(combatant, token);
@@ -30,7 +32,14 @@ export function resolveCombatantDisplayName(combatant: any, token?: any, actor?:
   const tokenName = String(tokenDoc?.name ?? token?.name ?? '').trim();
   const combatantName = String(combatant?.name || '').trim();
 
-  // Token renamed; combatant snapshot (+ actor) still on the old shared name.
+  // Live source of truth: linked → Actor sheet; unlinked → synthetic Actor then Token.
+  const liveName = linked
+    ? actorName || tokenName
+    : actorName || tokenName;
+
+  if (liveName && liveName !== combatantName) return liveName;
+
+  // Token renamed independently; combatant (+ actor) still share the old label.
   if (
     tokenName &&
     actorName &&
@@ -41,20 +50,8 @@ export function resolveCombatantDisplayName(combatant: any, token?: any, actor?:
     return tokenName;
   }
 
-  // Actor/sheet renamed; combatant snapshot (+ token) still on the old shared name.
-  if (
-    tokenName &&
-    actorName &&
-    combatantName &&
-    tokenName !== actorName &&
-    tokenName === combatantName
-  ) {
-    return actorName;
-  }
-
   if (combatantName) return combatantName;
-  if (linked) return actorName || tokenName;
-  return tokenName || actorName;
+  return liveName;
 }
 
 /** True when a Foundry update diff touches the document display name. */
@@ -71,6 +68,33 @@ export function nameFromUpdateDiff(changed: any, fallback?: unknown): string {
   const raw =
     changed?.name ?? changed?.delta?.name ?? changed?.actorData?.name ?? fallback ?? '';
   return String(raw || '').trim();
+}
+
+/** Token id for a sheet Actor (synthetic token actor or first active placeable). */
+export function actorTokenId(actor: any): string {
+  return String(
+    actor?.token?.id ??
+      actor?.token?.document?.id ??
+      actor?.getActiveTokens?.()?.[0]?.id ??
+      actor?.getActiveTokens?.()?.[0]?.document?.id ??
+      '',
+  );
+}
+
+/**
+ * Match a sheet Actor to combatants.
+ * Token-bound sheets match that Token only (unlinked NPC copies share actorId).
+ */
+export function actorMatchesCombatant(actor: any, combatant: any): boolean {
+  const tokenId = actorTokenId(actor);
+  const cTokenId = String(combatant?.tokenId ?? combatant?.token?.id ?? '');
+  if (tokenId) {
+    return !!cTokenId && cTokenId === tokenId;
+  }
+  if (combatant?.actor && actor && combatant.actor === actor) return true;
+  const actorId = String(actor?.id ?? '');
+  const cActorId = String(combatant?.actorId ?? combatant?.actor?.id ?? '');
+  return !!actorId && !!cActorId && actorId === cActorId;
 }
 
 /** @deprecated Use carouselSideClass — kept for older tests/callers. */
@@ -119,11 +143,10 @@ export function findNextCombatantId(
   const current = String(currentId);
   const idx = combatants.findIndex((c) => String(c.id) === current);
   if (idx < 0) return null;
-  for (let step = 1; step < combatants.length; step++) {
-    const c = combatants[(idx + step) % combatants.length];
-    if (!c?.id || c.defeated) continue;
-    if (String(c.id) === current) return null;
-    return String(c.id);
+  const n = combatants.length;
+  for (let step = 1; step < n; step++) {
+    const row = combatants[(idx + step) % n];
+    if (!row?.defeated) return String(row.id);
   }
   return null;
 }

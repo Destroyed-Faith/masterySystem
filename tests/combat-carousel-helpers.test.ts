@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  actorMatchesCombatant,
   carouselSideClass,
   findNextCombatantId,
   resolveCombatantDisplayName,
@@ -16,7 +17,7 @@ describe('carouselSideClass', () => {
 });
 
 describe('resolveCombatantDisplayName', () => {
-  it('uses combatant.name once rename hooks have synced it', () => {
+  it('uses combatant.name when everything already agrees', () => {
     expect(
       resolveCombatantDisplayName(
         { name: 'Synced', token: { name: 'Synced', actorLink: true }, actor: { name: 'Synced' } },
@@ -36,7 +37,7 @@ describe('resolveCombatantDisplayName', () => {
     ).toBe('Token Rename');
   });
 
-  it('prefers actor sheet rename while combatant/token still share the old name', () => {
+  it('prefers actor sheet rename over a stale combatant snapshot (linked)', () => {
     expect(
       resolveCombatantDisplayName(
         { name: 'Old', token: { name: 'Old', actorLink: true }, actor: { name: 'Sheet Rename' } },
@@ -44,6 +45,30 @@ describe('resolveCombatantDisplayName', () => {
         { name: 'Sheet Rename' },
       ),
     ).toBe('Sheet Rename');
+  });
+
+  it('prefers live unlinked actor name when combatant+token still show the prototype', () => {
+    expect(
+      resolveCombatantDisplayName(
+        {
+          name: 'Aldren, Vaelon...',
+          token: { name: 'Aldren, Vaelon...', actorLink: false },
+          actor: { name: 'Bandit One' },
+        },
+        { document: { name: 'Aldren, Vaelon...', actorLink: false } },
+        { name: 'Bandit One' },
+      ),
+    ).toBe('Bandit One');
+  });
+
+  it('prefers live name when actor and token were both renamed but combatant lagged', () => {
+    expect(
+      resolveCombatantDisplayName(
+        { name: 'Old', token: { name: 'New', actorLink: true }, actor: { name: 'New' } },
+        { document: { name: 'New', actorLink: true } },
+        { name: 'New' },
+      ),
+    ).toBe('New');
   });
 
   it('falls back to live names when combatant name is empty', () => {
@@ -55,6 +80,24 @@ describe('resolveCombatantDisplayName', () => {
       ),
     ).toBe('Actor');
     expect(resolveCombatantDisplayName({ name: 'Combatant' }, null, null)).toBe('Combatant');
+  });
+});
+
+describe('actorMatchesCombatant', () => {
+  it('matches by token id when the sheet actor is token-bound (unlinked copies)', () => {
+    const actor = { id: 'baseActor', token: { id: 'tok-b' } };
+    expect(
+      actorMatchesCombatant(actor, { id: 'c1', actorId: 'baseActor', tokenId: 'tok-a' }),
+    ).toBe(false);
+    expect(
+      actorMatchesCombatant(actor, { id: 'c2', actorId: 'baseActor', tokenId: 'tok-b' }),
+    ).toBe(true);
+  });
+
+  it('falls back to actorId when no token context exists', () => {
+    const actor = { id: 'pc1' };
+    expect(actorMatchesCombatant(actor, { id: 'c1', actorId: 'pc1', tokenId: 't1' })).toBe(true);
+    expect(actorMatchesCombatant(actor, { id: 'c2', actorId: 'other', tokenId: 't2' })).toBe(false);
   });
 });
 

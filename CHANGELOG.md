@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.813] - 2026-11-03
+
+### Fixed
+
+- **Combat Carousel rename:** Live Actor/Token names beat stale `combatant.name`; Save/Enter always sync combatants even when the Actor already has the new name; unlinked NPC copies match by Token id only; flat `[CAROUSEL-RENAME]` debug logs on by default.
+
 ## [0.9.812] - 2026-11-03
 
 ### Fixed

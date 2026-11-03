@@ -7,14 +7,23 @@ export declare function carouselSideClass(actorType: string | undefined): 'disp-
 export declare function isCombatantActorLinked(combatant: any, token?: any): boolean;
 /**
  * Label for a carousel combatant.
- * Prefer combatant.name — rename hooks keep it synced from Token and Actor updates.
- * If the Token was renamed but combatant/actor still agree on the old label, use the Token.
+ *
+ * Live Actor / Token names beat a stale `combatant.name` snapshot. Rename hooks
+ * still write the combatant for persistence, but the card must update as soon as
+ * the sheet (or token) name changes — especially for unlinked NPC copies.
  */
 export declare function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string;
 /** True when a Foundry update diff touches the document display name. */
 export declare function updateDiffHasNameChange(changed: any): boolean;
 /** New name from an update diff, or empty string. */
 export declare function nameFromUpdateDiff(changed: any, fallback?: unknown): string;
+/** Token id for a sheet Actor (synthetic token actor or first active placeable). */
+export declare function actorTokenId(actor: any): string;
+/**
+ * Match a sheet Actor to combatants.
+ * Token-bound sheets match that Token only (unlinked NPC copies share actorId).
+ */
+export declare function actorMatchesCombatant(actor: any, combatant: any): boolean;
 /** @deprecated Use carouselSideClass — kept for older tests/callers. */
 export declare function carouselDispositionClass(disposition: number): 'disp-friendly' | 'disp-neutral' | 'disp-hostile';
 export type CarouselTurnRow = {
