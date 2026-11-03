@@ -436,7 +436,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         const artifactLevel = Math.max(1, Math.floor(Number(option.artifactRowLevel ||
             option.item?.system?.currentLevel ||
             1) || 1));
-        if (/moonlight\s*judgment/i.test(optionName)) {
+        // Moonlight Judgment (legacy alias: Undead Tracer) — Limited use at declaration.
+        if (/moonlight\s*judgment/i.test(optionName) || /undead\s*tracer/i.test(optionName)) {
             const { assertMoonlightJudgmentAvailable, spendMoonlightJudgmentUse, moonlightJudgmentMaxUses, } = await import('./artifact-rest-uses.js');
             if (!assertMoonlightJudgmentAvailable(attacker, artifactLevel)) {
                 const max = moonlightJudgmentMaxUses(artifactLevel);
@@ -1175,7 +1176,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const hitLine = raiseContext
         ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice, raiseContext.weaponName)
         : '';
-    const spellFocusSources = tnKind === 'casting' ? listActorSpellFocusSources(attacker) : [];
+    // Instant AoE (incl. Moonlight Judgment) never gains Spell Focus — hide it on the card.
+    const spellFocusSources = tnKind === 'casting' && !aoeMelee ? listActorSpellFocusSources(attacker) : [];
     const spellFocusLine = spellFocusSources.length > 0
         ? spellFocusSources.map((s) => `+${s.dice}d8 ${s.name}`).join('; ')
         : '';
@@ -1184,7 +1186,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       <div class="attack-header">
         <h3><i class="fas ${headerIcon}"></i> ${optionName}</h3>
         <p class="attack-participants"><strong>${attackerName}</strong> → ${aoeMelee
-        ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} betroffene Kreatur(en) — ein Wurf vs. Evade je Kreatur, gleicher Schaden)`
+        ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} betroffene Kreatur(en) — ein Wurf vs. ${tnKind === 'casting' ? 'Final Spell TN' : 'Evade'} je Kreatur, gleicher Schaden)`
         : `<strong>${targetName}</strong>`}</p>
       </div>
       ${threatenedHtml}

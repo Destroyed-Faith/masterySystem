@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.812] - 2026-11-03
+
+### Fixed
+
+- **Moonlight Greatsword / Moonlight Judgment:** Limited Ranged AoE Spell Delivery (mechanical `limited` flag, doubled printed Power Dice only, shared Safe Haven uses 2/5/8, Casting Roll vs Final Spell TN, no Weapon Damage / Spell Focus on Instant AoE); Precision(2) + Finesse retained; Active Buff radial activation no longer costs an Attack Action.
+- **Combat Carousel rename:** Stopped open/close sheet hooks from force-refreshing the carousel (names no longer jump when opening Character/NPC sheets); sync/refresh only when a combatant or token name actually changes; rename debug logging off by default.
+
 ## [0.9.811] - 2026-11-03
 
 ### Fixed

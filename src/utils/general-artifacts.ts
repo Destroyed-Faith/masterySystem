@@ -66,12 +66,14 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       templateId: 'active-ranged-weapon-aoe',
       name: 'Moonlight Judgment',
       isSpell: true,
+      // Catalogue does not name Intellect/Resolve/Influence; keep existing legal config.
       castingAttribute: 'intellect',
       spellResolution: 'spellAttack',
+      limited: true,
       stageEffectTexts: [
-        'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8**. No Weapon Damage, no Spell Focus Damage, and no Specials. **2 uses/Safe Haven Rest**.',
-        'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8**. Spell Focus does not apply to this AoE. **5 uses/Safe Haven Rest**.',
-        'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8**. Spell Focus does not apply to this AoE. **8 uses/Safe Haven Rest**.',
+        'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8** for this use. Base B is not yet unlocked; no Focus bonus. **2 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials.',
+        'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8** for this use. Although Base B is unlocked, **Spell Focus does not apply to this AoE**. **5 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials.',
+        'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8** for this use. Although Base B is unlocked, **Spell Focus does not apply to this AoE**. **8 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials.',
       ],
     },
     3: {

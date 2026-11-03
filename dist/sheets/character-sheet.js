@@ -131,6 +131,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #itemInfoPointerDown = null;
     #equipSlotFillMenuAbort = null;
     #sheetGmMenuAbort = null;
+    /** Tear down name Save/Enter listeners across sheet re-renders. */
+    #actorDisplayNameAbort = null;
     _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
     _pendingPowerLevelChanges = {}; // Track pending power level increases
     _pendingSkillRankChanges = {}; // Track pending skill rank changes (signed)
@@ -182,30 +184,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#closeEquipSlotFillMenu();
         this.#sheetGmMenuAbort?.abort();
         this.#sheetGmMenuAbort = null;
-        // Flush the name field (and any other pending form edits) before teardown.
-        try {
-            if (this.isEditable) {
-                await this.submit?.({ preventClose: true, preventRender: true });
-            }
-        }
-        catch (err) {
-            console.warn('Mastery System | [CAROUSEL-RENAME] sheet submit-on-close failed', err);
-        }
-        try {
-            const { syncCombatCarouselNamesForActor, logCarouselRename } = await import('../ui/combat-carousel-rename.js');
-            logCarouselRename('character-sheet close()', {
-                actorId: this.actor?.id,
-                actorName: this.actor?.name,
-            });
-            await syncCombatCarouselNamesForActor(this.actor, 'sheet.close');
-        }
-        catch (err) {
-            console.warn('Mastery System | [CAROUSEL-RENAME] sync on sheet close failed', err);
-        }
+        this.#actorDisplayNameAbort?.abort();
+        this.#actorDisplayNameAbort = null;
+        // Form `submitOnClose` persists pending edits (incl. name). Carousel sync
+        // runs only from `updateActor` when the name actually changed — never on
+        // open/close alone (that made Combat Carousel labels jump).
         return super.close(options);
     }
-    /** Name field Save + change/blur → Actor update + carousel sync (debug-logged). */
+    /**
+     * Explicit name Save / Enter only. Do not sync on open, close, or every form
+     * re-render — that force-refreshed the Combat Carousel and made names jump.
+     * Normal `submitOnChange` still persists `name` via the form; `updateActor`
+     * keeps combatant labels in sync when the name actually changes.
+     */
     #bindActorDisplayNameControls(html) {
+        this.#actorDisplayNameAbort?.abort();
+        this.#actorDisplayNameAbort = new AbortController();
+        const { signal } = this.#actorDisplayNameAbort;
         const root = html instanceof HTMLElement ? html : html?.[0];
         if (!root)
             return;
@@ -215,38 +210,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         const apply = async (reason) => {
             const value = String(input?.value ?? this.actor?.name ?? '').trim();
-            console.log('Mastery System | [CAROUSEL-RENAME] sheet name control', {
-                reason,
-                actorId: this.actor?.id,
-                actorType: this.actor?.type,
-                inputValue: input?.value,
-                actorNameBefore: this.actor?.name,
-            });
+            if (!value || value === String(this.actor?.name || '').trim())
+                return;
             try {
                 const { applyActorDisplayName } = await import('../ui/combat-carousel-rename.js');
                 await applyActorDisplayName(this.actor, value, reason);
             }
             catch (err) {
-                console.warn('Mastery System | [CAROUSEL-RENAME] apply name from sheet failed', err);
+                console.warn('Mastery System | apply name from sheet failed', err);
             }
         };
         if (input) {
-            input.addEventListener('change', () => {
+            // change: only when the typed value differs (avoids open/render noise).
+            input.addEventListener('change', (ev) => {
+                if (!ev.isTrusted)
+                    return;
                 void apply('name-input-change');
-            });
+            }, { signal });
             input.addEventListener('keydown', (ev) => {
-                if (ev.key === 'Enter') {
-                    ev.preventDefault();
-                    void apply('name-input-enter');
-                }
-            });
+                if (ev.key !== 'Enter')
+                    return;
+                ev.preventDefault();
+                void apply('name-input-enter');
+            }, { signal });
         }
         if (saveBtn) {
             saveBtn.addEventListener('click', (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
                 void apply('name-save-button');
-            });
+            }, { signal });
         }
     }
     #bindSheetGmMenu(html) {

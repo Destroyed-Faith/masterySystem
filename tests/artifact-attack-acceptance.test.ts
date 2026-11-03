@@ -142,6 +142,20 @@ describe('Artifact attack acceptance — Ranged Instant AoE (Moonlight Judgment)
     const built = aoeContextFromAffectedTokenIds(['t1', 't2']);
     expect(built?.aoe.secondaryTokenIds).toEqual(['t2']);
   });
+
+  it('Judgment radial option is Limited Spell Delivery without weapon/focus', () => {
+    const opts = buildArtifactRadialOptions(actorWithNode(treeNode('moonlightGreatsword', 5), 5));
+    const judgment = opts.find((o) => /Judgment/i.test(o.name));
+    expect(judgment).toBeTruthy();
+    expect((judgment as any).artifactLimited).toBe(true);
+    expect(judgment!.ignoreWeaponDamage).toBe(true);
+    expect(judgment!.artifactIsSpell).toBe(true);
+    expect(judgment!.artifactCastingAttribute).toBe('intellect');
+    expect(judgment!.artifactSpellResolution).toBe('spellAttack');
+    expect(String(judgment!.description || '')).toMatch(/Limited Ranged AoE Attack/i);
+    expect(String(judgment!.description || '')).toMatch(/\+8d8/);
+    expect(String(judgment!.description || '')).not.toMatch(/\bEvade\b/i);
+  });
 });
 
 describe('Artifact attack acceptance — shared Instant AoE resolution (steps 5–6)', () => {

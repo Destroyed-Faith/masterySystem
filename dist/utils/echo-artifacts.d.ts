@@ -109,6 +109,8 @@ export interface EchoArtifactProgressionPickSpec {
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;
+    /** Limited Instant Active (e.g. Moonlight Judgment). */
+    limited?: boolean;
 }
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */
@@ -281,6 +283,7 @@ export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): 
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;
+    limited?: boolean;
 }[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;
 //# sourceMappingURL=echo-artifacts.d.ts.map

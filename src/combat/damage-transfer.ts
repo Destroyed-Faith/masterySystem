@@ -98,9 +98,10 @@ export function spellFocusDamageApplies(
 
 /** Limited doubles the printed power-damage pool only, never a following weapon term. */
 export function doublePrintedPowerDice(formula: string): string {
+  // Printed Power Dice may be `3d8` or `+3d8`; only the leading dice pool is doubled.
   return String(formula || '').replace(
-    /^(\d+)d(\d+)/i,
-    (_m, n: string, sides: string) => `${Number(n) * 2}d${sides}`,
+    /^(\+?)(\d+)d(\d+)/i,
+    (_m, sign: string, n: string, sides: string) => `${sign}${Number(n) * 2}d${sides}`,
   );
 }
 

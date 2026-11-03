@@ -167,14 +167,19 @@ describe('Moonlight Greatsword', () => {
     expect(sysAt(tree, 7).artifactWeapon.specials).toEqual(
       expect.arrayContaining([
         { specialId: 'finesse' },
+        { specialId: 'precision', value: 2 },
         { specialId: 'expose', value: 4 },
       ]),
     );
     expect(sysAt(tree, 10).artifactWeapon.specials).toEqual(
       expect.arrayContaining([
         { specialId: 'finesse' },
+        { specialId: 'precision', value: 2 },
         { specialId: 'expose', value: 5 },
       ]),
+    );
+    expect(sysAt(tree, 1).artifactWeapon.innateAbilities).toEqual(
+      expect.arrayContaining(['Finesse', 'Precision(2)']),
     );
   });
 
@@ -223,6 +228,13 @@ describe('Moonlight Greatsword', () => {
     expect(String(row?.powerTemplateId ?? '')).toBe('active-ranged-weapon-aoe');
     expect(String(row?.chosenSpecialKey ?? row?.chosenSpecial?.key ?? '')).toBe('');
     expect(String(row?.effect ?? '')).toMatch(/Limited Ranged AoE Attack/i);
+    expect(String(row?.effect ?? '')).toMatch(/\+16d8/);
+    expect(row?.limited).toBe(true);
+    expect(row?.isSpell).toBe(true);
+    expect(row?.castingAttribute).toBe('intellect');
+    expect(String(row?.type || '')).toMatch(/Artifact Active, Spell/i);
+    expect(String(row?.special || '')).toMatch(/Limited/i);
+    expect(String(row?.effect || '')).not.toMatch(/\bEvade\b/i);
     expect(baseValue(tree, 8, 'Requiem')).toBeUndefined();
   });
 });

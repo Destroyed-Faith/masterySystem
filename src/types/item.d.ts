@@ -973,6 +973,8 @@ export interface ArtifactProgressionPick {
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
+  /** Limited Instant Active (mechanical; e.g. Moonlight Judgment). */
+  limited?: boolean;
 }
 
 /**
@@ -998,6 +1000,12 @@ export interface ArtifactLevelProgressionRow {
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
+  /**
+   * Limited Instant Active: doubles printed Power Damage Dice only; spends one
+   * Safe Haven use at declaration (shared across stages). Mechanical flag —
+   * not description-only.
+   */
+  limited?: boolean;
   /** Optional structured power if this row also grants a usable Active/Reaction. */
   embeddedPowerId?: string;
 }

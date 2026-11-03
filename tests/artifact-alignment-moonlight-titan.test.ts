@@ -66,6 +66,34 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
     expect(String(aoe10?.effect?.dice || aoe10?.mechanics?.damageRider?.flat)).toMatch(/4d8/);
     expect(String(aoe16?.effect?.dice || aoe16?.mechanics?.damageRider?.flat)).toMatch(/8d8/);
   });
+
+  it('Judgment is Limited Spell Delivery with shared uses and catalogue effect text', () => {
+    expect(picks[1].limited).toBe(true);
+    expect(picks[1].isSpell).toBe(true);
+    expect(picks[1].castingAttribute).toBe('intellect');
+    expect(picks[1].spellResolution).toBe('spellAttack');
+    for (const lvl of [2, 5, 8] as const) {
+      const row = table.find((r) => Number(r.level) === lvl) as any;
+      expect(row?.limited).toBe(true);
+      expect(row?.isSpell).toBe(true);
+      expect(String(row?.special || '')).toMatch(/Limited/i);
+      expect(String(row?.special || '')).toMatch(/Spell/i);
+      expect(String(row?.type || '')).toMatch(/Spell/i);
+      expect(String(row?.effect || '')).toMatch(/Limited Ranged AoE Attack/i);
+      expect(String(row?.effect || '')).toMatch(/becomes \*\*\+\d+d8\*\*/i);
+      expect(String(row?.effect || '')).toMatch(/one use spent on declaration/i);
+      expect(String(row?.effect || '')).not.toMatch(/\bEvade\b/i);
+    }
+    const j2 = table.find((r) => Number(r.level) === 2) as any;
+    const j5 = table.find((r) => Number(r.level) === 5) as any;
+    const j8 = table.find((r) => Number(r.level) === 8) as any;
+    expect(j2?.range).toMatch(/20/);
+    expect(j5?.range).toMatch(/44/);
+    expect(j8?.range).toMatch(/68/);
+    expect(j2?.aoe).toMatch(/3/);
+    expect(j5?.aoe).toMatch(/6/);
+    expect(j8?.aoe).toMatch(/8/);
+  });
 });
 
 describe('Titan Scars — Core Transformation Growth', () => {

@@ -1690,6 +1690,7 @@ export function buildEchoProgressionPicks(def) {
             ...(spec.isSpell ? { isSpell: true } : {}),
             ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
             ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),
+            ...(spec.limited ? { limited: true } : {}),
         };
         if (spec.stoneFunction) {
             const sfSpec = spec.stoneFunction;

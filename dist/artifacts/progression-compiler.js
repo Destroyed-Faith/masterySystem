@@ -246,20 +246,35 @@ export function deriveLevelProgressionFromPicks(picks) {
                     : chosenKey && catalogTemplateRequiresSpecial(templateId)
                         ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
                         : (lr.effect?.text || '');
-                const specialCol = pick.isSpell
-                    ? [specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1), 'Spell'].filter(Boolean).join(', ')
+                const baseSpecial = pick.isSpell
+                    ? specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1)
                     : chosenKey && isWeaponAoe && !catalogTemplateRequiresSpecial(templateId)
                         ? optionalWeaponAoeSpecialText(chosenKey, s)
                         : specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1);
+                const limited = pick.limited === true;
+                const specialCol = [
+                    limited ? 'Limited' : '',
+                    pick.isSpell ? 'Spell' : '',
+                    baseSpecial,
+                ]
+                    .filter(Boolean)
+                    .join(', ');
                 const rowName = perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`;
                 // Dragon Head Breath Weapon: dual Damage/Ruin Cone lengths (Core specialty).
                 const rangeAoe = isBreathWeaponName(rowName)
                     ? breathWeaponRowDisplay(level)
                     : { range: clean(renderRange(lr.range ?? null)), aoe: clean(renderAoe(lr.aoe ?? null)) };
+                // Limited Artifact Spells (Moonlight Judgment) print as "Artifact Active, Spell".
+                // Other Spell picks keep the catalog martial type so unrelated Artifacts stay stable.
+                const rowType = pick.isSpell
+                    ? limited
+                        ? 'Artifact Active, Spell'
+                        : lr.type || tpl.category || 'Active'
+                    : lr.type || tpl.category || 'Active';
                 rows.push({
                     level,
                     name: rowName,
-                    type: lr.type || tpl.category || 'Active',
+                    type: rowType,
                     range: rangeAoe.range,
                     aoe: rangeAoe.aoe,
                     duration: clean(renderDuration(lr.duration)),
@@ -267,6 +282,7 @@ export function deriveLevelProgressionFromPicks(picks) {
                     special: specialCol,
                     powerTemplateId: templateId,
                     chosenSpecialKey: chosenKey,
+                    ...(limited ? { limited: true } : {}),
                     ...(pick.isSpell
                         ? {
                             isSpell: true,

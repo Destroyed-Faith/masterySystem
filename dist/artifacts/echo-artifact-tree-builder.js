@@ -687,13 +687,15 @@ function weaponProfileAtLevel(def, level) {
         specials: [],
     };
     if (def.key === 'moonlightGreatsword') {
+        // Greatsword inheritance: Precision(2) + inherent Finesse (not an extra Base Value).
         return {
             ...base,
             weaponType: 'melee',
             hands: 2,
-            innateAbilities: ['Finesse'],
+            innateAbilities: ['Finesse', 'Precision(2)'],
             specials: [
                 { specialId: 'finesse' },
+                { specialId: 'precision', value: 2 },
                 ...specialRefsFromBaseValueRows(baseValuesAtLevel(def.key, level)),
             ],
             attackAttributes: ['might', 'agility'],

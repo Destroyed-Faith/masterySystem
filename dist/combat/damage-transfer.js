@@ -73,7 +73,8 @@ export function spellFocusDamageApplies(flags) {
 }
 /** Limited doubles the printed power-damage pool only, never a following weapon term. */
 export function doublePrintedPowerDice(formula) {
-    return String(formula || '').replace(/^(\d+)d(\d+)/i, (_m, n, sides) => `${Number(n) * 2}d${sides}`);
+    // Printed Power Dice may be `3d8` or `+3d8`; only the leading dice pool is doubled.
+    return String(formula || '').replace(/^(\+?)(\d+)d(\d+)/i, (_m, sign, n, sides) => `${sign}${Number(n) * 2}d${sides}`);
 }
 export function applyLimitedToTransferPowerDamage(formula, opts) {
     if (opts.damageTransfer !== true || opts.limited !== true)

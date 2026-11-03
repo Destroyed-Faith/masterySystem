@@ -140,6 +140,8 @@ export interface EchoArtifactProgressionPickSpec {
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
+  /** Limited Instant Active (e.g. Moonlight Judgment). */
+  limited?: boolean;
 }
 
 export interface EchoArtifactBaseValueHint {
@@ -1976,6 +1978,7 @@ export function buildEchoProgressionPicks(
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
+  limited?: boolean;
 }[] {
   const picks: {
     level: 1 | 2 | 3;
@@ -1994,6 +1997,7 @@ export function buildEchoProgressionPicks(
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;
+    limited?: boolean;
   }[] = [
     { level: 1, kind: 'none' },
     { level: 2, kind: 'none' },
@@ -2025,6 +2029,7 @@ export function buildEchoProgressionPicks(
       ...(spec.isSpell ? { isSpell: true } : {}),
       ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
       ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),
+      ...(spec.limited ? { limited: true } : {}),
     };
     if (spec.stoneFunction) {
       const sfSpec = spec.stoneFunction;

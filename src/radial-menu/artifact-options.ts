@@ -310,7 +310,8 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                     powerType: 'active-buff',
                     tags: ['artifact', 'active-buff', typeTag],
                     costsMovement: false,
-                    costsAction: true,
+                    // Prep activation: no Attack Action / Stones (once per Preparation slot).
+                    costsAction: false,
                     defaultTargetGroup: 'self',
                     artifactRowSpecial: row.special || '',
                     artifactRowLevel: lvl,
@@ -387,7 +388,13 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 option.forcedWeaponItemId = item.id;
             }
             // Limited Instant AoE Spells (Moonlight Judgment): no weapon/focus, Limited dice.
-            if (/moonlight\s*judgment/i.test(name) || /limited/i.test(String(row.special || ''))) {
+            // Prefer mechanical `row.limited` / Special column over name matching.
+            const rowLimited =
+              row.limited === true ||
+              /\blimited\b/i.test(String(row.special || '')) ||
+              /moonlight\s*judgment/i.test(name) ||
+              /undead\s*tracer/i.test(name);
+            if (rowLimited) {
                 option.ignoreWeaponDamage = true;
                 (option as any).artifactLimited = true;
             }
