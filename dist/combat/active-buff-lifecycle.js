@@ -116,7 +116,8 @@ export function remainingCompleteRounds(lastActiveRound, currentRound) {
     return Math.max(0, last - cur + 1);
 }
 /**
- * Commit the base Attack Action for the upcoming Round (survives resetTurnState).
+ * Legacy: commit the base Attack Action for the upcoming Round (survives resetTurnState).
+ * Current Active Buff activation no longer calls this — kept for older fights / tests / refunds.
  */
 export async function commitPrepBaseAttackAction(actor, combat) {
     if (!actor || !combat)

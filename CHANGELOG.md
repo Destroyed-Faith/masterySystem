@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Active Buff activation:** Stones menu / Preparation no longer spends or requires a base Attack Action. Once-per-Preparation activate/replace remains. Attack Actions stay available for attacks, Parry, Dash, and Disengage.
+
+### Added
+
+- **Architecture diagrams:** Archify HTML overviews under `.archify/` (runtime + combat resolver chain), linked from the README.
+
 ## [0.9.805] - 2026-10-26
 
 ### Fixed

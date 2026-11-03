@@ -122,3 +122,13 @@ This game system is designed for use with a legally licensed copy of Foundry Vir
 - **Full-page art:** Dzmitry Zasimovich
 
 Rulebook source markdown lives under [`docs/Rules/`](docs/Rules/). Artwork rights checklist for owner verification: [`docs/ASSET-RIGHTS-CHECKLIST.md`](docs/ASSET-RIGHTS-CHECKLIST.md).
+
+---
+
+## Architecture diagrams
+
+Interactive Archify HTML maps of this Foundry system (open locally in a browser):
+
+- [Mastery System — Runtime overview](.archify/architecture-mastery-runtime-20261103-095621/mastery-runtime.html) — boot path, UI, combat, documents, sockets
+- [Combat Resolver chain](.archify/architecture-combat-resolvers-20261103-112719/combat-resolvers.html) — attack → raise → damage hub → apply / transfer / AoE / heal
+- [Foundry runtime slice](.archify/architecture-foundry-runtime-20261103-100846/foundry-runtime.html) — Foundry-oriented runtime view

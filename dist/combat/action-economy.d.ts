@@ -356,8 +356,12 @@ export declare function spendReactionAction(actor: Actor, combat: Combat | null,
     triggerId?: string;
 }): Promise<boolean>;
 export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
-/** Remaining Active Buff activations this round: always 1 or 0. */
-export declare function remainingActiveBuffActions(usedThisRound: boolean | undefined, attackActionsAvailable: number): number;
+/**
+ * Remaining Active Buff activations this round: always 1 or 0.
+ * No longer gated on Attack Actions — Activation is free; only once per Preparation.
+ * `attackActionsAvailable` is kept for call-site compatibility and ignored.
+ */
+export declare function remainingActiveBuffActions(usedThisRound: boolean | undefined, _attackActionsAvailable?: number): number;
 export declare function getAvailableActiveBuffActions(actor: Actor, combat: Combat | null): number;
 export declare function markActiveBuffUsedThisRound(actor: Actor, combat: Combat | null): Promise<void>;
 /**

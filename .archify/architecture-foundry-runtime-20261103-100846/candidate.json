@@ -1,0 +1,394 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Foundry Mastery System runtime",
+    "locale": "en",
+    "output": ".archify/architecture-foundry-runtime-20261103-100846/foundry-runtime.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "git@github.com:Destroyed-Faith/masterySystem.git",
+      "link_mode": "local-only",
+      "revision": "cf315475a155c7e2853dccd26e792c01706bd7f2"
+    }
+  },
+  "components": [
+    {
+      "id": "player",
+      "type": "external",
+      "label": "Player",
+      "sublabel": "Foundry client",
+      "pos": [36, 210],
+      "size": [112, 60],
+      "sources": [
+        {
+          "path": "src/token-action-selector.ts",
+          "line": 1,
+          "end_line": 6,
+          "label": "Token HUD entry"
+        },
+        {
+          "path": "src/chat/attack-roll-handler.ts",
+          "line": 57,
+          "end_line": 63,
+          "label": "Roll button click"
+        }
+      ]
+    },
+    {
+      "id": "module",
+      "type": "frontend",
+      "label": "System module",
+      "sublabel": "init and ready",
+      "pos": [250, 36],
+      "size": [170, 60],
+      "sources": [
+        {
+          "path": "src/module.ts",
+          "line": 241,
+          "end_line": 253,
+          "label": "init hook"
+        },
+        {
+          "path": "src/module.ts",
+          "line": 1302,
+          "end_line": 1309,
+          "label": "socket and HUD"
+        },
+        {
+          "path": "src/module.ts",
+          "line": 3546,
+          "end_line": 3548,
+          "label": "attack roll hook"
+        }
+      ]
+    },
+    {
+      "id": "tokenActions",
+      "type": "frontend",
+      "label": "Token actions",
+      "sublabel": "radial HUD",
+      "pos": [250, 210],
+      "size": [158, 60],
+      "sources": [
+        {
+          "path": "src/token-action-selector.ts",
+          "line": 1,
+          "end_line": 8,
+          "label": "HUD selector"
+        },
+        {
+          "path": "src/token-action-selector.ts",
+          "line": 281,
+          "end_line": 332,
+          "label": "target to attack card"
+        }
+      ]
+    },
+    {
+      "id": "attackCards",
+      "type": "backend",
+      "label": "Attack executor",
+      "sublabel": "melee and ranged",
+      "pos": [508, 210],
+      "size": [158, 60],
+      "sources": [
+        {
+          "path": "src/combat/attack-executor.ts",
+          "line": 1536,
+          "end_line": 1549,
+          "label": "ChatMessage.create"
+        },
+        {
+          "path": "src/combat/attack-executor.ts",
+          "line": 1609,
+          "end_line": 1616,
+          "label": "melee card"
+        }
+      ]
+    },
+    {
+      "id": "attackRoll",
+      "type": "frontend",
+      "label": "Attack roll",
+      "sublabel": "chat Roll button",
+      "pos": [774, 210],
+      "size": [158, 60],
+      "sources": [
+        {
+          "path": "src/chat/attack-roll-handler.ts",
+          "line": 31,
+          "end_line": 53,
+          "label": "click handler"
+        },
+        {
+          "path": "src/chat/attack-roll-handler.ts",
+          "line": 1226,
+          "end_line": 1235,
+          "label": "opens damage dialog"
+        }
+      ]
+    },
+    {
+      "id": "damage",
+      "type": "backend",
+      "label": "Damage resolution",
+      "sublabel": "health bars",
+      "pos": [774, 350],
+      "size": [168, 64],
+      "sources": [
+        {
+          "path": "src/dice/damage-dialog.ts",
+          "line": 2303,
+          "end_line": 2310,
+          "label": "apply remaining HP"
+        },
+        {
+          "path": "src/dice/damage-dialog.ts",
+          "line": 2347,
+          "end_line": 2357,
+          "label": "write via GM relay"
+        }
+      ]
+    },
+    {
+      "id": "gmRelay",
+      "type": "security",
+      "label": "GM relay",
+      "sublabel": "owner check",
+      "tag": "limited keys",
+      "pos": [774, 510],
+      "size": [168, 64],
+      "sources": [
+        {
+          "path": "src/combat/gm-relay.ts",
+          "line": 1,
+          "end_line": 4,
+          "label": "player to GM writes"
+        },
+        {
+          "path": "src/combat/gm-relay.ts",
+          "line": 72,
+          "end_line": 90,
+          "label": "relayable fields"
+        },
+        {
+          "path": "src/combat/gm-relay.ts",
+          "line": 92,
+          "end_line": 116,
+          "label": "update or ask GM"
+        }
+      ]
+    },
+    {
+      "id": "encounterSocket",
+      "type": "messagebus",
+      "label": "Encounter socket",
+      "sublabel": "system.mastery-system",
+      "tag": "GM only",
+      "pos": [500, 510],
+      "size": [176, 64],
+      "sources": [
+        {
+          "path": "src/combat/combat-permissions.ts",
+          "line": 6,
+          "end_line": 6,
+          "label": "socket name"
+        },
+        {
+          "path": "src/combat/encounter-socket.ts",
+          "line": 60,
+          "end_line": 68,
+          "label": "socket listener"
+        },
+        {
+          "path": "src/combat/encounter-socket.ts",
+          "line": 157,
+          "end_line": 173,
+          "label": "GM apply gate"
+        }
+      ]
+    },
+    {
+      "id": "masteryActor",
+      "type": "backend",
+      "label": "MasteryActor",
+      "sublabel": "Actor document",
+      "pos": [774, 680],
+      "size": [168, 64],
+      "sources": [
+        {
+          "path": "src/documents/actor.ts",
+          "line": 187,
+          "end_line": 199,
+          "label": "document class"
+        }
+      ]
+    },
+    {
+      "id": "foundry",
+      "type": "external",
+      "label": "Foundry VTT",
+      "sublabel": "host and documents",
+      "tag": "compat 14",
+      "pos": [1036, 680],
+      "size": [156, 64],
+      "sources": [
+        {
+          "path": "system.json",
+          "line": 39,
+          "end_line": 42,
+          "label": "esmodules"
+        },
+        {
+          "path": "system.json",
+          "line": 159,
+          "end_line": 159,
+          "label": "socket enabled"
+        },
+        {
+          "path": "src/module.ts",
+          "line": 241,
+          "end_line": 251,
+          "label": "runs in Foundry"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Mastery client runtime",
+      "pad": 16,
+      "wraps": [
+        "module",
+        "tokenActions",
+        "attackCards",
+        "attackRoll",
+        "damage",
+        "gmRelay",
+        "encounterSocket",
+        "masteryActor"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "GM write gate",
+      "pad": 14,
+      "wraps": ["gmRelay", "encounterSocket"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "load-hud",
+      "from": "module",
+      "to": "tokenActions",
+      "label": "registers",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "open-hud",
+      "from": "player",
+      "to": "tokenActions",
+      "label": "opens HUD",
+      "variant": "emphasis"
+    },
+    {
+      "id": "choose-target",
+      "from": "tokenActions",
+      "to": "attackCards",
+      "label": "target",
+      "variant": "emphasis"
+    },
+    {
+      "id": "post-card",
+      "from": "attackCards",
+      "to": "attackRoll",
+      "label": "chat card",
+      "variant": "emphasis"
+    },
+    {
+      "id": "open-damage",
+      "from": "attackRoll",
+      "to": "damage",
+      "label": "on hit",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "apply-hp",
+      "from": "damage",
+      "to": "gmRelay",
+      "label": "apply HP",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "direct-write",
+      "from": "gmRelay",
+      "to": "masteryActor",
+      "label": "if can update",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "relay-emit",
+      "from": "gmRelay",
+      "to": "encounterSocket",
+      "label": "else emit",
+      "variant": "security",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "gm-apply",
+      "from": "encounterSocket",
+      "to": "masteryActor",
+      "label": "GM update",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "persist",
+      "from": "masteryActor",
+      "to": "foundry",
+      "label": "persists",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Primary path",
+      "items": [
+        "Player opens the token HUD, picks a target, and gets an attack chat card.",
+        "Roll on a hit opens damage resolution, which writes health through the GM relay.",
+        "MasteryActor is the document Foundry persists."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Trust",
+      "items": [
+        "If the current user can update the actor, the relay calls actor.update directly.",
+        "Otherwise it emits gmActorUpdate. The handler returns unless that client is a GM.",
+        "Relayed keys are health, stress, status, phases, and mastery-system flags.",
+        "An active GM is required; the relay times out when none is connected."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Outside this path",
+      "items": [
+        "Foundry loads dist/module.js from system.json. The same host brokers the socket.",
+        "Character sheets, compendium packs, rituals, the calendar, and particle effects register at init and are not on the attack path."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Mastery System — Runtime-Übersicht",
+    "output": ".archify/architecture-mastery-runtime-20261103-095621/mastery-runtime.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "git@github.com:Destroyed-Faith/masterySystem.git",
+      "revision": "cf315475a155c7e2853dccd26e792c01706bd7f2",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "players",
+      "type": "external",
+      "label": "Spieler & GM",
+      "sublabel": "Browser-Clients",
+      "pos": [40, 240],
+      "size": [110, 58],
+      "sources": [{ "path": "system.json", "line": 159, "end_line": 159, "label": "socket: true" }]
+    },
+    {
+      "id": "foundry",
+      "type": "cloud",
+      "label": "Foundry VTT",
+      "sublabel": "Host v14",
+      "pos": [210, 240],
+      "size": [120, 58],
+      "sources": [
+        { "path": "system.json", "line": 7, "end_line": 10, "label": "compat v14" },
+        { "path": "system.json", "line": 39, "end_line": 42, "label": "esmodules" }
+      ]
+    },
+    {
+      "id": "entry",
+      "type": "backend",
+      "label": "System-Entry",
+      "sublabel": "src/module.ts",
+      "tag": "init / ready",
+      "pos": [390, 240],
+      "size": [140, 58],
+      "sources": [
+        { "path": "src/module.ts", "line": 241, "end_line": 253, "label": "Hooks.init" },
+        { "path": "src/module.ts", "line": 1299, "end_line": 1302, "label": "combat wiring" },
+        { "path": "package.json", "line": 5, "end_line": 5, "label": "dist/module.js" }
+      ]
+    },
+    {
+      "id": "packs",
+      "type": "database",
+      "label": "Compendiums",
+      "sublabel": "Rules · Artifacts",
+      "pos": [390, 80],
+      "size": [140, 58],
+      "sources": [{ "path": "system.json", "line": 92, "end_line": 135, "label": "packs[]" }]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "UI-Oberflächen",
+      "sublabel": "Sheets · Carousel · Bars",
+      "pos": [590, 240],
+      "size": [130, 58],
+      "sources": [
+        { "path": "src/module.ts", "line": 266, "end_line": 313, "label": "register sheets" },
+        { "path": "src/ui/combat-carousel.ts", "line": 84, "end_line": 84, "label": "CombatCarousel" },
+        { "path": "src/sheets/character-sheet.ts", "line": 261, "end_line": 261, "label": "CharacterSheet" }
+      ]
+    },
+    {
+      "id": "combat",
+      "type": "backend",
+      "label": "Combat-Runtime",
+      "sublabel": "Encounter · Actions",
+      "pos": [780, 240],
+      "size": [140, 58],
+      "sources": [
+        { "path": "src/module.ts", "line": 438, "end_line": 457, "label": "combatStart" },
+        { "path": "src/combat/encounter-socket.ts", "line": 1, "end_line": 4, "label": "encounter flow" },
+        { "path": "src/combat/combat-permissions.ts", "line": 21, "end_line": 26, "label": "GM combat write" }
+      ]
+    },
+    {
+      "id": "stones",
+      "type": "backend",
+      "label": "Stones & Powers",
+      "sublabel": "Round gate · Passives",
+      "pos": [780, 80],
+      "size": [140, 58],
+      "sources": [
+        { "path": "src/stones/stone-hooks.ts", "line": 40, "end_line": 50, "label": "stone hooks" },
+        { "path": "src/module.ts", "line": 425, "end_line": 427, "label": "stone powers flow" }
+      ]
+    },
+    {
+      "id": "dice",
+      "type": "backend",
+      "label": "Dice & Chat",
+      "sublabel": "Rolls · Damage",
+      "pos": [780, 400],
+      "size": [140, 58],
+      "sources": [
+        { "path": "src/dice/damage-dialog.ts", "line": 1, "end_line": 4, "label": "damage dialog" },
+        { "path": "src/module.ts", "line": 29, "end_line": 31, "label": "chat hooks" }
+      ]
+    },
+    {
+      "id": "docs",
+      "type": "backend",
+      "label": "Documents",
+      "sublabel": "MasteryActor · Item",
+      "pos": [980, 240],
+      "size": [130, 58],
+      "sources": [
+        { "path": "src/documents/actor.ts", "line": 187, "end_line": 187, "label": "MasteryActor" },
+        { "path": "src/documents/actor.ts", "line": 205, "end_line": 205, "label": "prepareBaseData" },
+        { "path": "src/module.ts", "line": 250, "end_line": 253, "label": "documentClass" }
+      ]
+    },
+    {
+      "id": "socket",
+      "type": "messagebus",
+      "label": "System-Socket",
+      "sublabel": "system.mastery-system",
+      "pos": [590, 400],
+      "size": [130, 58],
+      "sources": [
+        { "path": "src/combat/combat-permissions.ts", "line": 5, "end_line": 5, "label": "ENCOUNTER_SOCKET" },
+        { "path": "src/combat/encounter-socket.ts", "line": 60, "end_line": 67, "label": "socket.on" }
+      ]
+    },
+    {
+      "id": "world",
+      "type": "database",
+      "label": "World-Daten",
+      "sublabel": "Foundry Persistenz",
+      "pos": [1160, 240],
+      "size": [120, 58],
+      "sources": [
+        { "path": "src/documents/actor.ts", "line": 187, "end_line": 187, "label": "Actor writes" },
+        { "path": "template.json", "line": 1, "end_line": 1, "label": "data model" }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Mastery System (Client-Runtime)",
+      "wraps": ["entry", "packs", "ui", "combat", "stones", "dice", "docs", "socket"]
+    }
+  ],
+  "connections": [
+    { "id": "join", "from": "players", "to": "foundry", "label": "join", "variant": "emphasis" },
+    { "id": "load", "from": "foundry", "to": "entry", "label": "esmodules" },
+    { "id": "register-ui", "from": "entry", "to": "ui", "label": "sheets" },
+    { "id": "load-packs", "from": "entry", "to": "packs", "label": "packs", "fromSide": "top", "toSide": "bottom" },
+    { "id": "start-combat", "from": "ui", "to": "combat", "label": "encounter" },
+    { "id": "stone-gate", "from": "combat", "to": "stones", "label": "round", "fromSide": "top", "toSide": "bottom" },
+    { "id": "attack-roll", "from": "combat", "to": "dice", "label": "rolls", "fromSide": "bottom", "toSide": "top" },
+    { "id": "combat-update", "from": "combat", "to": "docs", "label": "update" },
+    { "id": "apply-damage", "from": "dice", "to": "docs", "label": "HP", "fromSide": "right", "toSide": "bottom" },
+    { "id": "sheet-edit", "from": "ui", "to": "docs", "label": "edit", "variant": "dashed", "fromSide": "top", "toSide": "top" },
+    { "id": "emit-socket", "from": "ui", "to": "socket", "label": "emit", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "id": "gm-relay", "from": "socket", "to": "docs", "label": "GM relay", "variant": "security", "fromSide": "right", "toSide": "bottom" },
+    { "id": "persist", "from": "docs", "to": "world", "label": "persist" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Boot",
+      "items": [
+        "Foundry lädt dist/module.js aus system.json",
+        "init registriert Document-Klassen, Sheets, Settings und Scene-Controls"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Primärpfad",
+      "items": [
+        "UI (Sheets/Carousel) → Combat-Runtime → MasteryActor/Item → World-Persistenz",
+        "Stones/Powers und Dice/Chat hängen am Combat-Zug"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Rechte & Sync",
+      "items": [
+        "Combat-Dokument-Writes sind GM-seitig",
+        "Spieler-Aktionen laufen oft über system.mastery-system (GM-Relay)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Absichtlicher Fokus",
+      "items": [
+        "Runtime-Überblick, kein Modulverzeichnis",
+        "Vision/Lighting, Calendar, Artifacts und Import nur als Nebenfähigkeiten weggelassen"
+      ]
+    }
+  ]
+}

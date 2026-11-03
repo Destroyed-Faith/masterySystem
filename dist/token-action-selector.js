@@ -1105,7 +1105,7 @@ export async function handleChosenCombatOption(token, option) {
             if (Dialog?.wait) {
                 const choice = await Dialog.wait({
                     title: 'Parry',
-                    content: '<p>Parry has one pool and two deliveries. Martial strips Attack Dice (Might or Agility). Spell strips Casting Dice from a perceived direct Spell whose origin is within 22 m (Intellect, Resolve, or Influence). Entering normally spends the base Attack Action. If that Action was already committed during Preparation to an Active Buff, spend one additional Attack Action instead.</p>',
+                    content: '<p>Parry has one pool and two deliveries. Martial strips Attack Dice (Might or Agility). Spell strips Casting Dice from a perceived direct Spell whose origin is within 22 m (Intellect, Resolve, or Influence). Entering spends the base Attack Action. Active Buff activation no longer commits that Action.</p>',
                     buttons: {
                         martial: { label: 'Martial', callback: () => 'martial' },
                         spell: { label: 'Spell', callback: () => 'spell' },

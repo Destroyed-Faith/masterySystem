@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Combat Resolver-Kette",
+    "output": ".archify/architecture-combat-resolvers-20261103-112719/combat-resolvers.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "git@github.com:Destroyed-Faith/masterySystem.git",
+      "revision": "cf315475a155c7e2853dccd26e792c01706bd7f2",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "chat",
+      "type": "frontend",
+      "label": "Chat-Karten",
+      "sublabel": "Attack · Damage · Heal",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        120,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/module.ts",
+          "line": 3547,
+          "end_line": 3554,
+          "label": "register handlers"
+        }
+      ]
+    },
+    {
+      "id": "executor",
+      "type": "backend",
+      "label": "Attack Executor",
+      "sublabel": "createAttackCard",
+      "pos": [
+        220,
+        240
+      ],
+      "size": [
+        140,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/attack-executor.ts",
+          "line": 541,
+          "end_line": 541,
+          "label": "createAttackCard"
+        },
+        {
+          "path": "src/combat/attack-executor.ts",
+          "line": 1671,
+          "end_line": 1671,
+          "label": "Raise hooks"
+        }
+      ]
+    },
+    {
+      "id": "roll",
+      "type": "backend",
+      "label": "Attack Roll Handler",
+      "sublabel": "executeAttackRollFromCard",
+      "pos": [
+        420,
+        240
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/chat/attack-roll-handler.ts",
+          "line": 65,
+          "end_line": 65,
+          "label": "execute roll"
+        },
+        {
+          "path": "src/chat/attack-roll-handler.ts",
+          "line": 1227,
+          "end_line": 1235,
+          "label": "→ damage dialog"
+        }
+      ]
+    },
+    {
+      "id": "raise",
+      "type": "backend",
+      "label": "Raise Resolver",
+      "sublabel": "resolveRaiseOutcome",
+      "pos": [
+        420,
+        80
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/raise-resolution.ts",
+          "line": 126,
+          "end_line": 139,
+          "label": "combat raise"
+        }
+      ]
+    },
+    {
+      "id": "dmgdlg",
+      "type": "backend",
+      "label": "Damage Dialog",
+      "sublabel": "calculateDamageResult",
+      "tag": "Hub",
+      "pos": [
+        640,
+        240
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/dice/damage-dialog.ts",
+          "line": 480,
+          "end_line": 480,
+          "label": "showDamageDialog"
+        },
+        {
+          "path": "src/dice/damage-dialog.ts",
+          "line": 3192,
+          "end_line": 3192,
+          "label": "calculateDamage"
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "backend",
+      "label": "applyDamageToTarget",
+      "sublabel": "Damage Resolver",
+      "tag": "Hub",
+      "pos": [
+        860,
+        240
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/dice/damage-dialog.ts",
+          "line": 2039,
+          "end_line": 2072,
+          "label": "applyDamage"
+        },
+        {
+          "path": "src/chat/attack-roll-handler.ts",
+          "line": 1261,
+          "end_line": 1268,
+          "label": "deferred apply"
+        }
+      ]
+    },
+    {
+      "id": "mitigation",
+      "type": "backend",
+      "label": "Mitigation",
+      "sublabel": "Armor · DR · Phasing",
+      "pos": [
+        860,
+        80
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/damage-mitigation.ts",
+          "line": 57,
+          "end_line": 57,
+          "label": "defensive mit"
+        }
+      ]
+    },
+    {
+      "id": "transfer",
+      "type": "backend",
+      "label": "Damage Transfer",
+      "sublabel": "settleDamageTransfer",
+      "pos": [
+        860,
+        400
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/damage-transfer.ts",
+          "line": 36,
+          "end_line": 36,
+          "label": "miss gate"
+        },
+        {
+          "path": "src/dice/damage-dialog.ts",
+          "line": 2058,
+          "end_line": 2067,
+          "label": "finishTransfer"
+        }
+      ]
+    },
+    {
+      "id": "aoe",
+      "type": "backend",
+      "label": "AoE Resolver",
+      "sublabel": "resolveAoeFromSharedRoll",
+      "pos": [
+        640,
+        400
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/aoe-melee-resolution.ts",
+          "line": 1127,
+          "end_line": 1127,
+          "label": "shared AoE"
+        }
+      ]
+    },
+    {
+      "id": "heal",
+      "type": "backend",
+      "label": "Heal · Cleanse",
+      "sublabel": "Chat-Resolver",
+      "pos": [
+        220,
+        400
+      ],
+      "size": [
+        140,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/heal-resolution.ts",
+          "line": 831,
+          "end_line": 831,
+          "label": "resolveHeal"
+        },
+        {
+          "path": "src/module.ts",
+          "line": 3550,
+          "end_line": 3554,
+          "label": "register heal/cleanse"
+        }
+      ]
+    },
+    {
+      "id": "move",
+      "type": "backend",
+      "label": "Move · Pursuit",
+      "sublabel": "Flee · Forced · Track",
+      "pos": [
+        420,
+        400
+      ],
+      "size": [
+        150,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/combat/flee.ts",
+          "line": 57,
+          "end_line": 57,
+          "label": "commitFlee"
+        },
+        {
+          "path": "src/combat/forced-movement.ts",
+          "line": 200,
+          "end_line": 200,
+          "label": "forced move"
+        },
+        {
+          "path": "src/combat/pursuit.ts",
+          "line": 161,
+          "end_line": 161,
+          "label": "pursuit exchange"
+        }
+      ]
+    },
+    {
+      "id": "actor",
+      "type": "database",
+      "label": "MasteryActor",
+      "sublabel": "HP · Flags · Stones",
+      "pos": [
+        1080,
+        240
+      ],
+      "size": [
+        130,
+        58
+      ],
+      "sources": [
+        {
+          "path": "src/documents/actor.ts",
+          "line": 187,
+          "end_line": 187,
+          "label": "MasteryActor"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Combat Resolver-Schicht",
+      "wraps": [
+        "executor",
+        "roll",
+        "raise",
+        "dmgdlg",
+        "apply",
+        "mitigation",
+        "transfer",
+        "aoe",
+        "heal",
+        "move"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "card-click",
+      "from": "chat",
+      "to": "executor",
+      "label": "Angriff",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exec-roll",
+      "from": "executor",
+      "to": "roll",
+      "label": "Karte"
+    },
+    {
+      "id": "roll-raise",
+      "from": "roll",
+      "to": "raise",
+      "label": "TN / Raise",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "roll-dmg",
+      "from": "roll",
+      "to": "dmgdlg",
+      "label": "Hit"
+    },
+    {
+      "id": "dlg-apply",
+      "from": "dmgdlg",
+      "to": "apply",
+      "label": "pendingApply"
+    },
+    {
+      "id": "apply-mit",
+      "from": "apply",
+      "to": "mitigation",
+      "label": "mitigate",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "apply-xfer",
+      "from": "apply",
+      "to": "transfer",
+      "label": "Vampyr",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "apply-actor",
+      "from": "apply",
+      "to": "actor",
+      "label": "update HP"
+    },
+    {
+      "id": "aoe-branch",
+      "from": "dmgdlg",
+      "to": "aoe",
+      "label": "AoE",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "chat-heal",
+      "from": "chat",
+      "to": "heal",
+      "label": "Heal-Karte",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "heal-actor",
+      "from": "heal",
+      "to": "actor",
+      "label": "HP",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "forced",
+      "from": "apply",
+      "to": "move",
+      "label": "forced",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "right"
+    },
+    {
+      "id": "xfer-actor",
+      "from": "transfer",
+      "to": "actor",
+      "label": "heal atk",
+      "fromSide": "right",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Primärpfad",
+      "items": [
+        "Chat → Executor → Roll Handler → Damage Dialog → applyDamageToTarget → Actor",
+        "Raise sitzt vor dem Damage-Hub (TN all-or-nothing)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Damage-Hub",
+      "items": [
+        "applyDamageToTarget orchestriert Phasing, Mitigation, Temp-HP, Bar-Schaden, Transfer",
+        "AoE teilt denselben Schaden-/Roll-Pfad über aoe-melee-resolution"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Parallele Resolver",
+      "items": [
+        "Heal/Cleanse: eigene Chat-Handler (module.ts ready)",
+        "Flee / Forced Move / Pursuit: Movement-Zweig, nicht der Attack-Hit-Pfad"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Grenze",
+      "items": [
+        "Power-Templates unter utils/powers sind Daten — Wirkung erst im Resolver",
+        "Kein vollständiger Katalog aller combat/*.ts-Helfer"
+      ]
+    }
+  ]
+}

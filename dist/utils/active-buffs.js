@@ -185,6 +185,7 @@ export function getTrueActiveBuffs(actor) {
  * Duration is complete Combat Rounds ending at Round End:
  * lastActiveRound = activationRound + effectiveDuration - 1.
  * Only one true active buff can be active at a time (utilities can stack).
+ * Activation does not spend an Attack Action — only the once-per-Preparation slot.
  */
 export async function activateActiveBuff(actor, power, opts) {
     if (!isActiveBuff(power)) {
@@ -235,30 +236,22 @@ export async function activateActiveBuff(actor, power, opts) {
             console.warn('Mastery System | DN Buff requirement check failed', err);
         }
     }
-    // Commit base Attack Action for the upcoming Round (survives turn reset).
+    // One activate/replace per Preparation — no Attack Action cost.
     if (!opts?.skipActionCommit && combat && isTrueActiveBuff(power)) {
         try {
-            const { commitPrepBaseAttackAction, isActiveBuffPreparationWindow, } = await import('../combat/active-buff-lifecycle.js');
-            const { getAvailableAttackActions, getRoundState } = await import('../combat/action-economy.js');
+            const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
+            const { getRoundState, markActiveBuffUsedThisRound } = await import('../combat/action-economy.js');
             const rs = getRoundState(actor, combat);
-            if (rs.activeBuffUsedThisRound || rs.prepBaseAttackCommitted) {
+            if (rs.activeBuffUsedThisRound) {
                 ui.notifications?.warn('You already activated or replaced an Active Buff this Preparation.');
                 return false;
             }
-            if (getAvailableAttackActions(actor, combat) <= 0) {
-                ui.notifications?.warn('Cannot activate an Active Buff — no base Attack Action available to commit.');
-                return false;
-            }
             if (isActiveBuffPreparationWindow(actor, combat)) {
-                const ok = await commitPrepBaseAttackAction(actor, combat);
-                if (!ok) {
-                    ui.notifications?.warn('Failed to commit the base Attack Action for this Active Buff.');
-                    return false;
-                }
+                await markActiveBuffUsedThisRound(actor, combat);
             }
         }
         catch (err) {
-            console.warn('Mastery System | Active Buff action commit failed', err);
+            console.warn('Mastery System | Active Buff preparation slot mark failed', err);
             return false;
         }
     }
@@ -578,10 +571,10 @@ export async function retractActiveBuffActivation(actor, opts) {
         }
     }
     if (refunded) {
-        ui.notifications?.info(`${names} retracted — base Attack Action restored for this Round.`);
+        ui.notifications?.info(`${names} retracted — Preparation slot cleared (legacy Attack commit restored if any).`);
     }
     else {
-        ui.notifications?.info(`${names} ended (no Attack Action refund).`);
+        ui.notifications?.info(`${names} ended.`);
     }
     try {
         const ChatCls = globalThis.ChatMessage;
@@ -592,8 +585,8 @@ export async function retractActiveBuffActivation(actor, opts) {
                 user: globalThis.game?.user?.id,
                 speaker: ChatCls.getSpeaker({ actor: actor }),
                 content: refunded
-                    ? `<p><strong>${esc(names)}</strong> retracted during Preparation — base Attack Action restored.</p>`
-                    : `<p><strong>${esc(names)}</strong> ended (maintained buff removed; no Attack refund).</p>`,
+                    ? `<p><strong>${esc(names)}</strong> retracted during Preparation — slot cleared.</p>`
+                    : `<p><strong>${esc(names)}</strong> ended (maintained buff removed).</p>`,
             });
         }
     }

@@ -999,17 +999,19 @@ export function getAvailableAttackActions(actor, combat) {
     const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
     return n;
 }
-/** Remaining Active Buff activations this round: always 1 or 0. */
-export function remainingActiveBuffActions(usedThisRound, attackActionsAvailable) {
+/**
+ * Remaining Active Buff activations this round: always 1 or 0.
+ * No longer gated on Attack Actions — Activation is free; only once per Preparation.
+ * `attackActionsAvailable` is kept for call-site compatibility and ignored.
+ */
+export function remainingActiveBuffActions(usedThisRound, _attackActionsAvailable) {
     if (usedThisRound)
-        return 0;
-    if (attackActionsAvailable <= 0)
         return 0;
     return 1;
 }
 export function getAvailableActiveBuffActions(actor, combat) {
     const roundState = getRoundState(actor, combat);
-    return remainingActiveBuffActions(roundState.activeBuffUsedThisRound, getAvailableAttackActions(actor, combat));
+    return remainingActiveBuffActions(roundState.activeBuffUsedThisRound);
 }
 export async function markActiveBuffUsedThisRound(actor, combat) {
     const roundState = getRoundState(actor, combat);

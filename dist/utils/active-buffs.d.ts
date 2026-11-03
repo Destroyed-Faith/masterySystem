@@ -33,7 +33,10 @@ export interface ActivateActiveBuffOptions {
      * Normal callers must activate during Preparation.
      */
     allowOutsidePreparation?: boolean;
-    /** When true, do not commit the base Attack Action (caller already did / maintain). */
+    /**
+     * When true, do not mark the once-per-Preparation Active Buff slot
+     * (caller already did / maintain / tests).
+     */
     skipActionCommit?: boolean;
 }
 /**
@@ -41,6 +44,7 @@ export interface ActivateActiveBuffOptions {
  * Duration is complete Combat Rounds ending at Round End:
  * lastActiveRound = activationRound + effectiveDuration - 1.
  * Only one true active buff can be active at a time (utilities can stack).
+ * Activation does not spend an Attack Action — only the once-per-Preparation slot.
  */
 export declare function activateActiveBuff(actor: Actor, power: any, opts?: ActivateActiveBuffOptions): Promise<boolean>;
 export interface RetractActiveBuffOptions {

@@ -25,7 +25,8 @@ export declare function readBuffLifecycleFlags(effect: any): {
 /** Remaining complete Rounds including the current Round (0 if expired). */
 export declare function remainingCompleteRounds(lastActiveRound: number, currentRound: number): number;
 /**
- * Commit the base Attack Action for the upcoming Round (survives resetTurnState).
+ * Legacy: commit the base Attack Action for the upcoming Round (survives resetTurnState).
+ * Current Active Buff activation no longer calls this — kept for older fights / tests / refunds.
  */
 export declare function commitPrepBaseAttackAction(actor: any, combat: any): Promise<boolean>;
 export declare function clearPrepBaseAttackCommitment(actor: any, combat: any): Promise<void>;

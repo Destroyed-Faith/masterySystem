@@ -1579,7 +1579,9 @@ export class StonePowersDialog extends BaseDialog {
       ? formatActiveBuffDurationLabel(life.activationRound, life.lastActiveRound, round)
       : '';
     const rs = combat ? getRoundState(this.actor as any, combat) : null;
-    const alreadyCommitted = !!(rs?.prepBaseAttackCommitted || rs?.activeBuffUsedThisRound);
+    // Once-per-Preparation slot (no Attack Action cost). Legacy prepBaseAttackCommitted
+    // still blocks replace until retract/round reset on older fights.
+    const alreadyCommitted = !!(rs?.activeBuffUsedThisRound || rs?.prepBaseAttackCommitted);
     const windowOpen = combat ? isActiveBuffPreparationWindow(this.actor, combat) : false;
     const pendingEmpowerPl = Math.max(
       0,
@@ -1614,14 +1616,14 @@ export class StonePowersDialog extends BaseDialog {
     const unavailableReason = !windowOpen
       ? 'Active Buffs can be chosen only during the Preparation Phase.'
       : alreadyCommitted
-        ? 'Base Attack Action already committed for an Active Buff this Preparation.'
+        ? 'You already activated or replaced an Active Buff this Preparation.'
         : locked
           ? 'Stone plan is locked — Active Buff selection is unavailable.'
           : '';
     const retractHint = canRetract
       ? windowOpen
-        ? 'Retract undoes this Preparation activation and restores the base Attack Action if it was committed.'
-        : 'GM: end the maintained Buff. Attack Action is refunded only if it was committed this Round.'
+        ? 'Retract undoes this Preparation activation so you can choose again.'
+        : 'GM: end the maintained Buff anytime.'
       : '';
     return {
       show: powers.length > 0 || !!current,
@@ -1643,10 +1645,10 @@ export class StonePowersDialog extends BaseDialog {
         isCurrent: !!current && String((current.flags?.['mastery-system']?.powerId) || '') === String(p.id || ''),
       })),
       hint: alreadyCommitted
-        ? 'Base Attack Action already committed for an Active Buff this Preparation. Maintaining costs nothing next Round until you replace it.'
+        ? 'Active Buff already chosen this Preparation. Maintaining costs nothing next Round until you replace it.'
         : current
-          ? 'Keep the maintained Buff free of charge, or replace it (costs this Round\'s base Attack Action). Empowerment applies only on activate/replace, not on maintain.'
-          : 'Activating or replacing an Active Buff commits your base Attack Action for the upcoming Round.',
+          ? 'Keep the maintained Buff free of charge, or replace it (no Attack Action cost; once per Preparation). Empowerment applies only on activate/replace, not on maintain.'
+          : 'Activating or replacing an Active Buff does not spend an Attack Action (once per Preparation).',
       unavailableReason,
     };
   }

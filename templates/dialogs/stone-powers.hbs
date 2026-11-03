@@ -54,7 +54,7 @@
       <span class="active-buff-prep-effect">{{activeBuffPrep.currentEffect}}</span>
       {{/if}}
       {{else}}
-      <span class="active-buff-prep-note">Optional — activate one for the upcoming Round (costs your base Attack Action).</span>
+      <span class="active-buff-prep-note">Optional — activate one for the upcoming Round (no Attack Action cost).</span>
       {{/if}}
       <span class="active-buff-prep-hint">{{activeBuffPrep.hint}}</span>
       {{#if activeBuffPrep.pendingEmpowerment}}
@@ -70,7 +70,7 @@
       <button type="button"
               class="dialog-btn js-activate-active-buff{{#if this.isCurrent}} is-current{{/if}}"
               data-power-id="{{this.id}}"
-              title="{{#if this.isCurrent}}Already maintained — keep free{{else}}{{#if ../activeBuffPrep.maintaining}}Replace with {{this.name}} (PL {{this.level}}) — costs base Attack Action{{else}}Activate {{this.name}} (PL {{this.level}}) — costs base Attack Action{{/if}}{{/if}}"
+              title="{{#if this.isCurrent}}Already maintained — keep free{{else}}{{#if ../activeBuffPrep.maintaining}}Replace with {{this.name}} (PL {{this.level}}) — no Attack Action cost{{else}}Activate {{this.name}} (PL {{this.level}}) — no Attack Action cost{{/if}}{{/if}}"
               {{#if this.isCurrent}}disabled{{/if}}>
         {{this.name}} (PL {{this.level}}){{#unless ../activeBuffPrep.maintaining}}{{else}}{{#unless this.isCurrent}} — replace{{/unless}}{{/unless}}
       </button>
