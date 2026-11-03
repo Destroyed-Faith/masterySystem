@@ -2,6 +2,8 @@
  * Per-combat stealth, hidden, invisibility, and perception-check bookkeeping.
  * Stored on `actor.flags['mastery-system'].perceptionCombat`.
  */
+import { userMayPersistActor } from './combat-permissions.js';
+import { patchForcedDelete } from '../utils/foundry-v14.js';
 const FLAG_KEY = 'perceptionCombat';
 export function emptyPerceptionCombatState() {
     return {};
@@ -24,24 +26,27 @@ export function getPerceptionCombatState(actor) {
  * `setFlag({ perceptionUsedVs: {} })` — empty objects do not delete prior ids.
  * Unset-then-set (same pattern as combat-snapshot) is required so clears stick.
  */
-export async function setPerceptionCombatState(actor, patch) {
-    if (!actor?.setFlag && !actor?.update)
+function perceptionStatesEqual(a, b) {
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const key of keys) {
+        if (JSON.stringify(a[key]) !== JSON.stringify(b[key])) {
+            return false;
+        }
+    }
+    return true;
+}
+/** Drop the flag, then write `next` when it still has keys. */
+async function replacePerceptionFlag(actor, next) {
+    if (!userMayPersistActor(actor))
         return;
-    const cur = getPerceptionCombatState(actor);
-    const next = { ...cur, ...patch };
-    // Omit emptied maps so they are not re-created after unset.
-    if (patch.perceptionUsedVs && Object.keys(patch.perceptionUsedVs).length === 0) {
-        delete next.perceptionUsedVs;
-    }
-    if (patch.locatedTargets && Object.keys(patch.locatedTargets).length === 0) {
-        delete next.locatedTargets;
-    }
     try {
         await actor.unsetFlag?.('mastery-system', FLAG_KEY);
     }
     catch {
         try {
-            await actor.update?.({ [`flags.mastery-system.-=${FLAG_KEY}`]: null });
+            const patch = {};
+            patchForcedDelete(patch, `flags.mastery-system.${FLAG_KEY}`);
+            await actor.update?.(patch);
         }
         catch {
             /* continue and try setFlag */
@@ -55,6 +60,26 @@ export async function setPerceptionCombatState(actor, patch) {
     else {
         await actor.update?.({ [`flags.mastery-system.${FLAG_KEY}`]: next });
     }
+}
+export async function setPerceptionCombatState(actor, patch) {
+    if (!actor?.setFlag && !actor?.update)
+        return;
+    if (!userMayPersistActor(actor))
+        return;
+    const cur = getPerceptionCombatState(actor);
+    const next = { ...cur, ...patch };
+    // Omit emptied maps so they are not re-created after unset.
+    if (patch.perceptionUsedVs && Object.keys(patch.perceptionUsedVs).length === 0) {
+        delete next.perceptionUsedVs;
+    }
+    if (patch.locatedTargets && Object.keys(patch.locatedTargets).length === 0) {
+        delete next.locatedTargets;
+    }
+    // Health ticks re-sync Invisibility on every client. An identical flag must
+    // not unset/set, or spectators still hit the ActorDelta permission check.
+    if (perceptionStatesEqual(cur, next))
+        return;
+    await replacePerceptionFlag(actor, next);
 }
 /** Effective Invisibility Bonus from combat flags (powers preferred via profile layer). */
 export function effectiveInvisibilityBonus(state) {
@@ -101,25 +126,7 @@ export async function clearPerceptionRoundState(actor) {
     delete next.perceptionUsedVs;
     delete next.revealedThisRound;
     delete next.stealthSpentThisRound;
-    try {
-        await actor.unsetFlag?.('mastery-system', FLAG_KEY);
-    }
-    catch {
-        try {
-            await actor.update?.({ [`flags.mastery-system.-=${FLAG_KEY}`]: null });
-        }
-        catch {
-            /* continue */
-        }
-    }
-    if (Object.keys(next).length === 0)
-        return;
-    if (typeof actor.setFlag === 'function') {
-        await actor.setFlag('mastery-system', FLAG_KEY, next);
-    }
-    else {
-        await actor.update?.({ [`flags.mastery-system.${FLAG_KEY}`]: next });
-    }
+    await replacePerceptionFlag(actor, next);
 }
 /**
  * Full combat-scoped perception wipe (combat end / new encounter).
@@ -130,17 +137,9 @@ export async function clearPerceptionRoundState(actor) {
 export async function clearPerceptionCombatEncounterState(actor) {
     if (!actor?.unsetFlag && !actor?.update)
         return;
-    try {
-        await actor.unsetFlag?.('mastery-system', FLAG_KEY);
-    }
-    catch {
-        try {
-            await actor.update?.({ [`flags.mastery-system.-=${FLAG_KEY}`]: null });
-        }
-        catch {
-            /* ignore */
-        }
-    }
+    if (!userMayPersistActor(actor))
+        return;
+    await replacePerceptionFlag(actor, {});
 }
 export function hasLocatedTarget(observer, target, round) {
     const tgtId = String(target?.id ?? '');

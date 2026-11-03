@@ -61,6 +61,54 @@ describe('perceptionCombat flag clear on merge-style actors', () => {
     expect(getPerceptionCombatState(actor).perceptionUsedVs).toBeUndefined();
   });
 
+  it('does not write an unlinked token the current player cannot update', async () => {
+    const actor = makeMergeActor({ invisibilityBonus: 1 });
+    (actor as any).isToken = true;
+    (actor as any).token = {
+      documentName: 'Token',
+      isOwner: false,
+      canUserModify: () => false,
+    };
+    let writes = 0;
+    const orig = actor.unsetFlag;
+    actor.unsetFlag = async (scope: string, key: string) => {
+      writes += 1;
+      return orig(scope, key);
+    };
+    const prev = (globalThis as any).game;
+    (globalThis as any).game = { user: { id: 'diego', isGM: false } };
+    try {
+      await setPerceptionCombatState(actor, { invisibilityBonus: 4 });
+    } finally {
+      (globalThis as any).game = prev;
+    }
+    expect(writes).toBe(0);
+    expect(getPerceptionCombatState(actor).invisibilityBonus).toBe(1);
+  });
+
+  it('still lets the GM write that token, and skips an identical sync', async () => {
+    const actor = makeMergeActor({ invisibilityBonus: 2, blockedSenses: ['darkvision'] });
+    (actor as any).isToken = true;
+    (actor as any).token = { documentName: 'Token', isOwner: false, canUserModify: () => false };
+    let writes = 0;
+    const orig = actor.unsetFlag;
+    actor.unsetFlag = async (scope: string, key: string) => {
+      writes += 1;
+      return orig(scope, key);
+    };
+    const prev = (globalThis as any).game;
+    (globalThis as any).game = { user: { id: 'gm', isGM: true } };
+    try {
+      await setPerceptionCombatState(actor, { invisibilityBonus: 2, blockedSenses: ['darkvision'] as any });
+      expect(writes).toBe(0);
+      await setPerceptionCombatState(actor, { invisibilityBonus: 5 });
+      expect(writes).toBe(1);
+      expect(getPerceptionCombatState(actor).invisibilityBonus).toBe(5);
+    } finally {
+      (globalThis as any).game = prev;
+    }
+  });
+
   it('clearPerceptionCombatEncounterState unsets the whole flag', async () => {
     const actor = makeMergeActor({
       perceptionUsedVs: { tgt: true },

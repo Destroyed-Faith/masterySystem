@@ -15,6 +15,59 @@ export function canCurrentUserUpdateDocument(doc) {
         return !!d.testUserPermission(user, 'OWNER');
     return d.isOwner === true;
 }
+/**
+ * Whether this client may write the actor.
+ * Unlinked token actors persist as an ActorDelta on the Token. Actor ownership
+ * is not the permission the server checks, so players were toasting
+ * "lacks permission to update ActorDelta" on every health change.
+ * No session (unit tests) is treated as allowed.
+ */
+export function userMayPersistActor(actor) {
+    const user = typeof game !== 'undefined' ? game?.user : globalThis.game?.user;
+    if (!user)
+        return true;
+    if (user.isGM === true)
+        return true;
+    if (actor?.isToken) {
+        const token = tokenDocumentOfActor(actor);
+        if (!token)
+            return false;
+        return documentAllowsUpdate(token, user);
+    }
+    return documentAllowsUpdate(actor, user);
+}
+function documentAllowsUpdate(doc, user) {
+    if (!doc)
+        return false;
+    if (typeof doc.canUserModify === 'function') {
+        try {
+            return doc.canUserModify(user, 'update') === true;
+        }
+        catch {
+            return false;
+        }
+    }
+    if (typeof doc.testUserPermission === 'function') {
+        try {
+            return doc.testUserPermission(user, 'OWNER') === true;
+        }
+        catch {
+            return false;
+        }
+    }
+    return doc.isOwner === true;
+}
+function tokenDocumentOfActor(actor) {
+    const token = actor?.token;
+    if (token?.documentName === 'Token')
+        return token;
+    if (token?.document?.documentName === 'Token')
+        return token.document;
+    const parent = actor?.parent;
+    if (parent?.documentName === 'Token')
+        return parent;
+    return null;
+}
 /** Combat documents are GM-only on the server, even if the client reports ownership. */
 export function canCurrentUserUpdateCombat(combat) {
     const user = typeof game !== 'undefined' ? game.user : null;

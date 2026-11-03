@@ -2,6 +2,7 @@
  * Resolve Passive / Active Buff Invisibility into a combat profile.
  * Powers are the source of truth. Cloak Disruption no longer applies.
  */
+import { userMayPersistActor } from './combat-permissions.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
 import { getPerceptionCombatState, isInvisibilitySuppressedByHealth, setPerceptionCombatState, } from './perception-state.js';
@@ -201,6 +202,8 @@ export function isSenseBlockedForActor(target, senseId) {
 export async function syncInvisibilityFromPowers(actor) {
     const profile = resolveInvisibilityFromActor(actor);
     if (!actor?.setFlag)
+        return profile;
+    if (!userMayPersistActor(actor))
         return profile;
     const patch = {
         invisibilityBonus: profile.baseBonus,

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.815] - 2026-11-03
+
+### Fixed
+
+- **Unlinked token permissions:** Invisibility and perception flags on an unlinked token are written only by the GM or whoever can update that token. Other players no longer see "lacks permission to update ActorDelta" when someone deals damage or changes health.
+
 ## [0.9.814] - 2026-11-03
 
 ### Fixed

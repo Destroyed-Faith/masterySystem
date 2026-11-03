@@ -10,6 +10,7 @@ import {
   getPerceptionCombatState,
   setPerceptionCombatState,
 } from './perception-state.js';
+import { userMayPersistActor } from './combat-permissions.js';
 import { syncInvisibilityFromPowers } from './invisibility-profile.js';
 
 export interface InvisibilityVeilPreset {
@@ -271,6 +272,7 @@ export function registerPerceptionCombatHooks(): void {
   Hooks.on('updateActor', async (actor: any, changes: any) => {
     try {
       if (!actor || !changes?.system?.health) return;
+      if (!userMayPersistActor(actor)) return;
       await syncInvisibilityFromPowers(actor);
     } catch (err) {
       console.error('Mastery System | invisibility health sync failed', err);

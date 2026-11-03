@@ -2,6 +2,7 @@
  * Combat perception runtime hooks — stealth results, reveal, round/turn cleanup.
  */
 import { clearPerceptionCombatEncounterState, clearPerceptionRoundState, clearPerceptionRoundUsage, getPerceptionCombatState, setPerceptionCombatState, } from './perception-state.js';
+import { userMayPersistActor } from './combat-permissions.js';
 import { syncInvisibilityFromPowers } from './invisibility-profile.js';
 /** Named veil presets from the Players Guide (Silent Veil, Hollow Veil). */
 export const INVISIBILITY_VEIL_PRESETS = {
@@ -254,6 +255,8 @@ export function registerPerceptionCombatHooks() {
     Hooks.on('updateActor', async (actor, changes) => {
         try {
             if (!actor || !changes?.system?.health)
+                return;
+            if (!userMayPersistActor(actor))
                 return;
             await syncInvisibilityFromPowers(actor);
         }

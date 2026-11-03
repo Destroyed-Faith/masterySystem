@@ -3,6 +3,14 @@
  */
 export declare const ENCOUNTER_SOCKET = "system.mastery-system";
 export declare function canCurrentUserUpdateDocument(doc: unknown): boolean;
+/**
+ * Whether this client may write the actor.
+ * Unlinked token actors persist as an ActorDelta on the Token. Actor ownership
+ * is not the permission the server checks, so players were toasting
+ * "lacks permission to update ActorDelta" on every health change.
+ * No session (unit tests) is treated as allowed.
+ */
+export declare function userMayPersistActor(actor: any): boolean;
 /** Combat documents are GM-only on the server, even if the client reports ownership. */
 export declare function canCurrentUserUpdateCombat(combat: unknown): boolean;
 export declare function listActiveUsers(): Array<{

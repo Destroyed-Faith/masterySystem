@@ -43,13 +43,6 @@ export interface PerceptionCombatState {
 }
 export declare function emptyPerceptionCombatState(): PerceptionCombatState;
 export declare function getPerceptionCombatState(actor: any): PerceptionCombatState;
-/**
- * Write perception combat flags with full replace semantics.
- *
- * Token ActorDelta / Foundry `mergeObject` keeps stale nested keys when you
- * `setFlag({ perceptionUsedVs: {} })` — empty objects do not delete prior ids.
- * Unset-then-set (same pattern as combat-snapshot) is required so clears stick.
- */
 export declare function setPerceptionCombatState(actor: any, patch: Partial<PerceptionCombatState>): Promise<void>;
 /** Effective Invisibility Bonus from combat flags (powers preferred via profile layer). */
 export declare function effectiveInvisibilityBonus(state: PerceptionCombatState): number;

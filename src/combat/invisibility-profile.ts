@@ -4,6 +4,7 @@
  */
 
 import type { CombatSenseId } from './combat-senses.js';
+import { userMayPersistActor } from './combat-permissions.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
 import {
@@ -224,6 +225,7 @@ export function isSenseBlockedForActor(target: any, senseId: CombatSenseId): boo
 export async function syncInvisibilityFromPowers(actor: any): Promise<InvisibilityProfile> {
   const profile = resolveInvisibilityFromActor(actor);
   if (!actor?.setFlag) return profile;
+  if (!userMayPersistActor(actor)) return profile;
   const patch: Partial<PerceptionCombatState> = {
     invisibilityBonus: profile.baseBonus,
     blockedSenses: profile.blockedSenses,

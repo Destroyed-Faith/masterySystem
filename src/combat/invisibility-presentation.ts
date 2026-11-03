@@ -10,6 +10,7 @@
  * perception gates, not token visibility.
  */
 
+import { userMayPersistActor } from './combat-permissions.js';
 import { effectiveInvisibilityBonusForActor } from './invisibility-profile.js';
 import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
 import { writeActorStatusList } from '../system/assign-status.js';
@@ -196,6 +197,7 @@ const presentationSyncInFlight = new Set<string>();
  */
 export async function syncInvisibilityPresentation(actor: any): Promise<void> {
   if (!actor) return;
+  if (!userMayPersistActor(actor)) return;
   const actorId = String(actor.id || actor.uuid || '');
   if (actorId && presentationSyncInFlight.has(actorId)) return;
   if (actorId) presentationSyncInFlight.add(actorId);
