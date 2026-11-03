@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.810] - 2026-11-03
+
+### Fixed
+
+- **CI:** Rules Journals test no longer expects deleted `docs/rules-journals-report.json`; it asserts pack page counts from `src/packs` instead. Generator report output moves to `reports/`.
+
 ## [0.9.809] - 2026-11-03
 
 ### Changed

@@ -166,14 +166,30 @@ describe('Rules Journals — generated packs', () => {
     expect(linkedPages).toBeGreaterThan(0);
   });
 
-  it('report file lists three packs with no empty pages', () => {
-    const reportPath = join(ROOT, 'docs', 'rules-journals-report.json');
-    expect(existsSync(reportPath)).toBe(true);
-    const report = JSON.parse(readFileSync(reportPath, 'utf8'));
-    expect(report.missing).toEqual([]);
-    expect(report.emptyPages).toEqual([]);
-    expect(report.packs['rules-core']?.pages).toBeGreaterThan(40);
-    expect(report.packs['rules-world']?.pages).toBeGreaterThan(15);
-    expect(report.packs['rules-quickref']?.pages).toBeGreaterThanOrEqual(8);
+  it('generated pack sources have page counts and no empty pages', () => {
+    const pageCounts: Record<string, number> = {};
+    const emptyPages: Array<{ pack: string; journal: string; page: string }> = [];
+
+    for (const pack of packs) {
+      const srcDir = join(ROOT, 'src', 'packs', pack);
+      const journals = readdirSync(srcDir).filter((f) => f.startsWith('journal_') && f.endsWith('.json'));
+      let pages = 0;
+      for (const file of journals) {
+        const doc = JSON.parse(readFileSync(join(srcDir, file), 'utf8'));
+        for (const page of doc.pages ?? []) {
+          pages += 1;
+          const content = String(page?.text?.content || '').trim();
+          if (!content) {
+            emptyPages.push({ pack, journal: String(doc.name || file), page: String(page?.name || '') });
+          }
+        }
+      }
+      pageCounts[pack] = pages;
+    }
+
+    expect(emptyPages).toEqual([]);
+    expect(pageCounts['rules-core']).toBeGreaterThan(40);
+    expect(pageCounts['rules-world']).toBeGreaterThan(15);
+    expect(pageCounts['rules-quickref']).toBeGreaterThanOrEqual(8);
   });
 });

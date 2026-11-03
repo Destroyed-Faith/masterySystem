@@ -25,7 +25,7 @@ import { stableId, slugify } from './rules-journals/stable-id.mjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const SOURCE = path.join(ROOT, 'docs', 'Rules', 'players-guide.md');
-const REPORT_PATH = path.join(ROOT, 'docs', 'rules-journals-report.json');
+const REPORT_PATH = path.join(ROOT, 'reports', 'rules-journals-report.json');
 
 const TEXT_FORMAT_HTML = 1; // CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML
 
