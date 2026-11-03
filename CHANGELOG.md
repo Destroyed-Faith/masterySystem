@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.817] - 2026-11-03
+
+### Changed
+
+- **Status dialog:** The add-status window for player characters and NPCs is wider, with larger fields and buttons so the list and the rank stay on screen.
+
+### Removed
+
+- **Power mechanics editor:** The cog button "Edit structured Mechanics" and its dialog are gone from power rows.
+
 ## [0.9.816] - 2026-11-03
 
 ### Added

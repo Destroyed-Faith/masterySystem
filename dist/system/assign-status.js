@@ -427,7 +427,7 @@ export async function openStatusAddDialog(actor) {
     await new Promise((resolve) => {
         const dialog = new DialogCtor({
             title: `Status — ${who}`,
-            content: `<form class="ms-status-add-dialog">
+            content: `<form class="ms-status-add-dialog" style="min-width:32rem;min-height:16rem">
         <p class="ms-status-add-dialog__hint">Status auf ${who} setzen.</p>
         <label class="ms-status-add-dialog__field">
           <span>Status</span>
@@ -463,7 +463,17 @@ export async function openStatusAddDialog(actor) {
                 };
                 $html?.find?.('select.js-status-add-pick')?.on?.('change', sync);
                 sync();
+                try {
+                    dialog.setPosition?.({ width: 560, height: 'auto' });
+                }
+                catch {
+                    /* position is best-effort */
+                }
             },
+        }, {
+            width: 560,
+            height: 'auto',
+            classes: ['mastery-system', 'ms-status-add-app'],
         });
         dialog.render(true);
     });

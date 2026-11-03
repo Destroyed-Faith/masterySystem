@@ -2788,107 +2788,7 @@
   right: 4px;
 }
 
-/* ========== Power Mechanics Editor Dialog ========== */
-.mastery-system.dialog.power-mechanics-editor .pme-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  color: var(--df-text-primary, #d0d0d0);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-header-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-chip {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
-  font-size: 11px;
-  color: var(--df-text-primary, #d0d0d0);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-section {
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  border-radius: 6px;
-  padding: 8px 10px;
-  margin: 0;
-  background: var(--df-bg-panel, #2a3136);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-section > legend {
-  padding: 0 6px;
-  font-family: var(--df-font-head);
-  font-size: 12px;
-  color: var(--df-text-primary, #e8e8e8);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 6px 10px;
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 12px;
-  color: var(--df-text-secondary, #b0b0b0);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-checkbox {
-  flex-direction: row !important;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-form input,
-.mastery-system.dialog.power-mechanics-editor .pme-form select,
-.mastery-system.dialog.power-mechanics-editor .pme-form textarea {
-  background: var(--df-bg-primary, #20272B);
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  border-radius: 3px;
-  padding: 3px 6px;
-  font-family: inherit;
-  font-size: 12px;
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-raw {
-  margin-top: 6px;
-  border: 1px dashed var(--df-border-primary, #3a3f44);
-  border-radius: 4px;
-  padding: 6px 8px;
-  background: var(--df-bg-panel, #2a3136);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-raw > summary {
-  cursor: pointer;
-  font-family: var(--df-font-head);
-  font-size: 12px;
-  color: var(--df-text-primary, #d0d0d0);
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-json {
-  width: 100%;
-  min-height: 140px;
-  font-family: 'Consolas', 'Courier New', monospace;
-}
-
-.mastery-system.dialog.power-mechanics-editor .pme-hint {
-  margin: 4px 0 0 0;
-  font-size: 11px;
-  color: var(--df-text-secondary, #9a9a9a);
-}
-
 /* Button on power card */
-.mastery-system.sheet.actor.character .power-edit-mechanics,
 .mastery-system.sheet.actor.character .power-replace-btn {
   background: var(--df-accent-subtle, rgba(255,255,255,0.1));
   border: 1px solid var(--df-border-primary, #3a3f44);
@@ -2904,17 +2804,11 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.mastery-system.sheet.actor.character .power-edit-mechanics:hover:not(:disabled) {
-  background: var(--df-accent, rgba(255,255,255,0.22));
-  color: #ffe4a0;
-}
-
 .mastery-system.sheet.actor.character .power-replace-btn:hover:not(:disabled) {
   background: var(--df-accent, rgba(255,255,255,0.22));
   color: #a8d4ff;
 }
 
-.mastery-system.sheet.actor.character .power-edit-mechanics:disabled,
 .mastery-system.sheet.actor.character .power-replace-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -8066,27 +7960,49 @@ aside#tooltip,
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
+.ms-status-add-app.window-app {
+  min-width: 32rem;
+}
+
+.ms-status-add-app .window-content {
+  min-height: 18rem;
+  padding: 1rem 1.15rem 0.75rem;
+  overflow: visible;
+}
+
+.ms-status-add-app .dialog-buttons button {
+  min-height: 2.6rem;
+  font-size: 1rem;
+}
+
 .ms-status-add-app .ms-status-add-dialog,
 .mastery-system .ms-status-add-dialog {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  min-width: 32rem;
+  min-height: 16rem;
 }
 
 .ms-status-add-dialog__hint {
   margin: 0;
+  font-size: 1rem;
   opacity: 0.8;
 }
 
 .ms-status-add-dialog__field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  font-size: 1rem;
 }
 
 .ms-status-add-dialog__field select,
 .ms-status-add-dialog__field input {
   width: 100%;
+  min-height: 2.6rem;
+  font-size: 1.05rem;
+  padding: 8px 10px;
 }
 
 /* ========================================

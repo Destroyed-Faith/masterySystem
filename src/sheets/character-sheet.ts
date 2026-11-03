@@ -3814,8 +3814,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
 
     // Power mechanics editor (structured block)
-    html.find('.power-edit-mechanics').on('click', this.#onPowerEditMechanics.bind(this));
-    
     // Power level increase/decrease (with confirmation)
     html.off('click', '.power-increase-level').on('click', '.power-increase-level', this.#onPowerIncreaseLevel.bind(this));
     html.off('click', '.power-decrease-level').on('click', '.power-decrease-level', this.#onPowerDecreaseLevel.bind(this));
@@ -6857,27 +6855,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
   }
 
-  async #onPowerEditMechanics(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!event.currentTarget) return;
-    const $button = $(event.currentTarget);
-    const itemId = $button.attr('data-item-id') || $button.data('item-id') || $button.data('itemId');
-    if (!itemId) {
-      ui.notifications?.warn('Could not resolve power id for mechanics editor.');
-      return;
-    }
-    const actor: any = this.actor;
-    const power = actor?.items?.get?.(itemId)
-      ?? (Array.isArray(actor?.items) ? actor.items.find((i: any) => i.id === itemId) : null);
-    if (!power) {
-      ui.notifications?.warn('Power not found on this actor.');
-      return;
-    }
-    const { openPowerMechanicsEditor } = await import('./power-mechanics-editor-dialog.js');
-    await openPowerMechanicsEditor({ actor, power });
-  }
-
   #onPowerToggleDetails(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -7510,7 +7487,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.spec-add):not(.spec-edit):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.spec-add):not(.spec-edit):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
 
     // Ensure creation buttons are enabled
