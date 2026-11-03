@@ -7,6 +7,7 @@ import {
   ALL_SPECIAL_EFFECTS,
   getEffectById,
   getEffectBaseName,
+  sortSpecialEffectsByName,
   type SpecialEffect,
 } from '../utils/special-effects.js';
 import {
@@ -96,13 +97,14 @@ export function matchesSide(disposition: number | undefined, filter: GmEffectSid
 
 /** Legal persistent Specials for the GM picker (instants/support excluded except Cleanse). */
 export function listGmAssignableSpecials(): SpecialEffect[] {
-  return ALL_SPECIAL_EFFECTS.filter((e) => {
+  const list = ALL_SPECIAL_EFFECTS.filter((e) => {
     if (e.id === 'cleanse') return true;
     if (e.category === 'instant' || e.category === 'support' || e.category === 'multiAttack') {
       return false;
     }
     return isAssignableStatusId(e.id) || !!getEffectById(e.id);
   });
+  return sortSpecialEffectsByName(list);
 }
 
 export function formatSpecialLine(specialId: string, value?: number | null): string {

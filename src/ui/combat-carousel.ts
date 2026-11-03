@@ -30,6 +30,7 @@ import {
 import {
   carouselSideClass,
   findNextCombatantId,
+  resolveCombatantDisplayName,
   resolveCurrentCombatantId,
 } from './combat-carousel-helpers.js';
 import {
@@ -474,56 +475,56 @@ export class CombatCarouselApp extends BaseCarousel {
         : [];
       const tip = buildCarouselTooltip({
         mode: prefs.tooltipMode,
-        name: String(combatant.name || actor.name || ''),
-        initiative: combatant.initiative ?? 0,
-        statusTooltips: visibleStatusIcons.map((s) => String(s.tooltip || s.name || '')).filter(Boolean),
-        hideVitals: hideHpNumbers,
-        armor: combatStrip?.armor,
-        evade: combatStrip?.evade,
-        drPct: combatStrip?.drPct,
-        attackRemaining,
-        attackTotal,
-        movementRemaining,
-        movementTotal,
-        reactionRemaining: reactSum.remaining,
-        reactionTotal: reactSum.total,
-        tempHP,
-        hpScarredCount,
-      });
+      name: resolveCombatantDisplayName(combatant, token, actor),
+      initiative: combatant.initiative ?? 0,
+      statusTooltips: visibleStatusIcons.map((s) => String(s.tooltip || s.name || '')).filter(Boolean),
+      hideVitals: hideHpNumbers,
+      armor: combatStrip?.armor,
+      evade: combatStrip?.evade,
+      drPct: combatStrip?.drPct,
+      attackRemaining,
+      attackTotal,
+      movementRemaining,
+      movementTotal,
+      reactionRemaining: reactSum.remaining,
+      reactionTotal: reactSum.total,
+      tempHP,
+      hpScarredCount,
+    });
 
-      const favoritePowers =
-        ownsActor && actor.type === 'character'
-          ? (() => {
-              const ids = readPowerFavorites(actor);
-              if (!ids.length) return [];
-              return ids
-                .map((id) => {
-                  const item = actor.items?.get?.(id);
-                  if (!item || item.type !== 'power') return null;
-                  const used = hasPowerBeenUsedThisRound(economyActor, combat, id);
-                  return {
-                    id,
-                    name: String(item.name || 'Power'),
-                    img: String(item.img || 'icons/svg/aura.svg'),
-                    used,
-                    disabled: used,
-                  };
-                })
-                .filter(Boolean);
-            })()
-          : [];
+    const favoritePowers =
+      ownsActor && actor.type === 'character'
+        ? (() => {
+            const ids = readPowerFavorites(actor);
+            if (!ids.length) return [];
+            return ids
+              .map((id) => {
+                const item = actor.items?.get?.(id);
+                if (!item || item.type !== 'power') return null;
+                const used = hasPowerBeenUsedThisRound(economyActor, combat, id);
+                return {
+                  id,
+                  name: String(item.name || 'Power'),
+                  img: String(item.img || 'icons/svg/aura.svg'),
+                  used,
+                  disabled: used,
+                };
+              })
+              .filter(Boolean);
+          })()
+        : [];
 
-      const isPc = actor.type === 'character';
-      const stonesDoneForRound =
-        isPc && (preparing || !!(combat as any).started)
-          ? isStonePowersDone(combat, String(combatant.id), roundForStones)
-          : false;
-      const stonePending =
-        isPc && (preparing || !!(combat as any).started) && !stonesDoneForRound;
+    const isPc = actor.type === 'character';
+    const stonesDoneForRound =
+      isPc && (preparing || !!(combat as any).started)
+        ? isStonePowersDone(combat, String(combatant.id), roundForStones)
+        : false;
+    const stonePending =
+      isPc && (preparing || !!(combat as any).started) && !stonesDoneForRound;
 
-      combatants.push({
-        id: combatant.id,
-        name: combatant.name || actor.name,
+    combatants.push({
+      id: combatant.id,
+      name: resolveCombatantDisplayName(combatant, token, actor),
         img: portraitImg,
         initiative: combatant.initiative ?? 0,
         isEffectSelected: CombatCarouselApp._selectedCombatantIds.has(String(combatant.id)),
@@ -1100,7 +1101,7 @@ export class CombatCarouselApp extends BaseCarousel {
         if (!combat || !actor) return;
 
         const ok = await gmRefundCombatAction(actor, combat, kind);
-        const name = String(combatant.name || actor.name || 'combatant');
+        const name = resolveCombatantDisplayName(combatant, undefined, actor) || 'combatant';
         if (!ok) {
           ui.notifications?.warn(
             game.i18n?.localize('MASTERY.carousel.refundNone') ||
@@ -1211,7 +1212,7 @@ export class CombatCarouselApp extends BaseCarousel {
         const combat = game.combats?.active;
         const combatant = combat?.combatants?.get(combatantId);
         if (!combat || !combatant) return;
-        const name = String(combatant.name || combatant.actor?.name || 'combatant');
+        const name = resolveCombatantDisplayName(combatant) || 'combatant';
         const escName =
           typeof (foundry as any)?.utils?.escapeHTML === 'function'
             ? (foundry as any).utils.escapeHTML(name)

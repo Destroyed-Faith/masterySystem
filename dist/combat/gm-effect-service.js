@@ -2,7 +2,7 @@
  * GM effect application service — carousel bulk tools and future Region Behaviors.
  * Does not invent Special formulas; delegates to apply-special-effects / assign-status.
  */
-import { ALL_SPECIAL_EFFECTS, getEffectById, getEffectBaseName, } from '../utils/special-effects.js';
+import { ALL_SPECIAL_EFFECTS, getEffectById, getEffectBaseName, sortSpecialEffectsByName, } from '../utils/special-effects.js';
 import { coerceStatusEffectsArray, encodeStatusFlag, readActorStatusEffects, statusEntryId, } from '../system/active-specials.js';
 import { isAssignableStatusId, removeStatusById, writeActorStatusList, } from '../system/assign-status.js';
 import { resolveLiveActor, tokenDocOfActor, tokenIdOfActor } from '../system/status-target.js';
@@ -23,7 +23,7 @@ export function matchesSide(disposition, filter) {
 }
 /** Legal persistent Specials for the GM picker (instants/support excluded except Cleanse). */
 export function listGmAssignableSpecials() {
-    return ALL_SPECIAL_EFFECTS.filter((e) => {
+    const list = ALL_SPECIAL_EFFECTS.filter((e) => {
         if (e.id === 'cleanse')
             return true;
         if (e.category === 'instant' || e.category === 'support' || e.category === 'multiAttack') {
@@ -31,6 +31,7 @@ export function listGmAssignableSpecials() {
         }
         return isAssignableStatusId(e.id) || !!getEffectById(e.id);
     });
+    return sortSpecialEffectsByName(list);
 }
 export function formatSpecialLine(specialId, value) {
     const def = getEffectById(specialId);

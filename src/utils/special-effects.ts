@@ -608,6 +608,18 @@ export const ALL_SPECIAL_EFFECTS: SpecialEffect[] = [
   ...MULTI_ATTACK_EFFECTS
 ];
 
+/** Locale-aware A–Z by display name (dropdowns / pickers). */
+export function compareSpecialDisplayNames(a: string, b: string): number {
+  return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
+}
+
+/** Sort special catalog entries by their human-readable name. */
+export function sortSpecialEffectsByName(effects: readonly SpecialEffect[]): SpecialEffect[] {
+  return [...effects].sort((a, b) =>
+    compareSpecialDisplayNames(getEffectBaseName(a.name), getEffectBaseName(b.name)),
+  );
+}
+
 /**
  * Map of all special effects by ID for quick lookup
  */
@@ -619,7 +631,7 @@ export const SPECIAL_EFFECTS_BY_ID: Map<string, SpecialEffect> = new Map(
  * Get all effects by category
  */
 export function getEffectsByCategory(category: EffectCategory): SpecialEffect[] {
-  return ALL_SPECIAL_EFFECTS.filter(effect => effect.category === category);
+  return sortSpecialEffectsByName(ALL_SPECIAL_EFFECTS.filter(effect => effect.category === category));
 }
 
 /**

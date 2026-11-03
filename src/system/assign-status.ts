@@ -7,7 +7,7 @@
  */
 
 import { canCurrentUserUpdateDocument, hasActiveGm } from '../combat/combat-permissions.js';
-import { getEffectById } from '../utils/special-effects.js';
+import { compareSpecialDisplayNames, getEffectById } from '../utils/special-effects.js';
 import {
   coerceStatusEffectsArray,
   encodeStatusFlag,
@@ -58,6 +58,7 @@ export function listAssignableStatuses(): StatusAddChoice[] {
       img: effect.img,
     });
   }
+  out.sort((a, b) => compareSpecialDisplayNames(a.name, b.name));
   return out;
 }
 

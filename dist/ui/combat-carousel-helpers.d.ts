@@ -3,6 +3,8 @@
  * Not Foundry token disposition — that was always hostile for most NPCs.
  */
 export declare function carouselSideClass(actorType: string | undefined): 'disp-pc' | 'disp-npc';
+/** Live token name first — combatant.name is a snapshot and can lag behind renames. */
+export declare function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string;
 /** @deprecated Use carouselSideClass — kept for older tests/callers. */
 export declare function carouselDispositionClass(disposition: number): 'disp-friendly' | 'disp-neutral' | 'disp-hostile';
 export type CarouselTurnRow = {

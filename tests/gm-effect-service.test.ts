@@ -18,6 +18,14 @@ describe('GM effect service helpers', () => {
     expect(ids).not.toContain('push');
   });
 
+  it('lists GM assignable Specials A–Z by display name', () => {
+    const labels = listGmAssignableSpecials().map((s) => s.name.replace(/\(X\)/gi, '').trim());
+    const sorted = [...labels].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' }),
+    );
+    expect(labels).toEqual(sorted);
+  });
+
   it('formats valued Special lines', () => {
     expect(formatSpecialLine('ruin', 2)).toMatch(/Ruin\(2\)/i);
   });

@@ -78,6 +78,10 @@ export declare const MULTI_ATTACK_EFFECTS: SpecialEffect[];
  * All special effects combined
  */
 export declare const ALL_SPECIAL_EFFECTS: SpecialEffect[];
+/** Locale-aware A–Z by display name (dropdowns / pickers). */
+export declare function compareSpecialDisplayNames(a: string, b: string): number;
+/** Sort special catalog entries by their human-readable name. */
+export declare function sortSpecialEffectsByName(effects: readonly SpecialEffect[]): SpecialEffect[];
 /**
  * Map of all special effects by ID for quick lookup
  */

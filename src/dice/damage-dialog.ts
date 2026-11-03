@@ -1922,7 +1922,10 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
       });
     }
   }
-  
+
+  specials.sort((a, b) =>
+    String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' }),
+  );
   return specials;
 }
 

@@ -257,11 +257,12 @@ export function buildAvailableRaiseOptions(snapshot, _isSpell, opts) {
             slots: 1,
         });
     }
+    const specialOpts = [];
     for (const sp of snapshot.specials) {
         if (sp.rank <= 0)
             continue;
         const name = displaySpecialName(sp.key);
-        options.push({
+        specialOpts.push({
             id: `special:${sp.key}`,
             label: `+MR ${name} (now ${sp.rank})`,
             effect: 'specialPlus',
@@ -270,6 +271,8 @@ export function buildAvailableRaiseOptions(snapshot, _isSpell, opts) {
             slots: 1,
         });
     }
+    specialOpts.sort((a, b) => String(a.label).localeCompare(String(b.label), undefined, { sensitivity: 'base' }));
+    options.push(...specialOpts);
     return options;
 }
 function displaySpecialName(key) {

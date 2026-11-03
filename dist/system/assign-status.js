@@ -6,7 +6,7 @@
  * including when a Special never triggered on its own.
  */
 import { canCurrentUserUpdateDocument, hasActiveGm } from '../combat/combat-permissions.js';
-import { getEffectById } from '../utils/special-effects.js';
+import { compareSpecialDisplayNames, getEffectById } from '../utils/special-effects.js';
 import { coerceStatusEffectsArray, encodeStatusFlag, hasActiveSpecial, readActorStatusEffects, statusEntryId, } from './active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from './status-effects.js';
 import { tokenDocOfActor } from './status-target.js';
@@ -42,6 +42,7 @@ export function listAssignableStatuses() {
             img: effect.img,
         });
     }
+    out.sort((a, b) => compareSpecialDisplayNames(a.name, b.name));
     return out;
 }
 export function choiceForStatus(id) {

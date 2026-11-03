@@ -355,7 +355,7 @@ function buildNpcSpecialSelectGroups() {
         const options = byCat.get(category);
         if (!options?.length)
             continue;
-        options.sort((a, b) => a.label.localeCompare(b.label, 'de', { sensitivity: 'base' }));
+        options.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
         groups.push({
             category,
             label: NPC_SPECIAL_CATEGORY_LABELS[category] ?? category,

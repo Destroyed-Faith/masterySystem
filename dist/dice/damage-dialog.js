@@ -1604,6 +1604,7 @@ async function collectAvailableSpecials(actor, weapon, selectedPower) {
             });
         }
     }
+    specials.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' }));
     return specials;
 }
 /**

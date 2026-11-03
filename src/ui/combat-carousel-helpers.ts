@@ -6,6 +6,21 @@ export function carouselSideClass(actorType: string | undefined): 'disp-pc' | 'd
   return String(actorType || '').toLowerCase() === 'character' ? 'disp-pc' : 'disp-npc';
 }
 
+/** Live token name first — combatant.name is a snapshot and can lag behind renames. */
+export function resolveCombatantDisplayName(combatant: any, token?: any, actor?: any): string {
+  const liveToken =
+    token?.document?.name ??
+    token?.name ??
+    combatant?.token?.name ??
+    combatant?.token?.document?.name;
+  const fromToken = String(liveToken || '').trim();
+  if (fromToken) return fromToken;
+  const fromCombatant = String(combatant?.name || '').trim();
+  if (fromCombatant) return fromCombatant;
+  const resolvedActor = actor ?? combatant?.actor;
+  return String(resolvedActor?.name || '').trim();
+}
+
 /** @deprecated Use carouselSideClass — kept for older tests/callers. */
 export function carouselDispositionClass(
   disposition: number,

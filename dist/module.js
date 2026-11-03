@@ -494,6 +494,39 @@ Hooks.once('init', async function () {
             carousel.render({ force: false });
         }
     });
+    // Token/Actor rename: combatant.name is a snapshot — re-render so the carousel picks up the live name.
+    const refreshCarouselOnRename = () => {
+        try {
+            const carousel = CombatCarouselApp.instance;
+            if (carousel?.rendered)
+                carousel.render({ force: false });
+        }
+        catch {
+            /* ignore */
+        }
+    };
+    Hooks.on('updateToken', (tokenDoc, changed) => {
+        if (changed?.name === undefined)
+            return;
+        const combat = game.combats?.active;
+        if (!combat)
+            return;
+        const tokenId = String(tokenDoc?.id ?? '');
+        const inCombat = combat.combatants?.some?.((c) => String(c.tokenId ?? c.token?.id ?? '') === tokenId);
+        if (inCombat)
+            refreshCarouselOnRename();
+    });
+    Hooks.on('updateActor', (actor, changed) => {
+        if (changed?.name === undefined)
+            return;
+        const combat = game.combats?.active;
+        if (!combat)
+            return;
+        const actorId = String(actor?.id ?? '');
+        const inCombat = combat.combatants?.some?.((c) => String(c.actorId ?? c.actor?.id ?? '') === actorId);
+        if (inCombat)
+            refreshCarouselOnRename();
+    });
     function bindStartEncounterClick() {
         const w = window;
         if (w._msStartEncounterClickBound)

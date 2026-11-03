@@ -595,7 +595,7 @@ export function getActiveTagOptions() {
 function buildLabeledSpecialList(keys) {
     return [...keys]
         .map((key) => ({ key, label: specialLabel(key) }))
-        .sort((a, b) => a.label.localeCompare(b.label));
+        .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
 }
 export function getActiveSpecialOptions() {
     return collectSpecialOptions((e) => e.category === 'active');

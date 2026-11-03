@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   carouselSideClass,
   findNextCombatantId,
+  resolveCombatantDisplayName,
   resolveCurrentCombatantId,
 } from '../src/ui/combat-carousel-helpers.js';
 
@@ -11,6 +12,25 @@ describe('carouselSideClass', () => {
     expect(carouselSideClass('character')).toBe('disp-pc');
     expect(carouselSideClass('npc')).toBe('disp-npc');
     expect(carouselSideClass('summon')).toBe('disp-npc');
+  });
+});
+
+describe('resolveCombatantDisplayName', () => {
+  it('prefers the live token name over a stale combatant snapshot', () => {
+    expect(
+      resolveCombatantDisplayName(
+        { name: 'Old Name', token: { name: 'Also Old' }, actor: { name: 'Actor' } },
+        { name: 'Renamed Token' },
+        { name: 'Actor' },
+      ),
+    ).toBe('Renamed Token');
+  });
+
+  it('falls back to combatant then actor when no token name is present', () => {
+    expect(resolveCombatantDisplayName({ name: 'Combatant' }, null, { name: 'Actor' })).toBe(
+      'Combatant',
+    );
+    expect(resolveCombatantDisplayName({}, null, { name: 'Actor' })).toBe('Actor');
   });
 });
 

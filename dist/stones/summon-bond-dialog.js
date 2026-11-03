@@ -403,7 +403,9 @@ export class SummonBondDialog extends BaseDialog {
         }))
             .sort((a, b) => Number(b.affordable) - Number(a.affordable));
         const canAddPower = powerCatalog.some((p) => p.affordable);
-        const specialOptions = SUMMON_ELIGIBLE_SPECIALS.map((s) => ({
+        const specialOptions = [...SUMMON_ELIGIBLE_SPECIALS]
+            .sort((a, b) => String(a.label).localeCompare(String(b.label), undefined, { sensitivity: 'base' }))
+            .map((s) => ({
             ...s,
             selected: this.draft.specialKey === s.id,
         }));

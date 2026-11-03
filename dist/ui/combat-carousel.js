@@ -6,7 +6,7 @@ import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
 import { buildCarouselHpSegments, hideCarouselHpNumbers, hideCarouselNpcHpBars, showCarouselSideHp, } from './combat-carousel-hp.js';
-import { carouselSideClass, findNextCombatantId, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
+import { carouselSideClass, findNextCombatantId, resolveCombatantDisplayName, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
 import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, syncCarouselTopOffset, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { buildCarouselTooltip, readCarouselClientPrefs, resolveCarouselCompact, writeCarouselClientPrefs, } from './combat-carousel-settings.js';
 import { handleChosenCombatOption } from '../token-action-selector.js';
@@ -386,7 +386,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 : [];
             const tip = buildCarouselTooltip({
                 mode: prefs.tooltipMode,
-                name: String(combatant.name || actor.name || ''),
+                name: resolveCombatantDisplayName(combatant, token, actor),
                 initiative: combatant.initiative ?? 0,
                 statusTooltips: visibleStatusIcons.map((s) => String(s.tooltip || s.name || '')).filter(Boolean),
                 hideVitals: hideHpNumbers,
@@ -431,7 +431,7 @@ export class CombatCarouselApp extends BaseCarousel {
             const stonePending = isPc && (preparing || !!combat.started) && !stonesDoneForRound;
             combatants.push({
                 id: combatant.id,
-                name: combatant.name || actor.name,
+                name: resolveCombatantDisplayName(combatant, token, actor),
                 img: portraitImg,
                 initiative: combatant.initiative ?? 0,
                 isEffectSelected: CombatCarouselApp._selectedCombatantIds.has(String(combatant.id)),
@@ -1008,7 +1008,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 if (!combat || !actor)
                     return;
                 const ok = await gmRefundCombatAction(actor, combat, kind);
-                const name = String(combatant.name || actor.name || 'combatant');
+                const name = resolveCombatantDisplayName(combatant, undefined, actor) || 'combatant';
                 if (!ok) {
                     ui.notifications?.warn(game.i18n?.localize('MASTERY.carousel.refundNone') ||
                         `Nothing to refund for ${name} (${kind}).`);
@@ -1117,7 +1117,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 const combatant = combat?.combatants?.get(combatantId);
                 if (!combat || !combatant)
                     return;
-                const name = String(combatant.name || combatant.actor?.name || 'combatant');
+                const name = resolveCombatantDisplayName(combatant) || 'combatant';
                 const escName = typeof foundry?.utils?.escapeHTML === 'function'
                     ? foundry.utils.escapeHTML(name)
                     : name.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);

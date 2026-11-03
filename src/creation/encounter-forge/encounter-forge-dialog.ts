@@ -79,7 +79,9 @@ function defenseOptions(kinds: DefenseKind[], current: DefenseKind | '' | undefi
 }
 
 function specialOptions(current: string | null) {
-  const negatives = DIMINISHING_EFFECTS.filter((e) => e.polarity === 'negative');
+  const negatives = DIMINISHING_EFFECTS.filter((e) => e.polarity === 'negative').sort((a, b) =>
+    String(a.name).localeCompare(String(b.name), undefined, { sensitivity: 'base' }),
+  );
   return [
     { value: '', label: '— kein Special —', selected: !current },
     ...negatives.map((e) => ({ value: e.id, label: e.name, selected: current === e.id })),

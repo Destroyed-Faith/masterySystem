@@ -85,6 +85,14 @@ describe('assign catalog status', () => {
     expect(isAssignableStatusId('push')).toBe(false);
   });
 
+  it('lists assignable statuses A–Z by name for dropdowns', () => {
+    const names = listAssignableStatuses().map((c) => c.name);
+    const sorted = [...names].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' }),
+    );
+    expect(names).toEqual(sorted);
+  });
+
   it('adds a missing status and keeps an existing rank unless a new one is given', () => {
     const added = upsertStatusEntry([], 'slow');
     expect(added).toEqual([{ id: 'slow', name: 'Slow', value: 1 }]);

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.807] - 2026-11-03
+
+### Changed
+
+- **Special dropdowns:** Status / GM Apply / Raise Specials / Power filters / Summon / Encounter Forge lists sort A–Z by display name.
+
+### Fixed
+
+- **Combat Carousel names:** Renaming the active combatant’s Token (or Actor) updates the carousel label immediately; display prefers the live Token name over the stale combatant snapshot.
+
 ## [0.9.806] - 2026-11-03
 
 ### Changed
