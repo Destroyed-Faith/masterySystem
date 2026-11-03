@@ -2,8 +2,9 @@
  * Player-sheet status list: combat specials plus leftover Temp HP.
  */
 import { getEffectById } from '../utils/special-effects.js';
-import { readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
+import { raiseStatusEffectAt, readActorStatusEffects, reduceStatusEffectAt, STATUS_STACK_MAX, statusEntryId, } from '../system/active-specials.js';
 import { writeActorStatusList } from '../system/assign-status.js';
+import { invisibilityTokenEffectEnabled, isInvisibleStatusId, } from '../combat/invisibility-presentation.js';
 export function buildCharacterStatusRows(actor) {
     const rows = [];
     const list = readActorStatusEffects(actor);
@@ -14,18 +15,23 @@ export function buildCharacterStatusRows(actor) {
         const catalog = id ? getEffectById(id) : undefined;
         const name = catalog?.name || rawName || id || `Status ${index + 1}`;
         const valueNum = Math.floor(Number(entry?.value));
-        const hasValue = entry?.value !== undefined &&
+        const storedValue = entry?.value !== undefined &&
             entry?.value !== null &&
             entry?.value !== '' &&
             Number.isFinite(valueNum);
+        const hasValue = storedValue || catalog?.hasValue === true;
+        const value = storedValue ? valueNum : hasValue ? 1 : null;
         rows.push({
             kind: 'special',
             index,
             id,
             name,
-            value: hasValue ? valueNum : null,
+            value,
             hasValue,
-            canReduce: hasValue && valueNum > 0,
+            canReduce: hasValue && (value ?? 0) > 0,
+            canIncrease: hasValue && (value ?? 0) > 0 && (value ?? 0) < STATUS_STACK_MAX,
+            showInvisTokenToggle: isInvisibleStatusId(id),
+            invisTokenEffectOn: isInvisibleStatusId(id) && invisibilityTokenEffectEnabled(actor),
         });
     }
     const tempHP = Math.max(0, Math.floor(Number(actor?.system?.health?.tempHP ?? 0) || 0));
@@ -38,6 +44,9 @@ export function buildCharacterStatusRows(actor) {
             value: tempHP,
             hasValue: true,
             canReduce: false,
+            canIncrease: false,
+            showInvisTokenToggle: false,
+            invisTokenEffectOn: false,
         });
     }
     return rows;
@@ -59,5 +68,23 @@ export async function reduceCharacterStatusRow(actor, row, steps) {
     if (row.index < 0 || row.index >= list.length)
         return;
     await writeActorStatusList(actor, reduceStatusEffectAt(list, row.index, steps));
+}
+export async function raiseCharacterStatusRow(actor, row, steps) {
+    if (row.kind !== 'special' || !row.canIncrease)
+        return;
+    const list = readActorStatusEffects(actor);
+    if (row.index < 0 || row.index >= list.length)
+        return;
+    const entry = list[row.index];
+    const raw = Math.floor(Number(entry?.value));
+    const stored = entry?.value !== undefined &&
+        entry?.value !== null &&
+        entry?.value !== '' &&
+        Number.isFinite(raw) &&
+        raw > 0;
+    const base = stored
+        ? list
+        : list.map((item, index) => (index === row.index ? { ...item, value: row.value ?? 1 } : item));
+    await writeActorStatusList(actor, raiseStatusEffectAt(base, row.index, steps));
 }
 //# sourceMappingURL=character-status-panel.js.map

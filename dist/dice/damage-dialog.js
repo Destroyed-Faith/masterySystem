@@ -11,7 +11,7 @@ import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
 import { coerceNpcAttackSpecials, displayNpcSpecialName, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
-import { listAvailableMaximizationSources, remainingMaximizations, } from '../stones/stone-combat-effects.js';
+import { listAvailableMaximizationSources, remainingMaximizations, resolveMaximizationActor, } from '../stones/stone-combat-effects.js';
 import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { applyLimitedPowerDamage, applyLimitedToTransferPowerDamage, isInstantAoeFlags, martialWeaponDamageApplies, settleDamageTransfer, spellFocusDamageApplies, } from '../combat/damage-transfer.js';
@@ -851,7 +851,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 console.warn('Mastery System | NPC Maximization UI state failed', err);
             }
         }
-        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue, {
+        const damageCardContent = createDamageCardContent(actorToUse, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue, {
             power: shownPowerDamage || powerDamage,
             raise: shownRaiseDamage,
             specials: shownSpecials,
@@ -1170,34 +1170,35 @@ npcMaximizationUi = null) {
         <button type="button" class="roll-damage-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="0">
           <i class="fas fa-dice"></i> Roll
         </button>
-        ${(() => {
-        if (npcMaximizationUi) {
-            if (!npcMaximizationUi.canSpend || npcMaximizationUi.remaining <= 0)
-                return '';
-            const pi = npcMaximizationUi.phaseIndex == null ? '' : String(npcMaximizationUi.phaseIndex);
-            return `<span class="max-source-hint">${damageCardHtmlEsc(npcMaximizationUi.label)}</span><button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" data-max-source="npc" data-npc-attack-index="${npcMaximizationUi.attackIndex}" data-npc-phase-index="${pi}" title="Spend 1 NPC Maximization (${npcMaximizationUi.remaining} left). Every d8 becomes 8 (artificial, not natural).">
-          <i class="fas fa-arrow-up"></i> Roll Maximum
-        </button>`;
-        }
-        const maxLeft = remainingMaximizations(attacker);
-        if (maxLeft <= 0)
-            return '';
-        const sources = listAvailableMaximizationSources(attacker);
-        const sourceSelect = sources.length > 1
-            ? `<select class="max-source-select" title="Choose Maximization source" name="ms-max-source-select" form="ms-ui-only">${sources
-                .map((s) => `<option value="${s.source}">${s.label}</option>`)
-                .join('')}</select>`
-            : sources.length === 1
-                ? `<span class="max-source-hint">${sources[0].label}</span>`
-                : '';
-        const preferred = sources[0]?.source || 'stone';
-        return `${sourceSelect}<button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" data-max-source="${preferred}" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8 (artificial, not natural).">
-          <i class="fas fa-arrow-up"></i> Roll Maximum
-        </button>`;
-    })()}
         <button type="button" class="cancel-damage-btn">
           <i class="fas fa-times"></i> Cancel
         </button>
+        ${(() => {
+        if (npcMaximizationUi) {
+            if (npcMaximizationUi.remaining <= 0)
+                return '';
+            const pi = npcMaximizationUi.phaseIndex == null ? '' : String(npcMaximizationUi.phaseIndex);
+            const locked = npcMaximizationUi.canSpend ? '' : ' disabled';
+            return `<div class="damage-max-row"><span class="max-source-hint">${damageCardHtmlEsc(npcMaximizationUi.label)}</span><button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" data-max-source="npc" data-npc-attack-index="${npcMaximizationUi.attackIndex}" data-npc-phase-index="${pi}"${locked} title="Spend 1 NPC Maximization (${npcMaximizationUi.remaining} left). Every d8 becomes 8 (artificial, not natural).">
+          <i class="fas fa-arrow-up"></i> Roll Maximum (${npcMaximizationUi.remaining})
+        </button></div>`;
+        }
+        const maxActor = resolveMaximizationActor(attacker);
+        const maxLeft = remainingMaximizations(maxActor);
+        if (maxLeft <= 0)
+            return '';
+        const sources = listAvailableMaximizationSources(maxActor);
+        const preferred = sources[0]?.source || 'stone';
+        const sourceSelect = sources.length
+            ? `<select class="max-source-select" title="Maximization" name="ms-max-source-select" form="ms-ui-only">${sources
+                .map((s) => `<option value="${s.source}"${s.source === preferred ? ' selected' : ''}>${damageCardHtmlEsc(s.label)}</option>`)
+                .join('')}</select>`
+            : '';
+        const maxActorId = damageCardHtmlEsc(String(maxActor?.id || attacker.id || ''));
+        return `<div class="damage-max-row">${sourceSelect}<button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" data-max-source="${preferred}" data-max-actor-id="${maxActorId}" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8 (artificial, not natural).">
+          <i class="fas fa-arrow-up"></i> Roll Maximum (${maxLeft})
+        </button></div>`;
+    })()}
       </div>
     </div>
   `;
@@ -1443,13 +1444,19 @@ export function attachDamageCardHandlers(messageId) {
                                 : Math.floor(Number(phaseRaw));
                             return await spendNpcMaximization(attacker, { attackIndex, phaseIndex });
                         }
-                        const { spendMaximization } = await import('../stones/stone-combat-effects.js');
+                        const { spendMaximization, resolveMaximizationActor: resolveMaxActor } = await import('../stones/stone-combat-effects.js');
                         const src = maxSourceRawForRoll === 'stone' ||
                             maxSourceRawForRoll === 'passive' ||
                             maxSourceRawForRoll === 'activeBuff'
                             ? maxSourceRawForRoll
                             : null;
-                        return await spendMaximization(attacker, src);
+                        const maxActorId = String($btn.attr('data-max-actor-id') || '');
+                        const flagged = (maxActorId &&
+                            (resolveLiveActor(maxActorId, flags?.attackerTokenId) ||
+                                game.actors?.get(maxActorId))) ||
+                            null;
+                        const holder = flagged && remainingMaximizations(flagged) > 0 ? flagged : resolveMaxActor(attacker);
+                        return await spendMaximization(holder, src);
                     }
                     catch (err) {
                         console.debug?.('Mastery System | Damage Maximization spend skipped', err);
@@ -2219,7 +2226,7 @@ function buildDamageFaithGateHtml(opts) {
       <p class="ms-damage-faith-hint">Spend <strong>1 Reroll Point</strong> (${opts.fracturesLeft} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>
       <div class="ms-damage-faith-buttons">
         <button type="button" class="ms-damage-faith-keep-btn"><i class="fas fa-check"></i> Keep</button>
-        <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)</button>
+        <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (${opts.fracturesLeft} left)</button>
       </div>
     </div>`;
 }

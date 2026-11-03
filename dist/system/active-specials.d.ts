@@ -54,4 +54,8 @@ export declare function coerceStatusEffectsArray(raw: unknown): RawStatusEntry[]
  * Non-positive / missing values are treated as a single stack (any reduce removes).
  */
 export declare function reduceStatusEffectAt(list: unknown, index: number, steps: number): RawStatusEntry[];
+/** Highest stack the sheet stepper will write. Matches the add-status dialog. */
+export declare const STATUS_STACK_MAX = 30;
+/** Raise one numeric status stack by `steps`, capped at STATUS_STACK_MAX. */
+export declare function raiseStatusEffectAt(list: unknown, index: number, steps: number): RawStatusEntry[];
 //# sourceMappingURL=active-specials.d.ts.map

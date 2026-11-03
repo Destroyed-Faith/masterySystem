@@ -6,8 +6,10 @@ export declare function faithRerollNote(note: {
     spenderName: string;
     free?: boolean;
 }): string;
+/** How many Reroll Points the button should advertise for this viewer. */
+export declare function faithRerollPointsForButton(recipeActor: any, isGm: boolean, isOwnRoll: boolean, user?: User | null | undefined): number | null;
 /** Players spend a point. The GM button is an emergency reroll and does not. */
-export declare function faithRerollButtonCopy(isGm: boolean, isOwnRoll: boolean): {
+export declare function faithRerollButtonCopy(isGm: boolean, isOwnRoll: boolean, remaining?: number | null): {
     label: string;
     title: string;
 };

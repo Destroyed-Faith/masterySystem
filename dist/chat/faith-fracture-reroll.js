@@ -98,22 +98,45 @@ export function faithRerollNote(note) {
         : `Reroll — ${note.spenderName} spent 1 Reroll Point.`;
     return `\n\n<i class="fas fa-sync-alt"></i> ${line}`;
 }
+function rerollPointsOn(actor) {
+    return Math.max(0, Math.floor(Number(actor?.system?.faithFractures?.current) || 0));
+}
+/** How many Reroll Points the button should advertise for this viewer. */
+export function faithRerollPointsForButton(recipeActor, isGm, isOwnRoll, user = globalThis.game?.user) {
+    if (isGm || isOwnRoll)
+        return recipeActor ? rerollPointsOn(recipeActor) : null;
+    const played = [];
+    for (const actor of globalThis.game?.actors ?? []) {
+        if (userPlaysActor(user, actor) && actor?.system?.faithFractures)
+            played.push(actor);
+    }
+    if (played.length === 1)
+        return rerollPointsOn(played[0]);
+    if (played.length > 1)
+        return played.reduce((sum, actor) => sum + rerollPointsOn(actor), 0);
+    return recipeActor ? rerollPointsOn(recipeActor) : 0;
+}
 /** Players spend a point. The GM button is an emergency reroll and does not. */
-export function faithRerollButtonCopy(isGm, isOwnRoll) {
+export function faithRerollButtonCopy(isGm, isOwnRoll, remaining) {
+    const known = remaining != null && Number.isFinite(Number(remaining));
+    const left = known ? Math.max(0, Math.floor(Number(remaining))) : null;
+    const suffix = left == null ? '' : ` (${left} left)`;
     if (isGm) {
         return {
-            label: 'Reroll',
-            title: 'GM reroll. Does not spend a character\'s Reroll Points. Once per roll, shared by the whole table.',
+            label: suffix ? `Reroll${suffix}` : 'Reroll',
+            title: left == null
+                ? 'GM reroll. Does not spend a character\'s Reroll Points. Once per roll, shared by the whole table.'
+                : `GM reroll. Does not spend Reroll Points. This character has ${left} left. Once per roll.`,
         };
     }
     if (isOwnRoll) {
         return {
-            label: 'Reroll (1 Reroll Point)',
+            label: suffix ? `Reroll${suffix}` : 'Reroll (1 Reroll Point)',
             title: 'Spend 1 of this character\'s Reroll Points. Once per roll.',
         };
     }
     return {
-        label: 'Force GM Reroll (1 Reroll Point)',
+        label: suffix ? `Force GM Reroll${suffix}` : 'Force GM Reroll (1 Reroll Point)',
         title: 'Spend 1 Reroll Point from a character you play to force this roll to be rerolled. Once per roll.',
     };
 }
@@ -363,8 +386,9 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
         // the label flips between "Reroll" and "Force GM Reroll".
         const recipeActorId = flags.rollRecipe?.actorId || null;
         const recipeActor = recipeActorId ? game.actors?.get(recipeActorId) : null;
+        const isGm = !!game.user?.isGM;
         const isOwnRoll = recipeActor ? userPlaysActor(game.user, recipeActor) : false;
-        const copy = faithRerollButtonCopy(!!game.user?.isGM, isOwnRoll);
+        const copy = faithRerollButtonCopy(isGm, isOwnRoll, faithRerollPointsForButton(recipeActor, isGm, isOwnRoll, game.user));
         const btnLabel = copy.label;
         const btnTitle = copy.title;
         let bar = root.find('.mastery-faith-reroll-bar');

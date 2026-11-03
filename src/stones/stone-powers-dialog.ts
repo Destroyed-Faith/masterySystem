@@ -1565,6 +1565,7 @@ export class StonePowersDialog extends BaseDialog {
       preparationTargetRound,
       isActiveBuffPreparationWindow,
     } = await import('../combat/active-buff-lifecycle.js');
+    const { activeBuffOptionMarks } = await import('../combat/active-buff-option-state.js');
     const {
       getTrueActiveBuffs,
       canRetractActiveBuffFromFlags,
@@ -1625,6 +1626,22 @@ export class StonePowersDialog extends BaseDialog {
         ? 'Retract undoes this Preparation activation so you can choose again.'
         : 'GM: end the maintained Buff anytime.'
       : '';
+    const optionRefs = powers.map((p: any) => ({
+      id: String(p.id || p._id || ''),
+      name: String(p.name || 'Active Buff'),
+      level: Math.max(1, Math.floor(Number(p.system?.rank ?? p.system?.level ?? 1) || 1)),
+    }));
+    const options = optionRefs.map((row) => {
+      const marks = activeBuffOptionMarks(row, current, round, optionRefs);
+      const suffix = marks.chosenThisRound
+        ? ' — active this round'
+        : marks.isActive
+          ? ' — active'
+          : current
+            ? ' — replace'
+            : '';
+      return { ...row, ...marks, isCurrent: marks.isActive, suffix };
+    });
     return {
       show: powers.length > 0 || !!current,
       locked: locked || !windowOpen || alreadyCommitted,
@@ -1638,12 +1655,8 @@ export class StonePowersDialog extends BaseDialog {
       currentEffect,
       durationLabel,
       maintaining: !!current,
-      options: powers.map((p: any) => ({
-        id: String(p.id || p._id || ''),
-        name: String(p.name || 'Active Buff'),
-        level: Math.max(1, Math.floor(Number(p.system?.rank ?? p.system?.level ?? 1) || 1)),
-        isCurrent: !!current && String((current.flags?.['mastery-system']?.powerId) || '') === String(p.id || ''),
-      })),
+      chosenThisRound: options.some((row) => row.chosenThisRound),
+      options,
       hint: alreadyCommitted
         ? 'Active Buff already chosen this Preparation. Maintaining costs nothing next Round until you replace it.'
         : current
@@ -2620,6 +2633,8 @@ export class StonePowersDialog extends BaseDialog {
         ev.preventDefault();
         ev.stopPropagation();
         if (this.#isStoneDialogLocked()) return;
+        if ((btn as HTMLButtonElement).disabled) return;
+        if ((btn as HTMLElement).classList.contains('is-active')) return;
         const powerId = String((btn as HTMLElement).dataset.powerId || '');
         if (!powerId) return;
         const item =

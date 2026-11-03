@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCharacterStatusRows,
+  raiseCharacterStatusRow,
   reduceCharacterStatusRow,
   removeCharacterStatusRow,
 } from '../src/sheets/character-status-panel.js';
@@ -46,6 +47,7 @@ describe('character status panel', () => {
     const rows = buildCharacterStatusRows(actor);
     expect(rows.map((r) => r.id)).toEqual(['slow', 'tempHP']);
     expect(rows[0]?.canReduce).toBe(true);
+    expect(rows[0]?.canIncrease).toBe(true);
     expect(rows[1]?.value).toBe(40);
   });
 
@@ -63,6 +65,14 @@ describe('character status panel', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]?.hasValue).toBe(false);
     expect(rows[0]?.canReduce).toBe(false);
+    expect(rows[0]?.canIncrease).toBe(false);
+  });
+
+  it('raises a stacked special by one', async () => {
+    const actor = mockActor({ statusEffects: [{ id: 'slow', name: 'Slow', value: 2 }] });
+    const row = buildCharacterStatusRows(actor)[0]!;
+    await raiseCharacterStatusRow(actor, row, 1);
+    expect((actor as any).system.statusEffects).toEqual([{ id: 'slow', name: 'Slow', value: 3 }]);
   });
 
   it('reduces a stacked special and removes it at 0', async () => {

@@ -392,14 +392,21 @@
       <button type="button" class="js-status-add-open status-add-icon" title="Status hinzufügen" aria-label="Status hinzufügen">+</button>
       {{/if}}
     </h3>
+    {{#if characterStatusRows.length}}
     <div class="status-effects-list status-effects-list--chips">
       {{#each characterStatusRows as |effect|}}
       <div class="status-effect-item status-effect-chip" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}">
         <span class="effect-name">{{effect.name}}{{#if effect.hasValue}} {{effect.value}}{{/if}}</span>
         {{#if @root.canEditCharacterStatus}}
         <div class="effect-actions">
-          {{#if effect.canReduce}}
-          <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−</button>
+          {{#if effect.hasValue}}
+          <button type="button" class="js-character-status-reduce effect-reduce" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe" {{#unless effect.canReduce}}disabled{{/unless}}>−</button>
+          <button type="button" class="js-character-status-increase effect-increase" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" data-steps="1" title="+1 Stufe" {{#unless effect.canIncrease}}disabled{{/unless}}>+</button>
+          {{/if}}
+          {{#if effect.showInvisTokenToggle}}
+          <button type="button" class="js-invis-token-effect effect-token-toggle{{#if effect.invisTokenEffectOn}} is-on{{/if}}" data-effect-index="{{effect.index}}" title="{{#if effect.invisTokenEffectOn}}Token-Effekt ausschalten{{else}}Token-Effekt einschalten{{/if}}" aria-pressed="{{#if effect.invisTokenEffectOn}}true{{else}}false{{/if}}">
+            <i class="fas {{#if effect.invisTokenEffectOn}}fa-eye{{else}}fa-eye-slash{{/if}}"></i>
+          </button>
           {{/if}}
           <button type="button" class="js-character-status-remove effect-remove" data-status-kind="{{effect.kind}}" data-effect-index="{{effect.index}}" title="Status entfernen">
             <i class="fas fa-times"></i>
@@ -409,6 +416,9 @@
       </div>
       {{/each}}
     </div>
+    {{else}}
+    <p class="character-status-empty">Keine Status.</p>
+    {{/if}}
   </div>
   {{/if}}
 

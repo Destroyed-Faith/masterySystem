@@ -8,6 +8,7 @@ import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effect
 import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, NPC_REACTIONS_UPDATE, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
 import { SKILLS } from '../utils/skills.js';
+import { invisibilityTokenEffectEnabled, isInvisibleStatusId, } from '../combat/invisibility-presentation.js';
 import { ensureNpcHasPerception, findSituationalSkillById, isNpcPerceptionSkill, newSituationalSkillId, poolPreviewLabel, readSituationalSkills, removeSituationalSkill, suggestNpcPool, upsertSituationalSkill, } from '../rules/npc-situational-skills.js';
 const NPC_SHEET_ATTRIBUTES = [
     'might',
@@ -74,7 +75,7 @@ function withNpcIniUi(combat) {
     return c;
 }
 /** Sheet rows for root `system.statusEffects` (combat writes here, not per phase). */
-function buildNpcStatusRows(raw) {
+function buildNpcStatusRows(raw, actor) {
     return coerceStatusEffectsArray(raw).map((entry, index) => {
         const id = statusEntryId(entry) || String(entry?.id || '').trim();
         const rawName = String(entry?.name || '').trim();
@@ -87,12 +88,15 @@ function buildNpcStatusRows(raw) {
             entry?.value !== null &&
             entry?.value !== '' &&
             Number.isFinite(valueNum);
+        const invisible = isInvisibleStatusId(id);
         return {
             index,
             id,
             name,
             value: hasValue ? valueNum : null,
             hasValue,
+            showInvisTokenToggle: invisible,
+            invisTokenEffectOn: invisible && invisibilityTokenEffectEnabled(actor),
         };
     });
 }
@@ -622,7 +626,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             // Prefer live actor data (same source as combat carousel).
             const statusList = readActorStatusEffects(this.actor);
             context.system.statusEffects = statusList;
-            context.npcStatusEffects = buildNpcStatusRows(statusList);
+            context.npcStatusEffects = buildNpcStatusRows(statusList, this.actor);
             context.hasNpcStatusEffects = statusList.length > 0;
         }
         return context;

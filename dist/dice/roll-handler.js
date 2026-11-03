@@ -743,7 +743,7 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
         ${isRerollResult ? '' : `
         <div class="mastery-faith-reroll-bar">
           <button type="button" class="faith-fracture-reroll-btn" title="Spend 1 Reroll Point. Once per roll.">
-            <i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)
+            <i class="fas fa-sync-alt"></i> Reroll (${Math.max(0, Math.floor(Number(actor?.system?.faithFractures?.current) || 0))} left)
           </button>
           <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table. Single-die abilities may still reroll individual dice afterwards (each die once).</span>
         </div>`}

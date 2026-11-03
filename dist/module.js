@@ -312,25 +312,6 @@ Hooks.once('init', async function () {
             });
             host.appendChild(importBtn);
         }
-        if (!root.querySelector('.ms-open-df2026-review')) {
-            const reviewBtn = document.createElement('button');
-            reviewBtn.type = 'button';
-            reviewBtn.className = 'ms-open-df2026-review';
-            reviewBtn.innerHTML = '<i class="fas fa-clipboard-check"></i> DF 2026 Migration Review';
-            reviewBtn.title = 'Review Specialization suggestions and Echo Imprints after the DF 2026 migration';
-            reviewBtn.addEventListener('click', async (ev) => {
-                ev.preventDefault();
-                try {
-                    const { showDf2026MigrationReview } = await import('./migrations/df-2026-migration-review-dialog.js');
-                    await showDf2026MigrationReview({ includeReviewed: true });
-                }
-                catch (err) {
-                    console.error('Mastery System | DF 2026 migration review failed', err);
-                    ui.notifications?.error('DF 2026 Migration Review failed - see console');
-                }
-            });
-            host.appendChild(reviewBtn);
-        }
     });
     // Initialize stone powers flow system
     initializeStonePowersFlow();
@@ -3301,6 +3282,8 @@ Hooks.once('ready', async function () {
     registerCleanseChatHandlers();
     const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
     registerPerceptionCombatHooks();
+    const { registerInvisibilityTokenEffectToggle } = await import('./combat/invisibility-presentation.js');
+    registerInvisibilityTokenEffectToggle();
     // Register skill spend click handler
     const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
     registerSkillSpendClickHandler();
@@ -3314,6 +3297,8 @@ Hooks.once('ready', async function () {
     registerWordOfRecallChatHandler();
     const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
     registerFaithFractureRerollHandlers();
+    const { registerShowChatMessageLast } = await import('./chat/show-message-last.js');
+    registerShowChatMessageLast();
     const { registerSkillRaiseAllocationHandlers } = await import('./chat/skill-raise-allocation.js');
     registerSkillRaiseAllocationHandlers();
     const { registerSkillCheckRequestHandlers } = await import('./chat/skill-check-request.js');

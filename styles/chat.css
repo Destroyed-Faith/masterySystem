@@ -849,6 +849,43 @@ body.ms-chat-panel-closed .ms-rolls-globe-host {
   justify-content: flex-end;
 }
 
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-max-row {
+  flex: 1 0 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .max-source-select,
+.ms-theme-rulebook #chat-log .mastery-damage-card .max-source-hint {
+  min-width: 12rem;
+  max-width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(202, 178, 113, 0.55);
+  border-radius: 6px;
+  color: #e8d5a3;
+  padding: 6px 8px;
+}
+
+.ms-theme-rulebook #chat-log .ms-chat-show-last-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px 0;
+}
+
+.ms-theme-rulebook #chat-log .ms-chat-show-last {
+  background: transparent;
+  border: 1px solid rgba(202, 178, 113, 0.45);
+  border-radius: 4px;
+  color: #e8d5a3;
+  cursor: pointer;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  text-transform: uppercase;
+}
+
 .ms-theme-rulebook #chat-log .mastery-damage-card .roll-damage-max-btn,
 .ms-theme-rulebook #chat-log .mastery-heal-roll-max {
   border-color: rgba(202, 178, 113, 0.55);

@@ -1331,8 +1331,48 @@
   background: var(--df-bg-header);
   border-top: 1px solid var(--df-border-primary);
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
+}
+
+#chat-log .mastery-damage-card .damage-max-row {
+  flex: 1 0 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#chat-log .mastery-damage-card .max-source-select,
+#chat-log .mastery-damage-card .max-source-hint {
+  min-width: 12rem;
+  max-width: 100%;
+  background: var(--df-bg-panel);
+  border: 1px solid rgba(202, 178, 113, 0.55);
+  border-radius: 6px;
+  color: #e8d5a3;
+  padding: 6px 8px;
+  font-family: var(--df-font-head);
+  font-size: 0.8rem;
+}
+
+#chat-log .ms-chat-show-last-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px 0;
+}
+
+#chat-log .ms-chat-show-last {
+  background: transparent;
+  border: 1px solid rgba(202, 178, 113, 0.45);
+  border-radius: 4px;
+  color: #e8d5a3;
+  cursor: pointer;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  text-transform: uppercase;
 }
 
 #chat-log .mastery-damage-card .roll-damage-btn,

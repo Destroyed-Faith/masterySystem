@@ -647,6 +647,15 @@ aside#tooltip *,
   background: rgba(255, 255, 255, 0.18);
 }
 
+.token-hud .ms-invis-token-effect.is-off {
+  opacity: 0.55;
+}
+
+.token-hud .ms-invis-token-effect.active {
+  color: #e8d5a3;
+  border-color: rgba(202, 178, 113, 0.75);
+}
+
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
   .mastery-system .resources-panel {

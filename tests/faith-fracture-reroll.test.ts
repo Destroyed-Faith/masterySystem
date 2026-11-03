@@ -129,7 +129,9 @@ describe('GM faith reroll', () => {
   it('labels the chat button as a free GM reroll and a paid player reroll', () => {
     expect(faithRerollButtonCopy(true, false).label).toBe('Reroll');
     expect(faithRerollButtonCopy(true, false).title).not.toMatch(/1 Reroll Point/);
-    expect(faithRerollButtonCopy(false, true).label).toBe('Reroll (1 Reroll Point)');
-    expect(faithRerollButtonCopy(false, false).label).toBe('Force GM Reroll (1 Reroll Point)');
+    expect(faithRerollButtonCopy(true, false, 3).label).toBe('Reroll (3 left)');
+    expect(faithRerollButtonCopy(true, false, 3).title).not.toMatch(/spend a character/);
+    expect(faithRerollButtonCopy(false, true, 2).label).toBe('Reroll (2 left)');
+    expect(faithRerollButtonCopy(false, false, 1).label).toBe('Force GM Reroll (1 left)');
   });
 });

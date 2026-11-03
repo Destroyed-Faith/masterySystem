@@ -185,8 +185,67 @@ export async function markMovementReductionTargets(
   return chosen.length;
 }
 
+function readActorFlag(actor: any, key: string): any {
+  try {
+    const via = actor?.getFlag?.('mastery-system', key);
+    if (via != null) return via;
+  } catch {
+    /* plain test actors */
+  }
+  return actor?.flags?.['mastery-system']?.[key];
+}
+
+/**
+ * Token actors and the world actor can each hold the Maximization flag.
+ * Stone Powers write the economy owner; the damage card may be holding the other document.
+ * Return every document that might carry the charge, without duplicates.
+ */
+export function maximizationActorCandidates(actor: any): any[] {
+  const out: any[] = [];
+  const seen = new Set<string>();
+  const push = (candidate: any) => {
+    if (!candidate) return;
+    const key = String(candidate.uuid || `${candidate.id || ''}:${candidate.isToken ? 'token' : 'world'}`);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(candidate);
+  };
+  push(actor);
+  try {
+    const gameAny = (globalThis as any).game;
+    const tokenDoc = actor?.token?.document ?? (actor?.isToken ? actor?.token : null);
+    const baseId = String(tokenDoc?.actorId || actor?.id || '');
+    if (baseId) push(gameAny?.actors?.get?.(baseId));
+    const tokenActor = actor?.isToken ? actor : tokenDoc?.actor;
+    push(tokenActor);
+    const placeables = gameAny?.canvas?.tokens?.placeables;
+    if (placeables && baseId) {
+      for (const token of placeables) {
+        if (String(token?.document?.actorId || '') === baseId) push(token?.actor);
+      }
+    }
+  } catch {
+    /* unit tests */
+  }
+  return out;
+}
+
+/** The related actor that currently has the most Maximization charges. */
+export function resolveMaximizationActor(actor: any): any {
+  let best = actor;
+  let bestN = -1;
+  for (const candidate of maximizationActorCandidates(actor)) {
+    const n = remainingMaximizations(candidate);
+    if (n > bestN) {
+      bestN = n;
+      best = candidate;
+    }
+  }
+  return best ?? actor;
+}
+
 function liveMaximizationFlag(actor: any): { raw: any; remaining: number; uses: number } | null {
-  const raw = actor?.getFlag?.('mastery-system', MAXIMIZATION_FLAG);
+  const raw = readActorFlag(actor, MAXIMIZATION_FLAG);
   const combat = liveCombat();
   if (!raw || Math.floor(Number(raw.remaining) || 0) <= 0) return null;
   if (combat && raw.combatId && String(raw.combatId) !== combat.id) return null;
@@ -204,7 +263,7 @@ export function remainingStoneMaximizations(actor: any): number {
 
 function readPassiveMaximizationRemainingSync(actor: any): number {
   const combat = liveCombat();
-  const raw = actor?.getFlag?.('mastery-system', 'passiveMaximizationCharges') as
+  const raw = readActorFlag(actor, 'passiveMaximizationCharges') as
     | { combatId?: string; remaining?: number }
     | undefined;
   if (!raw) return 0;

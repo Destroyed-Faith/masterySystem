@@ -38,6 +38,10 @@ import {
 } from '../system/active-specials.js';
 import { SKILLS } from '../utils/skills.js';
 import {
+  invisibilityTokenEffectEnabled,
+  isInvisibleStatusId,
+} from '../combat/invisibility-presentation.js';
+import {
   ensureNpcHasPerception,
   findSituationalSkillById,
   isNpcPerceptionSkill,
@@ -140,12 +144,14 @@ function withNpcIniUi(combat: Record<string, any> | null | undefined): Record<st
 }
 
 /** Sheet rows for root `system.statusEffects` (combat writes here, not per phase). */
-function buildNpcStatusRows(raw: unknown): Array<{
+function buildNpcStatusRows(raw: unknown, actor?: any): Array<{
   index: number;
   id: string;
   name: string;
   value: number | null;
   hasValue: boolean;
+  showInvisTokenToggle: boolean;
+  invisTokenEffectOn: boolean;
 }> {
   return coerceStatusEffectsArray(raw).map((entry, index) => {
     const id = statusEntryId(entry) || String(entry?.id || '').trim();
@@ -161,12 +167,15 @@ function buildNpcStatusRows(raw: unknown): Array<{
       entry?.value !== null &&
       entry?.value !== ('' as any) &&
       Number.isFinite(valueNum);
+    const invisible = isInvisibleStatusId(id);
     return {
       index,
       id,
       name,
       value: hasValue ? valueNum : null,
       hasValue,
+      showInvisTokenToggle: invisible,
+      invisTokenEffectOn: invisible && invisibilityTokenEffectEnabled(actor),
     };
   });
 }
@@ -728,7 +737,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       // Prefer live actor data (same source as combat carousel).
       const statusList = readActorStatusEffects(this.actor);
       context.system.statusEffects = statusList;
-      (context as any).npcStatusEffects = buildNpcStatusRows(statusList);
+      (context as any).npcStatusEffects = buildNpcStatusRows(statusList, this.actor);
       (context as any).hasNpcStatusEffects = statusList.length > 0;
     }
 

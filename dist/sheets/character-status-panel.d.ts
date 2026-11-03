@@ -10,8 +10,13 @@ export interface CharacterStatusRow {
     value: number | null;
     hasValue: boolean;
     canReduce: boolean;
+    canIncrease: boolean;
+    /** Invisible row: switch for the token icon and ghost opacity. */
+    showInvisTokenToggle: boolean;
+    invisTokenEffectOn: boolean;
 }
 export declare function buildCharacterStatusRows(actor: Actor | null | undefined): CharacterStatusRow[];
 export declare function removeCharacterStatusRow(actor: Actor, row: CharacterStatusRow): Promise<void>;
 export declare function reduceCharacterStatusRow(actor: Actor, row: CharacterStatusRow, steps: number): Promise<void>;
+export declare function raiseCharacterStatusRow(actor: Actor, row: CharacterStatusRow, steps: number): Promise<void>;
 //# sourceMappingURL=character-status-panel.d.ts.map

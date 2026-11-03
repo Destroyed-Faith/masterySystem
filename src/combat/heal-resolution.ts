@@ -11,7 +11,7 @@
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getActiveSpecialValue } from '../system/active-specials.js';
 import { escapeStoneChat } from '../stones/stone-resolution.js';
-import { remainingMaximizations } from '../stones/stone-combat-effects.js';
+import { remainingMaximizations, resolveMaximizationActor } from '../stones/stone-combat-effects.js';
 import { countScarredHealthBars } from '../stones/remove-scar.js';
 import {
   isScarredRestorationTemplateId,
@@ -716,8 +716,10 @@ async function applyHpHealPass(args: {
   let sharedRollTotal: number | null = null;
   if (args.formula && caster && args.targetTokens.length > 0 && args.maximize) {
     try {
-      const { spendMaximization } = await import('../stones/stone-combat-effects.js');
-      sharedMaximized = await spendMaximization(caster, args.maxSource ?? null);
+      const { spendMaximization, resolveMaximizationActor: resolveMaxActor } = await import(
+        '../stones/stone-combat-effects.js'
+      );
+      sharedMaximized = await spendMaximization(resolveMaxActor(caster), args.maxSource ?? null);
       if (!sharedMaximized) {
         g.ui?.notifications?.warn?.('No Maximization remaining — rolling heal normally.');
       }
@@ -912,7 +914,7 @@ export async function resolveHealOnTokens(args: {
   // Show Scarred UI whenever the Power has an HLR band and the target is Scarred
   // (even if remaining is 0 — buttons above remaining stay visible but grayed).
   const offerScarredUi = poolMax > 0 && scarredTok && scarredCount > 0;
-  const maxLeft = formula ? remainingMaximizations(caster) : 0;
+  const maxLeft = formula ? remainingMaximizations(resolveMaximizationActor(caster)) : 0;
   const content = offerScarredUi
     ? formatScarredPromptChat({
         healerName: String(caster?.name || 'Healer'),

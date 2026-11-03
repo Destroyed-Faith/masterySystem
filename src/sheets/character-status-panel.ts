@@ -4,11 +4,17 @@
 
 import { getEffectById } from '../utils/special-effects.js';
 import {
+  raiseStatusEffectAt,
   readActorStatusEffects,
   reduceStatusEffectAt,
+  STATUS_STACK_MAX,
   statusEntryId,
 } from '../system/active-specials.js';
 import { writeActorStatusList } from '../system/assign-status.js';
+import {
+  invisibilityTokenEffectEnabled,
+  isInvisibleStatusId,
+} from '../combat/invisibility-presentation.js';
 
 export type CharacterStatusKind = 'special' | 'tempHP';
 
@@ -20,6 +26,10 @@ export interface CharacterStatusRow {
   value: number | null;
   hasValue: boolean;
   canReduce: boolean;
+  canIncrease: boolean;
+  /** Invisible row: switch for the token icon and ghost opacity. */
+  showInvisTokenToggle: boolean;
+  invisTokenEffectOn: boolean;
 }
 
 export function buildCharacterStatusRows(actor: Actor | null | undefined): CharacterStatusRow[] {
@@ -32,19 +42,24 @@ export function buildCharacterStatusRows(actor: Actor | null | undefined): Chara
     const catalog = id ? getEffectById(id) : undefined;
     const name = catalog?.name || rawName || id || `Status ${index + 1}`;
     const valueNum = Math.floor(Number(entry?.value));
-    const hasValue =
+    const storedValue =
       entry?.value !== undefined &&
       entry?.value !== null &&
       entry?.value !== ('' as any) &&
       Number.isFinite(valueNum);
+    const hasValue = storedValue || catalog?.hasValue === true;
+    const value = storedValue ? valueNum : hasValue ? 1 : null;
     rows.push({
       kind: 'special',
       index,
       id,
       name,
-      value: hasValue ? valueNum : null,
+      value,
       hasValue,
-      canReduce: hasValue && valueNum > 0,
+      canReduce: hasValue && (value ?? 0) > 0,
+      canIncrease: hasValue && (value ?? 0) > 0 && (value ?? 0) < STATUS_STACK_MAX,
+      showInvisTokenToggle: isInvisibleStatusId(id),
+      invisTokenEffectOn: isInvisibleStatusId(id) && invisibilityTokenEffectEnabled(actor),
     });
   }
 
@@ -58,6 +73,9 @@ export function buildCharacterStatusRows(actor: Actor | null | undefined): Chara
       value: tempHP,
       hasValue: true,
       canReduce: false,
+      canIncrease: false,
+      showInvisTokenToggle: false,
+      invisTokenEffectOn: false,
     });
   }
   return rows;
@@ -78,4 +96,22 @@ export async function reduceCharacterStatusRow(actor: Actor, row: CharacterStatu
   const list = readActorStatusEffects(actor);
   if (row.index < 0 || row.index >= list.length) return;
   await writeActorStatusList(actor, reduceStatusEffectAt(list, row.index, steps));
+}
+
+export async function raiseCharacterStatusRow(actor: Actor, row: CharacterStatusRow, steps: number): Promise<void> {
+  if (row.kind !== 'special' || !row.canIncrease) return;
+  const list = readActorStatusEffects(actor);
+  if (row.index < 0 || row.index >= list.length) return;
+  const entry = list[row.index];
+  const raw = Math.floor(Number(entry?.value));
+  const stored =
+    entry?.value !== undefined &&
+    entry?.value !== null &&
+    entry?.value !== ('' as any) &&
+    Number.isFinite(raw) &&
+    raw > 0;
+  const base = stored
+    ? list
+    : list.map((item, index) => (index === row.index ? { ...item, value: row.value ?? 1 } : item));
+  await writeActorStatusList(actor, raiseStatusEffectAt(base, row.index, steps));
 }

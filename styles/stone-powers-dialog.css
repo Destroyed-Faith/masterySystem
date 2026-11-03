@@ -71,8 +71,32 @@
   opacity: 0.85;
 }
 
-.stone-powers-dialog .js-activate-active-buff.is-current {
-  opacity: 0.65;
+.stone-powers-dialog .active-buff-prep-current.is-active {
+  color: #f3e5f5;
+  font-weight: 700;
+}
+
+.stone-powers-dialog .active-buff-prep-current.is-chosen {
+  color: #ffe082;
+  font-weight: 700;
+}
+
+.stone-powers-dialog .js-activate-active-buff.is-active,
+.stone-powers-dialog .js-activate-active-buff.is-active:disabled {
+  opacity: 1;
+  background: rgba(156, 39, 176, 0.42);
+  border: 2px solid #ce93d8;
+  color: #f3e5f5;
+  box-shadow: 0 0 0 1px rgba(206, 147, 216, 0.35), 0 0 10px rgba(156, 39, 176, 0.35);
+}
+
+.stone-powers-dialog .js-activate-active-buff.is-chosen,
+.stone-powers-dialog .js-activate-active-buff.is-chosen:disabled {
+  opacity: 1;
+  background: rgba(255, 179, 0, 0.34);
+  border: 2px solid #ffd54f;
+  color: #fff8e1;
+  box-shadow: 0 0 0 1px rgba(255, 213, 79, 0.45), 0 0 12px rgba(255, 193, 7, 0.4);
 }
 
 .stone-powers-dialog .natural-recovery-bar {
@@ -737,6 +761,12 @@
   box-shadow: 0 0 0 1px rgba(129, 212, 250, 0.2) inset;
 }
 
+.stone-powers-dialog .pool-item.can-recover {
+  border-color: #81c784;
+  background: rgba(46, 125, 50, 0.18);
+  box-shadow: 0 0 0 1px rgba(129, 199, 132, 0.45) inset, 0 0 10px rgba(76, 175, 80, 0.28);
+}
+
 .stone-powers-dialog .pool-recovery,
 .stone-powers-dialog .pool-gm-adjust {
   display: flex;
@@ -749,34 +779,60 @@
 }
 
 .stone-powers-dialog .pool-recovery-btn {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.7rem;
+  height: 1.7rem;
   padding: 0;
   line-height: 1;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 1.15rem;
+  font-weight: 800;
+  border-radius: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
 }
 
+.stone-powers-dialog .pool-recovery-btn.is-ready {
+  color: #fff;
+}
+
+.stone-powers-dialog .pool-recovery-add.is-ready,
+.stone-powers-dialog .pool-gm-add.is-ready {
+  background: #2e7d32;
+  border-color: #a5d6a7;
+  box-shadow: 0 0 0 1px rgba(165, 214, 167, 0.45), 0 0 8px rgba(76, 175, 80, 0.55);
+}
+
+.stone-powers-dialog .pool-recovery-remove.is-ready,
+.stone-powers-dialog .pool-gm-remove.is-ready {
+  background: #5d4037;
+  border-color: #ffcc80;
+  color: #ffe0b2;
+}
+
 .stone-powers-dialog .pool-recovery-btn:hover:not(:disabled) {
-  background: rgba(129, 212, 250, 0.3);
+  filter: brightness(1.12);
 }
 
 .stone-powers-dialog .pool-recovery-btn:disabled {
-  opacity: 0.35;
+  opacity: 0.38;
   cursor: default;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .stone-powers-dialog .pool-recovery-value {
-  min-width: 1.4rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #81d4fa;
+  min-width: 1.8rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(129, 212, 250, 0.55);
   text-align: center;
+}
+
+.stone-powers-dialog .pool-recovery-value.is-open {
+  color: #b9f6ca;
 }
 
 /* GM override steppers — always visible for the GM, amber to tell them apart from Recovery. */
@@ -785,7 +841,13 @@
 }
 
 .stone-powers-dialog .pool-gm-btn:hover:not(:disabled) {
-  background: rgba(255, 209, 102, 0.3);
+  filter: brightness(1.12);
+}
+
+.stone-powers-dialog .pool-gm-add.is-ready {
+  background: #2e7d32;
+  border-color: #a5d6a7;
+  color: #fff;
 }
 
 .stone-powers-dialog .pool-gm-value {

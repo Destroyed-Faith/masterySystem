@@ -74,9 +74,10 @@ import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/ech
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
-import { buildCharacterStatusRows, reduceCharacterStatusRow, removeCharacterStatusRow, } from './character-status-panel.js';
+import { buildCharacterStatusRows, raiseCharacterStatusRow, reduceCharacterStatusRow, removeCharacterStatusRow, } from './character-status-panel.js';
 import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import { invisibilityTokenEffectEnabled, setInvisibilityTokenEffect, } from '../combat/invisibility-presentation.js';
 import { applyGroundTruthXp, computeGroundTruthXp, formatXpRecalcHtml } from '../utils/xp-recalc.js';
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
 // + Handlebars part rendering.
@@ -1363,7 +1364,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.hasCharacterStatusRows = statusRows.length > 0;
         context.canEditCharacterStatus = canCurrentUserUpdateDocument(this.actor);
         context.statusAddChoices = listAssignableStatuses();
-        context.showCharacterStatusPanel = statusRows.length > 0;
+        context.showCharacterStatusPanel = statusRows.length > 0 || context.isGM === true;
         // Passive slotting happens exclusively in combat (Combat-Start dialog).
         // The character-sheet "Passive Slots" manager was removed: it implied a
         // false pre-selection outside combat and was unrelated to the in-combat
@@ -2653,6 +2654,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.reset-creation-attributes', this.#onResetCreationAttributes.bind(this));
         html.find('.js-character-status-remove').on('click', this.#onRemoveCharacterStatus.bind(this));
         html.find('.js-character-status-reduce').on('click', this.#onReduceCharacterStatus.bind(this));
+        html.find('.js-character-status-increase').on('click', this.#onRaiseCharacterStatus.bind(this));
+        html.find('.js-invis-token-effect').on('click', this.#onToggleInvisibilityTokenEffect.bind(this));
         bindStatusAddControls(html, this.actor);
         html.find('[data-action="forceEncounterSetup"]').on('click', async (ev) => {
             ev.preventDefault();
@@ -5245,6 +5248,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!row)
             return;
         await reduceCharacterStatusRow(this.actor, row, steps);
+    }
+    async #onRaiseCharacterStatus(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!canCurrentUserUpdateDocument(this.actor))
+            return;
+        const btn = event.currentTarget;
+        const index = Number(btn.dataset.effectIndex ?? -1);
+        const steps = Math.max(1, Number(btn.dataset.steps ?? 1) || 1);
+        const rows = buildCharacterStatusRows(this.actor);
+        const row = rows.find((r) => r.kind === 'special' && r.index === index);
+        if (!row?.canIncrease)
+            return;
+        await raiseCharacterStatusRow(this.actor, row, steps);
+    }
+    async #onToggleInvisibilityTokenEffect(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!canCurrentUserUpdateDocument(this.actor))
+            return;
+        await setInvisibilityTokenEffect(this.actor, !invisibilityTokenEffectEnabled(this.actor));
     }
     /**
      * GM: directly edit the character's available XP from the header bar.

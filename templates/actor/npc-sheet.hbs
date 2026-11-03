@@ -247,6 +247,11 @@
               <span class="effect-name">{{effect.name}}{{#if effect.hasValue}} {{effect.value}}{{/if}}</span>
               <div class="effect-actions">
                 <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−</button>
+                {{#if effect.showInvisTokenToggle}}
+                <button type="button" class="js-invis-token-effect effect-token-toggle{{#if effect.invisTokenEffectOn}} is-on{{/if}}" data-effect-index="{{effect.index}}" title="{{#if effect.invisTokenEffectOn}}Token-Effekt ausschalten{{else}}Token-Effekt einschalten{{/if}}" aria-pressed="{{#if effect.invisTokenEffectOn}}true{{else}}false{{/if}}">
+                  <i class="fas {{#if effect.invisTokenEffectOn}}fa-eye{{else}}fa-eye-slash{{/if}}"></i>
+                </button>
+                {{/if}}
                 <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
                   <i class="fas fa-times"></i>
                 </button>
@@ -514,6 +519,11 @@
             <span class="effect-name">{{effect.name}}{{#if effect.hasValue}} {{effect.value}}{{/if}}</span>
             <div class="effect-actions">
               <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−</button>
+              {{#if effect.showInvisTokenToggle}}
+              <button type="button" class="js-invis-token-effect effect-token-toggle{{#if effect.invisTokenEffectOn}} is-on{{/if}}" data-effect-index="{{effect.index}}" title="{{#if effect.invisTokenEffectOn}}Token-Effekt ausschalten{{else}}Token-Effekt einschalten{{/if}}" aria-pressed="{{#if effect.invisTokenEffectOn}}true{{else}}false{{/if}}">
+                <i class="fas {{#if effect.invisTokenEffectOn}}fa-eye{{else}}fa-eye-slash{{/if}}"></i>
+              </button>
+              {{/if}}
               <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
                 <i class="fas fa-times"></i>
               </button>

@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.816] - 2026-11-03
+
+### Added
+
+- **Chat order:** Mastery cards have an "Ans Ende" control. The newest card, including Split Attack strike 2, stays at the bottom after Foundry reinserts an updated message.
+- **Invisibility token effect:** Eye toggle on the token HUD and on the Invisible status row. Turning it off removes the token icon and the ghost opacity. The Invisibility bonus and the sheet status stay.
+
+### Changed
+
+- **Stone Powers:** Stone Recovery and the GM stone steppers are easier to see, and the Active Buff chosen this round is highlighted separately from one that is only being maintained.
+- **Character status:** The status panel stays on the sheet for the GM, including when it is empty. Valued specials can be raised and lowered.
+- **Damage Maximization:** The source choice sits on its own row under Roll and Cancel, and the button shows how many uses remain. Charges are read from the token and the world actor.
+- **Rerolls:** Reroll buttons show how many Reroll Points are still available.
+
+### Removed
+
+- **Actor directory:** The DF 2026 Migration Review button is no longer shown next to Encounter and Import Character.
+
 ## [0.9.815] - 2026-11-03
 
 ### Fixed

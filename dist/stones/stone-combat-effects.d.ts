@@ -72,6 +72,14 @@ export declare function markMovementReductionTargets(targets: Array<{
     id?: string;
     round?: number;
 } | null | undefined): Promise<number>;
+/**
+ * Token actors and the world actor can each hold the Maximization flag.
+ * Stone Powers write the economy owner; the damage card may be holding the other document.
+ * Return every document that might carry the charge, without duplicates.
+ */
+export declare function maximizationActorCandidates(actor: any): any[];
+/** The related actor that currently has the most Maximization charges. */
+export declare function resolveMaximizationActor(actor: any): any;
 export type MaximizationSource = 'stone' | 'passive' | 'activeBuff';
 /** Remaining stone Maximizations for the current combat. */
 export declare function remainingStoneMaximizations(actor: any): number;

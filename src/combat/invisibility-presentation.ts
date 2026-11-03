@@ -24,6 +24,30 @@ export const INVISIBLE_IMG = 'systems/mastery-system/assets/icons/status/invisib
 export const INVIS_TOKEN_ALPHA = 0.5;
 export const PRE_INVIS_ALPHA_FLAG = 'preInvisAlpha';
 export const INVIS_ALPHA_ACTIVE_FLAG = 'invisAlphaActive';
+/** `false` hides the token icon and the ghost opacity. Mechanics stay. Missing means on. */
+export const INVIS_TOKEN_EFFECT_FLAG = 'invisibilityTokenEffect';
+
+/** Sheet status id used for the Invisible presentation row. */
+export function isInvisibleStatusId(id: string | null | undefined): boolean {
+  const key = String(id || '').trim().toLowerCase();
+  return key === INVISIBLE_STATUS_ID || key === 'invisibility';
+}
+
+/** Token icon + opacity. Default on. An explicit false turns the token effect off. */
+export function invisibilityTokenEffectEnabled(actor: any): boolean {
+  let raw: unknown;
+  try {
+    raw = actor?.getFlag?.('mastery-system', INVIS_TOKEN_EFFECT_FLAG);
+  } catch {
+    raw = undefined;
+  }
+  if (raw == null) raw = actor?.flags?.['mastery-system']?.[INVIS_TOKEN_EFFECT_FLAG];
+  return raw !== false && raw !== 0 && raw !== 'false';
+}
+
+export function invisibilityTokenVisualWanted(bonus: number, effectEnabled: boolean): boolean {
+  return bonus > 0 && effectEnabled;
+}
 
 function asTokenDoc(token: any): any {
   if (!token) return null;
@@ -204,10 +228,74 @@ export async function syncInvisibilityPresentation(actor: any): Promise<void> {
   try {
     const bonus = effectiveInvisibilityBonusForActor(actor);
     const want = bonus > 0;
+    const showToken = invisibilityTokenVisualWanted(bonus, invisibilityTokenEffectEnabled(actor));
     await syncInvisibleStatusEntry(actor, want, bonus);
-    await syncInvisibleTokenEffect(actor, want);
-    await syncInvisibleTokenAlpha(actor, want);
+    await syncInvisibleTokenEffect(actor, showToken);
+    await syncInvisibleTokenAlpha(actor, showToken);
   } finally {
     if (actorId) presentationSyncInFlight.delete(actorId);
   }
+}
+
+/** Persist the token-effect switch and apply or clear the icon and opacity. */
+export async function setInvisibilityTokenEffect(actor: any, enabled: boolean): Promise<void> {
+  if (!actor || !userMayPersistActor(actor)) return;
+  const next = enabled === true;
+  if (typeof actor.setFlag === 'function') {
+    await actor.setFlag('mastery-system', INVIS_TOKEN_EFFECT_FLAG, next);
+  }
+  await syncInvisibilityPresentation(actor);
+}
+
+function hudRoot(html: unknown): HTMLElement | null {
+  if (typeof HTMLElement !== 'undefined' && html instanceof HTMLElement) return html;
+  const jq = html as { [index: number]: HTMLElement; get?: (i: number) => HTMLElement };
+  return jq?.get?.(0) || jq?.[0] || null;
+}
+
+function paintInvisTokenButton(btn: HTMLElement, enabled: boolean): void {
+  btn.classList.toggle('active', enabled);
+  btn.classList.toggle('is-off', !enabled);
+  btn.title = enabled
+    ? 'Invisibility token effect on — click to hide the icon and ghosting'
+    : 'Invisibility token effect off — click to show the icon and ghosting';
+  btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  const icon = btn.querySelector('i');
+  if (icon) icon.className = enabled ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+/** Token HUD switch. Shown while Invisibility is live, for whoever may update the actor. */
+export function registerInvisibilityTokenEffectToggle(): void {
+  const HooksAny = (globalThis as any).Hooks;
+  if (!HooksAny?.on) return;
+  HooksAny.on('renderTokenHUD', (hud: any, html: unknown, token: any) => {
+    try {
+      const actor = token?.actor || hud?.object?.actor || token?.document?.actor || null;
+      if (!actor || !userMayPersistActor(actor)) return;
+      if (effectiveInvisibilityBonusForActor(actor) <= 0) return;
+      const root = hudRoot(html);
+      if (!root) return;
+      const column = root.querySelector('.col.right') || root.querySelector('.right') || root;
+      let btn = column.querySelector('.ms-invis-token-effect') as HTMLElement | null;
+      const enabled = invisibilityTokenEffectEnabled(actor);
+      if (!btn) {
+        btn = document.createElement('div');
+        btn.className = 'control-icon ms-invis-token-effect';
+        btn.setAttribute('data-action', 'msInvisibilityTokenEffect');
+        btn.innerHTML = '<i class="fas fa-eye"></i>';
+        btn.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          const turnOn = !invisibilityTokenEffectEnabled(actor);
+          void setInvisibilityTokenEffect(actor, turnOn).then(() => {
+            if (btn) paintInvisTokenButton(btn, turnOn);
+          });
+        });
+        column.appendChild(btn);
+      }
+      paintInvisTokenButton(btn, enabled);
+    } catch (err) {
+      console.warn('Mastery System | invisibility token-effect toggle failed', err);
+    }
+  });
 }

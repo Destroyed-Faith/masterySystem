@@ -230,3 +230,29 @@ export function reduceStatusEffectAt(
   }
   return next;
 }
+
+/** Highest stack the sheet stepper will write. Matches the add-status dialog. */
+export const STATUS_STACK_MAX = 30;
+
+/** Raise one numeric status stack by `steps`, capped at STATUS_STACK_MAX. */
+export function raiseStatusEffectAt(
+  list: unknown,
+  index: number,
+  steps: number,
+): RawStatusEntry[] {
+  const next = coerceStatusEffectsArray(list).map((e) => ({ ...(e as object) })) as RawStatusEntry[];
+  const i = Math.floor(Number(index));
+  const n = Math.max(1, Math.floor(Number(steps) || 1));
+  if (!Number.isFinite(i) || i < 0 || i >= next.length) return next;
+  const entry = next[i]!;
+  const rawVal = entry.value;
+  const cur =
+    rawVal === undefined || rawVal === null || rawVal === ('' as any)
+      ? 0
+      : Math.floor(Number(rawVal));
+  if (!Number.isFinite(cur) || cur <= 0) return next;
+  const raised = Math.min(STATUS_STACK_MAX, cur + n);
+  if (raised === cur) return next;
+  next[i] = { ...entry, value: raised };
+  return next;
+}

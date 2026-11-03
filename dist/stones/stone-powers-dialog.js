@@ -1172,6 +1172,7 @@ export class StonePowersDialog extends BaseDialog {
     }
     async #activeBuffPrepContext(combat, locked) {
         const { listActivatableActiveBuffPowers, readBuffLifecycleFlags, formatActiveBuffDurationLabel, preparationTargetRound, isActiveBuffPreparationWindow, } = await import('../combat/active-buff-lifecycle.js');
+        const { activeBuffOptionMarks } = await import('../combat/active-buff-option-state.js');
         const { getTrueActiveBuffs, canRetractActiveBuffFromFlags, } = await import('../utils/active-buffs.js');
         const { getRoundState } = await import('../combat/action-economy.js');
         const powers = await listActivatableActiveBuffPowers(this.actor);
@@ -1217,6 +1218,22 @@ export class StonePowersDialog extends BaseDialog {
                 ? 'Retract undoes this Preparation activation so you can choose again.'
                 : 'GM: end the maintained Buff anytime.'
             : '';
+        const optionRefs = powers.map((p) => ({
+            id: String(p.id || p._id || ''),
+            name: String(p.name || 'Active Buff'),
+            level: Math.max(1, Math.floor(Number(p.system?.rank ?? p.system?.level ?? 1) || 1)),
+        }));
+        const options = optionRefs.map((row) => {
+            const marks = activeBuffOptionMarks(row, current, round, optionRefs);
+            const suffix = marks.chosenThisRound
+                ? ' — active this round'
+                : marks.isActive
+                    ? ' — active'
+                    : current
+                        ? ' — replace'
+                        : '';
+            return { ...row, ...marks, isCurrent: marks.isActive, suffix };
+        });
         return {
             show: powers.length > 0 || !!current,
             locked: locked || !windowOpen || alreadyCommitted,
@@ -1230,12 +1247,8 @@ export class StonePowersDialog extends BaseDialog {
             currentEffect,
             durationLabel,
             maintaining: !!current,
-            options: powers.map((p) => ({
-                id: String(p.id || p._id || ''),
-                name: String(p.name || 'Active Buff'),
-                level: Math.max(1, Math.floor(Number(p.system?.rank ?? p.system?.level ?? 1) || 1)),
-                isCurrent: !!current && String((current.flags?.['mastery-system']?.powerId) || '') === String(p.id || ''),
-            })),
+            chosenThisRound: options.some((row) => row.chosenThisRound),
+            options,
             hint: alreadyCommitted
                 ? 'Active Buff already chosen this Preparation. Maintaining costs nothing next Round until you replace it.'
                 : current
@@ -2163,6 +2176,10 @@ export class StonePowersDialog extends BaseDialog {
                 ev.preventDefault();
                 ev.stopPropagation();
                 if (this.#isStoneDialogLocked())
+                    return;
+                if (btn.disabled)
+                    return;
+                if (btn.classList.contains('is-active'))
                     return;
                 const powerId = String(btn.dataset.powerId || '');
                 if (!powerId)
