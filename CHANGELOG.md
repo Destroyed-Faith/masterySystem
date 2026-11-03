@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.806] - 2026-11-03
+
 ### Changed
 
 - **Active Buff activation:** Stones menu / Preparation no longer spends or requires a base Attack Action. Once-per-Preparation activate/replace remains. Attack Actions stay available for attacks, Parry, Dash, and Disengage.
