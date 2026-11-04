@@ -231,14 +231,33 @@ function readPassiveMaximizationRemainingSync(actor) {
         return 0;
     return Math.max(0, Math.floor(Number(raw.remaining) || 0));
 }
+/**
+ * Active Buff Maximization combat quota (Z01).
+ * `spent` survives Buff end / swap / reactivate so switching cannot farm uses.
+ * When no Maximization Buff is maintained (`granted === 0`), returns null for
+ * spend/UI but callers that only need persistence should read roundState.
+ */
+export function syncActiveBuffMaximizationQuotaState(existing, combatId, granted) {
+    const roundKey = String(combatId);
+    const x = Math.max(0, Math.floor(Number(granted) || 0));
+    if (!existing || String(existing.roundKey || '') !== roundKey) {
+        return { roundKey, granted: x, remaining: x, spent: 0 };
+    }
+    const spent = Math.max(0, Math.floor(Number(existing.spent) ||
+        Math.max(0, Math.floor(Number(existing.granted) || 0) - Math.floor(Number(existing.remaining) || 0))));
+    // Higher X mid-combat (e.g. empower) adds unused capacity only; spent stays.
+    return {
+        roundKey,
+        granted: x,
+        remaining: Math.max(0, x - spent),
+        spent,
+    };
+}
 function syncActiveBuffMaximizationQuota(actor) {
     const combat = liveCombat();
     if (!combat?.id || !actor)
         return null;
     const granted = getActiveBuffMaximizationUses(actor);
-    if (granted <= 0)
-        return null;
-    const roundKey = String(combat.id);
     let rs = null;
     try {
         rs = actor.getFlag?.('mastery-system', 'roundState');
@@ -247,29 +266,11 @@ function syncActiveBuffMaximizationQuota(actor) {
         rs = null;
     }
     const existing = rs?.maximizationQuota;
-    if (!existing || String(existing.roundKey || '') !== roundKey) {
-        return { roundKey, granted, remaining: granted };
+    if (granted <= 0) {
+        // Buff off — preserve spent on roundState when present; no spendable uses.
+        return null;
     }
-    if (granted > Number(existing.granted || 0)) {
-        const delta = granted - Math.floor(Number(existing.granted) || 0);
-        return {
-            roundKey,
-            granted,
-            remaining: Math.max(0, Math.floor(Number(existing.remaining) || 0)) + delta,
-        };
-    }
-    if (granted < Number(existing.granted || 0)) {
-        return {
-            roundKey,
-            granted,
-            remaining: Math.min(Math.max(0, Math.floor(Number(existing.remaining) || 0)), granted),
-        };
-    }
-    return {
-        roundKey,
-        granted: Math.floor(Number(existing.granted) || 0),
-        remaining: Math.max(0, Math.floor(Number(existing.remaining) || 0)),
-    };
+    return syncActiveBuffMaximizationQuotaState(existing, String(combat.id), granted);
 }
 export function remainingActiveBuffMaximizations(actor) {
     return syncActiveBuffMaximizationQuota(actor)?.remaining ?? 0;
@@ -344,10 +345,12 @@ export async function spendMaximization(actor, preferred) {
             const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
             const combat = liveCombat();
             const rs = getRoundState(actor, combat);
+            const nextSpent = Math.max(0, Number(buffQuota.spent) || 0) + 1;
             rs.maximizationQuota = {
                 roundKey: buffQuota.roundKey,
                 granted: buffQuota.granted,
-                remaining: Math.max(0, buffQuota.remaining - 1),
+                spent: nextSpent,
+                remaining: Math.max(0, buffQuota.granted - nextSpent),
             };
             await setRoundState(actor, rs);
             return true;

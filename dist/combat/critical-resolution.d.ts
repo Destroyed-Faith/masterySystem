@@ -29,6 +29,11 @@ export type CriticalRoundQuota = {
     granted: number;
     /** Remaining Critical designations this combat. */
     remaining: number;
+    /**
+     * Combat-wide spent designations. Survives Buff end / swap / reactivate so
+     * Critical Uses cannot be farmed by replacing the Buff (Z01).
+     */
+    spent?: number;
 };
 export type CriticalAttackModifier = {
     /**
@@ -55,7 +60,7 @@ export type CriticalAttackModifier = {
 /**
  * Sync Active Buff Critical quota for the current combat.
  * New combat → remaining = Critical(X). Same combat → keep spent charges
- * (reactivation / new Rounds do not refill the allowance).
+ * (reactivation / Buff swap / new Rounds do not refill the allowance).
  */
 export declare function syncCriticalRoundQuota(existing: CriticalRoundQuota | null | undefined, roundKey: string, buffCriticalX: number): CriticalRoundQuota;
 /** Spend the declared Crit charge. No-op when the roll did not select Crit. */

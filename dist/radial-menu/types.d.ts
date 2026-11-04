@@ -84,8 +84,13 @@ export interface RadialCombatOption {
     /** Consumables never add weapon damage dice or weapon Specials. */
     ignoreWeaponDamage?: boolean;
     /**
-     * Dragon Head Damage Breath only: Instant Melee AoE that still includes this
-     * Artifact's Bite Weapon Damage (Core exception to no-Weapon-Damage-on-AoE).
+     * Special-only Attack: no direct damage pool (no Power / Weapon / Spell Focus
+     * dice, no Damage Dialog / Raises / Maximization). On-hit Specials still apply.
+     */
+    specialOnly?: boolean;
+    /**
+     * Dragon Head Damage Breath: Instant Melee AoE that includes Bite Weapon Damage
+     * on the shared Instant Damage AoE pool (same rule as other martial Instant AoE).
      */
     dragonHeadDamageBreath?: boolean;
     /** Dragon Head Breath mode selected from the radial (`damage` | `ruin`). */

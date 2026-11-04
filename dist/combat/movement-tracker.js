@@ -66,8 +66,11 @@ export async function resetMovementForTurn(actor) {
     }
 }
 /**
- * Handle a token move: accumulate meters and apply Lacerate thresholds. Only
- * processes the token belonging to the current combatant.
+ * Handle a token move during combat.
+ *
+ * Batch 8.1: Persistent Zones + Special Auras react to **any** moved token
+ * (not only the active combatant). Turn-economy tracking (moved meters,
+ * Lacerate stages, Safe Movement notes) remains current-combatant-only.
  */
 export async function handleTokenMovement(tokenDoc, changes) {
     if (!game.user?.isGM)
@@ -80,10 +83,6 @@ export async function handleTokenMovement(tokenDoc, changes) {
     const actor = tokenDoc?.actor;
     if (!actor)
         return;
-    // Only track the creature whose turn it currently is.
-    const activeActorId = combat.combatant?.actor?.id;
-    if (!activeActorId || activeActorId !== actor.id)
-        return;
     const scene = tokenDoc?.parent;
     const oldX = changes.x !== undefined ? Number(tokenDoc._source?.x ?? tokenDoc.x) : Number(tokenDoc.x);
     const oldY = changes.y !== undefined ? Number(tokenDoc._source?.y ?? tokenDoc.y) : Number(tokenDoc.y);
@@ -92,10 +91,30 @@ export async function handleTokenMovement(tokenDoc, changes) {
     const moved = metersBetween(scene, oldX, oldY, newX, newY);
     if (moved <= 0)
         return;
+    // Dedup identical update payloads for every mover (zones/auras + turn economy).
     const eventKey = `${oldX}:${oldY}:${newX}:${newY}`;
     if (String(actor.getFlag(FLAG_SCOPE, 'movementEventKey') ?? '') === eventKey)
         return;
     await actor.setFlag(FLAG_SCOPE, 'movementEventKey', eventKey);
+    // Zones + Special Auras: any legal move during combat (owner-move or enter).
+    try {
+        const { applyStoredSpellZonesOnEnter } = await import('./spell-zone-entry.js');
+        await applyStoredSpellZonesOnEnter(actor, tokenDoc, combat);
+    }
+    catch (err) {
+        console.debug?.('Mastery System | persistent spell zone entry failed', err);
+    }
+    try {
+        const { applySpecialAurasOnTokenMove } = await import('./special-aura-runtime.js');
+        await applySpecialAurasOnTokenMove(actor, tokenDoc, combat);
+    }
+    catch (err) {
+        console.debug?.('Mastery System | Special Aura movement apply failed', err);
+    }
+    // Turn-economy / Lacerate: only the creature whose Turn it currently is.
+    const activeActorId = combat.combatant?.actor?.id;
+    if (!activeActorId || activeActorId !== actor.id)
+        return;
     const prevMoved = Number(actor.getFlag(FLAG_SCOPE, FLAG_MOVED) ?? 0);
     const totalMoved = prevMoved + moved;
     await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, totalMoved);
@@ -128,13 +147,6 @@ export async function handleTokenMovement(tokenDoc, changes) {
     }
     catch (err) {
         console.debug?.('Mastery System | safe movement note failed', err);
-    }
-    try {
-        const { applyStoredSpellZonesOnEnter } = await import('./spell-zone-entry.js');
-        await applyStoredSpellZonesOnEnter(actor, tokenDoc, combat);
-    }
-    catch (err) {
-        console.debug?.('Mastery System | persistent spell zone entry failed', err);
     }
     const lacerate = getActiveSpecialValue(actor, 'lacerate');
     if (lacerate <= 0)

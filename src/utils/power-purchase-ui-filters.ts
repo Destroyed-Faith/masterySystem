@@ -68,15 +68,13 @@ export const ACTIVE_BUFF_UI_FOCUS_LABELS: Record<ActiveBuffUiFocus, string> = {
 
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Covers the final 25; retired Combined / Penetration / Healing stay omitted.
- * Offensive = 12 (5 prior + 7 expansion); Defensive = 14 (Thorns overlap).
+ * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (Batch 8.1: legacy auras retired; 14 Special Auras).
  */
 export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<
   Record<string, readonly ActiveBuffUiFocus[]>
 > = {
   'ab-armor': ['defensive'],
   'ab-evade': ['defensive'],
-  'ab-armor-aura': ['defensive'],
   'ab-temp-hp': ['defensive'],
   'ab-damage-reduction': ['defensive'],
   'ab-phasing': ['defensive'],
@@ -85,21 +83,30 @@ export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<
   'ab-invisibility': ['defensive'],
   'ab-reinforced-parry': ['defensive'],
   'ab-reinforced-damage-negation': ['defensive'],
-  'ab-summon-armor-aura': ['defensive'],
   'ab-intensified-absorption': ['defensive'],
   'ab-damage': ['offensive'],
   'ab-critical': ['offensive'],
-  'ab-damage-aura': ['offensive'],
-  'ab-summon-damage-aura': ['offensive'],
   // Retaliation: defensive posture with offensive payload — discoverable in both.
   'ab-thorns': ['defensive', 'offensive'],
   'ab-armor-reduction': ['offensive'],
   'ab-enemy-evade-reduction': ['offensive'],
   'ab-spell-resistance-piercing': ['offensive'],
   'ab-maximization': ['offensive'],
-  'ab-armor-reduction-aura': ['offensive'],
-  'ab-allied-damage-aura': ['offensive'],
   'ab-area-expansion': ['offensive'],
+  'ab-blight-aura': ['offensive'],
+  'ab-challenge-aura': ['offensive'],
+  'ab-corrode-aura': ['offensive'],
+  'ab-disoriented-aura': ['offensive'],
+  'ab-expose-aura': ['offensive'],
+  'ab-hex-aura': ['offensive'],
+  'ab-lacerate-aura': ['offensive'],
+  'ab-mark-aura': ['offensive'],
+  'ab-root-aura': ['offensive'],
+  'ab-ruin-aura': ['offensive'],
+  'ab-slow-aura': ['offensive'],
+  'ab-soulburn-aura': ['offensive'],
+  'ab-sundered-aura': ['offensive'],
+  'ab-weaken-aura': ['offensive'],
 };
 
 /**

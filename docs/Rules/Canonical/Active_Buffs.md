@@ -60,14 +60,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Active Buffs
-Version: v0.9.9.5 (2026-10-15)  
-Playtest activation alignment: 2026-11-04 (free Preparation Phase activation/replace; no general per-Combat activation limit; no change to individual Buff scaling or Maximization).
-Playtest aura cleanup: 2026-11-04 (six aura Active Buffs removed; other Buffs unchanged; unique Echo/Artifact references pending redesign).
-Playtest rules alignment: 2026-11-04 (free Preparation Phase activation; original DN Pool curve retained).
-Playtest lifecycle revision: 2026-11-04 Batch 6/6.1 (one maintained Buff; voluntary end anytime; free Prep switch including after Stone Confirmation; consumed resources not refilled by replace)
-Playtest expansion: 2026-10-24 (seven offensive Active Buffs added; existing 18 entries preserved; provisional PP pricing for playtest; no product-version change)
-Playtest damage recalibration: 2026-10-25 (Active Buff: Damage = +1d8 per PL, 30 PP per d8; no other Buff progression changed)
-> **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
+Version: v0.9.9.5 (2026-11-04)  
 
 }}
 
@@ -103,7 +96,7 @@ Playtest damage recalibration: 2026-10-25 (Active Buff: Damage = +1d8 per PL, 30
 - #### [{{ Active Buff: Spell Resistance Piercing}}{{ 22}}](#p22)
 - #### [{{ Active Buff: Maximization}}{{ 23}}](#p23)
 - #### [{{ Active Buff: Area Expansion}}{{ 24}}](#p24)
-- #### [{{ Special Auras (Ruin / Corrode / Blight)}}{{ 25}}](#p25)
+- #### [{{ Special Auras (14 catalogue Powers)}}{{ 25}}](#p25)
 
 }}
 \page
@@ -116,17 +109,17 @@ Active Buffs are temporary combat enhancements. Unlike Passives, they occupy a m
 
 ### Preparation Phase Activation
 
-Choose and activate or replace an Active Buff **only during the Preparation Phase**, before the Combat Round begins. Activation costs **neither an Attack Action nor Stones**. Ordinary Active Buffs cannot be activated outside Preparation (not during a normal Attack Action or mid-Turn). The Preparation Phase window remains open for activate, replace, or end choices for that Round's Preparation, including **after Stone Confirmation**.
+Choose and activate an Active Buff **during a Preparation Phase**, before any combatant begins its Turn in that Round. Activation costs **no Attack Action and no Stones**. A character may maintain **only one Active Buff at a time**, but there is **no general per-Combat activation limit**. The active Buff may be voluntarily ended at any time. During Preparation, the character may activate another Active Buff, first ending the former Buff completely. This is permitted even after the character has **confirmed Stones** for that Preparation Phase; the confirmed Stone plan stays unchanged. Ordinary Active Buffs cannot be activated or replaced outside Preparation.
 
 The Buff is active **before any Turn in the activation Round**, regardless of Initiative. It normally requires no roll unless an entry targets an unwilling creature or explicitly requires one.
 
 ### Complete-Round Duration
 
-The activation Round counts as **Round 1** of the Buff. An MR1 Buff lasts the whole activation Round; an MR2 Buff lasts that Round and the next. The Buff ends at **Round End of its final Round**, after eligible end-of-round effects, **not** at the end of its owner's Turn. Explicit duration modifiers adjust the number of complete Rounds. Each new activation receives its own full printed duration.
+The activation Round counts as **Round 1** of the Buff. An MR1 Buff lasts the whole activation Round; an MR2 Buff lasts that Round and the next. The Buff ends at **Round End of its final Round**, after eligible end-of-round effects, **not** at the end of its owner's Turn. Explicit duration modifiers adjust the number of complete Rounds.
 
 ### Maintenance, Replacement, and Refresh
 
-Only one Active Buff may be maintained at a time. The active Buff may be voluntarily ended at any time. During a Preparation Phase, the character may freely activate another Active Buff, ending the previous Buff first if necessary. There is no general per-Combat activation or replacement limit. Each activation uses its own printed duration. Replacing or reactivating a Buff does not restore already consumed limited-use resources unless their specific rules explicitly allow it. A Buff does not stack with itself.
+Maintain **one Active Buff at a time** unless an explicitly printed exception applies. Maintenance costs no Actions or Stones. A voluntary ending is free at any time; new activation or replacement is permitted only in Preparation, even if the Stone plan is already confirmed. A newly activated Buff receives its own full printed duration; the old Buff and its modifiers end **before** the new one starts. Replacing or reactivating a Buff never restores spent **per-Combat** uses (including Critical, Maximization, and eligible Stone support) and never duplicates Round-based pools. If a Buff is revisited in the same Preparation Phase, previously granted temporary HP is not granted twice, and any partly spent Damage Negation pool retains only its unspent remainder. A Buff never stacks with itself.
 
 Round-based Buff resources are established in the **activation Preparation Phase** and refresh **once** during each subsequent Preparation Phase while maintained, with unused points expiring at Round End. Printed **Start of Turn / End of Turn** triggers remain at their stated time unless that Buff explicitly says otherwise. Expired Buffs remove their remaining granted resources. **All maintained Active Buffs end at Combat End.**
 
@@ -190,7 +183,7 @@ Parry, Damage Reduction, Phasing, Absorption and Damage Negation Buffs retain th
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure Armor axis. Playtest calibration: +2 Armor per Power Level (15 PP per Armor); replaces the former 7.5 PP per Armor conversion.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -227,7 +220,7 @@ Reinforce your defenses with the printed **Armor bonus**. It applies to you only
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure Evade axis. +1 Evade = 15 PP; whole-number values are rounded down.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -264,7 +257,7 @@ Gain the printed **Evade bonus** against eligible attacks for the duration. No A
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Refreshing Temporary HP = 4 PP per 1 HP. Rounded down to whole HP. Buff-specific Temporary HP do not heal real HP and never refill twice in one Round.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -301,7 +294,7 @@ During the **activation Preparation Phase**, gain the printed **Temporary HP**. 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Closed premium subsystem; requires slotted Passive: Damage Reduction. PL1-3 unavailable. Adds at most +10% DR to the eligible non-Stone subtotal, within the printed cap.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -338,7 +331,7 @@ During the **activation Preparation Phase**, gain the printed **Temporary HP**. 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Closed premium subsystem; requires slotted Passive: Phasing. PL1-3 unavailable. Only one additional temporary charge, with total caps 2 / 3 / 4 by Level band.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -375,7 +368,7 @@ During the **activation Preparation Phase**, gain the printed **Temporary HP**. 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure Spell Resistance axis; +1 Spell Resistance = 15 PP, rounded down. Adds to the Final Spell TN, not the Base TN.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -412,7 +405,7 @@ Gain the listed **Spell Resistance**, increasing your **Final Spell TN** against
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Single-focus recurring Cleanse; Cleanse(1) = 30 PP. Applied at the owner's Turn Start, not in Preparation. No Absorption trigger.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -449,7 +442,7 @@ At the **start of each of your Turns while maintained**, reduce **one eligible o
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Temporary Invisibility Bonus = Power Level; Obscures only Normal Combat Awareness. Special Combat Senses are not Obscured by this Buff alone.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -488,7 +481,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Requires Passive: Parry and an active Parry stance. Recovers spent Parry following a qualifying event, up to PL per Round, without exceeding the Parry Pool established for that stance.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -527,7 +520,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Requires slotted Passive: Damage Negation; it works even with 0 remaining Passive reserve. **Original curve: Temporary DN = Buff PL**, NOT ceil(PL/2). Separate temporary pool each Round.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -566,7 +559,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure offensive damage axis, +1d8 = 30 PP, +1d8 per PL. No +5 PP overspend allowance. No additional Attack Dice or Specials.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -603,7 +596,7 @@ Your legal directly damaging **attacks** gain the listed additional d8. **Scalin
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Closed Critical subsystem; PL1-3 unavailable. Critical(1-4) milestones at PL4/8/12/15. A single shared combat-wide designation allowance while maintained; no refresh by reactivation.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -640,7 +633,7 @@ While this Buff is maintained, you may designate up to **Critical(X)** eligible 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Reflected damage: 30 PP per d8. Only applies after actual final HP damage; reflected value cannot exceed the HP damage suffered. Not an attack or Special.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -679,7 +672,7 @@ When you take **final HP damage from a direct attack, Spell or Power**, the sour
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Requires slotted Passive: Absorption; once per Round on its first valid trigger, among the Passive's total of four triggers per Combat. Milestones +1 / +2 / +3 / +4 stones at PL1/5/9/13.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -720,7 +713,7 @@ When you take **final HP damage from a direct attack, Spell or Power**, the sour
       Personal offensive Armor reduction, one mechanical axis. Budget: 7.5 PP per point ignored, rounded down.<br>
       Affects only your own eligible damaging Martial or Spell Attacks; no effect against environmental or ongoing non-Attack damage.<br>
       Stacks with legal Passive and Stone Armor Reduction, weapon Penetration and target Corrode; effective Armor remains at least 0.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -761,7 +754,7 @@ Resolve after applicable **Corrode(X)** and together with other explicitly legal
       Pure attacker-side Enemy Evade Reduction. Budget: 30 PP per 1 Evade ignored.<br>
       Only your own eligible Martial Attack Rolls; each Martial AoE target resolves independently.<br>
       Never changes actual enemy Evade, does not apply Expose, and does not affect Spell TN.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -802,7 +795,7 @@ This Buff is **attacker-side only**: it does not reduce the target's listed Evad
       Pure caster-side Spell Resistance Piercing. Budget: 30 PP per 1 Spell Resistance ignored.<br>
       Affects only the target Spell Resistance component of your own eligible Spells.<br>
       Does not reduce Spell Base TN, Paid Raise TN, other surcharges or non-Spell defenses.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -843,7 +836,7 @@ This Buff does not lower any target's actual Spell Resistance for other casters 
       Closed premium subsystem: 120 PP per available Combat use; milestones at PL4, PL8, PL12, PL16.<br>
       One use maximizes a complete eligible Damage or Healing Roll, not an Attack/Casting Roll.<br>
       One source per roll; combat-wide spent allowance cannot refresh by ending, replacing or reactivating this Buff.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -851,7 +844,7 @@ This Buff does not lower any target's actual Spell Resistance for other casters 
 
 While this Buff is maintained, you may spend one of its listed **combat-wide Maximization uses** immediately before an eligible **Damage Roll or Healing Roll**, after applying any eligible Damage Negation. Every remaining d8 in that complete shared roll receives an **artificial result of 8**; the artificial values do not explode or trigger effects requiring a **natural 8**. A shared AoE or Autofire Damage Roll costs **one use**, even when it affects several creatures; independently rolled pools need separate uses. A roll that never occurs does not spend a use.
 
-Track the allowance **per character and per combat** for this technical Active Buff. Only unspent charges remain available while the Buff is maintained. Replacing, refreshing, or reactivating an Active Buff is not permitted in the same Combat; none of those operations could replenish spent Maximization uses in any case. Unused uses cannot be spent while the Buff is inactive, and all charges expire at Combat End.
+Track the allowance **per character and per combat** for this technical Active Buff. Only unspent charges remain available while the Buff is maintained. Replacing or reactivating this Active Buff is permitted in Preparation, but never replenishes spent Maximization uses in the same Combat. Unused uses cannot be spent while the Buff is inactive, and all charges expire at Combat End.
 
 This is a third legal source alongside **Passive: Maximization** and **Vitality Stone Ability: Maximization**. Select exactly **one source per eligible roll**. It does not change the size of the Damage Pool, add an Attack, bypass Armor or grant natural-8 effects.
 
@@ -886,7 +879,7 @@ This is a third legal source alongside **Passive: Maximization** and **Vitality 
       Premium radius-only subsystem: 120 PP per 1 m added to eligible circular AoE radius.<br>
       Milestones: PL4 +1 m; PL8 +2 m; PL12 +3 m; PL16 +4 m. PL1-3 unavailable.<br>
       Does not stack its radius bonus with Intellect Stone Range & AoE Boost. Use the larger radius addition.<br>
-      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
+      Activation: Preparation Phase; free (no Attack Action or Stones); one simultaneous Active Buff, repeatable in a later or the same Preparation Phase.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -924,15 +917,303 @@ The Buff does **not** enlarge Auras, Persistent Zones, ongoing fields, walls, li
 
 ## Special Auras (Active Buffs)
 
-A **Special Aura** is a **Self-range, caster-centered, moving Active Buff**, with a melee-radius area but **no Melee Attack or hit roll**. Its owner chooses one printed Special when learning the specific Aura Power. The Aura is activated during the **Preparation Phase**, for **no Attack Action or Stones**, and occupies the character's **single maintained Active Buff** while active. Its normal duration is **Mastery Rank complete Rounds**; it requires **no maintenance Actions** and ends at the usual Buff expiry or when voluntarily ended or replaced under the general Active Buff rules.
+A **Special Aura** is a **Self-range, caster-centered, moving Active Buff**. It has a circular melee-radius area, but it is **not** a Melee Attack, Persistent Zone, or independent spell. **Each of the fourteen entries below is a separate named Active Buff Power with one fixed printed Special**; learning one never grants access to any of the others. No other Special may be substituted on activation. Its Power Level controls its printed Special value and Radius.
 
-**Only the Aura caster is immune to their own Aura.** Every other creature physically in the Aura radius, including allies, enemies, neutrals, and Summons, receives the printed Special; no additional creature can be exempted or selected. The Aura follows its caster's movement, has **Self range**, and cannot be placed at another location or persist independently of its caster. This immunity does not protect the caster against any Persistent Zone or another caster's Aura.
+**Activation and slot:** Activate or replace an Aura for free in a **Preparation Phase** (including after Stone Confirmation), without Attack Actions or Stones. A character may maintain only one Active Buff at a time, whether a Special Aura or another Active Buff. The currently active Buff ends in full before the new Aura begins. An Aura may be ended voluntarily at any time, but a new Aura or Buff may be activated only during Preparation. There is **no general per-Combat activation or replacement limit**. Each activation has **Mastery Rank complete Rounds** of duration, counting the activation Round as the first; no maintenance Action is required. Per-Combat expended resources never refresh through switching. All remaining Auras end at Combat End.
 
-**Automatic Special application, no roll:** No Attack Roll, Casting Roll, Damage Roll, Weapon Damage, Spell Focus Damage, Power Damage, external Attack Damage bonus, or Raise is associated with an Aura's effect. Spell Resistance and Evade do not avoid a Special Aura's automatic application; explicit **Special Negation**, **Cleanse**, **Natural Special Recovery**, and normal effect-specific rules still apply. Ruin damage is dealt only at its later Tick under the Ruin rule, not on entry as a separate attack.
+**Caster immunity and friendly fire:** Only the caster is immune to their **own** Special Aura. Every other creature physically in range, including allies, enemies, neutrals, Summons, and owners of other Auras, is affected. The caster is **not** immune to other casters' Auras or to Persistent Special Zones. The Aura's point of origin stays on the caster and follows the caster's movement; it cannot be placed elsewhere or remain behind.
 
-**Timing:** The Aura applies immediately on activation to everyone already inside, immediately to a creature entering later, and at the start of a creature's Turn if it remains inside and has not yet received the Aura's application that Round. Each particular **Aura/creature pair applies at most once per combat Round**, even if a creature exits and returns. On Turn start, apply pre-existing Special Ticks, Natural Special Recovery, Decay, and start-of-turn recovery **before** applying the new Aura Special. The next eligible Turn start resolves any newly applied Ruin Tick. Multiple distinct overlapping Auras and Zones each apply separately; usual Special stacking and Timed refresh rules govern the result.
+**Automatic Special application, no roll:** Activation, entry, and ongoing coverage apply only the Aura's **printed Special(X)**. There is **no Attack Roll, Casting Roll, Damage Roll, Spell Resistance or Evade check, Raise, direct Power Damage, Weapon Damage, Spell Focus Damage, or external Attack Damage bonus**. Apply ordinary Special Negation, Cleanse, effect-specific rules and valid Special stacking/recovery. Damage from a later Special Tick or movement trigger (such as Ruin, Slow, or Lacerate) still follows that Special's own rule; it is not direct Aura Attack Damage.
 
-**Power-level values (provisional playtest):** The three Aura Powers below use the existing Active Buff PP curve (40 PP at PL1, +30 PP per additional PL). As an intentionally conservative starting budget for a **free-activation, MR-Round, moving Special Aura**, cost = **2 × (Radius Cost + AoE Special Cost)**, where Radius 2/3/4 m costs 20/50/90 PP and AoE Special(X) = Base Cost × T(X+1), T(n)=n(n+1)/2. The **×2** here is an Aura sustain premium, **not** the abolished four-Round Zone duration multiplier. Raise the radius only when the previously earned Special value can be preserved. This is a priced playtest proposal, not a claim that these new Aura curves are already field-tested.
+**Timing and persistence:** Apply on activation to eligible creatures already within range, upon later entry caused by **either creature's movement**, and at an affected creature's Turn Start if that specific Aura has not affected it during the current combat Round. Resolve previously existing Special Ticks, Natural Special Recovery, decay and other Turn-Start recovery **before** the new Aura application. Every **caster + named Aura Power + target** pairing may apply **at most once per combat Round**, including if the caster switches away and later reactivates the same Aura that Round. A different named Aura is a different source. Special effects already applied remain after the originating Aura ends, following their own decay, durations and Cleanse rules; ending a Buff is not Cleanse. Ordinary Diminishing, Timed and Root-specific stacking/recovery rules are unchanged. No global 4 × target MR application cap applies.
+
+**Special-specific application:** Challenge always records the **Aura caster** as the challenger; merely changing Auras never creates a second challenger. Root starts at **Root(2)** or higher (Root(1) is invalid) and uses its own source-MR break and Turn-Start reduction rules. Blight is Timed, not Diminishing. Mark is a shared counter under its printed expenditure rule. Hex and Sundered modify subsequent eligible hits and do not create damage by themselves. No Aura creates additional attacks, hard-control riders beyond its printed Special, or new ways around Special Negation.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Aura Power Point Pricing (playtest)
+
+All fourteen tables are calculated **here in the rulebook**, not delegated to a VTT implementation. The existing **Active Buff budget is 40 PP at PL 1, +30 PP per further PL** (PL 16 = 490 PP). The existing conservative moving-Aura premium remains:
+
+`Aura PP cost = 2 × [Radius PP + printed Special pricing at X + 1]`
+
+For this pricing calculation only, use the **published Instant Single Target numeric Special cost for rank (X + 1)**. This preserves the surcharge applied in the three existing Ruin, Corrode and Blight Aura tables without inventing new Special price curves. The effect applied in play is **Special(X)**, *not* Special(X + 1). Define `T(n) = n(n + 1)/2`:
+
+| **Specials** | **Published numeric cost C(n) used at n = X + 1** |
+|:--|:--|
+| Blight | `3 × T(n) PP` |
+| Lacerate, Mark, Ruin, Slow | `4 × T(n) PP` |
+| Corrode, Hex, Root, Sundered | `6 × T(n) PP` |
+| Expose | `8 × T(n) PP` |
+| Challenge | `C(1) = 6 PP`; for `n ≥ 2`, `6 × T(2n) PP` |
+| Disoriented, Soulburn, Weaken | `C(1) = 8 PP`; for `n ≥ 2`, `8 × T(2n) PP` |
+
+**Radius PP:** 2 m = 20 PP; 3 m = 50 PP; 4 m = 90 PP. Radius begins at 2 m. At PL 9 or later, a 3 m radius is selected when the previously printed Special rank can be retained; at PL 15 or later, 4 m is similarly selected when affordable. Between these radius milestones use the **highest Special(X) fully inside budget** at the retained radius. Never reduce the Special rank on an upgrade. A level with no legal minimum Special is **Unavailable** (not purchasable or selectable); **Root(1) is never legal**. Leftover PP grant no additional abilities.
+
+**Pricing audit:** This method reproduces the previously published **Ruin, Corrode, and Blight Aura values at every PL 1–16 without change**. The eleven additional Aura tables follow the identical premium, radius milestones, and published numeric Special cost rules. All fourteen progressions remain playtest values; no automatic Zone repricing or Artifact Aura remapping is implied.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-blight-aura">Active Buff: Blight Aura</h3>
+
+A moving **Blight(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Blight** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Blight Aura** at this Power Level. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-challenge-aura">Active Buff: Challenge Aura</h3>
+
+A moving **Challenge(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Challenge** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
+| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
+| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-corrode-aura">Active Buff: Corrode Aura</h3>
+
+A moving **Corrode(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Corrode** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Corrode Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Corrode Aura** at this Power Level. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-disoriented-aura">Active Buff: Disoriented Aura</h3>
+
+A moving **Disoriented(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Disoriented** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
+| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
+| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
+| **5** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
+| **6** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-expose-aura">Active Buff: Expose Aura</h3>
+
+A moving **Expose(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Expose** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Expose Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Expose Aura** at this Power Level. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-hex-aura">Active Buff: Hex Aura</h3>
+
+A moving **Hex(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Hex** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Hex Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Hex Aura** at this Power Level. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-lacerate-aura">Active Buff: Lacerate Aura</h3>
+
+A moving **Lacerate(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Lacerate** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Lacerate Aura** at this Power Level. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-mark-aura">Active Buff: Mark Aura</h3>
+
+A moving **Mark(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Mark** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Mark Aura** at this Power Level. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-root-aura">Active Buff: Root Aura</h3>
+
+A moving **Root(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Root** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Root Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Root Aura** at this Power Level. |
+| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Root Aura** at this Power Level. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -940,13 +1221,13 @@ A **Special Aura** is a **Self-range, caster-centered, moving Active Buff**, wit
 {{wide
 <h3 id="active-buff-ruin-aura">Active Buff: Ruin Aura</h3>
 
-A moving, indiscriminate **Ruin(X)** field centered on its owner. The Special is applied on activation, entry and the qualifying start of a Turn, **once per creature per combat Round from this Aura**. The caster is immune to their own Aura, but allies are not. All other Active Buff restrictions and the general Special Aura rule apply.
+A moving **Ruin(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Ruin** rules apply unchanged.
 
 ---
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a functional Special Aura. |
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Ruin Aura** at this Power Level. |
 | **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 | **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 | **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
@@ -967,59 +1248,116 @@ A moving, indiscriminate **Ruin(X)** field centered on its owner. The Special is
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="active-buff-corrode-aura">Active Buff: Corrode Aura</h3>
+<h3 id="active-buff-slow-aura">Active Buff: Slow Aura</h3>
 
-A moving, indiscriminate **Corrode(X)** field centered on its owner. The Special is applied on activation, entry and the qualifying start of a Turn, **once per creature per combat Round from this Aura**. The caster is immune to their own Aura, but allies are not. All other Active Buff restrictions and the general Special Aura rule apply.
+A moving **Slow(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Slow** rules apply unchanged.
 
 ---
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a functional Special Aura. |
-| **2** | Unavailable | Self | — | — | Not enough PP for a functional Special Aura. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Slow Aura** at this Power Level. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="active-buff-blight-aura">Active Buff: Blight Aura</h3>
+<h3 id="active-buff-soulburn-aura">Active Buff: Soulburn Aura</h3>
 
-A moving, indiscriminate **Blight(X)** field centered on its owner. The Special is applied on activation, entry and the qualifying start of a Turn, **once per creature per combat Round from this Aura**. The caster is immune to their own Aura, but allies are not. All other Active Buff restrictions and the general Special Aura rule apply.
+A moving **Soulburn(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Soulburn** rules apply unchanged.
 
 ---
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a functional Special Aura. |
-| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
+| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
+| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
+| **5** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
+| **6** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-sundered-aura">Active Buff: Sundered Aura</h3>
+
+A moving **Sundered(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Sundered** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Sundered Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Sundered Aura** at this Power Level. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="active-buff-weaken-aura">Active Buff: Weaken Aura</h3>
+
+A moving **Weaken(X)** field centered on its owner. It automatically applies the listed Special on activation, first entry and the qualifying affected creature Turn Start, **once per target per combat Round from this named Aura**. The caster is immune to their own Aura, but allies and other creatures are not. The complete Special Aura rules above and the normal **Weaken** rules apply unchanged.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
+| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
+| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
+| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
+| **5** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
+| **6** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}

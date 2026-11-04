@@ -37,7 +37,10 @@ export function raiseAllocShareKey(flags) {
         const paid = Math.max(0, Math.floor(Number(flags.declaredRaiseSlots) || 0));
         return `autofire:${flags.attackerId}:${flags.attackTotal}:${paid}`;
     }
-    if (flags.aoeMeleeWeapon === true || String(flags.aoeMeleeWeapon) === 'true') {
+    if (flags.aoeMeleeWeapon === true ||
+        String(flags.aoeMeleeWeapon) === 'true' ||
+        flags.instantAoe === true ||
+        String(flags.instantAoe) === 'true') {
         return `aoe:${flags.attackerId}:${flags.attackTotal}:${flags.raiseTn}`;
     }
     return '';

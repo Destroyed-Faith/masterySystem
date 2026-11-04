@@ -1616,12 +1616,29 @@ export class StonePowersDialog extends BaseDialog {
       1,
       Math.floor(Number(currentFlags.effectiveLevel ?? currentFlags.level ?? 1) || 1),
     );
-    const currentEffect = String(
+    let currentEffect = String(
       currentFlags.effectText ||
         currentFlags.mechanics?.effectText ||
         current?.description ||
         '',
     ).replace(/<[^>]+>/g, '').trim();
+    // Batch 8: surface Special(X) + radius for Special Auras in the Prep status line.
+    try {
+      const { specialAuraLabel, isSpecialAuraTemplateId } = await import(
+        '../combat/special-aura-runtime.js'
+      );
+      const tplId = String(currentFlags.powerTemplateId || '');
+      const auraMech = currentFlags.mechanics?.activeSpecialAura;
+      if (isSpecialAuraTemplateId(tplId) && auraMech) {
+        const label = specialAuraLabel(String(auraMech.special || ''), Number(auraMech.rank) || 0);
+        const radius = Number(auraMech.radiusM) || 0;
+        if (label && radius > 0) {
+          currentEffect = `${label} · Radius ${radius} m${currentEffect ? ` — ${currentEffect}` : ''}`;
+        }
+      }
+    } catch {
+      /* optional */
+    }
     const stoneConfirmed = this.#isStoneAssignmentReviewMode();
     const unavailableReason = !windowOpen
       ? 'Preparation ended — you may still End the Active Buff, but cannot activate or replace until the next Preparation Phase.'

@@ -24,20 +24,23 @@ import {
 const ROOT = join(__dirname, '..');
 
 describe('Power Purchase UI filters — Active Buffs', () => {
-  it('final catalogue has exactly 25 Active Buffs including Armor and offensive expansion', () => {
-    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(25);
+  it('final catalogue has Active Buffs including Armor, offensive expansion, and Special Auras', () => {
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(33);
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-armor');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-armor-reduction');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-area-expansion');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-ruin-aura');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-hex-aura');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).not.toContain('ab-armor-aura');
     const listed = filterCatalog({ category: 'activeBuff' });
-    expect(listed).toHaveLength(25);
-    expect(new Set(listed.map((e) => e.templateId)).size).toBe(25);
+    expect(listed).toHaveLength(33);
+    expect(new Set(listed.map((e) => e.templateId)).size).toBe(33);
     expect(listed.some((e) => e.templateId === 'ab-armor')).toBe(true);
     expect(listed.some((e) => e.name === 'Active Buff: Armor')).toBe(true);
     expect(listed.some((e) => e.name === 'Active Buff: Armor Reduction')).toBe(true);
   });
 
-  it('Focus All/Defensive/Offensive classifies all 25 without duplicates or retired Powers', () => {
+  it('Focus All/Defensive/Offensive classifies all selectable Buffs without duplicates or retired Powers', () => {
     for (const id of FINAL_ACTIVE_BUFF_TEMPLATE_IDS) {
       const foci = getActiveBuffUiFoci(id);
       expect(foci.length, id).toBeGreaterThan(0);
@@ -47,40 +50,40 @@ describe('Power Purchase UI filters — Active Buffs', () => {
     );
 
     const all = filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: null });
-    expect(all).toHaveLength(25);
+    expect(all).toHaveLength(33);
     expect(all.filter((e) => e.templateId === 'ab-armor')).toHaveLength(1);
     expect(all.filter((e) => e.templateId === 'ab-thorns')).toHaveLength(1);
 
     const defensive = filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'defensive' });
     const offensive = filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'offensive' });
-    expect(defensive).toHaveLength(14);
-    expect(offensive).toHaveLength(12);
+    expect(defensive).toHaveLength(12);
+    expect(offensive).toHaveLength(22);
     expect(defensive.some((e) => e.templateId === 'ab-armor')).toBe(true);
     expect(defensive.some((e) => e.templateId === 'ab-damage-reduction')).toBe(true);
     expect(defensive.some((e) => e.templateId === 'ab-cleanse-maintenance')).toBe(true);
     expect(defensive.some((e) => e.templateId === 'ab-intensified-absorption')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-damage')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-critical')).toBe(true);
-    expect(offensive.some((e) => e.templateId === 'ab-damage-aura')).toBe(true);
-    expect(offensive.some((e) => e.templateId === 'ab-summon-damage-aura')).toBe(true);
+    expect(offensive.some((e) => e.templateId === 'ab-ruin-aura')).toBe(true);
+    expect(offensive.some((e) => e.templateId === 'ab-corrode-aura')).toBe(true);
+    expect(offensive.some((e) => e.templateId === 'ab-blight-aura')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-armor-reduction')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-enemy-evade-reduction')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-spell-resistance-piercing')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-maximization')).toBe(true);
-    expect(offensive.some((e) => e.templateId === 'ab-armor-reduction-aura')).toBe(true);
-    expect(offensive.some((e) => e.templateId === 'ab-allied-damage-aura')).toBe(true);
     expect(offensive.some((e) => e.templateId === 'ab-area-expansion')).toBe(true);
+    expect(offensive.some((e) => e.templateId === 'ab-damage-aura')).toBe(false);
     expect(activeBuffMatchesUiFocus('ab-thorns', 'defensive')).toBe(true);
     expect(activeBuffMatchesUiFocus('ab-thorns', 'offensive')).toBe(true);
     expect(defensive.filter((e) => e.templateId === 'ab-thorns')).toHaveLength(1);
     expect(offensive.filter((e) => e.templateId === 'ab-thorns')).toHaveLength(1);
 
-    // Every approved buff reachable via All; union of foci covers all 25.
+    // Every approved buff reachable via All; union of foci covers the selectable set.
     const covered = new Set([
       ...defensive.map((e) => e.templateId),
       ...offensive.map((e) => e.templateId),
     ]);
-    expect(covered.size).toBe(25);
+    expect(covered.size).toBe(33);
 
     expect(all.some((e) => e.templateId === 'ab-penetration')).toBe(false);
     expect(all.some((e) => /combined/i.test(e.templateId))).toBe(false);

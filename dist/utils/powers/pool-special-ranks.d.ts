@@ -31,9 +31,9 @@ type SpecialRow = {
     note?: string;
 };
 /**
- * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing,
- * replace the shared-table rank with the printed v0.9.9.0 rank.
- * Root still cannot print below Root(2).
+ * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing
+ * or this is an Instant Single-Special template, replace the shared-table rank
+ * with the printed catalogue rank. Root still cannot print below Root(2).
  */
 export declare function bindPoolSpecialsOnRow<T extends {
     specials?: SpecialRow[];

@@ -6,18 +6,19 @@
  * A miss against one creature does not protect any other. Creatures that would
  * be hit may use Dive for Cover before payload.
  *
- * Instant AoE rules (Destroyed Faith Active Powers):
+ * Instant AoE rules (Destroyed Faith Active Powers / Core 2026-11-04):
  *   - ONE shared Attack/Casting roll for the whole AoE.
- *   - ONE shared Power damage roll (if damaging): the same raw total goes to every
- *     hit creature; armor / DR / Temp HP / Phasing still resolve per creature.
+ *   - Instant Damage AoE: ONE shared Damage Pool (Power Dice + Weapon or Spell
+ *     Focus) rolled once; the same raw total goes to every hit creature; armor /
+ *     DR / Temp HP / Phasing still resolve per creature.
+ *   - Special-only AoE: no Damage Pool / Dialog / Maximization — Specials only.
  *   - The full printed Special goes to every hit creature (no distribution).
- *   - NO Primary Target. NO Weapon Damage. NO Spell Focus damage.
+ *   - NO Primary Target. Allies are filtered out of the AoE pool.
  *
- * Default (and only) flow: `resolveAoeFromSharedRoll` → every token gets its own
- * hit check + Dive for Cover; one damage dialog rolls the Power damage / Specials
- * once (against the first remaining hit, purely as the roll surface); the same
- * payload is then applied automatically to every other hit — no extra confirm,
- * no Primary Target, no distribution (including pure Special AoEs with 0 damage).
+ * Default flow: `resolveAoeFromSharedRoll` → every token gets its own hit check +
+ * Dive for Cover; one damage dialog (when damaging) rolls the shared pool once
+ * against the first remaining hit as the roll surface; the same payload applies
+ * automatically to every other hit — no extra confirm, no Primary Target.
  */
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
 export declare function resolveBurstTarget(tid: string): {
@@ -83,13 +84,14 @@ export declare function aoeCreatureHitCheck(params: {
     finalTn: number;
 };
 /**
- * Force the Instant AoE damage rules onto a flag bag: Power damage only, so the
- * damage dialog never adds Weapon Damage or Spell Focus damage.
+ * Mark Instant AoE on a flag bag. Instant Damage AoE keeps Weapon / Spell Focus
+ * when otherwise legal. Special-only AoE forces zero direct damage.
  */
 export declare function withInstantAoeFlags<T extends Record<string, any>>(flags: T | null | undefined): T & {
-    ignoreWeaponDamage: true;
     instantAoe: true;
     aoeMeleeWeapon: true;
+    specialOnly?: true;
+    ignoreWeaponDamage?: true;
 };
 /** Shared AoE damage payload — rolled once, applied to every remaining hit. */
 export type SharedAoeDamagePayload = {

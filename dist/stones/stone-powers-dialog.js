@@ -453,6 +453,11 @@ export class StonePowersDialog extends BaseDialog {
     _stoneRoundPlanHydratedKey = null;
     /** Stones already confirmed this round — show assignment, do not spend again. */
     _stoneReviewMode = false;
+    /**
+     * Batch 6.1: while maintaining a Buff, "Change Active Buff" expands the option
+     * list. Independent of stone confirmation. Cancel closes without replacing.
+     */
+    _activeBuffChangeOpen = false;
     /** Interactive powers staged by the confirm that is currently paying. */
     _resolutionBatch = [];
     /** Free support ranks the player accepted while planning. Spent only on confirm. */
@@ -1094,7 +1099,9 @@ export class StonePowersDialog extends BaseDialog {
             actor: this.actor,
             pools,
             passivesCta: this.#passivesCtaContext(combat),
-            activeBuffPrep: await this.#activeBuffPrepContext(combat, stonePlanLocked || stoneReviewMode),
+            // Batch 6.1: Active Buff change/end stays available after stone confirmation.
+            // Only the Preparation window gates activation — never stonePlanLocked/review.
+            activeBuffPrep: await this.#activeBuffPrepContext(combat),
             initiativeExchange,
             preparation,
             attributePowerMatrix,
@@ -1170,7 +1177,7 @@ export class StonePowersDialog extends BaseDialog {
             noneLabel: loc('naturalRecoverySkip', 'Skip Natural Recovery'),
         };
     }
-    async #activeBuffPrepContext(combat, locked) {
+    async #activeBuffPrepContext(combat) {
         const { listActivatableActiveBuffPowers, readBuffLifecycleFlags, formatActiveBuffDurationLabel, preparationTargetRound, isActiveBuffPreparationWindow, } = await import('../combat/active-buff-lifecycle.js');
         const { activeBuffOptionMarks } = await import('../combat/active-buff-option-state.js');
         const { getTrueActiveBuffs, canRetractActiveBuffFromFlags, } = await import('../utils/active-buffs.js');
@@ -1184,14 +1191,15 @@ export class StonePowersDialog extends BaseDialog {
             ? formatActiveBuffDurationLabel(life.activationRound, life.lastActiveRound, round)
             : '';
         const rs = combat ? getRoundState(this.actor, combat) : null;
-        // Once-per-Preparation slot (no Attack Action cost). Legacy prepBaseAttackCommitted
-        // still blocks replace until retract/round reset on older fights.
-        const alreadyCommitted = !!(rs?.activeBuffUsedThisRound || rs?.prepBaseAttackCommitted);
+        // Z01 / 6.1: no general per-Prep / per-Combat activation limit. Prep window only.
+        const alreadyCommitted = false;
         const windowOpen = combat ? isActiveBuffPreparationWindow(this.actor, combat) : false;
+        // Stone confirmation must never lock Active Buff change/end.
+        const selectionLocked = !windowOpen;
         const pendingEmpowerPl = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.activeBuffPlBonus ?? 0) || 0));
         const pendingEmpowerRounds = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.extendActiveBuffRounds ?? 0) || 0));
         const pendingEmpowerment = pendingEmpowerPl > 0 || pendingEmpowerRounds > 0
-            ? `Empowerment ready: +${pendingEmpowerPl} PL, +${pendingEmpowerRounds} Round${pendingEmpowerRounds === 1 ? '' : 's'} on the next activate/replace (PL cap 16; once per Combat). Maintaining does not apply it.`
+            ? `Empowerment ready: +${pendingEmpowerPl} PL, +${pendingEmpowerRounds} Round${pendingEmpowerRounds === 1 ? '' : 's'} on the next activate/replace (PL cap 16; Empowerment itself is once per Combat). Maintaining does not apply it.`
             : '';
         const isGM = !!globalThis.game?.user?.isGM;
         const canRetract = canRetractActiveBuffFromFlags({
@@ -1202,21 +1210,32 @@ export class StonePowersDialog extends BaseDialog {
         });
         const currentFlags = current?.flags?.['mastery-system'] ?? {};
         const currentLevel = Math.max(1, Math.floor(Number(currentFlags.effectiveLevel ?? currentFlags.level ?? 1) || 1));
-        const currentEffect = String(currentFlags.effectText ||
+        let currentEffect = String(currentFlags.effectText ||
             currentFlags.mechanics?.effectText ||
             current?.description ||
             '').replace(/<[^>]+>/g, '').trim();
+        // Batch 8: surface Special(X) + radius for Special Auras in the Prep status line.
+        try {
+            const { specialAuraLabel, isSpecialAuraTemplateId } = await import('../combat/special-aura-runtime.js');
+            const tplId = String(currentFlags.powerTemplateId || '');
+            const auraMech = currentFlags.mechanics?.activeSpecialAura;
+            if (isSpecialAuraTemplateId(tplId) && auraMech) {
+                const label = specialAuraLabel(String(auraMech.special || ''), Number(auraMech.rank) || 0);
+                const radius = Number(auraMech.radiusM) || 0;
+                if (label && radius > 0) {
+                    currentEffect = `${label} · Radius ${radius} m${currentEffect ? ` — ${currentEffect}` : ''}`;
+                }
+            }
+        }
+        catch {
+            /* optional */
+        }
+        const stoneConfirmed = this.#isStoneAssignmentReviewMode();
         const unavailableReason = !windowOpen
-            ? 'Active Buffs can be chosen only during the Preparation Phase.'
-            : alreadyCommitted
-                ? 'You already activated or replaced an Active Buff this Preparation.'
-                : locked
-                    ? 'Stone plan is locked — Active Buff selection is unavailable.'
-                    : '';
+            ? 'Preparation ended — you may still End the Active Buff, but cannot activate or replace until the next Preparation Phase.'
+            : '';
         const retractHint = canRetract
-            ? windowOpen
-                ? 'Retract undoes this Preparation activation so you can choose again.'
-                : 'GM: end the maintained Buff anytime.'
+            ? 'End Active Buff — removes effects immediately. Limited Buff resources (Critical, Maximization, …) are not restored. Confirmed Stones are unchanged.'
             : '';
         const optionRefs = powers.map((p) => ({
             id: String(p.id || p._id || ''),
@@ -1226,21 +1245,33 @@ export class StonePowersDialog extends BaseDialog {
         const options = optionRefs.map((row) => {
             const marks = activeBuffOptionMarks(row, current, round, optionRefs);
             const suffix = marks.chosenThisRound
-                ? ' — active this round'
+                ? ' — currently active'
                 : marks.isActive
-                    ? ' — active'
+                    ? ' — currently active'
                     : current
                         ? ' — replace'
                         : '';
             return { ...row, ...marks, isCurrent: marks.isActive, suffix };
         });
+        const replaceOptions = options.filter((row) => !row.isActive);
+        // Change mode: expand selection while maintaining. Auto-open when none active.
+        if (!current)
+            this._activeBuffChangeOpen = false;
+        const changeOpen = !!current && windowOpen ? this._activeBuffChangeOpen : !current && windowOpen;
+        const showOptions = windowOpen && (changeOpen || !current);
         return {
             show: powers.length > 0 || !!current,
-            locked: locked || !windowOpen || alreadyCommitted,
+            /** Activation/replace locked only when Preparation is closed — not by stone confirm. */
+            locked: selectionLocked,
             alreadyCommitted,
             windowOpen,
+            stoneConfirmed,
             canRetract,
             retractHint,
+            canChange: !!current && windowOpen && options.length > 1,
+            changeOpen: !!current && windowOpen && this._activeBuffChangeOpen,
+            showOptions,
+            showCancelChange: !!current && windowOpen && this._activeBuffChangeOpen,
             pendingEmpowerment,
             currentName: current ? String(current.name || 'Active Buff') : '',
             currentLevel: current ? currentLevel : 0,
@@ -1248,12 +1279,13 @@ export class StonePowersDialog extends BaseDialog {
             durationLabel,
             maintaining: !!current,
             chosenThisRound: options.some((row) => row.chosenThisRound),
-            options,
-            hint: alreadyCommitted
-                ? 'Active Buff already chosen this Preparation. Maintaining costs nothing next Round until you replace it.'
-                : current
-                    ? 'Keep the maintained Buff free of charge, or replace it (no Attack Action cost; once per Preparation). Empowerment applies only on activate/replace, not on maintain.'
-                    : 'Activating or replacing an Active Buff does not spend an Attack Action (once per Preparation).',
+            options: showOptions ? (current ? replaceOptions : options) : [],
+            allOptions: options,
+            hint: current
+                ? stoneConfirmed
+                    ? 'Stones are confirmed — Active Buff may still be changed or ended during Preparation. Confirmed Stones stay as-is.'
+                    : 'Only one Active Buff at a time. Change during Preparation (prior ends first) or End anytime. No Attack Action or Stone cost.'
+                : 'Activate during Preparation — no Attack Action or Stone cost. Independent of Stone confirmation.',
             unavailableReason,
         };
     }
@@ -2170,13 +2202,30 @@ export class StonePowersDialog extends BaseDialog {
         this.#bindNaturalRecoveryControls(root);
         this.#bindSectionToggles(root);
         this.#bindStoneHelp(root);
+        const changeBuffBtn = root.querySelector('.js-change-active-buff');
+        if (changeBuffBtn) {
+            changeBuffBtn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this._activeBuffChangeOpen = true;
+                await this.#renderKeepingScroll();
+            };
+        }
+        const cancelBuffChangeBtn = root.querySelector('.js-cancel-active-buff-change');
+        if (cancelBuffChangeBtn) {
+            cancelBuffChangeBtn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this._activeBuffChangeOpen = false;
+                await this.#renderKeepingScroll();
+            };
+        }
         const buffBtns = root.querySelectorAll('.js-activate-active-buff');
         buffBtns.forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                if (this.#isStoneDialogLocked())
-                    return;
+                // Batch 6.1: Buff activate/replace is independent of stone confirmation lock.
                 if (btn.disabled)
                     return;
                 if (btn.classList.contains('is-active'))
@@ -2195,8 +2244,10 @@ export class StonePowersDialog extends BaseDialog {
                         if (synth?.__artifactOption && synth?.__artifactItem) {
                             const { activateArtifactActiveBuff } = await import('../utils/artifact-active-buffs.js');
                             const ok = await activateArtifactActiveBuff(this.actor, synth.__artifactItem, synth.__artifactOption);
-                            if (ok)
+                            if (ok) {
+                                this._activeBuffChangeOpen = false;
                                 await this.#renderKeepingScroll();
+                            }
                             return;
                         }
                     }
@@ -2211,8 +2262,10 @@ export class StonePowersDialog extends BaseDialog {
                 try {
                     const { activateActiveBuff } = await import('../utils/active-buffs.js');
                     const ok = await activateActiveBuff(this.actor, item);
-                    if (ok)
+                    if (ok) {
+                        this._activeBuffChangeOpen = false;
                         await this.#renderKeepingScroll();
+                    }
                 }
                 catch (err) {
                     console.warn('Mastery System | Preparation Active Buff activate failed', err);
@@ -2224,11 +2277,14 @@ export class StonePowersDialog extends BaseDialog {
             retractBtn.onclick = async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
+                // End is allowed anytime (including after stone confirmation / after Prep).
                 try {
                     const { retractActiveBuffActivation } = await import('../utils/active-buffs.js');
                     const result = await retractActiveBuffActivation(this.actor);
-                    if (result.ok)
+                    if (result.ok) {
+                        this._activeBuffChangeOpen = false;
                         await this.#renderKeepingScroll();
+                    }
                 }
                 catch (err) {
                     console.warn('Mastery System | Active Buff retract failed', err);

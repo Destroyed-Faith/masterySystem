@@ -50,7 +50,7 @@ export const TOWER_WIZARD_COPY = {
         body: 'This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time. Hover a tile for full details.',
         replacing: 'Replacing',
         rankPreview: 'At PL 4',
-        durationNote: 'In combat: activate during Preparation (commits base Attack Action)',
+        durationNote: 'In combat: activate during Preparation (no Attack Action or Stone cost)',
     },
     offenseDelivery: {
         heading: 'Attack style',

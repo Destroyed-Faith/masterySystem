@@ -1165,6 +1165,15 @@ Hooks.once('init', async function() {
     } catch (err) {
       console.error('Mastery System | Persistent Zone turn-start apply failed', err);
     }
+    // Z05 Special Auras: after ticks / recovery / decay / zones — once per Aura×target×Round.
+    try {
+      const { applySpecialAurasAtTargetTurnStart } = await import(
+        './combat/special-aura-runtime.js'
+      );
+      await applySpecialAurasAtTargetTurnStart(turnActor, combat);
+    } catch (err) {
+      console.error('Mastery System | Special Aura turn-start apply failed', err);
+    }
     try {
       const { resetMovementForTurn } = await import('./combat/movement-tracker.js');
       await resetMovementForTurn(turnActor);

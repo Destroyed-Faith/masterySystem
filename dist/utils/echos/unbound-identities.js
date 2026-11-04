@@ -89,8 +89,8 @@ export const UNBOUND_IDENTITIES = [
         artifactName: "Hunter's Scourge",
         artifactKey: 'huntersScourge',
         slotLabel: 'Main Hand + Off Hand',
-        summary: 'Pull the monster close and burn it out of the world with chain, lash, and exorcism.',
-        technical: 'Melee Attack + Exorcism / Artifact Reaction: Damage + Pull / Melee AoE Attack + Exorcism',
+        summary: 'Pull the monster close and burn it out of the world with chain, lash, and scourge.',
+        technical: 'Limited Melee Single Target Attack (Scourge Strike) / Vitality: Maximization Support / Melee Single Target Special: Expose (Unmask the Prey)',
     },
 ];
 export const UNBOUND_IDENTITY_GROUPS = ['Beasts', 'Witches', 'Banes'];

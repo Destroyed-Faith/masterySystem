@@ -33,6 +33,11 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneRoundPlanHydratedKey;
     /** Stones already confirmed this round — show assignment, do not spend again. */
     private _stoneReviewMode;
+    /**
+     * Batch 6.1: while maintaining a Buff, "Change Active Buff" expands the option
+     * list. Independent of stone confirmation. Cancel closes without replacing.
+     */
+    private _activeBuffChangeOpen;
     /** Interactive powers staged by the confirm that is currently paying. */
     private _resolutionBatch;
     /** Free support ranks the player accepted while planning. Spent only on confirm. */

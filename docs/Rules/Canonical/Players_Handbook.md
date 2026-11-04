@@ -198,7 +198,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Version: v0.9.9.5 (2026-10-15)  
-Playtest rules revision: 2026-11-04 (AoE damage, pure Special AoE, Ruin x4, Limited, special stacking).
+
 }}
 
 }}
@@ -3362,7 +3362,7 @@ Alchemist Coat uses the normal Medium Armor drawbacks unless another rule explic
 
 #### Alchemist Potions
 
-Alchemist Potions are normal **Active Buffs** and follow the universal free Preparation Phase activation, one-maintained-Buff limit, voluntary end, free Preparation replacement, and MR-Round duration. Only one Buff may be active at a time. Replacing a Potion with another Buff ends the previous Potion first and does not restore already consumed limited-use resources. The Potion name is only the Artifact's flavour name; the mechanical Power is the listed existing Active Buff.
+Alchemist Potions are normal **Active Buffs** and follow the universal free Preparation Phase activation, one-maintained-Buff limit, voluntary end, free Preparation replacement (including after Stone Confirmation), and MR-Round duration. Only one Buff may be active at a time. Replacing a Potion with another Buff ends the previous Potion first and does not restore already consumed limited-use resources. The Potion name is only the Artifact's flavour name; the mechanical Power is the listed existing Active Buff.
 
 ---
 
@@ -4860,7 +4860,7 @@ If a creature initiates combat against an enemy that is unaware of it, the attac
 Each combat follows this structure:
 
 1. **Preparation Phase**
-The Preparation Phase takes place before the Round begins. Creatures prepare Stone Abilities and may activate their **single Active Buff for that Combat**, if it has not already been activated, before any Turn. Round-based benefits apply throughout the upcoming Round, regardless of Initiative Order.
+The Preparation Phase takes place before the Round begins. Creatures prepare Stone Abilities and may activate or replace their **one simultaneously maintained Active Buff** before any Turn. There is no general once-per-Combat Buff activation limit. Round-based benefits apply throughout the upcoming Round, regardless of Initiative Order.
 
    - At the start of this Phase, first receive Ready Absorption Stones earned through eligible Scarred Health Bars since the previous Preparation Phase.
    - On the first Round only, roll Initiative.
@@ -4870,7 +4870,7 @@ The Preparation Phase takes place before the Round begins. Creatures prepare Sto
    - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Initiative Colorless Stones on their other Stone Abilities for the Round.
    - Defensive and passive Stone values that apply during the Round become active immediately.
    - Stone Abilities with a Turn timing or trigger are prepared now but resolve at their specified time.
-   - If you have not yet used your once-per-Combat activation, activate an **Active Buff** here for **no Attack Action or Stone cost**. An already maintained Buff remains active without replacement or refresh. Apply any eligible **Active Buff Empowerment** in this Phase and initialize the Buff's resources normally.
+   - During this Phase, freely activate or replace **one maintained Active Buff** for **no Attack Action or Stone cost**, including after confirming Stones while still in Preparation. End the prior Buff completely before applying the new one; preserve the confirmed Stone plan. **Active Buff Empowerment** keeps its independent once-per-Combat allowance. Do not replenish spent Critical/Maximization or duplicate Round-based resources when switching.
    - Once Preparation choices are complete, determine Initiative Order and lock it for this Round.
 
 2. **Resolve Turns**
@@ -6855,7 +6855,7 @@ The creator must spend **one Attack Action per maintained Zone at the start of e
 
 ### Special Auras
 
-A Special Aura is **not a placed Zone**. It is an **Active Buff** with **Self range and a radius centered on its caster**; the radius moves with them. It is a self-centered melee-radius area, **not a Melee Attack or an attack-delivery roll**. It is activated freely in the Preparation Phase under the normal Active Buff lifecycle (one maintained Buff, voluntary end, free Preparation replace including after Stone Confirmation), lasts **MR complete Rounds**, and costs no Attack Actions to sustain. It applies its printed Special automatically with the same **one application per Aura/creature/Combat Round** rule. **The Aura caster alone is immune to their own Aura; every other creature in the radius, including allies and Summons, is affected**, without target selection or further exceptions. Special Auras make no Attack/Casting/Damage Roll and grant no Weapon or Spell Focus Damage. See the new Special Aura Active Buff entries for Power-Level values.
+A Special Aura is **not a placed Zone**. It is an **Active Buff** with **Self range and a radius centered on its caster**; the radius moves with them. It is a self-centered melee-radius area, **not a Melee Attack or an attack-delivery roll**. It is activated freely in the Preparation Phase under the normal Active Buff lifecycle (one maintained Buff, voluntary end, free Preparation replace including after Stone Confirmation). The catalogue contains **fourteen** named Special Aura Powers, each with one fixed printed Special. It lasts **MR complete Rounds** and costs no Attack Actions to sustain. It applies its printed Special automatically with the same **one application per Aura/creature/Combat Round** rule. **The Aura caster alone is immune to their own Aura; every other creature in the radius, including allies and Summons, is affected**, without target selection or further exceptions. Special Auras make no Attack/Casting/Damage Roll and grant no Weapon or Spell Focus Damage. See the Special Aura Active Buff entries for Power-Level values.
 
 ---
 :
@@ -7003,13 +7003,13 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 ### Active Buffs
 
-**Aura classification:** **Special Auras are Active Buffs**: Self-range, caster-centered and moving, automatically applying only their printed Special to every creature in radius **except the Aura caster**; allies are not exempt. They occupy the single maintained Active Buff while active and last MR complete Rounds. **Persistent Special Zones remain stationary Actives**, placed with one Attack Action and sustained with one Attack Action per Zone each subsequent creator Turn; overlapping Zones are allowed.
+**Aura classification:** **Special Auras are Active Buffs**: Self-range, caster-centered and moving, automatically applying only their printed Special to every creature in radius **except the Aura caster**; allies are not exempt. They occupy the single simultaneously maintained Active Buff slot and last MR complete Rounds per activation. **Persistent Special Zones remain stationary Actives**, placed with one Attack Action and sustained with one Attack Action per Zone each subsequent creator Turn; overlapping Zones are allowed.
 
 **Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. Their Artifact/Echo references (Oracle Field, Draconic Roar and Moonlight Shadow) remain pending deliberate replacement. The new Special Aura Active Buffs do **not** automatically replace those effects or alter their Artifact progression.
 
-Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating or replacing an Active Buff during the Preparation Phase costs **no Attack Action and no Stones**. It does not remove or commit the character's base Attack Action for the upcoming Round. Preparation activate/replace/end choices remain available for that Round's Preparation, including **after Stone Confirmation**.
+Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff during the Preparation Phase costs **no Attack Action and no Stones**. It does not remove or commit the character's base Attack Action for the upcoming Round.
 
-**Activation and Duration:** The Active Buff becomes effective at the beginning of the upcoming Round, before any creature takes its Turn. It normally lasts **Mastery Rank complete Rounds**. The activation Round counts as the first Round. At **Round End** of the final Round, the Buff expires. Its duration is independent of the activating character's Initiative or Turn. Each new activation receives its own full printed duration. **Maintenance and Replacement:** Only one Active Buff may be maintained at a time. The active Buff may be voluntarily ended at any time. During Preparation, the character may freely activate another Active Buff, ending the previous Buff first if necessary. There is no general per-Combat activation or replacement limit. Replacing or reactivating a Buff does not restore already consumed limited-use resources unless their specific rules explicitly allow it. A Buff cannot stack with itself. All other individual Buff mechanics, including Maximization's printed combat-wide allowances, are unchanged.
+**Activation and Duration:** The Active Buff becomes effective at the beginning of the upcoming Round, before any creature takes its Turn. It normally lasts **Mastery Rank complete Rounds**. The activation Round counts as the first Round. At **Round End** of the final Round, the Buff expires. Its duration is independent of the activating character's Initiative or Turn. **Maintenance and Replacement:** A character may maintain **only one Active Buff at a time**; the active Buff can be ended voluntarily at any time and freely replaced or reactivated in a Preparation Phase, even after Stone Confirmation. End the old Buff and its modifiers before the new Buff starts; each activation has a fresh MR-complete-Round duration, but spent per-Combat resources never refresh. A Buff never stacks with itself. All individual Buff mechanics, including Maximization's printed combat-wide allowances, remain unchanged.
 
 **Round-Based Resources:** Resources granted by an Active Buff for each Round become available during the activation Preparation Phase and refresh once during each subsequent Preparation Phase while the Buff remains active. Unused Round-based resources expire at Round End. Other effects with explicitly defined triggers, such as Start of Turn or End of Turn, retain those triggers unless the specific Buff states otherwise. Active Buffs cannot be activated or replaced during a creature's Turn or through an ordinary Attack Action. Explicit exceptions must be stated in their own rules.
 
@@ -7017,7 +7017,7 @@ Active Buffs are temporary combat enhancements that are activated during the **P
 
 #### Active Buff Limits
 
-Apply the **Preparation Phase activation rules above**: free activate/replace in Preparation (including after Stone Confirmation), one maintained Buff, voluntary end anytime, no general per-Combat activation limit, consumed limited-use resources not refilled by replace, and no self-stacking. Only an explicit written exception overrides a limit.
+Apply the **Preparation Phase activation rules above**: free activation or replacement in Preparation, a maximum of **one concurrently maintained Active Buff**, free voluntary ending at any time, and no self-stacking. Per-Combat limits on particular Buff effects remain in force. Only an explicit written exception overrides a limit.
 
 ---
 
@@ -7027,7 +7027,7 @@ Active Buffs may be:
 - single-focus offensive buffs,
 - or dedicated premium subsystem buffs.
 
-Combined Active Buffs are not selectable in this beta release. The **six former generic damage/armor/support Aura Buffs stay retired**, but the new **Ruin, Corrode and Blight Special Auras are explicitly permitted Active Buffs**. Other Active Buffs do not apply Specials by default. Persistent Special Zones remain Actives with ongoing Action maintenance. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
+Combined Active Buffs are not selectable in this beta release. The **six former generic damage/armor/support Aura Buffs stay retired**, but the **fourteen catalogued Special Auras** (Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken) are explicitly permitted Active Buffs. Other Active Buffs do not apply Specials by default. Persistent Special Zones remain Actives with ongoing Action maintenance. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
 
 See: <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs</a>
 
@@ -9130,7 +9130,7 @@ If this yields zero, the natural-8 minimum still deals **1 damage per natural 8 
 
 #### **12) Active Buffs**
 
-Activate or replace **one maintained Active Buff** during **Preparation**, for **no Attack Action or Stone cost**, including after Stone Confirmation. End it voluntarily at any time. There is no general per-Combat activation limit. It lasts **MR full Rounds**, including the activation Round. Replacing or reactivating does not refill already consumed limited-use resources. Eligible Temporary HP/Damage Negation pools still refresh during Preparation while the Buff remains active, under their printed rules.
+Maintain **one Active Buff at a time**. Activate or replace it freely during **Preparation**, including after Stone Confirmation, for **no Attack Action or Stone cost**; voluntary ending is possible at any time. Each activation lasts **MR full Rounds**, counting the activation Round. There is no general per-Combat activation limit, but spent individual per-Combat uses cannot be restored by replacing the Buff. Round-based Temporary HP/Damage Negation pools obey their printed refresh rules and cannot be duplicated by switching.
 
 #### **13) Stones**
 

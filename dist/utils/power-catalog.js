@@ -46,14 +46,13 @@ export const CATEGORY_LABELS = {
     passive: 'Passive',
 };
 /**
- * Final Active Buff catalogue (`docs/Rules/active-buffs.md` TOC + Offensive Expansion 2026-10-24).
- * New-Power pickers may only offer these 25; legacy templates remain in
- * `ACTIVE_BUFF_TEMPLATES` for owned items and direct `templateId` grants.
+ * Final Active Buff catalogue (Canonical Active_Buffs.md + Batch 8.1 Special Auras).
+ * New-Power pickers may only offer these IDs. Legacy aura templates remain in
+ * `ACTIVE_BUFF_TEMPLATES` for owned items / Artifact grants (Batch 9 redesign).
  */
 export const FINAL_ACTIVE_BUFF_TEMPLATE_IDS = [
     'ab-armor',
     'ab-evade',
-    'ab-armor-aura',
     'ab-temp-hp',
     'ab-damage-reduction',
     'ab-phasing',
@@ -64,28 +63,39 @@ export const FINAL_ACTIVE_BUFF_TEMPLATE_IDS = [
     'ab-reinforced-damage-negation',
     'ab-damage',
     'ab-critical',
-    'ab-damage-aura',
-    'ab-summon-damage-aura',
     'ab-thorns',
-    'ab-summon-armor-aura',
     'ab-intensified-absorption',
     'ab-armor-reduction',
     'ab-enemy-evade-reduction',
     'ab-spell-resistance-piercing',
     'ab-maximization',
-    'ab-armor-reduction-aura',
-    'ab-allied-damage-aura',
     'ab-area-expansion',
+    'ab-blight-aura',
+    'ab-challenge-aura',
+    'ab-corrode-aura',
+    'ab-disoriented-aura',
+    'ab-expose-aura',
+    'ab-hex-aura',
+    'ab-lacerate-aura',
+    'ab-mark-aura',
+    'ab-root-aura',
+    'ab-ruin-aura',
+    'ab-slow-aura',
+    'ab-soulburn-aura',
+    'ab-sundered-aura',
+    'ab-weaken-aura',
 ];
 const FINAL_ACTIVE_BUFF_INDEX = new Map(FINAL_ACTIVE_BUFF_TEMPLATE_IDS.map((id, i) => [id, i]));
-/** True when `templateId` is in the official 25-buff selection catalogue. */
+/** True when `templateId` is in the official 33-buff selection catalogue (Batch 8.1). */
 export function isSelectableActiveBuffTemplateId(templateId) {
     return FINAL_ACTIVE_BUFF_INDEX.has(String(templateId || '').trim());
 }
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export const SUBFAMILY_LABELS = {
+    'special-aura': 'Special Aura',
     'damage-single': 'Single-Target Special Attack',
     'damage-aoe': 'Area Special Attack',
+    'instant-special-single': 'Instant Single-Special',
     'weapon-attack': 'Weapon Attack',
     'weapon-single': 'Weapon Attack',
     control: 'Control & Movement',
@@ -100,7 +110,8 @@ export const SUBFAMILY_LABELS = {
 };
 export const SUBFAMILY_HINTS = {
     'damage-single': 'One target. Damage and Special come from the Power itself, not your weapon.',
-    'damage-aoe': 'Hits an area. Damage and Special come from the Power itself, not your weapon.',
+    'damage-aoe': 'Hits an area. Special-only Instant AoE — no direct Damage Pool; Specials apply to every creature hit.',
+    'instant-special-single': 'One target. Special-only Instant Active — Attack/Casting roll only; no Power, Weapon, or Spell Focus damage.',
     'weapon-attack': 'Uses your equipped weapon’s damage dice and weapon Specials.',
     'weapon-single': 'Uses your equipped weapon’s damage dice and weapon Specials.',
     control: 'Locks down or repositions a target.',

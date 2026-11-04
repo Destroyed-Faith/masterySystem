@@ -6,24 +6,26 @@
  * A miss against one creature does not protect any other. Creatures that would
  * be hit may use Dive for Cover before payload.
  *
- * Instant AoE rules (Destroyed Faith Active Powers):
+ * Instant AoE rules (Destroyed Faith Active Powers / Core 2026-11-04):
  *   - ONE shared Attack/Casting roll for the whole AoE.
- *   - ONE shared Power damage roll (if damaging): the same raw total goes to every
- *     hit creature; armor / DR / Temp HP / Phasing still resolve per creature.
+ *   - Instant Damage AoE: ONE shared Damage Pool (Power Dice + Weapon or Spell
+ *     Focus) rolled once; the same raw total goes to every hit creature; armor /
+ *     DR / Temp HP / Phasing still resolve per creature.
+ *   - Special-only AoE: no Damage Pool / Dialog / Maximization — Specials only.
  *   - The full printed Special goes to every hit creature (no distribution).
- *   - NO Primary Target. NO Weapon Damage. NO Spell Focus damage.
+ *   - NO Primary Target. Allies are filtered out of the AoE pool.
  *
- * Default (and only) flow: `resolveAoeFromSharedRoll` → every token gets its own
- * hit check + Dive for Cover; one damage dialog rolls the Power damage / Specials
- * once (against the first remaining hit, purely as the roll surface); the same
- * payload is then applied automatically to every other hit — no extra confirm,
- * no Primary Target, no distribution (including pure Special AoEs with 0 damage).
+ * Default flow: `resolveAoeFromSharedRoll` → every token gets its own hit check +
+ * Dive for Cover; one damage dialog (when damaging) rolls the shared pool once
+ * against the first remaining hit as the roll surface; the same payload applies
+ * automatically to every other hit — no extra confirm, no Primary Target.
  */
 import { getActionEconomyActor, getRoundState, spendReactionAction, } from './action-economy.js';
 import { actorParticipatesInReactions } from '../utils/npc-reactions.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from './attack-executor.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
+import { isSpecialOnlyAttack } from './damage-transfer.js';
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
 export function resolveBurstTarget(tid) {
     const placeables = canvas?.tokens?.placeables ?? [];
@@ -199,15 +201,20 @@ export function aoeCreatureHitCheck(params) {
     return { hit: total >= finalTn, raiseTn: finalTn, finalTn };
 }
 /**
- * Force the Instant AoE damage rules onto a flag bag: Power damage only, so the
- * damage dialog never adds Weapon Damage or Spell Focus damage.
+ * Mark Instant AoE on a flag bag. Instant Damage AoE keeps Weapon / Spell Focus
+ * when otherwise legal. Special-only AoE forces zero direct damage.
  */
 export function withInstantAoeFlags(flags) {
+    const base = { ...(flags ?? {}) };
+    // Same classifier as damage-transfer / radial — never a local template regex.
+    const specialOnly = isSpecialOnlyAttack(base);
     return {
-        ...(flags ?? {}),
-        ignoreWeaponDamage: true,
+        ...base,
         instantAoe: true,
         aoeMeleeWeapon: true,
+        ...(specialOnly
+            ? { specialOnly: true, ignoreWeaponDamage: true }
+            : {}),
     };
 }
 export function toSharedAoeDamagePayload(result) {
@@ -663,7 +670,7 @@ export async function resolveAoeMeleeSecondaries(params) {
     const isSpell = params.isSpell === true;
     const attackTotal = Math.floor(Number(params.attackTotal) || 0);
     const raiseSlots = Math.max(0, Math.floor(Number(params.declaredRaiseSlots) || 0));
-    const flags = { ...(params.flags || {}) };
+    const flags = withInstantAoeFlags({ ...(params.flags || {}) });
     const weaponId = params.weaponId ?? flags.weaponId ?? null;
     if (!secondaryTokenIds.length)
         return;
@@ -759,10 +766,9 @@ export async function resolveAoeMeleeSecondaries(params) {
     /** Token id of the dialog surface (prefer token identity when filtering rest). */
     let rollerTokId = null;
     // Open one damage dialog (against the first remaining hit, purely as the roll
-    // surface) to roll the Power damage / Specials once, then share that payload
-    // with every other hit automatically. The roller is not a "primary" — same raw
-    // damage + full Special for all. No extra Apply-to-all confirm (pure Special
-    // AoEs with 0 damage must still deliver Slow etc. to every hit).
+    // surface) to roll the shared Damage Pool / Specials once, then share that
+    // payload with every other hit. Special-only AoE skips the dialog entirely.
+    // The roller is not a "primary" — same raw damage + full Special for all.
     if (!shared) {
         const roller = pending[0];
         const targetFlags = {
@@ -774,80 +780,137 @@ export async function resolveAoeMeleeSecondaries(params) {
             baseEvade: roller.evadeTn,
             targetEvade: roller.evadeTn,
         };
-        const { showDamageDialog, applyDamageToTarget, resolveForcedMovementAfterDamage } = await import('../dice/damage-dialog.js');
-        const damageResult = await showDamageDialog(attacker, roller.defender, weaponId, targetFlags.selectedPowerId || null, 0, targetFlags);
-        if (!damageResult || damageResult.mitigation?.phased)
-            return;
-        shared = toSharedAoeDamagePayload(damageResult);
-        if (!shared)
-            return;
-        rollerActorId = String(roller.defender.id || '');
-        rollerTokId = roller.tok?.id ? String(roller.tok.id) : null;
-        shared.specialsAppliedToTargetId = rollerActorId || null;
-        // Apply HP to the roller (Specials already applied inside the dialog).
-        let rollerMitLine = 'Applied (shared AoE roll).';
-        if (damageResult.pendingApply) {
-            let phasedOut = false;
-            try {
-                const { promptPhasingConsume, consumePhasingCharge } = await import('./phasing.js');
-                phasedOut = await promptPhasingConsume(roller.defender, {
-                    attacker,
-                    rawDamage: damageResult.totalDamage,
+        const { isSpecialOnlyAttack } = await import('./damage-transfer.js');
+        const { isRaiseAllocationComplete, buildAvailableRaiseOptions, resolvePowerSnapshot, snapshotToSpecialStrings, } = await import('./raise-resolution.js');
+        const { peekSharedRaiseAllocation, raiseAllocShareKey } = await import('./shared-raise-allocation.js');
+        const specialOnly = isSpecialOnlyAttack(targetFlags);
+        const raiseSlotsNeeded = targetFlags.npcRaisesDisabled
+            ? 0
+            : Math.max(0, Math.floor(Number(targetFlags.successfulRaiseSlots) || 0));
+        const raiseOpts = targetFlags.npcRaisesDisabled
+            ? []
+            : Array.isArray(targetFlags.raiseOptions)
+                ? targetFlags.raiseOptions
+                : targetFlags.basePowerSnapshot
+                    ? buildAvailableRaiseOptions(targetFlags.basePowerSnapshot, !!targetFlags.powerIsSpell || isSpell)
+                    : [];
+        const aoeShareKey = raiseAllocShareKey(targetFlags);
+        const sharedRaises = aoeShareKey ? peekSharedRaiseAllocation(aoeShareKey) : null;
+        let raisePlan = Array.isArray(targetFlags.declaredRaises)
+            ? [...targetFlags.declaredRaises]
+            : [];
+        if (sharedRaises?.length)
+            raisePlan = sharedRaises;
+        const specialOnlyNeedsAlloc = specialOnly &&
+            raiseSlotsNeeded > 0 &&
+            raiseOpts.length > 0 &&
+            !isRaiseAllocationComplete(raisePlan, raiseSlotsNeeded, raiseOpts);
+        // Special-only with no pending Raise UI: apply resolved Specials with zero damage.
+        // When Raises still need allocation (or damaging Instant AoE), open the shared dialog once.
+        if (specialOnly && !specialOnlyNeedsAlloc) {
+            let specialsUsed = [];
+            if (targetFlags.basePowerSnapshot) {
+                const mr = Math.max(1, Math.floor(Number(targetFlags.masteryRank) || getRulesMasteryRank(attacker) || 2));
+                const resolved = resolvePowerSnapshot({
+                    base: targetFlags.basePowerSnapshot,
+                    declaredRaises: raisePlan,
+                    outcome: 'full',
+                    masteryRank: mr,
+                    isSpell: !!targetFlags.powerIsSpell || isSpell,
                 });
-                if (phasedOut)
-                    await consumePhasingCharge(roller.defender);
+                specialsUsed = snapshotToSpecialStrings(resolved);
             }
-            catch {
-                phasedOut = false;
+            else if (Array.isArray(targetFlags.selectedPowerSpecials)) {
+                specialsUsed = targetFlags.selectedPowerSpecials
+                    .map((s) => String(s || '').trim())
+                    .filter(Boolean);
             }
-            if (phasedOut) {
-                rollerMitLine = `Raw ${damageResult.totalDamage} → Phased (ignored)`;
-            }
-            else {
-                const mit = await applyDamageToTarget(roller.defender, damageResult.totalDamage, attacker, damageResult.count8s ?? 0, {
-                    attackTotal,
-                    evadeTn: roller.evadeTn,
-                    armorPenetration: Math.max(0, Math.floor(Number(damageResult.attackContext?.armorPenetration) || 0)),
-                    reactionMitigation: roller.preDamage?.mitigation,
-                    skipPhasing: true,
-                    skipReactionPrompt: true,
-                });
-                rollerMitLine = mit?.breakdownLine || rollerMitLine;
-                if (!mit?.phased) {
-                    await resolveForcedMovementAfterDamage(attacker, roller.defender, damageResult.specialsUsed, 'AoE');
+            shared = {
+                totalDamage: 0,
+                count8s: 0,
+                specialsUsed,
+                rollDetails: ['Special-only Attack — no direct damage'],
+            };
+            // Apply Specials to every hit below (do not mark roller as already applied).
+            rollerActorId = null;
+            rollerTokId = null;
+        }
+        else {
+            const { showDamageDialog, applyDamageToTarget, resolveForcedMovementAfterDamage } = await import('../dice/damage-dialog.js');
+            const damageResult = await showDamageDialog(attacker, roller.defender, weaponId, targetFlags.selectedPowerId || null, 0, targetFlags);
+            if (!damageResult || damageResult.mitigation?.phased)
+                return;
+            shared = toSharedAoeDamagePayload(damageResult);
+            if (!shared)
+                return;
+            rollerActorId = String(roller.defender.id || '');
+            rollerTokId = roller.tok?.id ? String(roller.tok.id) : null;
+            shared.specialsAppliedToTargetId = rollerActorId || null;
+            // Apply HP to the roller (Specials already applied inside the dialog).
+            let rollerMitLine = 'Applied (shared AoE roll).';
+            if (damageResult.pendingApply) {
+                let phasedOut = false;
+                try {
+                    const { promptPhasingConsume, consumePhasingCharge } = await import('./phasing.js');
+                    phasedOut = await promptPhasingConsume(roller.defender, {
+                        attacker,
+                        rawDamage: damageResult.totalDamage,
+                    });
+                    if (phasedOut)
+                        await consumePhasingCharge(roller.defender);
+                }
+                catch {
+                    phasedOut = false;
+                }
+                if (phasedOut) {
+                    rollerMitLine = `Raw ${damageResult.totalDamage} → Phased (ignored)`;
+                }
+                else {
+                    const mit = await applyDamageToTarget(roller.defender, damageResult.totalDamage, attacker, damageResult.count8s ?? 0, {
+                        attackTotal,
+                        evadeTn: roller.evadeTn,
+                        armorPenetration: Math.max(0, Math.floor(Number(damageResult.attackContext?.armorPenetration) || 0)),
+                        reactionMitigation: roller.preDamage?.mitigation,
+                        skipPhasing: true,
+                        skipReactionPrompt: true,
+                    });
+                    rollerMitLine = mit?.breakdownLine || rollerMitLine;
+                    if (!mit?.phased) {
+                        await resolveForcedMovementAfterDamage(attacker, roller.defender, damageResult.specialsUsed, 'AoE');
+                    }
                 }
             }
-        }
-        const statusSpecials = filterStatusSpecialLines(damageResult.specialsUsed);
-        const specialLine = statusSpecials.length
-            ? `<p><strong>Specials:</strong> ${statusSpecials.map((s) => String(s)).join(', ')}</p>`
-            : '';
-        const heading = damageResult.totalDamage > 0 || !statusSpecials.length
-            ? `AoE Damage: ${damageResult.totalDamage}`
-            : `AoE Effect (no Power damage)`;
-        try {
-            const details = Array.isArray(damageResult.rollDetails)
-                ? damageResult.rollDetails.map((l) => `<li>${String(l)}</li>`).join('')
+            const statusSpecials = filterStatusSpecialLines(damageResult.specialsUsed);
+            const specialLine = statusSpecials.length
+                ? `<p><strong>Specials:</strong> ${statusSpecials.map((s) => String(s)).join(', ')}</p>`
                 : '';
-            await ChatMessage.create({
-                user: game.user?.id,
-                speaker: ChatMessage.getSpeaker({ actor: attacker }),
-                content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${heading}</h3>` +
-                    (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
-                    specialLine +
-                    `<p><strong>Target:</strong> ${roller.defender.name}</p>` +
-                    `<p>${rollerMitLine}</p></div>`,
-                rolls: Array.isArray(damageResult.damageChatRolls)
-                    ? damageResult.damageChatRolls
-                        .map((r) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
-                        .filter(Boolean)
-                    : undefined,
-                sound: CONFIG.sounds.dice,
-            });
-        }
-        catch {
-            /* ignore */
-        }
+            const heading = damageResult.totalDamage > 0 || !statusSpecials.length
+                ? `AoE Damage: ${damageResult.totalDamage}`
+                : `AoE Effect (no Power damage)`;
+            try {
+                const details = Array.isArray(damageResult.rollDetails)
+                    ? damageResult.rollDetails.map((l) => `<li>${String(l)}</li>`).join('')
+                    : '';
+                await ChatMessage.create({
+                    user: game.user?.id,
+                    speaker: ChatMessage.getSpeaker({ actor: attacker }),
+                    content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${heading}</h3>` +
+                        (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+                        specialLine +
+                        `<p><strong>Target:</strong> ${roller.defender.name}</p>` +
+                        `<p>${rollerMitLine}</p></div>`,
+                    rolls: Array.isArray(damageResult.damageChatRolls)
+                        ? damageResult.damageChatRolls
+                            .map((r) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+                            .filter(Boolean)
+                        : undefined,
+                    sound: CONFIG.sounds.dice,
+                });
+            }
+            catch {
+                /* ignore */
+            }
+        } // end Instant Damage AoE dialog path
     }
     // Remaining hits: prefer token identity so two unlinked tokens of the same name
     // both receive the shared payload. Same linked Actor is still de-duped for

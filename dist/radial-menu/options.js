@@ -7,6 +7,7 @@ import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getAvailableAttackActions, getMovementRangeBonusMeters, getStoneAreaBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { isLimitedAttackDeclaration, isLimitedChargeAvailable, } from '../combat/limited-charge.js';
 import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { movementReductionActive } from '../stones/stone-combat-effects.js';
 import { movementActionMeters } from '../combat/movement-allowance.js';
@@ -852,16 +853,28 @@ export async function getAllCombatOptionsForActor(actor) {
                 }
                 const shape = parseAoEShape(aoeStr);
                 const rad = parseAoERadius(aoeStr);
-                if (shape === 'radius' && rad !== undefined && rad > 0) {
+                const aoeObj = typeof levelData.aoe === 'object' && levelData.aoe ? levelData.aoe : null;
+                const objShape = String(aoeObj?.shape || '').toLowerCase();
+                const objRad = Math.max(0, Number(aoeObj?.radiusM ?? aoeObj?.sizeM ?? aoeObj?.m) || 0);
+                const isZoneShape = (shape === 'radius' && rad !== undefined && rad > 0) ||
+                    ((objShape === 'zone' || objShape === 'radius') && objRad > 0) ||
+                    /zone/i.test(typeStr);
+                if (isZoneShape) {
+                    const rawRad = objRad > 0 ? objRad : rad ?? 0;
                     aoeShape = 'radius';
-                    aoeRadiusMeters = withCircularAoeBonus(actor, rad);
+                    aoeRadiusMeters = withCircularAoeBonus(actor, rawRad) ?? rawRad;
                     rangeMeters = range;
                     if (!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) {
                         rangeMeters = 0;
                     }
                     hostileZonePlacement = true;
+                    const dur = levelData.duration;
                     zoneDurationNote =
-                        typeof levelData.duration === 'string' ? levelData.duration : undefined;
+                        typeof dur === 'string'
+                            ? dur
+                            : dur && typeof dur === 'object'
+                                ? String(dur.note || dur.kind || '')
+                                : undefined;
                 }
             }
             else if (/melee/i.test(typeStr)) {
@@ -898,6 +911,19 @@ export async function getAllCombatOptionsForActor(actor) {
             /* ignore */
         }
         const displayName = formatRadialPowerDisplayName(item, { splitAttack });
+        let specialOnly = false;
+        try {
+            const { isSpecialOnlyTemplateId } = await import('../combat/damage-transfer.js');
+            if (isSpecialOnlyTemplateId(templateId)) {
+                specialOnly = true;
+            }
+            else if (levelData?.mechanics?.specialOnly === true) {
+                specialOnly = true;
+            }
+        }
+        catch {
+            specialOnly = false;
+        }
         const option = {
             id: item.id,
             name: displayName,
@@ -911,6 +937,7 @@ export async function getAllCombatOptionsForActor(actor) {
             tags: Array.isArray(tags) ? tags : [],
             costsMovement: costsMovement,
             costsAction: costsAction,
+            ...(specialOnly ? { specialOnly: true, ignoreWeaponDamage: true } : {}),
             ...(burstMeleeAoE
                 ? {
                     burstMeleeAoE: true,
@@ -921,6 +948,15 @@ export async function getAllCombatOptionsForActor(actor) {
                 }
                 : {}),
         };
+        if (isLimitedAttackDeclaration({
+            limited: item.system?.limited === true,
+            templateId,
+            item: item,
+        })) {
+            option.limited = true;
+            if (!isLimitedChargeAvailable(actor))
+                option.disabled = true;
+        }
         // Add utility targeting fields if this is a utility
         if (slot === 'utility' || powerType === 'utility') {
             option.rangeMeters = rangeMeters;
@@ -950,10 +986,16 @@ export async function getAllCombatOptionsForActor(actor) {
             option.rangeMeters = rangeMeters;
             option.aoeShape = aoeShape;
             option.aoeRadiusMeters = aoeRadiusMeters;
-            option.defaultTargetGroup = 'enemy';
+            // Persistent Zones affect all creatures (Z04) — no enemy-only filter.
+            const isPersistentZone = String(item.system?.subfamily || '').toLowerCase() === 'persistent-zone' ||
+                /zone/i.test(String(levelData?.type || '')) ||
+                !!levelData?.mechanics?.persistentZone;
+            option.defaultTargetGroup = isPersistentZone ? 'creature' : 'enemy';
             option.allowManualTargetSelection = true;
             option.aoePlacementProfile = 'hostile-zone';
-            option.zoneDurationNote = zoneDurationNote;
+            option.zoneDurationNote = isPersistentZone
+                ? 'maintained (1 Attack Action / Turn)'
+                : zoneDurationNote;
         }
         if (powerType === 'movement') {
             const { movementPowerBudget } = await import('../combat/movement-powers.js');

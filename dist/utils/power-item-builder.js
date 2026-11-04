@@ -109,6 +109,8 @@ export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: f
             isSpell: spell.isSpell,
             castingAttribute: spell.castingAttribute,
             spellResolution: spell.isSpell ? 'spellAttack' : spell.spellResolution,
+            limited: template.limited === true ||
+                /limited/i.test(String(entry.templateId || '')),
             powerType: template.category === 'activeBuff' ? 'buff' : template.category,
             range: renderRange(boundLevelRow.range),
             aoe: renderAoe(boundLevelRow.aoe),

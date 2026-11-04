@@ -10,11 +10,20 @@ export declare function computeLastActiveRound(activationRound: number, effectiv
 export declare function isBuffActiveInRound(activationRound: number, lastActiveRound: number, currentRound: number): boolean;
 /** Upcoming combat Round for Preparation (Foundry prep often uses round 0). */
 export declare function preparationTargetRound(combat: any): number;
+/** Combat flag: Preparation (for Active Buff activate/replace) closed for this Round. */
+export declare const ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG = "activeBuffPrepClosedRound";
 /**
- * True when the actor may legally activate/replace an Active Buff:
- * combat exists and Preparation for the upcoming Round is still open for them.
+ * True when the actor may legally activate/replace an Active Buff.
+ *
+ * Batch 6.1: Stone Confirmation does **not** close this window. The window
+ * stays open for the whole Preparation Phase (including after stones are
+ * confirmed) and closes when Round turns begin (`activeBuffPrepClosedRound`).
  */
 export declare function isActiveBuffPreparationWindow(actor: any, combat: any): boolean;
+/** Mark Active Buff activate/replace closed for the current Round (turns begun). */
+export declare function closeActiveBuffPreparationForRound(combat: any): Promise<void>;
+/** Re-open Active Buff Preparation when a new Round begins. */
+export declare function openActiveBuffPreparationForRound(combat: any): Promise<void>;
 export declare function readBuffLifecycleFlags(effect: any): {
     activationRound: number;
     effectiveDuration: number;
@@ -42,8 +51,14 @@ export declare function refundPrepActiveBuffActivation(actor: any, combat: any):
  */
 export declare function expireActiveBuffsAtRoundEnd(actor: any, combat: any, endingRound: number): Promise<string[]>;
 /**
+ * Snapshot Prep-scoped DN remaining before an Active Buff effect ends
+ * (replace / voluntary end). Survives A→B→A within the same Preparation.
+ */
+export declare function snapshotActiveBuffPrepResourcesBeforeEnd(actor: any, combat: any, effect: any): Promise<void>;
+/**
  * Refresh Active Buff Temporary HP pools at Preparation (once per Round).
  * Raises each buff-owned refresh source to its declared printed value.
+ * A→B→A in the same Prep does not re-grant Temp HP for the same template.
  */
 export declare function refreshActiveBuffTempHPAtPreparation(actor: any, combat: any): Promise<void>;
 /**

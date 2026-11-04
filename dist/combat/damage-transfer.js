@@ -3,8 +3,8 @@
  *
  * Healing is the real HP this one damage instance removed from the target
  * after mitigation, Temporary HP, and other buffers. It is capped by the
- * missing HP on the attacker's current Health Bar. Limited doubles printed
- * power dice only; it does not multiply the heal. This is not Life Absorption.
+ * missing HP on the attacker's current Health Bar. Limited multiplies printed
+ * power dice ×4 only; it does not multiply the heal. This is not Life Absorption.
  */
 import { applyHealHpAcrossOpenBars } from './heal-resolution.js';
 export const MELEE_DAMAGE_TRANSFER_TEMPLATE_ID = 'active-melee-single-target-damage-transfer';
@@ -36,12 +36,14 @@ function flagTrue(v) {
     return v === true || String(v) === 'true';
 }
 /**
- * Instant AoE Attack (Melee / Ranged AoE Attack, AoE Special Attacks): one shared
- * Attack/Casting roll and one shared Power damage roll. These attacks never add
- * Weapon Damage or Spell Focus damage and have no Primary Target.
+ * Instant AoE (Melee / Ranged AoE Attack, AoE Special Attacks): one shared
+ * Attack/Casting roll and — when damaging — one shared Damage Pool roll reused
+ * for every hit. No Primary Target. Allies stay excluded by the AoE filter.
  *
- * `aoeMeleeWeapon` is the legacy flag name kept for compatibility with existing
- * attack-card data; `instantAoe` is the preferred name.
+ * Instant Damage AoE pools are Power Dice + Weapon (martial) or Spell Focus
+ * (spell). Special-only AoEs have no Damage Pool.
+ *
+ * `aoeMeleeWeapon` is the legacy flag name; `instantAoe` is preferred.
  */
 export function isInstantAoeFlags(flags) {
     if (!flags)
@@ -49,43 +51,95 @@ export function isInstantAoeFlags(flags) {
     return flagTrue(flags.instantAoe) || flagTrue(flags.aoeMeleeWeapon);
 }
 /**
- * Martial delivery includes weapon damage. Spell delivery, an explicit
- * ignore flag and Instant AoE do not. NPC spell rows are spell delivery.
+ * Canonical Special-only Active template ids (no direct damage axis).
+ * Single source for radial options, Instant AoE flags, and damage gates —
+ * do not re-implement with divergent string heuristics elsewhere.
  *
- * Exception: Dragon Head Damage Breath (`dragonHeadDamageBreath`) is Instant
- * AoE that still adds this Artifact's Bite Weapon Damage only.
+ * Covers:
+ * - Instant Single-Special (ST): `active-*-instant-special-t[3-6]`
+ * - Instant AoE Special (0 Power dice): `active-*-aoe-damage-t[3-6]`
+ * - AoE Targeted Special (Exorcism/Requiem, no Power/Weapon/Focus damage)
+ *
+ * Does NOT cover Damage+Special (`active-*-damage-t*`), ST Targeted Special
+ * (weapon damage), or Weapon AoE (shared Damage Pool).
  */
-export function martialWeaponDamageApplies(flags) {
-    if (flags.dragonHeadDamageBreath === true && flags.ignoreWeaponDamage !== true) {
-        return flags.powerIsSpell !== true && flags.npcIsSpell !== true;
-    }
-    return (flags.ignoreWeaponDamage !== true &&
-        flags.powerIsSpell !== true &&
-        flags.npcIsSpell !== true &&
-        !isInstantAoeFlags(flags));
+export function isSpecialOnlyTemplateId(templateId) {
+    const id = String(templateId || '').trim();
+    if (!id)
+        return false;
+    return (/^active-(melee|ranged)-instant-special-t[3-6]$/.test(id) ||
+        /^active-(melee|ranged)-aoe-damage-t[3-6]$/.test(id) ||
+        /^active-(melee|ranged)-aoe-targeted-special$/.test(id));
 }
 /**
- * Spell Focus dice boost single-target Spell damage. Instant AoE never receives
- * them (shared Power damage only).
+ * Special-only Attacks never deal direct damage (no Power / Weapon / Spell Focus
+ * dice, no Damage Roll / Dialog, no Combat Damage Raises, no Maximization).
+ * On-hit Specials still apply; follow-up Special ticks (e.g. Ruin 4×X) are unchanged.
+ */
+export function isSpecialOnlyAttack(flags) {
+    if (!flags)
+        return false;
+    if (flagTrue(flags.specialOnly))
+        return true;
+    return (isSpecialOnlyTemplateId(flags.templateId) ||
+        isSpecialOnlyTemplateId(flags.selectedPowerTemplateId));
+}
+/**
+ * Martial delivery includes weapon damage on single-target and Instant Damage
+ * AoE. Spell delivery, Special-only Attacks, and an explicit ignore flag do not.
+ * NPC spell rows are spell delivery.
+ */
+export function martialWeaponDamageApplies(flags) {
+    if (isSpecialOnlyAttack(flags))
+        return false;
+    if (flags.ignoreWeaponDamage === true)
+        return false;
+    if (flags.powerIsSpell === true || flags.npcIsSpell === true)
+        return false;
+    // Dragon Head Damage Breath and every other martial Instant Damage AoE keep weapon dice.
+    return true;
+}
+/**
+ * Spell Focus dice apply to damaging Spells (single-target and Instant Damage
+ * AoE). Special-only Attacks have no Damage Pool and never receive Spell Focus.
  */
 export function spellFocusDamageApplies(flags) {
-    return flags.isSpell === true && flags.isNpcAttackFlow !== true && !isInstantAoeFlags(flags);
+    if (isSpecialOnlyAttack(flags))
+        return false;
+    return flags.isSpell === true && flags.isNpcAttackFlow !== true;
 }
-/** Limited doubles the printed power-damage pool only, never a following weapon term. */
+/** Multiply only the leading printed Power Dice pool (never a following weapon term). */
+export function multiplyPrintedPowerDice(formula, factor) {
+    const f = Math.max(1, Math.floor(Number(factor) || 1));
+    return String(formula || '').replace(/^(\+?)(\d+)d(\d+)/i, (_m, sign, n, sides) => `${sign}${Number(n) * f}d${sides}`);
+}
+/** @deprecated Use multiplyPrintedPowerDice(formula, 2) — kept for callers mid-migration. */
 export function doublePrintedPowerDice(formula) {
-    // Printed Power Dice may be `3d8` or `+3d8`; only the leading dice pool is doubled.
-    return String(formula || '').replace(/^(\+?)(\d+)d(\d+)/i, (_m, sign, n, sides) => `${sign}${Number(n) * 2}d${sides}`);
+    return multiplyPrintedPowerDice(formula, 2);
 }
-export function applyLimitedToTransferPowerDamage(formula, opts) {
-    if (opts.damageTransfer !== true || opts.limited !== true)
-        return formula;
-    return doublePrintedPowerDice(formula);
+/**
+ * Limited ×4 applies only to printed Power Damage Dice.
+ * Damage Transfer is never a legal Limited Power (Batch 5 C07) — no-op.
+ */
+export function applyLimitedToTransferPowerDamage(formula, _opts) {
+    return formula;
 }
-/** Limited Instant Actives (incl. Moonlight Judgment): double printed Power Dice only. */
+/**
+ * Limited Instant Damage Attacks: ×4 printed Power Dice once.
+ * Pass `alreadyMultiplied: true` when the formula / catalog row already stores
+ * the Limited output so runtime does not apply ×4 again (no ×16).
+ */
 export function applyLimitedPowerDamage(formula, opts) {
     if (opts.limited !== true)
         return formula;
-    return doublePrintedPowerDice(formula);
+    if (opts.alreadyMultiplied === true)
+        return formula;
+    return multiplyPrintedPowerDice(formula, 4);
+}
+/** Parse leading NdS count from a Power damage formula (`3d8`, `+3d8`). */
+export function printedPowerDiceCount(formula) {
+    const m = String(formula || '').trim().match(/^\+?(\d+)d\d+/i);
+    return m ? Math.max(0, Math.floor(Number(m[1]) || 0)) : 0;
 }
 export async function settleDamageTransfer(opts) {
     if (!opts.enabled || !opts.attacker)

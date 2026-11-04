@@ -60,8 +60,8 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Actives
-Version: v0.9.9.5 (2026-10-15)  
-Playtest rules revision: 2026-11-04 (Damage AoE delivery, Special-only Single Target/AoE zero damage, Limited powers, Ruin).
+Version: v0.9.9.5 (2026-11-04)  
+
 }}
 
 }}

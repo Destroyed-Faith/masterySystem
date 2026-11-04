@@ -14,7 +14,8 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { listAvailableMaximizationSources, remainingMaximizations, resolveMaximizationActor, } from '../stones/stone-combat-effects.js';
 import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
-import { applyLimitedPowerDamage, applyLimitedToTransferPowerDamage, isInstantAoeFlags, martialWeaponDamageApplies, settleDamageTransfer, spellFocusDamageApplies, } from '../combat/damage-transfer.js';
+import { applyLimitedPowerDamage, applyLimitedToTransferPowerDamage, isSpecialOnlyAttack, martialWeaponDamageApplies, settleDamageTransfer, spellFocusDamageApplies, } from '../combat/damage-transfer.js';
+import { isForbiddenLimitedTemplateId, isLimitedPowerTemplateId, } from '../combat/limited-charge.js';
 import { hitCountsAsSpell, vulnerabilityRiderForHit } from '../combat/vulnerability-riders.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
@@ -341,6 +342,82 @@ function resolveWeaponBaseDamage(weapon) {
     return '1d8';
 }
 export async function showDamageDialog(attacker, target, weaponId, selectedPowerId, raises, flags) {
+    // Special-only Attacks: no Damage Pool / Maximization. When successful Raises
+    // still need allocation, fall through to the shared post-hit Raise UI (Martial
+    // and Spell). Otherwise apply resolved Specials immediately.
+    if (isSpecialOnlyAttack(flags)) {
+        const raiseSlots = flags?.npcRaisesDisabled
+            ? 0
+            : Math.max(0, Math.floor(Number(flags?.successfulRaiseSlots) || 0));
+        const raiseOpts = flags?.npcRaisesDisabled
+            ? []
+            : Array.isArray(flags?.raiseOptions)
+                ? flags.raiseOptions
+                : flags?.basePowerSnapshot
+                    ? buildAvailableRaiseOptions(flags.basePowerSnapshot, !!flags.powerIsSpell)
+                    : [];
+        const shareKeyEarly = raiseAllocShareKey(flags);
+        const sharedEarly = shareKeyEarly ? peekSharedRaiseAllocation(shareKeyEarly) : null;
+        let planEarly = Array.isArray(flags?.declaredRaises)
+            ? [...flags.declaredRaises]
+            : [];
+        if (sharedEarly?.length)
+            planEarly = sharedEarly;
+        const needsAlloc = String(flags?.raiseOutcome || '') === 'full' &&
+            raiseSlots > 0 &&
+            raiseOpts.length > 0 &&
+            !isRaiseAllocationComplete(planEarly, raiseSlots, raiseOpts);
+        if (!needsAlloc) {
+            let specialsUsed = [];
+            if (String(flags?.raiseOutcome || '') === 'full' &&
+                flags?.basePowerSnapshot &&
+                (planEarly.length > 0 || raiseSlots === 0)) {
+                const mr = attacker
+                    ? getRulesMasteryRank(attacker)
+                    : Math.max(1, Math.floor(Number(flags?.masteryRank) || 2));
+                const resolved = resolvePowerSnapshot({
+                    base: flags.basePowerSnapshot,
+                    declaredRaises: planEarly,
+                    outcome: 'full',
+                    masteryRank: mr,
+                    isSpell: !!flags?.powerIsSpell,
+                });
+                specialsUsed = snapshotToSpecialStrings(resolved);
+            }
+            else if (Array.isArray(flags?.selectedPowerSpecials)) {
+                specialsUsed = flags.selectedPowerSpecials
+                    .map((s) => String(s || '').trim())
+                    .filter(Boolean);
+            }
+            else if (flags?.basePowerSnapshot) {
+                specialsUsed = snapshotToSpecialStrings(flags.basePowerSnapshot);
+            }
+            if (specialsUsed.length && target) {
+                try {
+                    const { applySpecialStringsToTarget } = await import('../combat/apply-special-effects.js');
+                    await applySpecialStringsToTarget(target, specialsUsed, attacker);
+                }
+                catch (err) {
+                    console.warn('Mastery System | Special-only apply failed', err);
+                }
+            }
+            return {
+                baseDamage: 0,
+                spellFocusDamage: 0,
+                powerDamage: 0,
+                passiveDamage: 0,
+                activeBuffDamage: 0,
+                raiseDamage: 0,
+                specialsUsed,
+                specialsLabel: formatDamageSpecialsLabel(specialsUsed),
+                totalDamage: 0,
+                rollDetails: ['Special-only Attack — no direct damage'],
+                count8s: 0,
+                pendingApply: false,
+            };
+        }
+        // Incomplete Raise allocation: continue into the shared damage-card Raise UI.
+    }
     // Debug log at entry
     // CRITICAL: Always get fresh actor from game to ensure we have latest items.
     // The attacker parameter might be a stale reference — BUT for an UNLINKED
@@ -393,11 +470,12 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             ignoreWeaponDamage: flags?.ignoreWeaponDamage === true,
             powerIsSpell: flags?.powerIsSpell === true,
             npcIsSpell: flags?.npcIsSpell === true,
-            // Instant AoE: Power damage only — never Weapon Damage,
-            // except Dragon Head Damage Breath (Bite + Power Dice).
             dragonHeadDamageBreath: flags?.dragonHeadDamageBreath === true,
             aoeMeleeWeapon: flags?.aoeMeleeWeapon,
             instantAoe: flags?.instantAoe,
+            specialOnly: flags?.specialOnly === true,
+            templateId: flags?.templateId ?? flags?.selectedPowerTemplateId,
+            selectedPowerTemplateId: flags?.selectedPowerTemplateId,
         });
     // Method 0: Forced weapon (artifact / natural weapon attack) — this attack
     // always rolls that weapon's dice, regardless of what else is equipped and
@@ -580,15 +658,29 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 }
                 powerSpecials = powerSystem.specials || [];
             }
-            const limitedFlag = flags?.limited === true || powerSystem?.limited === true;
+            const templateIdForLimited = String(powerSystem?.templateId || flags?.selectedPowerTemplateId || '');
+            let limitedFlag = flags?.limited === true ||
+                powerSystem?.limited === true ||
+                flags?.artifactLimited === true;
+            if (limitedFlag && isForbiddenLimitedTemplateId(templateIdForLimited)) {
+                limitedFlag = false;
+            }
+            else if (!limitedFlag && isLimitedPowerTemplateId(templateIdForLimited)) {
+                limitedFlag = true;
+            }
             const isTransfer = flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true;
             powerDamage = applyLimitedToTransferPowerDamage(powerDamage, {
                 damageTransfer: isTransfer,
                 limited: limitedFlag,
             });
-            // Non-transfer Limited Instant Actives (e.g. Moonlight Judgment AoE Spell).
+            // Limited Instant Damage: ×4 printed Power Dice once (never Weapon/Focus/Raises).
             if (limitedFlag && !isTransfer) {
-                powerDamage = applyLimitedPowerDamage(powerDamage, { limited: true });
+                powerDamage = applyLimitedPowerDamage(powerDamage, {
+                    limited: true,
+                    alreadyMultiplied: flags?.limitedPowerDiceApplied === true,
+                });
+                if (flags)
+                    flags.limitedPowerDiceApplied = true;
             }
             selectedPowerData = {
                 id: selectedPower.id,
@@ -678,9 +770,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             raiseAllocSlots = 0;
         }
         else if (
-        // DF 2026: Spell Raises are allocated pre-roll; never offer post-roll allocation for Spells.
-        !isSpell &&
-            raiseAllocSlots > 0 &&
+        // Martial and Spell: allocate Raise effects only after a successful hit.
+        raiseAllocSlots > 0 &&
             !isRaiseAllocationComplete(declaredRaises, raiseAllocSlots, raiseAllocOptions)) {
             // Hit — wait for post-roll allocation on this card.
             raiseAllocPreset = declaredRaises;
@@ -816,6 +907,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         isNpcAttackFlow,
         aoeMeleeWeapon: flags?.aoeMeleeWeapon,
         instantAoe: flags?.instantAoe,
+        specialOnly: flags?.specialOnly === true,
+        templateId: flags?.templateId ?? flags?.selectedPowerTemplateId,
+        selectedPowerTemplateId: flags?.selectedPowerTemplateId,
     })) {
         try {
             spellFocusBonusDice = getActorSpellFocusBonusDice(actorToUse);
@@ -827,7 +921,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     const weaponDisplayName = weaponForDamage
         ? String(weaponForDamage.name || '').trim()
         : '';
-    const spellFocusSources = attackIsSpell && !isNpcAttackFlow && spellFocusBonusDice > 0 && !isInstantAoeFlags(flags)
+    const spellFocusSources = attackIsSpell && !isNpcAttackFlow && spellFocusBonusDice > 0
         ? listActorSpellFocusSources(actorToUse)
         : [];
     const activeBuffPreview = summarizeActiveBuffDamage(actorToUse);
@@ -865,7 +959,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             activeBuff: activeBuffPreview.formula,
             activeBuffSources: activeBuffPreview.sources,
             castingNoWeapon: !!flags?.ignoreWeaponDamage ||
-                (isInstantAoeFlags(flags) && flags?.dragonHeadDamageBreath !== true),
+                isSpecialOnlyAttack(flags) ||
+                (!weaponDelivery && !!flags?.powerIsSpell),
         }, formatSplitStrikeBanner(flags), {
             slots: raiseAllocSlots,
             options: raiseAllocOptions,
@@ -1328,9 +1423,8 @@ export function attachDamageCardHandlers(messageId) {
             const shared = shareKey ? peekSharedRaiseAllocation(shareKey) : null;
             if (shared?.length)
                 allocatedPlan = shared;
-            // DF 2026: Spells never allocate Raises post-roll — their plan was fixed pre-roll.
-            const spellPlanComplete = !flags.powerIsSpell || isRaiseAllocationComplete(allocatedPlan, needSlots, raiseOptions);
-            if (needSlots > 0 && flags.raiseOutcome === 'full' && flags.basePowerSnapshot && spellPlanComplete) {
+            // Martial and Spell share the same post-hit Raise allocation gate.
+            if (needSlots > 0 && flags.raiseOutcome === 'full' && flags.basePowerSnapshot) {
                 if (!isRaiseAllocationComplete(allocatedPlan, needSlots, raiseOptions)) {
                     const fromUi = [];
                     messageElement.find('.raise-alloc-select').each((_i, el) => {
@@ -1420,6 +1514,34 @@ export function attachDamageCardHandlers(messageId) {
                 }
                 catch {
                     /* best-effort */
+                }
+                // Special-only: Raises only boost Specials — apply and finish without a Damage Roll.
+                if (isSpecialOnlyAttack(flags)) {
+                    if (resolvedSpecials.length && target) {
+                        try {
+                            const { applySpecialStringsToTarget } = await import('../combat/apply-special-effects.js');
+                            await applySpecialStringsToTarget(target, resolvedSpecials, attacker);
+                        }
+                        catch (err) {
+                            console.warn('Mastery System | Special-only post-alloc apply failed', err);
+                        }
+                    }
+                    completeDamageCard(messageId, {
+                        baseDamage: 0,
+                        spellFocusDamage: 0,
+                        powerDamage: 0,
+                        passiveDamage: 0,
+                        activeBuffDamage: 0,
+                        raiseDamage: 0,
+                        specialsUsed: resolvedSpecials,
+                        specialsLabel: formatDamageSpecialsLabel(resolvedSpecials),
+                        totalDamage: 0,
+                        rollDetails: ['Special-only Attack — no direct damage'],
+                        count8s: 0,
+                        pendingApply: false,
+                    });
+                    rollDamageCompleted = true;
+                    return;
                 }
             }
             // Roll vs Roll Maximum — button click only *requests* Maximization.
@@ -2854,7 +2976,11 @@ damageRollOpts) {
             remainingRaiseBonus +
             Math.max(0, Math.floor(npcAutoDamageDice));
         const { shouldSpendMaximizationAfterNegation } = await import('../combat/maximization-order.js');
-        if (shouldSpendMaximizationAfterNegation({ wantMaximization: true, remainingDice })) {
+        if (shouldSpendMaximizationAfterNegation({
+            wantMaximization: true,
+            remainingDice,
+            specialOnly: isSpecialOnlyAttack(damageRollOpts) || remainingDice <= 0,
+        })) {
             activeDamageMaximized = await damageRollOpts.spendMaximizationAfterNegation();
             if (!activeDamageMaximized) {
                 ui.notifications?.warn('No Maximization remaining — rolling normally.');

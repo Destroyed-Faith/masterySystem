@@ -134,13 +134,23 @@ export interface RoundState {
     };
     /**
      * Active Buff Maximization per-combat uses.
-     * Same anti-refresh rules as Critical quota.
+     * Same anti-refresh rules as Critical quota (`spent` survives Buff swap).
      */
     maximizationQuota?: {
         roundKey: string;
         granted: number;
         remaining: number;
+        spent?: number;
     };
+    /**
+     * Prep-scoped Active Buff resource ledger (Temp HP / DN).
+     * Keys: `${combatId}:${prepRound}:${templateId}` — prevents A→B→A farm in one Prep.
+     */
+    activeBuffPrepResourceLedger?: Record<string, {
+        thpGranted?: boolean;
+        dnRemaining?: number;
+        dnMax?: number;
+    }>;
     /**
      * Passive Parry stance for this round — spend pool 1:1 to strip Attack Dice
      * before the roll (0 dice = Fully Parried → Riposte / Reflection).
@@ -361,7 +371,12 @@ export declare function getAvailableAttackActions(actor: Actor, combat: Combat |
  * No longer gated on Attack Actions — Activation is free; only once per Preparation.
  * `attackActionsAvailable` is kept for call-site compatibility and ignored.
  */
-export declare function remainingActiveBuffActions(usedThisRound: boolean | undefined, _attackActionsAvailable?: number): number;
+/**
+ * Radial remaining display for Active Buffs (Z01).
+ * There is no general per-Prep / per-Combat activation limit — Prep gate lives
+ * in `activateActiveBuff`. Always show 1 while combat exists so switches are visible.
+ */
+export declare function remainingActiveBuffActions(_usedThisRound?: boolean | undefined, _attackActionsAvailable?: number): number;
 export declare function getAvailableActiveBuffActions(actor: Actor, combat: Combat | null): number;
 export declare function markActiveBuffUsedThisRound(actor: Actor, combat: Combat | null): Promise<void>;
 /**

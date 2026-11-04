@@ -49,7 +49,7 @@ export declare const TOWER_WIZARD_COPY: {
         readonly body: "This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time. Hover a tile for full details.";
         readonly replacing: "Replacing";
         readonly rankPreview: "At PL 4";
-        readonly durationNote: "In combat: activate during Preparation (commits base Attack Action)";
+        readonly durationNote: "In combat: activate during Preparation (no Attack Action or Stone cost)";
     };
     readonly offenseDelivery: {
         readonly heading: "Attack style";

@@ -266,9 +266,9 @@ export async function activateActiveBuff(
     }
   }
 
+  const tplId = String(power?.system?.templateId || '').toLowerCase();
   // Active Buff: Damage Negation Pool requires slotted Passive: Damage Negation
   // (even when that Passive's combat Reserve is already 0).
-  const tplId = String(power?.system?.templateId || '').toLowerCase();
   if (tplId === 'ab-reinforced-damage-negation') {
     try {
       const { slottedPassiveLevel } = await import('../combat/passive-combat-charges.js');
@@ -281,6 +281,25 @@ export async function activateActiveBuff(
     } catch (err) {
       console.warn('Mastery System | DN Buff requirement check failed', err);
     }
+  }
+
+  // Guard Unavailable Special Aura / other zero-effect PLs before ending the prior Buff.
+  try {
+    const peekLevel = resolveActiveBuffEffectLevel(power?.system || {}, 0);
+    const tplPeek = ALL_POWER_TEMPLATES.find(
+      (t: any) => t?.templateId === String(power?.system?.templateId || '').trim(),
+    );
+    const peekMech =
+      tplPeek?.levels?.[String(peekLevel) as keyof typeof tplPeek.levels]?.mechanics ??
+      power?.system?.levels?.[String(peekLevel)]?.mechanics;
+    if (peekMech && (peekMech as any).specialAuraUnavailable === true) {
+      ui.notifications?.warn(
+        `${power.name} has no effect at Power Level ${peekLevel} (Unavailable).`,
+      );
+      return false;
+    }
+  } catch {
+    /* best-effort */
   }
 
   // Check if this is a true active buff (not a utility)
@@ -298,6 +317,12 @@ export async function activateActiveBuff(
             '../combat/active-buff-lifecycle.js'
           );
           await snapshotActiveBuffPrepResourcesBeforeEnd(actor, combat, existingBuff);
+        }
+        try {
+          const { cleanupSpecialAuraVisual } = await import('../combat/special-aura-runtime.js');
+          await cleanupSpecialAuraVisual(actor, existingBuff);
+        } catch {
+          /* visual only */
         }
         await existingBuff.delete();
         ui.notifications?.info(
@@ -483,6 +508,18 @@ export async function activateActiveBuff(
       console.warn('Mastery System | Active Buff Preparation resource grant failed', prepErr);
     }
 
+    // Batch 8 / Z05: Special Aura activation — visual + immediate Special application.
+    try {
+      const { isSpecialAuraTemplateId, onSpecialAuraActivated } = await import(
+        '../combat/special-aura-runtime.js'
+      );
+      if (isSpecialAuraTemplateId(tplId)) {
+        await onSpecialAuraActivated(actor, combat);
+      }
+    } catch (auraErr) {
+      console.warn('Mastery System | Special Aura activation failed', auraErr);
+    }
+
     try {
       const ChatCls = (globalThis as any).ChatMessage;
       const esc =
@@ -612,6 +649,12 @@ export async function retractActiveBuffActivation(
         } catch (snapErr) {
           console.warn('Mastery System | Active Buff end resource snapshot failed', snapErr);
         }
+      }
+      try {
+        const { cleanupSpecialAuraVisual } = await import('../combat/special-aura-runtime.js');
+        await cleanupSpecialAuraVisual(actor, effect);
+      } catch {
+        /* best-effort visual cleanup — applied Specials remain */
       }
       await effect.delete();
     }

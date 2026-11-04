@@ -8,6 +8,7 @@
  * Source: docs/Rules/actives.md, active-buffs.md, reactions.md. Do not halve
  * a rank at runtime — the arrays below are the catalogue.
  */
+import { instantSpecialRank } from './instant-special-ranks.js';
 export const POOL_REDUCING_SPECIAL_KEYS = ['challenge', 'disoriented', 'soulburn', 'weaken'];
 const POOL_REDUCING = new Set(POOL_REDUCING_SPECIAL_KEYS);
 export function isPoolReducingSpecial(key) {
@@ -109,10 +110,18 @@ export function specialIncreasePair(templateId, level) {
     }
     return null;
 }
+/** Instant Single-Special templates use per-Special printed ranks from actives.md. */
+function instantSpecialTemplateOverride(templateId, specialKey, level) {
+    const id = String(templateId ?? '').trim();
+    const m = id.match(/^active-(melee|ranged)-instant-special-t[3-6]$/);
+    if (!m)
+        return undefined;
+    return instantSpecialRank(m[1], specialKey, level);
+}
 /**
- * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing,
- * replace the shared-table rank with the printed v0.9.9.0 rank.
- * Root still cannot print below Root(2).
+ * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing
+ * or this is an Instant Single-Special template, replace the shared-table rank
+ * with the printed catalogue rank. Root still cannot print below Root(2).
  */
 export function bindPoolSpecialsOnRow(row, chosenKey, templateId, level) {
     const key = String(chosenKey ?? '').trim();
@@ -120,7 +129,8 @@ export function bindPoolSpecialsOnRow(row, chosenKey, templateId, level) {
         return row;
     if (!row.specials.some((s) => s?.key === 'SPECIAL'))
         return row;
-    const override = poolSpecialRankOverride(templateId, key, level);
+    const override = instantSpecialTemplateOverride(templateId, key, level) ??
+        poolSpecialRankOverride(templateId, key, level);
     const specials = row.specials.map((s) => {
         if (s?.key !== 'SPECIAL')
             return s;

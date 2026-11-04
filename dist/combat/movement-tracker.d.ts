@@ -13,8 +13,11 @@
 /** Reset per-turn movement tracking for the creature whose turn is starting. */
 export declare function resetMovementForTurn(actor: any): Promise<void>;
 /**
- * Handle a token move: accumulate meters and apply Lacerate thresholds. Only
- * processes the token belonging to the current combatant.
+ * Handle a token move during combat.
+ *
+ * Batch 8.1: Persistent Zones + Special Auras react to **any** moved token
+ * (not only the active combatant). Turn-economy tracking (moved meters,
+ * Lacerate stages, Safe Movement notes) remains current-combatant-only.
  */
 export declare function handleTokenMovement(tokenDoc: any, changes: any): Promise<void>;
 /**

@@ -69,6 +69,21 @@ export const RULES_EXPECTED_ACTIVE_BUFFS = [
     { rulesName: 'Armor Reduction Aura', id: 'ab-armor-reduction-aura' },
     { rulesName: 'Allied Damage Aura', id: 'ab-allied-damage-aura' },
     { rulesName: 'Area Expansion', id: 'ab-area-expansion' },
+    // Batch 8 / 8.1 / Z05 Special Auras (Canonical Active_Buffs.md — 14 Powers)
+    { rulesName: 'Blight Aura', id: 'ab-blight-aura' },
+    { rulesName: 'Challenge Aura', id: 'ab-challenge-aura' },
+    { rulesName: 'Corrode Aura', id: 'ab-corrode-aura' },
+    { rulesName: 'Disoriented Aura', id: 'ab-disoriented-aura' },
+    { rulesName: 'Expose Aura', id: 'ab-expose-aura' },
+    { rulesName: 'Hex Aura', id: 'ab-hex-aura' },
+    { rulesName: 'Lacerate Aura', id: 'ab-lacerate-aura' },
+    { rulesName: 'Mark Aura', id: 'ab-mark-aura' },
+    { rulesName: 'Root Aura', id: 'ab-root-aura' },
+    { rulesName: 'Ruin Aura', id: 'ab-ruin-aura' },
+    { rulesName: 'Slow Aura', id: 'ab-slow-aura' },
+    { rulesName: 'Soulburn Aura', id: 'ab-soulburn-aura' },
+    { rulesName: 'Sundered Aura', id: 'ab-sundered-aura' },
+    { rulesName: 'Weaken Aura', id: 'ab-weaken-aura' },
 ];
 /** Expected Rules Reaction names → Foundry templateId. */
 export const RULES_EXPECTED_REACTIONS = [
@@ -132,6 +147,20 @@ export const RULES_EXPECTED_ACTIVES = [
     { rulesName: 'Ranged AoE — Damage + Start PP 6 Special', id: 'active-ranged-aoe-damage-t5' },
     { rulesName: 'Melee AoE — Damage + Start PP 8 Special', id: 'active-melee-aoe-damage-t6' },
     { rulesName: 'Ranged AoE — Damage + Start PP 8 Special', id: 'active-ranged-aoe-damage-t6' },
+    // Instant Single-Special (Special-only ST)
+    { rulesName: 'Melee Instant Special — Start PP 3', id: 'active-melee-instant-special-t3' },
+    { rulesName: 'Ranged Instant Special — Start PP 3', id: 'active-ranged-instant-special-t3' },
+    { rulesName: 'Melee Instant Special — Start PP 4', id: 'active-melee-instant-special-t4' },
+    { rulesName: 'Ranged Instant Special — Start PP 4', id: 'active-ranged-instant-special-t4' },
+    { rulesName: 'Melee Instant Special — Start PP 6', id: 'active-melee-instant-special-t5' },
+    { rulesName: 'Ranged Instant Special — Start PP 6', id: 'active-ranged-instant-special-t5' },
+    { rulesName: 'Melee Instant Special — Start PP 8', id: 'active-melee-instant-special-t6' },
+    { rulesName: 'Ranged Instant Special — Start PP 8', id: 'active-ranged-instant-special-t6' },
+    // Limited Instant Damage (Batch 5 C07)
+    { rulesName: 'Limited Melee Single Target Attack', id: 'active-melee-limited-single' },
+    { rulesName: 'Limited Ranged Single Target Attack', id: 'active-ranged-limited-single' },
+    { rulesName: 'Limited Melee AoE Attack', id: 'active-melee-limited-aoe' },
+    { rulesName: 'Limited Ranged AoE Attack', id: 'active-ranged-limited-aoe' },
     // Persistent zones
     { rulesName: 'Ranged Persistent Zone — Start PP 3 Special', id: 'active-ranged-zone-t3' },
     { rulesName: 'Ranged Persistent Zone — Start PP 4 Special', id: 'active-ranged-zone-t4' },

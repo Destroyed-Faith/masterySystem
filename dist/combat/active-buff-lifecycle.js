@@ -7,8 +7,8 @@
  */
 import { getRoundState, setRoundState } from './action-economy.js';
 import { refreshBuffDamageNegationPools } from './damage-negation.js';
+import { activeBuffPrepResourceKey, activeBuffResourceIdentity, canGrantPrepTempHP, markPrepTempHPGranted, snapshotPrepDamageNegationOnEnd, } from './active-buff-prep-resources.js';
 import { getTempHPSources, makeSourceKey, upsertTempHPSource, } from './passive-triggers.js';
-import { readPreparationPhase, PREPARATION_PHASE_FLAG } from '../stones/preparation-phase.js';
 async function loadActiveBuffHelpers() {
     const mod = await import('../utils/active-buffs.js');
     return { getActiveBuffs: mod.getActiveBuffs, isTrueActiveBuff: mod.isTrueActiveBuff };
@@ -45,9 +45,14 @@ export function preparationTargetRound(combat) {
     const r = Math.floor(Number(combat?.round) || 0);
     return Math.max(1, r <= 0 ? 1 : r);
 }
+/** Combat flag: Preparation (for Active Buff activate/replace) closed for this Round. */
+export const ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG = 'activeBuffPrepClosedRound';
 /**
- * True when the actor may legally activate/replace an Active Buff:
- * combat exists and Preparation for the upcoming Round is still open for them.
+ * True when the actor may legally activate/replace an Active Buff.
+ *
+ * Batch 6.1: Stone Confirmation does **not** close this window. The window
+ * stays open for the whole Preparation Phase (including after stones are
+ * confirmed) and closes when Round turns begin (`activeBuffPrepClosedRound`).
  */
 export function isActiveBuffPreparationWindow(actor, combat) {
     if (!actor || !combat?.id)
@@ -57,42 +62,45 @@ export function isActiveBuffPreparationWindow(actor, combat) {
         return true;
     const round = preparationTargetRound(combat);
     try {
-        const raw = actor.getFlag?.('mastery-system', PREPARATION_PHASE_FLAG);
-        const prep = readPreparationPhase(raw, String(combat.id), round);
-        if (prep.assignment === 'open')
-            return true;
-        const prep0 = readPreparationPhase(raw, String(combat.id), 0);
-        if (round === 1 && prep0.assignment === 'open' && prep0.combatId === String(combat.id)) {
-            return true;
-        }
+        const closed = combat.getFlag?.('mastery-system', ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG) ??
+            combat.flags?.['mastery-system']?.[ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG];
+        if (Number(closed) === round)
+            return false;
     }
     catch {
         /* fall through */
     }
-    // Stones dialog still open for this Round → Preparation not finalized.
+    // Still in Preparation for this Round — even if stones are already confirmed.
+    return true;
+}
+/** Mark Active Buff activate/replace closed for the current Round (turns begun). */
+export async function closeActiveBuffPreparationForRound(combat) {
+    if (!combat?.id || typeof combat.setFlag !== 'function')
+        return;
+    const round = preparationTargetRound(combat);
     try {
-        const combatants = combat.combatants;
-        const list = typeof combatants?.[Symbol.iterator] === 'function'
-            ? Array.from(combatants)
-            : Array.isArray(combatants)
-                ? combatants
-                : [];
-        const combatant = list.find((c) => c?.actor?.id === actor.id || c?.actorId === actor.id);
-        if (combatant) {
-            const doneMap = combat.getFlag?.('mastery-system', 'stonePowersDoneByRound') ??
-                combat.flags?.['mastery-system']?.stonePowersDoneByRound;
-            const key = `${combatant.id}:${round}`;
-            if (doneMap && doneMap[key])
-                return false;
-            // No done flag yet → still in Preparation for this Round
-            if (!doneMap || doneMap[key] === undefined)
-                return true;
+        await combat.setFlag('mastery-system', ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG, round);
+        if (combat.flags?.['mastery-system']) {
+            combat.flags['mastery-system'][ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG] = round;
         }
     }
-    catch {
-        /* optional */
+    catch (err) {
+        console.warn('Mastery System | closeActiveBuffPreparationForRound failed', err);
     }
-    return false;
+}
+/** Re-open Active Buff Preparation when a new Round begins. */
+export async function openActiveBuffPreparationForRound(combat) {
+    if (!combat?.id || typeof combat.unsetFlag !== 'function')
+        return;
+    try {
+        await combat.unsetFlag('mastery-system', ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG);
+        if (combat.flags?.['mastery-system']) {
+            delete combat.flags['mastery-system'][ACTIVE_BUFF_PREP_CLOSED_ROUND_FLAG];
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | openActiveBuffPreparationForRound failed', err);
+    }
 }
 export function readBuffLifecycleFlags(effect) {
     const flags = effect?.flags?.['mastery-system'];
@@ -194,14 +202,55 @@ export async function expireActiveBuffsAtRoundEnd(actor, combat, endingRound) {
     return expiredNames;
 }
 /**
+ * Snapshot Prep-scoped DN remaining before an Active Buff effect ends
+ * (replace / voluntary end). Survives A→B→A within the same Preparation.
+ */
+export async function snapshotActiveBuffPrepResourcesBeforeEnd(actor, combat, effect) {
+    if (!actor || !effect)
+        return;
+    const flags = effect?.flags?.['mastery-system'];
+    if (!flags?.activeBuff)
+        return;
+    const identity = activeBuffResourceIdentity(flags);
+    if (!identity || !combat?.id)
+        return;
+    const round = preparationTargetRound(combat);
+    const key = activeBuffPrepResourceKey(String(combat.id), round, identity);
+    const mech = flags.mechanics && typeof flags.mechanics === 'object' ? flags.mechanics : {};
+    const tid = String(flags.powerTemplateId ?? flags.templateId ?? '').toLowerCase();
+    const name = String(effect?.name ?? flags.powerName ?? '').toLowerCase();
+    const isDnBuff = tid === 'ab-reinforced-damage-negation' ||
+        name.includes('damage negation pool') ||
+        name.includes('reinforced damage negation');
+    if (!isDnBuff)
+        return;
+    const max = Math.max(0, Math.floor(Number(mech.damageNegationPoolMax ?? mech.damageNegation ?? flags.damageNegationPoolMax) || 0));
+    const remaining = Math.max(0, Math.floor(Number(mech.damageNegation) || 0));
+    try {
+        const rs = getRoundState(actor, combat);
+        const ledger = (rs.activeBuffPrepResourceLedger || {});
+        rs.activeBuffPrepResourceLedger = snapshotPrepDamageNegationOnEnd(ledger, key, remaining, max);
+        await setRoundState(actor, rs);
+    }
+    catch (err) {
+        console.warn('Mastery System | Active Buff Prep DN snapshot failed', err);
+    }
+}
+/**
  * Refresh Active Buff Temporary HP pools at Preparation (once per Round).
  * Raises each buff-owned refresh source to its declared printed value.
+ * A→B→A in the same Prep does not re-grant Temp HP for the same template.
  */
 export async function refreshActiveBuffTempHPAtPreparation(actor, combat) {
     if (!actor)
         return;
     const combatId = String(combat?.id ?? '');
     const effects = getActiveBuffsSync(actor);
+    let ledger = combat
+        ? (getRoundState(actor, combat).activeBuffPrepResourceLedger ||
+            {})
+        : {};
+    let ledgerDirty = false;
     for (const effect of effects) {
         const flags = effect?.flags?.['mastery-system'];
         if (!flags?.activeBuff)
@@ -222,6 +271,25 @@ export async function refreshActiveBuffTempHPAtPreparation(actor, combat) {
         const refreshKey = `prepTempHP:${combatId}:${round}`;
         if (flags[refreshKey])
             continue;
+        const identity = activeBuffResourceIdentity(flags);
+        const ledgerKey = identity
+            ? activeBuffPrepResourceKey(combatId, round, identity)
+            : '';
+        if (ledgerKey && !canGrantPrepTempHP(ledger, ledgerKey)) {
+            // Same template already granted Temp HP this Prep (A→B→A) — skip re-grant.
+            try {
+                if (typeof effect.update === 'function') {
+                    await effect.update({ [`flags.mastery-system.${refreshKey}`]: true });
+                }
+                else if (flags) {
+                    flags[refreshKey] = true;
+                }
+            }
+            catch {
+                /* best-effort */
+            }
+            continue;
+        }
         const effectId = String(effect?.id ?? effect?._id ?? '');
         if (!effectId)
             continue;
@@ -241,6 +309,10 @@ export async function refreshActiveBuffTempHPAtPreparation(actor, combat) {
             createdAt: existing?.createdAt ?? Date.now(),
         };
         await upsertTempHPSource(actor, key, source);
+        if (ledgerKey) {
+            ledger = markPrepTempHPGranted(ledger, ledgerKey);
+            ledgerDirty = true;
+        }
         try {
             if (typeof effect.update === 'function') {
                 await effect.update({ [`flags.mastery-system.${refreshKey}`]: true });
@@ -251,6 +323,16 @@ export async function refreshActiveBuffTempHPAtPreparation(actor, combat) {
         }
         catch {
             /* best-effort idempotence mark */
+        }
+    }
+    if (ledgerDirty && combat) {
+        try {
+            const rs = getRoundState(actor, combat);
+            rs.activeBuffPrepResourceLedger = ledger;
+            await setRoundState(actor, rs);
+        }
+        catch (err) {
+            console.warn('Mastery System | Active Buff Prep Temp HP ledger write failed', err);
         }
     }
 }

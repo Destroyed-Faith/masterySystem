@@ -27,8 +27,7 @@ export type ActiveBuffUiFocus = (typeof ACTIVE_BUFF_UI_FOCI)[number];
 export declare const ACTIVE_BUFF_UI_FOCUS_LABELS: Record<ActiveBuffUiFocus, string>;
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Covers the final 25; retired Combined / Penetration / Healing stay omitted.
- * Offensive = 12 (5 prior + 7 expansion); Defensive = 14 (Thorns overlap).
+ * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (Batch 8.1: legacy auras retired; 14 Special Auras).
  */
 export declare const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<Record<string, readonly ActiveBuffUiFocus[]>>;
 /**

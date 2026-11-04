@@ -51,13 +51,11 @@ export const ACTIVE_BUFF_UI_FOCUS_LABELS = {
 };
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Covers the final 25; retired Combined / Penetration / Healing stay omitted.
- * Offensive = 12 (5 prior + 7 expansion); Defensive = 14 (Thorns overlap).
+ * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (Batch 8.1: legacy auras retired; 14 Special Auras).
  */
 export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID = {
     'ab-armor': ['defensive'],
     'ab-evade': ['defensive'],
-    'ab-armor-aura': ['defensive'],
     'ab-temp-hp': ['defensive'],
     'ab-damage-reduction': ['defensive'],
     'ab-phasing': ['defensive'],
@@ -66,21 +64,30 @@ export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID = {
     'ab-invisibility': ['defensive'],
     'ab-reinforced-parry': ['defensive'],
     'ab-reinforced-damage-negation': ['defensive'],
-    'ab-summon-armor-aura': ['defensive'],
     'ab-intensified-absorption': ['defensive'],
     'ab-damage': ['offensive'],
     'ab-critical': ['offensive'],
-    'ab-damage-aura': ['offensive'],
-    'ab-summon-damage-aura': ['offensive'],
     // Retaliation: defensive posture with offensive payload — discoverable in both.
     'ab-thorns': ['defensive', 'offensive'],
     'ab-armor-reduction': ['offensive'],
     'ab-enemy-evade-reduction': ['offensive'],
     'ab-spell-resistance-piercing': ['offensive'],
     'ab-maximization': ['offensive'],
-    'ab-armor-reduction-aura': ['offensive'],
-    'ab-allied-damage-aura': ['offensive'],
     'ab-area-expansion': ['offensive'],
+    'ab-blight-aura': ['offensive'],
+    'ab-challenge-aura': ['offensive'],
+    'ab-corrode-aura': ['offensive'],
+    'ab-disoriented-aura': ['offensive'],
+    'ab-expose-aura': ['offensive'],
+    'ab-hex-aura': ['offensive'],
+    'ab-lacerate-aura': ['offensive'],
+    'ab-mark-aura': ['offensive'],
+    'ab-root-aura': ['offensive'],
+    'ab-ruin-aura': ['offensive'],
+    'ab-slow-aura': ['offensive'],
+    'ab-soulburn-aura': ['offensive'],
+    'ab-sundered-aura': ['offensive'],
+    'ab-weaken-aura': ['offensive'],
 };
 /**
  * Complete auditable mapping: every selectable Active templateId → UI filters.
@@ -109,15 +116,29 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID = {
         effects: ['damage', 'healing'],
         deliveries: ['single-target'],
     },
-    // Damage AoE + Special (melee centered on self)
-    'active-melee-aoe-damage-t3': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-    'active-melee-aoe-damage-t4': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-    'active-melee-aoe-damage-t5': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-    'active-melee-aoe-damage-t6': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-    'active-ranged-aoe-damage-t3': { effects: ['damage', 'special'], deliveries: ['area'] },
-    'active-ranged-aoe-damage-t4': { effects: ['damage', 'special'], deliveries: ['area'] },
-    'active-ranged-aoe-damage-t5': { effects: ['damage', 'special'], deliveries: ['area'] },
-    'active-ranged-aoe-damage-t6': { effects: ['damage', 'special'], deliveries: ['area'] },
+    // Instant Single-Special (Special-only ST — no damage axis)
+    'active-melee-instant-special-t3': { effects: ['special'], deliveries: ['single-target'] },
+    'active-ranged-instant-special-t3': { effects: ['special'], deliveries: ['single-target'] },
+    'active-melee-instant-special-t4': { effects: ['special'], deliveries: ['single-target'] },
+    'active-ranged-instant-special-t4': { effects: ['special'], deliveries: ['single-target'] },
+    'active-melee-instant-special-t5': { effects: ['special'], deliveries: ['single-target'] },
+    'active-ranged-instant-special-t5': { effects: ['special'], deliveries: ['single-target'] },
+    'active-melee-instant-special-t6': { effects: ['special'], deliveries: ['single-target'] },
+    'active-ranged-instant-special-t6': { effects: ['special'], deliveries: ['single-target'] },
+    // Limited Instant Damage (Batch 5 C07) — shared Safe Haven charge; ×4 printed Power Dice
+    'active-melee-limited-single': { effects: ['damage'], deliveries: ['single-target'] },
+    'active-ranged-limited-single': { effects: ['damage'], deliveries: ['single-target'] },
+    'active-melee-limited-aoe': { effects: ['damage'], deliveries: ['area', 'self'] },
+    'active-ranged-limited-aoe': { effects: ['damage'], deliveries: ['area'] },
+    // Instant AoE Special (0 Power dice — Special-only; UI label "special" not "damage")
+    'active-melee-aoe-damage-t3': { effects: ['special'], deliveries: ['area', 'self'] },
+    'active-melee-aoe-damage-t4': { effects: ['special'], deliveries: ['area', 'self'] },
+    'active-melee-aoe-damage-t5': { effects: ['special'], deliveries: ['area', 'self'] },
+    'active-melee-aoe-damage-t6': { effects: ['special'], deliveries: ['area', 'self'] },
+    'active-ranged-aoe-damage-t3': { effects: ['special'], deliveries: ['area'] },
+    'active-ranged-aoe-damage-t4': { effects: ['special'], deliveries: ['area'] },
+    'active-ranged-aoe-damage-t5': { effects: ['special'], deliveries: ['area'] },
+    'active-ranged-aoe-damage-t6': { effects: ['special'], deliveries: ['area'] },
     // Persistent zones — Special auto-apply hazard fields (no damage rider)
     'active-ranged-zone-t3': { effects: ['special'], deliveries: ['zone-persistent'] },
     'active-ranged-zone-t4': { effects: ['special'], deliveries: ['zone-persistent'] },
@@ -162,11 +183,11 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID = {
     'active-melee-weapon-split': { effects: ['damage'], deliveries: ['single-target'] },
     'active-ranged-weapon-split': { effects: ['damage'], deliveries: ['single-target'] },
     'active-ranged-weapon-autofire': { effects: ['damage'], deliveries: ['single-target'] },
-    // Targeted Special (Exorcism / Requiem) — damage + special
+    // Targeted Special (Exorcism / Requiem) — ST keeps weapon damage; AoE is Special-only
     'active-melee-targeted-special': { effects: ['damage', 'special'], deliveries: ['single-target'] },
     'active-ranged-targeted-special': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-    'active-melee-aoe-targeted-special': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-    'active-ranged-aoe-targeted-special': { effects: ['damage', 'special'], deliveries: ['area'] },
+    'active-melee-aoe-targeted-special': { effects: ['special'], deliveries: ['area', 'self'] },
+    'active-ranged-aoe-targeted-special': { effects: ['special'], deliveries: ['area'] },
     // Mental
     'active-mental-attack': { effects: ['damage'], deliveries: ['single-target'] },
     'active-mental-control': { effects: ['control'], deliveries: ['single-target'] },

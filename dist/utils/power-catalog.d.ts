@@ -31,13 +31,13 @@ export { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId };
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
 /**
- * Final Active Buff catalogue (`docs/Rules/active-buffs.md` TOC + Offensive Expansion 2026-10-24).
- * New-Power pickers may only offer these 25; legacy templates remain in
- * `ACTIVE_BUFF_TEMPLATES` for owned items and direct `templateId` grants.
+ * Final Active Buff catalogue (Canonical Active_Buffs.md + Batch 8.1 Special Auras).
+ * New-Power pickers may only offer these IDs. Legacy aura templates remain in
+ * `ACTIVE_BUFF_TEMPLATES` for owned items / Artifact grants (Batch 9 redesign).
  */
-export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-armor-aura", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-damage-aura", "ab-summon-damage-aura", "ab-thorns", "ab-summon-armor-aura", "ab-intensified-absorption", "ab-armor-reduction", "ab-enemy-evade-reduction", "ab-spell-resistance-piercing", "ab-maximization", "ab-armor-reduction-aura", "ab-allied-damage-aura", "ab-area-expansion"];
+export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-thorns", "ab-intensified-absorption", "ab-armor-reduction", "ab-enemy-evade-reduction", "ab-spell-resistance-piercing", "ab-maximization", "ab-area-expansion", "ab-blight-aura", "ab-challenge-aura", "ab-corrode-aura", "ab-disoriented-aura", "ab-expose-aura", "ab-hex-aura", "ab-lacerate-aura", "ab-mark-aura", "ab-root-aura", "ab-ruin-aura", "ab-slow-aura", "ab-soulburn-aura", "ab-sundered-aura", "ab-weaken-aura"];
 export type FinalActiveBuffTemplateId = (typeof FINAL_ACTIVE_BUFF_TEMPLATE_IDS)[number];
-/** True when `templateId` is in the official 25-buff selection catalogue. */
+/** True when `templateId` is in the official 33-buff selection catalogue (Batch 8.1). */
 export declare function isSelectableActiveBuffTemplateId(templateId: string | null | undefined): boolean;
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export declare const SUBFAMILY_LABELS: Record<string, string>;

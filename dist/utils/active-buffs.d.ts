@@ -34,8 +34,7 @@ export interface ActivateActiveBuffOptions {
      */
     allowOutsidePreparation?: boolean;
     /**
-     * When true, do not mark the once-per-Preparation Active Buff slot
-     * (caller already did / maintain / tests).
+     * @deprecated Z01 — no Attack Action / once-per-Prep slot. Kept for callers.
      */
     skipActionCommit?: boolean;
 }
@@ -44,7 +43,9 @@ export interface ActivateActiveBuffOptions {
  * Duration is complete Combat Rounds ending at Round End:
  * lastActiveRound = activationRound + effectiveDuration - 1.
  * Only one true active buff can be active at a time (utilities can stack).
- * Activation does not spend an Attack Action — only the once-per-Preparation slot.
+ * Activation does not spend an Attack Action or Stones. There is no general
+ * per-Combat or per-Preparation activation limit — replace ends the prior Buff
+ * fully before the new one begins (Z01).
  */
 export declare function activateActiveBuff(actor: Actor, power: any, opts?: ActivateActiveBuffOptions): Promise<boolean>;
 export interface RetractActiveBuffOptions {
@@ -59,28 +60,30 @@ export type RetractActiveBuffResult = {
     reason?: 'none' | 'denied' | 'error';
 };
 /**
- * Sync permission helper when Preparation window / ownership are already known (UI context).
- * Players: only during Preparation. GMs: anytime a true buff is maintained.
+ * Sync permission helper: voluntary end is free anytime for the owner / GM (Z01).
+ * `windowOpen` is ignored for ending — kept for call-site compatibility.
  */
 export declare function canRetractActiveBuffFromFlags(opts: {
     maintaining: boolean;
     isGM: boolean;
     isOwner: boolean;
-    windowOpen: boolean;
+    windowOpen?: boolean;
 }): boolean;
 /**
- * Whether the current user may retract a maintained true Active Buff.
- * Players: only during Preparation. GMs: anytime a true buff is maintained.
+ * Whether the current user may voluntarily end a maintained true Active Buff.
+ * Owners and GMs may end anytime at no cost (Z01). Activation still requires Preparation.
  */
-export declare function canRetractActiveBuffActivation(actor: Actor, combat: any, user?: {
+export declare function canRetractActiveBuffActivation(actor: Actor, _combat?: any, user?: {
     isGM?: boolean;
 } | null): Promise<boolean>;
 /**
- * Retract a maintained Active Buff: delete the effect and, when the base Attack
- * was committed for this activation, refund prepBaseAttackCommitted + activeBuffUsedThisRound.
- * Players may only retract during Preparation; GMs may retract anytime.
+ * Voluntarily end a maintained Active Buff (free, anytime).
+ * Clears legacy prepBaseAttackCommitted / activeBuffUsedThisRound if present.
+ * Does not restore Critical / Maximization / other limited Buff resources.
  */
 export declare function retractActiveBuffActivation(actor: Actor, opts?: RetractActiveBuffOptions): Promise<RetractActiveBuffResult>;
+/** Alias — voluntary end of the maintained Active Buff (Z01). */
+export declare const endActiveBuff: typeof retractActiveBuffActivation;
 /**
  * Get all active buffs on an actor
  */

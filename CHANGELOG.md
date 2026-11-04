@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.822] - 2026-11-04
+
+### Added
+
+- **Special Auras complete (Z05 / Batch 8.1):** All 14 catalogue Special Auras (Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered, Weaken) with printed PL 1–16 tables; shared Special Aura runtime; selectable Active Buff catalogue expands to 33.
+- **Batch 9 Phase A audit:** Read-only Artifact Catalogue alignment report at `docs/audits/BATCH9_ARTIFACT_CATALOGUE_AUDIT.md` (no Artifact runtime fixes yet).
+
+### Changed
+
+- **Canonical rulebooks:** Synced Players Handbook, Actives, and Active Buffs for the 14 Special Auras; preserved Batch 6 Active Buff lifecycle wording where Downloads still had older once-per-Combat phrasing.
+- **Movement hooks:** Persistent Zones and Special Auras react to any combat token move, not only the active combatant.
+
 ## [0.9.821] - 2026-11-04
 
 ### Added

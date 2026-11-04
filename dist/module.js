@@ -894,6 +894,25 @@ Hooks.once('init', async function () {
             console.error('Mastery System | pending Resolve Healing expiry failed', err);
         }
     });
+    // Batch 6.1: Active Buff Prep stays open after stone confirm; closes when turns advance,
+    // re-opens when a new Round begins.
+    Hooks.on('updateCombat', async (combat, changes) => {
+        if (!game.user?.isGM)
+            return;
+        try {
+            const { openActiveBuffPreparationForRound, closeActiveBuffPreparationForRound, } = await import('./combat/active-buff-lifecycle.js');
+            if (changes?.round !== undefined) {
+                await openActiveBuffPreparationForRound(combat);
+                return;
+            }
+            if (changes?.turn !== undefined) {
+                await closeActiveBuffPreparationForRound(combat);
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Active Buff Prep window sync failed', err);
+        }
+    });
     Hooks.on('updateCombat', async (combat, changes) => {
         if (changes?.round !== undefined && game.user?.isGM) {
             const round = Math.max(1, Math.floor(Number(combat.round) || 1));
@@ -979,6 +998,24 @@ Hooks.once('init', async function () {
         catch (err) {
             console.error('Mastery System | status-tick turnStart failed', err);
         }
+        // Z03 maintenance runs from stone-hooks immediately after resetTurnState
+        // (Attack Actions refreshed). Z06 C: after ticks / Natural Recovery / Decay —
+        // apply zones the target occupies if this Round has not yet applied.
+        try {
+            const { applyPersistentZonesAtTargetTurnStart } = await import('./combat/persistent-zone-runtime.js');
+            await applyPersistentZonesAtTargetTurnStart(turnActor, combat);
+        }
+        catch (err) {
+            console.error('Mastery System | Persistent Zone turn-start apply failed', err);
+        }
+        // Z05 Special Auras: after ticks / recovery / decay / zones — once per Aura×target×Round.
+        try {
+            const { applySpecialAurasAtTargetTurnStart } = await import('./combat/special-aura-runtime.js');
+            await applySpecialAurasAtTargetTurnStart(turnActor, combat);
+        }
+        catch (err) {
+            console.error('Mastery System | Special Aura turn-start apply failed', err);
+        }
         try {
             const { resetMovementForTurn } = await import('./combat/movement-tracker.js');
             await resetMovementForTurn(turnActor);
@@ -1030,6 +1067,17 @@ Hooks.once('init', async function () {
     Hooks.on('combatEnd', async (combat) => {
         if (!game.user?.isGM)
             return;
+        try {
+            const { endAllPersistentZones } = await import('./combat/persistent-zone-runtime.js');
+            for (const c of Array.from(combat?.combatants ?? [])) {
+                const actor = c?.actor;
+                if (actor)
+                    await endAllPersistentZones(actor);
+            }
+        }
+        catch (err) {
+            console.error('Mastery System | Persistent Zone combatEnd cleanup failed', err);
+        }
         try {
             // Combat is over: any prepared Healing is stale (null round compare clears everything).
             const { expireStaleResolveHealingPending } = await import('./stones/stone-resolution-ui.js');

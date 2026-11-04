@@ -1,18 +1,27 @@
 /**
  * Artifact Safe Haven Rest / Combat use ledgers.
  *
- * Used by Moonlight Judgment (Limited uses), Moonlight Shadow (ceil(MR/2)),
- * Dragon Head Breath (ceil(MR/2) + once per Combat), and similar Artifact Functions.
+ * Moonlight Judgment Limited uses now share the global Limited charge
+ * (`limited-charge.ts`). Moonlight Shadow (ceil(MR/2)), Dragon Head Breath
+ * (ceil(MR/2) + once per Combat), and similar Artifact Functions still use
+ * these ledgers.
  */
 export declare const ARTIFACT_REST_USES_FLAG = "artifactRestUses";
 export declare const ARTIFACT_COMBAT_USES_FLAG = "artifactCombatUses";
 export type ArtifactUseBucket = 'moonlightJudgment' | 'moonlightShadow' | 'dragonBreath' | string;
 export declare function masteryRankOf(actor: any): number;
-/** Limited Power uses per Safe Haven Rest = ceil(PL / 2). */
-export declare function limitedUsesForPowerLevel(pl: number): number;
+/**
+ * @deprecated Batch 5 C07 — Limited is one global charge per Safe Haven Rest
+ * (see `limited-charge.ts`). Kept for callers; always returns 1.
+ */
+export declare function limitedUsesForPowerLevel(_pl: number): number;
 /** Moonlight Shadow / Breath Weapon rest uses = ceil(MR / 2). */
 export declare function halfMasteryRankUses(masteryRank: number): number;
-export declare function moonlightJudgmentMaxUses(artifactLevel: number): number;
+/**
+ * @deprecated Batch 5 C07 — Moonlight Judgment shares the global Limited charge.
+ * Always 1 use (ignores artifact stage). Prefer `limitedChargeRemaining`.
+ */
+export declare function moonlightJudgmentMaxUses(_artifactLevel?: number): number;
 export declare function moonlightShadowMaxUses(masteryRank: number): number;
 export declare function dragonBreathRestMaxUses(masteryRank: number): number;
 export declare function getArtifactRestUsesSpent(actor: any, bucket: ArtifactUseBucket): number;
@@ -39,11 +48,10 @@ export declare function clearArtifactCombatUses(actor: any): Promise<void>;
 /** Clear combat-once ledgers for every combatant on combat end/delete. */
 export declare function clearArtifactCombatUsesForCombat(combat: any): Promise<void>;
 /**
- * Moonlight Judgment gate: Limited uses by artifact stage (2/5/8).
- * Returns false when exhausted.
+ * Moonlight Judgment gate — delegates to the global Limited charge (C07).
  */
-export declare function assertMoonlightJudgmentAvailable(actor: any, artifactLevel: number): boolean;
-export declare function spendMoonlightJudgmentUse(actor: any, artifactLevel: number): Promise<boolean>;
+export declare function assertMoonlightJudgmentAvailable(actor: any, _artifactLevel?: number): boolean;
+export declare function spendMoonlightJudgmentUse(actor: any, _artifactLevel?: number): Promise<boolean>;
 export declare function assertMoonlightShadowAvailable(actor: any): boolean;
 export declare function spendMoonlightShadowUse(actor: any): Promise<boolean>;
 /**

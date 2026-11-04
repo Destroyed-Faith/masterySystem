@@ -1004,14 +1004,19 @@ export function getAvailableAttackActions(actor, combat) {
  * No longer gated on Attack Actions — Activation is free; only once per Preparation.
  * `attackActionsAvailable` is kept for call-site compatibility and ignored.
  */
-export function remainingActiveBuffActions(usedThisRound, _attackActionsAvailable) {
-    if (usedThisRound)
-        return 0;
+/**
+ * Radial remaining display for Active Buffs (Z01).
+ * There is no general per-Prep / per-Combat activation limit — Prep gate lives
+ * in `activateActiveBuff`. Always show 1 while combat exists so switches are visible.
+ */
+export function remainingActiveBuffActions(_usedThisRound, _attackActionsAvailable) {
     return 1;
 }
 export function getAvailableActiveBuffActions(actor, combat) {
-    const roundState = getRoundState(actor, combat);
-    return remainingActiveBuffActions(roundState.activeBuffUsedThisRound);
+    if (!combat)
+        return 0;
+    void actor;
+    return remainingActiveBuffActions(false);
 }
 export async function markActiveBuffUsedThisRound(actor, combat) {
     const roundState = getRoundState(actor, combat);

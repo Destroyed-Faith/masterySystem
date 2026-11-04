@@ -584,7 +584,30 @@ export interface PowerMechanics {
     /** Special(X) magnitude for special auras. */
     x?: number;
     /** Who the aura affects when it triggers. */
-    targets: 'enemies' | 'allies';
+    targets: 'enemies' | 'allies' | 'allCreatures';
+    radiusM: number;
+  };
+  /**
+   * Active Buff Special Aura (Batch 8 / Z05): automatic Special(X) field.
+   * Owner is immune; every other creature in radius is affected once per Round.
+   */
+  activeSpecialAura?: {
+    special:
+      | 'blight'
+      | 'challenge'
+      | 'corrode'
+      | 'disoriented'
+      | 'expose'
+      | 'hex'
+      | 'lacerate'
+      | 'mark'
+      | 'root'
+      | 'ruin'
+      | 'slow'
+      | 'soulburn'
+      | 'sundered'
+      | 'weaken';
+    rank: number;
     radiusM: number;
   };
 

@@ -634,7 +634,7 @@ function buildPackageId(selection) {
     }
     return `${selection.defenseId}__${selection.offenseId ?? 'unknown'}`;
 }
-const ACTIVE_BUFF_DURATION_NOTE = 'Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action).';
+const ACTIVE_BUFF_DURATION_NOTE = 'Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (no Attack Action or Stone cost).';
 const OFFENSIVE_ACTIVE_BUFF_META = {
     'ab-damage': {
         groupLabel: 'Raw damage',

@@ -9,11 +9,14 @@
  *   5. Roll / resolve the remaining pool
  *
  * Maximization must never be spent before Negation, and never for a zero-dice pool.
+ * Special-only Attacks have no Damage Pool and cannot use Maximization for direct damage.
  */
 /** True when a Maximization charge may be spent after Negation for this roll. */
 export declare function shouldSpendMaximizationAfterNegation(opts: {
     wantMaximization: boolean;
     remainingDice: number;
+    /** Special-only Attacks never maximize direct damage (no pool). */
+    specialOnly?: boolean;
 }): boolean;
 /**
  * Pure: maximize a remaining d8 pool after Negation removed `removed` dice from `original`.

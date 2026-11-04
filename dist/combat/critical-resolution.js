@@ -25,33 +25,26 @@ export function critAppliesToAttackRoll(args) {
 /**
  * Sync Active Buff Critical quota for the current combat.
  * New combat → remaining = Critical(X). Same combat → keep spent charges
- * (reactivation / new Rounds do not refill the allowance).
+ * (reactivation / Buff swap / new Rounds do not refill the allowance).
  */
 export function syncCriticalRoundQuota(existing, roundKey, buffCriticalX) {
     const x = Math.max(0, Math.floor(Number(buffCriticalX) || 0));
     const key = String(roundKey || '');
     if (!existing || existing.roundKey !== key) {
-        return { roundKey: key, granted: x, remaining: x };
+        return { roundKey: key, granted: x, remaining: x, spent: 0 };
     }
-    if (x > existing.granted) {
-        const delta = x - existing.granted;
-        return {
-            roundKey: key,
-            granted: x,
-            remaining: existing.remaining + delta,
-        };
+    const spent = Math.max(0, Math.floor(Number(existing.spent) ||
+        Math.max(0, Math.floor(Number(existing.granted) || 0) - Math.floor(Number(existing.remaining) || 0))));
+    if (x <= 0) {
+        // Buff off / non-Critical Buff — preserve spent for later reactivation.
+        return { roundKey: key, granted: 0, remaining: 0, spent };
     }
-    if (x < existing.granted) {
-        return {
-            roundKey: key,
-            granted: x,
-            remaining: Math.min(existing.remaining, x),
-        };
-    }
+    // Higher X mid-combat (e.g. empower) adds unused capacity only; spent stays.
     return {
         roundKey: key,
-        granted: existing.granted,
-        remaining: Math.max(0, Math.floor(Number(existing.remaining) || 0)),
+        granted: x,
+        remaining: Math.max(0, x - spent),
+        spent,
     };
 }
 /** Spend the declared Crit charge. No-op when the roll did not select Crit. */
@@ -76,9 +69,12 @@ export function applyDeclaredCritSpend(state, mod) {
     return false;
 }
 export function consumeCriticalQuota(quota) {
+    const priorSpent = Math.max(0, Math.floor(Number(quota.spent) ||
+        Math.max(0, Math.floor(Number(quota.granted) || 0) - Math.floor(Number(quota.remaining) || 0))));
     return {
         ...quota,
         remaining: Math.max(0, quota.remaining - 1),
+        spent: priorSpent + 1,
     };
 }
 /**

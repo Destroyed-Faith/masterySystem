@@ -83,6 +83,23 @@ export declare function resolveMaximizationActor(actor: any): any;
 export type MaximizationSource = 'stone' | 'passive' | 'activeBuff';
 /** Remaining stone Maximizations for the current combat. */
 export declare function remainingStoneMaximizations(actor: any): number;
+/**
+ * Active Buff Maximization combat quota (Z01).
+ * `spent` survives Buff end / swap / reactivate so switching cannot farm uses.
+ * When no Maximization Buff is maintained (`granted === 0`), returns null for
+ * spend/UI but callers that only need persistence should read roundState.
+ */
+export declare function syncActiveBuffMaximizationQuotaState(existing: {
+    roundKey?: string;
+    granted?: number;
+    remaining?: number;
+    spent?: number;
+} | null | undefined, combatId: string, granted: number): {
+    roundKey: string;
+    granted: number;
+    remaining: number;
+    spent: number;
+};
 export declare function remainingActiveBuffMaximizations(actor: any): number;
 /** Total Maximizations (stone + Passive + Active Buff) available for UI enablement. */
 export declare function remainingMaximizations(actor: any): number;

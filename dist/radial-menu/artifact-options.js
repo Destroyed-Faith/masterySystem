@@ -19,6 +19,8 @@
  * points to the artifact item, with a synthetic `system.artifactPowerKey`
  * attached so downstream consumers can identify the row.
  */
+import { isSpecialOnlyTemplateId } from '../combat/damage-transfer.js';
+import { isLimitedChargeAvailable } from '../combat/limited-charge.js';
 import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
@@ -52,15 +54,17 @@ function classifyArtifactRowType(rowType) {
     if (t.includes('stone') || t.includes('support'))
         return 'support';
     // Offensive / attack-delivering rows (catalog martial + zone/aoe labels).
+    // "Melee, Limited" / "Ranged AoE, Limited" must surface as attacks (C07).
     if (t.includes('aoe') ||
         t.includes('attack') ||
+        t.includes('limited') ||
         t.includes('zone') ||
         t.includes('barrier') ||
         t.includes('damage') ||
         t === 'melee' ||
         t === 'ranged' ||
-        t.startsWith('melee ') ||
-        t.startsWith('ranged ')) {
+        t.startsWith('melee') ||
+        t.startsWith('ranged')) {
         return 'attack';
     }
     // Core handwritten Dragon Head Breath rows use "Artifact Active" (not "Active"
@@ -302,7 +306,7 @@ export function buildArtifactRadialOptions(actor) {
                     powerType: 'active-buff',
                     tags: ['artifact', 'active-buff', typeTag],
                     costsMovement: false,
-                    // Prep activation: no Attack Action / Stones (once per Preparation slot).
+                    // Prep activation: no Attack Action / Stones (Z01 — free switch in Prep).
                     costsAction: false,
                     defaultTargetGroup: 'self',
                     artifactRowSpecial: row.special || '',
@@ -376,20 +380,29 @@ export function buildArtifactRadialOptions(actor) {
             if (!(row.isSpell && row.powerTemplateId) && artifactCarriesWeaponProfile(item)) {
                 option.forcedWeaponItemId = item.id;
             }
-            // Limited Instant AoE Spells (Moonlight Judgment): no weapon/focus, Limited dice.
+            // Limited Instant Damage (e.g. Moonlight Judgment): share global Limited charge.
             // Prefer mechanical `row.limited` / Special column over name matching.
             const rowLimited = row.limited === true ||
                 /\blimited\b/i.test(String(row.special || '')) ||
                 /moonlight\s*judgment/i.test(name) ||
                 /undead\s*tracer/i.test(name);
             if (rowLimited) {
-                option.ignoreWeaponDamage = true;
+                // Martial weapon off for spell Limited; Spell Focus still applies when unlocked.
+                if (row.isSpell)
+                    option.ignoreWeaponDamage = true;
                 option.artifactLimited = true;
+                option.limited = true;
+                if (!isLimitedChargeAvailable(actor))
+                    option.disabled = true;
             }
             if (row.powerTemplateId) {
                 option.artifactPowerTemplateId = row.powerTemplateId;
                 option.artifactChosenSpecialKey = row.chosenSpecialKey;
                 option.artifactRowSpecial = row.special || '';
+                if (isSpecialOnlyTemplateId(row.powerTemplateId)) {
+                    option.specialOnly = true;
+                    option.ignoreWeaponDamage = true;
+                }
             }
             if (row.isSpell && row.powerTemplateId) {
                 option.artifactIsSpell = true;

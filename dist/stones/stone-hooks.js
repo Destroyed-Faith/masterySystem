@@ -78,6 +78,14 @@ export function initializeStoneHooks() {
                     console.warn('Mastery System | releaseDefensiveStoneExpiry failed', e);
                 }
                 await resetTurnState(currentCombatant.actor, combat);
+                // Z03: after Attack Actions refresh — pay 1 AA per Persistent Zone to maintain.
+                try {
+                    const { maintainPersistentZonesAtCreatorTurnStart } = await import('../combat/persistent-zone-runtime.js');
+                    await maintainPersistentZonesAtCreatorTurnStart(currentCombatant.actor, combat);
+                }
+                catch (e) {
+                    console.warn('Mastery System | Persistent Zone maintenance failed', e);
+                }
             }
         }
         // Round changed: GM resets everyone; players still open their own stone dialogs
