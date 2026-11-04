@@ -269,9 +269,10 @@ describe('Autofire — Negation session, cancellation cleanup', () => {
 });
 
 describe('Autofire vs Instant AoE damage rules unchanged', () => {
-  it('Instant AoE: martialWeaponDamageApplies stays false', () => {
-    expect(martialWeaponDamageApplies({ aoeMeleeWeapon: true })).toBe(false);
-    expect(martialWeaponDamageApplies({ instantAoe: true })).toBe(false);
+  it('Instant AoE: martial Weapon Damage stays on the shared Damage Pool', () => {
+    // Batch 3 C02: Martial Instant Damage AoE includes Weapon Damage (unlike Autofire-only quirks).
+    expect(martialWeaponDamageApplies({ aoeMeleeWeapon: true })).toBe(true);
+    expect(martialWeaponDamageApplies({ instantAoe: true })).toBe(true);
     expect(isInstantAoeFlags({ instantAoe: true })).toBe(true);
   });
 

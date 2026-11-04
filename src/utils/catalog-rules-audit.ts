@@ -222,6 +222,11 @@ export const RULES_EXPECTED_ACTIVES: ReadonlyArray<{ rulesName: string; id: stri
     { rulesName: 'Ranged Instant Special — Start PP 6', id: 'active-ranged-instant-special-t5' },
     { rulesName: 'Melee Instant Special — Start PP 8', id: 'active-melee-instant-special-t6' },
     { rulesName: 'Ranged Instant Special — Start PP 8', id: 'active-ranged-instant-special-t6' },
+    // Limited Instant Damage (Batch 5 C07)
+    { rulesName: 'Limited Melee Single Target Attack', id: 'active-melee-limited-single' },
+    { rulesName: 'Limited Ranged Single Target Attack', id: 'active-ranged-limited-single' },
+    { rulesName: 'Limited Melee AoE Attack', id: 'active-melee-limited-aoe' },
+    { rulesName: 'Limited Ranged AoE Attack', id: 'active-ranged-limited-aoe' },
     // Persistent zones
     { rulesName: 'Ranged Persistent Zone — Start PP 3 Special', id: 'active-ranged-zone-t3' },
     { rulesName: 'Ranged Persistent Zone — Start PP 4 Special', id: 'active-ranged-zone-t4' },

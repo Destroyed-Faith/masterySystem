@@ -141,6 +141,12 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFi
   'active-melee-instant-special-t6': { effects: ['special'], deliveries: ['single-target'] },
   'active-ranged-instant-special-t6': { effects: ['special'], deliveries: ['single-target'] },
 
+  // Limited Instant Damage (Batch 5 C07) — shared Safe Haven charge; ×4 printed Power Dice
+  'active-melee-limited-single': { effects: ['damage'], deliveries: ['single-target'] },
+  'active-ranged-limited-single': { effects: ['damage'], deliveries: ['single-target'] },
+  'active-melee-limited-aoe': { effects: ['damage'], deliveries: ['area', 'self'] },
+  'active-ranged-limited-aoe': { effects: ['damage'], deliveries: ['area'] },
+
   // Instant AoE Special (0 Power dice — Special-only; UI label "special" not "damage")
   'active-melee-aoe-damage-t3': { effects: ['special'], deliveries: ['area', 'self'] },
   'active-melee-aoe-damage-t4': { effects: ['special'], deliveries: ['area', 'self'] },
