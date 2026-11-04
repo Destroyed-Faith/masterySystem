@@ -108,7 +108,10 @@ General Artifacts (including Moonlight) are world-seeded via `seed-artifact-libr
 
 Release workflow: version bump → commit → tag `v0.9.824` → push → GitHub Actions `Create Release` packages `mastery-system-0.9.824.zip` and publishes the GitHub Release that Foundry/Forge consume via `system.json` `manifest` / `download`.
 
-Published module version: **0.9.824** (after tag push + CI).
+Published module version: **0.9.824**  
+GitHub Release: https://github.com/Destroyed-Faith/masterySystem/releases/tag/v0.9.824  
+CI run: https://github.com/Destroyed-Faith/masterySystem/actions/runs/41894072562  
+Download: `mastery-system-0.9.824.zip` (Forge/Foundry via `system.json` manifest).
 
 ---
 
