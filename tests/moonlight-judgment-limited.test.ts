@@ -1,10 +1,9 @@
 /**
- * Moonlight Judgment — Limited Spell AoE targeted checks (catalogue 2026-10-25).
+ * Moonlight Judgment — Limited Spell AoE targeted checks (C07 / 2026-11-04).
  */
 import { describe, expect, it } from 'vitest';
 import {
   applyLimitedPowerDamage,
-  doublePrintedPowerDice,
   spellFocusDamageApplies,
   martialWeaponDamageApplies,
 } from '../src/combat/damage-transfer.js';
@@ -12,9 +11,12 @@ import {
   moonlightJudgmentMaxUses,
   assertMoonlightJudgmentAvailable,
   spendMoonlightJudgmentUse,
-  clearArtifactRestUses,
-  ARTIFACT_REST_USES_FLAG,
 } from '../src/combat/artifact-rest-uses.js';
+import {
+  clearLimitedCharge,
+  isLimitedChargeAvailable,
+  LIMITED_CHARGE_FLAG,
+} from '../src/combat/limited-charge.js';
 import { aoeCreatureNormalTn } from '../src/combat/aoe-melee-resolution.js';
 import { castingBaseTnForPowerLevel } from '../src/combat/spell-roll-handler.js';
 
@@ -36,13 +38,10 @@ function restUseActor() {
 }
 
 describe('Moonlight Judgment Limited damage', () => {
-  it('doubles only printed Power Dice (3/4/8 → 6/8/16)', () => {
-    expect(applyLimitedPowerDamage('3d8', { limited: true })).toBe('6d8');
-    expect(applyLimitedPowerDamage('4d8', { limited: true })).toBe('8d8');
-    expect(applyLimitedPowerDamage('8d8', { limited: true })).toBe('16d8');
-    expect(doublePrintedPowerDice('+3d8')).toBe('+6d8');
-    expect(doublePrintedPowerDice('+4d8')).toBe('+8d8');
-    expect(doublePrintedPowerDice('+8d8')).toBe('+16d8');
+  it('quadruples only printed Power Dice (3/4/8 → 12/16/32)', () => {
+    expect(applyLimitedPowerDamage('3d8', { limited: true })).toBe('12d8');
+    expect(applyLimitedPowerDamage('4d8', { limited: true })).toBe('16d8');
+    expect(applyLimitedPowerDamage('8d8', { limited: true })).toBe('32d8');
   });
 
   it('Spell Instant Damage AoE keeps Spell Focus; martial Weapon stays off for spells', () => {
@@ -71,24 +70,23 @@ describe('Moonlight Judgment Limited damage', () => {
 });
 
 describe('Moonlight Judgment use ledger', () => {
-  it('shares one bucket across stages; max uses 2/5/8', () => {
-    expect(moonlightJudgmentMaxUses(2)).toBe(2);
-    expect(moonlightJudgmentMaxUses(5)).toBe(5);
-    expect(moonlightJudgmentMaxUses(8)).toBe(8);
+  it('shares the global Limited charge (always 1 max use)', () => {
+    expect(moonlightJudgmentMaxUses(2)).toBe(1);
+    expect(moonlightJudgmentMaxUses(5)).toBe(1);
+    expect(moonlightJudgmentMaxUses(8)).toBe(1);
   });
 
-  it('spending at L2 exhausts the shared bucket for higher stages until rest', async () => {
+  it('one spend exhausts Judgment at every stage until Safe Haven Rest', async () => {
     const actor = restUseActor();
 
     expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(true);
     expect(await spendMoonlightJudgmentUse(actor, 2)).toBe(true);
-    expect(await spendMoonlightJudgmentUse(actor, 2)).toBe(true);
     expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(false);
-    // Same bucket — L5 raises the max to 5, so spent=2 still leaves uses.
-    expect(assertMoonlightJudgmentAvailable(actor, 5)).toBe(true);
-    expect(await spendMoonlightJudgmentUse(actor, 5)).toBe(true);
-    expect(actor.flags['mastery-system'][ARTIFACT_REST_USES_FLAG].moonlightJudgment).toBe(3);
-    await clearArtifactRestUses(actor);
+    expect(assertMoonlightJudgmentAvailable(actor, 5)).toBe(false);
+    expect(assertMoonlightJudgmentAvailable(actor, 8)).toBe(false);
+    expect(isLimitedChargeAvailable(actor)).toBe(false);
+    expect(actor.flags['mastery-system'][LIMITED_CHARGE_FLAG]).toBe(true);
+    await clearLimitedCharge(actor);
     expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(true);
   });
 });

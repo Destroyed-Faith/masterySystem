@@ -17,6 +17,10 @@ import {
   getNpcAttackUsesThisRound,
   hasPowerBeenUsedThisRound,
 } from '../combat/action-economy.js';
+import {
+  isLimitedAttackDeclaration,
+  isLimitedChargeAvailable,
+} from '../combat/limited-charge.js';
 import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { movementReductionActive } from '../stones/stone-combat-effects.js';
 import { movementActionMeters } from '../combat/movement-allowance.js';
@@ -942,16 +946,29 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
         }
         const shape = parseAoEShape(aoeStr);
         const rad = parseAoERadius(aoeStr);
-        if (shape === 'radius' && rad !== undefined && rad > 0) {
+        const aoeObj = typeof levelData.aoe === 'object' && levelData.aoe ? levelData.aoe : null;
+        const objShape = String(aoeObj?.shape || '').toLowerCase();
+        const objRad = Math.max(0, Number(aoeObj?.radiusM ?? aoeObj?.sizeM ?? aoeObj?.m) || 0);
+        const isZoneShape =
+          (shape === 'radius' && rad !== undefined && rad > 0) ||
+          ((objShape === 'zone' || objShape === 'radius') && objRad > 0) ||
+          /zone/i.test(typeStr);
+        if (isZoneShape) {
+          const rawRad = objRad > 0 ? objRad : rad ?? 0;
           aoeShape = 'radius';
-          aoeRadiusMeters = withCircularAoeBonus(actor, rad);
+          aoeRadiusMeters = withCircularAoeBonus(actor, rawRad) ?? rawRad;
           rangeMeters = range;
           if (!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) {
             rangeMeters = 0;
           }
           hostileZonePlacement = true;
+          const dur = levelData.duration;
           zoneDurationNote =
-            typeof levelData.duration === 'string' ? levelData.duration : undefined;
+            typeof dur === 'string'
+              ? dur
+              : dur && typeof dur === 'object'
+                ? String((dur as any).note || (dur as any).kind || '')
+                : undefined;
         }
       } else if (/melee/i.test(typeStr)) {
         let aoeStrMelee = (item.system as any)?.aoe;
@@ -1024,6 +1041,17 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
           }
         : {}),
     };
+
+    if (
+      isLimitedAttackDeclaration({
+        limited: (item.system as any)?.limited === true,
+        templateId,
+        item: item as any,
+      })
+    ) {
+      (option as any).limited = true;
+      if (!isLimitedChargeAvailable(actor)) option.disabled = true;
+    }
     
     // Add utility targeting fields if this is a utility
     if (slot === 'utility' || powerType === 'utility') {
@@ -1051,10 +1079,17 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       option.rangeMeters = rangeMeters;
       option.aoeShape = aoeShape;
       option.aoeRadiusMeters = aoeRadiusMeters;
-      option.defaultTargetGroup = 'enemy';
+      // Persistent Zones affect all creatures (Z04) — no enemy-only filter.
+      const isPersistentZone =
+        String((item.system as any)?.subfamily || '').toLowerCase() === 'persistent-zone' ||
+        /zone/i.test(String(levelData?.type || '')) ||
+        !!(levelData?.mechanics as any)?.persistentZone;
+      option.defaultTargetGroup = isPersistentZone ? 'creature' : 'enemy';
       option.allowManualTargetSelection = true;
       option.aoePlacementProfile = 'hostile-zone';
-      option.zoneDurationNote = zoneDurationNote;
+      option.zoneDurationNote = isPersistentZone
+        ? 'maintained (1 Attack Action / Turn)'
+        : zoneDurationNote;
     }
     
     if (powerType === 'movement') {

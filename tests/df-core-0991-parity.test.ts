@@ -217,23 +217,22 @@ function spellZone(partial: Partial<PersistentSpellZone> & Pick<PersistentSpellZ
   });
 }
 
-describe('persistent Spell zones', () => {
-  it('stores one Casting result and resists later without a new roll or Stress', () => {
-    expect(zoneCreationOutcome(10, 22)).toBe('fizzle');
+describe('persistent Special zones (Z02–Z06)', () => {
+  it('creates without Casting fizzle; no auto-expiry; once-per-round mark', () => {
+    // Z02: creation never fizzles — no Casting Roll required.
+    expect(zoneCreationOutcome(10, 22)).toBe('create');
     expect(zoneCreationOutcome(22, 22)).toBe('create');
     const zone = spellZone({ id: 'z', castingTotal: 30, name: 'Zone' });
-    expect(zone.castingTotal).toBe(30);
     expect(zone.powerId).toBe('z');
-    expect(zone.expiresAfterRound).toBe(3);
-    expect(zoneApplicationOutcome(zone.castingTotal, 22)).toBe('affect');
-    expect(zoneApplicationOutcome(zone.castingTotal, 40)).toBe('resist');
+    expect(zone.expiresAfterRound).toBeNull();
+    expect(zoneApplicationOutcome(zone.castingTotal ?? 0, 22)).toBe('affect');
+    expect(zoneApplicationOutcome(zone.castingTotal ?? 0, 40)).toBe('affect');
     const once = markZoneApplied(zone, 'combat:1', 'goblin');
     expect(zoneAlreadyApplied(once, 'combat:1', 'goblin')).toBe(true);
     expect(zoneAlreadyApplied(once, 'combat:2', 'goblin')).toBe(false);
-    expect(zone.castingTotal).toBe(30);
   });
 
-  it('keeps a separate Casting result on every zone from the same caster', () => {
+  it('keeps independent zone instances from the same creator', () => {
     const zoneA = spellZone({ id: 'a', name: 'Zone A', castingTotal: 31, centerX: 0, powerId: 'power-a' });
     const zoneB = spellZone({
       id: 'b',
@@ -244,8 +243,7 @@ describe('persistent Spell zones', () => {
       createdRound: 2,
     });
     const both = appendSpellZone([zoneA], zoneB);
-    expect(both.map((zone) => zone.castingTotal)).toEqual([31, 47]);
-    expect(zoneA.castingTotal).toBe(31);
+    expect(both.map((zone) => zone.id)).toEqual(['a', 'b']);
 
     const enteredA = spellZonesEntered(both, {
       x: 0,
@@ -256,7 +254,7 @@ describe('persistent Spell zones', () => {
       distanceMeters: (x) => Math.abs(x),
     });
     expect(enteredA).toEqual([
-      expect.objectContaining({ zoneId: 'a', castingTotal: 31, outcome: 'affect', finalTn: 22 }),
+      expect.objectContaining({ zoneId: 'a', outcome: 'affect' }),
     ]);
 
     const enteredB = spellZonesEntered(both, {
@@ -268,9 +266,8 @@ describe('persistent Spell zones', () => {
       distanceMeters: (x) => Math.abs(x - 100),
     });
     expect(enteredB).toEqual([
-      expect.objectContaining({ zoneId: 'b', castingTotal: 47, outcome: 'affect', finalTn: 22 }),
+      expect.objectContaining({ zoneId: 'b', outcome: 'affect' }),
     ]);
-    expect(both.find((zone) => zone.id === 'a')?.castingTotal).toBe(31);
   });
 
   it('does not scan the scene for a zone that has no stored center', () => {
@@ -293,18 +290,19 @@ describe('persistent Spell zones', () => {
     expect(scans).toBe(0);
   });
 
-  it('removing or expiring one zone leaves the other Casting result', () => {
+  it('removing one zone leaves the other; round timers no longer expire zones', () => {
     const zoneA = spellZone({ id: 'a', castingTotal: 31, durationNote: '1 rounds', createdRound: 1 });
     const zoneB = spellZone({ id: 'b', castingTotal: 47, durationNote: null, createdRound: 1 });
-    expect(zoneA.expiresAfterRound).toBe(1);
+    expect(zoneA.expiresAfterRound).toBeNull();
     expect(zoneB.expiresAfterRound).toBeNull();
     const removed = removeSpellZone([zoneA, zoneB], 'a');
-    expect(removed.map((zone) => [zone.id, zone.castingTotal])).toEqual([['b', 47]]);
-    const expired = retainActiveSpellZones([zoneA, zoneB], 2);
-    expect(expired.map((zone) => [zone.id, zone.castingTotal])).toEqual([['b', 47]]);
+    expect(removed.map((zone) => zone.id)).toEqual(['b']);
+    // Z02: no automatic round expiry — both would remain if not removed.
+    const retained = retainActiveSpellZones([zoneA, zoneB], 99);
+    expect(retained.map((zone) => zone.id)).toEqual(['a', 'b']);
   });
 
-  it('compares the stored zone result to Spell Resistance at the moment of entry', () => {
+  it('does not use Spell Resistance — high SR still affects', () => {
     const zone = spellZone({ id: 'a', castingTotal: 31 });
     const low = spellZonesEntered([zone], {
       x: 0,
@@ -322,12 +320,11 @@ describe('persistent Spell zones', () => {
       spellResistance: 20,
       distanceMeters: () => 0,
     });
-    expect(low[0]).toMatchObject({ castingTotal: 31, finalTn: 22, outcome: 'affect' });
-    expect(high[0]).toMatchObject({ castingTotal: 31, finalTn: 42, outcome: 'resist' });
-    expect(zone.castingTotal).toBe(31);
+    expect(low[0]).toMatchObject({ outcome: 'affect' });
+    expect(high[0]).toMatchObject({ outcome: 'affect' });
   });
 
-  it('replaces the stored zone list instead of merging over an earlier Casting result', async () => {
+  it('replaces the stored zone list instead of merging over an earlier entry', async () => {
     const zoneA = spellZone({ id: 'a', castingTotal: 31 });
     const zoneB = spellZone({ id: 'b', castingTotal: 47 });
     const actor: any = {
@@ -349,10 +346,10 @@ describe('persistent Spell zones', () => {
       },
     };
     await writeSpellZones(actor, appendSpellZone(readZones(actor), zoneB));
-    expect(actor.flags['mastery-system'].spellZones.map((zone: PersistentSpellZone) => zone.castingTotal)).toEqual([31, 47]);
+    expect(actor.flags['mastery-system'].spellZones.map((zone: PersistentSpellZone) => zone.id)).toEqual(['a', 'b']);
     await writeSpellZones(actor, removeSpellZone(actor.flags['mastery-system'].spellZones, 'a'));
     expect(actor.flags['mastery-system'].spellZones).toHaveLength(1);
-    expect(actor.flags['mastery-system'].spellZones[0].castingTotal).toBe(47);
+    expect(actor.flags['mastery-system'].spellZones[0].id).toBe('b');
   });
 });
 

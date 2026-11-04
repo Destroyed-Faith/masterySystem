@@ -29,12 +29,13 @@ import { resolveFullLevelProgression } from '../src/utils/artifact-visible-abili
 import { runArtifactAlignmentMigration } from '../src/migrations/artifact-alignment-2026-10-25.js';
 import { GENERAL_ARTIFACTS } from '../src/utils/general-artifacts.js';
 
-describe('Limited Power damage doubling', () => {
-  it('doubles printed Power Dice only', () => {
+describe('Limited Power damage ×4 (C07)', () => {
+  it('quadruples printed Power Dice only', () => {
+    // Legacy helper still doubles; Limited runtime uses ×4.
     expect(doublePrintedPowerDice('3d8')).toBe('6d8');
-    expect(doublePrintedPowerDice('4d8')).toBe('8d8');
-    expect(doublePrintedPowerDice('8d8')).toBe('16d8');
-    expect(applyLimitedPowerDamage('3d8', { limited: true })).toBe('6d8');
+    expect(applyLimitedPowerDamage('3d8', { limited: true })).toBe('12d8');
+    expect(applyLimitedPowerDamage('4d8', { limited: true })).toBe('16d8');
+    expect(applyLimitedPowerDamage('8d8', { limited: true })).toBe('32d8');
     expect(applyLimitedPowerDamage('3d8', { limited: false })).toBe('3d8');
   });
 });

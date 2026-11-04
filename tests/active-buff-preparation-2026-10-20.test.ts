@@ -424,7 +424,7 @@ describe('Active Buff retract', () => {
     expect(getRoundState(actor, combat).prepBaseAttackCommitted).toBe(false);
   });
 
-  /** Round ≥2 with confirmed assignment + stones done → Preparation closed. */
+  /** Turns begun for this Round → Active Buff Preparation closed (Batch 6.1). */
   async function closePreparation(actor: any, combat: any, round = 2) {
     combat.round = round;
     combat.started = true;
@@ -437,16 +437,15 @@ describe('Active Buff retract', () => {
       exchangeStones: 0,
       assignment: 'confirmed',
     });
-    const doneKey = `cb1:${round}`;
     combat.combatants = [{ id: 'cb1', actorId: actor.id, actor }];
     combat.getFlag = (_ns: string, key: string) =>
-      key === 'stonePowersDoneByRound' ? { [doneKey]: true } : undefined;
+      key === 'activeBuffPrepClosedRound' ? round : undefined;
     combat.flags = {
-      'mastery-system': { stonePowersDoneByRound: { [doneKey]: true } },
+      'mastery-system': { activeBuffPrepClosedRound: round },
     };
   }
 
-  it('non-GM outside Preparation is denied', async () => {
+  it('owner may voluntarily end outside Preparation (Z01)', async () => {
     const actor = makeActor();
     actor.isOwner = true;
     const combat = { id: 'c1', round: 2, turn: 0, started: true } as any;
@@ -456,9 +455,8 @@ describe('Active Buff retract', () => {
     expect(isActiveBuffPreparationWindow(actor, combat)).toBe(false);
 
     const result = await retractActiveBuffActivation(actor, { user: { isGM: false } });
-    expect(result.ok).toBe(false);
-    expect(result.reason).toBe('denied');
-    expect(actor.effects).toHaveLength(1);
+    expect(result.ok).toBe(true);
+    expect(actor.effects).toHaveLength(0);
   });
 
   it('GM outside Preparation may retract', async () => {
@@ -490,7 +488,7 @@ describe('Active Buff retract', () => {
     expect(actor.effects).toHaveLength(0);
   });
 
-  it('canRetractActiveBuffFromFlags: player Prep vs GM anytime', () => {
+  it('canRetractActiveBuffFromFlags: owner or GM anytime (Z01)', () => {
     expect(
       canRetractActiveBuffFromFlags({
         maintaining: true,
@@ -506,7 +504,7 @@ describe('Active Buff retract', () => {
         isOwner: true,
         windowOpen: false,
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       canRetractActiveBuffFromFlags({
         maintaining: true,

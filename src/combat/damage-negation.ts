@@ -480,6 +480,27 @@ export async function refreshBuffDamageNegationPools(actor: any): Promise<void> 
         : typeof effects?.values === 'function'
           ? Array.from(effects.values())
           : [];
+    const combat = (globalThis as any).game?.combat ?? null;
+    let ledger: Record<string, { thpGranted?: boolean; dnRemaining?: number; dnMax?: number }> = {};
+    let ledgerDirty = false;
+    let prepRound = 1;
+    if (combat) {
+      try {
+        const { getRoundState } = await import('./action-economy.js');
+        const { preparationTargetRound } = await import('./active-buff-lifecycle.js');
+        const rs = getRoundState(actor, combat);
+        ledger = { ...(rs.activeBuffPrepResourceLedger || {}) };
+        prepRound = preparationTargetRound(combat);
+      } catch {
+        ledger = {};
+      }
+    }
+    const {
+      activeBuffPrepResourceKey,
+      activeBuffResourceIdentity,
+      resolvePrepDamageNegationPool,
+    } = await import('./active-buff-prep-resources.js');
+
     for (const effect of list) {
       if (effect?.disabled) continue;
       const flags = effect?.flags?.['mastery-system'];
@@ -499,14 +520,36 @@ export async function refreshBuffDamageNegationPools(actor: any): Promise<void> 
         ),
       );
       if (max <= 0) continue;
+
+      let remaining = max;
+      const identity = activeBuffResourceIdentity(flags);
+      if (combat?.id && identity) {
+        const key = activeBuffPrepResourceKey(String(combat.id), prepRound, identity);
+        const resolved = resolvePrepDamageNegationPool(ledger, key, max);
+        remaining = resolved.remaining;
+        ledger = resolved.ledger;
+        ledgerDirty = true;
+      }
+
       if (typeof effect.update === 'function') {
         await effect.update({
-          'flags.mastery-system.mechanics.damageNegation': max,
+          'flags.mastery-system.mechanics.damageNegation': remaining,
           'flags.mastery-system.mechanics.damageNegationPoolMax': max,
         });
       } else if (mech) {
-        mech.damageNegation = max;
+        mech.damageNegation = remaining;
         mech.damageNegationPoolMax = max;
+      }
+    }
+
+    if (ledgerDirty && combat) {
+      try {
+        const { getRoundState, setRoundState } = await import('./action-economy.js');
+        const rs = getRoundState(actor, combat);
+        rs.activeBuffPrepResourceLedger = ledger;
+        await setRoundState(actor, rs);
+      } catch (err) {
+        console.warn('Mastery System | Active Buff Prep DN ledger write failed', err);
       }
     }
   } catch (err) {

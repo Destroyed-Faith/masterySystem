@@ -209,8 +209,7 @@ export interface ActivateActiveBuffOptions {
    */
   allowOutsidePreparation?: boolean;
   /**
-   * When true, do not mark the once-per-Preparation Active Buff slot
-   * (caller already did / maintain / tests).
+   * @deprecated Z01 — no Attack Action / once-per-Prep slot. Kept for callers.
    */
   skipActionCommit?: boolean;
 }
@@ -220,7 +219,9 @@ export interface ActivateActiveBuffOptions {
  * Duration is complete Combat Rounds ending at Round End:
  * lastActiveRound = activationRound + effectiveDuration - 1.
  * Only one true active buff can be active at a time (utilities can stack).
- * Activation does not spend an Attack Action — only the once-per-Preparation slot.
+ * Activation does not spend an Attack Action or Stones. There is no general
+ * per-Combat or per-Preparation activation limit — replace ends the prior Buff
+ * fully before the new one begins (Z01).
  */
 export async function activateActiveBuff(
   actor: Actor,
@@ -282,37 +283,22 @@ export async function activateActiveBuff(
     }
   }
 
-  // One activate/replace per Preparation — no Attack Action cost.
-  if (!opts?.skipActionCommit && combat && isTrueActiveBuff(power)) {
-    try {
-      const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
-      const { getRoundState, markActiveBuffUsedThisRound } = await import(
-        '../combat/action-economy.js'
-      );
-      const rs = getRoundState(actor, combat);
-      if (rs.activeBuffUsedThisRound) {
-        ui.notifications?.warn('You already activated or replaced an Active Buff this Preparation.');
-        return false;
-      }
-      if (isActiveBuffPreparationWindow(actor, combat)) {
-        await markActiveBuffUsedThisRound(actor, combat);
-      }
-    } catch (err) {
-      console.warn('Mastery System | Active Buff preparation slot mark failed', err);
-      return false;
-    }
-  }
-  
   // Check if this is a true active buff (not a utility)
   const isTrueBuff = isTrueActiveBuff(power);
-  
-  // PG "Active Buffs": activating a new Active Buff ENDS the previous one —
-  // the new buff replaces it (swap), it is not blocked.
+
+  // Only one maintained Active Buff: end every prior true Buff (effects +
+  // modifiers) before the new effect is created — never overlap.
   if (isTrueBuff) {
     const existingTrueBuffs = getTrueActiveBuffs(actor);
     for (const existingBuff of existingTrueBuffs) {
       const existingName = existingBuff.name || 'Unknown';
       try {
+        if (combat) {
+          const { snapshotActiveBuffPrepResourcesBeforeEnd } = await import(
+            '../combat/active-buff-lifecycle.js'
+          );
+          await snapshotActiveBuffPrepResourcesBeforeEnd(actor, combat, existingBuff);
+        }
         await existingBuff.delete();
         ui.notifications?.info(
           `${existingName} ends — ${power.name} replaces it (only one Active Buff at a time).`,
@@ -557,27 +543,26 @@ export type RetractActiveBuffResult = {
 };
 
 /**
- * Sync permission helper when Preparation window / ownership are already known (UI context).
- * Players: only during Preparation. GMs: anytime a true buff is maintained.
+ * Sync permission helper: voluntary end is free anytime for the owner / GM (Z01).
+ * `windowOpen` is ignored for ending — kept for call-site compatibility.
  */
 export function canRetractActiveBuffFromFlags(opts: {
   maintaining: boolean;
   isGM: boolean;
   isOwner: boolean;
-  windowOpen: boolean;
+  windowOpen?: boolean;
 }): boolean {
   if (!opts.maintaining) return false;
-  if (opts.isGM) return true;
-  return opts.isOwner && opts.windowOpen;
+  return opts.isGM || opts.isOwner;
 }
 
 /**
- * Whether the current user may retract a maintained true Active Buff.
- * Players: only during Preparation. GMs: anytime a true buff is maintained.
+ * Whether the current user may voluntarily end a maintained true Active Buff.
+ * Owners and GMs may end anytime at no cost (Z01). Activation still requires Preparation.
  */
 export async function canRetractActiveBuffActivation(
   actor: Actor,
-  combat: any,
+  _combat?: any,
   user?: { isGM?: boolean } | null,
 ): Promise<boolean> {
   if (!actor) return false;
@@ -585,20 +570,13 @@ export async function canRetractActiveBuffActivation(
   if (!maintained.length) return false;
   const u = user ?? (globalThis as any).game?.user ?? null;
   if (u?.isGM) return true;
-  if (!combat) return false;
-  if (!(actor as any).isOwner) return false;
-  try {
-    const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
-    return isActiveBuffPreparationWindow(actor, combat);
-  } catch {
-    return false;
-  }
+  return !!(actor as any).isOwner;
 }
 
 /**
- * Retract a maintained Active Buff: delete the effect and, when the base Attack
- * was committed for this activation, refund prepBaseAttackCommitted + activeBuffUsedThisRound.
- * Players may only retract during Preparation; GMs may retract anytime.
+ * Voluntarily end a maintained Active Buff (free, anytime).
+ * Clears legacy prepBaseAttackCommitted / activeBuffUsedThisRound if present.
+ * Does not restore Critical / Maximization / other limited Buff resources.
  */
 export async function retractActiveBuffActivation(
   actor: Actor,
@@ -608,23 +586,13 @@ export async function retractActiveBuffActivation(
   const user = opts?.user ?? (globalThis as any).game?.user ?? null;
   const maintained = getTrueActiveBuffs(actor);
   if (!maintained.length) {
-    ui.notifications?.warn('No Active Buff to retract.');
+    ui.notifications?.warn('No Active Buff to end.');
     return { ok: false, refunded: false, reason: 'none' };
   }
 
-  let allowed = !!user?.isGM;
-  if (!allowed && combat && (actor as any).isOwner) {
-    try {
-      const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
-      allowed = isActiveBuffPreparationWindow(actor, combat);
-    } catch {
-      allowed = false;
-    }
-  }
+  const allowed = !!user?.isGM || !!(actor as any).isOwner;
   if (!allowed) {
-    ui.notifications?.warn(
-      'You can only retract an Active Buff during Preparation (GM may retract anytime).',
-    );
+    ui.notifications?.warn('You cannot end this Active Buff.');
     return { ok: false, refunded: false, reason: 'denied' };
   }
 
@@ -635,6 +603,16 @@ export async function retractActiveBuffActivation(
 
   try {
     for (const effect of [...maintained]) {
+      if (combat) {
+        try {
+          const { snapshotActiveBuffPrepResourcesBeforeEnd } = await import(
+            '../combat/active-buff-lifecycle.js'
+          );
+          await snapshotActiveBuffPrepResourcesBeforeEnd(actor, combat, effect);
+        } catch (snapErr) {
+          console.warn('Mastery System | Active Buff end resource snapshot failed', snapErr);
+        }
+      }
       await effect.delete();
     }
   } catch (err) {
@@ -662,13 +640,7 @@ export async function retractActiveBuffActivation(
     }
   }
 
-  if (refunded) {
-    ui.notifications?.info(
-      `${names} retracted — Preparation slot cleared (legacy Attack commit restored if any).`,
-    );
-  } else {
-    ui.notifications?.info(`${names} ended.`);
-  }
+  ui.notifications?.info(`${names} ended.`);
 
   try {
     const ChatCls = (globalThis as any).ChatMessage;
@@ -679,9 +651,7 @@ export async function retractActiveBuffActivation(
       await ChatCls.create({
         user: (globalThis as any).game?.user?.id,
         speaker: ChatCls.getSpeaker({ actor: actor as any }),
-        content: refunded
-          ? `<p><strong>${esc(names)}</strong> retracted during Preparation — slot cleared.</p>`
-          : `<p><strong>${esc(names)}</strong> ended (maintained buff removed).</p>`,
+        content: `<p><strong>${esc(names)}</strong> ended (voluntary; no limited Buff resources restored).</p>`,
       });
     }
   } catch {
@@ -690,6 +660,9 @@ export async function retractActiveBuffActivation(
 
   return { ok: true, refunded };
 }
+
+/** Alias — voluntary end of the maintained Active Buff (Z01). */
+export const endActiveBuff = retractActiveBuffActivation;
 
 /**
  * Get all active buffs on an actor

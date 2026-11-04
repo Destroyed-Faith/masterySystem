@@ -800,37 +800,12 @@ export async function executeAttackRollFromCard(
       if (isSpellcasting) {
         const spellBase = Math.floor(Number((flags as any).spellBaseTn));
         const rolled = Math.floor(Number(result?.total) || 0);
-        if ((flags as any).persistentSpellZone === true && Number.isFinite(spellBase) && spellBase > 0 && rolled >= spellBase) {
-          try {
-            const { appendSpellZone, createPersistentSpellZone, readSpellZones, writeSpellZones } =
-              await import('../combat/spell-zones.js');
-            const caster = freshAttacker || (game as any).actors?.get(flags.attackerId);
-            if (caster) {
-              const createdRound = Number((combatRef as any)?.round) || 0;
-              const roundKey = `${String((combatRef as any)?.id ?? '')}:${createdRound}`;
-              const already = String(flags.targetId || '').trim();
-              const zone = createPersistentSpellZone({
-                id: `${String((caster as any).id)}:${messageId}`,
-                name: String((flags as any).selectedPowerName || 'Spell Zone'),
-                casterId: String((caster as any).id ?? ''),
-                spellBaseTn: spellBase,
-                castingTotal: rolled,
-                sourceMasteryRank: Number((flags as any).sourceMasteryRank) || getRulesMasteryRank(caster),
-                powerId: (flags as any).spellZonePowerId ?? (flags as any).selectedPowerId ?? null,
-                templateId: (flags as any).spellZoneTemplateId ?? null,
-                durationNote: (flags as any).spellZoneDuration ?? null,
-                createdRound,
-                sceneId: (flags as any).spellZoneSceneId ?? null,
-                appliedByRound: already ? { [roundKey]: [already] } : {},
-                centerX: (flags as any).spellZoneCenterX ?? null,
-                centerY: (flags as any).spellZoneCenterY ?? null,
-                radiusMeters: Math.max(0, Number((flags as any).spellZoneRadius) || 0),
-              });
-              await writeSpellZones(caster, appendSpellZone(readSpellZones(caster), zone));
-            }
-          } catch (zoneErr) {
-            console.warn('Mastery System | persistent spell zone was not stored', zoneErr);
-          }
+        // Batch 7 Z02: Persistent Zones no longer create from Casting Rolls.
+        // Placement is roll-free via createPersistentZoneFromPower (utility targeting).
+        if ((flags as any).persistentSpellZone === true) {
+          console.info(
+            'Mastery System | Ignoring legacy Casting-based Persistent Zone create — use roll-free placement.',
+          );
         }
       }
       

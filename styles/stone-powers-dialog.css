@@ -25,6 +25,30 @@
   opacity: 0.75;
 }
 
+.stone-powers-dialog .active-buff-prep-bar.is-stones-confirmed {
+  border-color: rgba(129, 199, 132, 0.55);
+}
+
+.stone-powers-dialog .active-buff-prep-stones-note {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(165, 214, 167, 0.95);
+}
+
+.stone-powers-dialog .active-buff-prep-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex: 1 1 100%;
+}
+
+.stone-powers-dialog .active-buff-prep-select-label {
+  flex: 1 1 100%;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
 .stone-powers-dialog .active-buff-prep-copy {
   display: flex;
   flex-direction: column;

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.821] - 2026-11-04
+
+### Added
+
+- **Limited Powers (C07 / Batch 5):** Shared Safe Haven charge pools, doubled printed Power Dice only, Hunter's Scourge Scourge Strike + Unmask Instant Special.
+- **Active Buff Lifecycle (Z01 / Batch 6):** One maintained Buff at a time; free voluntary end; Prep activate/replace without Attack Action or Stones; no general per-Combat activation limit.
+- **Active Buff Prep UI (Batch 6.1):** Change / End / Cancel in Stones dialog after Stone Confirmation; Prep resource ledger against A→B→A Temp HP / DN farm.
+- **Persistent Special Zones (Z02–Z06 / Batch 7):** Roll-free Ranged placement, 1 Attack Action create + maintain, all-creature targeting, once per zone×creature×round, no 4-Round auto-expiry.
+
+### Changed
+
+- **Active Buff rules/docs:** Replaced once-per-Combat activation wording; Attack Action no longer required for Buff activate.
+- **Spell zones runtime:** Casting-TN / SR application and duration timers removed; maintenance-driven persistence.
+
 ## [0.9.820] - 2026-11-04
 
 ### Added

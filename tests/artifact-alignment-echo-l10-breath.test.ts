@@ -28,6 +28,7 @@ import {
   spendMoonlightJudgmentUse,
   spendMoonlightShadowUse,
 } from '../src/combat/artifact-rest-uses.js';
+import { clearLimitedCharge } from '../src/combat/limited-charge.js';
 
 /** Core-printed Echo Artifact display names → registry keys (variants collapsed). */
 const CORE_ECHO_L10_NAMES: Record<string, string> = {
@@ -176,13 +177,13 @@ describe('Dragon Head Breath Weapon — Core Melee AoE', () => {
 });
 
 describe('Artifact rest / combat use helpers', () => {
-  it('Moonlight Judgment Limited uses are 2 / 5 / 8 by artifact stage', () => {
-    expect(moonlightJudgmentMaxUses(2)).toBe(2);
-    expect(moonlightJudgmentMaxUses(4)).toBe(2);
-    expect(moonlightJudgmentMaxUses(5)).toBe(5);
-    expect(moonlightJudgmentMaxUses(7)).toBe(5);
-    expect(moonlightJudgmentMaxUses(8)).toBe(8);
-    expect(moonlightJudgmentMaxUses(10)).toBe(8);
+  it('Moonlight Judgment Limited uses share the global charge (always 1)', () => {
+    expect(moonlightJudgmentMaxUses(2)).toBe(1);
+    expect(moonlightJudgmentMaxUses(4)).toBe(1);
+    expect(moonlightJudgmentMaxUses(5)).toBe(1);
+    expect(moonlightJudgmentMaxUses(7)).toBe(1);
+    expect(moonlightJudgmentMaxUses(8)).toBe(1);
+    expect(moonlightJudgmentMaxUses(10)).toBe(1);
   });
 
   it('Moonlight Shadow / Breath rest uses are ceil(MR/2)', () => {
@@ -194,14 +195,16 @@ describe('Artifact rest / combat use helpers', () => {
     expect(dragonBreathRestMaxUses(8)).toBe(4);
   });
 
-  it('Judgment spends Safe Haven uses until exhausted', async () => {
+  it('Judgment spends the one global Limited charge until Safe Haven Rest', async () => {
     const actor = mockActor({ masteryRank: 3 });
     expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(true);
     expect(await spendMoonlightJudgmentUse(actor, 2)).toBe(true);
-    expect(await spendMoonlightJudgmentUse(actor, 2)).toBe(true);
     expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(false);
     expect(await spendMoonlightJudgmentUse(actor, 2)).toBe(false);
+    // Artifact rest-use clear alone must not restore Limited (C07).
     await clearArtifactRestUses(actor);
+    expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(false);
+    await clearLimitedCharge(actor);
     expect(assertMoonlightJudgmentAvailable(actor, 2)).toBe(true);
   });
 

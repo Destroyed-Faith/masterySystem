@@ -283,6 +283,12 @@ export async function applySafeHavenRest(
   } catch (err) {
     console.warn('Mastery System | Safe Haven artifact rest-use clear failed', err);
   }
+  try {
+    const { clearLimitedCharge } = await import('../combat/limited-charge.js');
+    await clearLimitedCharge(actor);
+  } catch (err) {
+    console.warn('Mastery System | Safe Haven Limited charge clear failed', err);
+  }
   // Minor Expression uses (Mastery Rank × 2 per Safe Haven Rest) refresh here.
   if (actor.getFlag?.('mastery-system', 'minorExpressionUses') != null) {
     updates['flags.mastery-system.minorExpressionUses'] = 0;

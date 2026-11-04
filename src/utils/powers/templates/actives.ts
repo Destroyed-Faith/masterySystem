@@ -283,14 +283,14 @@ function instantSpecialSingleTemplate(def: {
 }
 
 /**
- * Persistent Zone — Source: Actives.md ~144–145, ~600+, ~1196+.
+ * Persistent Zone — Destroyed Faith Z02–Z06 (2026-11-04).
  *
- * Rules implemented here:
- *   • No attack roll (auto-applies to creatures inside).
- *   • Fixed duration: 4 Rounds.
- *   • Radius table per Power Level: 1m → 4m (see ZONE_RADIUS_TABLE).
- *   • Special applies once per Round per creature (`usageLimit`).
- *   • Cost uses AoE pricing (T(X+1)). Radius per tier: ZONE_RADIUS_BY_TIER.
+ *   • Ranged only; Martial or Spell delivery; no Attack/Casting roll.
+ *   • Place for 1 Attack Action; maintain for 1 Attack Action at creator Turn Start.
+ *   • No fixed round duration (old 4-Round timer removed).
+ *   • Affects every creature in the radius (enemies, allies, neutrals, summons, creator).
+ *   • Special once per zone source × creature × combat Round.
+ *   • Radius table per Power Level: ZONE_RADIUS_BY_TIER (values unchanged).
  */
 function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
     const id = `active-ranged-zone-t${tier}`;
@@ -306,13 +306,11 @@ function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
         tags: ['spell'],
         specialSlot: slot,
         spellHints,
-        fluff: `A lingering hazard zone (4 Rounds) that automatically applies a Tier ${tier} Special to creatures inside, once per Round per creature.`,
+        fluff: `A stationary Persistent Special Zone (Tier ${tier}). Place within Range for 1 Attack Action; maintain for 1 Attack Action at the start of each of your Turns. Applies the printed Special to every creature inside, once per Round per creature. No Attack or Casting Roll.`,
         cost: { action: 'attack' },
-        // No attack roll — placement is automatic.
+        // No attack / casting roll — placement is automatic after legal point choice.
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            // Persistent Zone uses AoE pricing (half-value, T(X+1) cost) and pays
-            // range like any ranged Active. The zone unlocks at L3 (radius 0 below).
             const r = rowFromBudget({ tier, lvl, isRanged: true, aoe: true });
             const radius = ZONE_RADIUS_BY_TIER[tier][lvl - 1];
             if (radius <= 0) {
@@ -320,22 +318,22 @@ function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
                     type: 'Ranged Zone',
                     range: rangedRange(lvl, 8),
                     aoe: R_NONE,
-                    duration: { kind: 'rounds', rounds: 4 },
+                    duration: { kind: 'untilBroken', note: 'maintained' },
                     effectText: 'No persistent zone is available at this Power rank.',
                     specials: [],
-                    mechanics: { applyWhen: 'manual', duration: 'untilNextTurn' },
+                    mechanics: { applyWhen: 'manual', persistentZone: true },
                 });
             }
             return activeRow({
                 type: 'Ranged Zone',
                 range: rangedRange(lvl, 8),
-                aoe: { shape: 'zone', radiusM: radius, center: 'targetPoint', targetFilter: 'enemies' },
-                duration: { kind: 'rounds', rounds: 4 },
-                effectText: `Place a **${radius} m** zone for **4 Rounds**. No attack roll. Each creature inside (including those that enter on later turns) suffers the chosen Tier ${tier} Special at **rank ${r.rank}** — applied **once per Round per creature** (refreshed on the caster's turn-start).`,
+                aoe: { shape: 'zone', radiusM: radius, center: 'targetPoint', targetFilter: 'allCreatures' },
+                duration: { kind: 'untilBroken', note: 'maintained: 1 Attack Action per Turn' },
+                effectText: `Place a **${radius} m** Persistent Zone within Range (**1 Attack Action**). No Attack or Casting Roll. The zone stays at that point while maintained (**1 Attack Action** at the start of each of your Turns). Every creature inside — enemies, allies, neutrals, summons, and you — suffers the chosen Tier ${tier} Special at **rank ${r.rank}**, at most **once per Round per creature** from this zone.`,
                 specials: [{ key: 'SPECIAL', rank: r.rank, note: 'persistent-zone: auto-apply, once/round/creature' }],
                 mechanics: {
                     applyWhen: 'manual',
-                    duration: 'untilNextTurn',
+                    persistentZone: true,
                     usageLimit: { per: 'round', max: 1 },
                 },
             });
@@ -688,6 +686,12 @@ function buildActiveTemplates(): PowerTemplate[] {
     singleWeaponAttackTemplate('ranged'),
     aoeWeaponAttackTemplate('melee'),
     aoeWeaponAttackTemplate('ranged'),
+
+    // Limited Instant Damage Attacks (4) — separate learnable identities
+    limitedSingleAttackTemplate('melee'),
+    limitedSingleAttackTemplate('ranged'),
+    limitedAoeAttackTemplate('melee'),
+    limitedAoeAttackTemplate('ranged'),
     splitWeaponAttackTemplate('melee'),
     splitWeaponAttackTemplate('ranged'),
     autofireWeaponAttackTemplate(),
@@ -1019,6 +1023,84 @@ function aoeWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
                 range: isRanged ? rangedRange(lvl) : { kind: 'self' },
                 aoe,
                 effectText: effect,
+                dice: diceText,
+                specials: [],
+                mechanics: { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+/**
+ * Limited Instant Damage Attacks (Batch 5 C07) — four standalone learnable Actives.
+ * Printed dice are the normal Attack Power base; runtime applies ×4 once via
+ * `applyLimitedPowerDamage`. One global Safe Haven charge for every Limited source.
+ */
+function limitedSingleAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const dice = isRanged ? RANGED_SINGLE_DICE : MELEE_SINGLE_DICE;
+    const id = isRanged ? 'active-ranged-limited-single' : 'active-melee-limited-single';
+    const name = isRanged ? 'Limited Ranged Single Target Attack' : 'Limited Melee Single Target Attack';
+    return {
+        templateId: id,
+        templateName: name,
+        name,
+        subfamily: 'limited-attack',
+        category: 'active',
+        tags: isRanged ? ['spell'] : [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff:
+            'Limited Instant Damage Attack: spend the character\'s one global Limited use at declaration. Printed Power Damage Dice ×4 once on resolution; Weapon / Spell Focus / Raises / buffs stay ×1.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
+        limited: true,
+        levels: buildLevels((lvl) => {
+            const d = dice[lvl - 1];
+            return activeRow({
+                type: isRanged ? 'Ranged, Limited' : 'Melee, Limited',
+                range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
+                aoe: R_NONE,
+                effectText: `Limited Attack. On hit, deal weapon damage (Martial) or Spell Focus (Spell) + **${d}d8** printed Power damage (**×4** at resolution = **${d * 4}d8** Power). One global Limited use per Safe Haven Rest.`,
+                dice: `+${d}d8`,
+                specials: [],
+                mechanics: { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+function limitedAoeAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const prog = isRanged ? RANGED_AOE_PROG : MELEE_AOE_PROG;
+    const id = isRanged ? 'active-ranged-limited-aoe' : 'active-melee-limited-aoe';
+    const name = isRanged ? 'Limited Ranged AoE Attack' : 'Limited Melee AoE Attack';
+    return {
+        templateId: id,
+        templateName: name,
+        name,
+        subfamily: 'limited-attack',
+        category: 'active',
+        tags: isRanged ? ['spell'] : [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff:
+            'Limited Instant Damage AoE: one shared Attack/Casting roll, one shared Damage Pool, one global Limited use for the whole area. Printed Power Dice ×4 once; Weapon / Spell Focus stay ×1.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
+        limited: true,
+        levels: buildLevels((lvl) => {
+            const p = prog[lvl - 1];
+            const aoe: AoeSpec = {
+                shape: 'radius',
+                radiusM: p.radiusM,
+                center: isRanged ? 'targetPoint' : 'self',
+                targetFilter: 'enemies',
+            };
+            const diceText = `+${p.dice}d8`;
+            return activeRow({
+                type: isRanged ? 'Ranged AoE, Limited' : 'Melee AoE, Limited',
+                range: isRanged ? rangedRange(lvl) : { kind: 'self' },
+                aoe,
+                effectText: `Limited Instant AoE. One Attack/Casting Roll for the area; each creature resolves separately. Shared Damage Pool: Weapon or Spell Focus + **${p.dice}d8** printed Power (**×4** = **${p.dice * 4}d8** Power). One Limited use for the whole attack.`,
                 dice: diceText,
                 specials: [],
                 mechanics: { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },

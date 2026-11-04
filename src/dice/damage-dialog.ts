@@ -39,6 +39,10 @@ import {
   settleDamageTransfer,
   spellFocusDamageApplies,
 } from '../combat/damage-transfer.js';
+import {
+  isForbiddenLimitedTemplateId,
+  isLimitedPowerTemplateId,
+} from '../combat/limited-charge.js';
 import { hitCountsAsSpell, vulnerabilityRiderForHit } from '../combat/vulnerability-riders.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
@@ -822,17 +826,31 @@ export async function showDamageDialog(
         powerSpecials = powerSystem.specials || [];
       }
 
-      const limitedFlag =
-        flags?.limited === true || powerSystem?.limited === true;
+      const templateIdForLimited = String(
+        powerSystem?.templateId || flags?.selectedPowerTemplateId || '',
+      );
+      let limitedFlag =
+        flags?.limited === true ||
+        powerSystem?.limited === true ||
+        flags?.artifactLimited === true;
+      if (limitedFlag && isForbiddenLimitedTemplateId(templateIdForLimited)) {
+        limitedFlag = false;
+      } else if (!limitedFlag && isLimitedPowerTemplateId(templateIdForLimited)) {
+        limitedFlag = true;
+      }
       const isTransfer =
         flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true;
       powerDamage = applyLimitedToTransferPowerDamage(powerDamage, {
         damageTransfer: isTransfer,
         limited: limitedFlag,
       });
-      // Non-transfer Limited Instant Actives (e.g. Moonlight Judgment AoE Spell).
+      // Limited Instant Damage: ×4 printed Power Dice once (never Weapon/Focus/Raises).
       if (limitedFlag && !isTransfer) {
-        powerDamage = applyLimitedPowerDamage(powerDamage, { limited: true });
+        powerDamage = applyLimitedPowerDamage(powerDamage, {
+          limited: true,
+          alreadyMultiplied: flags?.limitedPowerDiceApplied === true,
+        });
+        if (flags) flags.limitedPowerDiceApplied = true;
       }
 
       selectedPowerData = {

@@ -1642,7 +1642,7 @@ The chosen delivery and Attribute cannot normally be changed unless the Power is
 
 At the beginning of your Turn, before using your base Attack Action, you may enter **Parry** until the beginning of your next Turn.
 
-Entering Parry normally consumes the character's **base Attack Action** at the beginning of their Turn. If that Action was already committed during Preparation to activate an Active Buff, the character may instead spend one legally available **additional Attack Action** to enter Parry. The same Attack Action cannot pay for both effects.
+Entering Parry normally consumes the character's **base Attack Action** at the beginning of their Turn. Active Buff activation does not consume that Action. The character may instead spend one legally available **additional Attack Action** to enter Parry when the base Action is unavailable for another reason. The same Attack Action cannot pay for both Parry and another effect that also requires it.
 
 While Parrying:
 

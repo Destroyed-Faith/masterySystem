@@ -182,49 +182,7 @@ export async function activateArtifactActiveBuff(
   const buffKey = String(option.id || `${artifactItem.id}:${option.name}`);
   const optionName = String(option.name || '');
 
-  // Already running this exact buff?
-  if (isArtifactBuffActive(actor, buffKey)) {
-    ui.notifications?.warn(`${option.name} is already active!`);
-    return false;
-  }
-
-  // Growth Form uses the maintained Active Buff slot — only one at a time.
-  const existing = hasAnyMaintainedActiveBuff(actor);
-  if (existing) {
-    ui.notifications?.warn(
-      `Cannot activate ${option.name}: ${existing.name || 'Another active buff'} already uses your maintained Active Buff slot.`,
-    );
-    return false;
-  }
-
-  // Moonlight Shadow: ceil(MR/2) uses per Safe Haven Rest.
-  const isMoonlightShadow = /moonlight\s*shadow/i.test(optionName);
-  if (isMoonlightShadow) {
-    try {
-      const {
-        assertMoonlightShadowAvailable,
-        spendMoonlightShadowUse,
-        moonlightShadowMaxUses,
-        masteryRankOf,
-      } = await import('../combat/artifact-rest-uses.js');
-      if (!assertMoonlightShadowAvailable(actor)) {
-        const max = moonlightShadowMaxUses(masteryRankOf(actor));
-        ui.notifications?.warn(
-          `Moonlight Shadow: no uses remaining (${max}/Safe Haven Rest = ceil(MR/2)).`,
-        );
-        return false;
-      }
-      const spent = await spendMoonlightShadowUse(actor);
-      if (!spent) {
-        ui.notifications?.warn('Moonlight Shadow: use could not be spent.');
-        return false;
-      }
-    } catch (err) {
-      console.warn('Mastery System | Moonlight Shadow use gate failed', err);
-    }
-  }
-
-  // Titan Growth is Transformation Growth — not Active Buff: Growth Form.
+  // Titan Growth is Transformation Growth — not Active Buff: Growth Form (own rules).
   const isTitanGrowth =
     /titan\s*growth/i.test(optionName) ||
     String(option.artifactRowSpecial || '').toLowerCase().includes('transformation (growth');
@@ -255,9 +213,88 @@ export async function activateArtifactActiveBuff(
     }
   }
 
+  const combat = (game as any).combat ?? null;
+  try {
+    const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
+    if (combat && !isActiveBuffPreparationWindow(actor, combat)) {
+      ui.notifications?.warn(
+        `${option.name}: Active Buffs activate only during Preparation (not during your Turn).`,
+      );
+      return false;
+    }
+    if (!combat) {
+      ui.notifications?.warn(
+        `${option.name} can only be activated during the Preparation Phase of combat.`,
+      );
+      return false;
+    }
+  } catch (err) {
+    console.warn('Mastery System | Artifact Active Buff Preparation gate failed', err);
+    return false;
+  }
+
+  // Already running this exact buff?
+  if (isArtifactBuffActive(actor, buffKey)) {
+    ui.notifications?.warn(`${option.name} is already active!`);
+    return false;
+  }
+
+  // Only one maintained Active Buff — end prior Buff fully before creating the new one (Z01).
+  const existing = hasAnyMaintainedActiveBuff(actor);
+  if (existing) {
+    const existingName = existing.name || 'Active Buff';
+    try {
+      if (combat) {
+        const { snapshotActiveBuffPrepResourcesBeforeEnd } = await import(
+          '../combat/active-buff-lifecycle.js'
+        );
+        await snapshotActiveBuffPrepResourcesBeforeEnd(actor, combat, existing);
+      }
+      await existing.delete?.();
+      ui.notifications?.info(
+        `${existingName} ends — ${option.name} replaces it (only one Active Buff at a time).`,
+      );
+    } catch (err) {
+      console.warn('Mastery System | failed to end previous Active Buff before artifact buff', err);
+      return false;
+    }
+  }
+
+  // Moonlight Shadow: ceil(MR/2) uses per Safe Haven Rest.
+  const isMoonlightShadow = /moonlight\s*shadow/i.test(optionName);
+  if (isMoonlightShadow) {
+    try {
+      const {
+        assertMoonlightShadowAvailable,
+        spendMoonlightShadowUse,
+        moonlightShadowMaxUses,
+        masteryRankOf,
+      } = await import('../combat/artifact-rest-uses.js');
+      if (!assertMoonlightShadowAvailable(actor)) {
+        const max = moonlightShadowMaxUses(masteryRankOf(actor));
+        ui.notifications?.warn(
+          `Moonlight Shadow: no uses remaining (${max}/Safe Haven Rest = ceil(MR/2)).`,
+        );
+        return false;
+      }
+      const spent = await spendMoonlightShadowUse(actor);
+      if (!spent) {
+        ui.notifications?.warn('Moonlight Shadow: use could not be spent.');
+        return false;
+      }
+    } catch (err) {
+      console.warn('Mastery System | Moonlight Shadow use gate failed', err);
+    }
+  }
+
   const isGrowth = String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
   const masteryRank = getMasteryRank(actor);
-  const currentRound = getCurrentRound();
+  const {
+    preparationTargetRound,
+    computeLastActiveRound,
+  } = await import('../combat/active-buff-lifecycle.js');
+  const activationRound = combat ? preparationTargetRound(combat) : Math.max(1, getCurrentRound());
+  const lastActiveRound = computeLastActiveRound(activationRound, masteryRank);
 
   let growthTokenSizes: TokenSizeSnapshot[] = [];
   let growthPowerLevel = 0;
@@ -336,7 +373,13 @@ export async function activateArtifactActiveBuff(
         powerName: option.name,
         powerTemplateId: catalogTemplateId,
         masteryRank,
-        activatedRound: currentRound,
+        durationRounds: masteryRank,
+        effectiveDuration: masteryRank,
+        activationRound,
+        activatedRound: activationRound,
+        lastActiveRound,
+        durationMode: 'round-end',
+        combatId: combat?.id ? String(combat.id) : null,
         effectiveLevel: catalogPowerLevel || undefined,
         level: catalogPowerLevel || undefined,
         effectText: effectText || undefined,
@@ -351,14 +394,14 @@ export async function activateArtifactActiveBuff(
     description: effectText || option.description || '',
   };
 
-  if ((game as any).combat) {
+  if (combat) {
     effectData.duration = {
-      startRound: currentRound,
-      startTurn: (game as any).combat?.turn || 0,
-      rounds: masteryRank,
+      startRound: activationRound,
+      startTurn: 0,
+      rounds: masteryRank + 1,
       turns: 0,
       seconds: null,
-      combat: (game as any).combat?.id || null,
+      combat: combat.id || null,
     };
   } else {
     effectData.duration = {
@@ -383,15 +426,24 @@ export async function activateArtifactActiveBuff(
     return false;
   }
 
+  try {
+    const { processActiveBuffPreparation } = await import('../combat/active-buff-lifecycle.js');
+    await processActiveBuffPreparation(actor, combat);
+  } catch (prepErr) {
+    console.warn('Mastery System | Artifact Active Buff Preparation resource grant failed', prepErr);
+  }
+
   const sizeLabel = growthTargetSize > 1 ? `${growthTargetSize}x${growthTargetSize}` : '1x1';
   const stagePart = isGrowth && growthStageLabel ? ` (${growthStageLabel}, ${sizeLabel})` : '';
-  ui.notifications?.info(`Activated ${option.name}${stagePart} — ${masteryRank} round(s).`);
+  ui.notifications?.info(
+    `Activated ${option.name}${stagePart} (Rounds ${activationRound}–${lastActiveRound}).`,
+  );
 
   try {
     const ChatCls = (globalThis as any).ChatMessage;
     const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const lines = [
-      `<p><strong>${esc(String(option.name))}</strong> — active <strong>${masteryRank}</strong> round${masteryRank === 1 ? '' : 's'}.</p>`,
+      `<p><strong>${esc(String(option.name))}</strong> — active through <strong>Round ${lastActiveRound}</strong> (expires at Round End; Prep activation).</p>`,
     ];
     if (isGrowth) {
       lines.push(

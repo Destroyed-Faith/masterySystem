@@ -3,8 +3,8 @@
  *
  * Healing is the real HP this one damage instance removed from the target
  * after mitigation, Temporary HP, and other buffers. It is capped by the
- * missing HP on the attacker's current Health Bar. Limited doubles printed
- * power dice only; it does not multiply the heal. This is not Life Absorption.
+ * missing HP on the attacker's current Health Bar. Limited multiplies printed
+ * power dice ×4 only; it does not multiply the heal. This is not Life Absorption.
  */
 
 import { applyHealHpAcrossOpenBars } from './heal-resolution.js';
@@ -140,30 +140,49 @@ export function spellFocusDamageApplies(
   return flags.isSpell === true && flags.isNpcAttackFlow !== true;
 }
 
-/** Limited doubles the printed power-damage pool only, never a following weapon term. */
-export function doublePrintedPowerDice(formula: string): string {
-  // Printed Power Dice may be `3d8` or `+3d8`; only the leading dice pool is doubled.
+/** Multiply only the leading printed Power Dice pool (never a following weapon term). */
+export function multiplyPrintedPowerDice(formula: string, factor: number): string {
+  const f = Math.max(1, Math.floor(Number(factor) || 1));
   return String(formula || '').replace(
     /^(\+?)(\d+)d(\d+)/i,
-    (_m, sign: string, n: string, sides: string) => `${sign}${Number(n) * 2}d${sides}`,
+    (_m, sign: string, n: string, sides: string) => `${sign}${Number(n) * f}d${sides}`,
   );
 }
 
-export function applyLimitedToTransferPowerDamage(
-  formula: string,
-  opts: { damageTransfer?: boolean; limited?: boolean },
-): string {
-  if (opts.damageTransfer !== true || opts.limited !== true) return formula;
-  return doublePrintedPowerDice(formula);
+/** @deprecated Use multiplyPrintedPowerDice(formula, 2) — kept for callers mid-migration. */
+export function doublePrintedPowerDice(formula: string): string {
+  return multiplyPrintedPowerDice(formula, 2);
 }
 
-/** Limited Instant Actives (incl. Moonlight Judgment): double printed Power Dice only. */
+/**
+ * Limited ×4 applies only to printed Power Damage Dice.
+ * Damage Transfer is never a legal Limited Power (Batch 5 C07) — no-op.
+ */
+export function applyLimitedToTransferPowerDamage(
+  formula: string,
+  _opts: { damageTransfer?: boolean; limited?: boolean },
+): string {
+  return formula;
+}
+
+/**
+ * Limited Instant Damage Attacks: ×4 printed Power Dice once.
+ * Pass `alreadyMultiplied: true` when the formula / catalog row already stores
+ * the Limited output so runtime does not apply ×4 again (no ×16).
+ */
 export function applyLimitedPowerDamage(
   formula: string,
-  opts: { limited?: boolean },
+  opts: { limited?: boolean; alreadyMultiplied?: boolean },
 ): string {
   if (opts.limited !== true) return formula;
-  return doublePrintedPowerDice(formula);
+  if (opts.alreadyMultiplied === true) return formula;
+  return multiplyPrintedPowerDice(formula, 4);
+}
+
+/** Parse leading NdS count from a Power damage formula (`3d8`, `+3d8`). */
+export function printedPowerDiceCount(formula: string): number {
+  const m = String(formula || '').trim().match(/^\+?(\d+)d\d+/i);
+  return m ? Math.max(0, Math.floor(Number(m[1]) || 0)) : 0;
 }
 
 export async function settleDamageTransfer(opts: {

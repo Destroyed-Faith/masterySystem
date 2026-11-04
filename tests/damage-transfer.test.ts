@@ -186,8 +186,9 @@ describe('Damage Transfer / Vampyr', () => {
     expect(attacker.system.health.bars[1].current).toBe(10);
   });
 
-  it('doubles printed power dice for Limited and does not double the heal', async () => {
-    expect(applyLimitedToTransferPowerDamage('4d8', { damageTransfer: true, limited: true })).toBe('8d8');
+  it('does not apply Limited ×4 to Damage Transfer (illegal Limited template)', async () => {
+    // C07: Damage Transfer is never a legal Limited Power — formula stays as-is.
+    expect(applyLimitedToTransferPowerDamage('4d8', { damageTransfer: true, limited: true })).toBe('4d8');
     expect(applyLimitedToTransferPowerDamage('2d8', { damageTransfer: true, limited: false })).toBe('2d8');
     expect(applyLimitedToTransferPowerDamage('2d8', { damageTransfer: false, limited: true })).toBe('2d8');
     const target = actor({ id: 't-lim', bars: [{ current: 7, max: 20 }] });

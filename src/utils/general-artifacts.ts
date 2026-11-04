@@ -47,7 +47,7 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
     {
       slot: 'b',
       label: 'Spell Focus (+4d8)',
-      note: 'Unlocked at Level 4. Runestaff two-handed Spell Focus; never applies to AoE (incl. Moonlight Judgment); never doubled by Limited.',
+      note: 'Unlocked at Level 4. Runestaff two-handed Spell Focus; applies once to damaging Spells including Moonlight Judgment when unlocked; never multiplied by Limited (×4 is Power Dice only).',
     },
     {
       slot: 'c',
@@ -63,7 +63,7 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
   progressionPickSpecs: {
     1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
     2: {
-      templateId: 'active-ranged-weapon-aoe',
+      templateId: 'active-ranged-limited-aoe',
       name: 'Moonlight Judgment',
       isSpell: true,
       // Catalogue does not name Intellect/Resolve/Influence; keep existing legal config.
@@ -71,9 +71,9 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       spellResolution: 'spellAttack',
       limited: true,
       stageEffectTexts: [
-        'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8** for this use. Base B is not yet unlocked; no Focus bonus. **2 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials.',
-        'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8** for this use. Although Base B is unlocked, **Spell Focus does not apply to this AoE**. **5 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials.',
-        'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8** for this use. Although Base B is unlocked, **Spell Focus does not apply to this AoE**. **8 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No Weapon Damage, no Spell Focus Damage, and no Specials.',
+        'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+12d8** for this use (×4). Base B is not yet unlocked; no Focus bonus. **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Weapon Damage; no Specials.',
+        'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+16d8** for this use (×4). When Base B is unlocked, **Spell Focus applies once** (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Weapon Damage; no Specials.',
+        'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+32d8** for this use (×4). When Base B is unlocked, **Spell Focus applies once** (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Weapon Damage; no Specials.',
       ],
     },
     3: {

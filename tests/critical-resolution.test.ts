@@ -111,6 +111,16 @@ describe('Critical(X) — Active Buff combat-wide quota', () => {
     expect(quota.remaining).toBe(1);
   });
 
+  it('does not refill after Buff swap off then Critical back on', () => {
+    let quota = syncCriticalRoundQuota(null, 'combatA', 2);
+    quota = consumeCriticalQuota(quota);
+    quota = syncCriticalRoundQuota(quota, 'combatA', 0);
+    expect(quota.spent).toBe(1);
+    quota = syncCriticalRoundQuota(quota, 'combatA', 2);
+    expect(quota.remaining).toBe(1);
+    expect(quota.spent).toBe(1);
+  });
+
   it('combatRoundKey is combat-id only', () => {
     expect(combatRoundKey({ id: 'abc', round: 1 })).toBe('abc');
     expect(combatRoundKey({ id: 'abc', round: 7 })).toBe('abc');

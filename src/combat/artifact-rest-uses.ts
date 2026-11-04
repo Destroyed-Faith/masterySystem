@@ -1,9 +1,16 @@
 /**
  * Artifact Safe Haven Rest / Combat use ledgers.
  *
- * Used by Moonlight Judgment (Limited uses), Moonlight Shadow (ceil(MR/2)),
- * Dragon Head Breath (ceil(MR/2) + once per Combat), and similar Artifact Functions.
+ * Moonlight Judgment Limited uses now share the global Limited charge
+ * (`limited-charge.ts`). Moonlight Shadow (ceil(MR/2)), Dragon Head Breath
+ * (ceil(MR/2) + once per Combat), and similar Artifact Functions still use
+ * these ledgers.
  */
+
+import {
+  isLimitedChargeAvailable,
+  spendLimitedCharge,
+} from './limited-charge.js';
 
 export const ARTIFACT_REST_USES_FLAG = 'artifactRestUses';
 export const ARTIFACT_COMBAT_USES_FLAG = 'artifactCombatUses';
@@ -54,10 +61,12 @@ export function masteryRankOf(actor: any): number {
   return Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
 }
 
-/** Limited Power uses per Safe Haven Rest = ceil(PL / 2). */
-export function limitedUsesForPowerLevel(pl: number): number {
-  const n = Math.max(1, Math.min(16, Math.floor(Number(pl) || 1)));
-  return Math.ceil(n / 2);
+/**
+ * @deprecated Batch 5 C07 — Limited is one global charge per Safe Haven Rest
+ * (see `limited-charge.ts`). Kept for callers; always returns 1.
+ */
+export function limitedUsesForPowerLevel(_pl: number): number {
+  return 1;
 }
 
 /** Moonlight Shadow / Breath Weapon rest uses = ceil(MR / 2). */
@@ -65,12 +74,12 @@ export function halfMasteryRankUses(masteryRank: number): number {
   return Math.ceil(masteryRankOf({ system: { mastery: { rank: masteryRank } } }) / 2);
 }
 
-export function moonlightJudgmentMaxUses(artifactLevel: number): number {
-  const lvl = Math.max(1, Math.min(10, Math.floor(Number(artifactLevel) || 1)));
-  // Stages I/II/III at L2/5/8 → PL 4/10/16 → 2/5/8 uses.
-  if (lvl >= 8) return 8;
-  if (lvl >= 5) return 5;
-  return 2;
+/**
+ * @deprecated Batch 5 C07 — Moonlight Judgment shares the global Limited charge.
+ * Always 1 use (ignores artifact stage). Prefer `limitedChargeRemaining`.
+ */
+export function moonlightJudgmentMaxUses(_artifactLevel?: number): number {
+  return 1;
 }
 
 export function moonlightShadowMaxUses(masteryRank: number): number {
@@ -179,22 +188,17 @@ export async function clearArtifactCombatUsesForCombat(combat: any): Promise<voi
 }
 
 /**
- * Moonlight Judgment gate: Limited uses by artifact stage (2/5/8).
- * Returns false when exhausted.
+ * Moonlight Judgment gate — delegates to the global Limited charge (C07).
  */
-export function assertMoonlightJudgmentAvailable(actor: any, artifactLevel: number): boolean {
-  return canSpendArtifactRestUse(actor, 'moonlightJudgment', moonlightJudgmentMaxUses(artifactLevel));
+export function assertMoonlightJudgmentAvailable(actor: any, _artifactLevel?: number): boolean {
+  return isLimitedChargeAvailable(actor);
 }
 
 export async function spendMoonlightJudgmentUse(
   actor: any,
-  artifactLevel: number,
+  _artifactLevel?: number,
 ): Promise<boolean> {
-  const r = await spendArtifactRestUse(
-    actor,
-    'moonlightJudgment',
-    moonlightJudgmentMaxUses(artifactLevel),
-  );
+  const r = await spendLimitedCharge(actor);
   return r.ok;
 }
 

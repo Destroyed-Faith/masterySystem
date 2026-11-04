@@ -94,7 +94,8 @@ export const UNBOUND_ECHO: EchoDefinition = {
       trait: {
         id: 'bane-relic-hunter',
         name: "Hunter's Scourge",
-        effect: 'Two-handed chain-whip. Exorcism Lash is Melee Attack + Exorcism. Snap Chain is Artifact Reaction: Damage + Pull. Whirling Scourge is Melee AoE Attack + Exorcism.',
+        effect:
+          'Two-handed chain-whip. Scourge Strike is Limited Melee Single Target Attack. Maximization Support is Vitality: Maximization. Unmask the Prey is Melee Single Target Special: Expose.',
         flavor: 'Pull the monster close.',
         usage: 'passive',
       },

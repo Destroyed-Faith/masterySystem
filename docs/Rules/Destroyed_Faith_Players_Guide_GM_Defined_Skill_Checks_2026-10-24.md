@@ -5165,7 +5165,7 @@ The Preparation Phase takes place before the Round begins. Creatures prepare Sto
    - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Initiative Colorless Stones on their other Stone Abilities for the Round.
    - Defensive and passive Stone values that apply during the Round become active immediately.
    - Stone Abilities with a Turn timing or trigger are prepared now but resolve at their specified time.
-   - Activate, keep, or replace an **Active Buff** here. A new activation commits this Round's **base Attack Action**. Apply any **Active Buff Empowerment** chosen in this same Phase and initialize Buff resources once.
+   - Activate, keep, or replace an **Active Buff** here. Activation costs neither an Attack Action nor Stones. Ending the previous Buff first if necessary. Apply any **Active Buff Empowerment** chosen in this same Phase and initialize Buff resources once.
    - Once Preparation choices are complete, determine Initiative Order and lock it for this Round.
 
 2. **Resolve Turns**
@@ -5191,7 +5191,7 @@ At the start of each Round, each character normally has:
 - **1 Attack Action**
 - **1 Reaction**
 
-Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. A base Attack Action committed to an Active Buff in Preparation is unavailable on that Round's Turn; legal additional Attack Actions remain usable.
+Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. Active Buff activation does not consume the base Attack Action.
 
 ---
 ::
@@ -6086,13 +6086,13 @@ This movement provokes movement-triggered Reactions normally.
 
 #### Dash
 
-Focus entirely on movement. Move up to **double your normal Speed**. This requires an **available base Attack Action** to forfeit for this Turn. If it was already spent or committed to an Active Buff during Preparation, you **cannot Dash**. Legal additional Attack Actions remain usable, but cannot pay this base-Action forfeit. This movement provokes movement-triggered Reactions normally.
+Focus entirely on movement. Move up to **double your normal Speed**. This requires an **available base Attack Action** to forfeit for this Turn. If it was already spent, you **cannot Dash**. Legal additional Attack Actions remain usable, but cannot pay this base-Action forfeit. This movement provokes movement-triggered Reactions normally.
 
 #### Disengage
 
 Withdraw carefully.
 
-Move up to your normal Speed without provoking movement-triggered Reactions. This requires an **available base Attack Action** to forfeit for this Turn. If it was already spent or committed to an Active Buff during Preparation, you **cannot Disengage**. Legal additional Attack Actions remain usable, but cannot pay this base-Action forfeit.
+Move up to your normal Speed without provoking movement-triggered Reactions. This requires an **available base Attack Action** to forfeit for this Turn. If it was already spent, you **cannot Disengage**. Legal additional Attack Actions remain usable, but cannot pay this base-Action forfeit.
 
 #### Quick Load
 
@@ -7286,9 +7286,9 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 {{wide
 ### Active Buffs
 
-Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff consumes the character's **base Attack Action** for the upcoming Round. This Action is committed during Preparation and cannot be used during that character's Turn, whether for a Basic Attack, an Active Power, or another action requiring it. Additional Attack Actions granted by Stones or other legal sources remain available. The same base Attack Action cannot be spent or forfeited a second time to pay for another effect.
+Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff costs **neither an Attack Action nor Stones**.
 
-**Activation and Duration:** The Active Buff becomes effective at the beginning of the upcoming Round, before any creature takes its Turn. It normally lasts **Mastery Rank complete Rounds**. The activation Round counts as the first Round. At **Round End** of the final Round, the Buff expires. Its duration is independent of the activating character's Initiative or Turn. **Maintenance and Replacement:** A character may normally maintain only one Active Buff and may activate or replace an Active Buff only during a Preparation Phase. Replacing an existing Buff ends the previous Buff. Active Buffs cannot stack with themselves.
+**Activation and Duration:** The Active Buff becomes effective at the beginning of the upcoming Round, before any creature takes its Turn. It normally lasts **Mastery Rank complete Rounds**. The activation Round counts as the first Round. At **Round End** of the final Round, the Buff expires. Its duration is independent of the activating character's Initiative or Turn. **Maintenance and Replacement:** Only one Active Buff may be maintained at a time. The active Buff may be voluntarily ended at any time. During a Preparation Phase, the character may freely activate another Active Buff, ending the previous Buff first if necessary. There is no general per-Combat activation or replacement limit. Each activation uses its own printed duration. Replacing or reactivating a Buff does not restore limited-use resources unless their specific rules explicitly allow it. Active Buffs cannot stack with themselves.
 
 **Round-Based Resources:** Resources granted by an Active Buff for each Round become available during the activation Preparation Phase and refresh once during each subsequent Preparation Phase while the Buff remains active. Unused Round-based resources expire at Round End. Other effects with explicitly defined triggers, such as Start of Turn or End of Turn, retain those triggers unless the specific Buff states otherwise. Active Buffs cannot be activated or replaced during a creature's Turn or through an ordinary Attack Action. Explicit exceptions must be stated in their own rules.
 
@@ -9395,7 +9395,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **4) Round & Turn**
 
-Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 1 Reaction** per Round. Movement and uncommitted Attack Actions can be used in either order. Activating an Active Buff during Preparation commits the base Attack Action. Reactions follow their printed trigger.
+Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 1 Reaction** per Round. Movement and Attack Actions can be used in either order. Activating an Active Buff during Preparation costs neither an Attack Action nor Stones. Reactions follow their printed trigger.
 
 #### **5) Power Use Limit**
 
@@ -9466,7 +9466,7 @@ If this yields zero, the natural-8 minimum still deals **1 damage per natural 8 
 
 #### **12) Active Buffs**
 
-Activate or replace one Active Buff during **Preparation**, committing that Round's base Attack Action. It lasts **MR full Rounds**, including the activation Round. Existing Buffs can be maintained without additional cost. Eligible Temporary HP/Damage Negation pools refresh during Preparation while the Buff remains active.
+Only one Active Buff may be maintained at a time. Activate or replace during **Preparation** at no Attack Action or Stone cost; end voluntarily anytime. There is no general per-Combat activation limit. Each activation lasts **MR full Rounds**, including the activation Round. Replacing or reactivating does not restore limited-use resources unless their rules allow it. Eligible Temporary HP/Damage Negation pools refresh during Preparation while the Buff remains active.
 
 #### **13) Stones**
 

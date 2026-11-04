@@ -1520,6 +1520,42 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
     state.option.slot === 'attack' &&
     (state.option.aoePlacementProfile === 'melee-burst' || state.option.burstMeleeAoE === true);
 
+  // Batch 7 Z02: Persistent Special Zones — place without Attack/Casting rolls.
+  if (isHostileZone && state.option.item) {
+    try {
+      const { isPersistentZonePower, createPersistentZoneFromPower } = await import(
+        './combat/persistent-zone-runtime.js'
+      );
+      if (isPersistentZonePower(state.option.item)) {
+        if (!state.center) {
+          ui.notifications?.warn('Choose a point within Range to place the Persistent Zone.');
+          endUtilityTargeting(false);
+          return;
+        }
+        const result = await createPersistentZoneFromPower({
+          creator: actor,
+          item: state.option.item,
+          centerX: state.center.x,
+          centerY: state.center.y,
+          combat,
+          scene: state.casterToken?.document?.parent ?? (globalThis as any).canvas?.scene,
+        });
+        if (!result.ok) {
+          ui.notifications?.warn(result.reason || 'Persistent Zone could not be placed.');
+          endUtilityTargeting(false);
+          return;
+        }
+        endUtilityTargeting(true);
+        return;
+      }
+    } catch (err) {
+      console.error('Mastery System | Persistent Zone placement failed', err);
+      ui.notifications?.error('Persistent Zone konnte nicht platziert werden.');
+      endUtilityTargeting(false);
+      return;
+    }
+  }
+
   if (isAttackZone || isConeAttack || isMeleeBurstAttack) {
     if (!targets.length) {
       ui.notifications?.warn(

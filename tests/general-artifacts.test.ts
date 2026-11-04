@@ -190,7 +190,7 @@ describe('Moonlight Greatsword', () => {
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
     expect(picks.map((p) => p.powerTemplateId)).toEqual([
       'active-ranged-single-heal',
-      'active-ranged-weapon-aoe',
+      'active-ranged-limited-aoe',
       'ab-damage-aura',
     ]);
     expect(picks[1].isSpell).toBe(true);
@@ -225,10 +225,10 @@ describe('Moonlight Greatsword', () => {
     expect(judgment.category).toBe('active');
     const byLevel = new Map(resolvedProgression(getGeneralArtifact('moonlightGreatsword')!).map((r: any) => [r.level, r]));
     const row = byLevel.get(8) as any;
-    expect(String(row?.powerTemplateId ?? '')).toBe('active-ranged-weapon-aoe');
+    expect(String(row?.powerTemplateId ?? '')).toBe('active-ranged-limited-aoe');
     expect(String(row?.chosenSpecialKey ?? row?.chosenSpecial?.key ?? '')).toBe('');
     expect(String(row?.effect ?? '')).toMatch(/Limited Ranged AoE Attack/i);
-    expect(String(row?.effect ?? '')).toMatch(/\+16d8/);
+    expect(String(row?.effect ?? '')).toMatch(/\+32d8/);
     expect(row?.limited).toBe(true);
     expect(row?.isSpell).toBe(true);
     expect(row?.castingAttribute).toBe('intellect');

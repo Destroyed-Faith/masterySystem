@@ -290,6 +290,8 @@ export interface PowerMechanics {
    * Specials still apply after a successful Attack / Casting delivery.
    */
   specialOnly?: boolean;
+  /** Persistent Special Zone placement / maintenance (Z02–Z06). */
+  persistentZone?: boolean;
 
   /**
    * Spell Resistance — increases Final Spell TN (not Spell Base TN) of
@@ -671,6 +673,12 @@ export interface EmbeddedPowerData {
   castingAttribute?: CastingAttribute;
   /** Item-only: chosen resolution mode for the Spell. */
   spellResolution?: SpellResolution;
+  /**
+   * Limited Instant Damage Attack (Batch 5 C07). Template and item flag.
+   * Spends the character's one global Limited charge at declaration; ×4 printed
+   * Power Dice once at resolution.
+   */
+  limited?: boolean;
   /** Item-only reserved: future Overcast stacks (rules pending). */
   overcast?: number;
 
@@ -1008,9 +1016,8 @@ export interface ArtifactLevelProgressionRow {
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
   /**
-   * Limited Instant Active: doubles printed Power Damage Dice only; spends one
-   * Safe Haven use at declaration (shared across stages). Mechanical flag —
-   * not description-only.
+   * Limited Instant Active: ×4 printed Power Damage Dice once; spends the one
+   * global Limited charge at declaration. Mechanical flag — not description-only.
    */
   limited?: boolean;
   /** Optional structured power if this row also grants a usable Active/Reaction. */

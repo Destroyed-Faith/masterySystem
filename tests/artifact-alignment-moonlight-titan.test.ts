@@ -41,7 +41,7 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
 
   it('does not map Judgment to Requiem or L10 True Moonlight Ultimate', () => {
     const judgment = picks.find((p) => p.level === 2);
-    expect(judgment?.powerTemplateId).toBe('active-ranged-weapon-aoe');
+    expect(judgment?.powerTemplateId).toBe('active-ranged-limited-aoe');
     expect(judgment?.isSpell).toBe(true);
     expect(String(judgment?.chosenSpecial?.key || '')).not.toMatch(/requiem/i);
     const l10 = table.find((r) => Number(r.level) === 10);
@@ -51,14 +51,14 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
 
   it('Mending / Judgment / Shadow use canonical templates at PL 4/10/16', () => {
     expect(picks[0].powerTemplateId).toBe('active-ranged-single-heal');
-    expect(picks[1].powerTemplateId).toBe('active-ranged-weapon-aoe');
+    expect(picks[1].powerTemplateId).toBe('active-ranged-limited-aoe');
     expect(picks[2].powerTemplateId).toBe('ab-damage-aura');
     expect(getTemplate('active-ranged-single-heal')?.levels?.['4']?.effect?.dice).toMatch(/5d8/);
     expect(getTemplate('active-ranged-single-heal')?.levels?.['10']?.effect?.dice).toMatch(/12d8/);
     expect(getTemplate('active-ranged-single-heal')?.levels?.['16']?.effect?.dice).toMatch(/20d8/);
-    const aoe4 = getTemplate('active-ranged-weapon-aoe')?.levels?.['4'];
-    const aoe10 = getTemplate('active-ranged-weapon-aoe')?.levels?.['10'];
-    const aoe16 = getTemplate('active-ranged-weapon-aoe')?.levels?.['16'];
+    const aoe4 = getTemplate('active-ranged-limited-aoe')?.levels?.['4'];
+    const aoe10 = getTemplate('active-ranged-limited-aoe')?.levels?.['10'];
+    const aoe16 = getTemplate('active-ranged-limited-aoe')?.levels?.['16'];
     expect(aoe4?.aoe?.radiusM).toBe(3);
     expect(aoe10?.aoe?.radiusM).toBe(6);
     expect(aoe16?.aoe?.radiusM).toBe(8);
@@ -81,7 +81,7 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
       expect(String(row?.type || '')).toMatch(/Spell/i);
       expect(String(row?.effect || '')).toMatch(/Limited Ranged AoE Attack/i);
       expect(String(row?.effect || '')).toMatch(/becomes \*\*\+\d+d8\*\*/i);
-      expect(String(row?.effect || '')).toMatch(/one use spent on declaration/i);
+      expect(String(row?.effect || '')).toMatch(/spent on declaration/i);
       expect(String(row?.effect || '')).not.toMatch(/\bEvade\b/i);
     }
     const j2 = table.find((r) => Number(r.level) === 2) as any;

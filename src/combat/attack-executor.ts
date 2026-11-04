@@ -601,40 +601,61 @@ export async function createAttackCard(
     return null;
   }
 
-  // Artifact Safe Haven / Combat use gates (Judgment Limited, Dragon Breath once/combat).
+  // Global Limited charge (1 / Safe Haven) + Dragon Breath once/combat.
   try {
     const optionName = String(option.name || '');
-    const artifactLevel = Math.max(
-      1,
-      Math.floor(
-        Number(
-          (option as any).artifactRowLevel ||
-            (option.item as any)?.system?.currentLevel ||
-            1,
-        ) || 1,
-      ),
+    const {
+      isLimitedAttackDeclaration,
+      isLimitedChargeAvailable,
+      spendLimitedCharge,
+      isForbiddenLimitedTemplateId,
+    } = await import('./limited-charge.js');
+    const templateId = String(
+      (option.item as any)?.system?.templateId ||
+        (option as any).artifactPowerTemplateId ||
+        '',
     );
-    // Moonlight Judgment (legacy alias: Undead Tracer) — Limited use at declaration.
-    if (/moonlight\s*judgment/i.test(optionName) || /undead\s*tracer/i.test(optionName)) {
-      const {
-        assertMoonlightJudgmentAvailable,
-        spendMoonlightJudgmentUse,
-        moonlightJudgmentMaxUses,
-      } = await import('./artifact-rest-uses.js');
-      if (!assertMoonlightJudgmentAvailable(attacker, artifactLevel)) {
-        const max = moonlightJudgmentMaxUses(artifactLevel);
+    const claimsLimited =
+      (option as any).limited === true ||
+      (option as any).artifactLimited === true ||
+      (option.item as any)?.system?.limited === true ||
+      /moonlight\s*judgment/i.test(optionName) ||
+      /undead\s*tracer/i.test(optionName);
+    if (claimsLimited && isForbiddenLimitedTemplateId(templateId)) {
+      ui.notifications?.warn('This Power cannot be used as a Limited Attack.');
+      return null;
+    }
+    const isLimitedDecl = isLimitedAttackDeclaration({
+      limited: (option as any).limited === true,
+      artifactLimited: (option as any).artifactLimited === true,
+      templateId,
+      item: option.item as any,
+    });
+    // Moonlight Judgment (legacy alias: Undead Tracer) is always Limited Instant AoE Spell.
+    const isMoonlightJudgment =
+      /moonlight\s*judgment/i.test(optionName) || /undead\s*tracer/i.test(optionName);
+    if (isMoonlightJudgment || isLimitedDecl) {
+      if ((option as any).limitedChargeSpent === true) {
+        // Same declaration recreating a card — do not spend again.
+      } else if (!isLimitedChargeAvailable(attacker)) {
         ui.notifications?.warn(
-          `Moonlight Judgment: no uses remaining (${max}/Safe Haven Rest).`,
+          'Limited Attack: no uses remaining (1 global use per Safe Haven Rest).',
         );
         return null;
-      }
-      const spent = await spendMoonlightJudgmentUse(attacker, artifactLevel);
-      if (!spent) {
-        ui.notifications?.warn('Moonlight Judgment: use could not be spent.');
-        return null;
+      } else {
+        const spent = await spendLimitedCharge(attacker);
+        if (!spent.ok) {
+          ui.notifications?.warn('Limited Attack: use could not be spent.');
+          return null;
+        }
+        (option as any).limitedChargeSpent = true;
       }
       (option as any).artifactLimited = true;
-      (option as any).ignoreWeaponDamage = true;
+      (option as any).limited = true;
+      if (isMoonlightJudgment) {
+        // Instant Spell AoE: no martial weapon; Spell Focus when unlocked (C07).
+        (option as any).ignoreWeaponDamage = true;
+      }
     } else if (
       /breath\s*weapon/i.test(optionName) ||
       /damage\s*breath/i.test(optionName) ||

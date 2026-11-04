@@ -117,17 +117,17 @@ Active Buffs are temporary combat enhancements. Unlike Passives, they occupy a m
 
 ### Preparation Phase Activation
 
-Choose and activate or replace an Active Buff **only during the Preparation Phase**, before the Combat Round begins. Commit your **base Attack Action for the upcoming Round** as the activation cost. You cannot use that base Action on your Turn for a Basic Attack, Active Power, or any other use; it cannot also pay for Dash, Disengage, Parry or another ability. **Additional Attack Actions** from legal sources remain available. If you cannot commit the base Action, you cannot activate a Buff without an explicit exception. Ordinary Active Buffs cannot be activated outside Preparation.
+Choose and activate or replace an Active Buff **only during the Preparation Phase**, before the Combat Round begins. Activation costs **neither an Attack Action nor Stones**. Ordinary Active Buffs cannot be activated outside Preparation (not during a normal Attack Action or mid-Turn).
 
 The Buff is active **before any Turn in the activation Round**, regardless of Initiative. It normally requires no roll unless an entry targets an unwilling creature or explicitly requires one.
 
 ### Complete-Round Duration
 
-The activation Round counts as **Round 1** of the Buff. An MR1 Buff lasts the whole activation Round; an MR2 Buff lasts that Round and the next. The Buff ends at **Round End of its final Round**, after eligible end-of-round effects, **not** at the end of its owner's Turn. Explicit duration modifiers adjust the number of complete Rounds.
+The activation Round counts as **Round 1** of the Buff. An MR1 Buff lasts the whole activation Round; an MR2 Buff lasts that Round and the next. The Buff ends at **Round End of its final Round**, after eligible end-of-round effects, **not** at the end of its owner's Turn. Explicit duration modifiers adjust the number of complete Rounds. Each new activation receives its own full printed duration.
 
 ### Maintenance, Replacement, and Refresh
 
-Maintain **one Active Buff** at a time unless an explicit exception applies. Maintaining an existing Buff costs no additional Action. Activate or replace **at most one** Buff per Preparation Phase; replacing it ends the old Buff immediately. Reactivation never resets a combat-wide charge allowance. A Buff does not stack with itself.
+Only one Active Buff may be maintained at a time. The active Buff may be voluntarily ended at any time. During a Preparation Phase, the character may freely activate another Active Buff, ending the previous Buff first if necessary. There is no general per-Combat activation or replacement limit. Each activation uses its own printed duration. Replacing or reactivating a Buff does not restore limited-use resources unless their specific rules explicitly allow it. A Buff does not stack with itself.
 
 Round-based Buff resources are established in the **activation Preparation Phase** and refresh **once** during each subsequent Preparation Phase while maintained, with unused points expiring at Round End. Printed **Start of Turn / End of Turn** triggers remain at their stated time unless that Buff explicitly says otherwise. Expired Buffs remove their remaining granted resources. **All maintained Active Buffs end at Combat End.**
 
@@ -191,7 +191,7 @@ Auras remain centered on their owner. **Damage Aura** pulses at the caster's End
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure Armor axis. Playtest calibration: +2 Armor per Power Level (15 PP per Armor); replaces the former 7.5 PP per Armor conversion.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -228,7 +228,7 @@ Reinforce your defenses with the printed **Armor bonus**. It applies to you only
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure Evade axis. +1 Evade = 15 PP; whole-number values are rounded down.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -265,7 +265,7 @@ Gain the printed **Evade bonus** against eligible attacks for the duration. No A
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Armor aura. Playtest calibration: +1 Armor per Power Level, with the existing +2 m per Level radius progression. Group-wide Armor is deliberately weaker than the self-only Buff.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -302,7 +302,7 @@ You and allies **within the listed radius of you** gain the printed Armor bonus 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Refreshing Temporary HP = 4 PP per 1 HP. Rounded down to whole HP. Buff-specific Temporary HP do not heal real HP and never refill twice in one Round.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -339,7 +339,7 @@ During the **activation Preparation Phase**, gain the printed **Temporary HP**. 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Closed premium subsystem; requires slotted Passive: Damage Reduction. PL1-3 unavailable. Adds at most +10% DR to the eligible non-Stone subtotal, within the printed cap.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -376,7 +376,7 @@ During the **activation Preparation Phase**, gain the printed **Temporary HP**. 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Closed premium subsystem; requires slotted Passive: Phasing. PL1-3 unavailable. Only one additional temporary charge, with total caps 2 / 3 / 4 by Level band.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -413,7 +413,7 @@ During the **activation Preparation Phase**, gain the printed **Temporary HP**. 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure Spell Resistance axis; +1 Spell Resistance = 15 PP, rounded down. Adds to the Final Spell TN, not the Base TN.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -450,7 +450,7 @@ Gain the listed **Spell Resistance**, increasing your **Final Spell TN** against
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Single-focus recurring Cleanse; Cleanse(1) = 30 PP. Applied at the owner's Turn Start, not in Preparation. No Absorption trigger.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -487,7 +487,7 @@ At the **start of each of your Turns while maintained**, reduce **one eligible o
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Temporary Invisibility Bonus = Power Level; Obscures only Normal Combat Awareness. Special Combat Senses are not Obscured by this Buff alone.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -526,7 +526,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Requires Passive: Parry and an active Parry stance. Recovers spent Parry following a qualifying event, up to PL per Round, without exceeding the Parry Pool established for that stance.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -534,7 +534,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
 
 **Requirement: Passive: Parry.** While legally Parrying, recover up to **this Buff's Power Level** spent Parry points in total each Round, after the relevant Martial Attack or Spell resolves. Recovery cannot exceed actual Parry spent or the Pool established for that Parry stance. The per-Round recovery allowance resets once at the next Round boundary.
 
-**Timing interaction:** Entering Parry is a separate action at the beginning of your Turn. Activating this Buff during Preparation consumes your base Attack Action and does **not** activate Parry. To enter Parry in that same Round, spend one legally available **additional Attack Action** (such as Stone: Extra Attack), as permitted by Passive: Parry. Without that additional Action, you cannot enter Parry this Round.
+**Timing interaction:** Entering Parry is a separate action at the beginning of your Turn. Activating this Buff during Preparation does **not** activate Parry and does not consume the base Attack Action. Enter Parry normally by spending your base Attack Action (or a legal additional Attack Action), as permitted by Passive: Parry.
 
 | **Level** | **Type**           | **Range** | **AoE** |     **Duration**    | **Effect**                                      |
 | :-------: | :----------------- | :-------: | :-----: | :-----------------: | :---------------------------------------------- |
@@ -565,7 +565,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Requires slotted Passive: Damage Negation; it works even with 0 remaining Passive reserve. **Original curve: Temporary DN = Buff PL**, NOT ceil(PL/2). Separate temporary pool each Round.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -604,7 +604,7 @@ Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Pure offensive damage axis. Balance correction 2026-10-25: +1d8 damage per Power Level at 30 PP per +1d8 (PL4 = +4d8, PL10 = +10d8, PL16 = +16d8). No +5 PP overspend exception. No additional Attack Dice or Specials.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -641,7 +641,7 @@ Your legal damaging **attacks** gain the listed additional d8. This does not gra
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Closed Critical subsystem; PL1-3 unavailable. Critical(1-4) milestones at PL4/8/12/15. A single shared combat-wide designation allowance while maintained; no refresh by reactivation.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -678,7 +678,7 @@ While this Buff is maintained, you may designate up to **Critical(X)** eligible 
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Single-payload damage aura: radius 2 m (PL1-7), 3 m (PL8-14), 4 m (PL15-16). Radius costs 20 / 50 / 90 PP; Aura Damage costs 35 PP per d8. PL1 minimum functional 1d8 exception.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -715,7 +715,7 @@ This self-centered aura moves with you. At the **end of each of your Turns** whi
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Owner-only Summon damage aura, with the printed per-Level damage and radius. The normal single maintained-Buff limit and MR-Round duration apply.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -752,7 +752,7 @@ Your own **Summons within the printed radius** gain the listed additional damage
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Reflected damage: 30 PP per d8. Only applies after actual final HP damage; reflected value cannot exceed the HP damage suffered. Not an attack or Special.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -791,7 +791,7 @@ When you take **final HP damage from a direct attack, Spell or Power**, the sour
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Owner-only Summon protection aura. Playtest calibration: +1 Armor per Power Level; listed radii and maintained-Buff duration remain unchanged.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -828,7 +828,7 @@ Your own **Summons within the printed radius** gain the listed Armor bonus while
   <span class="tooltip">🛈
     <span class="tooltiptext">
       Requires slotted Passive: Absorption; once per Round on its first valid trigger, among the Passive's total of four triggers per Combat. Milestones +1 / +2 / +3 / +4 stones at PL1/5/9/13.<br>
-      Activation: Preparation Phase; spend base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -869,7 +869,7 @@ Your own **Summons within the printed radius** gain the listed Armor bonus while
       Personal offensive Armor reduction, one mechanical axis. Budget: 7.5 PP per point ignored, rounded down.<br>
       Affects only your own eligible damaging Martial or Spell Attacks; no effect against environmental or ongoing non-Attack damage.<br>
       Stacks with legal Passive and Stone Armor Reduction, weapon Penetration and target Corrode; effective Armor remains at least 0.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -910,7 +910,7 @@ Resolve after applicable **Corrode(X)** and together with other explicitly legal
       Pure attacker-side Enemy Evade Reduction. Budget: 30 PP per 1 Evade ignored.<br>
       Only your own eligible Martial Attack Rolls; each Martial AoE target resolves independently.<br>
       Never changes actual enemy Evade, does not apply Expose, and does not affect Spell TN.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -951,7 +951,7 @@ This Buff is **attacker-side only**: it does not reduce the target's listed Evad
       Pure caster-side Spell Resistance Piercing. Budget: 30 PP per 1 Spell Resistance ignored.<br>
       Affects only the target Spell Resistance component of your own eligible Spells.<br>
       Does not reduce Spell Base TN, Paid Raise TN, other surcharges or non-Spell defenses.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -992,7 +992,7 @@ This Buff does not lower any target's actual Spell Resistance for other casters 
       Closed premium subsystem: 120 PP per available Combat use; milestones at PL4, PL8, PL12, PL16.<br>
       One use maximizes a complete eligible Damage or Healing Roll, not an Attack/Casting Roll.<br>
       One source per roll; combat-wide spent allowance cannot refresh by ending, replacing or reactivating this Buff.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -1035,7 +1035,7 @@ This is a third legal source alongside **Passive: Maximization** and **Vitality 
       Group-support offensive aura: 20 PP per 1 Armor ignored plus radius cost.<br>
       Radius PP costs: 2 m = 50, 3 m = 90, 4 m = 130, 5 m = 180.<br>
       Applies only to eligible allied attacks against hostile targets inside the aura; no cast/attack roll or Corrode application.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -1078,7 +1078,7 @@ For an eligible attack, combine this aura's reduction with legal **Corrode**, at
       Group-support damage aura, other non-Summon allies only. Budget: 80 PP per 1d8 plus radius cost.<br>
       Radius PP costs: 2 m = 40, 3 m = 80, 4 m = 130.<br>
       Damage bonus only on eligible damaging attacks by other allies inside radius; not the owner or Summons.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>
@@ -1121,7 +1121,7 @@ Multiple **Allied Damage Auras** do not stack on the same recipient attack; appl
       Premium radius-only subsystem: 120 PP per 1 m added to eligible circular AoE radius.<br>
       Milestones: PL4 +1 m; PL8 +2 m; PL12 +3 m; PL16 +4 m. PL1-3 unavailable.<br>
       Does not stack its radius bonus with Intellect Stone Range & AoE Boost. Use the larger radius addition.<br>
-      Activation: Preparation Phase; commit base Attack Action for activation Round.<br>
+      Activation: Preparation Phase; no Attack Action or Stone cost.<br>
       Duration: Mastery Rank complete Rounds; expires at final Round End.
     </span>
   </span>

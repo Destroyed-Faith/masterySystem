@@ -143,7 +143,7 @@ describe('Artifact attack acceptance — Ranged Instant AoE (Moonlight Judgment)
     expect(built?.aoe.secondaryTokenIds).toEqual(['t2']);
   });
 
-  it('Judgment radial option is Limited Spell Delivery without weapon/focus', () => {
+  it('Judgment radial option is Limited Spell Delivery without martial weapon', () => {
     const opts = buildArtifactRadialOptions(actorWithNode(treeNode('moonlightGreatsword', 5), 5));
     const judgment = opts.find((o) => /Judgment/i.test(o.name));
     expect(judgment).toBeTruthy();
@@ -153,7 +153,8 @@ describe('Artifact attack acceptance — Ranged Instant AoE (Moonlight Judgment)
     expect(judgment!.artifactCastingAttribute).toBe('intellect');
     expect(judgment!.artifactSpellResolution).toBe('spellAttack');
     expect(String(judgment!.description || '')).toMatch(/Limited Ranged AoE Attack/i);
-    expect(String(judgment!.description || '')).toMatch(/\+8d8/);
+    // Stage II (L5) narrative shows ×4 Limited Power Dice (4→16).
+    expect(String(judgment!.description || '')).toMatch(/\+16d8/);
     expect(String(judgment!.description || '')).not.toMatch(/\bEvade\b/i);
   });
 });
