@@ -5,8 +5,14 @@
  * separate and only appear at L10.
  */
 import type { ArtifactLevelProgressionRow, ArtifactProgressionPick } from '../types/item.js';
-/** Full 1–10 table: picks-derived rows when present, else the authored definition. */
-export declare function resolveFullLevelProgression(authored: ArtifactLevelProgressionRow[] | null | undefined, picks: ArtifactProgressionPick[] | null | undefined): ArtifactLevelProgressionRow[];
+/**
+ * Full 1–10 table: picks-derived rows when present, else the authored definition.
+ * Pass `preferAuthored: true` for irregular printed tables (e.g. Sentinel Frame)
+ * where Basic slots do not stage a single ability at L+0/+3/+6.
+ */
+export declare function resolveFullLevelProgression(authored: ArtifactLevelProgressionRow[] | null | undefined, picks: ArtifactProgressionPick[] | null | undefined, opts?: {
+    preferAuthored?: boolean;
+}): ArtifactLevelProgressionRow[];
 /** Level-10 capstone rows (Awakening / legacy True … Ultimate) — not a fourth staged slot. */
 export declare function isUltimateProgressionRow(row: ArtifactLevelProgressionRow): boolean;
 /** Which of the three standard pick slots a staged row belongs to (0..2). */

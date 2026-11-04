@@ -35,7 +35,7 @@ export const UNBOUND_ECHO = {
             trait: {
                 id: 'root-witch',
                 name: 'Root Staff',
-                effect: 'Rootbinding is Ranged Attack + Slow. Covenant Overdrive uses Active Buff: Special Increase + Slow. Witch Staff occupies both hands.',
+                effect: 'Tradition Special: Slow. Binding Circle is Ranged AoE Special: Root. Main Spell is Ranged Single Target Special: Weaken. Witch Staff occupies both hands.',
                 flavor: 'Buried wood, grave roots, old circles.',
                 usage: 'passive',
             },
@@ -46,7 +46,7 @@ export const UNBOUND_ECHO = {
             trait: {
                 id: 'ruin-witch',
                 name: 'Ruin Staff',
-                effect: 'Ruinous Word is Ranged Attack + Hex. Covenant Overdrive uses Active Buff: Special Increase + Hex. Witch Staff occupies both hands.',
+                effect: 'Tradition Special: Hex. Binding Circle is Ranged AoE Special: Root. Main Spell is Ranged Single Target Special: Ruin. Witch Staff occupies both hands.',
                 flavor: 'Blackened wood, ash, erased names.',
                 usage: 'passive',
             },
@@ -57,7 +57,7 @@ export const UNBOUND_ECHO = {
             trait: {
                 id: 'blight-witch',
                 name: 'Blight Staff',
-                effect: 'Blightcall is Ranged Attack + Corrode. Covenant Overdrive uses Active Buff: Special Increase + Corrode. Witch Staff occupies both hands.',
+                effect: 'Tradition Special: Corrode. Binding Circle is Ranged AoE Special: Root. Main Spell is Ranged Single Target Special: Blight. Witch Staff occupies both hands.',
                 flavor: 'Fungus, rust, living decay.',
                 usage: 'passive',
             },
@@ -68,7 +68,7 @@ export const UNBOUND_ECHO = {
             trait: {
                 id: 'bane-alchemist',
                 name: 'Alchemist Coat',
-                effect: 'Medium Armor. Red Potion is Active Buff: Damage. Black Potion is Active Buff: Critical. Alchemist Stone supports Vitality Ability: Extend Active Buff.',
+                effect: 'Medium Armor. Red Potion is Active Buff: Damage. Black Potion is Active Buff: Critical. Alchemist Stone is Potion Active Buff Empowerment (+1/+2/+3 PL and Rounds).',
                 flavor: 'Preparation, not transformation.',
                 usage: 'passive',
             },

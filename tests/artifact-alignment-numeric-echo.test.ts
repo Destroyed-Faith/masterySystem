@@ -186,14 +186,16 @@ describe('Every Echo Artifact — full L1–10 table presence', () => {
   }
 });
 
-describe('Oracle Field — catalogue Armor Aura PL 1/3/5', () => {
-  it('compiled Field stages are +1 / +3 / +5 Armor', () => {
+describe('Oracle Field — Active Buff Armor PL 4/10/16', () => {
+  it('compiled Field stages are +8 / +20 / +32 Armor with no aura radius', () => {
     const def = ECHO_ARTIFACTS.oracleFrame;
     const picks = buildEchoProgressionPicks(def);
     const rows = deriveLevelProgressionFromPicks(picks as any)
       .filter((r) => /Oracle Field/i.test(String(r.name || '')))
       .sort((a, b) => (Number(a.level) || 0) - (Number(b.level) || 0));
-    expect(rows.map((r) => armorFromText(String(r.effect)))).toEqual([1, 3, 5]);
-    expect(rows.map((r) => radiusMetersFromText(String(r.aoe)))).toEqual([2, 6, 10]);
+    expect(rows.map((r) => r.powerTemplateId)).toEqual(['ab-armor', 'ab-armor', 'ab-armor']);
+    expect(rows.map((r) => armorFromText(String(r.effect)))).toEqual([8, 20, 32]);
+    expect(rows.every((r) => !String(r.aoe || '').match(/radius/i))).toBe(true);
+    expect(rows.every((r) => !/allies/i.test(String(r.effect || '')))).toBe(true);
   });
 });

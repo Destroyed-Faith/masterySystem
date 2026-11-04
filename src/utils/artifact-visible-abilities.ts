@@ -8,11 +8,19 @@
 import { deriveLevelProgressionFromPicks } from '../artifacts/progression-compiler.js';
 import type { ArtifactLevelProgressionRow, ArtifactProgressionPick } from '../types/item.js';
 
-/** Full 1–10 table: picks-derived rows when present, else the authored definition. */
+/**
+ * Full 1–10 table: picks-derived rows when present, else the authored definition.
+ * Pass `preferAuthored: true` for irregular printed tables (e.g. Sentinel Frame)
+ * where Basic slots do not stage a single ability at L+0/+3/+6.
+ */
 export function resolveFullLevelProgression(
   authored: ArtifactLevelProgressionRow[] | null | undefined,
   picks: ArtifactProgressionPick[] | null | undefined,
+  opts?: { preferAuthored?: boolean },
 ): ArtifactLevelProgressionRow[] {
+  if (opts?.preferAuthored && Array.isArray(authored) && authored.length > 0) {
+    return [...authored].sort((a, b) => (Number(a.level) || 0) - (Number(b.level) || 0));
+  }
   const fromPicks = deriveLevelProgressionFromPicks(picks);
   if (fromPicks.length > 0) {
     const ultimates = (authored || []).filter(isUltimateProgressionRow);

@@ -223,7 +223,7 @@ describe('catalog: no leftover artifact swings next to Single Attack', () => {
     const def = getGeneralArtifact('frostboundReturningAxe')!;
     const rows = deriveLevelProgressionFromPicks(buildEchoProgressionPicks(def) as any);
     const frost = rows.find((r) => /Frost Throw/.test(String(r.name)) && r.level === 2);
-    expect(frost?.powerTemplateId).toBe('active-ranged-damage-t4');
+    expect(frost?.powerTemplateId).toBe('active-ranged-instant-special-t4');
     expect(frost?.chosenSpecialKey).toBe('slow');
     const item = artifact({
       id: 'axe',
@@ -236,7 +236,7 @@ describe('catalog: no leftover artifact swings next to Single Attack', () => {
     item.system.levelProgression = rows.filter((r) => r.level <= 2);
     const opts = buildArtifactRadialOptions(actor([item, single]));
     const throwOpt = opts.find((o) => /Frost Throw/.test(String(o.name)));
-    expect(throwOpt?.artifactPowerTemplateId).toBe('active-ranged-damage-t4');
+    expect(throwOpt?.artifactPowerTemplateId).toBe('active-ranged-instant-special-t4');
     expect(throwOpt?.artifactChosenSpecialKey).toBe('slow');
     expect(throwOpt?.artifactIsSpell).toBeFalsy();
   });

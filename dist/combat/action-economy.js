@@ -579,7 +579,9 @@ function resolveArtifactUsageDisplayName(actor, key) {
     }
     try {
         const sys = item?.system || {};
-        const full = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks);
+        const full = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks, {
+            preferAuthored: sys.useAuthoredLevelProgression === true,
+        });
         const visible = visibleAbilityRows(full, Math.max(level, Number(sys.currentLevel) || level));
         const row = visible.find((r) => Number(r.level) === level && String(r.type || '').trim() === rowType) ||
             full.find((r) => Number(r.level) === level && String(r.type || '').trim() === rowType) ||

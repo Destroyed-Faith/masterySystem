@@ -2557,13 +2557,13 @@ The Oracle Frame channels **Influence** through protective fields, coordination,
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
-| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 1)</span> | Retired - redesign pending | Self | Radius 2 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+4 Armor**. |
+| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Active Buff: Armor (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 4)**: gain **+8 Armor** for Mastery Rank Rounds. |
 | **2** | **Oracle Evade Reduction I**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **3** | **Influence Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (2)</span> | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. |
-| **4** | **Oracle Field III**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 3)</span> | Retired - redesign pending | Self | Radius 6 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+9 Armor**. This replaces Oracle Field I. |
+| **4** | **Oracle Field II**<span class="artifactTechnicalReference">Active Buff: Armor (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 10)**: gain **+20 Armor** for Mastery Rank Rounds. This replaces Oracle Field I. |
 | **5** | **Oracle Evade Reduction II**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **6** | **Influence Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. |
-| **7** | **Oracle Field V**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 5)</span> | Retired - redesign pending | Self | Radius 10 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+14 Armor**. This replaces Oracle Field III. |
+| **7** | **Oracle Field III**<span class="artifactTechnicalReference">Active Buff: Armor (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 16)**: gain **+32 Armor** for Mastery Rank Rounds. This replaces Oracle Field II. |
 | **8** | **Oracle Evade Reduction III**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **9** | **Influence Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Oracle Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -2989,7 +2989,7 @@ Dragon Claws occupy both hand Slots. Dragon Claws are Echo-bound and cannot norm
 | Level 9 | 15d8 | Penetration (5) | Brutal Impact(5) |
 | Level 10 | 16d8 | Penetration (5)| Brutal Impact(5) |
 
-Claw / Tail Damage is Weapon Damage. Penetration and Brutal Impact apply to Claw and Tail attacks granted by this Artifact. Rending Spiral is an **AoE** and adds **no Claw / Tail Weapon Damage**. Tail Sweep is a **single-target Martial Push** and uses matching Claw / Tail Weapon Damage when it hits; it purchases no extra Power Damage. Rending Spiral applies the full printed **Lacerate(X)** to each hit creature without splitting. Both retain their PL 4/10/16 catalogue profiles.
+Claw / Tail Damage is Weapon Damage. Penetration and Brutal Impact apply to Claw and Tail attacks granted by this Artifact. Rending Spiral is an **AoE** and adds **no Claw / Tail Weapon Damage**. **Tail Sweep is an approved Dragon Claws Artifact Special Rule:** a **single-target Martial Push** that uses matching Claw / Tail Weapon Damage when it hits and purchases no extra Power Damage. Other Powers must not treat this as a general exception to Special-only or Push/Pull catalogue rules. Rending Spiral applies the full printed **Lacerate(X)** to each hit creature without splitting. Both retain their PL 4/10/16 catalogue profiles.
 
 ---
 }}
@@ -7005,7 +7005,7 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 **Aura classification:** **Special Auras are Active Buffs**: Self-range, caster-centered and moving, automatically applying only their printed Special to every creature in radius **except the Aura caster**; allies are not exempt. They occupy the single simultaneously maintained Active Buff slot and last MR complete Rounds per activation. **Persistent Special Zones remain stationary Actives**, placed with one Attack Action and sustained with one Attack Action per Zone each subsequent creator Turn; overlapping Zones are allowed.
 
-**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. Their Artifact/Echo references (Oracle Field, Draconic Roar and Moonlight Shadow) remain pending deliberate replacement. The new Special Aura Active Buffs do **not** automatically replace those effects or alter their Artifact progression.
+**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. Their remaining Artifact/Echo references (Draconic Roar and Moonlight Shadow) remain pending deliberate replacement. Oracle Field has been replaced by standard **Active Buff: Armor**. The new Special Aura Active Buffs do **not** automatically replace those remaining effects or alter their Artifact progression.
 
 Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff during the Preparation Phase costs **no Attack Action and no Stones**. It does not remove or commit the character's base Attack Action for the upcoming Round.
 
@@ -9026,6 +9026,18 @@ can be found in the separate **Artifacts Catalogue**:
 **Artifact sources:** This Core Rulebook defines the general Artifact rules and the Echo Artifact progressions printed here. The separate **Artifacts Catalogue** provides additional Artifact profiles and construction guidance. Use a catalogue edition that matches your current rules. Every newly bound Artifact begins at **Level 1 for free** and advances through the printed Artifact Costs.
 
 [Open the complete Artifacts Catalogue](https://homebrewery.naturalcrit.com/share/TigfuySgic8x)
+
+#### Approved General Artifact Clarification — Heart of Winter / Frostwave
+
+**Approved clarification (Batch 9G.3):** Heart of Winter **Frostwave** grants only the standard catalogue Power **Melee AoE Special: Slow** from Actives. It adds **no** Artifact Slow bonus and deals **no** direct Power, Weapon, or Spell Focus Damage. Delivery remains the normal self-centered Melee AoE Attack Roll with individual Evade / Dive for Cover. Stage II replaces I; stage III replaces II. Frozen Reserve, Glacial Intercept, Shield Armor, and Artifact Awakening are unchanged by this clarification.
+
+| **Artifact Level** | **Name** | **Exact official Power** | **Effect** | **Radius** |
+| :---: | --- | --- | --- | :---: |
+| **3** | **Frostwave I** | Melee AoE Special: Slow **PL 4** | **Slow(5)**; no direct damage | **3 m** |
+| **6** | **Frostwave II** | Melee AoE Special: Slow **PL 8** | **Slow(7)**; no direct damage | **5 m** |
+| **9** | **Frostwave III** | Melee AoE Special: Slow **PL 16** | **Slow(10)**; no direct damage | **7 m** |
+
+Frostwave II uses catalogue **PL 8** (not PL 10) so the printed Instant AoE Slow is **Slow(7)** with Radius **5 m**. Do not grant PL 10 Slow(9) with a manually reduced effect, and do not change the shared Actives Melee AoE Special: Slow table.
 
 }}
 \page

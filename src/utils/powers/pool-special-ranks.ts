@@ -9,7 +9,15 @@
  * a rank at runtime — the arrays below are the catalogue.
  */
 
-import { instantSpecialRank } from './instant-special-ranks.js';
+import {
+  instantSpecialRank,
+  meleeAoeInstantLacerateRank,
+  meleeAoeInstantLacerateRadiusM,
+  meleeAoeInstantSlowRank,
+  meleeAoeInstantSlowRadiusM,
+  rangedAoeInstantRootRank,
+  rangedAoeInstantRootRadiusM,
+} from './instant-special-ranks.js';
 
 export const POOL_REDUCING_SPECIAL_KEYS = ['challenge', 'disoriented', 'soulburn', 'weaken'] as const;
 
@@ -142,21 +150,75 @@ function instantSpecialTemplateOverride(
 }
 
 /**
- * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing
- * or this is an Instant Single-Special template, replace the shared-table rank
- * with the printed catalogue rank. Root still cannot print below Root(2).
+ * Named Instant AoE Special: Root (Actives.md) on the special-only AoE damage
+ * templates (`active-*-aoe-damage-t*`, dice always 0).
  */
-export function bindPoolSpecialsOnRow<T extends { specials?: SpecialRow[]; effect?: { text?: string } }>(
-  row: T,
-  chosenKey: string | null | undefined,
+function instantAoeRootOverride(
   templateId: string | null | undefined,
+  specialKey: string | null | undefined,
   level: number,
-): T {
+): number | undefined {
+  const id = String(templateId ?? '').trim();
+  const key = String(specialKey ?? '').trim().toLowerCase();
+  if (key !== 'root') return undefined;
+  if (!/^active-ranged-aoe-damage-t[3-6]$/.test(id)) return undefined;
+  return rangedAoeInstantRootRank(level);
+}
+
+/**
+ * Named Instant AoE Special: Lacerate (Actives.md) on melee special-only AoE
+ * damage templates (e.g. Dragon Claws Rending Spiral).
+ */
+function instantAoeLacerateOverride(
+  templateId: string | null | undefined,
+  specialKey: string | null | undefined,
+  level: number,
+): number | undefined {
+  const id = String(templateId ?? '').trim();
+  const key = String(specialKey ?? '').trim().toLowerCase();
+  if (key !== 'lacerate') return undefined;
+  if (!/^active-melee-aoe-damage-t[3-6]$/.test(id)) return undefined;
+  return meleeAoeInstantLacerateRank(level);
+}
+
+/**
+ * Named Instant AoE Special: Slow (Actives.md) on melee special-only AoE
+ * damage templates (e.g. Heart of Winter Frostwave).
+ */
+function instantAoeSlowOverride(
+  templateId: string | null | undefined,
+  specialKey: string | null | undefined,
+  level: number,
+): number | undefined {
+  const id = String(templateId ?? '').trim();
+  const key = String(specialKey ?? '').trim().toLowerCase();
+  if (key !== 'slow') return undefined;
+  if (!/^active-melee-aoe-damage-t[3-6]$/.test(id)) return undefined;
+  return meleeAoeInstantSlowRank(level);
+}
+
+/**
+ * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing
+ * or this is an Instant Single-Special / Instant AoE Root / Instant AoE Lacerate
+ * / Instant AoE Slow template, replace the shared-table rank with the printed
+ * catalogue rank. Root still cannot print below Root(2). Instant AoE Root /
+ * Lacerate / Slow also apply the printed Radius from Actives.md.
+ */
+export function bindPoolSpecialsOnRow<
+  T extends {
+    specials?: SpecialRow[];
+    effect?: { text?: string };
+    aoe?: { shape?: string; radiusM?: number; center?: string; targetFilter?: string } | null;
+  },
+>(row: T, chosenKey: string | null | undefined, templateId: string | null | undefined, level: number): T {
   const key = String(chosenKey ?? '').trim();
   if (!key || !Array.isArray(row?.specials)) return row;
   if (!row.specials.some((s) => s?.key === 'SPECIAL')) return row;
   const override =
     instantSpecialTemplateOverride(templateId, key, level) ??
+    instantAoeRootOverride(templateId, key, level) ??
+    instantAoeLacerateOverride(templateId, key, level) ??
+    instantAoeSlowOverride(templateId, key, level) ??
     poolSpecialRankOverride(templateId, key, level);
   const specials = row.specials.map((s) => {
     if (s?.key !== 'SPECIAL') return s;
@@ -169,5 +231,24 @@ export function bindPoolSpecialsOnRow<T extends { specials?: SpecialRow[]; effec
   if (typeof override === 'number' && effect?.text && /rank \d+/.test(effect.text)) {
     effect = { ...effect, text: effect.text.replace(/rank \d+/, `rank ${override}`) };
   }
-  return { ...row, specials, ...(effect ? { effect } : {}) };
+  let aoe = row.aoe;
+  const rootRadius = instantAoeRootOverride(templateId, key, level)
+    ? rangedAoeInstantRootRadiusM(level)
+    : undefined;
+  const lacerateRadius = instantAoeLacerateOverride(templateId, key, level)
+    ? meleeAoeInstantLacerateRadiusM(level)
+    : undefined;
+  const slowRadius = instantAoeSlowOverride(templateId, key, level)
+    ? meleeAoeInstantSlowRadiusM(level)
+    : undefined;
+  const radiusOverride = rootRadius ?? lacerateRadius ?? slowRadius;
+  if (typeof radiusOverride === 'number' && aoe && typeof aoe === 'object') {
+    aoe = { ...aoe, radiusM: radiusOverride };
+  }
+  return {
+    ...row,
+    specials,
+    ...(effect ? { effect } : {}),
+    ...(aoe ? { aoe } : {}),
+  };
 }

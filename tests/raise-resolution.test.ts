@@ -401,7 +401,7 @@ describe('post-roll allocation helpers', () => {
 describe('artifact catalog snapshot', () => {
   it('Frost Throw I puts Slow on the hit without a Raise', async () => {
     const loaded = await loadPowerSnapshotForArtifactOption({
-      artifactPowerTemplateId: 'active-ranged-damage-t4',
+      artifactPowerTemplateId: 'active-ranged-instant-special-t4',
       artifactChosenSpecialKey: 'slow',
       artifactRowLevel: 2,
       artifactIsSpell: false,
@@ -409,25 +409,43 @@ describe('artifact catalog snapshot', () => {
     expect(loaded?.snapshot.specials).toEqual([{ key: 'slow', rank: 6 }]);
   });
 
-  it('Rending Spiral I is weapon damage plus Lacerate(5)', async () => {
-    for (const templateId of ['active-melee-aoe-damage-t4', 'active-melee-weapon-aoe']) {
-      const loaded = await loadPowerSnapshotForArtifactOption({
-        artifactPowerTemplateId: templateId,
-        artifactChosenSpecialKey: 'lacerate',
-        artifactRowLevel: 2,
-        artifactIsSpell: false,
-      } as any);
-      expect(loaded?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 5 }]);
-    }
-  });
-
-  it('Tail Sweep injects Push into empty weapon-AoE specials', async () => {
+  it('Rending Spiral I/II use Instant AoE Lacerate ranks 5 / 9', async () => {
     const stageI = await loadPowerSnapshotForArtifactOption({
-      artifactPowerTemplateId: 'active-melee-weapon-aoe',
-      artifactChosenSpecialKey: 'push',
-      artifactRowLevel: 3,
+      artifactPowerTemplateId: 'active-melee-aoe-damage-t4',
+      artifactChosenSpecialKey: 'lacerate',
+      artifactRowLevel: 2,
       artifactIsSpell: false,
     } as any);
-    expect(stageI?.snapshot.specials).toEqual([{ key: 'push', rank: 2 }]);
+    expect(stageI?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 5 }]);
+    expect(stageI?.snapshot.damageDice ?? 0).toBe(0);
+
+    const stageII = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-aoe-damage-t4',
+      artifactChosenSpecialKey: 'lacerate',
+      artifactRowLevel: 5,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageII?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 9 }]);
+    expect(stageII?.snapshot.damageDice ?? 0).toBe(0);
+  });
+
+  it('Tail Sweep uses Melee Push/Pull control Push ranks 8 / 20 / 32 (no Power Dice)', async () => {
+    const stages = [
+      { row: 3, push: 8 },
+      { row: 6, push: 20 },
+      { row: 9, push: 32 },
+    ];
+    for (const s of stages) {
+      const loaded = await loadPowerSnapshotForArtifactOption({
+        artifactPowerTemplateId: 'active-melee-control-push-pull',
+        artifactChosenSpecialKey: 'push',
+        artifactRowLevel: s.row,
+        artifactIsSpell: false,
+      } as any);
+      expect(loaded?.snapshot.specials).toEqual(
+        expect.arrayContaining([{ key: 'push', rank: s.push }]),
+      );
+      expect(loaded?.snapshot.damageDice ?? 0).toBe(0);
+    }
   });
 });

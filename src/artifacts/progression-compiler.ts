@@ -378,6 +378,7 @@ export function deriveLevelProgressionFromPicks(
       for (let s = 0; s < STAGE_NUMERALS.length; s++) {
         const level = baseLevel + 3 * s;
         const sf = pick.stoneFunction;
+        const effectOverride = pick.stageEffectTexts?.[s]?.trim();
         rows.push({
           level,
           name: `${baseName} ${numerals[s]}`,
@@ -386,7 +387,7 @@ export function deriveLevelProgressionFromPicks(
           aoe: '',
           duration:
             sf.kind === 'stonePowerSupport' || sf.kind === 'stoneRefresh' ? 'Instant' : 'Passive',
-          effect: stoneFunctionEffect(sf, s as 0 | 1 | 2),
+          effect: effectOverride || stoneFunctionEffect(sf, s as 0 | 1 | 2),
           special: sf.stonePowerId || sf.kind,
         });
       }

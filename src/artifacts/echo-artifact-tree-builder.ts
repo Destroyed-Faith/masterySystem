@@ -480,7 +480,7 @@ export const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
       label: 'Precision',
       unlock: 4,
       valueAt: (l) => heartseekerPrecisionBonusForLevel(l),
-      note: 'Added to Heavy Crossbow Precision(4). True Heartseeker at L10.',
+      note: 'Added to Heavy Crossbow Precision(4).',
     },
   ],
   falconWideBrim: [
@@ -875,9 +875,13 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
   // artifact opts into standard catalog Powers via `progressionPickSpecs` (e.g.
   // the Moonlight Greatsword), derive its 1–9 rows from those picks and keep only
   // the authored L10 Ultimate — so the rows are real Powers, not "authored" text.
+  // Echo artifacts may also opt into authored tables when Basic slots interleave
+  // unrelated lines (Sentinel Frame).
   const generalUsesPicks = isGeneral && !!def.progressionPickSpecs;
+  const preferAuthored = !!(def as { useAuthoredLevelProgression?: boolean })
+    .useAuthoredLevelProgression;
   const fullProgression =
-    isGeneral && !generalUsesPicks
+    (isGeneral && !generalUsesPicks) || preferAuthored
       ? [...def.levelProgression]
       : resolveFullLevelProgression(def.levelProgression, picks);
 
@@ -908,6 +912,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       echoKey: def.echoKey,
       baseValues: baseValuesAtLevel(def.key, level),
       levelProgression,
+      ...(preferAuthored ? { useAuthoredLevelProgression: true } : {}),
       stoneFunction:
         def.stoneFunction && level >= def.stoneFunction.level
           ? buildEchoStoneFunction(def)

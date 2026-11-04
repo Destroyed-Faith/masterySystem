@@ -49,20 +49,22 @@ function headL3() {
 }
 
 describe('Self-centered Melee AoE — auto acquire, no panel flags', () => {
-  it('Tail Sweep / Rending Spiral stay burstMeleeAoE (direct auto path, not utility panel)', () => {
+  it('Rending Spiral stays burstMeleeAoE; Tail Sweep is ST control (not AoE panel)', () => {
     const opts = buildArtifactRadialOptions({
       items: [clawsL3()],
       system: { mastery: { rank: 4 } },
       getFlag: () => undefined,
     });
-    for (const name of [/Rending Spiral/i, /Tail Sweep/i]) {
-      const o = opts.find((x) => name.test(x.name));
-      expect(o, String(name)).toBeTruthy();
-      expect(o!.burstMeleeAoE).toBe(true);
-      expect(o!.aoeShape).toBe('radius');
-      // Must NOT rely on Confirm AoE / manual selection UI
-      expect(o!.allowManualTargetSelection).not.toBe(true);
-    }
+    const spiral = opts.find((x) => /Rending Spiral/i.test(x.name));
+    expect(spiral).toBeTruthy();
+    expect(spiral!.burstMeleeAoE).toBe(true);
+    expect(spiral!.aoeShape).toBe('radius');
+    expect(spiral!.allowManualTargetSelection).not.toBe(true);
+
+    const sweep = opts.find((x) => /Tail Sweep/i.test(x.name));
+    expect(sweep).toBeTruthy();
+    expect(sweep!.artifactPowerTemplateId).toBe('active-melee-control-push-pull');
+    expect(sweep!.burstMeleeAoE).not.toBe(true);
   });
 
   it('ally exclusion helper never keeps player-side tokens', () => {

@@ -87,6 +87,8 @@ export interface EchoArtifactProgressionPickSpec {
         stonePowerId?: string;
         /** Artifact levels at which Support prefills Rank 2 / 3 / 4. Default 1 / 4 / 7. */
         supportStages?: [number, number, number];
+        /** Artifact levels at which Pool stores 2 / 4 / 8. Default 1 / 4 / 7. */
+        poolStages?: [number, number, number];
     };
     /** Override staged catalog PL rows (default 4 / 10 / 16). */
     stagePowerLevels?: PowerLevelKey[];
@@ -165,9 +167,16 @@ export interface EchoArtifactDefinition {
      */
     progressionPickSpecs?: Partial<Record<1 | 2 | 3, EchoArtifactProgressionPickSpec>>;
     /**
+     * When true, the printed `levelProgression` table is the Level 1–10 source of
+     * truth (not recompiled from Basic picks). Use for irregular tables such as
+     * Sentinel Frame where slots interleave different ability lines.
+     * Progression picks / extra Stone Functions still drive runtime grants.
+     */
+    useAuthoredLevelProgression?: boolean;
+    /**
      * Extra Stone Functions that do not occupy a Basic 1/2/3 pick slot.
      * Used when a printed table has a fourth support line (e.g. Sentinel Frame
-     * Ward at Artifact Level 5).
+     * Special Negation Support at Artifact Level 5).
      */
     extraStoneFunctions?: Array<{
         level: number;

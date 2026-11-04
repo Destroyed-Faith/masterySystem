@@ -284,7 +284,9 @@ function renderItemFullExportMarkdown(args) {
     }
     // Compiled view from picks + authored (still derived from STORED fields only)
     try {
-        const compiled = resolveFullLevelProgression(storedRows, picks);
+        const compiled = resolveFullLevelProgression(storedRows, picks, {
+            preferAuthored: sys.useAuthoredLevelProgression === true,
+        });
         if (compiled.length) {
             push('## G. DERIVED FROM STORED — Compiled progression (picks + authored)');
             push('> Built only from fields on this Item (`levelProgression` + `progressionPicks`). Not a registry merge.');

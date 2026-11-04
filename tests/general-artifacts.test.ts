@@ -117,21 +117,12 @@ describe('General Artifact trees — structure and binding', () => {
     }
   });
 
-  it('uses the authored rulebook rows 1:1 for artifacts without progressionPickSpecs', () => {
-    const def = getGeneralArtifact('starfallenForceshield')!;
-    // No pick specs → authored table is the source of truth (no recompilation).
-    expect(def.progressionPickSpecs).toBeUndefined();
-    expect(def.levelProgression.length).toBeGreaterThanOrEqual(1);
-    const tree = buildEchoArtifactTree(def);
-    for (const node of tree.nodes) {
-      expect((node.itemData.system as any).levelProgression).toEqual(
-        visibleAbilityRows(def.levelProgression, node.level),
-      );
-    }
-    // The authored L1 name survives verbatim when present.
-    const l1 = def.levelProgression.find((r) => r.level === 1);
-    if (l1) {
-      expect(sysAt(tree, 1).levelProgression[0].name).toBe(l1.name);
+  it('authors only L10 Artifact Awakening; L1–9 come from progressionPickSpecs', () => {
+    for (const def of Object.values(GENERAL_ARTIFACTS)) {
+      expect(def.progressionPickSpecs, def.key).toBeTruthy();
+      expect(def.levelProgression).toHaveLength(1);
+      expect(def.levelProgression[0]?.level).toBe(10);
+      expect(def.levelProgression[0]?.name).toBe('Artifact Awakening');
     }
   });
 });
@@ -273,11 +264,11 @@ describe('Soul Sigil', () => {
     }
   });
 
-  it('builds its three lines from standard Powers (Soul Shell support + Phasing reaction + Self Restoration)', () => {
+  it('builds its three lines from standard Powers (Soul Shell + Temp HP reaction + Self Restoration)', () => {
     const def = getGeneralArtifact('soulSigil')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks[0].kind).toBe('stoneFunction');
-    expect(picks[1]).toMatchObject({ kind: 'power', powerTemplateId: 'reaction-phasing' });
+    expect(picks[1]).toMatchObject({ kind: 'power', powerTemplateId: 'reaction-temp-hp' });
     // R-05: Resting Soul is one-time Self Restoration (Melee ST Restoration pools), not an AB Healing buff.
     expect(picks[2]).toMatchObject({ kind: 'power', powerTemplateId: 'active-melee-health-level-heal' });
 
@@ -285,15 +276,13 @@ describe('Soul Sigil', () => {
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Soul Shell/);
     for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Uncanny Soul/);
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Resting Soul/);
-    expect((byLevel.get(10) as any).name).toBe('True Soul Sigil');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
-    // The Phasing lines are real catalog Powers, not authored text.
     const reaction = sysAt(tree, 8).powers.find((p: any) => /Uncanny Soul/.test(p.name));
     expect(reaction.category).toBe('reaction');
     const resting = sysAt(tree, 9).powers.find((p: any) => /Resting Soul/.test(p.name));
     expect(resting.category).toBe('active');
 
-    // Self-only Restoration sized from Melee ST pools PL4 / PL10 / PL16 = 3 / 7 / 12; no turn-start heal.
     const rows = resolvedProgression(def).filter((r: any) => /Resting Soul/.test(r.name)) as any[];
     expect(rows.map((r) => r.level)).toEqual([3, 6, 9]);
     expect(rows[0].effect).toMatch(/3 Scarred Health Bars on yourself/);
@@ -343,19 +332,18 @@ describe('Frostbound Returning Axe', () => {
     });
   });
 
-  it('builds all three lines from catalog picks (Stormpower stone + Ranged Slow + Rainshield)', () => {
+  it('builds all three lines from catalog picks (Stormpower + Instant Slow + Ivaldi\'s Anvil)', () => {
     const def = getGeneralArtifact('frostboundReturningAxe')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks[0].kind).toBe('stoneFunction');
     expect(picks[1]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'active-ranged-damage-t4',
-      delivery: 'ranged-single',
+      powerTemplateId: 'active-ranged-instant-special-t4',
       chosenSpecial: { key: 'slow', tier: 4 },
     });
     expect(picks[2]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'reaction-special-increase',
+      powerTemplateId: 'active-melee-weapon-aoe',
     });
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
@@ -363,19 +351,20 @@ describe('Frostbound Returning Axe', () => {
     for (const lvl of [2, 5, 8]) {
       const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Frost Throw/);
-      expect(row.type).toBe('Ranged');
+      expect(row.powerTemplateId).toBe('active-ranged-instant-special-t4');
       expect(row.special).toMatch(/slow/i);
     }
     for (const lvl of [3, 6, 9]) {
       const row = byLevel.get(lvl) as any;
-      expect(row.name).toMatch(/Rainshield/);
-      expect(row.type).toBe('Reaction');
+      expect(row.name).toMatch(/Ivaldi's Anvil/);
+      expect(row.powerTemplateId).toBe('active-melee-weapon-aoe');
     }
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
     const frostThrow = sysAt(tree, 5).powers.find((p: any) => /Frost Throw/.test(p.name));
     expect(frostThrow.category).toBe('active');
-    const rainshield = sysAt(tree, 6).powers.find((p: any) => /Rainshield/.test(p.name));
-    expect(rainshield.category).toBe('reaction');
+    const anvil = sysAt(tree, 6).powers.find((p: any) => /Ivaldi's Anvil/.test(p.name));
+    expect(anvil.category).toBe('active');
   });
 });
 
@@ -443,7 +432,7 @@ describe('Heart of Winter', () => {
       expect(row.type).toMatch(/Melee AoE/);
       expect(row.special).toMatch(/slow/i);
     }
-    expect((byLevel.get(10) as any).name).toBe('Heart of Winter');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
     const intercept = sysAt(tree, 5).powers.find((p: any) => /Glacial Intercept/.test(p.name));
     expect(intercept.category).toBe('reaction');
@@ -520,7 +509,7 @@ describe('Heartseeker', () => {
       expect(row.name).toMatch(/Armorbreaker/);
       expect(row.type).toBe('Active Buff');
     }
-    expect((byLevel.get(10) as any).name).toBe('True Heartseeker');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
     expect(sysAt(tree, 2).stoneFunction).toEqual({
       kind: 'stonePowerSupport',
@@ -590,7 +579,7 @@ describe('Falcon Wide Brim', () => {
       expect(row.type).toBe('Reaction');
       expect(row.effect).toMatch(/\+8 Initiative|\+20 Initiative|\+32 Initiative/);
     }
-    expect((byLevel.get(10) as any).name).toBe('True Falcon Wide Brim');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
     const step = sysAt(tree, 5).powers.find((p: any) => /Falcon Step/.test(p.name));
     expect(step.category).toBe('reaction');
@@ -621,19 +610,17 @@ describe('Shadowgrave Armor', () => {
     expect(sys.stoneFunction.stonePowerId).toBe('vitality.tempHp');
   });
 
-  it('builds its three lines from standard Powers (Shadow Shell + Reprisal + Hands)', () => {
+  it('builds its three lines from standard Powers (Shadow Shell + Grave Call + Deathly Reprisal)', () => {
     const def = getGeneralArtifact('shadowgraveArmor')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks[0].kind).toBe('stoneFunction');
     expect(picks[1]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'reaction-counter-damage-push',
+      powerTemplateId: 'active-melee-control-push-pull',
     });
     expect(picks[2]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'active-ranged-aoe-damage-t5',
-      delivery: 'ranged-aoe',
-      chosenSpecial: { key: 'root', tier: 5 },
+      powerTemplateId: 'reaction-counter-damage-push',
     });
     expect(picks.every((p: any) => p.kind !== 'authored')).toBe(true);
 
@@ -641,31 +628,21 @@ describe('Shadowgrave Armor', () => {
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Shadow Shell/);
     for (const lvl of [2, 5, 8]) {
       const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Grave Call/);
+      expect(row.powerTemplateId).toBe('active-melee-control-push-pull');
+    }
+    for (const lvl of [3, 6, 9]) {
+      const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Deathly Reprisal/);
       expect(row.type).toBe('Reaction');
     }
-    const ranges = { 3: '20m', 6: '44m', 9: '68m' } as Record<number, string>;
-    const radii = { 3: 'Radius 3m', 6: 'Radius 5m', 9: 'Radius 7m' } as Record<number, string>;
-    for (const lvl of [3, 6, 9]) {
-      const row = byLevel.get(lvl) as any;
-      expect(row.name).toMatch(/Hands of the Grave/);
-      expect(row.type).toBe('Ranged AoE');
-      expect(row.range).toBe(ranges[lvl]);
-      expect(row.aoe).toBe(radii[lvl]);
-      expect(row.special).toMatch(/root/i);
-    }
-    expect((byLevel.get(10) as any).name).toBe('True Shadowgrave Armor');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
+    expect(resolvedProgression(def).some((r: any) => /Hands of the Grave/i.test(r.name))).toBe(false);
 
-    const reprisal = sysAt(tree, 5).powers.find((p: any) => /Deathly Reprisal/.test(p.name));
+    const grave = sysAt(tree, 5).powers.find((p: any) => /Grave Call/.test(p.name));
+    expect(grave.category).toBe('active');
+    const reprisal = sysAt(tree, 6).powers.find((p: any) => /Deathly Reprisal/.test(p.name));
     expect(reprisal.category).toBe('reaction');
-    const hands = sysAt(tree, 6).powers.find((p: any) => /Hands of the Grave/.test(p.name));
-    expect(hands.category).toBe('active');
-  });
-
-  it('no longer defines the old "Grave Call" melee active', () => {
-    const def = getGeneralArtifact('shadowgraveArmor')!;
-    const names = resolvedProgression(def).map((r: any) => r.name).join(' ');
-    expect(names).not.toMatch(/Grave Call/);
   });
 });
 
@@ -759,13 +736,12 @@ describe('Staff of the Dark', () => {
     expect(baseValue(tree, 10, 'Hex').value).toBe(5);
   });
 
-  it('builds its three lines from catalog Spells (Melee AoE Hex + Ranged Single + Ruin)', () => {
+  it('builds its three lines from catalog Spells (Hex Instant + Damage Transfer + Soulburn)', () => {
     const def = getGeneralArtifact('staffOfTheDark')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks[0]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'active-melee-aoe-damage-t5',
-      delivery: 'melee-aoe',
+      powerTemplateId: 'active-ranged-instant-special-t5',
       chosenSpecial: { key: 'hex', tier: 5 },
       isSpell: true,
     });
@@ -776,9 +752,8 @@ describe('Staff of the Dark', () => {
     });
     expect(picks[2]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'active-ranged-damage-t4',
-      delivery: 'ranged-single',
-      chosenSpecial: { key: 'ruin', tier: 4 },
+      powerTemplateId: 'active-ranged-instant-special-t6',
+      chosenSpecial: { key: 'soulburn', tier: 6 },
       isSpell: true,
     });
     expect(picks.every((p: any) => p.kind !== 'authored')).toBe(true);
@@ -787,7 +762,7 @@ describe('Staff of the Dark', () => {
     for (const lvl of [1, 4, 7]) {
       const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Might of the Dark/);
-      expect(row.type).toBe('Melee AoE');
+      expect(row.powerTemplateId).toBe('active-ranged-instant-special-t5');
       expect(row.special).toMatch(/hex/i);
     }
     const lifeTakenDice: Record<number, string> = { 2: '4d8', 5: '10d8', 8: '16d8' };
@@ -801,10 +776,10 @@ describe('Staff of the Dark', () => {
     for (const lvl of [3, 6, 9]) {
       const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Vision of the End/);
-      expect(row.special).toMatch(/ruin/i);
-      expect(row.special).not.toMatch(/soulburn/i);
+      expect(row.special).toMatch(/soulburn/i);
+      expect(row.special).not.toMatch(/ruin/i);
     }
-    expect((byLevel.get(10) as any).name).toBe('True Staff of the Dark');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
   });
 
   it('Life Taken is a spell active', () => {
@@ -820,20 +795,20 @@ describe('Staff of the Dark', () => {
     );
   });
 
-  it('Vision of the End is an Active Spell with Ruin', () => {
+  it('Vision of the End is an Active Spell with Soulburn', () => {
     const vision = sysAt(tree, 6).powers.find((p: any) => /Vision of the End/.test(p.name));
     expect(vision).toBeTruthy();
     expect(vision.category).toBe('active');
     expect(vision.tags).toContain('spell');
   });
 
-  it('Might of the Dark is a Melee AoE Hex Spell', () => {
+  it('Might of the Dark is a Ranged Instant Hex Spell', () => {
     const might = sysAt(tree, 1).powers.find((p: any) => /Might of the Dark/.test(p.name));
     expect(might).toBeTruthy();
     expect(might.category).toBe('active');
     expect(might.tags).toContain('spell');
     const row = sysAt(tree, 1).levelProgression.find((r: any) => /Might of the Dark/.test(r.name));
-    expect(row.type).toBe('Melee AoE');
+    expect(row.powerTemplateId).toBe('active-ranged-instant-special-t5');
     expect(row.special).toMatch(/hex/i);
   });
 });
@@ -855,6 +830,38 @@ describe('Starfallen Forceshield', () => {
   it('carries the -2d8 Physical Skill Check drawback on its shield profile', () => {
     expect(sysAt(tree, 1).artifactShield.skillPenalty).toBe('-2d8 Physical Skill Checks');
     expect(baseValue(tree, 1, 'Shield Value').note).toContain('-2d8 Physical Skill Checks');
+  });
+
+  it('builds Force Reversal / Crystalized Root / Crystal Rain from catalog picks', () => {
+    const def = getGeneralArtifact('starfallenForceshield')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'reaction-counter-damage-push',
+      displayName: 'Force Reversal',
+    });
+    expect(picks[1]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-aoe-damage-t5',
+      chosenSpecial: { key: 'root', tier: 5 },
+      isSpell: true,
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'power',
+      powerTemplateId: 'active-ranged-weapon-aoe',
+      isSpell: true,
+    });
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Force Reversal/);
+    for (const lvl of [2, 5, 8]) {
+      const row = byLevel.get(lvl) as any;
+      expect(row.name).toMatch(/Crystalized/);
+      expect(row.special).toMatch(/root/i);
+    }
+    for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Crystal Rain/);
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
+    expect(resolvedProgression(def).some((r: any) => /Reflection/i.test(r.name))).toBe(false);
   });
 });
 
@@ -893,7 +900,7 @@ describe('Lantern of the Hollow Star', () => {
     const l3 = sysAt(tree, 3).levelProgression.map((r: any) => r.name);
     expect(l3).toEqual(['Stone Battery I', 'Resolve Pool I', 'Recovery I']);
     const l10 = sysAt(tree, 10).levelProgression.map((r: any) => r.name);
-    expect(l10).toEqual(['Stone Battery III', 'Resolve Pool III', 'Recovery III', 'True Hollow Star']);
+    expect(l10).toEqual(['Stone Battery III', 'Resolve Pool III', 'Recovery III', 'Artifact Awakening']);
     expect(l3.join(' ')).not.toMatch(/Glow|Soul Reserve/i);
   });
 });
@@ -976,7 +983,7 @@ describe("Lor-Keth's Staff", () => {
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Giant Shock Strike/);
     for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Ancestral Guard/);
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Might Ignore Armor Support/);
-    expect((byLevel.get(10) as any).name).toBe('Heart of the Storm Ancestors');
+    expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
     expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-damage-t5');
     expect((byLevel.get(1) as any).chosenSpecialKey).toBe('challenge');

@@ -52,7 +52,7 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(getArtifactStonePoolExtraByAttribute(actorL3).resolve).toBeGreaterThan(0);
   });
 
-  it('Sentinel Frame unlocks Ward Support from Artifact Level 5', () => {
+  it('Sentinel Frame unlocks Special Negation Support from Artifact Level 5', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('sentinelFrame')!);
     const actorL4 = actorWith(activeItemFromNode(tree.nodes[3], 'Sentinel Frame'));
     expect(getArtifactStoneSupportPrefill(actorL4, 'resolve.ward', 'resolve')).toBe(0);
@@ -64,7 +64,32 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(getArtifactStoneSupportPrefill(actorL9, 'resolve.ward', 'resolve')).toBe(4);
   });
 
-  it('Judicator carries both the Wits Stone Pool and the Influence Regeneration Support', () => {
+  it('Sentinel Frame Resolve Pool stays 2 until L6 then 4 (never 8)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('sentinelFrame')!);
+    const poolAt = (level: number) =>
+      getArtifactStonePoolExtraByAttribute(
+        actorWith(activeItemFromNode(tree.nodes[level - 1], 'Sentinel Frame')),
+      ).resolve;
+    expect(poolAt(2)).toBe(2);
+    expect(poolAt(5)).toBe(2);
+    expect(poolAt(6)).toBe(4);
+    expect(poolAt(10)).toBe(4);
+  });
+
+  it('Sentinel Frame Healing Support is Rank 2 until L8 then Rank 4', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('sentinelFrame')!);
+    const healAt = (level: number) =>
+      getArtifactStoneSupportPrefill(
+        actorWith(activeItemFromNode(tree.nodes[level - 1], 'Sentinel Frame')),
+        'resolve.healing',
+        'resolve',
+      );
+    expect(healAt(3)).toBe(2);
+    expect(healAt(7)).toBe(2);
+    expect(healAt(8)).toBe(4);
+  });
+
+  it('Judicator carries both the Wits Stone Pool and Resolve Healing Support', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('judicatorFrame')!);
     const actor = actorWith(activeItemFromNode(tree.nodes[5], 'Judicator Frame')); // level 6
     const records = getArtifactStoneFunctions(actor);
@@ -72,9 +97,9 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     const pool = records.find((r) => r.kind === 'stonePool');
     const support = records.find((r) => r.kind === 'stonePowerSupport');
     expect(pool?.attribute).toBe('wits');
-    expect(support?.stonePowerId).toBe('influence.colorlessRecovery');
-    // Regeneration support pre-fills Tier 3 at level 6.
-    expect(getArtifactStoneSupportPrefill(actor, 'influence.colorlessRecovery', 'influence')).toBe(3);
+    expect(support?.stonePowerId).toBe('resolve.healing');
+    // Self Healing Support pre-fills Rank 3 at level 6.
+    expect(getArtifactStoneSupportPrefill(actor, 'resolve.healing', 'resolve')).toBe(3);
   });
 
   it('Titan Scars supports Might Melee Damage and Vitality Remove Scar', () => {

@@ -223,36 +223,60 @@ const PREDATOR_CROWN_INTELLECT = makePredatorCrown({
   },
 });
 
-function witchOverdrive(special: 'Slow' | 'Hex' | 'Corrode'): [StageRow, StageRow, StageRow] {
+/** Binding Circle — identical for all three Witch Staff traditions (PH ~3283–3289). */
+function witchBindingCircle(): [StageRow, StageRow, StageRow] {
   return [
     {
-      name: 'Covenant Overdrive I',
-      type: 'Active Buff',
-      range: 'Self',
-      duration: 'Mastery Rank Rounds',
-      effect: `Use Active Buff: Special Increase at PL 4 for the Staff's fixed Tradition Special (${special}). It increases only that already existing Special and does not apply it by itself.`,
-      special: `Active Buff: Special Increase + ${special} (PL 4)`,
+      name: 'Binding Circle I',
+      type: 'Active, Spell',
+      range: '20 m',
+      aoe: 'Radius 3 m',
+      duration: 'Instant',
+      effect:
+        'Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(3)**; **no Power damage**.',
+      special: 'Ranged AoE Special: Root (PL 4)',
     },
     {
-      name: 'Covenant Overdrive II',
-      type: 'Active Buff',
-      range: 'Self',
-      duration: 'Mastery Rank Rounds',
-      effect: `Use Active Buff: Special Increase at PL 10 for the Staff's fixed Tradition Special (${special}). This replaces Covenant Overdrive I.`,
-      special: `Active Buff: Special Increase + ${special} (PL 10)`,
+      name: 'Binding Circle II',
+      type: 'Active, Spell',
+      range: '44 m',
+      aoe: 'Radius 6 m',
+      duration: 'Instant',
+      effect:
+        'Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I.',
+      special: 'Ranged AoE Special: Root (PL 10)',
     },
     {
-      name: 'Covenant Overdrive III',
-      type: 'Active Buff',
-      range: 'Self',
-      duration: 'Mastery Rank Rounds',
-      effect: `Use Active Buff: Special Increase at PL 16 for the Staff's fixed Tradition Special (${special}). This replaces Covenant Overdrive II.`,
-      special: `Active Buff: Special Increase + ${special} (PL 16)`,
+      name: 'Binding Circle III',
+      type: 'Active, Spell',
+      range: '68 m',
+      aoe: 'Radius 7 m',
+      duration: 'Instant',
+      effect:
+        'Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(7)**; **no Power damage**. This replaces Binding Circle II.',
+      special: 'Ranged AoE Special: Root (PL 16)',
     },
   ];
 }
 
-function witchMainSpell(name: string, special: 'Slow' | 'Hex' | 'Corrode'): [StageRow, StageRow, StageRow] {
+type WitchMainSpecial = 'weaken' | 'ruin' | 'blight';
+
+function witchMainSpellPrinted(
+  special: WitchMainSpecial,
+): { label: string; ranks: [number, number, number] } {
+  switch (special) {
+    case 'weaken':
+      return { label: 'Weaken', ranks: [2, 3, 4] };
+    case 'ruin':
+      return { label: 'Ruin', ranks: [6, 10, 13] };
+    case 'blight':
+      return { label: 'Blight', ranks: [7, 12, 15] };
+  }
+}
+
+function witchMainSpell(special: WitchMainSpecial): [StageRow, StageRow, StageRow] {
+  const { label, ranks } = witchMainSpellPrinted(special);
+  const tech = (pl: number) => `Ranged Single Target Special: ${label} (PL ${pl})`;
   return [
     {
       name: 'Main Spell I',
@@ -260,8 +284,8 @@ function witchMainSpell(name: string, special: 'Slow' | 'Hex' | 'Corrode'): [Sta
       range: '20 m',
       aoe: 'None',
       duration: 'Instant',
-      effect: `Use ${name} (${special}) at PL 4.`,
-      special: `Ranged Attack + ${special} (PL 4)`,
+      effect: `Use the Main Spell of this Staff's tradition at PL 4: **${label}(${ranks[0]})**. One creature; **no Power damage**.`,
+      special: tech(4),
     },
     {
       name: 'Main Spell II',
@@ -269,8 +293,8 @@ function witchMainSpell(name: string, special: 'Slow' | 'Hex' | 'Corrode'): [Sta
       range: '44 m',
       aoe: 'None',
       duration: 'Instant',
-      effect: `Use the same tradition Main Spell at PL 10. This replaces Main Spell I.`,
-      special: `Ranged Attack + ${special} (PL 10)`,
+      effect: `Use the Main Spell of this Staff's tradition at PL 10: **${label}(${ranks[1]})**. One creature; **no Power damage**. This replaces Main Spell I.`,
+      special: tech(10),
     },
     {
       name: 'Main Spell III',
@@ -278,8 +302,8 @@ function witchMainSpell(name: string, special: 'Slow' | 'Hex' | 'Corrode'): [Sta
       range: '68 m',
       aoe: 'None',
       duration: 'Instant',
-      effect: `Use the same tradition Main Spell at PL 16. This replaces Main Spell II.`,
-      special: `Ranged Attack + ${special} (PL 16)`,
+      effect: `Use the Main Spell of this Staff's tradition at PL 16: **${label}(${ranks[2]})**. One creature; **no Power damage**. This replaces Main Spell II.`,
+      special: tech(16),
     },
   ];
 }
@@ -311,20 +335,56 @@ const WITCH_STONE: [StageRow, StageRow, StageRow] = [
   },
 ];
 
+function mainSpellInstantTemplateId(special: WitchMainSpecial): string {
+  // Instant Single-Special tier = Start-PP group of the Main Spell Special.
+  switch (special) {
+    case 'weaken':
+      return 'active-ranged-instant-special-t6';
+    case 'ruin':
+      return 'active-ranged-instant-special-t4';
+    case 'blight':
+      return 'active-ranged-instant-special-t3';
+  }
+}
+
 function makeWitchStaff(opts: {
   key: string;
   name: string;
   subChoice: string;
   tradition: string;
-  special: 'Slow' | 'Hex' | 'Corrode';
-  specialKey: 'slow' | 'hex' | 'corrode';
-  mainSpell: string;
+  /** Weapon Tradition Special (Base Value B) — Slow / Hex / Corrode. */
+  traditionSpecial: 'Slow' | 'Hex' | 'Corrode';
+  /** Main Spell Instant Special — Weaken / Ruin / Blight. */
+  mainSpecial: WitchMainSpecial;
   description: string;
 }): EchoArtifactDefinition {
-  const overdriveSpecs: EchoArtifactProgressionPickSpec = {
-    name: 'Covenant Overdrive',
-    templateId: 'ab-special-overdrive',
-    special: opts.specialKey,
+  const mainPrinted = witchMainSpellPrinted(opts.mainSpecial);
+  const bindingCircleSpecs: EchoArtifactProgressionPickSpec = {
+    name: 'Binding Circle',
+    // Instant AoE Special-only vehicle (dice 0). Root ranks/radii bind from Actives.md.
+    templateId: 'active-ranged-aoe-damage-t5',
+    special: 'root',
+    isSpell: true,
+    castingAttribute: 'intellect',
+    spellResolution: 'spellAttack',
+    stageEffectTexts: [
+      'Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(3)**; **no Power damage**.',
+      'Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I.',
+      'Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(7)**; **no Power damage**. This replaces Binding Circle II.',
+    ],
+  };
+  const mainSpellSpecs: EchoArtifactProgressionPickSpec = {
+    name: 'Main Spell',
+    templateId: mainSpellInstantTemplateId(opts.mainSpecial),
+    special: opts.mainSpecial,
+    isSpell: true,
+    castingAttribute: 'intellect',
+    spellResolution: 'spellAttack',
+    stageEffectTexts: [
+      `Use the Main Spell of this Staff's tradition at PL 4: **${mainPrinted.label}(${mainPrinted.ranks[0]})**. One creature; **no Power damage**.`,
+      `Use the Main Spell of this Staff's tradition at PL 10: **${mainPrinted.label}(${mainPrinted.ranks[1]})**. One creature; **no Power damage**. This replaces Main Spell I.`,
+      `Use the Main Spell of this Staff's tradition at PL 16: **${mainPrinted.label}(${mainPrinted.ranks[2]})**. One creature; **no Power damage**. This replaces Main Spell II.`,
+    ],
   };
   return {
     key: opts.key,
@@ -344,18 +404,22 @@ function makeWitchStaff(opts: {
       name: 'Witch Stone',
     },
     progressionPickSpecs: {
-      2: overdriveSpecs,
-      3: { name: opts.mainSpell, delivery: 'ranged-single', special: opts.specialKey },
+      2: bindingCircleSpecs,
+      3: mainSpellSpecs,
     },
     baseValues: [
       { slot: 'a', label: 'Staff Damage', note: '4d8 to 14d8 two-handed weapon damage.' },
-      { slot: 'b', label: `Tradition Special (${opts.special})`, note: `${opts.tradition}: ${opts.special} from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5).` },
+      {
+        slot: 'b',
+        label: `Tradition Special (${opts.traditionSpecial})`,
+        note: `${opts.tradition}: ${opts.traditionSpecial} from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5).`,
+      },
       { slot: 'c', label: 'Spell Focus', note: 'Spell Focus from Level 1. Boosts Spells cast through the Staff.' },
     ],
     levelProgression: tenLevels(
       WITCH_STONE,
-      witchOverdrive(opts.special),
-      witchMainSpell(opts.mainSpell, opts.special),
+      witchBindingCircle(),
+      witchMainSpell(opts.mainSpecial),
       artifactAwakeningStage('Witch Staff'),
     ),
   };
@@ -366,11 +430,10 @@ const WITCH_STAFF_ROOT = makeWitchStaff({
   name: 'Root Staff',
   subChoice: 'witch-root',
   tradition: 'Root Witch',
-  special: 'Slow',
-  specialKey: 'slow',
-  mainSpell: 'Rootbinding',
+  traditionSpecial: 'Slow',
+  mainSpecial: 'weaken',
   description:
-    'Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Main Spell: Rootbinding (Ranged Attack + Slow).',
+    'Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Weaken.',
 });
 
 const WITCH_STAFF_RUIN = makeWitchStaff({
@@ -378,11 +441,10 @@ const WITCH_STAFF_RUIN = makeWitchStaff({
   name: 'Ruin Staff',
   subChoice: 'witch-ruin',
   tradition: 'Ruin Witch',
-  special: 'Hex',
-  specialKey: 'hex',
-  mainSpell: 'Ruinous Word',
+  traditionSpecial: 'Hex',
+  mainSpecial: 'ruin',
   description:
-    'Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Main Spell: Ruinous Word (Ranged Attack + Hex).',
+    'Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Ruin.',
 });
 
 const WITCH_STAFF_BLIGHT = makeWitchStaff({
@@ -390,11 +452,10 @@ const WITCH_STAFF_BLIGHT = makeWitchStaff({
   name: 'Blight Staff',
   subChoice: 'witch-blight',
   tradition: 'Blight Witch',
-  special: 'Corrode',
-  specialKey: 'corrode',
-  mainSpell: 'Blightcall',
+  traditionSpecial: 'Corrode',
+  mainSpecial: 'blight',
   description:
-    'Witch Unbound Echo Artifact swollen with fungus, rust, sour water, and living decay. Tradition Special: Corrode. Main Spell: Blightcall (Ranged Attack + Corrode).',
+    'Witch Unbound Echo Artifact swollen with fungus, rust, sour water, and living decay. Tradition Special: Corrode. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Blight.',
 });
 
 const ALCHEMIST_COAT: EchoArtifactDefinition = {
@@ -408,15 +469,20 @@ const ALCHEMIST_COAT: EchoArtifactDefinition = {
     'Bane Echo Artifact: hardened leather, sealed vials, and a potion harness. Real Medium Armor. Red Potion is Active Buff: Damage. Black Potion is Active Buff: Critical.',
   restriction:
     'A Bane with Alchemist Coat cannot wear another Body Artifact, magical armor, robe Artifact, natural armor Artifact, or body-based transformation Artifact at the same time.',
-  stoneFunction: {
-    level: 2,
-    kind: 'stonePowerSupport',
-    attribute: 'vitality',
-    stonePowerId: 'vitality.damageMaximization',
-    name: 'Alchemist Stone',
-  },
+  // PH ~3381–3402: Alchemist Stone is an Artifact Function (Potion Active Buff
+  // Empowerment +1/+2/+3 PL & rounds on Red/Black Potions), not Maximization Support.
   progressionPickSpecs: {
     1: { name: 'Red Potion', templateId: 'ab-damage' },
+    2: {
+      name: 'Alchemist Stone',
+      templateId: 'empower-buff-damage',
+      stageNames: ['Alchemist Stone I', 'Alchemist Stone II', 'Alchemist Stone III'],
+      stageEffectTexts: [
+        'When activating Red Potion or Black Potion, increase its effective PL by **+1** and duration by **+1 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.',
+        'When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.',
+        'When activating Red Potion or Black Potion, increase its effective PL by **+3** and duration by **+3 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.',
+      ],
+    },
     3: { name: 'Black Potion', templateId: 'ab-critical' },
   },
   baseValues: [
@@ -429,7 +495,7 @@ const ALCHEMIST_COAT: EchoArtifactDefinition = {
         type: 'Active Buff',
         range: 'Self',
         duration: 'Mastery Rank Rounds',
-        effect: 'Use the normal Damage Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn.',
+        effect: 'Use the normal Damage Active Buff profile at PL 4. Alchemist Stone may enhance both its PL and duration.',
         special: 'Active Buff: Damage (PL 4)',
       },
       {
@@ -452,27 +518,30 @@ const ALCHEMIST_COAT: EchoArtifactDefinition = {
     [
       {
         name: 'Alchemist Stone I',
-        type: 'Stone Power Support',
+        type: 'Artifact Function',
         range: 'Self',
-        duration: 'Instant',
-        effect: 'Pre-fill Tier 2. Tier 1 must still be paid.',
-        special: 'Vitality Ability: Extend Active Buff, Stone Power Support, Tier 2',
+        duration: 'On Potion activation',
+        effect:
+          'When activating Red Potion or Black Potion, increase its effective PL by **+1** and duration by **+1 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.',
+        special: 'Artifact Function: Active Buff Empowerment (+1 PL, +1 Rounds)',
       },
       {
         name: 'Alchemist Stone II',
-        type: 'Stone Power Support',
+        type: 'Artifact Function',
         range: 'Self',
-        duration: 'Instant',
-        effect: 'Pre-fill Tier 3. Tiers 1 and 2 must still be paid.',
-        special: 'Vitality Ability: Extend Active Buff, Stone Power Support, Tier 3',
+        duration: 'On Potion activation',
+        effect:
+          'When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.',
+        special: 'Artifact Function: Active Buff Empowerment (+2 PL, +2 Rounds)',
       },
       {
         name: 'Alchemist Stone III',
-        type: 'Stone Power Support',
+        type: 'Artifact Function',
         range: 'Self',
-        duration: 'Instant',
-        effect: 'Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.',
-        special: 'Vitality Ability: Extend Active Buff, Stone Power Support, Tier 4',
+        duration: 'On Potion activation',
+        effect:
+          'When activating Red Potion or Black Potion, increase its effective PL by **+3** and duration by **+3 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.',
+        special: 'Artifact Function: Active Buff Empowerment (+3 PL, +3 Rounds)',
       },
     ],
     [
@@ -481,7 +550,7 @@ const ALCHEMIST_COAT: EchoArtifactDefinition = {
         type: 'Active Buff',
         range: 'Self',
         duration: 'Mastery Rank Rounds',
-        effect: 'Use the normal Critical Active Buff profile at PL 4. It may be extended by Extend Active Buff if activated this turn.',
+        effect: 'Use the normal Critical Active Buff profile at PL 4. Alchemist Stone may enhance both its PL and duration.',
         special: 'Active Buff: Critical (PL 4)',
       },
       {

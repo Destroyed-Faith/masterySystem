@@ -1876,7 +1876,9 @@ export class NodeEditor extends BaseDialog {
     const authoredTable = Array.isArray((this.item.system as any).levelProgression)
       ? ((this.item.system as any).levelProgression as ArtifactLevelProgressionRow[])
       : [];
-    const levelProgression = resolveFullLevelProgression(authoredTable, progressionPicks);
+    const levelProgression = resolveFullLevelProgression(authoredTable, progressionPicks, {
+      preferAuthored: (this.item.system as any).useAuthoredLevelProgression === true,
+    });
 
     const equipSlots = inferArtifactEquipSlots({
       artifactKind: kind,

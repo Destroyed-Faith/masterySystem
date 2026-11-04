@@ -118,6 +118,8 @@ export interface EchoArtifactProgressionPickSpec {
     stonePowerId?: string;
     /** Artifact levels at which Support prefills Rank 2 / 3 / 4. Default 1 / 4 / 7. */
     supportStages?: [number, number, number];
+    /** Artifact levels at which Pool stores 2 / 4 / 8. Default 1 / 4 / 7. */
+    poolStages?: [number, number, number];
   };
   /** Override staged catalog PL rows (default 4 / 10 / 16). */
   stagePowerLevels?: PowerLevelKey[];
@@ -198,9 +200,16 @@ export interface EchoArtifactDefinition {
    */
   progressionPickSpecs?: Partial<Record<1 | 2 | 3, EchoArtifactProgressionPickSpec>>;
   /**
+   * When true, the printed `levelProgression` table is the Level 1–10 source of
+   * truth (not recompiled from Basic picks). Use for irregular tables such as
+   * Sentinel Frame where slots interleave different ability lines.
+   * Progression picks / extra Stone Functions still drive runtime grants.
+   */
+  useAuthoredLevelProgression?: boolean;
+  /**
    * Extra Stone Functions that do not occupy a Basic 1/2/3 pick slot.
    * Used when a printed table has a fourth support line (e.g. Sentinel Frame
-   * Ward at Artifact Level 5).
+   * Special Negation Support at Artifact Level 5).
    */
   extraStoneFunctions?: Array<{
     level: number;
@@ -258,8 +267,17 @@ const STONEBOUND_SOLES: EchoArtifactDefinition = {
     'Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.',
   restriction:
     'A dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
+  // PH ~2347–2353: Anchoring Stance = Active Buff: Temporary HP (PL 4/10/16).
   progressionPickSpecs: {
-    1: { name: 'Anchoring Stance', templateId: 'ab-immovable-temp-hp' },
+    1: {
+      name: 'Anchoring Stance',
+      templateId: 'ab-temp-hp',
+      stageEffectTexts: [
+        'Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff\'s buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP.',
+        'Use standard **Active Buff: Temporary HP (PL 10)**: gain **77 Temporary HP** in the activation Preparation Phase; refresh this Buff\'s buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance I.',
+        'Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff\'s buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II.',
+      ],
+    },
     2: { name: 'Stone-Sure Step', templateId: 'movement-safe-movement' },
     3: { name: 'Stoneweave Guard', templateId: 'empower-buff-armor' },
   },
@@ -274,9 +292,11 @@ const STONEBOUND_SOLES: EchoArtifactDefinition = {
       name: 'Anchoring Stance I',
       type: 'Active Buff',
       range: 'Self',
-      duration: '2 Rounds',
-      effect: 'You become Immovable and gain 40 Temporary HP.',
-      special: 'Immovable + Temporary HP',
+      duration: 'Mastery Rank Rounds',
+      effect:
+        'Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff\'s buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP.',
+      special: 'Temporary HP',
+      powerTemplateId: 'ab-temp-hp',
     },
     {
       level: 2,
@@ -303,9 +323,11 @@ const STONEBOUND_SOLES: EchoArtifactDefinition = {
       name: 'Anchoring Stance II',
       type: 'Active Buff',
       range: 'Self',
-      duration: '2 Rounds',
-      effect: 'You become Immovable and gain 220 Temporary HP.',
-      special: 'Immovable + Temporary HP',
+      duration: 'Mastery Rank Rounds',
+      effect:
+        'Use standard **Active Buff: Temporary HP (PL 10)**: gain **77 Temporary HP** in the activation Preparation Phase; refresh this Buff\'s buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance I.',
+      special: 'Temporary HP',
+      powerTemplateId: 'ab-temp-hp',
     },
     {
       level: 5,
@@ -332,9 +354,11 @@ const STONEBOUND_SOLES: EchoArtifactDefinition = {
       name: 'Anchoring Stance III',
       type: 'Active Buff',
       range: 'Self',
-      duration: '2 Rounds',
-      effect: 'You become Immovable and gain 400 Temporary HP.',
-      special: 'Immovable + Temporary HP',
+      duration: 'Mastery Rank Rounds',
+      effect:
+        'Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff\'s buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II.',
+      special: 'Temporary HP',
+      powerTemplateId: 'ab-temp-hp',
     },
     {
       level: 8,
@@ -721,17 +745,19 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
     activeBuffL2: 'Active Buff: Evade (Serpent Evasion)',
     stonePowerL3: 'Agility — EVADE Stone Power',
   },
-  // L1 Dragon Wings → movement-flight; L2 Serpent Evasion (ab-evade) +
-  // Mobility Extension (extend-buff-mobility) at L5/L8; L3 → agility.evade.
+  // PH ~2853–2862: Dragon Wings 1/4/7, Serpent Evasion (ab-evade) 2/5/8,
+  // Agility Evade Stone Support 3/6/9. No Mobility Extension on this Artifact.
   progressionPickSpecs: {
     1: { name: 'Dragon Wings', templateId: 'movement-flight' },
     2: {
       name: 'Serpent Evasion',
       templateId: 'ab-evade',
-      // Stage I only uses ab-evade; guide prints +6 Evade → AB Evade PL 3.
-      stagePowerLevels: ['3', '10', '16'],
-      stageTemplateIds: ['ab-evade', 'extend-buff-mobility', 'extend-buff-mobility'],
-      stageNames: ['Serpent Evasion I', 'Mobility Extension II', 'Mobility Extension III'],
+      stageNames: ['Serpent Evasion I', 'Serpent Evasion II', 'Serpent Evasion III'],
+      stageEffectTexts: [
+        'Gain **+8 Evade** from the standard Active Buff: Evade (PL 4).',
+        'Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I.',
+        'Gain **+32 Evade** from the standard Active Buff: Evade (PL 16). This replaces Serpent Evasion II.',
+      ],
     },
     3: {
       name: 'Evasion Stone Support',
@@ -756,8 +782,8 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Movement',
       range: 'Self',
       duration: 'Instant',
-      effect: 'You may fly up to 6 m.',
-      special: 'Flight',
+      effect: 'Fly up to **6 m**.',
+      special: 'Movement: Flight (PL 4)',
     },
     {
       level: 2,
@@ -765,8 +791,8 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Active Buff',
       range: 'Self',
       duration: 'Mastery Rank Rounds',
-      effect: 'Gain +6 Evade.',
-      special: 'Evade',
+      effect: 'Gain **+8 Evade** from the standard Active Buff: Evade (PL 4).',
+      special: 'Active Buff: Evade (PL 4)',
       powerTemplateId: 'ab-evade',
     },
     {
@@ -775,9 +801,8 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Serpent Scales support the Agility Ability EVADE Stone Power and pre-fill Rank 2. Rank 1 must still be paid normally.',
-      special: 'EVADE Stone Power',
+      effect: 'Pre-fill **Rank 2**. Rank 1 must still be paid.',
+      special: 'Agility Ability: Evade (Stone Power Support, Rank 2)',
     },
     {
       level: 4,
@@ -785,19 +810,19 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Movement',
       range: 'Self',
       duration: 'Instant',
-      effect: 'You may fly up to 15 m.',
-      special: 'Flight',
+      effect: 'Fly up to **15 m**. This replaces Dragon Wings I.',
+      special: 'Movement: Flight (PL 10)',
     },
     {
       level: 5,
-      name: 'Mobility Extension II',
-      type: 'Support',
+      name: 'Serpent Evasion II',
+      type: 'Active Buff',
       range: 'Self',
-      duration: 'Passive',
+      duration: 'Mastery Rank Rounds',
       effect:
-        "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +2 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
-      special: 'Mobility Extension',
-      powerTemplateId: 'extend-buff-mobility',
+        'Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I.',
+      special: 'Active Buff: Evade (PL 10)',
+      powerTemplateId: 'ab-evade',
     },
     {
       level: 6,
@@ -805,9 +830,8 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Serpent Scales pre-fill Rank 3 of the Agility Ability EVADE Stone Power. Ranks 1 and 2 must still be paid normally.',
-      special: 'EVADE Stone Power',
+      effect: 'Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid.',
+      special: 'Agility Ability: Evade (Stone Power Support, Rank 3)',
     },
     {
       level: 7,
@@ -815,19 +839,19 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Movement',
       range: 'Self',
       duration: 'Instant',
-      effect: 'You may fly up to 24 m.',
-      special: 'Flight',
+      effect: 'Fly up to **24 m**. This replaces Dragon Wings II.',
+      special: 'Movement: Flight (PL 16)',
     },
     {
       level: 8,
-      name: 'Mobility Extension III',
-      type: 'Support',
+      name: 'Serpent Evasion III',
+      type: 'Active Buff',
       range: 'Self',
-      duration: 'Passive',
+      duration: 'Mastery Rank Rounds',
       effect:
-        "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +3 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
-      special: 'Mobility Extension',
-      powerTemplateId: 'extend-buff-mobility',
+        'Gain **+32 Evade** from the standard Active Buff: Evade (PL 16). This replaces Serpent Evasion II.',
+      special: 'Active Buff: Evade (PL 16)',
+      powerTemplateId: 'ab-evade',
     },
     {
       level: 9,
@@ -835,9 +859,8 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Serpent Scales pre-fill Rank 4 of the Agility Ability EVADE Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
-      special: 'EVADE Stone Power',
+      effect: 'Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.',
+      special: 'Agility Ability: Evade (Stone Power Support, Rank 4)',
     },
     artifactAwakeningRow('Serpent Scales'),
   ],
@@ -866,12 +889,31 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     level: 1,
     name: 'Extra Damage Support',
   },
-  // Rending Spiral is the canonical Melee AoE Attack + Lacerate (PL 4 / 10 / 16):
-  // current Claw / Tail Weapon Damage only, plus Lacerate(5 / 7 / 10). No bonus
-  // power dice. Tail Sweep stays the artifact-exclusive weapon AoE + Push.
+  // PH ~2992–3011:
+  //   Rending Spiral → Melee AoE Special: Lacerate (special-only; Lacerate 5/9/10).
+  //   Tail Sweep → approved Artifact Special Rule: Melee Push / Pull + Claw/Tail Weapon Damage
+  //   (ST Push 8/20/32 m; no AoE; no purchased Power Dice). Not a general Special-only exception.
   progressionPickSpecs: {
-    2: { name: 'Rending Spiral', templateId: 'active-melee-aoe-damage-t4', special: 'lacerate' },
-    3: { name: 'Tail Sweep', templateId: 'active-melee-weapon-aoe', special: 'push' },
+    2: {
+      name: 'Rending Spiral',
+      templateId: 'active-melee-aoe-damage-t4',
+      special: 'lacerate',
+      stageEffectTexts: [
+        'Apply **Lacerate(5)** to each hit creature; **no damage**.',
+        'Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I.',
+        'Apply **Lacerate(10)** to each hit creature; **no damage**. This replaces Rending Spiral II.',
+      ],
+    },
+    3: {
+      name: 'Tail Sweep',
+      templateId: 'active-melee-control-push-pull',
+      special: 'push',
+      stageEffectTexts: [
+        'Make one melee control Attack Roll against one target; on hit **Push 8 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.',
+        'Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.',
+        'Make one melee control Attack Roll against one target; on hit **Push 32 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep II. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.',
+      ],
+    },
   },
   baseValues: [
     {
@@ -904,22 +946,24 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     {
       level: 2,
       name: 'Rending Spiral I',
-      type: 'Active',
+      type: 'Active, Special',
       range: 'Self',
       aoe: 'Radius 3 m',
       duration: 'Instant',
-      effect: 'Affected creatures take your current Claw / Tail Weapon Damage.',
+      effect: 'Apply **Lacerate(5)** to each hit creature; **no damage**.',
       special: 'Lacerate(5)',
+      powerTemplateId: 'active-melee-aoe-damage-t4',
     },
     {
       level: 3,
       name: 'Tail Sweep I',
-      type: 'Active',
-      range: 'Self',
-      aoe: 'Radius 3 m',
+      type: 'Active, Control',
+      range: 'Melee Reach',
       duration: 'Instant',
-      effect: 'Affected creatures take Claw / Tail Damage and are pushed 2 m.',
-      special: 'Push',
+      effect:
+        'Make one melee control Attack Roll against one target; on hit **Push 8 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.',
+      special: 'Push(8)',
+      powerTemplateId: 'active-melee-control-push-pull',
     },
     {
       level: 4,
@@ -934,22 +978,24 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     {
       level: 5,
       name: 'Rending Spiral II',
-      type: 'Active',
+      type: 'Active, Special',
       range: 'Self',
-      aoe: 'Radius 6 m',
+      aoe: 'Radius 5 m',
       duration: 'Instant',
-      effect: 'Affected creatures take Claw / Tail Damage.',
-      special: 'Lacerate(7)',
+      effect: 'Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I.',
+      special: 'Lacerate(9)',
+      powerTemplateId: 'active-melee-aoe-damage-t4',
     },
     {
       level: 6,
       name: 'Tail Sweep II',
-      type: 'Active',
-      range: 'Self',
-      aoe: 'Radius 5 m',
+      type: 'Active, Control',
+      range: 'Melee Reach',
       duration: 'Instant',
-      effect: 'Affected creatures take Claw / Tail Damage and are pushed 6 m.',
-      special: 'Push',
+      effect:
+        'Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.',
+      special: 'Push(20)',
+      powerTemplateId: 'active-melee-control-push-pull',
     },
     {
       level: 7,
@@ -964,22 +1010,24 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     {
       level: 8,
       name: 'Rending Spiral III',
-      type: 'Active',
+      type: 'Active, Special',
       range: 'Self',
       aoe: 'Radius 7 m',
       duration: 'Instant',
-      effect: 'Affected creatures take Claw / Tail Damage.',
+      effect: 'Apply **Lacerate(10)** to each hit creature; **no damage**. This replaces Rending Spiral II.',
       special: 'Lacerate(10)',
+      powerTemplateId: 'active-melee-aoe-damage-t4',
     },
     {
       level: 9,
       name: 'Tail Sweep III',
-      type: 'Active',
-      range: 'Self',
-      aoe: 'Radius 7 m',
+      type: 'Active, Control',
+      range: 'Melee Reach',
       duration: 'Instant',
-      effect: 'Affected creatures take Claw / Tail Damage and are pushed 10 m.',
-      special: 'Push',
+      effect:
+        'Make one melee control Attack Roll against one target; on hit **Push 32 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep II. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.',
+      special: 'Push(32)',
+      powerTemplateId: 'active-melee-control-push-pull',
     },
     artifactAwakeningRow('Dragon Claws'),
   ],
@@ -1152,28 +1200,48 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'sentinel',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // Printed table: Restoration 1/4/7 (R-05; ordinary Single Heal retired),
-  // Resolve Pool 2/6, Healing Support 3/8, Ward 5/9. The 1/2/3 compiler covers
-  // Restoration + Pool + Healing; Ward is an extra Stone Function from Artifact Level 5.
+  // PH ~2579–2594: irregular tracks (Restoration 1/4/7, Resolve Core 2/6,
+  // Healing Support 3/8, Special Negation Support 5/9). Authored table is SSoT;
+  // picks / extraStoneFunctions only wire runtime grants.
+  useAuthoredLevelProgression: true,
   progressionPickSpecs: {
-    1: { templateId: 'active-ranged-health-level-heal', name: 'Sentinel Restoration' },
-    2: { name: 'Resolve Core', stoneFunction: { kind: 'stonePool', attribute: 'resolve' } },
+    1: {
+      templateId: 'active-ranged-health-level-heal',
+      name: 'Single Restoration',
+      stageEffectTexts: [
+        'Restore up to **2 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Artifact Range remains 8 m.',
+        'Restore up to **6 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.',
+        'Restore up to **10 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool.',
+      ],
+    },
+    2: {
+      name: 'Resolve Core',
+      stoneFunction: {
+        kind: 'stonePool',
+        attribute: 'resolve',
+        // Pool 2 from L2; Pool 4 from L6; never reaches 8 within Artifact Levels.
+        poolStages: [2, 6, 11],
+      },
+    },
     3: {
       name: 'Healing Support',
       stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'resolve',
         stonePowerId: 'resolve.healing',
+        // Rank 2 from L3; Rank 4 from L8 (no Rank-3 stage on this Artifact).
+        supportStages: [3, 8, 8],
       },
     },
   },
   extraStoneFunctions: [
     {
       level: 5,
-      name: 'Ward Support',
+      name: 'Special Negation Support',
       kind: 'stonePowerSupport',
       attribute: 'resolve',
       stonePowerId: 'resolve.ward',
+      // Rank 3 from L5; Rank 4 from L9.
       supportStages: [5, 5, 9],
     },
   ],
@@ -1187,12 +1255,15 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   levelProgression: [
     {
       level: 1,
-      name: 'Sentinel Restoration I',
+      name: 'Single Restoration I',
       type: 'Active, Support',
-      range: '20 m',
+      range: '8 m',
+      aoe: 'None',
       duration: 'Instant',
-      effect: 'Restore up to 2 Scarred Health Bars per Safe Haven Rest on one creature (full HP each). Does not heal HP.',
-      special: 'Ranged Single Target Restoration (PL 4)',
+      effect:
+        'Restore up to **2 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Artifact Range remains 8 m.',
+      special: 'Ranged Single Target Restoration (PL 4; Artifact Range 8 m)',
+      powerTemplateId: 'active-ranged-health-level-heal',
     },
     {
       level: 2,
@@ -1200,8 +1271,9 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
       type: 'Stone Pool',
       range: 'Self',
       duration: 'Passive',
-      effect: 'Store 2 Resolve Stones after each Safe Haven Rest. They may be spent only on Sentinel Frame\'s listed Resolve Stone functions.',
-      special: 'Resolve Stones',
+      effect:
+        'Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame\'s listed Resolve Stone functions.',
+      special: 'Artifact Stone Pool: Resolve (2)',
     },
     {
       level: 3,
@@ -1209,27 +1281,29 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Sentinel Frame supports the Resolve Ability: Healing Stone Power and pre-fills Tier 2.',
-      special: 'Healing Stone Power',
+      effect: 'Pre-fill **Rank 2**. Rank 1 must still be paid.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 2)',
     },
     {
       level: 4,
-      name: 'Sentinel Restoration II',
+      name: 'Single Restoration II',
       type: 'Active, Support',
-      range: '44 m',
+      range: '8 m',
+      aoe: 'None',
       duration: 'Instant',
-      effect: 'Sentinel Restoration improves to Power Level 10: pool of 6 Scarred Health Bars per Safe Haven Rest. Replaces Sentinel Restoration I.',
-      special: 'Ranged Single Target Restoration (PL 10)',
+      effect:
+        'Restore up to **6 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.',
+      special: 'Ranged Single Target Restoration (PL 10; Artifact Range 8 m)',
+      powerTemplateId: 'active-ranged-health-level-heal',
     },
     {
       level: 5,
-      name: 'Ward Support I',
+      name: 'Special Negation Support I',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Supports Resolve Ability: Ward and pre-fills Tier 3. Tiers 1 and 2 must still be paid.',
-      special: 'resolve.ward',
+      effect: 'Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid.',
+      special: 'Resolve Ability: Special Negation (Stone Power Support, Rank 3)',
     },
     {
       level: 6,
@@ -1237,17 +1311,20 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
       type: 'Stone Pool',
       range: 'Self',
       duration: 'Passive',
-      effect: 'Store 4 Resolve Stones after each Safe Haven Rest. They may be spent only on Sentinel Frame\'s listed Resolve Stone functions.',
-      special: 'Resolve Stones',
+      effect: 'The stored pool increases to **4 Resolve Stones**.',
+      special: 'Artifact Stone Pool: Resolve (4)',
     },
     {
       level: 7,
-      name: 'Sentinel Restoration III',
+      name: 'Single Restoration III',
       type: 'Active, Support',
-      range: '68 m',
+      range: '8 m',
+      aoe: 'None',
       duration: 'Instant',
-      effect: 'Sentinel Restoration improves to Power Level 16: pool of 10 Scarred Health Bars per Safe Haven Rest. Replaces Sentinel Restoration II.',
-      special: 'Ranged Single Target Restoration (PL 16)',
+      effect:
+        'Restore up to **10 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool.',
+      special: 'Ranged Single Target Restoration (PL 16; Artifact Range 8 m)',
+      powerTemplateId: 'active-ranged-health-level-heal',
     },
     {
       level: 8,
@@ -1255,17 +1332,17 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fill Tier 4 of Resolve Ability: Healing. Tiers 1, 2, and 3 must still be paid.',
-      special: 'Healing Stone Power',
+      effect: 'Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 4)',
     },
     {
       level: 9,
-      name: 'Ward Support II',
+      name: 'Special Negation Support II',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fill Tier 4 of Resolve Ability: Ward. Tiers 1, 2, and 3 must still be paid.',
-      special: 'resolve.ward',
+      effect: 'Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.',
+      special: 'Resolve Ability: Special Negation (Stone Power Support, Rank 4)',
     },
     artifactAwakeningRow('Sentinel Frame'),
   ],
@@ -1281,21 +1358,25 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'judicator',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // Three clean tracks mapped to real, editable Powers / Stone Functions:
-  //   L1 Armor Hasten → `empower-buff-armor` (Armor Empowerment artifact meta),
-  //   L2 Wits Core    → Stone Pool (Wits),
-  //   L3 Regeneration → Stone Power Support (Influence: Regeneration).
-  // The Stone Functions live on their own picks, so both apply mechanically.
+  // PH ~2608–2616:
+  //   L1 Armor Hasten → `empower-buff-armor`,
+  //   L2 Wits Core → Stone Pool (Wits),
+  //   L3 Self Healing Support → Resolve Healing (Self only).
   progressionPickSpecs: {
     1: { templateId: 'empower-buff-armor', name: 'Armor Hasten' },
     2: { name: 'Wits Core', stoneFunction: { kind: 'stonePool', attribute: 'wits' } },
     3: {
-      name: 'Regeneration Support',
+      name: 'Self Healing Support',
       stoneFunction: {
         kind: 'stonePowerSupport',
-        attribute: 'influence',
-        stonePowerId: 'influence.colorlessRecovery',
+        attribute: 'resolve',
+        stonePowerId: 'resolve.healing',
       },
+      stageEffectTexts: [
+        'Pre-fill **Rank 2** of Healing for yourself only. Rank 1 must still be paid normally.',
+        'Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I.',
+        'Pre-fill **Rank 4** of Healing for yourself only. Ranks 1, 2, and 3 must still be paid normally. This replaces Self Healing Support II.',
+      ],
     },
   },
   baseValues: [
@@ -1327,13 +1408,12 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 3,
-      name: 'Regeneration Support I',
+      name: 'Self Healing Support I',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Judicator Frame supports Influence Ability: Regeneration and pre-fills Tier 2.',
-      special: 'influence.regeneration',
+      effect: 'Pre-fill **Rank 2** of Healing for yourself only. Rank 1 must still be paid normally.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 2; Self only)',
     },
     {
       level: 4,
@@ -1355,12 +1435,13 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 6,
-      name: 'Regeneration Support II',
+      name: 'Self Healing Support II',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fills Tier 3 of Influence Ability: Regeneration.',
-      special: 'influence.regeneration',
+      effect:
+        'Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 3; Self only)',
     },
     {
       level: 7,
@@ -1382,12 +1463,13 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 9,
-      name: 'Regeneration Support III',
+      name: 'Self Healing Support III',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fills Tier 4 of Influence Ability: Regeneration.',
-      special: 'influence.regeneration',
+      effect:
+        'Pre-fill **Rank 4** of Healing for yourself only. Ranks 1, 2, and 3 must still be paid normally. This replaces Self Healing Support II.',
+      special: 'Resolve Ability: Healing (Stone Power Support, Rank 4; Self only)',
     },
     artifactAwakeningRow('Judicator Frame'),
   ],
@@ -1403,23 +1485,31 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'oracle',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // L1 Oracle Field → `ab-armor-aura` (PL 1 / 3 / 5 → I / III / V),
-  // L2 Oracle Aid → Stone Power Support (Influence: Aid Roll),
-  // L3 Influence Core → Stone Pool (Influence).
+  // Batch 9C.1: L1 Oracle Field → Active Buff: Armor (PL 4 / 10 / 16 → +8 / +20 / +32).
+  // Batch 9C.2: L2 Oracle Evade Reduction → Influence Enemy Evade Reduction Support Rank 2/3/4.
   progressionPickSpecs: {
     1: {
       name: 'Oracle Field',
-      templateId: 'ab-armor-aura',
-      stagePowerLevels: ['1', '3', '5'],
-      stageNumerals: ['I', 'III', 'V'],
+      templateId: 'ab-armor',
+      stagePowerLevels: ['4', '10', '16'],
+      stageEffectTexts: [
+        'Use standard **Active Buff: Armor (PL 4)**: gain **+8 Armor** for Mastery Rank Rounds.',
+        'Use standard **Active Buff: Armor (PL 10)**: gain **+20 Armor** for Mastery Rank Rounds. This replaces Oracle Field I.',
+        'Use standard **Active Buff: Armor (PL 16)**: gain **+32 Armor** for Mastery Rank Rounds. This replaces Oracle Field II.',
+      ],
     },
     2: {
-      name: 'Oracle Aid',
+      name: 'Oracle Evade Reduction',
       stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'influence',
-        stonePowerId: 'influence.cleanse',
+        stonePowerId: 'influence.enemyEvadeReduction',
       },
+      stageEffectTexts: [
+        'Pre-fill **Rank 2**. Rank 1 must still be paid.',
+        'Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid.',
+        'Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.',
+      ],
     },
     3: { name: 'Influence Core', stoneFunction: { kind: 'stonePool', attribute: 'influence' } },
   },
@@ -1436,20 +1526,20 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
       name: 'Oracle Field I',
       type: 'Active Buff',
       range: 'Self',
-      aoe: 'Radius 2 m',
       duration: 'Mastery Rank Rounds',
-      effect: 'You and allies in the area gain +1 Armor.',
-      special: 'Armor Aura',
+      effect:
+        'Use standard **Active Buff: Armor (PL 4)**: gain **+8 Armor** for Mastery Rank Rounds.',
+      special: 'Armor',
+      powerTemplateId: 'ab-armor',
     },
     {
       level: 2,
-      name: 'Oracle Aid I',
+      name: 'Oracle Evade Reduction I',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.',
-      special: 'Aid Roll Stone Power',
+      effect: 'Pre-fill **Rank 2**. Rank 1 must still be paid.',
+      special: 'Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 2)',
     },
     {
       level: 3,
@@ -1463,23 +1553,23 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 4,
-      name: 'Oracle Field III',
-      type: 'Active Buff Upgrade',
+      name: 'Oracle Field II',
+      type: 'Active Buff',
       range: 'Self',
-      aoe: 'Radius 6 m',
       duration: 'Mastery Rank Rounds',
-      effect: 'You and allies in the area gain +3 Armor.',
-      special: 'Armor Aura',
+      effect:
+        'Use standard **Active Buff: Armor (PL 10)**: gain **+20 Armor** for Mastery Rank Rounds. This replaces Oracle Field I.',
+      special: 'Armor',
+      powerTemplateId: 'ab-armor',
     },
     {
       level: 5,
-      name: 'Oracle Aid II',
+      name: 'Oracle Evade Reduction II',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Oracle Frame pre-fills Rank 3 of the Influence Ability: Aid Roll Stone Power. Ranks 1 and 2 must still be paid normally.',
-      special: 'Aid Roll Stone Power',
+      effect: 'Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid.',
+      special: 'Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 3)',
     },
     {
       level: 6,
@@ -1493,23 +1583,23 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 7,
-      name: 'Oracle Field V',
-      type: 'Active Buff Upgrade',
+      name: 'Oracle Field III',
+      type: 'Active Buff',
       range: 'Self',
-      aoe: 'Radius 10 m',
       duration: 'Mastery Rank Rounds',
-      effect: 'You and allies in the area gain +5 Armor.',
-      special: 'Armor Aura',
+      effect:
+        'Use standard **Active Buff: Armor (PL 16)**: gain **+32 Armor** for Mastery Rank Rounds. This replaces Oracle Field II.',
+      special: 'Armor',
+      powerTemplateId: 'ab-armor',
     },
     {
       level: 8,
-      name: 'Oracle Aid III',
+      name: 'Oracle Evade Reduction III',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'Oracle Frame pre-fills Rank 4 of the Influence Ability: Aid Roll Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
-      special: 'Aid Roll Stone Power',
+      effect: 'Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.',
+      special: 'Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 4)',
     },
     {
       level: 9,
@@ -2038,6 +2128,7 @@ export function buildEchoProgressionPicks(
         attribute: string;
         stonePowerId?: string;
         supportStages?: [number, number, number];
+        poolStages?: [number, number, number];
       } = {
         kind: sfSpec.kind,
         attribute: sfSpec.attribute,
@@ -2047,6 +2138,9 @@ export function buildEchoProgressionPicks(
       }
       if (sfSpec.supportStages) {
         stoneFunction.supportStages = sfSpec.supportStages;
+      }
+      if (sfSpec.poolStages) {
+        stoneFunction.poolStages = sfSpec.poolStages;
       }
       picks[lvl - 1] = { level: lvl, kind: 'stoneFunction', stoneFunction, displayName, ...stageOverrides };
     } else if (spec.delivery && spec.special) {

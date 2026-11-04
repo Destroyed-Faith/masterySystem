@@ -211,20 +211,24 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(injected?.specials).toEqual([{ key: 'pull', rank: 2 }]);
   });
 
-  it('honors custom stage power levels and numerals (Oracle Field I / III / V)', () => {
+  it('honors custom stage power levels and numerals (legacy aura fixture I / III / V)', () => {
     const picks: ArtifactProgressionPick[] = [
       {
         level: 1,
         kind: 'power',
         powerTemplateId: 'ab-armor-aura',
-        displayName: 'Oracle Field',
+        displayName: 'Legacy Armor Field',
         stagePowerLevels: ['1', '3', '5'],
         stageNumerals: ['I', 'III', 'V'],
       },
     ];
     const rows = deriveLevelProgressionFromPicks(picks);
     const tpl = getTemplate('ab-armor-aura')!;
-    expect(rows.map((r) => r.name)).toEqual(['Oracle Field I', 'Oracle Field III', 'Oracle Field V']);
+    expect(rows.map((r) => r.name)).toEqual([
+      'Legacy Armor Field I',
+      'Legacy Armor Field III',
+      'Legacy Armor Field V',
+    ]);
     expect(rows[0].effect).toBe(tpl.levels['1'].effect.text);
     expect(rows[1].effect).toBe(tpl.levels['3'].effect.text);
     expect(rows[2].effect).toBe(tpl.levels['5'].effect.text);

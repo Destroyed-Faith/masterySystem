@@ -32,14 +32,22 @@ type SpecialRow = {
 };
 /**
  * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing
- * or this is an Instant Single-Special template, replace the shared-table rank
- * with the printed catalogue rank. Root still cannot print below Root(2).
+ * or this is an Instant Single-Special / Instant AoE Root / Instant AoE Lacerate
+ * / Instant AoE Slow template, replace the shared-table rank with the printed
+ * catalogue rank. Root still cannot print below Root(2). Instant AoE Root /
+ * Lacerate / Slow also apply the printed Radius from Actives.md.
  */
 export declare function bindPoolSpecialsOnRow<T extends {
     specials?: SpecialRow[];
     effect?: {
         text?: string;
     };
+    aoe?: {
+        shape?: string;
+        radiusM?: number;
+        center?: string;
+        targetFilter?: string;
+    } | null;
 }>(row: T, chosenKey: string | null | undefined, templateId: string | null | undefined, level: number): T;
 export {};
 //# sourceMappingURL=pool-special-ranks.d.ts.map

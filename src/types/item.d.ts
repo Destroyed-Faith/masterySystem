@@ -988,7 +988,7 @@ export interface ArtifactProgressionPick {
   displayName?: string;
   /**
    * Override the catalog Power Levels used for the three staged rows (default
-   * PL 4 / 10 / 16). Oracle Field uses PL 1 / 3 / 5 for its I / III / V tiers.
+   * PL 4 / 10 / 16). Rare picks may supply a custom triple (e.g. PL 1 / 3 / 5).
    */
   stagePowerLevels?: PowerLevelKey[];
   /** Override stage suffixes in row names (default I / II / III). */
@@ -996,7 +996,7 @@ export interface ArtifactProgressionPick {
   /**
    * Per-stage catalog template ids (length 3). When set, each staged row pulls
    * from a different template at PL 4 / 10 / 16 (or `stagePowerLevels`).
-   * Used when one pick slot mixes abilities (e.g. Serpent Evasion + Mobility Extension).
+   * Used when one pick slot stages different catalog templates per stage.
    */
   stageTemplateIds?: [string, string, string];
   /** Full row names per stage when `stageTemplateIds` is set (length 3). */
@@ -1149,6 +1149,11 @@ export interface ArtifactData extends BaseItemData {
   >;
   /** Level Progression picks (up to 3, introduced at Basic levels 1–3). */
   progressionPicks?: ArtifactProgressionPick[];
+  /**
+   * When true, keep the authored `levelProgression` table instead of
+   * recompiling 1–9 rows from Basic picks (irregular printed tables).
+   */
+  useAuthoredLevelProgression?: boolean;
   /** Binding kind on this character. */
   binding?: 'unbound' | 'bound' | 'echo';
   /** When binding is `echo`: which Echo key granted it (e.g. `dwarfs`). */

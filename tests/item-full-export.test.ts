@@ -98,7 +98,7 @@ describe('item full export — Lantern of the Hollow Star (Oda-style lantern)', 
     expect(md).toContain('## F. STORED — Level Progression');
     expect(md).toContain('## K. REGISTRY');
     expect(md).toMatch(/not\*\* stored on the Item|not stored on the Item/);
-    expect(md).toContain('True Hollow Star');
+    expect(md).toContain('Artifact Awakening');
     expect(md).toContain('Stone Battery'); // registry pick specs
 
     const json = exportItemFullJson(item);

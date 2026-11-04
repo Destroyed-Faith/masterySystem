@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.823] - 2026-11-04
+
+### Added
+
+- **Batch 9 Artifact corrections (9B–9E, 9C.2, 9G.3–9G.4):** Witch Staff special-only Binding Circle / Main Spell; Sentinel authored Restoration progression; Serpent Scales Evade Buff; Oracle Field Active Buff Armor + Enemy Evade Reduction Support; General Artifact remaps + Awakening; Judicator Self Healing, Stonebound Temp HP, Alchemist Empowerment, Dragon Claws Tail Sweep approved exception + Rending Spiral Lacerate(9); Heart of Winter Frostwave Melee AoE Slow PL 4/8/16; Lor-Keth SOURCE MISSING provenance hold (fresh world-seed only).
+- **Audits:** Batch 9F final Artifact audit, 9C.2 / 9D / 9G.4 notes, Compatibility catalogue copy for General Artifacts.
+
+### Changed
+
+- **Canonical PH clarifications:** Oracle Field Armor (Self); Tail Sweep approved Artifact Special Rule; Heart of Winter Frostwave PL 8 → Slow(7); Instant AoE Slow catalogue binding for melee special-only AoE.
+
 ## [0.9.822] - 2026-11-04
 
 ### Added

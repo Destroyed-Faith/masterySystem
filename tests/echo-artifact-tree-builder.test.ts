@@ -126,7 +126,11 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   it('stores only abilities unlocked at each node level (1 / 2 / 3 slots)', () => {
     for (const tree of buildAllEchoArtifactTrees()) {
       const def = getEchoArtifact(tree.echoArtifactKey)!;
-      const full = resolveFullLevelProgression(def.levelProgression, (tree.nodes[0].itemData.system as any).progressionPicks);
+      const full = resolveFullLevelProgression(
+        def.levelProgression,
+        (tree.nodes[0].itemData.system as any).progressionPicks,
+        { preferAuthored: def.useAuthoredLevelProgression === true },
+      );
       for (const node of tree.nodes) {
         const sys = node.itemData.system as any;
         expect(sys.levelProgression).toEqual(visibleAbilityRows(full, node.level));
@@ -156,7 +160,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     ((buildEchoArtifactTree(getEchoArtifact(key)!).nodes[0].itemData.system as any)
       .progressionPicks as any[]).find((p) => p.level === lvl);
 
-  it('Judicator: Armor empowerment + Wits Stone Pool + Influence Regeneration Support', () => {
+  it('Judicator: Armor empowerment + Wits Stone Pool + Resolve Healing Support', () => {
     expect(pick('judicatorFrame', 1).kind).toBe('power');
     expect(pick('judicatorFrame', 1).powerTemplateId).toBe('empower-buff-armor');
 
@@ -168,13 +172,13 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l3.kind).toBe('stoneFunction');
     expect(l3.stoneFunction).toEqual({
       kind: 'stonePowerSupport',
-      attribute: 'influence',
-      stonePowerId: 'influence.colorlessRecovery',
+      attribute: 'resolve',
+      stonePowerId: 'resolve.healing',
     });
   });
 
   it('Stonebound Soles map all three tracks to catalog Powers with rulebook names', () => {
-    expect(pick('stoneboundSoles', 1).powerTemplateId).toBe('ab-immovable-temp-hp');
+    expect(pick('stoneboundSoles', 1).powerTemplateId).toBe('ab-temp-hp');
     expect(pick('stoneboundSoles', 1).displayName).toBe('Anchoring Stance');
     expect(pick('stoneboundSoles', 2).powerTemplateId).toBe('movement-safe-movement');
     expect(pick('stoneboundSoles', 2).displayName).toBe('Stone-Sure Step');
@@ -184,10 +188,11 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const tree = buildEchoArtifactTree(getEchoArtifact('stoneboundSoles')!);
     const l1Rows = (tree.nodes[0].itemData.system as any).levelProgression as any[];
     expect(l1Rows[0].name).toBe('Anchoring Stance I');
-    expect(l1Rows[0].effect).toContain('40 Temporary HP');
+    expect(l1Rows[0].effect).toMatch(/32 Temporary HP/);
+    expect(l1Rows[0].effect).not.toMatch(/Immovable/i);
     const l4Rows = (tree.nodes[3].itemData.system as any).levelProgression as any[];
     const stance = l4Rows.find((r: any) => String(r.name).includes('Anchoring Stance'));
-    expect(stance?.effect).toContain('220 Temporary HP');
+    expect(stance?.effect).toMatch(/77 Temporary HP/);
   });
 
   it('Wyrm Scales Heavy: Dragon Wings + Wyrm Scales armor buff + Might ARMOR Support', () => {
@@ -218,7 +223,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+20 Armor');
   });
 
-  it('Serpent Scales: Dragon Wings + ab-evade / mobility extension + EVADE Stone Support', () => {
+  it('Serpent Scales: Dragon Wings + Serpent Evasion (ab-evade) + EVADE Stone Support', () => {
     expect(pick('wyrmScalesLight', 1).powerTemplateId).toBe('movement-flight');
     expect(pick('wyrmScalesLight', 1).displayName).toBe('Dragon Wings');
 
@@ -226,15 +231,11 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l2Pick.kind).toBe('power');
     expect(l2Pick.powerTemplateId).toBe('ab-evade');
     expect(l2Pick.displayName).toBe('Serpent Evasion');
-    expect(l2Pick.stageTemplateIds).toEqual([
-      'ab-evade',
-      'extend-buff-mobility',
-      'extend-buff-mobility',
-    ]);
+    expect(l2Pick.stageTemplateIds).toBeUndefined();
     expect(l2Pick.stageNames).toEqual([
       'Serpent Evasion I',
-      'Mobility Extension II',
-      'Mobility Extension III',
+      'Serpent Evasion II',
+      'Serpent Evasion III',
     ]);
 
     const l3 = pick('wyrmScalesLight', 3);
@@ -250,51 +251,57 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
     expect(l2Rows.some((r: any) => r.name === 'Serpent Evasion I')).toBe(true);
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
-    expect(l5Rows.some((r: any) => r.name === 'Mobility Extension II')).toBe(true);
+    const evasionII = l5Rows.find((r: any) => r.name === 'Serpent Evasion II');
+    expect(evasionII?.powerTemplateId).toBe('ab-evade');
+    expect(evasionII?.effect).toMatch(/\+20 Evade/);
+    expect(l5Rows.some((r: any) => /Mobility Extension/i.test(r.name))).toBe(false);
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression as any[];
     expect(l10.some((r: any) => r.name === 'Artifact Awakening')).toBe(true);
     expect(l10.some((r: any) => /True Serpent/i.test(String(r.name)))).toBe(false);
   });
 
-  it('Dragon Claws bind Lacerate on the melee AoE special template and Push on Tail Sweep', () => {
+  it('Dragon Claws bind Instant AoE Lacerate and ST Push+Weapon Tail Sweep', () => {
     const l2 = pick('dragonClaws', 2);
     const l3 = pick('dragonClaws', 3);
     expect(l2.powerTemplateId).toBe('active-melee-aoe-damage-t4');
     expect(l2.chosenSpecial?.key).toBe('lacerate');
-    expect(l3.powerTemplateId).toBe('active-melee-weapon-aoe');
+    expect(l3.powerTemplateId).toBe('active-melee-control-push-pull');
     expect(l3.chosenSpecial?.key).toBe('push');
     const tree = buildEchoArtifactTree(getEchoArtifact('dragonClaws')!);
     const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
     const spiral = l2Rows.find((r) => String(r.name).includes('Rending Spiral'));
     expect(spiral?.special).toBe('Lacerate(5)');
     expect(spiral?.powerTemplateId).toBe('active-melee-aoe-damage-t4');
-    expect(String(spiral?.effect)).not.toMatch(/4d8/);
+    expect(String(spiral?.effect)).toMatch(/no damage/i);
     expect(String(spiral?.aoe)).toMatch(/3/);
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
     const spiral2 = l5Rows.find((r) => String(r.name).includes('Rending Spiral'));
-    expect(spiral2?.special).toBe('Lacerate(7)');
-    expect(String(spiral2?.aoe)).toMatch(/6/);
+    expect(spiral2?.special).toBe('Lacerate(9)');
+    expect(String(spiral2?.aoe)).toMatch(/5/);
     const l8Rows = (tree.nodes[7].itemData.system as any).levelProgression as any[];
     const spiral3 = l8Rows.find((r) => String(r.name).includes('Rending Spiral'));
     expect(spiral3?.special).toBe('Lacerate(10)');
     expect(String(spiral3?.aoe)).toMatch(/7/);
     const l3Rows = (tree.nodes[2].itemData.system as any).levelProgression as any[];
     const tail = l3Rows.find((r) => String(r.name).includes('Tail Sweep'));
-    expect(tail?.special).toBe('Push(2)');
+    expect(tail?.powerTemplateId).toBe('active-melee-control-push-pull');
+    expect(String(tail?.effect)).toMatch(/Push 8 m/);
+    expect(String(tail?.effect)).toMatch(/Weapon Damage/i);
+    expect(String(tail?.aoe || '')).not.toMatch(/radius/i);
   });
 
-  it('Oracle: Oracle Field armor aura + Aid Roll Support + Influence Stone Pool', () => {
+  it('Oracle: Oracle Field Active Buff Armor + Enemy Evade Reduction Support + Influence Stone Pool', () => {
     expect(pick('oracleFrame', 1).kind).toBe('power');
-    expect(pick('oracleFrame', 1).powerTemplateId).toBe('ab-armor-aura');
-    expect(pick('oracleFrame', 1).stagePowerLevels).toEqual(['1', '3', '5']);
-    expect(pick('oracleFrame', 1).stageNumerals).toEqual(['I', 'III', 'V']);
+    expect(pick('oracleFrame', 1).powerTemplateId).toBe('ab-armor');
+    expect(pick('oracleFrame', 1).stagePowerLevels).toEqual(['4', '10', '16']);
 
     const l2 = pick('oracleFrame', 2);
     expect(l2.kind).toBe('stoneFunction');
+    expect(l2.displayName).toBe('Oracle Evade Reduction');
     expect(l2.stoneFunction).toEqual({
       kind: 'stonePowerSupport',
       attribute: 'influence',
-      stonePowerId: 'influence.cleanse',
+      stonePowerId: 'influence.enemyEvadeReduction',
     });
 
     const l3 = pick('oracleFrame', 3);
@@ -304,9 +311,11 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const tree = buildEchoArtifactTree(getEchoArtifact('oracleFrame')!);
     const l7Rows = (tree.nodes[6].itemData.system as any).levelProgression as any[];
     const field = l7Rows.find((r) => String(r.name).includes('Oracle Field'));
-    expect(field?.name).toBe('Oracle Field V');
-    expect(field?.effect).toContain('+5 Armor');
-    expect(field?.aoe).toContain('10');
+    expect(field?.name).toBe('Oracle Field III');
+    expect(field?.powerTemplateId).toBe('ab-armor');
+    expect(field?.effect).toMatch(/\+32 Armor/);
+    expect(String(field?.aoe || '')).not.toMatch(/radius/i);
+    expect(String(field?.effect || '')).not.toMatch(/allies/i);
   });
 
   it('Sentinel: Ranged Restoration Active + Resolve Stone Pool + Resolve Healing Support', () => {
@@ -315,7 +324,11 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
 
     const l2 = pick('sentinelFrame', 2);
     expect(l2.kind).toBe('stoneFunction');
-    expect(l2.stoneFunction).toEqual({ kind: 'stonePool', attribute: 'resolve' });
+    expect(l2.stoneFunction).toEqual({
+      kind: 'stonePool',
+      attribute: 'resolve',
+      poolStages: [2, 6, 11],
+    });
 
     const l3 = pick('sentinelFrame', 3);
     expect(l3.kind).toBe('stoneFunction');
@@ -323,6 +336,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
       kind: 'stonePowerSupport',
       attribute: 'resolve',
       stonePowerId: 'resolve.healing',
+      supportStages: [3, 8, 8],
     });
   });
 
@@ -330,14 +344,15 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const def = getEchoArtifact('sentinelFrame')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks[0].powerTemplateId).toBe('active-ranged-health-level-heal');
-    const rows = resolveFullLevelProgression(def.levelProgression, picks as any).filter((r: any) =>
-      /Sentinel Restoration/.test(r.name),
-    ) as any[];
+    const rows = resolveFullLevelProgression(def.levelProgression, picks as any, {
+      preferAuthored: true,
+    }).filter((r: any) => /Single Restoration/.test(r.name)) as any[];
     expect(rows.map((r) => r.level)).toEqual([1, 4, 7]);
-    expect(rows[0].effect).toMatch(/\b2 Scarred Health Bars\b/);
-    expect(rows[1].effect).toMatch(/\b6 Scarred Health Bars\b/);
-    expect(rows[2].effect).toMatch(/\b10 Scarred Health Bars\b/);
+    expect(rows[0].effect).toMatch(/\b2 full Scarred Health Bars\b/);
+    expect(rows[1].effect).toMatch(/\b6 full Scarred Health Bars\b/);
+    expect(rows[2].effect).toMatch(/\b10 full Scarred Health Bars\b/);
     for (const r of rows) {
+      expect(r.range).toBe('8 m');
       expect(r.powerTemplateId).not.toMatch(/single-heal/);
       expect(r.effect).not.toMatch(/\d+d8/);
     }

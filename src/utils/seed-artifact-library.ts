@@ -22,6 +22,7 @@ import {
   buildAllGeneralArtifactTrees,
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../artifacts/echo-artifact-tree-builder.js';
+import { shouldCreateNewWorldArtifactTree } from './general-artifacts.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
 export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 
@@ -183,6 +184,12 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
             repairedTrees.push(`${tree.folderName} (${before}/${expected} → ${expected})`);
           }
         }
+        continue;
+      }
+
+      // Batch 9G.4: SOURCE MISSING hold — do not seed brand-new world trees.
+      // Existing trees (above) still refresh; owned Actor Items are untouched.
+      if (!shouldCreateNewWorldArtifactTree(tree.echoArtifactKey, existing.length)) {
         continue;
       }
 

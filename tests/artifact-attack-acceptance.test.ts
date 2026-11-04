@@ -82,7 +82,7 @@ function attackRoute(o: any): 'cone' | 'melee-burst' | 'hostile-zone' | 'melee-s
 }
 
 describe('Artifact attack acceptance — Dragon Claws L3', () => {
-  it('1–4: Rending Spiral + Tail Sweep appear and route to auto Melee burst AoE (no panel)', () => {
+  it('1–4: Rending Spiral is Melee burst AoE; Tail Sweep is ST control + weapon', () => {
     const opts = buildArtifactRadialOptions(actorWithNode(treeNode('dragonClaws', 3), 3));
     const spiral = opts.find((o) => /Rending Spiral/i.test(o.name));
     const sweep = opts.find((o) => /Tail Sweep/i.test(o.name));
@@ -91,13 +91,12 @@ describe('Artifact attack acceptance — Dragon Claws L3', () => {
     expect(spiral!.slot).toBe('attack');
     expect(sweep!.slot).toBe('attack');
     expect(attackRoute(spiral)).toBe('melee-burst');
-    expect(attackRoute(sweep)).toBe('melee-burst');
     expect(spiral!.burstMeleeRadiusMeters ?? spiral!.aoeRadiusMeters).toBeGreaterThan(0);
-    expect(sweep!.burstMeleeRadiusMeters ?? sweep!.aoeRadiusMeters).toBeGreaterThan(0);
-    // Step 4: flat affected set → card context (carrier is UI-only, not Primary)
-    const built = aoeContextFromAffectedTokenIds(['enemy-a', 'enemy-b', 'enemy-c'], 0);
-    expect(built?.carrierTokenId).toBe('enemy-a');
-    expect(built?.aoe.secondaryTokenIds).toEqual(['enemy-b', 'enemy-c']);
+    expect(sweep!.artifactPowerTemplateId).toBe('active-melee-control-push-pull');
+    expect(attackRoute(sweep)).toBe('melee-single');
+    expect(sweep!.burstMeleeAoE).not.toBe(true);
+    expect(sweep!.ignoreWeaponDamage).not.toBe(true);
+    expect((sweep as any).specialOnly).not.toBe(true);
   });
 });
 

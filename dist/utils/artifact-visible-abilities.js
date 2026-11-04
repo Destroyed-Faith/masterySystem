@@ -5,8 +5,15 @@
  * separate and only appear at L10.
  */
 import { deriveLevelProgressionFromPicks } from '../artifacts/progression-compiler.js';
-/** Full 1–10 table: picks-derived rows when present, else the authored definition. */
-export function resolveFullLevelProgression(authored, picks) {
+/**
+ * Full 1–10 table: picks-derived rows when present, else the authored definition.
+ * Pass `preferAuthored: true` for irregular printed tables (e.g. Sentinel Frame)
+ * where Basic slots do not stage a single ability at L+0/+3/+6.
+ */
+export function resolveFullLevelProgression(authored, picks, opts) {
+    if (opts?.preferAuthored && Array.isArray(authored) && authored.length > 0) {
+        return [...authored].sort((a, b) => (Number(a.level) || 0) - (Number(b.level) || 0));
+    }
     const fromPicks = deriveLevelProgressionFromPicks(picks);
     if (fromPicks.length > 0) {
         const ultimates = (authored || []).filter(isUltimateProgressionRow);
