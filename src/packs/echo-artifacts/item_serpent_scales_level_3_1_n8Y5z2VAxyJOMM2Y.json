@@ -51,7 +51,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+6 Evade**.",
+        "effect": "Gain **+8 Evade** from the standard Active Buff: Evade (PL 4).",
         "special": "",
         "powerTemplateId": "ab-evade"
       },
@@ -80,20 +80,15 @@
         "kind": "power",
         "powerTemplateId": "ab-evade",
         "displayName": "Serpent Evasion",
-        "stagePowerLevels": [
-          "3",
-          "10",
-          "16"
-        ],
-        "stageTemplateIds": [
-          "ab-evade",
-          "extend-buff-mobility",
-          "extend-buff-mobility"
-        ],
         "stageNames": [
           "Serpent Evasion I",
-          "Mobility Extension II",
-          "Mobility Extension III"
+          "Serpent Evasion II",
+          "Serpent Evasion III"
+        ],
+        "stageEffectTexts": [
+          "Gain **+8 Evade** from the standard Active Buff: Evade (PL 4).",
+          "Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I.",
+          "Gain **+32 Evade** from the standard Active Buff: Evade (PL 16). This replaces Serpent Evasion II."
         ]
       },
       {
@@ -383,7 +378,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+6 Evade**."
+              "text": "Gain **+8 Evade** from the standard Active Buff: Evade (PL 4)."
             },
             "specials": [],
             "lvl": 2
@@ -766,7 +761,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "n8Y5z2VAxyJOMM2Y",

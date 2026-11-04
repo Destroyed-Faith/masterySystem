@@ -239,7 +239,7 @@ describe('C07 — eligibility + normal attacks', () => {
     expect(String(j8?.effect || '')).toMatch(/global Limited use/i);
     // Mending / Shadow unchanged kinds.
     expect(picks[0].powerTemplateId).toBe('active-ranged-single-heal');
-    expect(picks[2].powerTemplateId).toBe('ab-damage-aura');
+    expect(picks[2].powerTemplateId).toBe('ab-sundered-aura');
   });
 
   it('normal non-Limited attacks stay unchanged (no ×4, no charge spend)', async () => {

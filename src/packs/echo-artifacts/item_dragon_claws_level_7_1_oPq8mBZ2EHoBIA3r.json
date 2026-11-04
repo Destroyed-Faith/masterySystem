@@ -52,23 +52,23 @@
         "name": "Rending Spiral II",
         "type": "Melee AoE",
         "range": "Self",
-        "aoe": "Radius 6m",
+        "aoe": "Radius 5m",
         "duration": "Instant",
-        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.",
-        "special": "Lacerate(7)",
+        "effect": "Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I.",
+        "special": "Lacerate(9)",
         "powerTemplateId": "active-melee-aoe-damage-t4",
         "chosenSpecialKey": "lacerate"
       },
       {
         "level": 6,
         "name": "Tail Sweep II",
-        "type": "Melee AoE",
-        "range": "Self",
-        "aoe": "Radius 6m",
+        "type": "Melee",
+        "range": "",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **7d8 Power damage** (one shared damage roll) and may use Dive for Cover before payload.",
-        "special": "Push(6)",
-        "powerTemplateId": "active-melee-weapon-aoe",
+        "effect": "Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.",
+        "special": "Push",
+        "powerTemplateId": "active-melee-control-push-pull",
         "chosenSpecialKey": "push"
       }
     ],
@@ -94,6 +94,11 @@
         "kind": "power",
         "powerTemplateId": "active-melee-aoe-damage-t4",
         "displayName": "Rending Spiral",
+        "stageEffectTexts": [
+          "Apply **Lacerate(5)** to each hit creature; **no damage**.",
+          "Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I.",
+          "Apply **Lacerate(10)** to each hit creature; **no damage**. This replaces Rending Spiral II."
+        ],
         "chosenSpecial": {
           "key": "lacerate",
           "tier": 4
@@ -102,8 +107,13 @@
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "active-melee-weapon-aoe",
+        "powerTemplateId": "active-melee-control-push-pull",
         "displayName": "Tail Sweep",
+        "stageEffectTexts": [
+          "Make one melee control Attack Roll against one target; on hit **Push 8 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.",
+          "Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.",
+          "Make one melee control Attack Roll against one target; on hit **Push 32 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep II. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception."
+        ],
         "chosenSpecial": {
           "key": "push",
           "tier": 4
@@ -336,7 +346,7 @@
       {
         "id": "dragonClaws-pw-5",
         "name": "Rending Spiral II",
-        "fluff": "Special: Lacerate(7)",
+        "fluff": "Special: Lacerate(9)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -458,14 +468,14 @@
             },
             "aoe": {
               "shape": "radius",
-              "m": 6,
-              "radiusM": 6
+              "m": 5,
+              "radiusM": 5
             },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload."
+              "text": "Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I."
             },
             "specials": [],
             "lvl": 5
@@ -547,7 +557,7 @@
       {
         "id": "dragonClaws-pw-6",
         "name": "Tail Sweep II",
-        "fluff": "Special: Push(6)",
+        "fluff": "Special: Push",
         "category": "active",
         "tags": [],
         "cost": {
@@ -663,20 +673,14 @@
             "specials": []
           },
           "10": {
-            "type": "Melee AoE",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": {
-              "shape": "radius",
-              "m": 6,
-              "radiusM": 6
-            },
+            "type": "Melee",
+            "range": null,
+            "aoe": null,
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **7d8 Power damage** (one shared damage roll) and may use Dive for Cover before payload."
+              "text": "Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception."
             },
             "specials": [],
             "lvl": 6
@@ -790,7 +794,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "oPq8mBZ2EHoBIA3r",

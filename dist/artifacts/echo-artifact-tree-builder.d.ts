@@ -21,8 +21,8 @@ import type { EchoArtifactDefinition } from '../utils/echo-artifacts.js';
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-/** Bumped 2026-10-25: Dragon Breath Cone specialty + Instant AoE no-Primary UX. */
-export declare const ECHO_ARTIFACT_SEED_VERSION = 59;
+/** Bumped 2026-11-04 Batch 9I: Moonlight Shadow → Sundered Aura; Special Aura ×1 tables. */
+export declare const ECHO_ARTIFACT_SEED_VERSION = 60;
 /** A single Base Value slot on an echo artifact, with an exact per-level value. */
 interface BaseValueSpec {
     slot: 'a' | 'b' | 'c';

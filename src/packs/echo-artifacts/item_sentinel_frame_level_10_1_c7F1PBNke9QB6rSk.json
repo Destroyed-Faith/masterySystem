@@ -35,34 +35,32 @@
     "levelProgression": [
       {
         "level": 7,
-        "name": "Sentinel Restoration III",
+        "name": "Single Restoration III",
         "type": "Active, Support",
-        "range": "68m",
-        "aoe": "",
+        "range": "8 m",
+        "aoe": "None",
         "duration": "Instant",
-        "effect": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **10 Scarred Health Bars** per Safe Haven Rest.",
-        "special": "",
+        "effect": "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool.",
+        "special": "Ranged Single Target Restoration (PL 16; Artifact Range 8 m)",
         "powerTemplateId": "active-ranged-health-level-heal"
       },
       {
         "level": 8,
-        "name": "Resolve Core III",
-        "type": "Stone Pool",
+        "name": "Healing Support II",
+        "type": "Stone Power Support",
         "range": "Self",
-        "aoe": "",
-        "duration": "Passive",
-        "effect": "After each Safe Haven Rest, store 8 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions.",
-        "special": "stonePool"
+        "duration": "Instant",
+        "effect": "Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.",
+        "special": "Resolve Ability: Healing (Stone Power Support, Rank 4)"
       },
       {
         "level": 9,
-        "name": "Healing Support III",
+        "name": "Special Negation Support II",
         "type": "Stone Power Support",
         "range": "Self",
-        "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
-        "special": "resolve.healing"
+        "effect": "Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid.",
+        "special": "Resolve Ability: Special Negation (Stone Power Support, Rank 4)"
       },
       {
         "level": 10,
@@ -74,11 +72,12 @@
         "special": "Artifact Level 10: Awakening (Sentinel Frame)"
       }
     ],
+    "useAuthoredLevelProgression": true,
     "stoneFunction": null,
     "extraStoneFunctions": [
       {
         "level": 5,
-        "name": "Ward Support",
+        "name": "Special Negation Support",
         "kind": "stonePowerSupport",
         "attribute": "resolve",
         "stonePowerId": "resolve.ward",
@@ -94,14 +93,24 @@
         "level": 1,
         "kind": "power",
         "powerTemplateId": "active-ranged-health-level-heal",
-        "displayName": "Sentinel Restoration"
+        "displayName": "Single Restoration",
+        "stageEffectTexts": [
+          "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m.",
+          "Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.",
+          "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool."
+        ]
       },
       {
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePool",
-          "attribute": "resolve"
+          "attribute": "resolve",
+          "poolStages": [
+            2,
+            6,
+            11
+          ]
         },
         "displayName": "Resolve Core"
       },
@@ -111,7 +120,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "resolve",
-          "stonePowerId": "resolve.healing"
+          "stonePowerId": "resolve.healing",
+          "supportStages": [
+            3,
+            8,
+            8
+          ]
         },
         "displayName": "Healing Support"
       }
@@ -132,7 +146,8 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-7",
-        "name": "Sentinel Restoration III",
+        "name": "Single Restoration III",
+        "fluff": "Special: Ranged Single Target Restoration (PL 16; Artifact Range 8 m)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -323,14 +338,17 @@
             "type": "Active, Support",
             "range": {
               "kind": "distance",
-              "m": 68
+              "m": 8
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "note": "None"
+            },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **10 Scarred Health Bars** per Safe Haven Rest."
+              "text": "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool."
             },
             "specials": [],
             "lvl": 7
@@ -339,217 +357,8 @@
       },
       {
         "id": "sentinelFrame-pw-8",
-        "name": "Resolve Core III",
-        "fluff": "Special: stonePool",
-        "category": "passive",
-        "tags": [
-          "stone-function"
-        ],
-        "cost": {
-          "action": "none"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "Stone Pool",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "scene"
-            },
-            "effect": {
-              "text": "After each Safe Haven Rest, store 8 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions."
-            },
-            "specials": [],
-            "lvl": 8
-          }
-        }
-      },
-      {
-        "id": "sentinelFrame-pw-9",
-        "name": "Healing Support III",
-        "fluff": "Special: resolve.healing",
+        "name": "Healing Support II",
+        "fluff": "Special: Resolve Ability: Healing (Stone Power Support, Rank 4)",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -748,7 +557,216 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
+              "text": "Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid."
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "sentinelFrame-pw-9",
+        "name": "Special Negation Support II",
+        "fluff": "Special: Resolve Ability: Special Negation (Stone Power Support, Rank 4)",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid."
             },
             "specials": [],
             "lvl": 9
@@ -984,7 +1002,7 @@
       "childIds": [],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "c7F1PBNke9QB6rSk",

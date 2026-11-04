@@ -35,41 +35,40 @@
     "levelProgression": [
       {
         "level": 4,
-        "name": "Sentinel Restoration II",
+        "name": "Single Restoration II",
         "type": "Active, Support",
-        "range": "44m",
-        "aoe": "",
+        "range": "8 m",
+        "aoe": "None",
         "duration": "Instant",
-        "effect": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **6 Scarred Health Bars** per Safe Haven Rest.",
-        "special": "",
+        "effect": "Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.",
+        "special": "Ranged Single Target Restoration (PL 10; Artifact Range 8 m)",
         "powerTemplateId": "active-ranged-health-level-heal"
       },
       {
         "level": 5,
-        "name": "Resolve Core II",
-        "type": "Stone Pool",
+        "name": "Special Negation Support I",
+        "type": "Stone Power Support",
         "range": "Self",
-        "aoe": "",
-        "duration": "Passive",
-        "effect": "After each Safe Haven Rest, store 4 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions.",
-        "special": "stonePool"
+        "duration": "Instant",
+        "effect": "Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid.",
+        "special": "Resolve Ability: Special Negation (Stone Power Support, Rank 3)"
       },
       {
         "level": 3,
         "name": "Healing Support I",
         "type": "Stone Power Support",
         "range": "Self",
-        "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
-        "special": "resolve.healing"
+        "effect": "Pre-fill **Rank 2**. Rank 1 must still be paid.",
+        "special": "Resolve Ability: Healing (Stone Power Support, Rank 2)"
       }
     ],
+    "useAuthoredLevelProgression": true,
     "stoneFunction": null,
     "extraStoneFunctions": [
       {
         "level": 5,
-        "name": "Ward Support",
+        "name": "Special Negation Support",
         "kind": "stonePowerSupport",
         "attribute": "resolve",
         "stonePowerId": "resolve.ward",
@@ -85,14 +84,24 @@
         "level": 1,
         "kind": "power",
         "powerTemplateId": "active-ranged-health-level-heal",
-        "displayName": "Sentinel Restoration"
+        "displayName": "Single Restoration",
+        "stageEffectTexts": [
+          "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m.",
+          "Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.",
+          "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool."
+        ]
       },
       {
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePool",
-          "attribute": "resolve"
+          "attribute": "resolve",
+          "poolStages": [
+            2,
+            6,
+            11
+          ]
         },
         "displayName": "Resolve Core"
       },
@@ -102,7 +111,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "resolve",
-          "stonePowerId": "resolve.healing"
+          "stonePowerId": "resolve.healing",
+          "supportStages": [
+            3,
+            8,
+            8
+          ]
         },
         "displayName": "Healing Support"
       }
@@ -123,7 +137,8 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-4",
-        "name": "Sentinel Restoration II",
+        "name": "Single Restoration II",
+        "fluff": "Special: Ranged Single Target Restoration (PL 10; Artifact Range 8 m)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -242,14 +257,17 @@
             "type": "Active, Support",
             "range": {
               "kind": "distance",
-              "m": 44
+              "m": 8
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "note": "None"
+            },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **6 Scarred Health Bars** per Safe Haven Rest."
+              "text": "Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool."
             },
             "specials": [],
             "lvl": 4
@@ -330,8 +348,8 @@
       },
       {
         "id": "sentinelFrame-pw-5",
-        "name": "Resolve Core II",
-        "fluff": "Special: stonePool",
+        "name": "Special Negation Support I",
+        "fluff": "Special: Resolve Ability: Special Negation (Stone Power Support, Rank 3)",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -449,16 +467,16 @@
             "specials": []
           },
           "10": {
-            "type": "Stone Pool",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "scene"
+              "kind": "instant"
             },
             "effect": {
-              "text": "After each Safe Haven Rest, store 4 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions."
+              "text": "Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid."
             },
             "specials": [],
             "lvl": 5
@@ -540,7 +558,7 @@
       {
         "id": "sentinelFrame-pw-3",
         "name": "Healing Support I",
-        "fluff": "Special: resolve.healing",
+        "fluff": "Special: Resolve Ability: Healing (Stone Power Support, Rank 2)",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -595,7 +613,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
+              "text": "Pre-fill **Rank 2**. Rank 1 must still be paid."
             },
             "specials": [],
             "lvl": 3
@@ -769,7 +787,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "O5QpRD9hpxSDuKE6",

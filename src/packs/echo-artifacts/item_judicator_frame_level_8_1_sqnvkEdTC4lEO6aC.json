@@ -56,13 +56,13 @@
       },
       {
         "level": 6,
-        "name": "Regeneration Support II",
+        "name": "Self Healing Support II",
         "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Influence Ability: Colorless Recovery Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
-        "special": "influence.colorlessRecovery"
+        "effect": "Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I.",
+        "special": "resolve.healing"
       }
     ],
     "stoneFunction": null,
@@ -88,10 +88,15 @@
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "influence",
-          "stonePowerId": "influence.colorlessRecovery"
+          "attribute": "resolve",
+          "stonePowerId": "resolve.healing"
         },
-        "displayName": "Regeneration Support"
+        "displayName": "Self Healing Support",
+        "stageEffectTexts": [
+          "Pre-fill **Rank 2** of Healing for yourself only. Rank 1 must still be paid normally.",
+          "Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I.",
+          "Pre-fill **Rank 4** of Healing for yourself only. Ranks 1, 2, and 3 must still be paid normally. This replaces Self Healing Support II."
+        ]
       }
     ],
     "lore": "A judge, inquisitor, and divine executioner frame.",
@@ -525,8 +530,8 @@
       },
       {
         "id": "judicatorFrame-pw-6",
-        "name": "Regeneration Support II",
-        "fluff": "Special: influence.colorlessRecovery",
+        "name": "Self Healing Support II",
+        "fluff": "Special: resolve.healing",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -653,7 +658,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Influence Ability: Colorless Recovery Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
+              "text": "Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I."
             },
             "specials": [],
             "lvl": 6
@@ -755,7 +760,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "sqnvkEdTC4lEO6aC",

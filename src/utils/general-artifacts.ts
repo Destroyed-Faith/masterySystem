@@ -80,10 +80,10 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       note: 'Expose(4) at Levels 7–9; Expose(5) at Level 10. No separate Level-10 Ultimate.',
     },
   ],
-  // Catalogue Technical References (Artefacts v0.9.9.5, 2026-10-25):
+  // Catalogue Technical References (Artifacts_FULL_Moonlight_Sundered 2026-11-04):
   //   L1/4/7 Moonlight Mending  → Ranged Single Target Heal (PL 4/10/16)
   //   L2/5/8 Moonlight Judgment → Limited Ranged AoE Attack (Spell; PL 4/10/16)
-  //   L3/6/9 Moonlight Shadow   → Active Buff: Damage Aura (PL 4/10/16)
+  //   L3/6/9 Moonlight Shadow   → Active Buff: Sundered Aura (PL 4/10/16)
   //   L10 Artifact Awakening (universal; no True Moonlight Ultimate, no Requiem)
   progressionPickSpecs: {
     1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
@@ -102,16 +102,15 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
       ],
     },
     3: {
-      templateId: 'ab-damage-aura',
+      templateId: 'ab-sundered-aura',
       name: 'Moonlight Shadow',
       stageEffectTexts: [
-        'At the end of each of your Turns, enemies in a **2 m** aura take **3d8 damage**. Each creature once per Round. Uses/Safe Haven Rest = ceil(MR/2).',
-        'At the end of each of your Turns, enemies in a **3 m** aura take **7d8 damage**. Replaces Moonlight Shadow I. Uses/Safe Haven Rest = ceil(MR/2).',
-        'At the end of each of your Turns, enemies in a **4 m** aura take **11d8 damage**. Replaces Moonlight Shadow II. Uses/Safe Haven Rest = ceil(MR/2).',
+        'Use the official **Sundered Aura (PL 4)**: automatically apply **Sundered(4)** to all creatures in range except its caster (including allies), Radius **2 m**. No direct Aura damage. No separate Safe Haven Rest use limit.',
+        'Use the official **Sundered Aura (PL 10)**: automatically apply **Sundered(7)** to all creatures in range except its caster (including allies), Radius **3 m**. No direct Aura damage. This replaces Moonlight Shadow I.',
+        'Use the official **Sundered Aura (PL 16)**: automatically apply **Sundered(10)** to all creatures in range except its caster (including allies), Radius **3 m**. No direct Aura damage. This replaces Moonlight Shadow II.',
       ],
     },
   },
-  // Moonlight Shadow remains LEGACY (PH / Active_Buffs: redesign pending).
   levelProgression: [artifactAwakeningRow('Moonlight Greatsword')],
 };
 

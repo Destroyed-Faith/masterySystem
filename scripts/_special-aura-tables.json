@@ -4,97 +4,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "blight",
+        "rank": 2
       },
       {
         "pl": 2,
         "radiusM": 2,
         "special": "blight",
-        "rank": 1
+        "rank": 4
       },
       {
         "pl": 3,
         "radiusM": 2,
         "special": "blight",
-        "rank": 3
+        "rank": 5
       },
       {
         "pl": 4,
         "radiusM": 2,
         "special": "blight",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 5,
         "radiusM": 2,
         "special": "blight",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "blight",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "blight",
-        "rank": 6
+        "rank": 10
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "blight",
-        "rank": 6
+        "rank": 10
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "blight",
-        "rank": 6
+        "rank": 10
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "blight",
-        "rank": 6
+        "rank": 11
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "blight",
-        "rank": 7
+        "rank": 12
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "blight",
-        "rank": 8
+        "rank": 13
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "blight",
-        "rank": 8
+        "rank": 13
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "blight",
-        "rank": 9
+        "rank": 14
       },
       {
         "pl": 15,
         "radiusM": 3,
         "special": "blight",
-        "rank": 9
+        "rank": 15
       },
       {
         "pl": 16,
         "radiusM": 3,
         "special": "blight",
-        "rank": 9
+        "rank": 15
       }
     ]
   },
@@ -111,83 +113,87 @@
       },
       {
         "pl": 3,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "challenge",
+        "rank": 1
       },
       {
         "pl": 4,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "challenge",
+        "rank": 1
       },
       {
         "pl": 5,
         "radiusM": 2,
         "special": "challenge",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "challenge",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "challenge",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "challenge",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "challenge",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "challenge",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "challenge",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "challenge",
-        "rank": 2
+        "rank": 3
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "challenge",
-        "rank": 2
+        "rank": 4
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "challenge",
-        "rank": 2
+        "rank": 4
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "challenge",
-        "rank": 2
+        "rank": 4
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "challenge",
-        "rank": 2
+        "rank": 4
       }
     ]
   },
@@ -196,95 +202,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
-        "unavailable": true
-      },
-      {
-        "pl": 3,
         "radiusM": 2,
         "special": "corrode",
         "rank": 1
       },
       {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "corrode",
         "rank": 2
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "corrode",
         "rank": 3
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "corrode",
+        "rank": 4
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "corrode",
+        "rank": 5
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "corrode",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "corrode",
-        "rank": 4
+        "rank": 6
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "corrode",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "corrode",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "corrode",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "corrode",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "corrode",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "corrode",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "corrode",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "corrode",
-        "rank": 5
+        "rank": 10
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "corrode",
-        "rank": 5
+        "rank": 10
       }
     ]
   },
@@ -301,79 +311,87 @@
       },
       {
         "pl": 3,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "disoriented",
+        "rank": 1
       },
       {
         "pl": 4,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "disoriented",
+        "rank": 1
       },
       {
         "pl": 5,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "disoriented",
+        "rank": 1
       },
       {
         "pl": 6,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "disoriented",
+        "rank": 2
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "disoriented",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "disoriented",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "disoriented",
-        "rank": 1
+        "rank": 4
       }
     ]
   },
@@ -386,91 +404,93 @@
       },
       {
         "pl": 2,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "expose",
+        "rank": 2
       },
       {
         "pl": 3,
         "radiusM": 2,
         "special": "expose",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 4,
         "radiusM": 2,
         "special": "expose",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 5,
         "radiusM": 2,
         "special": "expose",
-        "rank": 2
+        "rank": 4
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "expose",
-        "rank": 2
+        "rank": 5
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "expose",
-        "rank": 3
+        "rank": 5
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "expose",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "expose",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "expose",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "expose",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "expose",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "expose",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "expose",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "expose",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "expose",
-        "rank": 4
+        "rank": 9
       }
     ]
   },
@@ -479,95 +499,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
-        "unavailable": true
-      },
-      {
-        "pl": 3,
         "radiusM": 2,
         "special": "hex",
         "rank": 1
       },
       {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "hex",
         "rank": 2
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "hex",
         "rank": 3
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "hex",
+        "rank": 4
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "hex",
+        "rank": 5
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "hex",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "hex",
-        "rank": 4
+        "rank": 6
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "hex",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "hex",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "hex",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "hex",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "hex",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "hex",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "hex",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "hex",
-        "rank": 5
+        "rank": 10
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "hex",
-        "rank": 5
+        "rank": 10
       }
     ]
   },
@@ -576,97 +600,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
         "radiusM": 2,
         "special": "lacerate",
         "rank": 1
       },
       {
-        "pl": 3,
-        "radiusM": 2,
-        "special": "lacerate",
-        "rank": 2
-      },
-      {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "lacerate",
         "rank": 3
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "lacerate",
         "rank": 4
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "lacerate",
+        "rank": 5
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "lacerate",
+        "rank": 6
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "lacerate",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "lacerate",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "lacerate",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 6
+        "rank": 10
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 6
+        "rank": 11
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 7
+        "rank": 11
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 7
+        "rank": 12
       },
       {
         "pl": 15,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 8
+        "rank": 12
       },
       {
         "pl": 16,
         "radiusM": 3,
         "special": "lacerate",
-        "rank": 8
+        "rank": 13
       }
     ]
   },
@@ -675,97 +701,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
         "radiusM": 2,
         "special": "mark",
         "rank": 1
       },
       {
-        "pl": 3,
-        "radiusM": 2,
-        "special": "mark",
-        "rank": 2
-      },
-      {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "mark",
         "rank": 3
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "mark",
         "rank": 4
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "mark",
+        "rank": 5
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "mark",
+        "rank": 6
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "mark",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "mark",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "mark",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "mark",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "mark",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "mark",
-        "rank": 6
+        "rank": 10
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "mark",
-        "rank": 6
+        "rank": 11
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "mark",
-        "rank": 7
+        "rank": 11
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "mark",
-        "rank": 7
+        "rank": 12
       },
       {
         "pl": 15,
         "radiusM": 3,
         "special": "mark",
-        "rank": 8
+        "rank": 12
       },
       {
         "pl": 16,
         "radiusM": 3,
         "special": "mark",
-        "rank": 8
+        "rank": 13
       }
     ]
   },
@@ -778,89 +806,93 @@
       },
       {
         "pl": 2,
-        "unavailable": true
-      },
-      {
-        "pl": 3,
-        "unavailable": true
-      },
-      {
-        "pl": 4,
         "radiusM": 2,
         "special": "root",
         "rank": 2
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "root",
         "rank": 3
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "root",
+        "rank": 4
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "root",
+        "rank": 5
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "root",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "root",
-        "rank": 4
+        "rank": 6
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "root",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "root",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "root",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "root",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "root",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "root",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "root",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "root",
-        "rank": 5
+        "rank": 10
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "root",
-        "rank": 5
+        "rank": 10
       }
     ]
   },
@@ -869,97 +901,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
         "radiusM": 2,
         "special": "ruin",
         "rank": 1
       },
       {
-        "pl": 3,
-        "radiusM": 2,
-        "special": "ruin",
-        "rank": 2
-      },
-      {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "ruin",
         "rank": 3
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "ruin",
         "rank": 4
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "ruin",
+        "rank": 5
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "ruin",
+        "rank": 6
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "ruin",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "ruin",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "ruin",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 9,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 10,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 5
+        "rank": 10
       },
       {
         "pl": 11,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 6
+        "rank": 11
       },
       {
         "pl": 12,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 6
+        "rank": 11
       },
       {
         "pl": 13,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 7
+        "rank": 12
       },
       {
         "pl": 14,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 7
+        "rank": 12
       },
       {
         "pl": 15,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 8
+        "rank": 13
       },
       {
         "pl": 16,
-        "radiusM": 3,
+        "radiusM": 2,
         "special": "ruin",
-        "rank": 8
+        "rank": 13
       }
     ]
   },
@@ -968,97 +1002,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
         "radiusM": 2,
         "special": "slow",
         "rank": 1
       },
       {
-        "pl": 3,
-        "radiusM": 2,
-        "special": "slow",
-        "rank": 2
-      },
-      {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "slow",
         "rank": 3
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "slow",
         "rank": 4
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "slow",
+        "rank": 5
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "slow",
+        "rank": 6
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "slow",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "slow",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "slow",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "slow",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "slow",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "slow",
-        "rank": 6
+        "rank": 10
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "slow",
-        "rank": 6
+        "rank": 11
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "slow",
-        "rank": 7
+        "rank": 11
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "slow",
-        "rank": 7
+        "rank": 12
       },
       {
         "pl": 15,
         "radiusM": 3,
         "special": "slow",
-        "rank": 8
+        "rank": 12
       },
       {
         "pl": 16,
         "radiusM": 3,
         "special": "slow",
-        "rank": 8
+        "rank": 13
       }
     ]
   },
@@ -1075,79 +1111,87 @@
       },
       {
         "pl": 3,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "soulburn",
+        "rank": 1
       },
       {
         "pl": 4,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "soulburn",
+        "rank": 1
       },
       {
         "pl": 5,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "soulburn",
+        "rank": 1
       },
       {
         "pl": 6,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "soulburn",
+        "rank": 2
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "soulburn",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "soulburn",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "soulburn",
-        "rank": 1
+        "rank": 4
       }
     ]
   },
@@ -1156,95 +1200,99 @@
     "rows": [
       {
         "pl": 1,
-        "unavailable": true
-      },
-      {
-        "pl": 2,
-        "unavailable": true
-      },
-      {
-        "pl": 3,
         "radiusM": 2,
         "special": "sundered",
         "rank": 1
       },
       {
-        "pl": 4,
+        "pl": 2,
         "radiusM": 2,
         "special": "sundered",
         "rank": 2
       },
       {
-        "pl": 5,
+        "pl": 3,
         "radiusM": 2,
         "special": "sundered",
         "rank": 3
+      },
+      {
+        "pl": 4,
+        "radiusM": 2,
+        "special": "sundered",
+        "rank": 4
+      },
+      {
+        "pl": 5,
+        "radiusM": 2,
+        "special": "sundered",
+        "rank": 5
       },
       {
         "pl": 6,
         "radiusM": 2,
         "special": "sundered",
-        "rank": 3
+        "rank": 6
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "sundered",
-        "rank": 4
+        "rank": 6
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "sundered",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "sundered",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "sundered",
-        "rank": 4
+        "rank": 7
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "sundered",
-        "rank": 4
+        "rank": 8
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "sundered",
-        "rank": 5
+        "rank": 8
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "sundered",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "sundered",
-        "rank": 5
+        "rank": 9
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "sundered",
-        "rank": 5
+        "rank": 10
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "sundered",
-        "rank": 5
+        "rank": 10
       }
     ]
   },
@@ -1261,79 +1309,87 @@
       },
       {
         "pl": 3,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "weaken",
+        "rank": 1
       },
       {
         "pl": 4,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "weaken",
+        "rank": 1
       },
       {
         "pl": 5,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "weaken",
+        "rank": 1
       },
       {
         "pl": 6,
-        "unavailable": true
+        "radiusM": 2,
+        "special": "weaken",
+        "rank": 2
       },
       {
         "pl": 7,
         "radiusM": 2,
         "special": "weaken",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 8,
         "radiusM": 2,
         "special": "weaken",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 9,
         "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 10,
         "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 2
       },
       {
         "pl": 11,
         "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 12,
         "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 13,
         "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 14,
         "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 15,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 3
       },
       {
         "pl": 16,
-        "radiusM": 4,
+        "radiusM": 3,
         "special": "weaken",
-        "rank": 1
+        "rank": 4
       }
     ]
   }

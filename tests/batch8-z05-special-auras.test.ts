@@ -170,63 +170,63 @@ describe('Batch 8.1 — Special Aura catalogue (14 Powers)', () => {
     }
   });
 
-  it('keeps original Ruin / Corrode / Blight control points unchanged', () => {
+  it('keeps Batch 9I ×1.0 Ruin / Corrode / Blight control points', () => {
     expect(row('ab-ruin-aura', 2).mechanics.activeSpecialAura).toEqual({
       special: 'ruin',
-      rank: 1,
+      rank: 3,
       radiusM: 2,
     });
     expect(row('ab-ruin-aura', 9).mechanics.activeSpecialAura).toEqual({
       special: 'ruin',
-      rank: 5,
-      radiusM: 3,
+      rank: 9,
+      radiusM: 2,
     });
     expect(row('ab-ruin-aura', 16).mechanics.activeSpecialAura).toEqual({
       special: 'ruin',
-      rank: 8,
-      radiusM: 3,
+      rank: 13,
+      radiusM: 2,
     });
     expect(row('ab-corrode-aura', 3).mechanics.activeSpecialAura).toEqual({
       special: 'corrode',
-      rank: 1,
+      rank: 3,
       radiusM: 2,
     });
     expect(row('ab-corrode-aura', 15).mechanics.activeSpecialAura).toEqual({
       special: 'corrode',
-      rank: 5,
-      radiusM: 4,
+      rank: 10,
+      radiusM: 3,
     });
     expect(row('ab-blight-aura', 2).mechanics.activeSpecialAura).toEqual({
       special: 'blight',
-      rank: 1,
+      rank: 4,
       radiusM: 2,
     });
     expect(row('ab-blight-aura', 9).mechanics.activeSpecialAura).toEqual({
       special: 'blight',
-      rank: 6,
+      rank: 10,
       radiusM: 3,
     });
     expect(row('ab-blight-aura', 16).mechanics.activeSpecialAura).toEqual({
       special: 'blight',
-      rank: 9,
+      rank: 15,
       radiusM: 3,
     });
   });
 
-  it('locks Unavailable levels (Challenge PL1–4, Root PL1–3, Disoriented/Soulburn/Weaken PL1–6, …)', () => {
-    expect(row('ab-challenge-aura', 4).mechanics.specialAuraUnavailable).toBe(true);
-    expect(row('ab-challenge-aura', 5).mechanics.activeSpecialAura.rank).toBe(1);
-    expect(row('ab-root-aura', 3).mechanics.specialAuraUnavailable).toBe(true);
-    expect(row('ab-root-aura', 4).mechanics.activeSpecialAura).toEqual({
+  it('locks Unavailable levels per ×1.0 tables (Challenge/Disoriented/Soulburn/Weaken PL1–2, Root/Expose PL1, …)', () => {
+    expect(row('ab-challenge-aura', 2).mechanics.specialAuraUnavailable).toBe(true);
+    expect(row('ab-challenge-aura', 3).mechanics.activeSpecialAura.rank).toBe(1);
+    expect(row('ab-root-aura', 1).mechanics.specialAuraUnavailable).toBe(true);
+    expect(row('ab-root-aura', 2).mechanics.activeSpecialAura).toEqual({
       special: 'root',
       rank: 2,
       radiusM: 2,
     });
-    expect(row('ab-disoriented-aura', 6).mechanics.specialAuraUnavailable).toBe(true);
-    expect(row('ab-soulburn-aura', 6).mechanics.specialAuraUnavailable).toBe(true);
-    expect(row('ab-weaken-aura', 6).mechanics.specialAuraUnavailable).toBe(true);
-    expect(row('ab-hex-aura', 2).mechanics.specialAuraUnavailable).toBe(true);
-    expect(row('ab-hex-aura', 3).mechanics.activeSpecialAura.rank).toBe(1);
+    expect(row('ab-disoriented-aura', 2).mechanics.specialAuraUnavailable).toBe(true);
+    expect(row('ab-soulburn-aura', 2).mechanics.specialAuraUnavailable).toBe(true);
+    expect(row('ab-weaken-aura', 2).mechanics.specialAuraUnavailable).toBe(true);
+    expect(row('ab-disoriented-aura', 3).mechanics.activeSpecialAura.rank).toBe(1);
+    expect(row('ab-hex-aura', 1).mechanics.activeSpecialAura.rank).toBe(1);
   });
 
   it('selectable catalogue is 33 Buffs (19 core + 14 Special Auras); legacy auras excluded', () => {

@@ -196,7 +196,7 @@ describe('perception state', () => {
 });
 
 describe('perception gate', () => {
-  it('Invisibility TN = (4×MR) + bonus − (lost bars × MR) + stealth spent', () => {
+  it('Invisibility TN = (4×MR) + bonus − (lost bars × MR); no Stealth Points', () => {
     const target = mockActor({
       system: {
         mastery: { rank: 3 },
@@ -232,8 +232,9 @@ describe('perception gate', () => {
     target.system.health.currentBar = 2; // Injured = 2 lost bars → −6
     expect(computePerceptionTn(target)).toBe(12);
 
+    // Stealth Points never enter the Invisibility TN (Batch 9I / PH formula).
     target.getFlag = vi.fn(() => ({ stealthSpentThisRound: 6 }));
-    expect(computePerceptionTn(target)).toBe(18);
+    expect(computePerceptionTn(target)).toBe(12);
   });
 
   it('Life Sense perceives invisible-to-normal living target', () => {

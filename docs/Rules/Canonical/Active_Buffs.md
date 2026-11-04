@@ -61,7 +61,7 @@ The Homebrewery
 {{homebreweryCredits
 Destroyed Faith — DF Core Active Buffs
 Version: v0.9.9.5 (2026-11-04)  
-
+Playtest aura expansion: 2026-11-04 (14 Special Auras; approved ×1.0 PP formula, 3 m cap, Ruin 2 m fixed; six obsolete damage/armor Auras remain retired; artifact-only exceptions remain separate).
 }}
 
 }}
@@ -450,7 +450,7 @@ At the **start of each of your Turns while maintained**, reduce **one eligible o
 
 Obscure **Normal Combat Awareness** and gain the printed Invisibility Bonus. The Buff **does not end** when you attack, cast, move, react, take damage or are detected. A successful Perception Check permits targeting by that observer only for the current Round; it does not end Invisibility. If you also have **Passive: Invisibility**, add the Bonuses and preserve the Passive's chosen Special Combat Sense Obscuration.
 
-**Perception TN:** (4 × Mastery Rank) + current Invisibility Bonus − (Lost Health Bars × Mastery Rank) + Stealth Points spent this Round.
+**Perception TN:** (4 × Mastery Rank) + current Invisibility Bonus − (Lost Health Bars × Mastery Rank). Stealth Points are never added into the Invisibility TN; Stealth remains a separate comparative result.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
@@ -933,13 +933,17 @@ A **Special Aura** is a **Self-range, caster-centered, moving Active Buff**. It 
 \page
 {{pageNumber,auto}}
 {{wide
-### Aura Power Point Pricing (playtest)
+### Aura Power Point Pricing (approved playtest revision 2026-11-04)
 
-All fourteen tables are calculated **here in the rulebook**, not delegated to a VTT implementation. The existing **Active Buff budget is 40 PP at PL 1, +30 PP per further PL** (PL 16 = 490 PP). The existing conservative moving-Aura premium remains:
+The following are the **authoritative, pre-calculated PL 1–16 tables** for all fourteen named Special Auras. The VTT implements the printed values; it does **not** choose Aura ranks, radii, or costs dynamically.
 
-`Aura PP cost = 2 × [Radius PP + printed Special pricing at X + 1]`
+**Active Buff PP budget:** 40 PP at PL 1, plus 30 PP for each additional PL (490 PP at PL 16).
 
-For this pricing calculation only, use the **published Instant Single Target numeric Special cost for rank (X + 1)**. This preserves the surcharge applied in the three existing Ruin, Corrode and Blight Aura tables without inventing new Special price curves. The effect applied in play is **Special(X)**, *not* Special(X + 1). Define `T(n) = n(n + 1)/2`:
+**Approved cost formula (no moving-Aura premium):**
+
+`Aura PP cost = Radius PP + published Instant Single Target Special cost C(X + 1)`
+
+The played effect is **Special(X)**, never Special(X+1). The former ×2 Aura surcharge is **removed entirely**. The Special(X+1) pricing convention is **retained**. Define `T(n) = n(n + 1)/2`:
 
 | **Specials** | **Published numeric cost C(n) used at n = X + 1** |
 |:--|:--|
@@ -950,9 +954,16 @@ For this pricing calculation only, use the **published Instant Single Target num
 | Challenge | `C(1) = 6 PP`; for `n ≥ 2`, `6 × T(2n) PP` |
 | Disoriented, Soulburn, Weaken | `C(1) = 8 PP`; for `n ≥ 2`, `8 × T(2n) PP` |
 
-**Radius PP:** 2 m = 20 PP; 3 m = 50 PP; 4 m = 90 PP. Radius begins at 2 m. At PL 9 or later, a 3 m radius is selected when the previously printed Special rank can be retained; at PL 15 or later, 4 m is similarly selected when affordable. Between these radius milestones use the **highest Special(X) fully inside budget** at the retained radius. Never reduce the Special rank on an upgrade. A level with no legal minimum Special is **Unavailable** (not purchasable or selectable); **Root(1) is never legal**. Leftover PP grant no additional abilities.
+**Radius PP and fixed Power Level brackets:** Radius 2 m = **20 PP**; radius 3 m = **50 PP**. For all named Special Auras **except Ruin**, the printed radius is **2 m at PL 1–8** and **3 m at PL 9–16**. **Ruin Aura always has exactly a 2 m radius, at every available PL.** No standard Special Aura has a radius greater than 3 m. Auras have no purchasable radius extension, and leftover PP grant no other benefits.
 
-**Pricing audit:** This method reproduces the previously published **Ruin, Corrode, and Blight Aura values at every PL 1–16 without change**. The eleven additional Aura tables follow the identical premium, radius milestones, and published numeric Special cost rules. All fourteen progressions remain playtest values; no automatic Zone repricing or Artifact Aura remapping is implied.
+For each published PL, the printed Special(X) is the largest valid rank whose **radius PP + C(X+1)** fits within that PL's Active Buff PP budget; **Root(1) is invalid**. A row marked **Unavailable** cannot be learned, granted, selected, or activated at that PL.
+
+**Fixed table cross-checks (already included below; not implementation instructions to recalculate):**
+
+- **Sundered Aura:** PL 4 = **Sundered(4)**, 2 m, **110/130 PP**; PL 10 = **Sundered(7)**, 3 m, **266/310 PP**; PL 16 = **Sundered(10)**, 3 m, **446/490 PP**.
+- **Ruin Aura:** PL 4 = **Ruin(5)**, 2 m, **104/130 PP**; PL 10 = **Ruin(10)**, 2 m, **284/310 PP**; PL 16 = **Ruin(13)**, 2 m, **440/490 PP**.
+
+These fixed tables supersede all earlier ×2 Aura tables, old 4 m milestones, and prior Ruin-radius tables. No other Active Buff, Active Power, Persistent Zone, or explicitly approved artifact-only Aura is repriced by this change.
 
 }}
 \page
@@ -966,22 +977,22 @@ A moving **Blight(X)** field centered on its owner. It automatically applies the
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Blight Aura** at this Power Level. |
-| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Blight(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(14)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(15)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Blight(15)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -997,20 +1008,20 @@ A moving **Challenge(X)** field centered on its owner. It automatically applies 
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
 | **2** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
-| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
-| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Challenge Aura** at this Power Level. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Challenge(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Challenge(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1024,22 +1035,22 @@ A moving **Corrode(X)** field centered on its owner. It automatically applies th
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Corrode Aura** at this Power Level. |
-| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Corrode Aura** at this Power Level. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Corrode(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Corrode(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1055,20 +1066,20 @@ A moving **Disoriented(X)** field centered on its owner. It automatically applie
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
 | **2** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
-| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
-| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
-| **5** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
-| **6** | Unavailable | Self | — | — | Not enough PP for a legal **Disoriented Aura** at this Power Level. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Disoriented(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Disoriented(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1083,21 +1094,21 @@ A moving **Expose(X)** field centered on its owner. It automatically applies the
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Unavailable | Self | — | — | Not enough PP for a legal **Expose Aura** at this Power Level. |
-| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Expose Aura** at this Power Level. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Expose(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Expose(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1111,22 +1122,22 @@ A moving **Hex(X)** field centered on its owner. It automatically applies the li
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Hex Aura** at this Power Level. |
-| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Hex Aura** at this Power Level. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Hex(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Hex(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1140,22 +1151,22 @@ A moving **Lacerate(X)** field centered on its owner. It automatically applies t
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Lacerate Aura** at this Power Level. |
-| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Lacerate(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Lacerate(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1169,22 +1180,22 @@ A moving **Mark(X)** field centered on its owner. It automatically applies the l
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Mark Aura** at this Power Level. |
-| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Mark(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Mark(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1199,21 +1210,21 @@ A moving **Root(X)** field centered on its owner. It automatically applies the l
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Unavailable | Self | — | — | Not enough PP for a legal **Root Aura** at this Power Level. |
-| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Root Aura** at this Power Level. |
-| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Root Aura** at this Power Level. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Root(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Root(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1227,22 +1238,22 @@ A moving **Ruin(X)** field centered on its owner. It automatically applies the l
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Ruin Aura** at this Power Level. |
-| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Ruin(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Ruin(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1256,22 +1267,22 @@ A moving **Slow(X)** field centered on its owner. It automatically applies the l
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Slow Aura** at this Power Level. |
-| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Slow(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(11)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(12)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Slow(13)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1287,20 +1298,20 @@ A moving **Soulburn(X)** field centered on its owner. It automatically applies t
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
 | **2** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
-| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
-| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
-| **5** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
-| **6** | Unavailable | Self | — | — | Not enough PP for a legal **Soulburn Aura** at this Power Level. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Soulburn(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Soulburn(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1314,22 +1325,22 @@ A moving **Sundered(X)** field centered on its owner. It automatically applies t
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Unavailable | Self | — | — | Not enough PP for a legal **Sundered Aura** at this Power Level. |
-| **2** | Unavailable | Self | — | — | Not enough PP for a legal **Sundered Aura** at this Power Level. |
-| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **1** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **2** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(5)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(6)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Sundered(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(7)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(8)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(9)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Sundered(10)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}
 \page
@@ -1345,19 +1356,19 @@ A moving **Weaken(X)** field centered on its owner. It automatically applies the
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
 | **2** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
-| **3** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
-| **4** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
-| **5** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
-| **6** | Unavailable | Self | — | — | Not enough PP for a legal **Weaken Aura** at this Power Level. |
-| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **15** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
-| **16** | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **3** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **4** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **5** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(1)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **6** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **7** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **8** | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | Apply **Weaken(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **9** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **10** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(2)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **11** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **12** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **13** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **14** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **15** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(3)** automatically to every creature in the Aura (excluding its caster), once per Round. |
+| **16** | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | Apply **Weaken(4)** automatically to every creature in the Aura (excluding its caster), once per Round. |
 
 }}

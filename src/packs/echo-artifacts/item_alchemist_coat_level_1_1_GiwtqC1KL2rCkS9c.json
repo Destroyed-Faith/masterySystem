@@ -56,13 +56,19 @@
       },
       {
         "level": 2,
-        "kind": "stoneFunction",
-        "stoneFunction": {
-          "kind": "stonePowerSupport",
-          "attribute": "vitality",
-          "stonePowerId": "vitality.damageMaximization"
-        },
-        "displayName": "Alchemist Stone"
+        "kind": "power",
+        "powerTemplateId": "empower-buff-damage",
+        "displayName": "Alchemist Stone",
+        "stageNames": [
+          "Alchemist Stone I",
+          "Alchemist Stone II",
+          "Alchemist Stone III"
+        ],
+        "stageEffectTexts": [
+          "When activating Red Potion or Black Potion, increase its effective PL by **+1** and duration by **+1 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.",
+          "When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.",
+          "When activating Red Potion or Black Potion, increase its effective PL by **+3** and duration by **+3 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value."
+        ]
       },
       {
         "level": 3,
@@ -314,7 +320,7 @@
       "isRoot": true,
       "echoBound": "unbound",
       "echoArtifactKey": "alchemistCoat",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "GiwtqC1KL2rCkS9c",

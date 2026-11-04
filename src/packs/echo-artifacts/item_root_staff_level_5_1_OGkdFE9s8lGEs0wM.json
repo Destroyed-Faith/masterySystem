@@ -51,27 +51,33 @@
       },
       {
         "level": 5,
-        "name": "Covenant Overdrive II",
-        "type": "Active Buff",
-        "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "On the first qualifying hit each round, increase one already existing chosen Special by **+2**, or **+1** for Challenge, Disoriented, Soulburn, or Weaken. This does nothing if that Special is not already present.",
-        "special": "Slow(2)",
-        "powerTemplateId": "ab-special-overdrive",
-        "chosenSpecialKey": "slow"
+        "name": "Binding Circle II",
+        "type": "Ranged AoE",
+        "range": "44m",
+        "aoe": "Radius 6m",
+        "duration": "Instant",
+        "effect": "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I.",
+        "special": "Spell, Root(5)",
+        "powerTemplateId": "active-ranged-aoe-damage-t5",
+        "chosenSpecialKey": "root",
+        "isSpell": true,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack"
       },
       {
         "level": 3,
-        "name": "Rootbinding I",
+        "name": "Main Spell I",
         "type": "Ranged",
         "range": "20m",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Deal **+1d8 damage** on hit.",
-        "special": "Slow(6)",
-        "powerTemplateId": "active-ranged-damage-t4",
-        "chosenSpecialKey": "slow"
+        "effect": "Use the Main Spell of this Staff's tradition at PL 4: **Weaken(2)**. One creature; **no Power damage**.",
+        "special": "Spell, Weaken(2)",
+        "powerTemplateId": "active-ranged-instant-special-t6",
+        "chosenSpecialKey": "weaken",
+        "isSpell": true,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack"
       }
     ],
     "stoneFunction": {
@@ -94,27 +100,42 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-special-overdrive",
-        "displayName": "Covenant Overdrive",
+        "powerTemplateId": "active-ranged-aoe-damage-t5",
+        "displayName": "Binding Circle",
+        "stageEffectTexts": [
+          "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(3)**; **no Power damage**.",
+          "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I.",
+          "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(7)**; **no Power damage**. This replaces Binding Circle II."
+        ],
+        "isSpell": true,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack",
         "chosenSpecial": {
-          "key": "slow",
-          "tier": 4
+          "key": "root",
+          "tier": 5
         }
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "active-ranged-damage-t4",
-        "delivery": "ranged-single",
+        "powerTemplateId": "active-ranged-instant-special-t6",
+        "displayName": "Main Spell",
+        "stageEffectTexts": [
+          "Use the Main Spell of this Staff's tradition at PL 4: **Weaken(2)**. One creature; **no Power damage**.",
+          "Use the Main Spell of this Staff's tradition at PL 10: **Weaken(3)**. One creature; **no Power damage**. This replaces Main Spell I.",
+          "Use the Main Spell of this Staff's tradition at PL 16: **Weaken(4)**. One creature; **no Power damage**. This replaces Main Spell II."
+        ],
+        "isSpell": true,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack",
         "chosenSpecial": {
-          "key": "slow",
-          "tier": 4
-        },
-        "displayName": "Rootbinding"
+          "key": "weaken",
+          "tier": 6
+        }
       }
     ],
-    "lore": "Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Main Spell: Rootbinding (Ranged Attack + Slow).",
-    "description": "Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Main Spell: Rootbinding (Ranged Attack + Slow).\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
+    "lore": "Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Weaken.",
+    "description": "Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Weaken.\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -338,12 +359,14 @@
       },
       {
         "id": "witchStaffRoot-pw-5",
-        "name": "Covenant Overdrive II",
-        "fluff": "Special: Slow(2)",
-        "category": "activeBuff",
-        "tags": [],
+        "name": "Binding Circle II",
+        "fluff": "Special: Spell, Root(5)",
+        "category": "active",
+        "tags": [
+          "spell"
+        ],
         "cost": {
-          "action": "full"
+          "action": "attack"
         },
         "levels": {
           "1": {
@@ -455,17 +478,21 @@
             "specials": []
           },
           "10": {
-            "type": "Active Buff",
+            "type": "Ranged AoE",
             "range": {
-              "kind": "self"
+              "kind": "distance",
+              "m": 44
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "m": 6,
+              "radiusM": 6
+            },
             "duration": {
-              "kind": "rounds",
-              "rounds": 1
+              "kind": "instant"
             },
             "effect": {
-              "text": "On the first qualifying hit each round, increase one already existing chosen Special by **+2**, or **+1** for Challenge, Disoriented, Soulburn, or Weaken. This does nothing if that Special is not already present."
+              "text": "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I."
             },
             "specials": [],
             "lvl": 5
@@ -546,10 +573,12 @@
       },
       {
         "id": "witchStaffRoot-pw-3",
-        "name": "Rootbinding I",
-        "fluff": "Special: Slow(6)",
+        "name": "Main Spell I",
+        "fluff": "Special: Spell, Weaken(2)",
         "category": "active",
-        "tags": [],
+        "tags": [
+          "spell"
+        ],
         "cost": {
           "action": "attack"
         },
@@ -601,7 +630,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Deal **+1d8 damage** on hit."
+              "text": "Use the Main Spell of this Staff's tradition at PL 4: **Weaken(2)**. One creature; **no Power damage**."
             },
             "specials": [],
             "lvl": 3
@@ -783,7 +812,7 @@
       ],
       "echoBound": "unbound",
       "echoArtifactKey": "witchStaffRoot",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "OGkdFE9s8lGEs0wM",

@@ -7005,7 +7005,7 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 **Aura classification:** **Special Auras are Active Buffs**: Self-range, caster-centered and moving, automatically applying only their printed Special to every creature in radius **except the Aura caster**; allies are not exempt. They occupy the single simultaneously maintained Active Buff slot and last MR complete Rounds per activation. **Persistent Special Zones remain stationary Actives**, placed with one Attack Action and sustained with one Attack Action per Zone each subsequent creator Turn; overlapping Zones are allowed.
 
-**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. Their remaining Artifact/Echo references (Draconic Roar and Moonlight Shadow) remain pending deliberate replacement. Oracle Field has been replaced by standard **Active Buff: Armor**. The new Special Aura Active Buffs do **not** automatically replace those remaining effects or alter their Artifact progression.
+**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. **Moonlight Shadow** now uses the official **Active Buff: Sundered Aura** (Batch 9I). **Draconic Roar** remains an approved artifact-only Armor Aura exception and is **not** remapped to a Special Aura. Oracle Field has been replaced by standard **Active Buff: Armor**.
 
 Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff during the Preparation Phase costs **no Attack Action and no Stones**. It does not remove or commit the character's base Attack Action for the upcoming Round.
 
@@ -9038,6 +9038,16 @@ can be found in the separate **Artifacts Catalogue**:
 | **9** | **Frostwave III** | Melee AoE Special: Slow **PL 16** | **Slow(10)**; no direct damage | **7 m** |
 
 Frostwave II uses catalogue **PL 8** (not PL 10) so the printed Instant AoE Slow is **Slow(7)** with Radius **5 m**. Do not grant PL 10 Slow(9) with a manually reduced effect, and do not change the shared Actives Melee AoE Special: Slow table.
+
+#### Approved General Artifact Clarification — Moonlight Greatsword / Moonlight Shadow
+
+**Approved clarification (Batch 9I):** Moonlight Greatsword **Moonlight Shadow** grants the official catalogue Power **Active Buff: Sundered Aura** from Active Buffs. It uses the normal single Active-Buff slot, free Preparation-Phase activation/replacement, and Mastery Rank Round duration. There is **no separate Safe Haven Rest use limit**, no direct Aura damage, no Ruin/Hex/Damage Aura substitute, and no access to other named Auras. Stage II replaces I; stage III replaces II. Moonlight Mending, Moonlight Judgment, and Artifact Awakening are unchanged by this clarification.
+
+| **Artifact Level** | **Name** | **Exact official Power** | **Effect** | **Radius** |
+| :---: | --- | --- | --- | :---: |
+| **3** | **Moonlight Shadow I** | Active Buff: Sundered Aura **PL 4** | **Sundered(4)**; no direct damage | **2 m** |
+| **6** | **Moonlight Shadow II** | Active Buff: Sundered Aura **PL 10** | **Sundered(7)**; no direct damage | **3 m** |
+| **9** | **Moonlight Shadow III** | Active Buff: Sundered Aura **PL 16** | **Sundered(10)**; no direct damage | **3 m** |
 
 }}
 \page

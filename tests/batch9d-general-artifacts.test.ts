@@ -78,11 +78,11 @@ describe('Batch 9D — remapped catalogue templates', () => {
     expect(rows.some((r: any) => /Reflection/i.test(r.name))).toBe(false);
   });
 
-  it('Moonlight Shadow stays LEGACY Damage Aura; L10 is Awakening', () => {
+  it('Moonlight Shadow uses Sundered Aura; L10 is Awakening', () => {
     const rows = rowsFor('moonlightGreatsword');
     const shadow = rows.find((r: any) => r.level === 3);
     expect(shadow?.name).toMatch(/Moonlight Shadow/);
-    expect(shadow?.powerTemplateId).toBe('ab-damage-aura');
+    expect(shadow?.powerTemplateId).toBe('ab-sundered-aura');
     expect(rows.find((r: any) => r.level === 10)?.name).toBe('Artifact Awakening');
   });
 });

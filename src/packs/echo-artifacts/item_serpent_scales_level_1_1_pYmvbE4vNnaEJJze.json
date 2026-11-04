@@ -59,20 +59,15 @@
         "kind": "power",
         "powerTemplateId": "ab-evade",
         "displayName": "Serpent Evasion",
-        "stagePowerLevels": [
-          "3",
-          "10",
-          "16"
-        ],
-        "stageTemplateIds": [
-          "ab-evade",
-          "extend-buff-mobility",
-          "extend-buff-mobility"
-        ],
         "stageNames": [
           "Serpent Evasion I",
-          "Mobility Extension II",
-          "Mobility Extension III"
+          "Serpent Evasion II",
+          "Serpent Evasion III"
+        ],
+        "stageEffectTexts": [
+          "Gain **+8 Evade** from the standard Active Buff: Evade (PL 4).",
+          "Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I.",
+          "Gain **+32 Evade** from the standard Active Buff: Evade (PL 16). This replaces Serpent Evasion II."
         ]
       },
       {
@@ -328,7 +323,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "pYmvbE4vNnaEJJze",

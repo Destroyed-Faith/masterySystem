@@ -46,14 +46,14 @@
       },
       {
         "level": 5,
-        "name": "Mobility Extension II",
-        "type": "Support",
+        "name": "Serpent Evasion II",
+        "type": "Active Buff",
         "range": "Self",
         "aoe": "",
-        "duration": "",
-        "effect": "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+2 rounds**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
+        "duration": "MR Rounds",
+        "effect": "Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I.",
         "special": "",
-        "powerTemplateId": "extend-buff-mobility"
+        "powerTemplateId": "ab-evade"
       },
       {
         "level": 6,
@@ -80,20 +80,15 @@
         "kind": "power",
         "powerTemplateId": "ab-evade",
         "displayName": "Serpent Evasion",
-        "stagePowerLevels": [
-          "3",
-          "10",
-          "16"
-        ],
-        "stageTemplateIds": [
-          "ab-evade",
-          "extend-buff-mobility",
-          "extend-buff-mobility"
-        ],
         "stageNames": [
           "Serpent Evasion I",
-          "Mobility Extension II",
-          "Mobility Extension III"
+          "Serpent Evasion II",
+          "Serpent Evasion III"
+        ],
+        "stageEffectTexts": [
+          "Gain **+8 Evade** from the standard Active Buff: Evade (PL 4).",
+          "Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I.",
+          "Gain **+32 Evade** from the standard Active Buff: Evade (PL 16). This replaces Serpent Evasion II."
         ]
       },
       {
@@ -329,11 +324,11 @@
       },
       {
         "id": "wyrmScalesLight-pw-5",
-        "name": "Mobility Extension II",
-        "category": "passive",
+        "name": "Serpent Evasion II",
+        "category": "activeBuff",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "full"
         },
         "levels": {
           "1": {
@@ -445,16 +440,17 @@
             "specials": []
           },
           "10": {
-            "type": "Support",
+            "type": "Active Buff",
             "range": {
               "kind": "self"
             },
             "aoe": null,
             "duration": {
-              "kind": "instant"
+              "kind": "rounds",
+              "rounds": 1
             },
             "effect": {
-              "text": "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by **+2 rounds**. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff."
+              "text": "Gain **+20 Evade** from the standard Active Buff: Evade (PL 10). This replaces Serpent Evasion I."
             },
             "specials": [],
             "lvl": 5
@@ -765,7 +761,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "TYOkFCivzbECznB1",

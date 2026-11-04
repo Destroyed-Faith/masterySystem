@@ -35,21 +35,22 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Sentinel Restoration I",
+        "name": "Single Restoration I",
         "type": "Active, Support",
-        "range": "20m",
-        "aoe": "",
+        "range": "8 m",
+        "aoe": "None",
         "duration": "Instant",
-        "effect": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **2 Scarred Health Bars** per Safe Haven Rest.",
-        "special": "",
+        "effect": "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m.",
+        "special": "Ranged Single Target Restoration (PL 4; Artifact Range 8 m)",
         "powerTemplateId": "active-ranged-health-level-heal"
       }
     ],
+    "useAuthoredLevelProgression": true,
     "stoneFunction": null,
     "extraStoneFunctions": [
       {
         "level": 5,
-        "name": "Ward Support",
+        "name": "Special Negation Support",
         "kind": "stonePowerSupport",
         "attribute": "resolve",
         "stonePowerId": "resolve.ward",
@@ -65,14 +66,24 @@
         "level": 1,
         "kind": "power",
         "powerTemplateId": "active-ranged-health-level-heal",
-        "displayName": "Sentinel Restoration"
+        "displayName": "Single Restoration",
+        "stageEffectTexts": [
+          "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m.",
+          "Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.",
+          "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool."
+        ]
       },
       {
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePool",
-          "attribute": "resolve"
+          "attribute": "resolve",
+          "poolStages": [
+            2,
+            6,
+            11
+          ]
         },
         "displayName": "Resolve Core"
       },
@@ -82,7 +93,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "resolve",
-          "stonePowerId": "resolve.healing"
+          "stonePowerId": "resolve.healing",
+          "supportStages": [
+            3,
+            8,
+            8
+          ]
         },
         "displayName": "Healing Support"
       }
@@ -103,7 +119,8 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-1",
-        "name": "Sentinel Restoration I",
+        "name": "Single Restoration I",
+        "fluff": "Special: Ranged Single Target Restoration (PL 4; Artifact Range 8 m)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -150,14 +167,17 @@
             "type": "Active, Support",
             "range": {
               "kind": "distance",
-              "m": 20
+              "m": 8
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "note": "None"
+            },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **2 Scarred Health Bars** per Safe Haven Rest."
+              "text": "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m."
             },
             "specials": [],
             "lvl": 1
@@ -330,7 +350,7 @@
       "isRoot": true,
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "2TQ9LCn6oHNCYjDQ",

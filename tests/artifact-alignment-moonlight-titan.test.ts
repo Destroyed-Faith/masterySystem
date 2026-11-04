@@ -52,7 +52,7 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
   it('Mending / Judgment / Shadow use canonical templates at PL 4/10/16', () => {
     expect(picks[0].powerTemplateId).toBe('active-ranged-single-heal');
     expect(picks[1].powerTemplateId).toBe('active-ranged-limited-aoe');
-    expect(picks[2].powerTemplateId).toBe('ab-damage-aura');
+    expect(picks[2].powerTemplateId).toBe('ab-sundered-aura');
     expect(getTemplate('active-ranged-single-heal')?.levels?.['4']?.effect?.dice).toMatch(/5d8/);
     expect(getTemplate('active-ranged-single-heal')?.levels?.['10']?.effect?.dice).toMatch(/12d8/);
     expect(getTemplate('active-ranged-single-heal')?.levels?.['16']?.effect?.dice).toMatch(/20d8/);

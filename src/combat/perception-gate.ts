@@ -6,7 +6,9 @@
  * rendering for the user and are deliberately not consulted here.
  *
  * Invisibility TN (rules):
- *   (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR) + Stealth Spent
+ *   (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR)
+ * Stealth Points are never added into the Invisibility TN; Stealth remains a
+ * separate comparative result (take the higher of Stealth result or Inv TN).
  */
 
 import type { CombatSenseId } from './combat-senses.js';
@@ -78,11 +80,14 @@ export function computePerceptionTn(target: any, _observer?: any): number {
   const mr = Math.max(1, targetMasteryRank(target));
   const inv = effectiveInvisibilityBonusForActor(target);
   const st = getPerceptionCombatState(target);
-  const stealthSpent = Math.max(0, Math.floor(Number(st.stealthSpentThisRound) || 0));
 
   if (inv > 0) {
     const lostBars = lostHealthBarsForInvis(target);
-    return Math.max(0, 4 * mr + inv - lostBars * mr + stealthSpent);
+    const invTn = Math.max(0, 4 * mr + inv - lostBars * mr);
+    // When also Hidden via Stealth, observers use the higher result — never a sum.
+    const stealthTn = Math.max(0, Math.floor(Number(st.stealthPerceptionTn) || 0));
+    if (st.hidden && stealthTn > invTn) return stealthTn;
+    return invTn;
   }
 
   const stealthTn = Math.max(0, Math.floor(Number(st.stealthPerceptionTn) || 0));

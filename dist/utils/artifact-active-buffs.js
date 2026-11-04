@@ -230,26 +230,9 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
             return false;
         }
     }
-    // Moonlight Shadow: ceil(MR/2) uses per Safe Haven Rest.
     const isMoonlightShadow = /moonlight\s*shadow/i.test(optionName);
-    if (isMoonlightShadow) {
-        try {
-            const { assertMoonlightShadowAvailable, spendMoonlightShadowUse, moonlightShadowMaxUses, masteryRankOf, } = await import('../combat/artifact-rest-uses.js');
-            if (!assertMoonlightShadowAvailable(actor)) {
-                const max = moonlightShadowMaxUses(masteryRankOf(actor));
-                ui.notifications?.warn(`Moonlight Shadow: no uses remaining (${max}/Safe Haven Rest = ceil(MR/2)).`);
-                return false;
-            }
-            const spent = await spendMoonlightShadowUse(actor);
-            if (!spent) {
-                ui.notifications?.warn('Moonlight Shadow: use could not be spent.');
-                return false;
-            }
-        }
-        catch (err) {
-            console.warn('Mastery System | Moonlight Shadow use gate failed', err);
-        }
-    }
+    // Moonlight Shadow uses official Active Buff: Sundered Aura — no separate
+    // Safe Haven Rest use limit (Batch 9I / Artifacts_FULL_Moonlight_Sundered).
     const isGrowth = String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
     const masteryRank = getMasteryRank(actor);
     const { preparationTargetRound, computeLastActiveRound, } = await import('../combat/active-buff-lifecycle.js');
@@ -269,12 +252,12 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
         growthTokenSizes = await applyGrowthToTokens(actor, growthTargetSize);
     }
     // Catalog-backed artifact Active Buffs (Red Hunt / Red Potion = ab-damage,
-    // Moonlight Shadow = ab-damage-aura, etc.): snapshot live template mechanics
+    // Moonlight Shadow = ab-sundered-aura, etc.): snapshot live template mechanics
     // at the staged Power Level (4 / 10 / 16) so reprices apply automatically.
     const catalogTemplateId = isGrowth
         ? 'ab-growth-form'
         : isMoonlightShadow
-            ? 'ab-damage-aura'
+            ? 'ab-sundered-aura'
             : String(option.artifactPowerTemplateId || '').trim() || null;
     const catalogPowerLevel = isGrowth && growthPowerLevel
         ? growthPowerLevel

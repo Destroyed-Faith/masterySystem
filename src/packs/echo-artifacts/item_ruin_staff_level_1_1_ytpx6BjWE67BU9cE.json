@@ -62,27 +62,42 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "ab-special-overdrive",
-        "displayName": "Covenant Overdrive",
+        "powerTemplateId": "active-ranged-aoe-damage-t5",
+        "displayName": "Binding Circle",
+        "stageEffectTexts": [
+          "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(3)**; **no Power damage**.",
+          "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I.",
+          "Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(7)**; **no Power damage**. This replaces Binding Circle II."
+        ],
+        "isSpell": true,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack",
         "chosenSpecial": {
-          "key": "hex",
+          "key": "root",
           "tier": 5
         }
       },
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "active-ranged-damage-t5",
-        "delivery": "ranged-single",
+        "powerTemplateId": "active-ranged-instant-special-t4",
+        "displayName": "Main Spell",
+        "stageEffectTexts": [
+          "Use the Main Spell of this Staff's tradition at PL 4: **Ruin(6)**. One creature; **no Power damage**.",
+          "Use the Main Spell of this Staff's tradition at PL 10: **Ruin(10)**. One creature; **no Power damage**. This replaces Main Spell I.",
+          "Use the Main Spell of this Staff's tradition at PL 16: **Ruin(13)**. One creature; **no Power damage**. This replaces Main Spell II."
+        ],
+        "isSpell": true,
+        "castingAttribute": "intellect",
+        "spellResolution": "spellAttack",
         "chosenSpecial": {
-          "key": "hex",
-          "tier": 5
-        },
-        "displayName": "Ruinous Word"
+          "key": "ruin",
+          "tier": 4
+        }
       }
     ],
-    "lore": "Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Main Spell: Ruinous Word (Ranged Attack + Hex).",
-    "description": "Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Main Spell: Ruinous Word (Ranged Attack + Hex).\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
+    "lore": "Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Ruin.",
+    "description": "Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Binding Circle: Ranged AoE Special Root. Main Spell: Ranged Single Target Special Ruin.\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -329,7 +344,7 @@
       "isRoot": true,
       "echoBound": "unbound",
       "echoArtifactKey": "witchStaffRuin",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "ytpx6BjWE67BU9cE",

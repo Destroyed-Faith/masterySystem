@@ -56,6 +56,11 @@
         "kind": "power",
         "powerTemplateId": "active-melee-aoe-damage-t4",
         "displayName": "Rending Spiral",
+        "stageEffectTexts": [
+          "Apply **Lacerate(5)** to each hit creature; **no damage**.",
+          "Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I.",
+          "Apply **Lacerate(10)** to each hit creature; **no damage**. This replaces Rending Spiral II."
+        ],
         "chosenSpecial": {
           "key": "lacerate",
           "tier": 4
@@ -64,8 +69,13 @@
       {
         "level": 3,
         "kind": "power",
-        "powerTemplateId": "active-melee-weapon-aoe",
+        "powerTemplateId": "active-melee-control-push-pull",
         "displayName": "Tail Sweep",
+        "stageEffectTexts": [
+          "Make one melee control Attack Roll against one target; on hit **Push 8 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.",
+          "Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.",
+          "Make one melee control Attack Roll against one target; on hit **Push 32 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep II. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception."
+        ],
         "chosenSpecial": {
           "key": "push",
           "tier": 4
@@ -320,7 +330,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "4o9NfDpRYWgDa4we",

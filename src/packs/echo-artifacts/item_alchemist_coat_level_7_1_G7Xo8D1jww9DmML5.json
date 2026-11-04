@@ -47,12 +47,13 @@
       {
         "level": 5,
         "name": "Alchemist Stone II",
-        "type": "Stone Power Support",
+        "type": "Support",
         "range": "Self",
         "aoe": "",
-        "duration": "Instant",
-        "effect": "Supports the Vitality Ability: Maximization Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
-        "special": "vitality.damageMaximization"
+        "duration": "",
+        "effect": "When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.",
+        "special": "",
+        "powerTemplateId": "empower-buff-damage"
       },
       {
         "level": 6,
@@ -66,11 +67,7 @@
         "powerTemplateId": "ab-critical"
       }
     ],
-    "stoneFunction": {
-      "kind": "stonePowerSupport",
-      "attribute": "vitality",
-      "stonePowerId": "vitality.damageMaximization"
-    },
+    "stoneFunction": null,
     "extraStoneFunctions": [],
     "progressionPicks": [
       {
@@ -81,13 +78,19 @@
       },
       {
         "level": 2,
-        "kind": "stoneFunction",
-        "stoneFunction": {
-          "kind": "stonePowerSupport",
-          "attribute": "vitality",
-          "stonePowerId": "vitality.damageMaximization"
-        },
-        "displayName": "Alchemist Stone"
+        "kind": "power",
+        "powerTemplateId": "empower-buff-damage",
+        "displayName": "Alchemist Stone",
+        "stageNames": [
+          "Alchemist Stone I",
+          "Alchemist Stone II",
+          "Alchemist Stone III"
+        ],
+        "stageEffectTexts": [
+          "When activating Red Potion or Black Potion, increase its effective PL by **+1** and duration by **+1 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.",
+          "When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value.",
+          "When activating Red Potion or Black Potion, increase its effective PL by **+3** and duration by **+3 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value."
+        ]
       },
       {
         "level": 3,
@@ -320,11 +323,8 @@
       {
         "id": "alchemistCoat-pw-5",
         "name": "Alchemist Stone II",
-        "fluff": "Special: vitality.damageMaximization",
         "category": "passive",
-        "tags": [
-          "stone-function"
-        ],
+        "tags": [],
         "cost": {
           "action": "none"
         },
@@ -438,7 +438,7 @@
             "specials": []
           },
           "10": {
-            "type": "Stone Power Support",
+            "type": "Support",
             "range": {
               "kind": "self"
             },
@@ -447,7 +447,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Vitality Ability: Maximization Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
+              "text": "When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value."
             },
             "specials": [],
             "lvl": 5
@@ -756,7 +756,7 @@
       ],
       "echoBound": "unbound",
       "echoArtifactKey": "alchemistCoat",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "G7Xo8D1jww9DmML5",

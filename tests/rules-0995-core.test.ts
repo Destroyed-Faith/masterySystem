@@ -38,8 +38,16 @@ describe('v0.9.9.5 core deltas', () => {
       stealthPerceptionTn: 21,
       invisibilityBonus: 6,
     });
-    // MR 3 → 4*3 + 6 = 18. Stealth result is not added.
-    expect(computePerceptionTn(invisible)).toBe(18);
+    // MR 3 → Inv TN 4*3 + 6 = 18. Observer uses the higher of Stealth (21) or Inv TN (18), never their sum.
+    expect(computePerceptionTn(invisible)).toBe(21);
+
+    const invisibleStronger = actorWithFlag({
+      hidden: true,
+      stealthPerceptionTn: 14,
+      invisibilityBonus: 6,
+    });
+    // Inv TN 18 beats Stealth 14 → TN 18 (still not a sum).
+    expect(computePerceptionTn(invisibleStronger)).toBe(18);
   });
 
   it('applyStealthRollResult stores the final result', async () => {

@@ -176,13 +176,13 @@ describe('Moonlight Greatsword', () => {
 
   it('builds its three signature lines from standard catalog Powers (only renamed)', () => {
     const def = getGeneralArtifact('moonlightGreatsword')!;
-    // Artefacts v0.9.9.5: Mending = ST Heal; Judgment = Limited Ranged AoE Attack Spell; Shadow = Damage Aura.
+    // Artifacts_FULL_Moonlight_Sundered: Mending = ST Heal; Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
     expect(picks.map((p) => p.powerTemplateId)).toEqual([
       'active-ranged-single-heal',
       'active-ranged-limited-aoe',
-      'ab-damage-aura',
+      'ab-sundered-aura',
     ]);
     expect(picks[1].isSpell).toBe(true);
     expect(picks[1].chosenSpecial?.key).toBeUndefined();

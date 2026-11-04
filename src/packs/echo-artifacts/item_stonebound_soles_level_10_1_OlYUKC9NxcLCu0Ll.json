@@ -45,10 +45,10 @@
         "type": "Active Buff",
         "range": "Self",
         "aoe": "",
-        "duration": "2 Rounds",
-        "effect": "For **2 Rounds** you become **Immovable** and gain **400 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
-        "special": "Immovable",
-        "powerTemplateId": "ab-immovable-temp-hp"
+        "duration": "MR Rounds",
+        "effect": "Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II.",
+        "special": "",
+        "powerTemplateId": "ab-temp-hp"
       },
       {
         "level": 8,
@@ -88,8 +88,13 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "ab-immovable-temp-hp",
-        "displayName": "Anchoring Stance"
+        "powerTemplateId": "ab-temp-hp",
+        "displayName": "Anchoring Stance",
+        "stageEffectTexts": [
+          "Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP.",
+          "Use standard **Active Buff: Temporary HP (PL 10)**: gain **77 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance I.",
+          "Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II."
+        ]
       },
       {
         "level": 2,
@@ -121,7 +126,6 @@
       {
         "id": "stoneboundSoles-pw-7",
         "name": "Anchoring Stance III",
-        "fluff": "Special: Immovable",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -319,7 +323,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "For **2 Rounds** you become **Immovable** and gain **400 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves."
+              "text": "Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II."
             },
             "specials": [],
             "lvl": 7
@@ -961,7 +965,7 @@
       "childIds": [],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "OlYUKC9NxcLCu0Ll",

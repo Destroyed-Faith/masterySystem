@@ -35,13 +35,13 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Sentinel Restoration I",
+        "name": "Single Restoration I",
         "type": "Active, Support",
-        "range": "20m",
-        "aoe": "",
+        "range": "8 m",
+        "aoe": "None",
         "duration": "Instant",
-        "effect": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **2 Scarred Health Bars** per Safe Haven Rest.",
-        "special": "",
+        "effect": "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m.",
+        "special": "Ranged Single Target Restoration (PL 4; Artifact Range 8 m)",
         "powerTemplateId": "active-ranged-health-level-heal"
       },
       {
@@ -49,17 +49,17 @@
         "name": "Resolve Core I",
         "type": "Stone Pool",
         "range": "Self",
-        "aoe": "",
         "duration": "Passive",
-        "effect": "After each Safe Haven Rest, store 2 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions.",
-        "special": "stonePool"
+        "effect": "Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions.",
+        "special": "Artifact Stone Pool: Resolve (2)"
       }
     ],
+    "useAuthoredLevelProgression": true,
     "stoneFunction": null,
     "extraStoneFunctions": [
       {
         "level": 5,
-        "name": "Ward Support",
+        "name": "Special Negation Support",
         "kind": "stonePowerSupport",
         "attribute": "resolve",
         "stonePowerId": "resolve.ward",
@@ -75,14 +75,24 @@
         "level": 1,
         "kind": "power",
         "powerTemplateId": "active-ranged-health-level-heal",
-        "displayName": "Sentinel Restoration"
+        "displayName": "Single Restoration",
+        "stageEffectTexts": [
+          "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m.",
+          "Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.",
+          "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool."
+        ]
       },
       {
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePool",
-          "attribute": "resolve"
+          "attribute": "resolve",
+          "poolStages": [
+            2,
+            6,
+            11
+          ]
         },
         "displayName": "Resolve Core"
       },
@@ -92,7 +102,12 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "resolve",
-          "stonePowerId": "resolve.healing"
+          "stonePowerId": "resolve.healing",
+          "supportStages": [
+            3,
+            8,
+            8
+          ]
         },
         "displayName": "Healing Support"
       }
@@ -113,7 +128,8 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-1",
-        "name": "Sentinel Restoration I",
+        "name": "Single Restoration I",
+        "fluff": "Special: Ranged Single Target Restoration (PL 4; Artifact Range 8 m)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -160,14 +176,17 @@
             "type": "Active, Support",
             "range": {
               "kind": "distance",
-              "m": 20
+              "m": 8
             },
-            "aoe": null,
+            "aoe": {
+              "shape": "radius",
+              "note": "None"
+            },
             "duration": {
               "kind": "instant"
             },
             "effect": {
-              "text": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **2 Scarred Health Bars** per Safe Haven Rest."
+              "text": "Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m."
             },
             "specials": [],
             "lvl": 1
@@ -321,7 +340,7 @@
       {
         "id": "sentinelFrame-pw-2",
         "name": "Resolve Core I",
-        "fluff": "Special: stonePool",
+        "fluff": "Special: Artifact Stone Pool: Resolve (2)",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -376,7 +395,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "After each Safe Haven Rest, store 2 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions."
+              "text": "Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions."
             },
             "specials": [],
             "lvl": 2
@@ -550,7 +569,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "5mgDyBKAI5wBZXtw",

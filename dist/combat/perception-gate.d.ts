@@ -6,7 +6,9 @@
  * rendering for the user and are deliberately not consulted here.
  *
  * Invisibility TN (rules):
- *   (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR) + Stealth Spent
+ *   (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR)
+ * Stealth Points are never added into the Invisibility TN; Stealth remains a
+ * separate comparative result (take the higher of Stealth result or Inv TN).
  */
 import type { CombatSenseId } from './combat-senses.js';
 export interface PerceptionGateResult {

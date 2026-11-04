@@ -78,10 +78,15 @@
         "kind": "stoneFunction",
         "stoneFunction": {
           "kind": "stonePowerSupport",
-          "attribute": "influence",
-          "stonePowerId": "influence.colorlessRecovery"
+          "attribute": "resolve",
+          "stonePowerId": "resolve.healing"
         },
-        "displayName": "Regeneration Support"
+        "displayName": "Self Healing Support",
+        "stageEffectTexts": [
+          "Pre-fill **Rank 2** of Healing for yourself only. Rank 1 must still be paid normally.",
+          "Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I.",
+          "Pre-fill **Rank 4** of Healing for yourself only. Ranks 1, 2, and 3 must still be paid normally. This replaces Self Healing Support II."
+        ]
       }
     ],
     "lore": "A judge, inquisitor, and divine executioner frame.",
@@ -536,7 +541,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 59
+      "seedVersion": 60
     }
   },
   "_id": "cdfkTBNG4sUB6NsT",

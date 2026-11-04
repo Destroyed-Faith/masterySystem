@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.824] - 2026-11-04
+
+### Added
+
+- **Batch 9I Final Rules Integration:** Special Aura ×1.0 printed tables (all 14 Auras; 3 m cap; Ruin fixed 2 m); Moonlight Shadow → official Sundered Aura PL 4/10/16; PH Moonlight clarification; implementation audit `docs/audits/BATCH9I_IMPLEMENTATION_AND_FORGE_RELEASE.md`.
+
+### Changed
+
+- **Active Buffs Canonical:** Aura PP formula without ×2 surcharge; authoritative PL tables from `Active_Buffs_FULL_Auras_x1_2026-11-04`.
+- **Moonlight Greatsword:** Shadow uses `ab-sundered-aura` (no Damage Aura, no Safe Haven Rest use limit).
+- **Invisibility TN:** Stealth Points no longer enter the Invisibility Perception TN; observer uses the higher of Stealth result or Inv TN.
+- **Echo Artifact seed version:** 59 → 60.
+
+### Unchanged (verified)
+
+- Heart of Winter Frostwave PL 4/8/16 Slow(5/7/10); Draconic Roar Armor Aura +4/+10/+16; Lor-Keth `newGrantHold`; Batch 9B–9G artifact corrections.
+
 ## [0.9.823] - 2026-11-04
 
 ### Added
