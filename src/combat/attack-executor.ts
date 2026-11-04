@@ -40,7 +40,11 @@ import {
   spellResistanceAfterPenetration,
 } from "./target-defenses.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
-import { isDamageTransferPower, isDamageTransferTemplateId } from "./damage-transfer.js";
+import {
+  isDamageTransferPower,
+  isDamageTransferTemplateId,
+  isSpecialOnlyTemplateId,
+} from "./damage-transfer.js";
 
 export {
   getTargetEvade,
@@ -51,10 +55,7 @@ import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import {
   buildAvailableRaiseOptions,
   computeRaiseTns,
-  declaredRaiseFromOptionId,
-  isRaiseAllocationComplete,
   formatHitBreakdown,
-  type DeclaredRaise,
   loadPowerSnapshotForArtifactOption,
   loadPowerSnapshotForItem,
   snapshotToDamageFormula,
@@ -548,14 +549,18 @@ export async function createAttackCard(
   burstVolley: MeleeBurstVolleyContext | null = null,
   aoeMelee: AoeMeleeWeaponContext | null = null,
 ): Promise<string | null> {
-  // Instant AoE: Power damage only. Never Weapon Damage; never Spell Focus
-  // — except Dragon Head Damage Breath (Core: Bite + Power Dice on shared pool).
-  if (
-    aoeMelee &&
-    option.ignoreWeaponDamage !== true &&
-    option.dragonHeadDamageBreath !== true
-  ) {
-    option = { ...option, ignoreWeaponDamage: true };
+  // Special-only (ST or Instant AoE): no Weapon / Spell Focus / Damage Pool.
+  // Instant Damage AoE keeps martial Weapon or Spell Focus on the shared pool.
+  {
+    const tid = String((option.item as any)?.system?.templateId || (option as any).artifactPowerTemplateId || '');
+    const specialOnly =
+      (option as any).specialOnly === true ||
+      isSpecialOnlyTemplateId(tid) ||
+      (option.item as any)?.system?.levels?.[String((option.item as any)?.system?.powerLevel || 1)]?.mechanics
+        ?.specialOnly === true;
+    if (specialOnly) {
+      option = { ...option, specialOnly: true, ignoreWeaponDamage: true };
+    }
   }
 
   // Autofire is handled before createAttackCard (chain targeting → one card
@@ -1118,6 +1123,10 @@ export async function createAttackCard(
     selectedPowerDamage: selectedPowerDamage || "",
     consumableItemId: option.consumableItemId || null,
     ignoreWeaponDamage: option.ignoreWeaponDamage === true || tnKind === 'casting',
+    specialOnly: option.specialOnly === true || undefined,
+    selectedPowerTemplateId:
+      String((option.item as any)?.system?.templateId || (option as any).artifactPowerTemplateId || '') ||
+      undefined,
     dragonHeadDamageBreath: option.dragonHeadDamageBreath === true || undefined,
     damageTransfer:
       isDamageTransferTemplateId((option as any).artifactPowerTemplateId) ||
@@ -1846,86 +1855,9 @@ function setupRaisesHandler(
     }
   };
 
-  const persistPreRollPlan = (plan: unknown[]): void => {
-    const m = gameAny?.messages?.get?.(messageId);
-    if (!m?.setFlag) return;
-    if (!userMayUpdateChatMessage(m, gameAny?.user)) return;
-    const current = m.flags?.['mastery-system']?.preRollRaisePlan;
-    const next = JSON.stringify(plan);
-    const prev = JSON.stringify(Array.isArray(current) ? current : []);
-    if (prev === next) return;
-    void m.setFlag('mastery-system', 'preRollRaisePlan', plan).catch(() => {
-      /* best-effort */
-    });
-  };
-
-  // DF 2026: Spell Raises allocate their effects BEFORE the casting roll.
-  // Renders one effect select per declared Raise; the plan is mirrored into
-  // `data-raise-plan` (+ message flag) and the Roll button stays locked until complete.
-  const syncSpellPreRollAllocation = (slots: number): void => {
-    if (!raiseContext!.isSpell) return;
-    const options = raiseContext!.raiseOptions || [];
-    let host = panel.find('.spell-raise-alloc');
-    if (!host.length) {
-      panel.append('<div class="spell-raise-alloc raise-alloc-panel"></div>');
-      host = panel.find('.spell-raise-alloc');
-    }
-    if (slots <= 0 || options.length === 0) {
-      host.empty();
-      messageElement.find('.roll-attack-btn').prop('disabled', false);
-      messageElement.find('.roll-attack-btn').each((_: number, el: HTMLElement) => {
-        (globalThis as any).$(el).attr('data-raise-plan', '[]');
-      });
-      persistPreRollPlan([]);
-      return;
-    }
-    const prior: string[] = host
-      .find('.raise-alloc-select')
-      .toArray()
-      .map((el: HTMLElement) => String((globalThis as any).$(el).val() || ''));
-    const savedPlan: DeclaredRaise[] = Array.isArray(msFlags.preRollRaisePlan) ? msFlags.preRollRaisePlan : [];
-    const optionIdOf = (r: DeclaredRaise | undefined): string =>
-      r?.effect === 'damage'
-        ? 'damage'
-        : r?.effect === 'specialPlus' && r.targetSpecialKey
-          ? `special:${String(r.targetSpecialKey).toLowerCase()}`
-          : '';
-    const esc = (raw: string): string =>
-      String(raw || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const rows: string[] = [];
-    for (let i = 0; i < slots; i++) {
-      const preId = prior[i] ?? optionIdOf(savedPlan[i]);
-      const opts = options
-        .map((o) => `<option value="${esc(o.id)}"${o.id === preId ? ' selected' : ''}>${esc(o.label)}</option>`)
-        .join('');
-      rows.push(
-        `<div class="raise-alloc-row"><span class="raise-alloc-index">${i + 1}.</span>` +
-          `<select class="raise-alloc-select" data-slot="${i}" name="ms-raise-alloc-select" form="ms-ui-only"><option value="">— choose effect —</option>${opts}</select></div>`,
-      );
-    }
-    host.html(
-      `<p class="raises-description"><strong>Allocate ${slots} Spell Raise${slots === 1 ? '' : 's'} before casting</strong> (Damage or existing Special).</p>` +
-        `<div class="raise-alloc-rows">${rows.join('')}</div>`,
-    );
-    const applyPlan = (): void => {
-      const plan: DeclaredRaise[] = [];
-      host.find('.raise-alloc-select').each((_i: number, el: HTMLElement) => {
-        const id = String((globalThis as any).$(el).val() || '');
-        if (!id) return;
-        const dr = declaredRaiseFromOptionId(id, options);
-        if (dr) plan.push(dr);
-      });
-      const complete = isRaiseAllocationComplete(plan, slots, options);
-      messageElement.find('.roll-attack-btn').each((_: number, el: HTMLElement) => {
-        const $el = (globalThis as any).$(el);
-        $el.attr('data-raise-plan', complete ? JSON.stringify(plan) : '[]');
-        $el.prop('disabled', !complete);
-      });
-      persistPreRollPlan(complete ? plan : []);
-    };
-    host.find('.raise-alloc-select').off('change.msSpellAlloc').on('change.msSpellAlloc', applyPlan);
-    applyPlan();
-  };
+  // Clear any legacy Spell pre-roll effect UI (DF 2026-11-04: effects after hit).
+  panel.find('.spell-raise-alloc').remove();
+  messageElement.find('.roll-attack-btn').prop('disabled', false);
 
   const updatePreview = (broadcast = false): void => {
     let { paid, free } = readCounts();
@@ -1946,6 +1878,7 @@ function setupRaisesHandler(
       paid + free > 0
         ? `Paid ${paid} · Free ${free} → Final TN ${finalTn}. Effekte nach dem Treffer.`
         : `Keine Raises — TN ${finalTn}.`;
+    // Martial and Spell: declare Paid/Free counts before the roll; allocate effects after a hit.
     panel.find('.raise-plan-live').text(
       free > 0
         ? `Free Raises: ${free} (keine TN-Erhöhung). Effekte nach dem Treffer.`
@@ -1968,15 +1901,8 @@ function setupRaisesHandler(
       $btn.attr('data-blood-raises', '0');
       $btn.removeAttr('data-raise-cost-waived');
       $btn.removeAttr('data-spell-cost');
+      $btn.prop('disabled', false);
     });
-    if (raiseContext!.isSpell) {
-      syncSpellPreRollAllocation(paid + free);
-      panel.find('.raise-plan-live').text(
-        paid + free > 0
-          ? `Paid ${paid} · Free ${free} → Final TN ${finalTn}. Spell Raises: Effekte VOR dem Wurf zuweisen.`
-          : `Keine Raises — TN ${finalTn}.`,
-      );
-    }
     void persistCounts(paid, free, finalTn);
     if (broadcast && !applyingRemote) broadcastRaisePlan(messageId, { paid, free }, summary);
   };

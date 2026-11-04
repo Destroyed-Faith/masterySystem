@@ -98,8 +98,8 @@ describe('Dragon Head Bite damage progression L1–10', () => {
   });
 });
 
-describe('Damage Breath weapon-damage exception', () => {
-  it('allows Bite on Instant AoE only when dragonHeadDamageBreath is set', () => {
+describe('Damage Breath weapon damage on Instant AoE', () => {
+  it('allows Bite on Instant Damage AoE; Special-only / ignore flag still block it', () => {
     expect(
       martialWeaponDamageApplies({
         ignoreWeaponDamage: false,
@@ -112,7 +112,7 @@ describe('Damage Breath weapon-damage exception', () => {
         ignoreWeaponDamage: false,
         instantAoe: true,
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       martialWeaponDamageApplies({
         ignoreWeaponDamage: true,
@@ -321,13 +321,13 @@ describe('Core mapping still uses canonical Melee AoE Attack', () => {
     expect(String(b1?.effect)).not.toMatch(/no Bite damage/i);
   });
 
-  it('other Instant AoE templates are unchanged (still no weapon damage by default)', () => {
+  it('other Instant Damage AoE templates also include Weapon Damage on the shared pool', () => {
     expect(
       martialWeaponDamageApplies({
         ignoreWeaponDamage: false,
         instantAoe: true,
       }),
-    ).toBe(false);
+    ).toBe(true);
     const ranged = getTemplate('active-ranged-weapon-aoe');
     expect(ranged?.levels?.['4']?.aoe?.radiusM).toBe(3);
   });

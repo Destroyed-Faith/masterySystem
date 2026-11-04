@@ -5,12 +5,10 @@
  */
 
 import {
-  isRaiseAllocationComplete,
   parseDeclaredRaises,
   resolveRaiseOutcome,
   successfulRaiseSlotCount,
   type DeclaredRaise,
-  type RaiseOption,
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
@@ -157,41 +155,8 @@ export async function executeAttackRollFromCard(
         (game as any).actors?.get(attacker.id) ??
         attacker;
 
-      // DF 2026: Spell Raises (Paid + Free) allocate their effects BEFORE the
-      // casting roll. Refuse to roll until every declared Raise has an effect.
-      {
-        const isSpellCard = (flags as any).powerIsSpell === true || (flags as any).npcIsSpell === true;
-        const spellOptions: RaiseOption[] = Array.isArray((flags as any).raiseOptions)
-          ? ((flags as any).raiseOptions as RaiseOption[])
-          : [];
-        if (isSpellCard && spellOptions.length > 0) {
-          const spellSlots =
-            Math.max(
-              Math.max(0, Math.floor(Number((flags as any).declaredRaiseSlots) || 0)),
-              readAttackButtonDataInt(button, 'raise-slots', 0),
-            ) +
-            Math.max(
-              Math.max(0, Math.floor(Number((flags as any).freeRaiseSlots) || 0)),
-              readAttackButtonDataInt(button, 'free-raises', 0),
-            );
-          if (spellSlots > 0) {
-            let plan = parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
-            if (!plan.length && Array.isArray((flags as any).preRollRaisePlan)) {
-              plan = (flags as any).preRollRaisePlan as DeclaredRaise[];
-            }
-            if (!isRaiseAllocationComplete(plan, spellSlots, spellOptions)) {
-              ui.notifications?.warn(
-                `Allocate all ${spellSlots} Spell Raise${spellSlots === 1 ? '' : 's'} before casting.`,
-              );
-              resetRollButton();
-              return;
-            }
-            if (!parseDeclaredRaises(button.attr('data-raise-plan') || '[]').length) {
-              button.attr('data-raise-plan', JSON.stringify(plan));
-            }
-          }
-        }
-      }
+      // Spell and Martial: only Paid/Free counts are declared before the roll.
+      // Effect allocation happens after a successful hit on the damage card.
 
       // Faith reroll: the original roll already spent the action.
       const costsAction = !isFaithReroll && flags.costsAction !== false;
@@ -909,12 +874,10 @@ export async function executeAttackRollFromCard(
         return;
       }
 
-      // Instant AoE (Melee / Ranged AoE Attack, AoE Special Attacks): ONE shared
-      // Attack/Casting roll, NO Primary Target. The card's anchor token is only the
-      // roll carrier — it is resolved exactly like every other creature in the area
-      // (own Evade / Final Spell TN, own Dive for Cover), then ONE shared Power
-      // damage roll with the full printed Special is applied to every creature hit.
-      // No Weapon Damage and no Spell Focus damage (damage dialog enforces both).
+      // Instant AoE: ONE shared Attack/Casting roll, NO Primary Target. Anchor token
+      // is only the roll carrier — resolved like every other creature. Instant Damage
+      // AoE rolls ONE shared Damage Pool (Power + Weapon or Spell Focus) once for all
+      // hits; Special-only AoE applies Specials with no Damage Pool.
       const isInstantAoeCard =
         flags.aoeMeleeWeapon === true ||
         String(flags.aoeMeleeWeapon) === 'true' ||
@@ -948,7 +911,25 @@ export async function executeAttackRollFromCard(
             /* keep original flags */
           }
           const aoeAttackTotal = Math.floor(Number(result?.total) || 0);
-          const { resolveAoeFromSharedRoll } = await import('../combat/aoe-melee-resolution.js');
+          const {
+            resolveAoeFromSharedRoll,
+            withInstantAoeFlags,
+          } = await import('../combat/aoe-melee-resolution.js');
+          const { isSpecialOnlyAttack, martialWeaponDamageApplies } = await import(
+            '../combat/damage-transfer.js'
+          );
+          const resolvedFlags = withInstantAoeFlags({
+            ...aoeFlags,
+            attackTotal: aoeAttackTotal,
+            freeRaiseSlots,
+          });
+          const martialWeapon =
+            !isSpecialOnlyAttack(resolvedFlags) &&
+            martialWeaponDamageApplies({
+              ...resolvedFlags,
+              ignoreWeaponDamage: resolvedFlags.ignoreWeaponDamage === true,
+              powerIsSpell: isSpellcasting || (aoeFlags as any).powerIsSpell === true,
+            });
           await resolveAoeFromSharedRoll({
             attacker: aoeAttacker as any,
             tokenIds: aoeTokenIds,
@@ -956,15 +937,8 @@ export async function executeAttackRollFromCard(
             declaredRaiseSlots,
             isSpell: isSpellcasting || (aoeFlags as any).powerIsSpell === true,
             spellBaseTn: (aoeFlags as any).spellBaseTn ?? null,
-            flags: {
-              ...aoeFlags,
-              attackTotal: aoeAttackTotal,
-              freeRaiseSlots,
-              ignoreWeaponDamage: true,
-              instantAoe: true,
-              aoeMeleeWeapon: true,
-            },
-            weaponId: null,
+            flags: resolvedFlags,
+            weaponId: martialWeapon ? flags.weaponId || null : null,
           });
           return;
         }

@@ -6,18 +6,19 @@
  * A miss against one creature does not protect any other. Creatures that would
  * be hit may use Dive for Cover before payload.
  *
- * Instant AoE rules (Destroyed Faith Active Powers):
+ * Instant AoE rules (Destroyed Faith Active Powers / Core 2026-11-04):
  *   - ONE shared Attack/Casting roll for the whole AoE.
- *   - ONE shared Power damage roll (if damaging): the same raw total goes to every
- *     hit creature; armor / DR / Temp HP / Phasing still resolve per creature.
+ *   - Instant Damage AoE: ONE shared Damage Pool (Power Dice + Weapon or Spell
+ *     Focus) rolled once; the same raw total goes to every hit creature; armor /
+ *     DR / Temp HP / Phasing still resolve per creature.
+ *   - Special-only AoE: no Damage Pool / Dialog / Maximization — Specials only.
  *   - The full printed Special goes to every hit creature (no distribution).
- *   - NO Primary Target. NO Weapon Damage. NO Spell Focus damage.
+ *   - NO Primary Target. Allies are filtered out of the AoE pool.
  *
- * Default (and only) flow: `resolveAoeFromSharedRoll` → every token gets its own
- * hit check + Dive for Cover; one damage dialog rolls the Power damage / Specials
- * once (against the first remaining hit, purely as the roll surface); the same
- * payload is then applied automatically to every other hit — no extra confirm,
- * no Primary Target, no distribution (including pure Special AoEs with 0 damage).
+ * Default flow: `resolveAoeFromSharedRoll` → every token gets its own hit check +
+ * Dive for Cover; one damage dialog (when damaging) rolls the shared pool once
+ * against the first remaining hit as the roll surface; the same payload applies
+ * automatically to every other hit — no extra confirm, no Primary Target.
  */
 
 import {
@@ -33,6 +34,7 @@ import {
   spellResistanceAfterPenetration,
 } from './attack-executor.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
+import { isSpecialOnlyAttack } from './damage-transfer.js';
 
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
 export function resolveBurstTarget(tid: string): { defender: any; tok: any } | null {
@@ -241,17 +243,27 @@ export function aoeCreatureHitCheck(params: {
 }
 
 /**
- * Force the Instant AoE damage rules onto a flag bag: Power damage only, so the
- * damage dialog never adds Weapon Damage or Spell Focus damage.
+ * Mark Instant AoE on a flag bag. Instant Damage AoE keeps Weapon / Spell Focus
+ * when otherwise legal. Special-only AoE forces zero direct damage.
  */
 export function withInstantAoeFlags<T extends Record<string, any>>(
   flags: T | null | undefined,
-): T & { ignoreWeaponDamage: true; instantAoe: true; aoeMeleeWeapon: true } {
+): T & {
+  instantAoe: true;
+  aoeMeleeWeapon: true;
+  specialOnly?: true;
+  ignoreWeaponDamage?: true;
+} {
+  const base = { ...((flags ?? {}) as T) };
+  // Same classifier as damage-transfer / radial — never a local template regex.
+  const specialOnly = isSpecialOnlyAttack(base);
   return {
-    ...((flags ?? {}) as T),
-    ignoreWeaponDamage: true,
+    ...base,
     instantAoe: true,
     aoeMeleeWeapon: true,
+    ...(specialOnly
+      ? { specialOnly: true as const, ignoreWeaponDamage: true as const }
+      : {}),
   };
 }
 
@@ -878,7 +890,7 @@ export async function resolveAoeMeleeSecondaries(params: {
   const isSpell = params.isSpell === true;
   const attackTotal = Math.floor(Number(params.attackTotal) || 0);
   const raiseSlots = Math.max(0, Math.floor(Number(params.declaredRaiseSlots) || 0));
-  const flags = { ...(params.flags || {}) };
+  const flags = withInstantAoeFlags({ ...(params.flags || {}) });
   const weaponId = params.weaponId ?? flags.weaponId ?? null;
 
   if (!secondaryTokenIds.length) return;
@@ -983,10 +995,9 @@ export async function resolveAoeMeleeSecondaries(params: {
   let rollerTokId: string | null = null;
 
   // Open one damage dialog (against the first remaining hit, purely as the roll
-  // surface) to roll the Power damage / Specials once, then share that payload
-  // with every other hit automatically. The roller is not a "primary" — same raw
-  // damage + full Special for all. No extra Apply-to-all confirm (pure Special
-  // AoEs with 0 damage must still deliver Slow etc. to every hit).
+  // surface) to roll the shared Damage Pool / Specials once, then share that
+  // payload with every other hit. Special-only AoE skips the dialog entirely.
+  // The roller is not a "primary" — same raw damage + full Special for all.
   if (!shared) {
     const roller = pending[0]!;
     const targetFlags: Record<string, any> = {
@@ -998,6 +1009,73 @@ export async function resolveAoeMeleeSecondaries(params: {
       baseEvade: roller.evadeTn,
       targetEvade: roller.evadeTn,
     };
+    const { isSpecialOnlyAttack } = await import('./damage-transfer.js');
+    const {
+      isRaiseAllocationComplete,
+      buildAvailableRaiseOptions,
+      resolvePowerSnapshot,
+      snapshotToSpecialStrings,
+    } = await import('./raise-resolution.js');
+    const { peekSharedRaiseAllocation, raiseAllocShareKey } = await import('./shared-raise-allocation.js');
+
+    const specialOnly = isSpecialOnlyAttack(targetFlags);
+    const raiseSlotsNeeded = targetFlags.npcRaisesDisabled
+      ? 0
+      : Math.max(0, Math.floor(Number(targetFlags.successfulRaiseSlots) || 0));
+    const raiseOpts = targetFlags.npcRaisesDisabled
+      ? []
+      : Array.isArray(targetFlags.raiseOptions)
+        ? targetFlags.raiseOptions
+        : targetFlags.basePowerSnapshot
+          ? buildAvailableRaiseOptions(
+              targetFlags.basePowerSnapshot,
+              !!targetFlags.powerIsSpell || isSpell,
+            )
+          : [];
+    const aoeShareKey = raiseAllocShareKey(targetFlags);
+    const sharedRaises = aoeShareKey ? peekSharedRaiseAllocation(aoeShareKey) : null;
+    let raisePlan = Array.isArray(targetFlags.declaredRaises)
+      ? [...targetFlags.declaredRaises]
+      : [];
+    if (sharedRaises?.length) raisePlan = sharedRaises;
+    const specialOnlyNeedsAlloc =
+      specialOnly &&
+      raiseSlotsNeeded > 0 &&
+      raiseOpts.length > 0 &&
+      !isRaiseAllocationComplete(raisePlan, raiseSlotsNeeded, raiseOpts);
+
+    // Special-only with no pending Raise UI: apply resolved Specials with zero damage.
+    // When Raises still need allocation (or damaging Instant AoE), open the shared dialog once.
+    if (specialOnly && !specialOnlyNeedsAlloc) {
+      let specialsUsed: string[] = [];
+      if (targetFlags.basePowerSnapshot) {
+        const mr = Math.max(
+          1,
+          Math.floor(Number(targetFlags.masteryRank) || getRulesMasteryRank(attacker) || 2),
+        );
+        const resolved = resolvePowerSnapshot({
+          base: targetFlags.basePowerSnapshot,
+          declaredRaises: raisePlan,
+          outcome: 'full',
+          masteryRank: mr,
+          isSpell: !!targetFlags.powerIsSpell || isSpell,
+        });
+        specialsUsed = snapshotToSpecialStrings(resolved);
+      } else if (Array.isArray(targetFlags.selectedPowerSpecials)) {
+        specialsUsed = targetFlags.selectedPowerSpecials
+          .map((s: unknown) => String(s || '').trim())
+          .filter(Boolean);
+      }
+      shared = {
+        totalDamage: 0,
+        count8s: 0,
+        specialsUsed,
+        rollDetails: ['Special-only Attack — no direct damage'],
+      };
+      // Apply Specials to every hit below (do not mark roller as already applied).
+      rollerActorId = null;
+      rollerTokId = null;
+    } else {
     const { showDamageDialog, applyDamageToTarget, resolveForcedMovementAfterDamage } = await import(
       '../dice/damage-dialog.js'
     );
@@ -1093,6 +1171,7 @@ export async function resolveAoeMeleeSecondaries(params: {
     } catch {
       /* ignore */
     }
+    } // end Instant Damage AoE dialog path
   }
 
   // Remaining hits: prefer token identity so two unlinked tokens of the same name

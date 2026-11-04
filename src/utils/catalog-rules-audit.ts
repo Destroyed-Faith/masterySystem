@@ -213,6 +213,15 @@ export const RULES_EXPECTED_ACTIVES: ReadonlyArray<{ rulesName: string; id: stri
     { rulesName: 'Ranged AoE — Damage + Start PP 6 Special', id: 'active-ranged-aoe-damage-t5' },
     { rulesName: 'Melee AoE — Damage + Start PP 8 Special', id: 'active-melee-aoe-damage-t6' },
     { rulesName: 'Ranged AoE — Damage + Start PP 8 Special', id: 'active-ranged-aoe-damage-t6' },
+    // Instant Single-Special (Special-only ST)
+    { rulesName: 'Melee Instant Special — Start PP 3', id: 'active-melee-instant-special-t3' },
+    { rulesName: 'Ranged Instant Special — Start PP 3', id: 'active-ranged-instant-special-t3' },
+    { rulesName: 'Melee Instant Special — Start PP 4', id: 'active-melee-instant-special-t4' },
+    { rulesName: 'Ranged Instant Special — Start PP 4', id: 'active-ranged-instant-special-t4' },
+    { rulesName: 'Melee Instant Special — Start PP 6', id: 'active-melee-instant-special-t5' },
+    { rulesName: 'Ranged Instant Special — Start PP 6', id: 'active-ranged-instant-special-t5' },
+    { rulesName: 'Melee Instant Special — Start PP 8', id: 'active-melee-instant-special-t6' },
+    { rulesName: 'Ranged Instant Special — Start PP 8', id: 'active-ranged-instant-special-t6' },
     // Persistent zones
     { rulesName: 'Ranged Persistent Zone — Start PP 3 Special', id: 'active-ranged-zone-t3' },
     { rulesName: 'Ranged Persistent Zone — Start PP 4 Special', id: 'active-ranged-zone-t4' },

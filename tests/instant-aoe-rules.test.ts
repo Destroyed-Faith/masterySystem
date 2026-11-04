@@ -1,9 +1,9 @@
 /**
- * Instant AoE rules (Destroyed Faith Active Powers catalogue):
- *   - ONE shared Attack/Casting roll, ONE shared Power damage roll
- *   - NO Primary Target, NO Weapon Damage, NO Spell Focus damage
- *   - Pure Special AoEs deal zero Power damage
- *   - Single-target Powers keep weapon / Spell Focus damage
+ * Instant AoE rules (Destroyed Faith Active Powers / Core 2026-11-04):
+ *   - ONE shared Attack/Casting roll
+ *   - Instant Damage AoE: ONE shared Damage Pool (Power + Weapon or Spell Focus)
+ *   - Special-only AoE: zero direct damage
+ *   - NO Primary Target; allies filtered out
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -61,22 +61,22 @@ describe('Melee / Ranged AoE Attack PL tables', () => {
     for (const id of ['active-melee-weapon-aoe', 'active-ranged-weapon-aoe']) {
       const row: any = (getTemplate(id)!.levels as any)['1'];
       expect(row.effect.dice).toBe('+1d8');
-      expect(row.effect.text).toContain('**1d8 Power damage**');
+      expect(row.effect.text).toContain('1d8 Power damage');
     }
   });
 
-  it('effect text says Power damage only — never weapon damage', () => {
+  it('effect text includes Weapon Damage + Power Dice on the shared pool', () => {
     for (const id of ['active-melee-weapon-aoe', 'active-ranged-weapon-aoe']) {
       const tpl = getTemplate(id)!;
-      expect(tpl.fluff ?? '').not.toMatch(/weapon damage/i);
+      expect(tpl.fluff ?? '').toMatch(/shared Damage Pool/i);
       for (let lvl = 1; lvl <= 16; lvl++) {
         const text: string = (tpl.levels as any)[String(lvl)].effect.text;
-        expect(text, `${id} PL${lvl}`).not.toMatch(/weapon damage/i);
+        expect(text, `${id} PL${lvl}`).toMatch(/Weapon Damage/i);
         expect(text, `${id} PL${lvl}`).toContain('Power damage');
       }
     }
     const pl6: string = (getTemplate('active-melee-weapon-aoe')!.levels as any)['6'].effect.text;
-    expect(pl6).toContain('Every creature hit takes **6d8 Power damage**');
+    expect(pl6).toContain('**Weapon Damage + 6d8 Power damage**');
   });
 
   it('keeps the stable template ids', () => {
@@ -94,13 +94,14 @@ describe('Pure Special AoE templates deal no Power damage', () => {
     );
   });
 
-  it('has zero Power damage dice and no weapon / Spell Focus wording at every PL', () => {
+  it('has zero Power damage dice and Special-only wording at every PL', () => {
     for (const tpl of pureSpecialAoe) {
       for (let lvl = 1; lvl <= 16; lvl++) {
         const row: any = (tpl.levels as any)[String(lvl)];
         expect(row.effect.dice, `${tpl.templateId} PL${lvl}`).toBeUndefined();
         expect(row.mechanics.damageRider, `${tpl.templateId} PL${lvl}`).toBeUndefined();
-        expect(row.effect.text).toContain('no Power damage');
+        expect(row.mechanics.specialOnly, `${tpl.templateId} PL${lvl}`).toBe(true);
+        expect(row.effect.text).toMatch(/Special-only Attack|no Power damage/i);
         expect(row.effect.text).not.toMatch(/takes weapon damage/i);
         expect(row.specials.length).toBe(1);
         expect(row.specials[0].key).toBe('SPECIAL');
@@ -130,33 +131,41 @@ describe('martialWeaponDamageApplies / spellFocusDamageApplies', () => {
     expect(martialWeaponDamageApplies({ npcIsSpell: true })).toBe(false);
   });
 
-  it('is false for every Instant AoE flag spelling', () => {
-    expect(martialWeaponDamageApplies({ aoeMeleeWeapon: true })).toBe(false);
-    expect(martialWeaponDamageApplies({ aoeMeleeWeapon: 'true' })).toBe(false);
-    expect(martialWeaponDamageApplies({ instantAoe: true })).toBe(false);
-    expect(martialWeaponDamageApplies({ instantAoe: 'true' })).toBe(false);
+  it('Instant Damage AoE keeps martial Weapon / Spell Focus', () => {
+    expect(martialWeaponDamageApplies({ aoeMeleeWeapon: true })).toBe(true);
+    expect(martialWeaponDamageApplies({ instantAoe: true })).toBe(true);
     expect(isInstantAoeFlags({ aoeMeleeWeapon: true })).toBe(true);
     expect(isInstantAoeFlags({})).toBe(false);
     expect(isInstantAoeFlags(null)).toBe(false);
+    expect(spellFocusDamageApplies({ isSpell: true, instantAoe: true })).toBe(true);
+    expect(spellFocusDamageApplies({ isSpell: true, aoeMeleeWeapon: true })).toBe(true);
   });
 
-  it('Spell Focus: single-target Spells keep it, Instant AoE never gets it', () => {
+  it('Spell Focus: damaging Spells keep it; Special-only never gets it', () => {
     expect(spellFocusDamageApplies({ isSpell: true })).toBe(true);
     expect(spellFocusDamageApplies({ isSpell: false })).toBe(false);
     expect(spellFocusDamageApplies({ isSpell: true, isNpcAttackFlow: true })).toBe(false);
-    expect(spellFocusDamageApplies({ isSpell: true, aoeMeleeWeapon: true })).toBe(false);
-    expect(spellFocusDamageApplies({ isSpell: true, instantAoe: 'true' })).toBe(false);
+    expect(spellFocusDamageApplies({ isSpell: true, specialOnly: true })).toBe(false);
+    expect(
+      spellFocusDamageApplies({
+        isSpell: true,
+        selectedPowerTemplateId: 'active-ranged-aoe-damage-t4',
+      }),
+    ).toBe(false);
   });
 
-  it('withInstantAoeFlags forces Power-only damage rules', () => {
+  it('withInstantAoeFlags marks Instant AoE without forcing Power-only on Damage AoE', () => {
     const flags = withInstantAoeFlags({ selectedPowerId: 'p1', ignoreWeaponDamage: false });
-    expect(flags.ignoreWeaponDamage).toBe(true);
     expect(flags.instantAoe).toBe(true);
     expect(flags.aoeMeleeWeapon).toBe(true);
     expect(flags.selectedPowerId).toBe('p1');
-    expect(martialWeaponDamageApplies(flags)).toBe(false);
-    expect(spellFocusDamageApplies({ isSpell: true, ...flags })).toBe(false);
+    expect(martialWeaponDamageApplies(flags)).toBe(true);
+    expect(spellFocusDamageApplies({ isSpell: true, ...flags })).toBe(true);
     expect(withInstantAoeFlags(null).instantAoe).toBe(true);
+    const special = withInstantAoeFlags({ selectedPowerTemplateId: 'active-melee-aoe-damage-t4' });
+    expect(special.specialOnly).toBe(true);
+    expect(special.ignoreWeaponDamage).toBe(true);
+    expect(martialWeaponDamageApplies(special)).toBe(false);
   });
 });
 

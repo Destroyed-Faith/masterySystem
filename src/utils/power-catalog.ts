@@ -118,6 +118,7 @@ export function isSelectableActiveBuffTemplateId(templateId: string | null | und
 export const SUBFAMILY_LABELS: Record<string, string> = {
     'damage-single': 'Single-Target Special Attack',
     'damage-aoe': 'Area Special Attack',
+    'instant-special-single': 'Instant Single-Special',
     'weapon-attack': 'Weapon Attack',
     'weapon-single': 'Weapon Attack',
     control: 'Control & Movement',
@@ -133,7 +134,9 @@ export const SUBFAMILY_LABELS: Record<string, string> = {
 
 export const SUBFAMILY_HINTS: Record<string, string> = {
     'damage-single': 'One target. Damage and Special come from the Power itself, not your weapon.',
-    'damage-aoe': 'Hits an area. Damage and Special come from the Power itself, not your weapon.',
+    'damage-aoe': 'Hits an area. Special-only Instant AoE — no direct Damage Pool; Specials apply to every creature hit.',
+    'instant-special-single':
+        'One target. Special-only Instant Active — Attack/Casting roll only; no Power, Weapon, or Spell Focus damage.',
     'weapon-attack': 'Uses your equipped weapon’s damage dice and weapon Specials.',
     'weapon-single': 'Uses your equipped weapon’s damage dice and weapon Specials.',
     control: 'Locks down or repositions a target.',

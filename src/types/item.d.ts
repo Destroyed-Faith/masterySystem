@@ -285,6 +285,13 @@ export interface PowerMechanics {
   damageTransfer?: boolean;
 
   /**
+   * Special-only Attack: zero direct damage (no Power / Weapon / Spell Focus
+   * pool, no Damage Roll, no Combat Damage Raises, no Maximization). On-hit
+   * Specials still apply after a successful Attack / Casting delivery.
+   */
+  specialOnly?: boolean;
+
+  /**
    * Spell Resistance — increases Final Spell TN (not Spell Base TN) of
    * Spell-tagged Powers against this actor. Ward passives / Spell Resistance
    * active buffs only.

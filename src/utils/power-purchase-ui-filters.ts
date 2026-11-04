@@ -131,15 +131,25 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFi
     deliveries: ['single-target'],
   },
 
-  // Damage AoE + Special (melee centered on self)
-  'active-melee-aoe-damage-t3': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-  'active-melee-aoe-damage-t4': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-  'active-melee-aoe-damage-t5': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-  'active-melee-aoe-damage-t6': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-  'active-ranged-aoe-damage-t3': { effects: ['damage', 'special'], deliveries: ['area'] },
-  'active-ranged-aoe-damage-t4': { effects: ['damage', 'special'], deliveries: ['area'] },
-  'active-ranged-aoe-damage-t5': { effects: ['damage', 'special'], deliveries: ['area'] },
-  'active-ranged-aoe-damage-t6': { effects: ['damage', 'special'], deliveries: ['area'] },
+  // Instant Single-Special (Special-only ST — no damage axis)
+  'active-melee-instant-special-t3': { effects: ['special'], deliveries: ['single-target'] },
+  'active-ranged-instant-special-t3': { effects: ['special'], deliveries: ['single-target'] },
+  'active-melee-instant-special-t4': { effects: ['special'], deliveries: ['single-target'] },
+  'active-ranged-instant-special-t4': { effects: ['special'], deliveries: ['single-target'] },
+  'active-melee-instant-special-t5': { effects: ['special'], deliveries: ['single-target'] },
+  'active-ranged-instant-special-t5': { effects: ['special'], deliveries: ['single-target'] },
+  'active-melee-instant-special-t6': { effects: ['special'], deliveries: ['single-target'] },
+  'active-ranged-instant-special-t6': { effects: ['special'], deliveries: ['single-target'] },
+
+  // Instant AoE Special (0 Power dice — Special-only; UI label "special" not "damage")
+  'active-melee-aoe-damage-t3': { effects: ['special'], deliveries: ['area', 'self'] },
+  'active-melee-aoe-damage-t4': { effects: ['special'], deliveries: ['area', 'self'] },
+  'active-melee-aoe-damage-t5': { effects: ['special'], deliveries: ['area', 'self'] },
+  'active-melee-aoe-damage-t6': { effects: ['special'], deliveries: ['area', 'self'] },
+  'active-ranged-aoe-damage-t3': { effects: ['special'], deliveries: ['area'] },
+  'active-ranged-aoe-damage-t4': { effects: ['special'], deliveries: ['area'] },
+  'active-ranged-aoe-damage-t5': { effects: ['special'], deliveries: ['area'] },
+  'active-ranged-aoe-damage-t6': { effects: ['special'], deliveries: ['area'] },
 
   // Persistent zones — Special auto-apply hazard fields (no damage rider)
   'active-ranged-zone-t3': { effects: ['special'], deliveries: ['zone-persistent'] },
@@ -194,11 +204,11 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFi
   'active-ranged-weapon-split': { effects: ['damage'], deliveries: ['single-target'] },
   'active-ranged-weapon-autofire': { effects: ['damage'], deliveries: ['single-target'] },
 
-  // Targeted Special (Exorcism / Requiem) — damage + special
+  // Targeted Special (Exorcism / Requiem) — ST keeps weapon damage; AoE is Special-only
   'active-melee-targeted-special': { effects: ['damage', 'special'], deliveries: ['single-target'] },
   'active-ranged-targeted-special': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-melee-aoe-targeted-special': { effects: ['damage', 'special'], deliveries: ['area', 'self'] },
-  'active-ranged-aoe-targeted-special': { effects: ['damage', 'special'], deliveries: ['area'] },
+  'active-melee-aoe-targeted-special': { effects: ['special'], deliveries: ['area', 'self'] },
+  'active-ranged-aoe-targeted-special': { effects: ['special'], deliveries: ['area'] },
 
   // Mental
   'active-mental-attack': { effects: ['damage'], deliveries: ['single-target'] },

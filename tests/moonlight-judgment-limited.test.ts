@@ -45,14 +45,14 @@ describe('Moonlight Judgment Limited damage', () => {
     expect(doublePrintedPowerDice('+8d8')).toBe('+16d8');
   });
 
-  it('does not add Weapon Damage or Spell Focus on Instant AoE', () => {
+  it('Spell Instant Damage AoE keeps Spell Focus; martial Weapon stays off for spells', () => {
     expect(
       spellFocusDamageApplies({
         isSpell: true,
         isNpcAttackFlow: false,
         instantAoe: true,
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       martialWeaponDamageApplies({
         ignoreWeaponDamage: true,

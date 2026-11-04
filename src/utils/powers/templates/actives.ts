@@ -1,16 +1,17 @@
 /**
- * Active Power Templates (~46)
+ * Active Power Templates (~54)
  *
  * Source: d:\DestroyedFaith\Powers\Actives.md — Levels 1..16.
  *
  * Categories encoded via subfamily:
- *   damage-single, damage-aoe, persistent-zone, control, support-heal,
- *   support-cleanse, support-dispel, mixed, barrier, hard-control
+ *   damage-single, damage-aoe, instant-special-single, persistent-zone,
+ *   control, support-heal, support-cleanse, support-dispel, mixed, barrier,
+ *   hard-control
  *
- * Damage templates (singleg-target + aoe, per tier T3/T4/T5/T6 in melee &
- * ranged flavours) carry a `specialSlot`. The catalog expands each such
- * template into one entry per eligible Special (see _specials.ts and
- * power-catalog.ts buildEntries()).
+ * Damage templates (single-target + aoe, per tier T3/T4/T5/T6 in melee &
+ * ranged flavours) and Instant Single-Special templates carry a `specialSlot`.
+ * The catalog expands each such template into one entry per eligible Special
+ * (see _specials.ts and power-catalog.ts buildEntries()).
  *
  * `spellHints` pre-fills Active-as-Spell resolution defaults. Saving throws
  * were removed from the rules — every spell resolves as `spellAttack`
@@ -22,6 +23,7 @@ import type { PowerTemplate } from './_shared.js';
 import { buildLevels, activeRow } from './_shared.js';
 import type { ActiveSpecialSlot, ActiveSpecialTier, AoeSpec, RangeSpec, SpellHints } from '../../../types/item.js';
 import { getEligibleSpecialsForTier } from './_specials.js';
+import { instantSpecialRank } from '../instant-special-ranks.js';
 import { solveDamageRow } from '../pp-budget.js';
 import {
     R05_MELEE_AOE_POOL,
@@ -211,8 +213,8 @@ function damageAoeTemplate(def: {
             const d = (isRanged ? RANGED_AOE_DMG_DICE : MELEE_AOE_DMG_DICE)[def.tier][lvl - 1];
             const rank = (isRanged ? RANGED_AOE_DMG_SPECIAL : MELEE_AOE_DMG_SPECIAL)[def.tier][lvl - 1];
             const effectText = d === 0
-                ? 'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.'
-                : `Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes **${d}d8 Power damage** (one shared roll) and the full printed Special. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.`;
+                ? 'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Special-only Attack: apply the full printed Special to every creature hit; no direct damage, no Power / Weapon / Spell Focus dice, no Damage Roll. Dive for Cover may be used after the hit check and before payload.'
+                : `Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes **Weapon Damage + ${d}d8 Power damage** (one shared Damage Pool; Spell delivery uses Spell Focus instead of Weapon) and the full printed Special. Dive for Cover may be used after the hit check and before payload.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
                 range: isRanged ? rangedRange(lvl, 8) : { kind: 'self' },
@@ -221,8 +223,60 @@ function damageAoeTemplate(def: {
                 dice: d === 0 ? undefined : `${d}d8`,
                 specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (full printed Special)' }],
                 mechanics: d === 0
-                    ? { applyWhen: 'attack-rider' }
+                    ? { specialOnly: true, applyWhen: 'attack-rider' }
                     : { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+/**
+ * Instant Single-Special (Special-only, no damage axis).
+ * docs/Rules/actives.md — Melee/Ranged Single Target Special tables.
+ * One catalogue identity per delivery × Start-PP tier; chosen Special binds
+ * its printed rank via `instantSpecialRank` / `bindPoolSpecialsOnRow`.
+ */
+function instantSpecialSingleTemplate(def: {
+    flavour: 'melee' | 'ranged';
+    tier: ActiveSpecialTier;
+}): PowerTemplate {
+    const isRanged = def.flavour === 'ranged';
+    const id = `active-${isRanged ? 'ranged' : 'melee'}-instant-special-t${def.tier}`;
+    const name = `${isRanged ? 'Ranged' : 'Melee'} Instant Special — Tier ${def.tier}`;
+    const eligible = [...getEligibleSpecialsForTier(def.tier)];
+    const slot: ActiveSpecialSlot = { tier: def.tier, eligibleSpecialKeys: eligible };
+    const spellHints: SpellHints = { defaultResolution: 'spellAttack' };
+    const defaultKey = eligible[0] ?? 'blight';
+    return {
+        templateId: id,
+        templateName: name,
+        name,
+        subfamily: 'instant-special-single',
+        category: 'active',
+        // Ranged Instant Specials may use Spell Delivery; Martial never adds weapon damage.
+        tags: isRanged ? ['spell'] : [],
+        specialSlot: slot,
+        spellHints,
+        fluff: `An Instant Special-only Active: apply one Tier ${def.tier} Special on a successful Attack or Casting roll. No Power damage, no Weapon damage, no Spell Focus dice.`,
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
+        levels: buildLevels((lvl) => {
+            const rank =
+                instantSpecialRank(isRanged ? 'ranged' : 'melee', defaultKey, lvl) ?? 1;
+            return activeRow({
+                type: isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
+                aoe: R_NONE,
+                effectText:
+                    'On successful delivery apply the printed Special; **no Power damage**. Martial delivery adds no weapon damage; Spell delivery adds no Spell Focus damage. Special-only Attack — no Damage Roll.',
+                specials: [
+                    {
+                        key: 'SPECIAL',
+                        rank,
+                        note: 'bound at item-create via chosenSpecial (Instant Single-Special printed table)',
+                    },
+                ],
+                mechanics: { specialOnly: true, applyWhen: 'attack-rider' },
             });
         }),
     };
@@ -542,6 +596,16 @@ function buildActiveTemplates(): PowerTemplate[] {
     damageAoeTemplate({ flavour: 'melee', tier: 6 }),
     damageAoeTemplate({ flavour: 'ranged', tier: 6 }),
 
+    // Instant Single-Special (Special-only ST) — Melee (4) + Ranged (4)
+    instantSpecialSingleTemplate({ flavour: 'melee', tier: 3 }),
+    instantSpecialSingleTemplate({ flavour: 'ranged', tier: 3 }),
+    instantSpecialSingleTemplate({ flavour: 'melee', tier: 4 }),
+    instantSpecialSingleTemplate({ flavour: 'ranged', tier: 4 }),
+    instantSpecialSingleTemplate({ flavour: 'melee', tier: 5 }),
+    instantSpecialSingleTemplate({ flavour: 'ranged', tier: 5 }),
+    instantSpecialSingleTemplate({ flavour: 'melee', tier: 6 }),
+    instantSpecialSingleTemplate({ flavour: 'ranged', tier: 6 }),
+
     // Persistent Zone — Ranged only (4)
     persistentZoneTemplate(3),
     persistentZoneTemplate(4),
@@ -745,7 +809,7 @@ function targetedSpecialAoeAttackTemplate(flavour: 'melee' | 'ranged'): PowerTem
                 effectText:
                     'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Qualifying creatures hit gain the chosen targeted Special; no Power damage. No weapon or Spell Focus bonus.',
                 specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (Exorcism or Requiem)' }],
-                mechanics: { applyWhen: 'attack-rider' },
+                mechanics: { specialOnly: true, applyWhen: 'attack-rider' },
             });
         }),
     };
@@ -934,8 +998,8 @@ function aoeWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
         tags: [],
         spellHints: { defaultResolution: 'spellAttack' },
         fluff: isRanged
-            ? 'A ranged Instant AoE attack that bursts around a target point. One shared Attack roll is compared separately against each creature\'s Evade; one shared Power damage roll is applied to every creature hit. No primary target; no weapon or Spell Focus bonus.'
-            : 'A self-centered Instant AoE burst around the attacker. One shared Attack roll is compared separately against each creature\'s Evade; one shared Power damage roll is applied to every creature hit. No primary target; no weapon or Spell Focus bonus.',
+            ? 'A ranged Instant AoE attack that bursts around a target point. One shared Attack roll is compared separately against each creature\'s Evade; one shared Damage Pool (Power Dice + Weapon or Spell Focus) is rolled once and applied to every creature hit. No primary target.'
+            : 'A self-centered Instant AoE burst around the attacker. One shared Attack roll is compared separately against each creature\'s Evade; one shared Damage Pool (Power Dice + Weapon Damage) is rolled once and applied to every creature hit. No primary target.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
@@ -947,7 +1011,9 @@ function aoeWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
                 targetFilter: 'enemies',
             };
             const diceText = `+${p.dice}d8`;
-            const effect = `Make one ${isRanged ? 'ranged' : 'melee'} AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **${p.dice}d8 Power damage** (one shared damage roll) and may use Dive for Cover before payload.`;
+            const effect = isRanged
+                ? `Make one ranged AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **Weapon Damage + ${p.dice}d8 Power damage** (one shared Damage Pool roll; Spell delivery uses Spell Focus instead of Weapon) and may use Dive for Cover before payload.`
+                : `Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **Weapon Damage + ${p.dice}d8 Power damage** (one shared Damage Pool roll) and may use Dive for Cover before payload.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
                 range: isRanged ? rangedRange(lvl) : { kind: 'self' },

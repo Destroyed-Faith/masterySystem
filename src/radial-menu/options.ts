@@ -988,6 +988,18 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     }
     const displayName = formatRadialPowerDisplayName(item, { splitAttack });
 
+    let specialOnly = false;
+    try {
+      const { isSpecialOnlyTemplateId } = await import('../combat/damage-transfer.js');
+      if (isSpecialOnlyTemplateId(templateId)) {
+        specialOnly = true;
+      } else if (levelData?.mechanics?.specialOnly === true) {
+        specialOnly = true;
+      }
+    } catch {
+      specialOnly = false;
+    }
+
     const option: RadialCombatOption = {
       id: item.id,
       name: displayName,
@@ -1001,6 +1013,7 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       tags: Array.isArray(tags) ? tags : [],
       costsMovement: costsMovement,
       costsAction: costsAction,
+      ...(specialOnly ? { specialOnly: true, ignoreWeaponDamage: true } : {}),
       ...(burstMeleeAoE
         ? {
             burstMeleeAoE: true,

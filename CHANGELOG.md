@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.820] - 2026-11-04
+
+### Added
+
+- **Instant Single-Special Actives (C04):** Melee/Ranged Instant Special templates (`active-*-instant-special-t3…t6`) with printed per-Special ranks and `mechanics.specialOnly`.
+- **Batch 3 Instant AoE (C02):** Shared Damage Pool for Instant Damage AoE; allies excluded; per-target mitigation.
+- **Batch 4 Spell Raises (C01):** Automated coverage for Spell Paid/Free Raises, Special-only Spell Raises, and shared AoE Raise allocation.
+
+### Changed
+
+- **Special-only Attacks (C04):** Unified `isSpecialOnlyAttack` / `isSpecialOnlyTemplateId` for Martial and Spell, ST and AoE — zero direct damage; no Weapon, Spell Focus, Damage Raises, or Maximization.
+- **Spell Combat Raises (C01):** Spell Raises match Martial — declare Paid/Free counts before the roll; allocate Damage/Special effects only after a successful hit. Removed pre-roll Spell effect assignment.
+- **Maximization (C08):** Cannot spend Maximization on Special-only / zero remaining Damage Pool.
+
 ## [0.9.819] - 2026-11-04
 
 ### Changed

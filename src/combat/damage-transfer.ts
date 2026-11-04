@@ -43,17 +43,25 @@ type InstantAoeFlagBag = {
   instantAoe?: boolean | string;
 };
 
+type SpecialOnlyFlagBag = {
+  specialOnly?: boolean | string;
+  templateId?: string | null;
+  selectedPowerTemplateId?: string | null;
+};
+
 function flagTrue(v: unknown): boolean {
   return v === true || String(v) === 'true';
 }
 
 /**
- * Instant AoE Attack (Melee / Ranged AoE Attack, AoE Special Attacks): one shared
- * Attack/Casting roll and one shared Power damage roll. These attacks never add
- * Weapon Damage or Spell Focus damage and have no Primary Target.
+ * Instant AoE (Melee / Ranged AoE Attack, AoE Special Attacks): one shared
+ * Attack/Casting roll and — when damaging — one shared Damage Pool roll reused
+ * for every hit. No Primary Target. Allies stay excluded by the AoE filter.
  *
- * `aoeMeleeWeapon` is the legacy flag name kept for compatibility with existing
- * attack-card data; `instantAoe` is the preferred name.
+ * Instant Damage AoE pools are Power Dice + Weapon (martial) or Spell Focus
+ * (spell). Special-only AoEs have no Damage Pool.
+ *
+ * `aoeMeleeWeapon` is the legacy flag name; `instantAoe` is preferred.
  */
 export function isInstantAoeFlags(flags: InstantAoeFlagBag | null | undefined): boolean {
   if (!flags) return false;
@@ -61,11 +69,48 @@ export function isInstantAoeFlags(flags: InstantAoeFlagBag | null | undefined): 
 }
 
 /**
- * Martial delivery includes weapon damage. Spell delivery, an explicit
- * ignore flag and Instant AoE do not. NPC spell rows are spell delivery.
+ * Canonical Special-only Active template ids (no direct damage axis).
+ * Single source for radial options, Instant AoE flags, and damage gates —
+ * do not re-implement with divergent string heuristics elsewhere.
  *
- * Exception: Dragon Head Damage Breath (`dragonHeadDamageBreath`) is Instant
- * AoE that still adds this Artifact's Bite Weapon Damage only.
+ * Covers:
+ * - Instant Single-Special (ST): `active-*-instant-special-t[3-6]`
+ * - Instant AoE Special (0 Power dice): `active-*-aoe-damage-t[3-6]`
+ * - AoE Targeted Special (Exorcism/Requiem, no Power/Weapon/Focus damage)
+ *
+ * Does NOT cover Damage+Special (`active-*-damage-t*`), ST Targeted Special
+ * (weapon damage), or Weapon AoE (shared Damage Pool).
+ */
+export function isSpecialOnlyTemplateId(templateId: unknown): boolean {
+  const id = String(templateId || '').trim();
+  if (!id) return false;
+  return (
+    /^active-(melee|ranged)-instant-special-t[3-6]$/.test(id) ||
+    /^active-(melee|ranged)-aoe-damage-t[3-6]$/.test(id) ||
+    /^active-(melee|ranged)-aoe-targeted-special$/.test(id)
+  );
+}
+
+/**
+ * Special-only Attacks never deal direct damage (no Power / Weapon / Spell Focus
+ * dice, no Damage Roll / Dialog, no Combat Damage Raises, no Maximization).
+ * On-hit Specials still apply; follow-up Special ticks (e.g. Ruin 4×X) are unchanged.
+ */
+export function isSpecialOnlyAttack(
+  flags: (SpecialOnlyFlagBag & InstantAoeFlagBag) | null | undefined,
+): boolean {
+  if (!flags) return false;
+  if (flagTrue(flags.specialOnly)) return true;
+  return (
+    isSpecialOnlyTemplateId(flags.templateId) ||
+    isSpecialOnlyTemplateId(flags.selectedPowerTemplateId)
+  );
+}
+
+/**
+ * Martial delivery includes weapon damage on single-target and Instant Damage
+ * AoE. Spell delivery, Special-only Attacks, and an explicit ignore flag do not.
+ * NPC spell rows are spell delivery.
  */
 export function martialWeaponDamageApplies(
   flags: {
@@ -73,27 +118,26 @@ export function martialWeaponDamageApplies(
     powerIsSpell?: boolean;
     npcIsSpell?: boolean;
     dragonHeadDamageBreath?: boolean;
-  } & InstantAoeFlagBag,
+  } & InstantAoeFlagBag &
+    SpecialOnlyFlagBag,
 ): boolean {
-  if (flags.dragonHeadDamageBreath === true && flags.ignoreWeaponDamage !== true) {
-    return flags.powerIsSpell !== true && flags.npcIsSpell !== true;
-  }
-  return (
-    flags.ignoreWeaponDamage !== true &&
-    flags.powerIsSpell !== true &&
-    flags.npcIsSpell !== true &&
-    !isInstantAoeFlags(flags)
-  );
+  if (isSpecialOnlyAttack(flags)) return false;
+  if (flags.ignoreWeaponDamage === true) return false;
+  if (flags.powerIsSpell === true || flags.npcIsSpell === true) return false;
+  // Dragon Head Damage Breath and every other martial Instant Damage AoE keep weapon dice.
+  return true;
 }
 
 /**
- * Spell Focus dice boost single-target Spell damage. Instant AoE never receives
- * them (shared Power damage only).
+ * Spell Focus dice apply to damaging Spells (single-target and Instant Damage
+ * AoE). Special-only Attacks have no Damage Pool and never receive Spell Focus.
  */
 export function spellFocusDamageApplies(
-  flags: { isSpell?: boolean; isNpcAttackFlow?: boolean } & InstantAoeFlagBag,
+  flags: { isSpell?: boolean; isNpcAttackFlow?: boolean } & InstantAoeFlagBag &
+    SpecialOnlyFlagBag,
 ): boolean {
-  return flags.isSpell === true && flags.isNpcAttackFlow !== true && !isInstantAoeFlags(flags);
+  if (isSpecialOnlyAttack(flags)) return false;
+  return flags.isSpell === true && flags.isNpcAttackFlow !== true;
 }
 
 /** Limited doubles the printed power-damage pool only, never a following weapon term. */
