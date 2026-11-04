@@ -63,10 +63,11 @@ describe('Premium Stone Ability costs', () => {
   });
 
   it('Premium Rank 4 legally costs 20 — more than the MR8 Attribute cap of 16', () => {
-    const mr8Total = permanentStonesFromLifetimeXp(1000);
+    const mr8Total = permanentStonesFromLifetimeXp(2000);
     expect(deriveMasteryRankFromStones(mr8Total)).toBe(8);
     expect(stoneConcentrationCap(mr8Total, 1)).toBe(16);
-    expect(stoneConcentrationCap(32, 8)).toBe(12);
+    // 32 Stones ⇒ 600 Lifetime XP floor ⇒ MR5 ⇒ concentration 10
+    expect(stoneConcentrationCap(32, 8)).toBe(10);
     expect(cumulativeStoneCostForRank('might.parry', 4)).toBe(20);
     // The cost is NOT reduced to fit into one Attribute pool: extra resources
     // (Permanent / Initiative Colorless, Stone Power Support) close the gap.

@@ -21,7 +21,6 @@ import {
   clampNpcInitiativeModifier,
   formatNpcInitiativeSigned,
 } from '../utils/npc-initiative.js';
-import { specialApplicationLimit } from '../combat/special-application.js';
 
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/npc-print.hbs';
 const PRINT_TEMPLATE_COMPACT = 'systems/mastery-system/templates/actor/npc-print-compact.hbs';
@@ -290,7 +289,6 @@ export function buildNpcPrintContext(actor: any): Record<string, unknown> {
       name,
       masteryRank,
       specialRecovery: masteryRank,
-      specialCap: specialApplicationLimit(masteryRank),
       castingTn,
       creatureType,
       faction,

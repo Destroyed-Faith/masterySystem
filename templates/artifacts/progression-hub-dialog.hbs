@@ -48,7 +48,7 @@
           <span class="ph-label">{{this.name}} <em>({{this.fieldLabel}})</em></span>
           <span class="ph-value">Rank {{this.rank}}</span>
           <div class="ph-controls">
-            <button type="button" class="ph-btn" data-action="ph-spec-rankup" data-spec-id="{{this.id}}" title="Raise one Rank for {{this.cost}} XP" {{#unless this.canRankUp}}disabled{{/unless}} {{#if this.bumpedThisStep}}disabled{{/if}}>+ {{this.cost}} XP</button>
+            <button type="button" class="ph-btn" data-action="ph-spec-rankup" data-spec-id="{{this.id}}" title="Raise one Rank for {{this.cost}} XP (consecutive ranks in one Upgrade Step are allowed)" {{#unless this.canRankUp}}disabled{{/unless}}>+ {{this.cost}} XP</button>
           </div>
         </div>
         {{else}}

@@ -56,7 +56,7 @@ describe('character print table sheet', () => {
     expect(ctx.battle?.includeStandardManeuvers).toBe(true);
     expect(ctx.battle?.showBasicAttack).toBe(false);
     expect(ctx.specialRecovery).toBe(2);
-    expect(ctx.specialCap).toBe(8);
+    expect(ctx.specialCap).toBeUndefined();
     expect(ctx.pageTotal).toBe(3);
     expect(ctx.includeModules).toBe(false);
     expect(ctx.battle.activeBuffDuration).toBe(2);

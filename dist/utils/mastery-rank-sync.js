@@ -20,7 +20,7 @@ export function getWorldDefaultMasteryRank() {
         return STARTING_MASTERY_RANK;
     }
 }
-/** DF Core v0.9.9.1 Mastery Rank from Lifetime XP. 0 XP is MR2. 1000+ is MR8. */
+/** DF Core 2026-11-04 Mastery Rank from Lifetime XP. 0 XP is MR2. 2000+ is MR8. */
 export function masteryRankFromLifetimeXp(lifetimeXp) {
     const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
     let mr = STARTING_MASTERY_RANK;

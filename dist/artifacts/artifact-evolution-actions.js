@@ -6,7 +6,7 @@ import { ARTIFACT_CAPACITY_DEFAULT, artifactExceedsMasteryRankCap, artifactLevel
 import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
 import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItemsForNode, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
 import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
-import { isBumped, recordBump, undoBump } from '../utils/xp-step-rule.js';
+import { recordBump, undoBump } from '../utils/xp-step-rule.js';
 import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
 /** Flavor line from lore / description (embedded first, then world root). */
 export function artifactFlavorText(...items) {
@@ -120,7 +120,7 @@ export function buildArtifactEvolutionCards(actor, opts) {
         const currentSysLevel = currentWorld.system?.level ?? 1;
         const childItems = getChildWorldItemsForNode(progress.nodeId, folderItems);
         const embeddedId = String(emb.id);
-        const alreadyBumped = !actorHasFreeXp(actor) && isBumped(stepState, 'artifact', embeddedId);
+        void stepState; // step list remains for history; consecutive Artifact Levels are legal
         const bindingKind = getArtifactBindingKind(emb);
         const isEchoBound = bindingKind === 'echo';
         const linked = isArtifactLinkedOnActor(A, emb);
@@ -147,9 +147,6 @@ export function buildArtifactEvolutionCards(actor, opts) {
             }
             else if (xpAvailable < xpCost) {
                 disabledReason = `Not enough XP (${xpCost} needed for Level ${tl}).`;
-            }
-            else if (alreadyBumped) {
-                disabledReason = 'Already upgraded this session. Use Free XP to raise it again.';
             }
             const ch = child;
             return {
@@ -437,11 +434,6 @@ export async function upgradeArtifactForActor(actor, rootWorldId, embeddedId, ta
             powers: Array.isArray(stepRaw.powers) ? [...stepRaw.powers] : [],
             artifacts: Array.isArray(stepRaw.artifacts) ? [...stepRaw.artifacts] : [],
         };
-        const unrestricted = actorHasFreeXp(actor);
-        if (!unrestricted && isBumped(stepNow, 'artifact', embeddedId)) {
-            ui.notifications?.warn('This artifact was already upgraded this session. Use Free XP to raise it again.');
-            return false;
-        }
         const spend = await spendActorXp(actor, xpCost);
         if (!spend.ok) {
             ui.notifications?.warn(`Not enough XP (need ${xpCost}).`);
@@ -469,7 +461,7 @@ export async function upgradeArtifactForActor(actor, rootWorldId, embeddedId, ta
                 after: spend.after,
             },
         ]);
-        const stepAfter = unrestricted ? stepNow : recordBump(stepNow, 'artifact', embeddedId);
+        const stepAfter = recordBump(stepNow, 'artifact', embeddedId);
         await actor.update({
             'system.xp.currentStep.attributes': [...stepAfter.attributes],
             'system.xp.currentStep.skills': [...stepAfter.skills],

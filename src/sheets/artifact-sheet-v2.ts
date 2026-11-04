@@ -296,7 +296,7 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         title: 'GM: Upgrade artifact (no XP)',
         content:
           `<p><strong>${item.name}</strong> along this path?</p>` +
-          '<p>No XP is spent. Mastery Rank cap and the once-per-step rule do not apply.</p>',
+          '<p>No XP is spent. Mastery Rank cap still applies.</p>',
         yes: () => true,
         no: () => false,
         defaultYes: false,

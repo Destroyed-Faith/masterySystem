@@ -48,14 +48,14 @@ describe('GM effect service helpers', () => {
     expect(rows[0]?.restriction).toMatch(/source/i);
   });
 
-  it('does not invent Damage Raises — stacking clamp still works', () => {
+  it('does not invent Damage Raises — global 4×MR application clamp is retired', () => {
     const actor = {
       system: { mastery: { rank: 2 }, masteryRank: 2 },
       getFlag: () => null,
     };
     const clamp = clampSpecialApplication(actor, 'ruin', 20, { id: 'c1', round: 1 }, null);
-    expect(clamp.applied).toBeLessThanOrEqual(8); // 4 × MR2
-    expect(clamp.ignored).toBeGreaterThan(0);
+    expect(clamp.applied).toBe(20);
+    expect(clamp.ignored).toBe(0);
   });
 });
 

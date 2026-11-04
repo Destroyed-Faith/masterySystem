@@ -167,10 +167,12 @@ describe('v0.9.9 Lifetime XP and Stones', () => {
   });
 
   it('uses Lifetime XP rank for the attribute cap, not a stored sheet rank', () => {
+    // 200 XP / 12 Stones → MR3 (MR4 begins at 250). Stored sheet rank is ignored.
     expect(permanentStonesFromLifetimeXp(200)).toBe(12);
-    expect(stoneConcentrationCap(12, 8)).toBe(8);
-    expect(stoneConcentrationCap(12, 2)).toBe(8);
+    expect(stoneConcentrationCap(12, 8)).toBe(6);
+    expect(stoneConcentrationCap(12, 2)).toBe(6);
     expect(stoneConcentrationCap(7, 8)).toBe(6);
+    expect(stoneConcentrationCap(14, 8, 250)).toBe(8);
     const atTwoHundredXp = canPlacePermanentStone({
       attribute: 'might',
       assignments: flat([8, 3, 0, 0, 0, 0, 0]),
@@ -178,8 +180,8 @@ describe('v0.9.9 Lifetime XP and Stones', () => {
       storedRank: 8,
     });
     expect(atTwoHundredXp.ok).toBe(false);
-    expect(atTwoHundredXp.cap).toBe(8);
-    expect(atTwoHundredXp.masteryRank).toBe(4);
+    expect(atTwoHundredXp.cap).toBe(6);
+    expect(atTwoHundredXp.masteryRank).toBe(3);
   });
 
   it('reassigns migrated Stones from Lifetime XP instead of the old pools', () => {
@@ -359,15 +361,23 @@ describe('Martial Damage and Tier 4 cap', () => {
     expect(slots[0].abbrev).toBe('MIG');
     expect(slots.filter((slot) => slot.unlocked)).toHaveLength(3);
     expect(slots).toHaveLength(lifetimeLineSlotCount());
-    expect(slots.at(-1)?.label).toBe('660');
-    expect(chunkLifetimeSlots(slots)).toHaveLength(1);
+    expect(slots.at(-1)?.label).toBe('2200');
   });
 
-  it('continues Lifetime XP past 660 on the next line', () => {
+  it('renders the full Stone Cap track through 2200 Lifetime XP on one default line', () => {
     const slots = buildStoneProgressionSlots(700, {});
     const rows = chunkLifetimeSlots(slots);
+    expect(slots).toHaveLength(lifetimeLineSlotCount());
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.some((slot) => slot.label === '700' && slot.unlocked)).toBe(true);
+    expect(slots.at(-1)?.label).toBe('2200');
+  });
+
+  it('can wrap Lifetime XP onto multiple lines when a smaller line size is used', () => {
+    const slots = buildStoneProgressionSlots(700, {});
+    const rows = chunkLifetimeSlots(slots, lifetimeLineSlotCount(660));
+    expect(rows.length).toBeGreaterThan(1);
     expect(rows[0]?.at(-1)?.label).toBe('660');
-    expect(rows[1]?.map((slot) => slot.label)).toEqual(['680', '700']);
-    expect(rows[1]?.every((slot) => slot.unlocked)).toBe(true);
+    expect(rows.flat().some((slot) => slot.label === '700' && slot.unlocked)).toBe(true);
   });
 });

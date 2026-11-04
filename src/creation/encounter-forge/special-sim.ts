@@ -9,11 +9,10 @@
  * The simulator tracks EXPECTED stack values (fractional), which is a
  * documented approximation of the stochastic process: applying "hit chance ×
  * special value" per round instead of rolling. Errors stay small because
- * specials cap at the application limit (4 × MR new points per round) and
- * decay linearly.
+ * stacks still decay linearly each turn.
  *
  * Mechanical effects implemented per canonical special-effects.ts:
- *   ruin/exorcism/requiem — tick damage (ignores Armor), corrode — Armor −X,
+ *   ruin — tick damage 4×X (ignores Armor); exorcism/requiem — tick X (ignores Armor), corrode — Armor −X,
  *   expose — Evade −X, disoriented — attack dice −X, challenge — attack dice
  *   −X when ignoring the challenger, sundered — +1d8 per 2 on non-Spell hits,
  *   hex — +1d8 per 2 on Spell hits, lacerate — movement-triggered damage,
@@ -43,24 +42,22 @@ export function isKnownSpecial(id: string): boolean {
   return Boolean(getEffectById(id));
 }
 
-/** Add expected special points, honoring the 4×MR-per-round application cap. */
+/** Add expected special points. Global 4×MR Round cap is retired (C06). */
 export function applyExpectedSpecial(
   stacks: SpecialStacks,
   appliedThisRound: SpecialStacks,
   id: string,
   expectedValue: number,
-  victimMr: number,
+  _victimMr: number,
   wardValue = 0,
 ): void {
   if (expectedValue <= 0) return;
   const effective = Math.max(0, expectedValue - Math.max(0, wardValue));
   if (effective <= 0) return;
-  const cap = SPECIAL_APPLICATION_LIMIT_PER_MR * Math.max(1, victimMr);
-  const already = appliedThisRound.get(id) ?? 0;
-  const allowed = Math.max(0, Math.min(effective, cap - already));
-  if (allowed <= 0) return;
-  appliedThisRound.set(id, already + allowed);
-  stacks.set(id, (stacks.get(id) ?? 0) + allowed);
+  // appliedThisRound remains available for callers that track per-source cadence.
+  void SPECIAL_APPLICATION_LIMIT_PER_MR;
+  appliedThisRound.set(id, (appliedThisRound.get(id) ?? 0) + effective);
+  stacks.set(id, (stacks.get(id) ?? 0) + effective);
 }
 
 export interface TurnStartResult {
@@ -80,7 +77,8 @@ export function processTurnStart(stacks: SpecialStacks, victimMr: number): TurnS
   let tickStress = 0;
   for (const [id, value] of stacks) {
     if (value <= 0) continue;
-    if (TICK_DAMAGE.has(id)) tickDamage += value;
+    if (id === 'ruin') tickDamage += value * 4;
+    else if (TICK_DAMAGE.has(id)) tickDamage += value;
     if (id === 'blight') tickStress += value;
   }
   // Root: decays by MR instead of participating in recovery/decay-1.

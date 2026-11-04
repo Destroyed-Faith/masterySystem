@@ -7,7 +7,6 @@ import { getEffect, getEffectById } from '../utils/special-effects.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
 import { getRoundState } from './action-economy.js';
-import { actorMasteryRank, clampSpecialApplication, formatApplicationLimitNote, specialRoundAppsUpdate, } from './special-application.js';
 /**
  * Ward total on the defender: Passive `wardIncoming` plus the Stone
  * Special Negation. `tempWard` and `incomingSpecialReduction` store the
@@ -82,9 +81,6 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
         const sourceUuid = attacker
             ? String(attacker.uuid ?? attacker.id ?? '') || null
             : null;
-        const combat = globalThis.game?.combat ?? null;
-        let workingApps = null;
-        let appsUpdate = {};
         for (const specialName of specialsUsed) {
             const parseName = String(specialName || '')
                 .replace(/\s*\[Passive:[^\]]*\]\s*$/i, '')
@@ -156,19 +152,6 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
                 !isTargetedSpecialValidTarget(effectId, target)) {
                 continue;
             }
-            if (wardedValue !== null && wardedValue > 0 && effectId) {
-                const clamp = clampSpecialApplication(target, effectId, wardedValue, combat, workingApps);
-                if (clamp.nextApps) {
-                    workingApps = clamp.nextApps;
-                    appsUpdate = specialRoundAppsUpdate(clamp.nextApps);
-                }
-                if (clamp.ignored > 0) {
-                    limitNotes.push(formatApplicationLimitNote(effectId, clamp.ignored, clamp.limit, actorMasteryRank(target)));
-                }
-                wardedValue = clamp.applied;
-                if (wardedValue <= 0)
-                    continue;
-            }
             if (isChallenge && wardedValue !== null && wardedValue > 0) {
                 list = mergeChallengeEntry(list, wardedValue, sourceName, sourceUuid);
                 continue;
@@ -195,7 +178,7 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
             }
         }
         const { writeActorStatusList } = await import('../system/assign-status.js');
-        await writeActorStatusList(target, list, appsUpdate, { deferVisuals: !!options?.deferVisuals });
+        await writeActorStatusList(target, list, {}, { deferVisuals: !!options?.deferVisuals });
         if (!options?.skipReactiveCleanse) {
             try {
                 const { maybeOfferReactiveCleanseChat } = await import('./reaction-followups.js');

@@ -1,11 +1,8 @@
 /**
- * Tests for the new Upgrade Step rule (`src/utils/xp-step-rule.ts`).
+ * Tests for Upgrade Step bookkeeping (`src/utils/xp-step-rule.ts`).
  *
- * New spec: each individual Attribute / Skill / Power / Artifact may be
- * bumped at most once per Upgrade Step. The previous 50%-of-step attribute
- * cap is gone. State is stored on the actor as
- *   `system.xp.currentStep = { attributes: string[], skills: string[], powers: string[], artifacts: string[] }`
- * and is cleared by `endStep`.
+ * Core 2026-11-04: consecutive increases of the same entity in one Upgrade
+ * Step are legal. `currentStep` only records which entities were touched.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -13,6 +10,7 @@ import {
     emptyStep,
     readStep,
     isBumped,
+    canIncreaseAgainInStep,
     recordBump,
     undoBump,
     endStep,
@@ -169,12 +167,12 @@ describe('undoBump() — refund flow', () => {
     });
 });
 
-describe('once-per-step enforcement scenario', () => {
-    it('rejects a second bump of the same attribute, accepts another attribute', () => {
+describe('consecutive Upgrade Step increases', () => {
+    it('records a touched attribute without blocking further increases', () => {
         let s = emptyStep();
         s = recordBump(s, 'attribute', 'might');
         expect(isBumped(s, 'attribute', 'might')).toBe(true);
-        // Caller would refuse a second bump here.
+        expect(canIncreaseAgainInStep(s, 'attribute', 'might')).toBe(true);
         expect(isBumped(s, 'attribute', 'agility')).toBe(false);
         s = recordBump(s, 'attribute', 'agility');
         expect(s.attributes).toEqual(['might', 'agility']);
@@ -187,6 +185,7 @@ describe('once-per-step enforcement scenario', () => {
         expect(isBumped(s, 'attribute', 'might')).toBe(true);
         expect(isBumped(s, 'skill', 'might')).toBe(true);
         expect(isBumped(s, 'power', 'might')).toBe(false);
+        expect(canIncreaseAgainInStep(s, 'skill', 'might')).toBe(true);
     });
 });
 

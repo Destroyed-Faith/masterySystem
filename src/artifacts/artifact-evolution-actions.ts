@@ -29,7 +29,7 @@ import {
   resolveWorldItemByNodeId,
 } from '../utils/artifact-actor-tree.js';
 import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
-import { isBumped, recordBump, undoBump } from '../utils/xp-step-rule.js';
+import { recordBump, undoBump } from '../utils/xp-step-rule.js';
 import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
 
 export interface ArtifactEvolutionPath {
@@ -219,7 +219,7 @@ export function buildArtifactEvolutionCards(
     const childItems = getChildWorldItemsForNode(progress.nodeId, folderItems);
 
     const embeddedId = String(emb.id);
-    const alreadyBumped = !actorHasFreeXp(actor) && isBumped(stepState as any, 'artifact', embeddedId);
+    void stepState; // step list remains for history; consecutive Artifact Levels are legal
     const bindingKind = getArtifactBindingKind(emb);
     const isEchoBound = bindingKind === 'echo';
     const linked = isArtifactLinkedOnActor(A, emb);
@@ -245,8 +245,6 @@ export function buildArtifactEvolutionCards(
         disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
       } else if (xpAvailable < xpCost) {
         disabledReason = `Not enough XP (${xpCost} needed for Level ${tl}).`;
-      } else if (alreadyBumped) {
-        disabledReason = 'Already upgraded this session. Use Free XP to raise it again.';
       }
 
       const ch = child as any;
@@ -580,14 +578,6 @@ export async function upgradeArtifactForActor(
       powers: Array.isArray(stepRaw.powers) ? [...stepRaw.powers] : [],
       artifacts: Array.isArray(stepRaw.artifacts) ? [...stepRaw.artifacts] : [],
     };
-    const unrestricted = actorHasFreeXp(actor);
-    if (!unrestricted && isBumped(stepNow as any, 'artifact', embeddedId)) {
-      ui.notifications?.warn(
-        'This artifact was already upgraded this session. Use Free XP to raise it again.',
-      );
-      return false;
-    }
-
     const spend = await spendActorXp(actor, xpCost);
     if (!spend.ok) {
       ui.notifications?.warn(`Not enough XP (need ${xpCost}).`);
@@ -617,7 +607,7 @@ export async function upgradeArtifactForActor(
       },
     ]);
 
-    const stepAfter = unrestricted ? stepNow : recordBump(stepNow as any, 'artifact', embeddedId);
+    const stepAfter = recordBump(stepNow as any, 'artifact', embeddedId);
     await actor.update({
       'system.xp.currentStep.attributes': [...stepAfter.attributes],
       'system.xp.currentStep.skills': [...stepAfter.skills],

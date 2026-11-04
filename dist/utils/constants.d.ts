@@ -59,8 +59,9 @@ export declare const MAX_POWER_LEVEL = 16;
  *
  *   Artifacts — cost by the **new** Artifact Level reached
  *       (`artifactLevelXpCost`): L1 free; L2–3 = 8; L4–6 = 16; L7–9 = 32;
- *       L10 = 64. One level per Upgrade Step. MR gating still limits the
- *       maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
+ *       L10 = 64. Consecutive levels in one Upgrade Step are legal when each
+ *       intermediate level is paid. MR gating still limits the maximum
+ *       reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
  */
 export declare const XP_COSTS: {
     ATTRIBUTE: {
@@ -94,18 +95,19 @@ export declare function artifactLevelXpCost(newLevel: number): number;
 /** Total XP invested to bring an Artifact from Level 1 to `level`. */
 export declare function totalArtifactXpToLevel(level: number): number;
 /**
- * Mastery Rank from Lifetime XP (DF Core v0.9.9.1).
- * Stones listed are the permanent total at that XP: 2 + floor(XP / 20).
+ * Mastery Rank from Lifetime XP (DF Core 2026-11-04).
+ * Stones listed are the permanent total at that XP: 2 + floor(min(XP, 2200) / 20).
  *
  *  | Lifetime XP | Stones | MR | Tier        |
  *  |-------------|--------|----|-------------|
  *  | 0           | 2      | 2  | Adept       |
  *  | 100         | 7      | 3  | Expert      |
- *  | 200         | 12     | 4  | Master      |
- *  | 400         | 22     | 5  | Grandmaster |
- *  | 600         | 32     | 6  | Legend      |
- *  | 800         | 42     | 7  | Mythic      |
- *  | 1000        | 52     | 8  | Godlevel    |
+ *  | 250         | 14     | 4  | Master      |
+ *  | 500         | 27     | 5  | Grandmaster |
+ *  | 900         | 47     | 6  | Legend      |
+ *  | 1400        | 72     | 7  | Mythic      |
+ *  | 2000        | 102    | 8  | Godlevel    |
+ *  | 2200        | 112    | 8  | Stone Cap   |
  */
 export declare const MR_ADVANCEMENT: {
     lifetimeXp: number;
@@ -113,9 +115,14 @@ export declare const MR_ADVANCEMENT: {
     mr: number;
     tier: string;
 }[];
+/** Lifetime XP at which permanent Stone progression stops (112 Stones). */
+export declare const LIFETIME_STONE_CAP_XP = 2200;
+/** Permanent Stones earned at {@link LIFETIME_STONE_CAP_XP}: 2 + floor(2200 / 20). */
+export declare const LIFETIME_STONE_CAP_TOTAL = 112;
 /**
- * Divine Scale label within MR8. MR8 begins at 1000 Lifetime XP (52 Stones).
- * Returns `null` below that.
+ * Divine Scale label within MR8. MR8 begins at 2000 Lifetime XP (102 Stones).
+ * Normal permanent Stone progression ends at 2200 XP / 112 Stones.
+ * Returns `null` below MR8.
  */
 export declare function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | 'System Limit' | null;
 /**

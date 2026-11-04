@@ -2908,8 +2908,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Point spending buttons (JavaScript will check permissions)
     // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
     // the only attribute spend path is now the pending/confirm flow via
-    // `.attr-increase-xp` (which respects the once-per-step rule).
-    // DF 2026: Skill Spend / XP skill buttons retired — Spec Ranks advance in the Progression Hub (4 XP per Rank).
+    // `.attr-increase-xp` (consecutive increases in one Upgrade Step are legal).
+    // DF 2026: Skill Spend / XP skill buttons retired — Spec Ranks advance in the Progression Hub.
+
     html.find('.skill-spend-point, .skill-refund-point').on('click', (ev: JQuery.ClickEvent) => {
       ev.preventDefault();
       ui.notifications?.info(
@@ -4073,30 +4074,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
 
-    /**
-     * New spec — once-per-step rule. Each Attribute may be increased by
-     * at most +1 per Upgrade Step. The pending delta is therefore capped
-     * at +1, and if the attribute has *already* been bumped earlier in
-     * this same step (and not refunded back below its step-start value)
-     * we reject the click.
-     */
-    // Free-XP phase is exempt from the once-per-step "+1" cap.
-    if (!this.#hasFreeXp()) {
-      if (nextPending > 1) {
-        (ui as any).notifications?.warn(
-          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per session. Use Free XP to raise it again.`,
-        );
-        return;
-      }
-      const stepRule = await import('../utils/xp-step-rule.js');
-      const step = stepRule.readStep(this.actor);
-      if (nextPending > 0 && stepRule.isBumped(step, 'attribute', attributeName)) {
-        (ui as any).notifications?.warn(
-          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} was already increased this session. Use Free XP to raise it again.`,
-        );
-        return;
-      }
-    }
+    // Core 2026-11-04: consecutive Attribute increases in one Upgrade Step are
+    // legal when each intermediate level is paid (net cost checked below).
 
     const simulateMap = { ...this._pendingAttributeChanges, [attributeName]: nextPending };
     if (simulateMap[attributeName] === 0) delete simulateMap[attributeName];
@@ -4161,10 +4140,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /**
    * Free-XP phase: while the character has any Free XP available
-   * (`system.points.xpFree > 0`), upgrades are spent freely — no once-per-step
-   * "+1" cap on Attributes / Skills / Powers. Free XP is always spent before
-   * regular XP; once it is exhausted, the normal once-per-step rule applies to
-   * the regular pool again.
+   * (`system.points.xpFree > 0`), Free XP is always spent before regular XP.
+   * Consecutive increases of the same value in one Upgrade Step are legal for
+   * both Free and regular XP (Core 2026-11-04).
    */
   #hasFreeXp(): boolean {
     return ((this.actor.system as any)?.points?.xpFree ?? 0) > 0;
@@ -4184,16 +4162,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('#pending-attribute-changes-count').text(totalAbsPending);
     html.find('#remaining-attribute-xp').text(Math.max(0, remainingPoints));
     
-    /**
-     * New spec — once-per-step rule. Each Attribute may only be increased
-     * by +1 per Upgrade Step. Disable "+" if the attribute is already at
-     * its pending cap of +1 OR if it was already bumped earlier this step.
-     */
-    const bumpedAttributes = new Set<string>(
-      Array.isArray((this.actor.system as any)?.xp?.currentStep?.attributes)
-        ? ((this.actor.system as any).xp.currentStep.attributes as unknown[]).map((v) => String(v ?? ''))
-        : [],
-    );
+    // Consecutive Attribute increases in one Upgrade Step are legal; "+" is
+    // limited only by the Attribute cap (40) and available XP.
     const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
     for (const attrKey of attributeKeys) {
       const pending = this._pendingAttributeChanges[attrKey] || 0;
@@ -4218,24 +4188,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
       const nextPending = pending + 1;
       const effectiveAfter = currentValue + nextPending;
-      // Free-XP phase: spend freely (no per-step cap).
-      const wouldExceedStepCap =
-        !this.#hasFreeXp() &&
-        (nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey)));
-      if (effectiveAfter > MAX_ATTRIBUTE || wouldExceedStepCap) {
+      if (effectiveAfter > MAX_ATTRIBUTE) {
         increaseBtn.prop('disabled', true);
-        if (wouldExceedStepCap) {
-          increaseBtn.attr(
-            'title',
-            this.#hasFreeXp()
-              ? ''
-              : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.',
-          );
-        }
-      } else {
         increaseBtn.removeAttr('title');
+      } else {
         if (this.#hasFreeXp()) {
-          increaseBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
+          increaseBtn.attr('title', 'Free XP aktiv — frei verteilbar.');
+        } else {
+          increaseBtn.removeAttr('title');
         }
         const simulateMap = { ...this._pendingAttributeChanges, [attrKey]: nextPending };
         if (simulateMap[attrKey] === 0) delete simulateMap[attrKey];
@@ -4348,27 +4308,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
 
-    /**
-     * Once-per-step: players may stage +1 per Power per session unless Free XP.
-     * GM (and Free XP) may stack several pending levels, then Confirm once.
-     */
-    const isGm = !!(game as any).user?.isGM;
-    if (!this.#hasFreeXp() && !isGm) {
-      if (pending + 1 > 1) {
-        (ui as any).notifications?.warn(
-          `${item.name} can only be increased by +1 Level per session. Use Free XP to raise it again.`,
-        );
-        return;
-      }
-      const stepRule = await import('../utils/xp-step-rule.js');
-      const step = stepRule.readStep(this.actor);
-      if (pending + 1 > 0 && stepRule.isBumped(step, 'power', itemId)) {
-        (ui as any).notifications?.warn(
-          `${item.name} was already increased this session. Use Free XP to raise it again.`,
-        );
-        return;
-      }
-    }
+    // Consecutive Power Level increases in one Upgrade Step are legal when
+    // each intermediate level is paid (net cost checked below).
 
     // Simulate the new pending state
     const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: pending + 1 };
@@ -4466,15 +4407,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('#pending-power-level-changes-count').text(totalPendingChanges);
     html.find('#remaining-power-level-mp').text(Math.max(0, remainingXP));
     
-    // Once-per-step rule: powers already bumped this step have "+" disabled (players).
-    const bumpedPowers = new Set<string>(
-      Array.isArray((this.actor.system as any)?.xp?.currentStep?.powers)
-        ? ((this.actor.system as any).xp.currentStep.powers as unknown[]).map((v) => String(v ?? ''))
-        : [],
-    );
-    const isGm = !!(game as any).user?.isGM;
-    const unrestricted = this.#hasFreeXp() || isGm;
-
     // Update each power's pending display and button states
     const powers = this.actor.items.filter((item: any) => item.type === 'power');
     for (const power of powers) {
@@ -4521,28 +4453,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const decreaseBtn = html.find(`.power-decrease-level[data-item-id="${itemId}"]`);
       decreaseBtn.prop('disabled', effectiveLevel <= minLevel);
 
-      // Update increase button state
+      // Consecutive Power Levels in one Upgrade Step are legal; cap = MR×2 / XP.
       const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
       const nextPending = pending + 1;
-      const wouldExceedStepCap =
-        !unrestricted && (nextPending > 1 || (nextPending > 0 && bumpedPowers.has(itemId)));
-      if (effectiveLevel >= this.#getMaxPurchasablePowerLevel() || wouldExceedStepCap) {
+      if (effectiveLevel >= this.#getMaxPurchasablePowerLevel()) {
         increaseBtn.prop('disabled', true);
-        if (wouldExceedStepCap) {
-          increaseBtn.attr(
-            'title',
-            'Bereits in dieser Sitzung erhöht. Free XP (★) oder GM hebt das Limit auf.',
-          );
-        }
-      } else {
         increaseBtn.removeAttr('title');
-        if (unrestricted) {
-          increaseBtn.attr(
-            'title',
-            isGm && !this.#hasFreeXp()
-              ? 'GM: mehrere Level stapeln, dann Confirm'
-              : 'Free XP aktiv — frei verteilbar (kein Step-Limit).',
-          );
+      } else {
+        if (this.#hasFreeXp()) {
+          increaseBtn.attr('title', 'Free XP aktiv — frei verteilbar.');
+        } else {
+          increaseBtn.removeAttr('title');
         }
         const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: nextPending };
         const simulateNetCost = this.#calculatePowerPendingNetCost(simulateMap);
@@ -4669,23 +4590,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Two-pool accounting: Free XP is spent before regular XP.
     const acct = this.#applyXpCost(xpState, netCost);
     const newXP = acct.pointsXp + acct.pointsXpFree; // combined remaining
-    /**
-     * Once-per-step rule. Each Power may only be increased by +1 per Upgrade
-     * Step — UNLESS the character is in the Free-XP phase (unrestricted).
-     * Mark each positively-bumped power; un-bump on refund.
-     */
-    const unrestrictedPow = this.#hasFreeXp() || !!(game as any).user?.isGM;
+    // Record touched Powers for step history; consecutive increases remain legal.
     const stepRulePow = await import('../utils/xp-step-rule.js');
     let stepAfterPow = stepRulePow.readStep(this.actor);
     for (const change of powerChanges) {
       const pending = this._pendingPowerLevelChanges[change.powerId] || 0;
       if (pending > 0) {
-        if (!unrestrictedPow && stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
-          (ui as any).notifications?.error(
-            `${change.powerName} was already increased this session. Use Free XP to raise it again.`,
-          );
-          return;
-        }
         stepAfterPow = stepRulePow.recordBump(stepAfterPow, 'power', change.powerId);
       } else if (pending < 0) {
         stepAfterPow = stepRulePow.undoBump(stepAfterPow, 'power', change.powerId);
@@ -6075,24 +5985,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const allocation = allocateActorSkillPending(this.actor, simulateMap);
     const xpSteps = allocation.perSkill[skillKey]?.xpSteps ?? 0;
 
-    // Once-per-step rule for XP-funded ranks (skipped during the Free-XP phase).
-    // Ranks paid with unspent Skill Points are not limited per step.
-    if (!this.#hasFreeXp() && xpSteps > 0) {
-      if (xpSteps > 1) {
-        (ui as any).notifications?.warn(
-          `${skillKey} can only be increased by +1 per session. Use Free XP to raise it again.`,
-        );
-        return;
-      }
-      const stepRule = await import('../utils/xp-step-rule.js');
-      const step = stepRule.readStep(this.actor);
-      if (stepRule.isBumped(step, 'skill', skillKey)) {
-        (ui as any).notifications?.warn(
-          `${skillKey} was already increased this session. Use Free XP to raise it again.`,
-        );
-        return;
-      }
-    }
+    // Consecutive Skill / Specialization ranks in one Upgrade Step are legal
+    // when each intermediate rank is paid (net cost checked below).
 
     const netCost = allocation.xpNet;
     // Combined spendable XP (Free pool is spent first, then regular).
@@ -6179,11 +6073,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Enable/disable per-skill +/- buttons + per-row pending labels
     const masteryRank = this.actor.system.mastery?.rank || 2;
     const maxSkill = calculateMaxSkillRank(masteryRank);
-    const bumpedSkills = new Set<string>(
-      Array.isArray((this.actor.system as any)?.xp?.currentStep?.skills)
-        ? ((this.actor.system as any).xp.currentStep.skills as unknown[]).map((v) => String(v ?? ''))
-        : [],
-    );
     for (const skillKey of Object.keys(SKILLS)) {
       const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
       const current = Number(currentRaw) || 0;
@@ -6198,28 +6087,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: nextPending };
       const simulated = allocateActorSkillPending(this.actor, simulateMap);
       const nextXpSteps = simulated.perSkill[skillKey]?.xpSteps ?? 0;
-      // Free-XP phase: spend freely (no per-step cap). Skill-Point-funded ranks
-      // are never capped per step; only XP-funded ranks are.
-      const wouldExceedStepCap =
-        !this.#hasFreeXp() &&
-        nextXpSteps > 0 &&
-        (nextXpSteps > 1 || bumpedSkills.has(skillKey));
-      if (effective >= maxSkill || wouldExceedStepCap) {
+      // Consecutive ranks in one Upgrade Step are legal; only MR×4 / XP gates "+".
+      if (effective >= maxSkill) {
         plusBtn.prop('disabled', true);
-        if (wouldExceedStepCap) {
-          plusBtn.attr(
-            'title',
-            this.#hasFreeXp()
-              ? ''
-              : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.',
-          );
-        }
+        plusBtn.removeAttr('title');
       } else {
         plusBtn.removeAttr('title');
         if (this.#hasFreeXp()) {
-          plusBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
+          plusBtn.attr('title', 'Free XP aktiv — frei verteilbar.');
         } else if (nextXpSteps === 0) {
-          plusBtn.attr('title', 'Paid with an unspent Skill Point (no XP, no step limit).');
+          plusBtn.attr('title', 'Paid with an unspent Skill Point (no XP).');
         }
         plusBtn.prop('disabled', simulated.xpNet > availableXP);
       }
@@ -6329,24 +6206,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
     }
 
-    /**
-     * New spec — once-per-step rule. Each Skill may only be increased by
-     * +1 XP-funded rank per Upgrade Step. Ranks paid with unspent Skill
-     * Points are exempt. Mark each XP-bumped skill; un-bump on refund.
-     */
+    // Record touched Skills for step history; consecutive XP ranks remain legal.
     const stepRuleSk = await import('../utils/xp-step-rule.js');
     let stepAfterSk = stepRuleSk.readStep(this.actor);
-    // Free-XP phase: do not enforce or record per-step bumps.
-    const unrestrictedSk = this.#hasFreeXp();
     for (const change of changes) {
-      if (unrestrictedSk) continue;
       if (change.delta > 0 && change.xpSteps > 0) {
-        if (change.xpSteps > 1 || stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
-          (ui as any).notifications?.error(
-            `${change.skillKey} was already increased this session. Use Free XP to raise it again.`,
-          );
-          return;
-        }
         stepAfterSk = stepRuleSk.recordBump(stepAfterSk, 'skill', change.skillKey);
       } else if (change.delta < 0) {
         stepAfterSk = stepRuleSk.undoBump(stepAfterSk, 'skill', change.skillKey);
@@ -6583,7 +6447,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (removed) this.render(false);
   }
 
-  /** Spend 4 XP to raise one Specialization by one Rank (once per Upgrade Step). */
+  /** Spend ladder XP to raise one Specialization by one Rank (consecutive ranks per step allowed). */
   async #onSpecializationRankUp(event: JQuery.ClickEvent) {
     event.preventDefault();
     const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
@@ -8687,7 +8551,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     updateData['system.points.xpFree'] = Math.max(0, Number(points.xpFree) || 0);
     updateData['system.xp.freeEarned'] = Math.max(0, Number((xpExisting as any).freeEarned) || 0);
     updateData['system.xp.freeSpent'] = Math.max(0, Number((xpExisting as any).freeSpent) || 0);
-    // Initialize the once-per-step bump bucket at finalize.
+    // Initialize the Upgrade Step touch lists at finalize.
     updateData['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
     
     try {

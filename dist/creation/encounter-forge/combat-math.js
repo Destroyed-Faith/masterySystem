@@ -22,8 +22,8 @@ import { damageJointPmf, hitChance, pmfAtLeast, pmfMean, pmfQuantile, poolKeepPm
 /* ------------------------------------------------------------------ */
 /** One raise per +4 on the TN (RAISE_INCREMENT in the live engine). */
 export const RAISE_TN_STEP = 4;
-/** New points of one diminishing Special per round: 4 × MR (special-application.ts). */
-export const SPECIAL_APPLICATION_LIMIT_PER_MR = 4;
+/** @deprecated Global 4×MR Round application cap removed (C06). Kept as 0 for call-site compatibility. */
+export const SPECIAL_APPLICATION_LIMIT_PER_MR = 0;
 /** Natural Special Recovery at turn start: reduce negative specials by MR total. */
 export const NATURAL_RECOVERY_PER_TURN_IS_MR = true;
 /** Diminishing specials additionally decay by 1 at turn start (after recovery). */

@@ -10,7 +10,7 @@
 export declare const STARTING_MASTERY_RANK = 2;
 /** World setting `defaultMasteryRank` (fallback when an actor has no MR stored). */
 export declare function getWorldDefaultMasteryRank(): number;
-/** DF Core v0.9.9.1 Mastery Rank from Lifetime XP. 0 XP is MR2. 1000+ is MR8. */
+/** DF Core 2026-11-04 Mastery Rank from Lifetime XP. 0 XP is MR2. 2000+ is MR8. */
 export declare function masteryRankFromLifetimeXp(lifetimeXp: number): number;
 /**
  * Suggested Mastery Rank from Lifetime XP (or permanent Stones when XP is unset).

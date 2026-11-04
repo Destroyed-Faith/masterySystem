@@ -1403,8 +1403,8 @@
             {{#if @root.canEditSpecializations}}
             <div class="spec-controls">
               {{#if @root.showSpecializationRankUp}}
-              <button type="button" class="spec-rank-up" data-spec-id="{{this.id}}" title="Raise one Rank ({{@root.specializationXpPerRank}} XP, once per Upgrade Step)" {{#if (gte this.rank 8)}}disabled{{/if}}>
-                <i class="fas fa-arrow-up"></i> {{@root.specializationXpPerRank}} XP
+              <button type="button" class="spec-rank-up" data-spec-id="{{this.id}}" title="Raise one Rank ({{this.nextRankXpCost}} XP; consecutive ranks in one Upgrade Step are allowed)" {{#if (gte this.rank 8)}}disabled{{/if}}>
+                <i class="fas fa-arrow-up"></i> {{this.nextRankXpCost}} XP
               </button>
               {{/if}}
               <button type="button" class="spec-edit" data-spec-id="{{this.id}}" title="Edit Specialization"><i class="fas fa-edit"></i></button>

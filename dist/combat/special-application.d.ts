@@ -1,11 +1,10 @@
 /**
- * Diminishing Special application limit and Natural Special Recovery.
+ * Diminishing Special application helpers and Natural Special Recovery.
  *
- * Application limit: a creature may receive at most 4 × Mastery Rank *new*
- * points of the same Diminishing Special during one combat Round. Existing
- * stacks from earlier Rounds do not count. Excess is ignored (not a max
- * stack). Tracking is internal — overflow is announced on the applying chat
- * message, not as a sheet counter.
+ * The former global Round cap (4 × target Mastery Rank of newly applied
+ * Diminishing Special points) is retired. Legitimate applications are no longer
+ * clamped by that limit. Zone/Aura once-per-source / target / Round tracking
+ * lives elsewhere (`spell-zones`, aura pulse) and is unchanged.
  *
  * Natural Recovery: after Ticks at the start of the creature's Turn, the
  * creature distributes Mastery Rank reduction across negative Diminishing
@@ -14,9 +13,11 @@
  * start; otherwise the HUD can apply a single-Special choice. A Special that
  * reaches 0 ends.
  */
+/** @deprecated Legacy actor flag; no longer written by application. Kept for read/sync compatibility. */
 export declare const SPECIAL_ROUND_APPS_FLAG = "specialRoundApps";
 export declare const NATURAL_RECOVERY_FLAG = "naturalSpecialRecovery";
-export declare const SPECIAL_APPLICATION_LIMIT_PER_MR = 4;
+/** @deprecated Global 4×MR Round application cap removed (C06 / rules 2026-11-04). */
+export declare const SPECIAL_APPLICATION_LIMIT_PER_MR = 0;
 export interface SpecialRoundApps {
     combatId: string;
     round: number;
@@ -29,7 +30,11 @@ export interface ApplicationClamp {
     usedThisRound: number;
 }
 export declare function actorMasteryRank(actor: any): number;
-export declare function specialApplicationLimit(masteryRank: number): number;
+/**
+ * @deprecated Global per-Round Diminishing Special application cap removed.
+ * Always returns 0 (no limit). Callers must not clamp applications by this value.
+ */
+export declare function specialApplicationLimit(_masteryRank: number): number;
 export declare function isDiminishingSpecialId(id: string | undefined | null): boolean;
 /** Regeneration is diminishing but beneficial — Natural Recovery never targets it. */
 export declare function isNegativeDiminishingSpecialId(id: string | undefined | null): boolean;
@@ -59,15 +64,16 @@ export declare function syncSpecialRoundApps(stored: SpecialRoundApps | null, co
 export declare function remainingSpecialApplication(apps: SpecialRoundApps, specialId: string, limit: number): number;
 export declare function addSpecialApplication(apps: SpecialRoundApps, specialId: string, amount: number): SpecialRoundApps;
 /**
- * How many of `requested` new points may land this Round.
- * Out of combat, or for non-diminishing Specials, the full request lands.
+ * Passthrough for requested Special points. The retired global 4×MR Round cap
+ * no longer ignores excess. `priorApps` / round bookkeeping are unused.
  */
-export declare function clampSpecialApplication(actor: any, specialId: string | undefined, requested: number, combat?: {
+export declare function clampSpecialApplication(_actor: any, specialId: string | undefined, requested: number, _combat?: {
     id?: string;
     round?: number;
 } | null, priorApps?: SpecialRoundApps | null): ApplicationClamp & {
     nextApps: SpecialRoundApps | null;
 };
+/** @deprecated Global application-limit notes are no longer produced. */
 export declare function formatApplicationLimitNote(specialId: string, ignored: number, limit: number, masteryRank: number): string;
 export declare function formatNaturalRecoveryNote(specialId: string, before: number, after: number, reducedBy: number): string;
 export declare function pickNaturalRecoveryTarget(entries: Array<{

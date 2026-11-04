@@ -94,16 +94,16 @@ describe('Lifetime XP Mastery Rank and Stones', () => {
     [0, 2],
     [99, 2],
     [100, 3],
-    [199, 3],
-    [200, 4],
-    [399, 4],
-    [400, 5],
-    [599, 5],
-    [600, 6],
-    [799, 6],
-    [800, 7],
-    [999, 7],
-    [1000, 8],
+    [249, 3],
+    [250, 4],
+    [499, 4],
+    [500, 5],
+    [899, 5],
+    [900, 6],
+    [1399, 6],
+    [1400, 7],
+    [1999, 7],
+    [2000, 8],
     [2200, 8],
   ])('%i Lifetime XP is MR %i', (xp, mr) => {
     expect(masteryRankFromLifetimeXp(xp)).toBe(mr);
@@ -112,21 +112,22 @@ describe('Lifetime XP Mastery Rank and Stones', () => {
   it.each([
     [0, 2],
     [100, 7],
-    [200, 12],
-    [400, 22],
-    [600, 32],
-    [800, 42],
-    [1000, 52],
+    [250, 14],
+    [500, 27],
+    [900, 47],
+    [1400, 72],
+    [2000, 102],
     [2200, 112],
+    [2400, 112],
   ])('%i Lifetime XP grants %i permanent Stones', (xp, stones) => {
     expect(permanentStonesFromLifetimeXp(xp)).toBe(stones);
   });
 
   it('caps one Attribute at Lifetime-XP Mastery Rank × 2', () => {
-    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(99), 8)).toBe(4);
-    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(100), 2)).toBe(6);
-    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(200), 8)).toBe(8);
-    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(1000), 2)).toBe(16);
+    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(99), 8, 99)).toBe(4);
+    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(100), 2, 100)).toBe(6);
+    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(250), 8, 250)).toBe(8);
+    expect(stoneConcentrationCap(permanentStonesFromLifetimeXp(2000), 2, 2000)).toBe(16);
   });
 });
 

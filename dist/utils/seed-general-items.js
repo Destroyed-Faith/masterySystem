@@ -1,7 +1,7 @@
-import { WEAPONS, masteryWeaponCatalogKey } from './weapons';
-import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
-import { getItemIcon, normalizeWeaponNameKey } from './item-icons';
-import { migrateItemAmmunitionFields } from './ammunition';
+import { WEAPONS, masteryWeaponCatalogKey } from './weapons.js';
+import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
+import { getItemIcon, normalizeWeaponNameKey } from './item-icons.js';
+import { migrateItemAmmunitionFields } from './ammunition.js';
 export const STORAGE_FOLDER_NAME = 'General Items Storage';
 /** World Item folder that holds the shared mundane catalog. */
 export async function getOrCreateGeneralItemsStorageFolder() {

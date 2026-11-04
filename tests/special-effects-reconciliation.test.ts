@@ -186,16 +186,42 @@ describe('status-tick Tick + Decay engine', () => {
     };
   });
 
-  it('applies Ruin damage (ignores armor) and decays by 1', async () => {
+  it('applies Ruin tick as 4 × X (ignores armor) and decays by 1', async () => {
     const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
     const actor = makeActor([{ id: 'ruin', value: 3 }]);
+    actor.system.combat = { damageReductionPct: 0, armorTotal: 100 };
     const summary = await processTurnStartStatusTick(actor);
-    expect(summary).toMatch(/Ruin\(3\)/);
-    // 20 - 3 = 17 on first bar
-    expect(actor.system.health.bars[0].current).toBe(17);
-    // Tick 3, no HUD recovery plan, Decay → 2
+    expect(summary).toMatch(/Ruin\(3\).*12 damage/);
+    // 20 - 12 = 8 on first bar (Armor 100 does not reduce Tick)
+    expect(actor.system.health.bars[0].current).toBe(8);
+    // Tick uses 4×3=12 damage; stored stack still 3 → Decay → 2
     expect(actor.system.statusEffects).toEqual([
       expect.objectContaining({ id: 'ruin', value: 2 }),
+    ]);
+  });
+
+  it('applies Ruin(8) as 32 tick damage without multiplying the stored stack', async () => {
+    const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
+    const actor = makeActor([{ id: 'ruin', value: 8 }], { hpBar: 40 });
+    actor.system.health.bars[0].max = 40;
+    actor.system.combat = { damageReductionPct: 0, armorTotal: 100 };
+    await processTurnStartStatusTick(actor);
+    expect(actor.system.health.bars[0].current).toBe(8); // 40 - 32
+    expect(actor.system.statusEffects).toEqual([
+      expect.objectContaining({ id: 'ruin', value: 7 }),
+    ]);
+  });
+
+  it('lets eligible Damage Reduction reduce Ruin tick while Armor does not', async () => {
+    const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
+    const actor = makeActor([{ id: 'ruin', value: 5 }]);
+    actor.system.combat = { damageReductionPct: 20, armorTotal: 100 };
+    const summary = await processTurnStartStatusTick(actor);
+    // Raw tick 20; Armor ignored; DR 20% → ceil(20 * 0.8) = 16
+    expect(summary).toMatch(/Tick DR/);
+    expect(actor.system.health.bars[0].current).toBe(4); // 20 - 16
+    expect(actor.system.statusEffects).toEqual([
+      expect.objectContaining({ id: 'ruin', value: 4 }),
     ]);
   });
 
@@ -228,8 +254,8 @@ describe('status-tick Tick + Decay engine', () => {
     const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
     const actor = makeActor([{ id: 'ignite', value: 2 }]);
     await processTurnStartStatusTick(actor);
-    // Ignite → Ruin: 20 - 2 = 18 damage applied, then Decay 2 → 1
-    expect(actor.system.health.bars[0].current).toBe(18);
+    // Ignite → Ruin: 4 × 2 = 8 damage, then Decay 2 → 1
+    expect(actor.system.health.bars[0].current).toBe(12);
     expect(actor.system.statusEffects).toEqual([
       expect.objectContaining({ id: 'ruin', value: 1 }),
     ]);

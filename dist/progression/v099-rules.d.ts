@@ -18,8 +18,11 @@ export declare const OLD_STARTING_ATTRIBUTE_XP = 38;
 export declare const NEW_STARTING_PACKAGE: readonly [4, 4, 3, 3, 2, 2, 2];
 export declare const NEW_STARTING_COUNTS: Record<number, number>;
 export declare const STONE_ABILITY_MAX_TIER = 4;
-/** First Lifetime XP line on the sheet and the print. Further XP continues on the next line. */
-export declare const PRINT_LIFETIME_XP_SPAN = 660;
+/**
+ * Lifetime XP span shown on the character sheet / print stone track.
+ * Core displays progression through the permanent Stone Cap at 2200 XP.
+ */
+export declare const PRINT_LIFETIME_XP_SPAN = 2200;
 /** Old Attribute step cost to reach `nextValue` (1–80 bands of 8). */
 export declare function oldAttributeStepCost(nextValue: number): number;
 /** Cumulative old-table XP to raise one Attribute from 0 to `value`. */
@@ -57,7 +60,7 @@ export declare function nextLifetimeXp(system: any, amount: number): number | nu
  * in `build-value.ts` instead — that matches the GM XP table.
  */
 export declare function lifetimeXpForStoneProgress(system: any): number | null;
-/** Permanent Stones = 2 + floor(Lifetime XP / 20). */
+/** Permanent Stones = 2 + floor(Lifetime XP / 20), capped at 2200 XP → 112 Stones. */
 export declare function permanentStonesFromLifetimeXp(lifetimeXp: number): number;
 /**
  * Mastery Rank for Stone caps. Lifetime XP wins. Without it, the earned
@@ -147,8 +150,9 @@ export declare function chunkSlots<T>(slots: T[], size: number): T[][];
 /** Boxes on one Lifetime XP line: two Start Stones, then one box every 20 XP through `span`. */
 export declare function lifetimeLineSlotCount(span?: number): number;
 /**
- * First line runs through 660 Lifetime XP. XP past that adds boxes on the
- * next line; a full line starts another one instead of reshuffling the first.
+ * Split Lifetime XP / Stone slots into print lines. Default `lineSize` is the
+ * full Stone Cap track ({@link PRINT_LIFETIME_XP_SPAN}). Callers may pass a
+ * smaller size to wrap onto multiple lines without reshuffling earlier rows.
  */
 export declare function chunkLifetimeSlots<T>(slots: T[], lineSize?: number): T[][];
 /** v0.9.9 characters store assignments. Older actors still derive Stones from Attributes until respec. */

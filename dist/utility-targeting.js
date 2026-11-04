@@ -4,7 +4,7 @@
  * Provides targeting preview and selection for utility powers, especially AoE utilities
  * Supports single-target and radius AoE with manual target selection
  */
-import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound, markNpcAttackUsedThisRound, } from './combat/action-economy';
+import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound, markNpcAttackUsedThisRound, } from './combat/action-economy.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { getNpcAttackByIndex, npcDamageDiceFormula } from './utils/npc-attack-model.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';

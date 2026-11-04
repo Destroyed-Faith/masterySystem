@@ -212,7 +212,7 @@ export const DIMINISHING_EFFECTS: SpecialEffect[] = [
     name: 'Ruin(X)',
     category: 'diminishing',
     description:
-      'At Tick, take X damage. Ruin damage ignores Armor unless a rule says otherwise. At the start of your turn, after the Tick, Ruin decays by 1.',
+      'At Tick, take 4 × X damage. Ruin damage ignores Armor. Eligible Damage Reduction still applies. At the start of your turn, after the Tick, Natural Special Recovery may reduce Ruin, then Ruin decays by 1.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
     removal: 'Medicine Remove Action, or Cleanse.',

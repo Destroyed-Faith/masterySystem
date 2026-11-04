@@ -7,7 +7,7 @@
  * through `attributeBandCost`.
  */
 import { deriveMasteryRankFromStones, masteryRankFromLifetimeXp } from '../utils/mastery-rank-sync.js';
-import { standardTnForMasteryRank as standardTnFromConstants } from '../utils/constants.js';
+import { LIFETIME_STONE_CAP_XP, standardTnForMasteryRank as standardTnFromConstants, } from '../utils/constants.js';
 export const V099_SCHEMA_VERSION = '0.9.9.0';
 /** Rules text currently implemented. Does not replay the 0.9.9.0 migration. */
 export const DF_CORE_RULES_VERSION = '0.9.9.1';
@@ -35,8 +35,11 @@ export const OLD_STARTING_ATTRIBUTE_XP = 38;
 export const NEW_STARTING_PACKAGE = [4, 4, 3, 3, 2, 2, 2];
 export const NEW_STARTING_COUNTS = { 4: 2, 3: 2, 2: 3 };
 export const STONE_ABILITY_MAX_TIER = 4;
-/** First Lifetime XP line on the sheet and the print. Further XP continues on the next line. */
-export const PRINT_LIFETIME_XP_SPAN = 660;
+/**
+ * Lifetime XP span shown on the character sheet / print stone track.
+ * Core displays progression through the permanent Stone Cap at 2200 XP.
+ */
+export const PRINT_LIFETIME_XP_SPAN = LIFETIME_STONE_CAP_XP;
 /** Old Attribute step cost to reach `nextValue` (1–80 bands of 8). */
 export function oldAttributeStepCost(nextValue) {
     const v = Math.max(1, Math.floor(Number(nextValue) || 1));
@@ -166,9 +169,9 @@ export function nextLifetimeXp(system, amount) {
 export function lifetimeXpForStoneProgress(system) {
     return deriveLifetimeXp(system).lifetimeXp;
 }
-/** Permanent Stones = 2 + floor(Lifetime XP / 20). */
+/** Permanent Stones = 2 + floor(Lifetime XP / 20), capped at 2200 XP → 112 Stones. */
 export function permanentStonesFromLifetimeXp(lifetimeXp) {
-    const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
+    const xp = Math.max(0, Math.min(LIFETIME_STONE_CAP_XP, Math.floor(Number(lifetimeXp) || 0)));
     return 2 + Math.floor(xp / 20);
 }
 /**
@@ -378,8 +381,9 @@ export function lifetimeLineSlotCount(span = PRINT_LIFETIME_XP_SPAN) {
     return 2 + Math.floor(xp / 20);
 }
 /**
- * First line runs through 660 Lifetime XP. XP past that adds boxes on the
- * next line; a full line starts another one instead of reshuffling the first.
+ * Split Lifetime XP / Stone slots into print lines. Default `lineSize` is the
+ * full Stone Cap track ({@link PRINT_LIFETIME_XP_SPAN}). Callers may pass a
+ * smaller size to wrap onto multiple lines without reshuffling earlier rows.
  */
 export function chunkLifetimeSlots(slots, lineSize = lifetimeLineSlotCount()) {
     return chunkSlots(slots, lineSize);

@@ -1352,7 +1352,7 @@ const RAW_PASSIVE_TEMPLATES = [
             const amp = ceilPassiveQuarterLevel(lvl);
             return {
                 text: `When your qualifying successful Martial or Spell Attack delivers an eligible numeric Special(X), increase that Special by **+${amp}** ` +
-                    `after printed X, successful Raise Special Increase and Intellect Stone Special Boost, and before target Vulnerability, Special Negation and the 4 × MR application limit. ` +
+                    `after printed X, successful Raise Special Increase and Intellect Stone Special Boost, and before target Vulnerability and Special Negation. ` +
                     `Does not create Specials, amplify aura ticks, ongoing damage, ally/Summon attacks, binary Specials or hard control.`,
                 mechanics: { specialAmplification: amp },
             };

@@ -351,7 +351,7 @@ export interface CharacterData {
   points?: {
     xp?: number;
     /**
-     * Free XP balance. Spent BEFORE regular XP and without the once-per-step
+     * Free XP balance. Spent BEFORE regular XP; consecutive Upgrade Step increases are already legal for Banked XP too.
      * bump limit (GM-granted "spend freely" / testing batches). While > 0 the
      * character is in the unrestricted "free phase".
      */

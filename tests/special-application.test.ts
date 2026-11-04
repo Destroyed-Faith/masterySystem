@@ -7,7 +7,6 @@ import {
   confirmNaturalRecoveryAllocations,
   emptySpecialRoundApps,
   ensureAutoNaturalRecoveryForSingleEffect,
-  formatApplicationLimitNote,
   formatNaturalRecoveryReceiptLines,
   greedyNaturalRecoveryPlan,
   isNegativeDiminishingSpecialId,
@@ -24,30 +23,14 @@ import {
   syncSpecialRoundApps,
 } from '../src/combat/special-application.js';
 
-describe('special application limit', () => {
-  it('is 4 × Mastery Rank', () => {
-    expect(specialApplicationLimit(1)).toBe(4);
-    expect(specialApplicationLimit(2)).toBe(8);
-    expect(specialApplicationLimit(3)).toBe(12);
+describe('special application limit (retired global 4×MR cap)', () => {
+  it('reports no global Round application limit', () => {
+    expect(specialApplicationLimit(1)).toBe(0);
+    expect(specialApplicationLimit(2)).toBe(0);
+    expect(specialApplicationLimit(8)).toBe(0);
   });
 
-  it('does not count leftover stacks from a previous Round', () => {
-    const combat = { id: 'c1', round: 2 };
-    const actor = {
-      system: { mastery: { rank: 2 } },
-      flags: {
-        'mastery-system': {
-          specialRoundApps: { combatId: 'c1', round: 1, counts: { lacerate: 8 } },
-        },
-      },
-    };
-    const result = clampSpecialApplication(actor, 'lacerate', 5, combat);
-    expect(result.applied).toBe(5);
-    expect(result.ignored).toBe(0);
-    expect(result.usedThisRound).toBe(5);
-  });
-
-  it('ignores points beyond 4 × MR from all sources this Round', () => {
+  it('applies the full requested amount even above former 4 × MR', () => {
     const combat = { id: 'c1', round: 1 };
     const actor = {
       system: { mastery: { rank: 2 } },
@@ -58,12 +41,20 @@ describe('special application limit', () => {
       },
     };
     const result = clampSpecialApplication(actor, 'ruin', 5, combat);
-    expect(result.applied).toBe(2);
-    expect(result.ignored).toBe(3);
-    expect(result.limit).toBe(8);
-    expect(result.usedThisRound).toBe(8);
-    expect(formatApplicationLimitNote('ruin', 3, 8, 2)).toMatch(/Ruin/);
-    expect(formatApplicationLimitNote('ruin', 3, 8, 2)).toMatch(/3/);
+    expect(result.applied).toBe(5);
+    expect(result.ignored).toBe(0);
+    expect(result.limit).toBe(0);
+  });
+
+  it('does not clamp multi-source applications in one Round for MR2 targets', () => {
+    const combat = { id: 'c1', round: 1 };
+    const actor = { system: { mastery: { rank: 2 } }, flags: {} };
+    // Former cap was 8 for MR2; 5 + 6 = 11 must both land.
+    const first = clampSpecialApplication(actor, 'lacerate', 5, combat, null);
+    const second = clampSpecialApplication(actor, 'lacerate', 6, combat, first.nextApps);
+    expect(first.applied).toBe(5);
+    expect(second.applied).toBe(6);
+    expect(first.ignored + second.ignored).toBe(0);
   });
 
   it('leaves non-diminishing Specials and out-of-combat applications uncapped', () => {
@@ -72,7 +63,7 @@ describe('special application limit', () => {
     expect(clampSpecialApplication(actor, 'ruin', 9, null).applied).toBe(9);
   });
 
-  it('resets the internal count when the Round changes', () => {
+  it('still resets legacy round-app bookkeeping when the Round changes', () => {
     const prev = emptySpecialRoundApps({ id: 'c1', round: 1 });
     const used = addSpecialApplication(prev, 'slow', 4);
     expect(remainingSpecialApplication(used, 'slow', 4)).toBe(0);

@@ -168,58 +168,57 @@ describe('Mastery Rank Advancement (Lifetime XP)', () => {
     expect(MR_ADVANCEMENT[1]).toEqual({ lifetimeXp: 100, stones: 7, mr: 3, tier: 'Expert' });
   });
 
-  it('advances to MR4 at 200 XP', () => {
+  it('advances to MR4 at 250 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 4);
-    expect(row).toEqual({ lifetimeXp: 200, stones: 12, mr: 4, tier: 'Master' });
+    expect(row).toEqual({ lifetimeXp: 250, stones: 14, mr: 4, tier: 'Master' });
   });
 
-  it('advances to MR5 at 400 XP', () => {
+  it('advances to MR5 at 500 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 5);
-    expect(row).toEqual({ lifetimeXp: 400, stones: 22, mr: 5, tier: 'Grandmaster' });
+    expect(row).toEqual({ lifetimeXp: 500, stones: 27, mr: 5, tier: 'Grandmaster' });
   });
 
-  it('advances to MR6 at 600 XP', () => {
+  it('advances to MR6 at 900 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 6);
-    expect(row).toEqual({ lifetimeXp: 600, stones: 32, mr: 6, tier: 'Legend' });
+    expect(row).toEqual({ lifetimeXp: 900, stones: 47, mr: 6, tier: 'Legend' });
   });
 
-  it('advances to MR7 at 800 XP', () => {
+  it('advances to MR7 at 1400 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 7);
-    expect(row).toEqual({ lifetimeXp: 800, stones: 42, mr: 7, tier: 'Mythic' });
+    expect(row).toEqual({ lifetimeXp: 1400, stones: 72, mr: 7, tier: 'Mythic' });
   });
 
-  it('advances to MR8 at 1000 XP', () => {
+  it('advances to MR8 at 2000 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 8);
-    expect(row).toEqual({ lifetimeXp: 1000, stones: 52, mr: 8, tier: 'Godlevel' });
+    expect(row).toEqual({ lifetimeXp: 2000, stones: 102, mr: 8, tier: 'Godlevel' });
   });
 });
 
 describe('Divine Scale (MR8 sub-tier)', () => {
-  it('returns null below MR8 (52 stones / 1000 XP)', () => {
+  it('returns null below MR8 (102 stones / 2000 XP)', () => {
     expect(getDivineScale(0)).toBeNull();
-    expect(getDivineScale(50)).toBeNull();
-    expect(getDivineScale(51)).toBeNull();
+    expect(getDivineScale(101)).toBeNull();
   });
 
-  it('Lesser God for 52-55 stones', () => {
-    expect(getDivineScale(52)).toBe('Lesser God');
-    expect(getDivineScale(55)).toBe('Lesser God');
+  it('Lesser God for 102-103 stones', () => {
+    expect(getDivineScale(102)).toBe('Lesser God');
+    expect(getDivineScale(103)).toBe('Lesser God');
   });
 
-  it('True God for 56-63 stones', () => {
-    expect(getDivineScale(56)).toBe('True God');
-    expect(getDivineScale(63)).toBe('True God');
+  it('True God for 104-105 stones', () => {
+    expect(getDivineScale(104)).toBe('True God');
+    expect(getDivineScale(105)).toBe('True God');
   });
 
-  it('High God for 64-69 stones', () => {
-    expect(getDivineScale(64)).toBe('High God');
-    expect(getDivineScale(69)).toBe('High God');
+  it('High God for 106-107 stones', () => {
+    expect(getDivineScale(106)).toBe('High God');
+    expect(getDivineScale(107)).toBe('High God');
   });
 
-  it('Apex God for 70-111 stones and System Limit at 112', () => {
-    expect(getDivineScale(70)).toBe('Apex God');
-    expect(getDivineScale(111)).toBe('Apex God');
-    expect(getDivineScale(112)).toBe('System Limit');
+  it('Apex God through Stone Cap (112) and System Limit above', () => {
+    expect(getDivineScale(108)).toBe('Apex God');
+    expect(getDivineScale(112)).toBe('Apex God');
+    expect(getDivineScale(113)).toBe('System Limit');
     expect(getDivineScale(120)).toBe('System Limit');
   });
 });

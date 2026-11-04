@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.819] - 2026-11-04
+
+### Changed
+
+- **Ruin Tick (C05):** Ongoing Ruin damage is now `4 ×` the current stack value each tick.
+- **Special application (C06):** The global per-round Special points cap of `4 × Mastery Rank` is removed.
+- **Mastery Rank milestones (B07):** Lifetime XP thresholds are 100 / 250 / 500 / 900 / 1400 / 2000; permanent Stones cap at 2200 XP (112 Stones).
+- **Upgrade Steps (B08):** The same Attribute, Specialization, Power, or Artifact may be raised multiple times in one Upgrade Step when each intermediate level is paid and MR limits are respected.
+
 ## [0.9.818] - 2026-11-03
 
 ### Changed

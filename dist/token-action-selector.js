@@ -5,14 +5,14 @@
  *
  * Uses a PIXI-based radial menu for visual option selection
  */
-import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
-import { getSegmentIdForOption } from './radial-menu/options';
-import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting';
-import { startRangedTargeting } from './ranged-targeting';
-import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
+import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
+import { getSegmentIdForOption } from './radial-menu/options.js';
+import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting.js';
+import { startRangedTargeting } from './ranged-targeting.js';
+import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 import { excludeAlliesFromAoePool } from './combat/aoe-target-filter.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
-import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeMovementAction, isNormalMovementReplaced, markPowerUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeMovementAction, isNormalMovementReplaced, markPowerUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
 import { movementMetersAfterStoneEffects } from './stones/stone-combat-effects.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';

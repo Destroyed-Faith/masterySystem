@@ -1,11 +1,10 @@
 /**
- * Diminishing Special application limit and Natural Special Recovery.
+ * Diminishing Special application helpers and Natural Special Recovery.
  *
- * Application limit: a creature may receive at most 4 × Mastery Rank *new*
- * points of the same Diminishing Special during one combat Round. Existing
- * stacks from earlier Rounds do not count. Excess is ignored (not a max
- * stack). Tracking is internal — overflow is announced on the applying chat
- * message, not as a sheet counter.
+ * The former global Round cap (4 × target Mastery Rank of newly applied
+ * Diminishing Special points) is retired. Legitimate applications are no longer
+ * clamped by that limit. Zone/Aura once-per-source / target / Round tracking
+ * lives elsewhere (`spell-zones`, aura pulse) and is unchanged.
  *
  * Natural Recovery: after Ticks at the start of the creature's Turn, the
  * creature distributes Mastery Rank reduction across negative Diminishing
@@ -17,9 +16,11 @@
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { readActiveSpecials, statusEntryId } from '../system/active-specials.js';
+/** @deprecated Legacy actor flag; no longer written by application. Kept for read/sync compatibility. */
 export const SPECIAL_ROUND_APPS_FLAG = 'specialRoundApps';
 export const NATURAL_RECOVERY_FLAG = 'naturalSpecialRecovery';
-export const SPECIAL_APPLICATION_LIMIT_PER_MR = 4;
+/** @deprecated Global 4×MR Round application cap removed (C06 / rules 2026-11-04). */
+export const SPECIAL_APPLICATION_LIMIT_PER_MR = 0;
 function loc(key, fallback) {
     const raw = globalThis.game?.i18n?.localize?.(`MASTERY.specials.${key}`);
     return raw && raw !== `MASTERY.specials.${key}` ? raw : fallback;
@@ -33,8 +34,12 @@ function locFormat(key, data, fallback) {
 export function actorMasteryRank(actor) {
     return getRulesMasteryRank(actor);
 }
-export function specialApplicationLimit(masteryRank) {
-    return SPECIAL_APPLICATION_LIMIT_PER_MR * Math.max(1, Math.floor(Number(masteryRank) || 1));
+/**
+ * @deprecated Global per-Round Diminishing Special application cap removed.
+ * Always returns 0 (no limit). Callers must not clamp applications by this value.
+ */
+export function specialApplicationLimit(_masteryRank) {
+    return 0;
 }
 export function isDiminishingSpecialId(id) {
     if (!id)
@@ -138,26 +143,20 @@ export function addSpecialApplication(apps, specialId, amount) {
     return { ...apps, counts };
 }
 /**
- * How many of `requested` new points may land this Round.
- * Out of combat, or for non-diminishing Specials, the full request lands.
+ * Passthrough for requested Special points. The retired global 4×MR Round cap
+ * no longer ignores excess. `priorApps` / round bookkeeping are unused.
  */
-export function clampSpecialApplication(actor, specialId, requested, combat, priorApps) {
+export function clampSpecialApplication(_actor, specialId, requested, _combat, priorApps) {
     const want = Math.max(0, Math.floor(Number(requested) || 0));
-    if (!specialId || want <= 0 || !isDiminishingSpecialId(specialId) || !combat?.id) {
-        return { applied: want, ignored: 0, limit: 0, usedThisRound: 0, nextApps: priorApps ?? null };
+    if (!specialId || want <= 0) {
+        return { applied: 0, ignored: 0, limit: 0, usedThisRound: 0, nextApps: priorApps ?? null };
     }
-    const limit = specialApplicationLimit(actorMasteryRank(actor));
-    const apps = syncSpecialRoundApps(priorApps ?? readSpecialRoundApps(actor), combat);
-    const remaining = remainingSpecialApplication(apps, specialId, limit);
-    const applied = Math.min(want, remaining);
-    const ignored = want - applied;
-    const nextApps = addSpecialApplication(apps, specialId, applied);
-    const usedThisRound = Math.max(0, Math.floor(Number(nextApps.counts[specialId]) || 0));
-    return { applied, ignored, limit, usedThisRound, nextApps };
+    return { applied: want, ignored: 0, limit: 0, usedThisRound: 0, nextApps: priorApps ?? null };
 }
+/** @deprecated Global application-limit notes are no longer produced. */
 export function formatApplicationLimitNote(specialId, ignored, limit, masteryRank) {
     const name = specialDisplayName(specialId);
-    return locFormat('applicationLimit', { name, ignored, limit, rank: masteryRank }, `${name}: ${ignored} new point(s) ignored — Round limit ${limit} (4 × MR ${masteryRank}) already reached.`);
+    return locFormat('applicationLimit', { name, ignored, limit, rank: masteryRank }, `${name}: ${ignored} new point(s) ignored — Round limit ${limit} (retired; 4 × MR cap removed).`);
 }
 export function formatNaturalRecoveryNote(specialId, before, after, reducedBy) {
     const name = specialDisplayName(specialId);

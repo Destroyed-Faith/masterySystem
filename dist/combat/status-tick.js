@@ -4,7 +4,7 @@
  * At the start of the affected creature's turn, each diminishing Special
  * resolves its Tick (if any) and then decays by 1 (removed at 0), per the
  * Special Effects Reference:
- *   - Ruin(X)         : take X damage (ignores Armor)
+ *   - Ruin(X)         : take 4 × X damage (ignores Armor; eligible DR still applies)
  *   - Exorcism(X)     : take X damage (ignores Armor)
  *   - Requiem(X)      : take X damage (ignores Armor)
  *   - Blight(X)       : take X Stress (ignores Stress Armor)
@@ -30,6 +30,28 @@ import { distributeCleanseAcrossList, formatCleanseDistribution } from '../syste
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { applyNaturalRecoveryToValue, formatNaturalRecoveryNote, resolveNaturalRecoveryPlan, specialDisplayName, } from './special-application.js';
 import { canCurrentUserUpdateDocument, hasActiveGm } from './combat-permissions.js';
+import { applyDefensiveMitigation } from './damage-mitigation.js';
+/** Printed Ruin Tick damage: 4 × current stack value. Does not alter the stored stack. */
+export function ruinTickDamage(stackValue) {
+    const x = Math.max(0, Math.floor(Number(stackValue) || 0));
+    return x * 4;
+}
+/**
+ * Ongoing Special Tick damage ignores Armor. Eligible percentage Damage Reduction
+ * still reduces the remaining pool (same DR step as attack mitigation, armor = 0).
+ */
+export function mitigateArmorIgnoringTickDamage(rawDamage, damageReductionPct) {
+    const raw = Math.max(0, Math.floor(Number(rawDamage) || 0));
+    if (raw <= 0)
+        return { damage: 0, drPercent: 0 };
+    const result = applyDefensiveMitigation({
+        rawDamage: raw,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: Math.max(0, Math.min(100, Math.floor(Number(damageReductionPct) || 0))),
+    });
+    return { damage: result.mitigatedDamage, drPercent: result.drPercent };
+}
 /**
  * One client must run Tick+Decay. Prefer the GM; if no active GM is connected,
  * the document owner applies (otherwise Specials never decay).
@@ -94,10 +116,12 @@ export async function processTurnStartStatusTick(actor) {
         // Tick (before Natural Recovery and Decay).
         if (value > 0) {
             switch (id) {
-                case 'ruin':
-                    ruinDamage += value;
-                    notes.push(`Ruin(${value}) → ${value} damage`);
+                case 'ruin': {
+                    const tick = ruinTickDamage(value);
+                    ruinDamage += tick;
+                    notes.push(`Ruin(${value}) → ${tick} damage (4 × ${value})`);
                     break;
+                }
                 case 'exorcism':
                     ruinDamage += value;
                     notes.push(`Exorcism(${value}) → ${value} damage`);
@@ -202,12 +226,18 @@ export async function processTurnStartStatusTick(actor) {
         notes.push(`Blight reduces healing: ${regenHeal} → ${reducedHeal}`);
         regenHeal = reducedHeal;
     }
-    // Apply HP damage (Ruin, ignores Armor) then Regeneration heal to health bars.
+    // Apply HP damage (Ruin/Exorcism/Requiem ignore Armor; eligible DR still applies)
+    // then Regeneration heal to health bars.
     if ((ruinDamage > 0 || regenHeal > 0) && Array.isArray(system?.health?.bars) && system.health.bars.length > 0) {
         const bars = foundry.utils.duplicate(system.health.bars);
         let currentBar = Number(system.health.currentBar ?? 0);
         if (ruinDamage > 0) {
-            currentBar = applyDamage(bars, currentBar, ruinDamage);
+            const sheetDr = Math.max(0, Math.min(100, Math.floor(Number(system?.combat?.damageReductionPct) || 0)));
+            const mitigated = mitigateArmorIgnoringTickDamage(ruinDamage, sheetDr);
+            if (mitigated.drPercent > 0 && mitigated.damage !== ruinDamage) {
+                notes.push(`Tick DR ${mitigated.drPercent}%: ${ruinDamage} → ${mitigated.damage}`);
+            }
+            currentBar = applyDamage(bars, currentBar, mitigated.damage);
         }
         if (regenHeal > 0) {
             healDamage(bars, Math.min(Math.max(currentBar, 0), bars.length - 1), regenHeal);

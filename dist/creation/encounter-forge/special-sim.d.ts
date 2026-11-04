@@ -9,11 +9,10 @@
  * The simulator tracks EXPECTED stack values (fractional), which is a
  * documented approximation of the stochastic process: applying "hit chance ×
  * special value" per round instead of rolling. Errors stay small because
- * specials cap at the application limit (4 × MR new points per round) and
- * decay linearly.
+ * stacks still decay linearly each turn.
  *
  * Mechanical effects implemented per canonical special-effects.ts:
- *   ruin/exorcism/requiem — tick damage (ignores Armor), corrode — Armor −X,
+ *   ruin — tick damage 4×X (ignores Armor); exorcism/requiem — tick X (ignores Armor), corrode — Armor −X,
  *   expose — Evade −X, disoriented — attack dice −X, challenge — attack dice
  *   −X when ignoring the challenger, sundered — +1d8 per 2 on non-Spell hits,
  *   hex — +1d8 per 2 on Spell hits, lacerate — movement-triggered damage,
@@ -22,8 +21,8 @@
  */
 export type SpecialStacks = Map<string, number>;
 export declare function isKnownSpecial(id: string): boolean;
-/** Add expected special points, honoring the 4×MR-per-round application cap. */
-export declare function applyExpectedSpecial(stacks: SpecialStacks, appliedThisRound: SpecialStacks, id: string, expectedValue: number, victimMr: number, wardValue?: number): void;
+/** Add expected special points. Global 4×MR Round cap is retired (C06). */
+export declare function applyExpectedSpecial(stacks: SpecialStacks, appliedThisRound: SpecialStacks, id: string, expectedValue: number, _victimMr: number, wardValue?: number): void;
 export interface TurnStartResult {
     /** HP damage from ticking specials (ignores Armor). */
     tickDamage: number;

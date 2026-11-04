@@ -8,7 +8,6 @@
 import { CREATURE_TYPE_OPTIONS, resolveCreatureType } from '../utils/creature-type.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttackKeepDice, npcAttacksPerRoundCap, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { clampNpcInitiativeModifier, formatNpcInitiativeSigned, } from '../utils/npc-initiative.js';
-import { specialApplicationLimit } from '../combat/special-application.js';
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/npc-print.hbs';
 const PRINT_TEMPLATE_COMPACT = 'systems/mastery-system/templates/actor/npc-print-compact.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/npc-print.css';
@@ -252,7 +251,6 @@ export function buildNpcPrintContext(actor) {
             name,
             masteryRank,
             specialRecovery: masteryRank,
-            specialCap: specialApplicationLimit(masteryRank),
             castingTn,
             creatureType,
             faction,

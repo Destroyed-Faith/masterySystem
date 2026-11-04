@@ -4,7 +4,7 @@
  * At the start of the affected creature's turn, each diminishing Special
  * resolves its Tick (if any) and then decays by 1 (removed at 0), per the
  * Special Effects Reference:
- *   - Ruin(X)         : take X damage (ignores Armor)
+ *   - Ruin(X)         : take 4 × X damage (ignores Armor; eligible DR still applies)
  *   - Exorcism(X)     : take X damage (ignores Armor)
  *   - Requiem(X)      : take X damage (ignores Armor)
  *   - Blight(X)       : take X Stress (ignores Stress Armor)
@@ -21,6 +21,16 @@
  *
  * Runs GM-side only so a single client mutates the actor.
  */
+/** Printed Ruin Tick damage: 4 × current stack value. Does not alter the stored stack. */
+export declare function ruinTickDamage(stackValue: number): number;
+/**
+ * Ongoing Special Tick damage ignores Armor. Eligible percentage Damage Reduction
+ * still reduces the remaining pool (same DR step as attack mitigation, armor = 0).
+ */
+export declare function mitigateArmorIgnoringTickDamage(rawDamage: number, damageReductionPct: number): {
+    damage: number;
+    drPercent: number;
+};
 /**
  * Resolve start-of-turn Tick + Decay for one actor's diminishing Specials.
  * Returns a short human summary of what happened (for chat), or ''.

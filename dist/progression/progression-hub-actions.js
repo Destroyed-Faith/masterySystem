@@ -283,7 +283,8 @@ export function buildProgressionHubContext(actor) {
             rank: s.rank,
             cost: specializationRankUpCost(s.rank),
             canRankUp: s.rank < SPECIALIZATION_MAX_RANK,
-            bumpedThisStep: hasFreeXp(actor) ? false : stepRule.isBumped(stepRule.readStep(actor), 'skill', s.id),
+            // Informational only — consecutive Specialization ranks in one step are legal.
+            bumpedThisStep: stepRule.isBumped(stepRule.readStep(actor), 'skill', s.id),
         })),
         specializationXpPerRank: null,
         powers: powers.sort((a, b) => a.name.localeCompare(b.name)),
@@ -303,7 +304,6 @@ export async function applyAttributePendingChanges(actor, pendingMap) {
     }
     const updates = {};
     let stepAfter = stepRule.readStep(actor);
-    const unrestricted = hasFreeXp(actor);
     for (const attrKey of ATTRIBUTE_KEYS) {
         const pending = pendingMap[attrKey] || 0;
         if (!pending)
@@ -314,13 +314,10 @@ export async function applyAttributePendingChanges(actor, pendingMap) {
         if (newValue < baseline || newValue > MAX_ATTRIBUTE) {
             return { ok: false, error: `Invalid attribute change for ${attrKey}.` };
         }
-        if (!unrestricted && pending > 0) {
-            if (stepRule.isBumped(stepAfter, 'attribute', attrKey)) {
-                return { ok: false, error: `${attrKey} was already increased this Upgrade Step.` };
-            }
+        if (pending > 0) {
             stepAfter = stepRule.recordBump(stepAfter, 'attribute', attrKey);
         }
-        else if (!unrestricted && pending < 0) {
+        else if (pending < 0) {
             stepAfter = stepRule.undoBump(stepAfter, 'attribute', attrKey);
         }
         updates[`system.attributes.${attrKey}.value`] = newValue;
@@ -372,7 +369,6 @@ export async function applySkillPendingChanges(actor, pendingMap) {
     const maxSkill = calculateMaxSkillRank(masteryRank);
     const updates = {};
     let stepAfter = stepRule.readStep(actor);
-    const unrestricted = hasFreeXp(actor);
     for (const [skillKey, pending] of Object.entries(pendingMap)) {
         if (!pending)
             continue;
@@ -387,16 +383,11 @@ export async function applySkillPendingChanges(actor, pendingMap) {
         const target = Math.max(0, Math.min(maxSkill, desired));
         if (target === current)
             continue;
-        // Ranks paid with unspent Skill Points are free of the once-per-step rule;
-        // only XP-funded increases count as this step's bump.
         const xpSteps = allocation.perSkill[skillKey]?.xpSteps ?? 0;
-        if (!unrestricted && pending > 0 && xpSteps > 0) {
-            if (xpSteps > 1 || stepRule.isBumped(stepAfter, 'skill', skillKey)) {
-                return { ok: false, error: `${skillKey} was already increased this Upgrade Step.` };
-            }
+        if (pending > 0 && xpSteps > 0) {
             stepAfter = stepRule.recordBump(stepAfter, 'skill', skillKey);
         }
-        else if (!unrestricted && pending < 0) {
+        else if (pending < 0) {
             stepAfter = stepRule.undoBump(stepAfter, 'skill', skillKey);
         }
         updates[`system.skills.${skillKey}`] = target;
@@ -433,7 +424,8 @@ export async function applySkillPendingChanges(actor, pendingMap) {
 }
 /**
  * Spend ladder XP to raise one Specialization by one Rank
- * (or learn a new one at Rank 1 via learn). One increase per Specialization per Upgrade Step.
+ * (or learn a new one at Rank 1 via learn). Multiple consecutive ranks in one
+ * Upgrade Step are legal when each intermediate rank is paid separately.
  * Costs apply to future advancements only — never refund past ranks.
  */
 async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, toRank, name) {
@@ -443,13 +435,7 @@ async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, t
         return { ok: false, error: `Not enough XP (need ${cost}, have ${xpState.available}).` };
     }
     let stepAfter = stepRule.readStep(actor);
-    const unrestricted = hasFreeXp(actor);
-    if (!unrestricted) {
-        if (stepRule.isBumped(stepAfter, 'skill', specId)) {
-            return { ok: false, error: `${name} was already increased this Upgrade Step.` };
-        }
-        stepAfter = stepRule.recordBump(stepAfter, 'skill', specId);
-    }
+    stepAfter = stepRule.recordBump(stepAfter, 'skill', specId);
     const acct = applyXpCost(xpState, cost);
     const user = currentXpUser();
     const entry = {
@@ -540,7 +526,6 @@ export async function applyPowerPendingChanges(actor, pendingMap) {
         return { ok: false, error: `Not enough XP (need ${netCost}, have ${xpState.available}).` };
     }
     let stepAfter = stepRule.readStep(actor);
-    const unrestricted = hasFreeXp(actor);
     const itemUpdates = [];
     for (const [powerId, pending] of Object.entries(pendingMap)) {
         if (!pending)
@@ -554,13 +539,10 @@ export async function applyPowerPendingChanges(actor, pendingMap) {
         const target = Math.max(minLevel, Math.min(maxLevel, current + pending));
         if (target === current)
             continue;
-        if (!unrestricted && pending > 0) {
-            if (stepRule.isBumped(stepAfter, 'power', powerId)) {
-                return { ok: false, error: `${item.name} was already increased this Upgrade Step.` };
-            }
+        if (pending > 0) {
             stepAfter = stepRule.recordBump(stepAfter, 'power', powerId);
         }
-        else if (!unrestricted && pending < 0) {
+        else if (pending < 0) {
             stepAfter = stepRule.undoBump(stepAfter, 'power', powerId);
         }
         itemUpdates.push({ id: powerId, level: target });

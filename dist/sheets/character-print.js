@@ -23,7 +23,6 @@ import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-function
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
-import { specialApplicationLimit } from '../combat/special-application.js';
 import { STONE_POWERS_BY_ATTRIBUTE, effectiveStoneSupportPrefillTier, isPremiumStonePower, stonePowerRankCost, } from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
@@ -1346,7 +1345,6 @@ export function buildCharacterPrintContext(actor, options = {}) {
         echo: resolveEchoName(actor, system),
         masteryRank,
         specialRecovery: masteryRank,
-        specialCap: specialApplicationLimit(masteryRank),
         faithFractures: {
             current: rerollCurrent,
             maximum: rerollMax,
