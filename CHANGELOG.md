@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.833] - 2026-11-05
+
+### Fixed
+
+- **Echo inventory hide test:** aligned with stow behavior (unequipped Echo can appear in backpack; slotted/equipped stays hidden).
+
 ## [0.9.832] - 2026-11-05
 
 ### Added
