@@ -15,19 +15,19 @@
     },
     {
       "file": "src\\combat\\attack-executor.ts",
-      "line": 627,
+      "line": 630,
       "match": "/moonlight",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
       "file": "src\\combat\\attack-executor.ts",
-      "line": 681,
+      "line": 678,
       "match": "/breath",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
       "file": "src\\combat\\attack-executor.ts",
-      "line": 721,
+      "line": 710,
       "match": "/breath",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
@@ -45,7 +45,7 @@
     },
     {
       "file": "src\\combat\\cleanse-resolution.ts",
-      "line": 82,
+      "line": 85,
       "match": "/\\bcleanse",
       "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
@@ -63,7 +63,7 @@
     },
     {
       "file": "src\\combat\\defender-reactions.ts",
-      "line": 185,
+      "line": 188,
       "match": "/\\bevade",
       "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
@@ -93,13 +93,13 @@
     },
     {
       "file": "src\\combat\\heal-resolution.ts",
-      "line": 229,
+      "line": 231,
       "match": "artifactRowLooksLikeHeal",
       "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
       "file": "src\\combat\\heal-resolution.ts",
-      "line": 234,
+      "line": 237,
       "match": "inferRestoration",
       "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
@@ -207,7 +207,7 @@
     },
     {
       "file": "src\\combat\\reaction-kind.ts",
-      "line": 27,
+      "line": 28,
       "match": "name.includes(",
       "reason": "R3 — shared reaction-kind missing-ID bridge (moved from eligibility/parry)"
     },
@@ -219,13 +219,13 @@
     },
     {
       "file": "src\\combat\\reaction-kind.ts",
-      "line": 68,
+      "line": 67,
       "match": "name.includes(",
       "reason": "R3 — shared reaction-kind missing-ID bridge (moved from eligibility/parry)"
     },
     {
       "file": "src\\combat\\reaction-kind.ts",
-      "line": 69,
+      "line": 68,
       "match": "name.includes(",
       "reason": "R3 — shared reaction-kind missing-ID bridge (moved from eligibility/parry)"
     },
@@ -255,7 +255,7 @@
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 52,
+      "line": 59,
       "match": "classifyArtifactRowType",
       "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
@@ -315,19 +315,19 @@
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 552,
+      "line": 551,
       "match": "isBreathWeaponName",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 555,
+      "line": 554,
       "match": "isBreathWeaponName",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 562,
+      "line": 561,
       "match": "const stageSuffix",
       "reason": "display"
     },
@@ -375,7 +375,7 @@
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 912,
+      "line": 919,
       "match": "tags.includes(",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
@@ -411,13 +411,13 @@
     },
     {
       "file": "src\\utils\\artifact-active-buffs.ts",
-      "line": 67,
+      "line": 71,
       "match": "power level",
       "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
       "file": "src\\utils\\artifact-active-buffs.ts",
-      "line": 291,
+      "line": 289,
       "match": "/moonlight",
       "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },

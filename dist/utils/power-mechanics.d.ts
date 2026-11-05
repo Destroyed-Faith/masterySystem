@@ -88,6 +88,25 @@ export declare function buildPassiveMechanicsBreakdown(actor: any): MechanicsBre
 /** Active buff ActiveEffects only (combat-time bonuses, not sheet base totals). */
 export declare function buildBuffMechanicsBreakdown(actor: any): MechanicsBreakdown;
 /**
+ * Single collection pass for prepareDerivedData (A2).
+ * Derives all / passive / buff breakdowns from one item+effect walk.
+ */
+export declare function buildActorMechanicsBreakdowns(actor: any): {
+    all: MechanicsBreakdown;
+    passive: MechanicsBreakdown;
+    buff: MechanicsBreakdown;
+};
+/**
+ * Display-only defense peek for the combat carousel (A4).
+ * Re-evaluates self-facing conditionExpr (adjacency / movement) without a full
+ * `prepareDerivedData` pass. Callers overlay these onto stored combat totals.
+ */
+export declare function peekSelfFacingDefenseMechanics(actor: any): {
+    armorPassive: number;
+    evadePassive: number;
+    damageReductionPct: number;
+};
+/**
  * Roll-dice delta for a given roll kind. Consumed by `roll-handler.ts`
  * right before the numDice pool is committed to `masteryRoll`.
  *

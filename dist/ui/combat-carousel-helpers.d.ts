@@ -20,6 +20,42 @@ export declare function nameFromUpdateDiff(changed: any, fallback?: unknown): st
 /** Token id for a sheet Actor (synthetic token actor or first active placeable). */
 export declare function actorTokenId(actor: any): string;
 /**
+ * Read NPC/summon stat-block DR % from the prepared combat breakdown rows.
+ * `prepareDerivedData` records it as label "Stat block" / detail "NPC DR %".
+ */
+export declare function readNpcBlockDrPctFromCombat(combat: any): number;
+export type CarouselDefensePeek = {
+    armorPassive: number;
+    evadePassive: number;
+    damageReductionPct: number;
+};
+/**
+ * Overlay self-facing mechanics peek onto stored combat totals for the carousel
+ * strip (A4). Replaces only the mechanics-derived portion of Armor / Evade / DR;
+ * preserves NPC stat-block DR (max), manual DR, and Stone DR Boost.
+ */
+export declare function overlayCarouselDefenseStrip(input: {
+    actorType?: string;
+    armorTotal: number;
+    evadeTotal: number;
+    damageReductionPct: number;
+    armorFromMechanics: number;
+    evadeFromMechanics: number;
+    /** Mechanics DR total from last `prepareDerivedData` (`derived.mechanicsBreakdown`). */
+    damageReductionFromMechanics: number;
+    /** NPC/summon stat-block DR % (0 when absent). */
+    npcBlockDrPct?: number;
+    /** Manual sheet DR adjustment (may be negative). */
+    manualDrPct?: number;
+    /** Stone DR Boost % (`combat.stoneDrBonusPct`). */
+    stoneDrBonusPct?: number;
+    peek: CarouselDefensePeek;
+}): {
+    armor: number;
+    evade: number;
+    drPct: number;
+};
+/**
  * Match a sheet Actor to combatants.
  * Token-bound sheets match that Token only (unlinked NPC copies share actorId).
  */

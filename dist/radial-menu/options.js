@@ -638,15 +638,21 @@ function legacySegmentIdForOption(option) {
     }
 }
 export function getSegmentIdForOption(option) {
-    const legacy = legacySegmentIdForOption(option);
     // K8.a: identity category/segment decides when resolvable; legacy text/tags are
     // the missing-ID bridge (and consumable attack-slot policy).
-    return compareIdentityDecision('radial.getSegmentIdForOption', legacy, () => {
-        if (option.source === 'maneuver' || option.source === 'npc-attack')
-            return legacy;
+    // Legacy is a thunk (A1) so text/mechanics work is skipped when identity resolves.
+    return compareIdentityDecision('radial.getSegmentIdForOption', () => legacySegmentIdForOption(option), () => {
+        if (option.source === 'maneuver' || option.source === 'npc-attack') {
+            return legacySegmentIdForOption(option);
+        }
         const id = resolvePowerIdentity({ kind: 'radial-option', option });
-        if (!id.ok)
-            return { kind: 'unresolved', reason: id.reason, legacy };
+        if (!id.ok) {
+            return {
+                kind: 'unresolved',
+                reason: id.reason,
+                legacy: legacySegmentIdForOption(option),
+            };
+        }
         // Consumables spend an Attack Action and are attack-slotted by design
         // (`buildConsumableAttackOption.slot = 'attack'`), even when the stored
         // power is a heal/support template. Structured check via consumableItemId/tag.
@@ -665,8 +671,8 @@ export function getSegmentIdForOption(option) {
         if (id.category === 'reaction')
             return 'utility';
         if (id.category === 'passive')
-            return legacy;
-        return legacy;
+            return legacySegmentIdForOption(option);
+        return legacySegmentIdForOption(option);
     }, { optionId: option.id, name: option.name, source: option.source }, { prefer: 'identity' });
 }
 /**

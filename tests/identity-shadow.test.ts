@@ -1,7 +1,7 @@
 /**
  * C1 / K5 Shadow-Compare isolation tests (plan §11 S1–S3 + hygiene).
  */
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import {
   clearIdentityShadowLog,
   compareIdentityDecision,
@@ -10,6 +10,8 @@ import {
   getIdentityShadowLog,
   getIdentityShadowSkipCount,
   IDENTITY_SHADOW_LOG_CAP,
+  isIdentityShadowEnabled,
+  setIdentityShadowEnabled,
 } from '../src/utils/identity-shadow.js';
 import { getSegmentIdForOption } from '../src/radial-menu/options.js';
 import { resolvePowerMechanics } from '../src/utils/power-mechanics.js';
@@ -18,7 +20,56 @@ import { isHealRadialOption } from '../src/combat/heal-resolution.js';
 import { isCleanseRadialOption } from '../src/combat/cleanse-resolution.js';
 
 describe('identity shadow compare', () => {
-  beforeEach(() => clearIdentityShadowLog());
+  beforeEach(() => {
+    clearIdentityShadowLog();
+    setIdentityShadowEnabled(true);
+  });
+
+  afterEach(() => {
+    setIdentityShadowEnabled(false);
+    clearIdentityShadowLog();
+  });
+
+  it('A1: production default is shadow disabled', () => {
+    setIdentityShadowEnabled(false);
+    expect(isIdentityShadowEnabled()).toBe(false);
+    compareIdentityDecision('test.a1.off', 'legacy', () => 'identity');
+    expect(getIdentityShadowLog()).toHaveLength(0);
+  });
+
+  it('A1: lazy legacy thunk is not evaluated when identity resolves and shadow is off', () => {
+    setIdentityShadowEnabled(false);
+    let legacyCalls = 0;
+    const out = compareIdentityDecision(
+      'test.a1.lazy',
+      () => {
+        legacyCalls += 1;
+        return 'legacy' as const;
+      },
+      () => 'identity',
+      {},
+      { prefer: 'identity' },
+    );
+    expect(out).toBe('identity');
+    expect(legacyCalls).toBe(0);
+  });
+
+  it('A1: lazy legacy thunk runs on unresolved identity when shadow is off', () => {
+    setIdentityShadowEnabled(false);
+    let legacyCalls = 0;
+    const out = compareIdentityDecision(
+      'test.a1.lazy.fallback',
+      () => {
+        legacyCalls += 1;
+        return 'legacy-fallback' as const;
+      },
+      () => ({ kind: 'unresolved', reason: 'missing-identity' }),
+      {},
+      { prefer: 'identity' },
+    );
+    expect(out).toBe('legacy-fallback');
+    expect(legacyCalls).toBe(1);
+  });
 
   it('S1: returns legacy even when identity disagrees', () => {
     const out = compareIdentityDecision('test.s1', 'legacy-value', () => 'identity-value');

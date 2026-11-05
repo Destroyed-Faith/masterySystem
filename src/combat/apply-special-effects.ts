@@ -121,7 +121,7 @@ export async function applySpecialStringsToTarget(
         const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
         const decidedId = compareIdentityDecision(
           'specials.resolveByName',
-          effectDef?.id || null,
+          () => effectDef?.id || null,
           () => {
             const asId = getEffect(effectName);
             return asId?.id && asId.id === effectName.toLowerCase().replace(/\s+/g, '-')

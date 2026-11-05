@@ -12,6 +12,7 @@ import { resolvePowerIdentity } from '../src/utils/power-identity.js';
 import {
   clearIdentityShadowLog,
   getIdentityShadowLog,
+  setIdentityShadowEnabled,
 } from '../src/utils/identity-shadow.js';
 
 function potionOfMoonlightMending(id = 'vDZ9GD9Ut3KDevZR') {
@@ -80,6 +81,7 @@ function flag(data: Record<string, unknown>) {
 describe('R-17 radial identity mismatches', () => {
   beforeEach(() => {
     clearIdentityShadowLog();
+    setIdentityShadowEnabled(true);
   });
 
   describe('1. Consumable Potion of Moonlight Mending I', () => {

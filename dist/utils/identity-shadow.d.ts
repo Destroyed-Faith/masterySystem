@@ -1,6 +1,11 @@
 /**
  * C1 Shadow-Compare: legacy path decides; identity path runs in parallel and logs diffs.
  * Never changes combat outcomes (plan §10.5 / Batch C1 / K5).
+ *
+ * Post-K9 A1: shadow logging is **off by default** in production. Opt in via
+ * `setIdentityShadowEnabled(true)` or the world setting `identityShadowCompare`.
+ * Legacy decisions may be passed as thunks so the text path is not evaluated
+ * when identity resolves and shadow is disabled.
  */
 export type IdentityShadowDecision = {
     kind: 'resolved';
@@ -29,6 +34,7 @@ export interface IdentityShadowEntry {
 /** Soft cap — oldest mismatch entries are dropped first when exceeded. */
 export declare const IDENTITY_SHADOW_LOG_CAP = 500;
 export declare function setIdentityShadowEnabled(value: boolean): void;
+export declare function isIdentityShadowEnabled(): boolean;
 export declare function getIdentityShadowLog(): readonly IdentityShadowEntry[];
 export declare function clearIdentityShadowLog(): void;
 export declare function getIdentityShadowSkipCount(): number;
@@ -45,6 +51,8 @@ export declare function exportIdentityShadowReport(opts?: {
 /** Group mismatches by siteId prefix (first segment before `.`). */
 export declare function exportIdentityShadowClusterReports(): Record<string, ReturnType<typeof exportIdentityShadowReport>>;
 export type IdentityDecisionPrefer = 'legacy' | 'identity';
+/** Eager value or lazy thunk — thunks skip text/legacy work when identity wins. */
+export type LegacyDecisionInput<T> = T | (() => T);
 /**
  * Compare legacy decision vs identity decision and return the preferred path.
  *
@@ -53,8 +61,11 @@ export type IdentityDecisionPrefer = 'legacy' | 'identity';
  *   concrete value; on unresolved/throw, falls back to legacy unless
  *   `unresolvedFallsBackToLegacy: false` (then returns the unresolved object cast
  *   through as T — callers must narrow).
+ *
+ * Pass `legacyDecision` as a thunk (`() => …`) so the text/name path is not
+ * evaluated when shadow is off and identity resolves.
  */
-export declare function compareIdentityDecision<T>(siteId: string, legacyDecision: T, identityDecisionFactory: () => unknown, ref?: Record<string, unknown>, opts?: {
+export declare function compareIdentityDecision<T>(siteId: string, legacyDecision: LegacyDecisionInput<T>, identityDecisionFactory: () => unknown, ref?: Record<string, unknown>, opts?: {
     prefer?: IdentityDecisionPrefer;
     unresolvedFallsBackToLegacy?: boolean;
 }): T;

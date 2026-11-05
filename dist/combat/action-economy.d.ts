@@ -292,7 +292,14 @@ export declare function getStoneAreaBonusMeters(actor: Actor | null | undefined,
  *
  * Foundry `setFlag` **merges** object values — writing `npcAttackUsesThisRound: {}`
  * does NOT remove prior keys. That left spent NPC attack copies stuck forever across
- * rounds. Always replace the whole `roundState` flag (unset, then set).
+ * rounds.
+ *
+ * Prefer a single Foundry V14 write with ForcedReplacement / `_replace`:
+ *   `{ 'flags.mastery-system.roundState': _replace(toSave) }`
+ * Fall back to the legacy `==roundState` key (compatible through V16), then to
+ * unsetFlag + setFlag when `update` is missing, throws, or does not apply replace
+ * (common in unit-test doubles). Never treat an optimistic local mirror as proof
+ * of persistence — verify the document flag first.
  */
 export declare function setRoundState(actor: Actor, state: RoundState): Promise<void>;
 /** Free Raises left this Round (Intellect Stone Ability). */

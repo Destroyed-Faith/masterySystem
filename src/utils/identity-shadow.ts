@@ -1,6 +1,11 @@
 /**
  * C1 Shadow-Compare: legacy path decides; identity path runs in parallel and logs diffs.
  * Never changes combat outcomes (plan §10.5 / Batch C1 / K5).
+ *
+ * Post-K9 A1: shadow logging is **off by default** in production. Opt in via
+ * `setIdentityShadowEnabled(true)` or the world setting `identityShadowCompare`.
+ * Legacy decisions may be passed as thunks so the text path is not evaluated
+ * when identity resolves and shadow is disabled.
  */
 
 export type IdentityShadowDecision =
@@ -31,11 +36,16 @@ export const IDENTITY_SHADOW_LOG_CAP = 500;
 
 const sessionLog: IdentityShadowEntry[] = [];
 const dedupeIndex = new Map<string, number>();
-let enabled = true;
+/** Production default: off. Tests that assert the log must opt in. */
+let enabled = false;
 let skippedNpcOrManeuver = 0;
 
 export function setIdentityShadowEnabled(value: boolean): void {
   enabled = value;
+}
+
+export function isIdentityShadowEnabled(): boolean {
+  return enabled;
 }
 
 export function getIdentityShadowLog(): readonly IdentityShadowEntry[] {
@@ -147,6 +157,15 @@ function isUnresolvedIdentityValue(value: unknown): boolean {
 
 export type IdentityDecisionPrefer = 'legacy' | 'identity';
 
+/** Eager value or lazy thunk — thunks skip text/legacy work when identity wins. */
+export type LegacyDecisionInput<T> = T | (() => T);
+
+function resolveLegacyDecision<T>(legacyDecision: LegacyDecisionInput<T>): T {
+  return typeof legacyDecision === 'function'
+    ? (legacyDecision as () => T)()
+    : legacyDecision;
+}
+
 /**
  * Compare legacy decision vs identity decision and return the preferred path.
  *
@@ -155,10 +174,13 @@ export type IdentityDecisionPrefer = 'legacy' | 'identity';
  *   concrete value; on unresolved/throw, falls back to legacy unless
  *   `unresolvedFallsBackToLegacy: false` (then returns the unresolved object cast
  *   through as T — callers must narrow).
+ *
+ * Pass `legacyDecision` as a thunk (`() => …`) so the text/name path is not
+ * evaluated when shadow is off and identity resolves.
  */
 export function compareIdentityDecision<T>(
   siteId: string,
-  legacyDecision: T,
+  legacyDecision: LegacyDecisionInput<T>,
   identityDecisionFactory: () => unknown,
   ref?: Record<string, unknown>,
   opts?: {
@@ -174,18 +196,19 @@ export function compareIdentityDecision<T>(
       try {
         const identity = identityDecisionFactory();
         if (!isUnresolvedIdentityValue(identity)) return identity as T;
-        return unresolvedFallsBack ? legacyDecision : (identity as T);
+        return unresolvedFallsBack ? resolveLegacyDecision(legacyDecision) : (identity as T);
       } catch {
-        return legacyDecision;
+        return resolveLegacyDecision(legacyDecision);
       }
     }
-    return legacyDecision;
+    return resolveLegacyDecision(legacyDecision);
   }
   if (shouldSkipRef(ref)) {
     skippedNpcOrManeuver += 1;
-    return legacyDecision;
+    return resolveLegacyDecision(legacyDecision);
   }
 
+  const legacy = resolveLegacyDecision(legacyDecision);
   let identity: unknown;
   try {
     identity = identityDecisionFactory();
@@ -195,12 +218,12 @@ export function compareIdentityDecision<T>(
       message: err instanceof Error ? err.message : String(err),
     };
   }
-  const equal = stableEqual(legacyDecision, identity);
-  const dedupeKey = `${siteId}::${fingerprint(ref)}::${fingerprint(legacyDecision)}::${fingerprint(identity)}`;
+  const equal = stableEqual(legacy, identity);
+  const dedupeKey = `${siteId}::${fingerprint(ref)}::${fingerprint(legacy)}::${fingerprint(identity)}`;
   const entry: IdentityShadowEntry = {
     siteId,
     at: new Date().toISOString(),
-    legacy: legacyDecision,
+    legacy,
     identity,
     equal,
     ref,
@@ -208,12 +231,12 @@ export function compareIdentityDecision<T>(
   };
   pushEntry(entry);
   if (!equal && typeof console !== 'undefined' && console.info) {
-    console.info('[identity-shadow]', siteId, { legacy: legacyDecision, identity, ref });
+    console.info('[identity-shadow]', siteId, { legacy, identity, ref });
   }
 
   if (prefer === 'identity') {
     if (!isUnresolvedIdentityValue(identity)) return identity as T;
-    return unresolvedFallsBack ? legacyDecision : (identity as T);
+    return unresolvedFallsBack ? legacy : (identity as T);
   }
-  return legacyDecision;
+  return legacy;
 }

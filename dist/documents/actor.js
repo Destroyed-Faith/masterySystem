@@ -4,7 +4,7 @@
 import { initializeHealthBars, initializeStressBars, calculateHealthBarMax, isHealthBarScarred, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier, getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
-import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, buildPassiveMechanicsBreakdown, resolvePowerMechanics, } from '../utils/power-mechanics.js';
+import { buildActorMechanicsBreakdowns, resolvePowerMechanics, } from '../utils/power-mechanics.js';
 import { fortitudeMultiplierForLevel, passiveDamageNegationReserveForLevel, passiveParryPoolForLevel, } from '../utils/powers/templates/passives.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
@@ -788,12 +788,10 @@ export class MasteryActor extends Actor {
         system.combat.initiativeEquipmentTotalDisplay =
             iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq);
         system.combat.initiativeMasteryRank = masteryRank;
-        // Power Mechanics Engine — Aggregator
+        // Power Mechanics Engine — Aggregator (A2: one contribution collection).
         // Owned Passives (always-on) feed Armor / Evade / Initiative / DR into sheet
         // totals. Active Buff armor/evade still apply only at hit resolution.
-        const mechBreakdown = buildActorMechanicsBreakdown(this);
-        const passiveMechBreakdown = buildPassiveMechanicsBreakdown(this);
-        const buffMechBreakdown = buildBuffMechanicsBreakdown(this);
+        const { all: mechBreakdown, passive: passiveMechBreakdown, buff: buffMechBreakdown, } = buildActorMechanicsBreakdowns(this);
         if (!system.derived)
             system.derived = {};
         system.derived.mechanicsBreakdown = mechBreakdown;

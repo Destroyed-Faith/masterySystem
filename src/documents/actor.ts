@@ -24,9 +24,7 @@ import {
   resolveEquippedWeaponForAttackType,
 } from '../utils/unarmed-fallback.js';
 import {
-  buildActorMechanicsBreakdown,
-  buildBuffMechanicsBreakdown,
-  buildPassiveMechanicsBreakdown,
+  buildActorMechanicsBreakdowns,
   resolvePowerMechanics,
 } from '../utils/power-mechanics.js';
 import {
@@ -852,12 +850,14 @@ export class MasteryActor extends Actor {
       iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq);
     system.combat.initiativeMasteryRank = masteryRank;
 
-    // Power Mechanics Engine — Aggregator
+    // Power Mechanics Engine — Aggregator (A2: one contribution collection).
     // Owned Passives (always-on) feed Armor / Evade / Initiative / DR into sheet
     // totals. Active Buff armor/evade still apply only at hit resolution.
-    const mechBreakdown = buildActorMechanicsBreakdown(this);
-    const passiveMechBreakdown = buildPassiveMechanicsBreakdown(this);
-    const buffMechBreakdown = buildBuffMechanicsBreakdown(this);
+    const {
+      all: mechBreakdown,
+      passive: passiveMechBreakdown,
+      buff: buffMechBreakdown,
+    } = buildActorMechanicsBreakdowns(this);
     if (!system.derived) system.derived = {};
     system.derived.mechanicsBreakdown = mechBreakdown;
     system.derived.buffMechanicsBreakdown = buffMechBreakdown;

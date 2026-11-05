@@ -30,6 +30,8 @@ import {
 import {
   carouselSideClass,
   findNextCombatantId,
+  overlayCarouselDefenseStrip,
+  readNpcBlockDrPctFromCombat,
   resolveCombatantDisplayName,
   resolveCurrentCombatantId,
 } from './combat-carousel-helpers.js';
@@ -65,6 +67,7 @@ import {
   forceEncounterDialogForAll,
 } from '../combat/encounter-setup-status.js';
 import { readDeferredIds } from '../combat/turn-defer.js';
+import { peekSelfFacingDefenseMechanics } from '../utils/power-mechanics.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -366,17 +369,44 @@ export class CombatCarouselApp extends BaseCarousel {
         stripTooltip?: string;
       } | null = null;
       try {
-        // Re-run derived prep so `conditionExpr` that depends on token positions
-        // (e.g. adjacent enemies) matches the canvas after any token has moved.
-        try {
-          if (typeof (actor as any).prepareDerivedData === 'function') {
-            (actor as any).prepareDerivedData();
-          }
-        } catch {
-          /* ignore */
-        }
+        // A4: do not call full prepareDerivedData per combatant. Overlay
+        // self-facing conditionExpr (adjacency / movement) via a lightweight
+        // mechanics peek so the strip stays fresh after token moves.
+        // Replace only the mechanics-derived DR portion; keep NPC block / manual / stone.
         const c: any = (actor.system as any)?.combat ?? {};
-        const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
+        let stripArmor = Math.floor(Number(c.armorTotal ?? 0) || 0);
+        let stripEvade = Math.floor(Number(c.evadeTotal ?? 0) || 0);
+        let drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
+        try {
+          const peek = peekSelfFacingDefenseMechanics(actor);
+          const storedMechDr = Math.max(
+            0,
+            Math.floor(
+              Number((actor.system as any)?.derived?.mechanicsBreakdown?.totals?.damageReductionPct) ||
+                0,
+            ),
+          );
+          const overlaid = overlayCarouselDefenseStrip({
+            actorType: String((actor as any).type || ''),
+            armorTotal: stripArmor,
+            evadeTotal: stripEvade,
+            damageReductionPct: drPct,
+            armorFromMechanics: Math.max(0, Math.floor(Number(c.armorFromMechanics) || 0)),
+            evadeFromMechanics: Math.floor(Number(c.evadeFromMechanics) || 0),
+            damageReductionFromMechanics: storedMechDr,
+            npcBlockDrPct: readNpcBlockDrPctFromCombat(c),
+            manualDrPct: Math.floor(
+              Number((actor.system as any)?.manual?.combat?.damageReductionPct) || 0,
+            ),
+            stoneDrBonusPct: Math.max(0, Math.floor(Number(c.stoneDrBonusPct) || 0)),
+            peek,
+          });
+          stripArmor = overlaid.armor;
+          stripEvade = overlaid.evade;
+          drPct = overlaid.drPct;
+        } catch {
+          /* keep stored combat totals */
+        }
         const stripTooltip = (() => {
           try {
             const i18n = (globalThis as any).game?.i18n;
@@ -384,8 +414,8 @@ export class CombatCarouselApp extends BaseCarousel {
               const s = i18n?.localize?.(k);
               return s && !String(s).startsWith('MASTERY.') ? String(s) : fb;
             };
-            const a = Math.floor(Number(c.armorTotal ?? 0) || 0);
-            const e = Math.floor(Number(c.evadeTotal ?? 0) || 0);
+            const a = stripArmor;
+            const e = stripEvade;
             const dr = drPct;
             const ar = (c.armorBreakdownRows as any[]) || [];
             const ev = (c.evadeBreakdownRows as any[]) || [];
@@ -422,8 +452,8 @@ export class CombatCarouselApp extends BaseCarousel {
           }
         })();
         combatStrip = {
-          armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
-          evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
+          armor: stripArmor,
+          evade: stripEvade,
           showDr: true,
           drPct,
           stripTooltip,

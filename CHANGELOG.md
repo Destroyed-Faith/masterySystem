@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.834] - 2026-11-05
+
+### Fixed
+
+- **Limited / Breath spend order:** cancelled Breath attribute dialogs and Not-a-Target aborts no longer consume Limited/Breath charges.
+- **Reaction Temp HP on unowned NPCs:** clear/grant paths use permission-safe GM relay.
+- **Combat Carousel DR strip:** overlay replaces only mechanics-derived DR; preserves NPC stat-block (max), manual DR, and Stone DR Boost after token moves.
+
+### Changed
+
+- **Runtime optimization closeout (post-K9):** identity shadow compare off by default with lazy legacy thunks; single mechanics contribution collect in `prepareDerivedData`; `setRoundState` prefers Foundry V14 `_replace` / ForcedReplacement with verified fallback; carousel / `actorHasPassiveDR` avoid full `prepareDerivedData`; Phasing/Reaction/Limited errors no longer swallowed as module-load soft-fails.
+
 ## [0.9.833] - 2026-11-05
 
 ### Fixed

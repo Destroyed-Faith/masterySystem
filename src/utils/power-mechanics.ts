@@ -314,40 +314,27 @@ function resolveMechanicsFromCatalogLegacy(
   return mechanicsFromTemplateDef(def, rank);
 }
 
-function stableMechanicsEqual(a: PowerMechanics | null, b: PowerMechanics | null): boolean {
-  try {
-    return JSON.stringify(a) === JSON.stringify(b);
-  } catch {
-    return a === b;
-  }
-}
-
 function resolveMechanicsFromCatalog(
   powerItem: any,
   rank: number,
 ): PowerMechanics | null {
-  const legacy = resolveMechanicsFromCatalogLegacy(powerItem, rank);
   const sys = powerItem.system ?? {};
   // K8.b: templateId-only resolve when present; name lookup remains missing-ID bridge.
+  // Legacy thunk (A1): name catalog walk skipped when templateId resolves.
   return compareIdentityDecision(
     'mechanics.resolveFromCatalog',
-    legacy,
+    () => resolveMechanicsFromCatalogLegacy(powerItem, rank),
     () => {
       const tid = sys.templateId ? String(sys.templateId) : '';
       if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
       const byId = resolveMechanicsFromCatalogByIdOnly(powerItem, rank);
-      // R4: unknown / conflicting templateId must be visible, not a silent null.
+      // R4: unknown templateId must be visible, not a silent null.
+      // Catalog-vs-name conflicts surface via identity-shadow when that diagnostic is on.
       if (!byId) {
         const label = String(powerItem?.name ?? sys.name ?? tid);
         console.warn(
           `Mastery System | Unknown or unranked templateId "${tid}" on "${label}" — ` +
             'catalog mechanics omitted (no name fallback while a structured id is set).',
-        );
-      } else if (legacy && !stableMechanicsEqual(legacy, byId)) {
-        const label = String(powerItem?.name ?? sys.name ?? tid);
-        console.warn(
-          `Mastery System | templateId "${tid}" on "${label}" resolves different mechanics ` +
-            'than the legacy name path — identity (by-id) wins.',
         );
       }
       return byId;
@@ -431,40 +418,46 @@ function isSanctionedDRByTemplateId(contribution: MechanicsContribution): boolea
   return false;
 }
 
-function isSanctionedDR(contribution: MechanicsContribution): boolean {
+function isSanctionedDRLegacy(contribution: MechanicsContribution): boolean {
   const expected = DR_SANCTIONED_POWER_NAMES[contribution.sourceKind];
   const actual = normalizePowerName(contribution.powerName);
   const stripped = stripBuffPrefixForDrName(contribution.powerName);
   const buffTid = String(contribution.buffTemplateId || '').trim();
   const powerTid = String(contribution.powerTemplateId || '').trim();
-  let legacy = false;
-  if (actual === expected || stripped === expected) legacy = true;
-  else if (contribution.sourceKind === 'passive') {
-    if (powerTid === 'passive-damage-reduction') legacy = true;
-    else if (stripped === 'damage reduction' || stripped.endsWith('damage reduction')) legacy = true;
-    else if (/\bdamage\s+reduction\b/i.test(stripped)) legacy = true;
-    else if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
-      legacy = true;
+  if (actual === expected || stripped === expected) return true;
+  if (contribution.sourceKind === 'passive') {
+    if (powerTid === 'passive-damage-reduction') return true;
+    if (stripped === 'damage reduction' || stripped.endsWith('damage reduction')) return true;
+    if (/\bdamage\s+reduction\b/i.test(stripped)) return true;
+    if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
+      return true;
     }
   } else if (contribution.sourceKind === 'buff') {
-    if (buffTid === 'ab-damage-reduction') legacy = true;
-    else if (stripped === 'damage reduction' || stripped.endsWith('damage reduction')) legacy = true;
-    else if (/\bdamage\s+reduction\b/i.test(stripped)) legacy = true;
-    else if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
-      legacy = true;
+    if (buffTid === 'ab-damage-reduction') return true;
+    if (stripped === 'damage reduction' || stripped.endsWith('damage reduction')) return true;
+    if (/\bdamage\s+reduction\b/i.test(stripped)) return true;
+    if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
+      return true;
     }
   } else if (contribution.sourceKind === 'reaction') {
-    if (powerTid === 'reaction-damage-reduction') legacy = true;
-    else if (/\bdamage\s+reduction\b/i.test(stripped)) legacy = true;
-    else if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
-      legacy = true;
+    if (powerTid === 'reaction-damage-reduction') return true;
+    if (/\bdamage\s+reduction\b/i.test(stripped)) return true;
+    if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
+      return true;
     }
   }
+  return false;
+}
+
+function isSanctionedDR(contribution: MechanicsContribution): boolean {
+  const expected = DR_SANCTIONED_POWER_NAMES[contribution.sourceKind];
+  const buffTid = String(contribution.buffTemplateId || '').trim();
+  const powerTid = String(contribution.powerTemplateId || '').trim();
 
   // K8.b: templateId sanction decides when ids present; name remains missing-ID bridge.
   const decided = compareIdentityDecision(
     'mechanics.isSanctionedDR',
-    legacy,
+    () => isSanctionedDRLegacy(contribution),
     () => {
       if (!buffTid && !powerTid) return { kind: 'unresolved', reason: 'missing-identity' };
       return isSanctionedDRByTemplateId(contribution);
@@ -501,18 +494,17 @@ export function isSanctionedPhasingName(
   templateId?: string | null,
 ): boolean {
   const expected = PHASING_SANCTIONED_POWER_NAMES[sourceKind];
-  const raw = normalizePowerName(powerName);
-  const stripped = stripBuffPrefixForDrName(powerName);
-  let legacy: boolean;
-  if (sourceKind === 'passive') {
-    legacy = PHASING_PASSIVE_ALIASES.has(raw) || PHASING_PASSIVE_ALIASES.has(stripped);
-  } else {
-    legacy = raw === expected || stripped === expected;
-  }
   // K8.b: templateId sanction decides when present; name aliases are missing-ID bridge.
   return compareIdentityDecision(
     'mechanics.isSanctionedPhasing',
-    legacy,
+    () => {
+      const raw = normalizePowerName(powerName);
+      const stripped = stripBuffPrefixForDrName(powerName);
+      if (sourceKind === 'passive') {
+        return PHASING_PASSIVE_ALIASES.has(raw) || PHASING_PASSIVE_ALIASES.has(stripped);
+      }
+      return raw === expected || stripped === expected;
+    },
     () => {
       const tid = String(templateId || '').trim();
       if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
@@ -877,6 +869,55 @@ export function buildBuffMechanicsBreakdown(actor: any): MechanicsBreakdown {
     (c) => c.sourceKind === 'buff',
   );
   return aggregateMechanics(contributions, actor);
+}
+
+/**
+ * Single collection pass for prepareDerivedData (A2).
+ * Derives all / passive / buff breakdowns from one item+effect walk.
+ */
+export function buildActorMechanicsBreakdowns(actor: any): {
+  all: MechanicsBreakdown;
+  passive: MechanicsBreakdown;
+  buff: MechanicsBreakdown;
+} {
+  const contributions = collectMechanicsContributions(actor);
+  return {
+    all: aggregateMechanics(contributions, actor),
+    passive: aggregateMechanics(
+      contributions.filter((c) => c.sourceKind === 'passive'),
+      actor,
+    ),
+    buff: aggregateMechanics(
+      contributions.filter((c) => c.sourceKind === 'buff'),
+      actor,
+    ),
+  };
+}
+
+/**
+ * Display-only defense peek for the combat carousel (A4).
+ * Re-evaluates self-facing conditionExpr (adjacency / movement) without a full
+ * `prepareDerivedData` pass. Callers overlay these onto stored combat totals.
+ */
+export function peekSelfFacingDefenseMechanics(actor: any): {
+  armorPassive: number;
+  evadePassive: number;
+  damageReductionPct: number;
+} {
+  const contributions = collectMechanicsContributions(actor);
+  const passiveBd = aggregateMechanics(
+    contributions.filter((c) => c.sourceKind === 'passive'),
+    actor,
+  );
+  const allBd = aggregateMechanics(contributions, actor);
+  return {
+    armorPassive: Math.max(0, Math.floor(Number(passiveBd.totals.armor) || 0)),
+    evadePassive: Math.floor(Number(passiveBd.totals.evade) || 0),
+    damageReductionPct: Math.max(
+      0,
+      Math.min(100, Math.floor(Number(allBd.totals.damageReductionPct) || 0)),
+    ),
+  };
 }
 
 /**

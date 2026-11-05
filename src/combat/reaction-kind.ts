@@ -23,11 +23,9 @@ function mechanicsOf(item: any) {
 export function isRiposteReaction(item: any): boolean {
   const tid = templateIdOf(item);
   const name = String(item?.name ?? '').toLowerCase();
-  const legacy =
-    tid === 'reaction-riposte' || name.includes('riposte') || name.includes('weapon damage');
   return compareIdentityDecision(
     'reaction.isRiposte',
-    legacy,
+    () => tid === 'reaction-riposte' || name.includes('riposte') || name.includes('weapon damage'),
     () => {
       if (tid === 'reaction-riposte') return true;
       if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
@@ -42,10 +40,9 @@ export function isRiposteReaction(item: any): boolean {
 export function isReflectionReaction(item: any): boolean {
   const tid = templateIdOf(item);
   const name = String(item?.name ?? '').toLowerCase();
-  const legacy = tid === 'reaction-parry-reflection' || name.includes('reflection');
   return compareIdentityDecision(
     'reaction.isReflection',
-    legacy,
+    () => tid === 'reaction-parry-reflection' || name.includes('reflection'),
     () => {
       if (tid === 'reaction-parry-reflection') return true;
       if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
@@ -63,14 +60,13 @@ export function isReflectionReaction(item: any): boolean {
 export function reactionMayRepeatThisRound(item: any): boolean {
   const tid = templateIdOf(item);
   const name = String(item?.name ?? '').toLowerCase();
-  const legacy =
-    tid === 'reaction-riposte' ||
-    name.includes('parry + weapon damage') ||
-    name.includes('riposte') ||
-    mechanicsOf(item)?.repeatable === true;
   return compareIdentityDecision(
     'reaction.mayRepeatThisRound',
-    legacy,
+    () =>
+      tid === 'reaction-riposte' ||
+      name.includes('parry + weapon damage') ||
+      name.includes('riposte') ||
+      mechanicsOf(item)?.repeatable === true,
     () => {
       if (tid === 'reaction-riposte') return true;
       if (mechanicsOf(item)?.repeatable === true) return true;

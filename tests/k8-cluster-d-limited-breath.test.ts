@@ -6,6 +6,7 @@ import {
   clearIdentityShadowLog,
   compareIdentityDecision,
   getIdentityShadowLog,
+  setIdentityShadowEnabled,
 } from '../src/utils/identity-shadow.js';
 import {
   isLimitedAttackDeclaration,
@@ -15,7 +16,10 @@ import { progressionRowRangeAoe } from '../src/utils/breath-weapon.js';
 import { buildArtifactRadialOptions } from '../src/radial-menu/artifact-options.js';
 
 describe('K8.d Limited / Breath', () => {
-  beforeEach(() => clearIdentityShadowLog());
+  beforeEach(() => {
+    clearIdentityShadowLog();
+    setIdentityShadowEnabled(true);
+  });
 
   it('isLimitedAttackDeclaration prefers Limited template ids', () => {
     expect(

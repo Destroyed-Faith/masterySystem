@@ -206,27 +206,27 @@ export function isHealPowerItem(item) {
 export function isHealRadialOption(option) {
     if (!option || option.source !== 'power')
         return false;
-    // C2.e: prefer structured identity. Text inference only when no template id exists
-    // on the option/item (pre-migration). Once a template id is present, text is ignored.
+    // C2.e / K8.e: identity templateId decides when resolvable; text/legacy only as
+    // missing-ID bridge. Legacy thunk (A1) skips text inference when identity resolves.
     const hasStructuredId = !!(option.artifactPowerTemplateId ||
         option.item?.system?.templateId);
-    let decided = false;
-    if (option.aoePlacementProfile === 'heal')
-        decided = true;
-    else if (isHealTemplateId(option.artifactPowerTemplateId))
-        decided = true;
-    else if (option.item && isHealPowerItem(option.item))
-        decided = true;
-    else if (!hasStructuredId && option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
-        decided = true;
-    }
-    else if (!hasStructuredId &&
-        option.item?.type === 'artifact' &&
-        inferRestorationTemplateFromArtifactText(`${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`)) {
-        decided = true;
-    }
-    // K8.e: identity templateId decides when resolvable; text/legacy only as missing-ID bridge.
-    return compareIdentityDecision('heal.isHealRadialOption', decided, () => {
+    return compareIdentityDecision('heal.isHealRadialOption', () => {
+        if (option.aoePlacementProfile === 'heal')
+            return true;
+        if (isHealTemplateId(option.artifactPowerTemplateId))
+            return true;
+        if (option.item && isHealPowerItem(option.item))
+            return true;
+        if (!hasStructuredId && option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
+            return true;
+        }
+        if (!hasStructuredId &&
+            option.item?.type === 'artifact' &&
+            inferRestorationTemplateFromArtifactText(`${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`)) {
+            return true;
+        }
+        return false;
+    }, () => {
         const id = resolvePowerIdentity({ kind: 'radial-option', option });
         if (!id.ok)
             return { kind: 'unresolved', reason: id.reason || 'missing-identity' };

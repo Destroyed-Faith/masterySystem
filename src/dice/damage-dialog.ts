@@ -2233,8 +2233,15 @@ export async function applyDamageToTarget(
           };
         }
       } catch (err) {
-        // Phasing module not yet loaded or target has no charges — treat as pass.
-        console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
+        const { isModuleLoadError } = await import('../utils/module-load-error.js');
+        if (isModuleLoadError(err)) {
+          // Phasing module not yet loaded — treat as pass.
+          console.warn('Mastery System | [APPLY DAMAGE] phasing module load failed', err);
+        } else {
+          // Gameplay mechanic failure must be visible during testing (P2 / B2).
+          console.error('Mastery System | [APPLY DAMAGE] phasing failed', err);
+          throw err;
+        }
       }
     }
 
@@ -2317,7 +2324,13 @@ export async function applyDamageToTarget(
         };
       }
     } catch (err) {
-      console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
+      const { isModuleLoadError } = await import('../utils/module-load-error.js');
+      if (isModuleLoadError(err)) {
+        console.warn('Mastery System | [APPLY DAMAGE] defender reactions module load failed', err);
+      } else {
+        console.error('Mastery System | [APPLY DAMAGE] defender reactions failed', err);
+        throw err;
+      }
     }
 
     if (typeof (target as any).prepareDerivedData === 'function') {

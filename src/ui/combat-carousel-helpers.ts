@@ -81,6 +81,82 @@ export function actorTokenId(actor: any): string {
   );
 }
 
+/** Clamp sustained Damage Reduction % to the sheet range. */
+function clampDrPct(n: unknown): number {
+  return Math.max(0, Math.min(100, Math.floor(Number(n) || 0)));
+}
+
+/**
+ * Read NPC/summon stat-block DR % from the prepared combat breakdown rows.
+ * `prepareDerivedData` records it as label "Stat block" / detail "NPC DR %".
+ */
+export function readNpcBlockDrPctFromCombat(combat: any): number {
+  const rows = (combat?.damageReductionRows as any[]) || [];
+  for (const r of rows) {
+    if (r?.detail === 'NPC DR %' || r?.label === 'Stat block') {
+      return clampDrPct(r.value);
+    }
+  }
+  return 0;
+}
+
+export type CarouselDefensePeek = {
+  armorPassive: number;
+  evadePassive: number;
+  damageReductionPct: number;
+};
+
+/**
+ * Overlay self-facing mechanics peek onto stored combat totals for the carousel
+ * strip (A4). Replaces only the mechanics-derived portion of Armor / Evade / DR;
+ * preserves NPC stat-block DR (max), manual DR, and Stone DR Boost.
+ */
+export function overlayCarouselDefenseStrip(input: {
+  actorType?: string;
+  armorTotal: number;
+  evadeTotal: number;
+  damageReductionPct: number;
+  armorFromMechanics: number;
+  evadeFromMechanics: number;
+  /** Mechanics DR total from last `prepareDerivedData` (`derived.mechanicsBreakdown`). */
+  damageReductionFromMechanics: number;
+  /** NPC/summon stat-block DR % (0 when absent). */
+  npcBlockDrPct?: number;
+  /** Manual sheet DR adjustment (may be negative). */
+  manualDrPct?: number;
+  /** Stone DR Boost % (`combat.stoneDrBonusPct`). */
+  stoneDrBonusPct?: number;
+  peek: CarouselDefensePeek;
+}): { armor: number; evade: number; drPct: number } {
+  const armor =
+    Math.floor(Number(input.armorTotal) || 0) -
+    Math.max(0, Math.floor(Number(input.armorFromMechanics) || 0)) +
+    Math.max(0, Math.floor(Number(input.peek.armorPassive) || 0));
+  const evade =
+    Math.floor(Number(input.evadeTotal) || 0) -
+    Math.floor(Number(input.evadeFromMechanics) || 0) +
+    Math.floor(Number(input.peek.evadePassive) || 0);
+
+  const peekDr = clampDrPct(input.peek.damageReductionPct);
+  const storedMech = clampDrPct(input.damageReductionFromMechanics);
+  const storedTotal = clampDrPct(input.damageReductionPct);
+  const type = String(input.actorType || '').toLowerCase();
+
+  let drPct: number;
+  if (type === 'npc' || type === 'summon') {
+    // Match prepareDerivedData: max(mechanics, block) then additive manual + stone.
+    const block = clampDrPct(input.npcBlockDrPct ?? 0);
+    const manual = Math.floor(Number(input.manualDrPct) || 0);
+    const stone = Math.max(0, Math.floor(Number(input.stoneDrBonusPct) || 0));
+    drPct = clampDrPct(Math.max(peekDr, block) + manual + stone);
+  } else {
+    // Replace mechanics portion only; residual retains manual / stone / other.
+    drPct = clampDrPct(storedTotal - storedMech + peekDr);
+  }
+
+  return { armor, evade, drPct };
+}
+
 /**
  * Match a sheet Actor to combatants.
  * Token-bound sheets match that Token only (unlinked NPC copies share actorId).

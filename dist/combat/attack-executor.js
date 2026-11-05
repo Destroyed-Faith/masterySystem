@@ -436,10 +436,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         });
         return null;
     }
-    // Global Limited charge (1 / Safe Haven) + Dragon Breath once/combat.
+    let pendingArtifactSpend = null;
     try {
         const optionName = String(option.name || '');
-        const { isLimitedAttackDeclaration, isLimitedChargeAvailable, spendLimitedCharge, isForbiddenLimitedTemplateId, isLimitedPowerTemplateId, } = await import('./limited-charge.js');
+        const { isLimitedAttackDeclaration, isLimitedChargeAvailable, isForbiddenLimitedTemplateId, isLimitedPowerTemplateId, } = await import('./limited-charge.js');
         const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
         const templateId = String(option.item?.system?.templateId ||
             option.artifactPowerTemplateId ||
@@ -450,9 +450,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             isLimitedPowerTemplateId(templateId);
         // pre-K9 missing-ID bridge: Moonlight Judgment / Undead Tracer name aliases.
         const limitedNameBridge = /moonlight\s*judgment/i.test(optionName) || /undead\s*tracer/i.test(optionName);
-        const legacyClaimsLimited = structuredClaimsLimited || limitedNameBridge;
         // K8.d: structured flags/ids decide; name bridge only when no templateId.
-        const claimsLimited = compareIdentityDecision('executor.claimsLimited', legacyClaimsLimited, () => structuredClaimsLimited || (!templateId && limitedNameBridge), { name: optionName, templateId }, { prefer: 'identity' });
+        const claimsLimited = compareIdentityDecision('executor.claimsLimited', () => structuredClaimsLimited || limitedNameBridge, () => structuredClaimsLimited || (!templateId && limitedNameBridge), { name: optionName, templateId }, { prefer: 'identity' });
         if (claimsLimited && isForbiddenLimitedTemplateId(templateId)) {
             ui.notifications?.warn('This Power cannot be used as a Limited Attack.');
             return null;
@@ -476,12 +475,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 return null;
             }
             else {
-                const spent = await spendLimitedCharge(attacker);
-                if (!spent.ok) {
-                    ui.notifications?.warn('Limited Attack: use could not be spent.');
-                    return null;
-                }
-                option.limitedChargeSpent = true;
+                pendingArtifactSpend = { kind: 'limited' };
             }
             option.artifactLimited = true;
             option.limited = true;
@@ -498,25 +492,19 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             const breathNameBridge = /breath\s*weapon/i.test(optionName) ||
                 /damage\s*breath/i.test(optionName) ||
                 /ruin\s*breath/i.test(optionName);
-            const legacyIsBreath = structuredBreath || breathNameBridge;
             // K8.d: afid/mode decide; name bridge only when afid absent.
-            const isBreath = compareIdentityDecision('executor.isBreathWeapon', legacyIsBreath, () => structuredBreath || (!afid && breathNameBridge), {
+            const isBreath = compareIdentityDecision('executor.isBreathWeapon', () => structuredBreath || breathNameBridge, () => structuredBreath || (!afid && breathNameBridge), {
                 name: optionName,
                 artifactFunctionId: afid || null,
                 mode: option.dragonHeadBreathMode || null,
             }, { prefer: 'identity' });
             if (isBreath) {
-                const { assertDragonBreathAvailable, spendDragonBreathUse } = await import('./artifact-rest-uses.js');
+                const { assertDragonBreathAvailable } = await import('./artifact-rest-uses.js');
                 const gate = assertDragonBreathAvailable(attacker);
                 if (!gate.ok) {
                     ui.notifications?.warn(gate.reason === 'combat'
                         ? 'Breath Weapon: already used this Combat (shared Damage/Ruin limit).'
                         : 'Breath Weapon: no Safe Haven Rest uses remaining.');
-                    return null;
-                }
-                const spent = await spendDragonBreathUse(attacker);
-                if (!spent) {
-                    ui.notifications?.warn('Breath Weapon: use could not be spent.');
                     return null;
                 }
                 const structuredMode = option.dragonHeadBreathMode === 'damage' || option.dragonHeadBreathMode === 'ruin'
@@ -529,8 +517,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                         : null;
                 // Old silent default: mode || (ruin name ? ruin : 'damage'). K8.d: no invent when
                 // structured breath identity has neither mode nor name bridge.
-                const legacyMode = structuredMode || nameBridgeMode || 'damage';
-                const mode = compareIdentityDecision('executor.breathMode', legacyMode, () => structuredMode ||
+                const mode = compareIdentityDecision('executor.breathMode', () => structuredMode || nameBridgeMode || 'damage', () => structuredMode ||
                     nameBridgeMode ||
                     { kind: 'unresolved', reason: 'breath-mode-missing' }, { name: optionName, artifactFunctionId: afid || null }, { prefer: 'identity', unresolvedFallsBackToLegacy: false });
                 if (mode != null &&
@@ -552,6 +539,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                     };
                 }
                 // Might or Agility — choose before the Attack Roll; never combine pools.
+                // Cancellable: must run BEFORE spending the Breath use (P0).
                 if (!option.attackAttributeOverride && !option.storedAttackPool?.attribute) {
                     const Dialog = globalThis.Dialog;
                     let attr = 'might';
@@ -572,11 +560,20 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                     }
                     option = { ...option, attackAttributeOverride: attr };
                 }
+                pendingArtifactSpend = { kind: 'breath' };
             }
         }
     }
     catch (err) {
-        console.warn('Mastery System | Artifact use gate failed', err);
+        const { isModuleLoadError } = await import('../utils/module-load-error.js');
+        if (isModuleLoadError(err)) {
+            console.warn('Mastery System | Artifact use gate module load failed', err);
+        }
+        else {
+            console.error('Mastery System | Artifact use gate failed', err);
+            ui.notifications?.error('Limited / Breath gate failed — attack cancelled.');
+            return null;
+        }
     }
     try {
         const { notATargetDecision, NOT_A_TARGET_FLAG } = await import('../stones/stone-combat-effects.js');
@@ -597,7 +594,33 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         }
     }
     catch (err) {
-        console.warn('Mastery System | Not a Target check failed', err);
+        const { isModuleLoadError } = await import('../utils/module-load-error.js');
+        if (isModuleLoadError(err)) {
+            console.warn('Mastery System | Not a Target module load failed', err);
+        }
+        else {
+            console.error('Mastery System | Not a Target check failed', err);
+            ui.notifications?.error('Not a Target check failed — attack cancelled.');
+            return null;
+        }
+    }
+    // Commit Limited / Breath spend only after all abort points above.
+    if (pendingArtifactSpend?.kind === 'limited') {
+        const { spendLimitedCharge } = await import('./limited-charge.js');
+        const spent = await spendLimitedCharge(attacker);
+        if (!spent.ok) {
+            ui.notifications?.warn('Limited Attack: use could not be spent.');
+            return null;
+        }
+        option.limitedChargeSpent = true;
+    }
+    else if (pendingArtifactSpend?.kind === 'breath') {
+        const { spendDragonBreathUse } = await import('./artifact-rest-uses.js');
+        const spent = await spendDragonBreathUse(attacker);
+        if (!spent) {
+            ui.notifications?.warn('Breath Weapon: use could not be spent.');
+            return null;
+        }
     }
     // Log actor item summary for diagnostics
     const items = collectActorItems(attacker);

@@ -6,7 +6,7 @@ import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
 import { buildCarouselHpSegments, hideCarouselHpNumbers, hideCarouselNpcHpBars, showCarouselSideHp, } from './combat-carousel-hp.js';
-import { carouselSideClass, findNextCombatantId, resolveCombatantDisplayName, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
+import { carouselSideClass, findNextCombatantId, overlayCarouselDefenseStrip, readNpcBlockDrPctFromCombat, resolveCombatantDisplayName, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
 import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, syncCarouselTopOffset, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { buildCarouselTooltip, readCarouselClientPrefs, resolveCarouselCompact, writeCarouselClientPrefs, } from './combat-carousel-settings.js';
 import { handleChosenCombatOption } from '../token-action-selector.js';
@@ -17,6 +17,7 @@ import { resolveLiveActor } from '../system/status-target.js';
 import { isCombatantSurprised, toggleSurprisedCombatant } from '../combat/surprise-order.js';
 import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 import { readDeferredIds } from '../combat/turn-defer.js';
+import { peekSelfFacingDefenseMechanics } from '../utils/power-mechanics.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
@@ -290,18 +291,38 @@ export class CombatCarouselApp extends BaseCarousel {
             // At-a-glance combat totals (same numbers as the character-sheet header strip).
             let combatStrip = null;
             try {
-                // Re-run derived prep so `conditionExpr` that depends on token positions
-                // (e.g. adjacent enemies) matches the canvas after any token has moved.
+                // A4: do not call full prepareDerivedData per combatant. Overlay
+                // self-facing conditionExpr (adjacency / movement) via a lightweight
+                // mechanics peek so the strip stays fresh after token moves.
+                // Replace only the mechanics-derived DR portion; keep NPC block / manual / stone.
+                const c = actor.system?.combat ?? {};
+                let stripArmor = Math.floor(Number(c.armorTotal ?? 0) || 0);
+                let stripEvade = Math.floor(Number(c.evadeTotal ?? 0) || 0);
+                let drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
                 try {
-                    if (typeof actor.prepareDerivedData === 'function') {
-                        actor.prepareDerivedData();
-                    }
+                    const peek = peekSelfFacingDefenseMechanics(actor);
+                    const storedMechDr = Math.max(0, Math.floor(Number(actor.system?.derived?.mechanicsBreakdown?.totals?.damageReductionPct) ||
+                        0));
+                    const overlaid = overlayCarouselDefenseStrip({
+                        actorType: String(actor.type || ''),
+                        armorTotal: stripArmor,
+                        evadeTotal: stripEvade,
+                        damageReductionPct: drPct,
+                        armorFromMechanics: Math.max(0, Math.floor(Number(c.armorFromMechanics) || 0)),
+                        evadeFromMechanics: Math.floor(Number(c.evadeFromMechanics) || 0),
+                        damageReductionFromMechanics: storedMechDr,
+                        npcBlockDrPct: readNpcBlockDrPctFromCombat(c),
+                        manualDrPct: Math.floor(Number(actor.system?.manual?.combat?.damageReductionPct) || 0),
+                        stoneDrBonusPct: Math.max(0, Math.floor(Number(c.stoneDrBonusPct) || 0)),
+                        peek,
+                    });
+                    stripArmor = overlaid.armor;
+                    stripEvade = overlaid.evade;
+                    drPct = overlaid.drPct;
                 }
                 catch {
-                    /* ignore */
+                    /* keep stored combat totals */
                 }
-                const c = actor.system?.combat ?? {};
-                const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
                 const stripTooltip = (() => {
                     try {
                         const i18n = globalThis.game?.i18n;
@@ -309,8 +330,8 @@ export class CombatCarouselApp extends BaseCarousel {
                             const s = i18n?.localize?.(k);
                             return s && !String(s).startsWith('MASTERY.') ? String(s) : fb;
                         };
-                        const a = Math.floor(Number(c.armorTotal ?? 0) || 0);
-                        const e = Math.floor(Number(c.evadeTotal ?? 0) || 0);
+                        const a = stripArmor;
+                        const e = stripEvade;
                         const dr = drPct;
                         const ar = c.armorBreakdownRows || [];
                         const ev = c.evadeBreakdownRows || [];
@@ -341,8 +362,8 @@ export class CombatCarouselApp extends BaseCarousel {
                     }
                 })();
                 combatStrip = {
-                    armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
-                    evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
+                    armor: stripArmor,
+                    evade: stripEvade,
                     showDr: true,
                     drPct,
                     stripTooltip,

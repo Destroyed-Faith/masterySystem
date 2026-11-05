@@ -141,19 +141,24 @@ export function actorHasPassiveDR(actor) {
     if (!actor)
         return false;
     try {
-        if (typeof actor.prepareDerivedData === 'function') {
-            try {
-                actor.prepareDerivedData();
-            }
-            catch {
-                /* ignore */
-            }
+        // A4: prefer already-derived breakdown / sheet DR. Avoid full prepareDerivedData.
+        const stored = actor?.system?.derived?.mechanicsBreakdown;
+        if (stored?.damageReductionPct?.passive) {
+            const passiveStored = stored.damageReductionPct.passive.reduce((s, r) => s + (r.value || 0), 0);
+            if (passiveStored > 0)
+                return true;
+            const storedTotal = Math.max(0, Math.floor(Number(stored.totals?.damageReductionPct) || 0));
+            if (storedTotal > 0)
+                return true;
         }
+        const sheetDr = Math.max(0, Math.floor(Number(actor.system?.combat?.damageReductionPct) || 0));
+        if (sheetDr > 0)
+            return true;
+        // Fixtures / unprepared actors: one lightweight collect+aggregate (no prepareDerivedData).
         const bd = buildActorMechanicsBreakdown(actor);
         const passiveBase = bd.damageReductionPct.passive.reduce((s, r) => s + (r.value || 0), 0);
-        const sheetDr = Math.max(0, Math.floor(Number(actor.system?.combat?.damageReductionPct) || 0));
         const total = Math.max(0, Math.floor(Number(bd.totals?.damageReductionPct) || 0));
-        return passiveBase > 0 || sheetDr > 0 || total > 0;
+        return passiveBase > 0 || total > 0;
     }
     catch {
         return false;

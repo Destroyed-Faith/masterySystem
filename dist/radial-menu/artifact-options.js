@@ -34,12 +34,12 @@ import { getTemplate } from '../utils/powers/templates/index.js';
 const REACTION_TYPES = new Set(['Reaction']);
 /** Category from identity when present; otherwise legacy type-text classifier. */
 function categoryFromIdentityOrType(row) {
-    const legacy = classifyArtifactRowType(String(row.type || ''));
     // K8.c: artifactFunctionId / powerTemplateId decide; type-text is missing-ID bridge.
     // W1 / R1: titan-growth is Transformation → utility (combat radial), NEVER Active Buff.
     // Must be checked before contract.category === 'activeBuff' (contract lists activeBuff
     // for overlay bookkeeping; gameplay routing stays utility until GM action-economy decision).
-    return compareIdentityDecision('artifact.rowCategory', legacy, () => {
+    // Legacy thunk (A1): type-text classifier skipped when identity resolves.
+    return compareIdentityDecision('artifact.rowCategory', () => classifyArtifactRowType(String(row.type || '')), () => {
         const fn = row.artifactFunctionId;
         if (fn && isArtifactFunctionId(fn)) {
             if (fn === 'titan-growth')
@@ -459,11 +459,10 @@ export function buildArtifactRadialOptions(actor) {
             // bridges remain only when powerTemplateId is absent (pre-K9 missing-ID).
             const structuredLimited = row.limited === true ||
                 (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId)));
-            const limitedNameBridge = /\blimited\b/i.test(String(row.special || '')) ||
+            const limitedNameBridge = () => /\blimited\b/i.test(String(row.special || '')) ||
                 /moonlight\s*judgment/i.test(name) ||
                 /undead\s*tracer/i.test(name);
-            const legacyLimited = structuredLimited || limitedNameBridge;
-            const rowLimited = compareIdentityDecision('artifact.rowLimited', legacyLimited, () => structuredLimited || (!row.powerTemplateId && limitedNameBridge), {
+            const rowLimited = compareIdentityDecision('artifact.rowLimited', () => structuredLimited || limitedNameBridge(), () => structuredLimited || (!row.powerTemplateId && limitedNameBridge()), {
                 echoArtifactKey: String(item?.flags?.['mastery-system']?.echoArtifactKey || ''),
                 level: lvl,
                 name,

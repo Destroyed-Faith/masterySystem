@@ -1755,6 +1755,25 @@ function exposeMasterySystemApi() {
             const { diagnoseArtifactLibrary } = await import('./utils/r20-artifact-library-diagnostic.js');
             return diagnoseArtifactLibrary(opts);
         },
+        /** A1 identity shadow diagnostic — off by default. F12: game.masterySystem.setIdentityShadowEnabled(true) */
+        setIdentityShadowEnabled: async (value) => {
+            const { setIdentityShadowEnabled } = await import('./utils/identity-shadow.js');
+            setIdentityShadowEnabled(!!value);
+            try {
+                await game.settings?.set?.('mastery-system', 'identityShadowCompare', !!value);
+            }
+            catch {
+                /* settings may be unavailable early */
+            }
+        },
+        isIdentityShadowEnabled: async () => {
+            const { isIdentityShadowEnabled } = await import('./utils/identity-shadow.js');
+            return isIdentityShadowEnabled();
+        },
+        exportIdentityShadowReport: async (opts) => {
+            const { exportIdentityShadowReport } = await import('./utils/identity-shadow.js');
+            return exportIdentityShadowReport(opts);
+        },
     });
 }
 function registerSystemSettings() {
@@ -1778,6 +1797,33 @@ function registerSystemSettings() {
         type: Boolean,
         default: true,
     });
+    // A1: identity shadow-compare is off by default (production). Opt in for diagnostics.
+    game.settings.register('mastery-system', 'identityShadowCompare', {
+        name: 'Identity Shadow Compare (diagnostic)',
+        hint: 'When enabled, every identity routing decision also evaluates the legacy text path, logs mismatches to the session shadow log, and prints [identity-shadow] console.info. Off by default after K9. Toggle from F12: await game.masterySystem.setIdentityShadowEnabled(true)',
+        scope: 'world',
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: async (value) => {
+            try {
+                const { setIdentityShadowEnabled } = await import('./utils/identity-shadow.js');
+                setIdentityShadowEnabled(!!value);
+            }
+            catch (err) {
+                console.warn('Mastery System | identityShadowCompare onChange failed', err);
+            }
+        },
+    });
+    try {
+        const on = !!game.settings.get('mastery-system', 'identityShadowCompare');
+        void import('./utils/identity-shadow.js').then(({ setIdentityShadowEnabled }) => {
+            setIdentityShadowEnabled(on);
+        });
+    }
+    catch {
+        /* settings get may throw before ready */
+    }
     // GM "button": toggling this on force-refreshes the Echo Artifact library
     // (rebuilds every seeded tree from the current generator and pushes the
     // refresh to embedded actor copies), then resets itself to off.

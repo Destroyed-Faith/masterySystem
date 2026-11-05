@@ -130,10 +130,9 @@ export function dedupeOverlappingBasicReactions(powers) {
             return true;
         const tid = String(p?.system?.templateId ?? '').toLowerCase();
         const name = String(p?.name ?? '').toLowerCase();
-        const legacy = (tid.includes('evade') && !tid.includes('ally')) ||
-            (/\bevade\b/.test(name) && !/\bally\b/.test(name));
         // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
-        return compareIdentityDecision('reaction.hasPowerEvade', legacy, () => {
+        return compareIdentityDecision('reaction.hasPowerEvade', () => (tid.includes('evade') && !tid.includes('ally')) ||
+            (/\bevade\b/.test(name) && !/\bally\b/.test(name)), () => {
             if (tid.includes('evade') && !tid.includes('ally'))
                 return true;
             if (!tid)
@@ -144,13 +143,12 @@ export function dedupeOverlappingBasicReactions(powers) {
     const hasPowerGuard = nonBasic.some((p) => {
         const tid = String(p?.system?.templateId ?? '').toLowerCase();
         const name = String(p?.name ?? '').toLowerCase();
-        const legacy = tid.includes('guard') ||
+        // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
+        return compareIdentityDecision('reaction.hasPowerGuard', () => tid.includes('guard') ||
             tid === 'reaction-armor' ||
             tid.includes('pure-defense') ||
             /\bguard\b/.test(name) ||
-            /^reaction:\s*armor\b/.test(name);
-        // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
-        return compareIdentityDecision('reaction.hasPowerGuard', legacy, () => {
+            /^reaction:\s*armor\b/.test(name), () => {
             if (tid.includes('guard') || tid === 'reaction-armor' || tid.includes('pure-defense')) {
                 return true;
             }
@@ -174,9 +172,8 @@ export function isAllyReactionPower(item) {
     const tid = String(item?.system?.templateId ?? '').toLowerCase();
     const sub = String(item?.system?.subfamily ?? '').toLowerCase();
     const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid.startsWith('reaction-ally-') || sub === 'ally' || /\bally\b/.test(name);
     // K8.f: templateId/subfamily decide; name regex is pre-K9 missing-ID bridge.
-    return compareIdentityDecision('reaction.isAlly', legacy, () => {
+    return compareIdentityDecision('reaction.isAlly', () => tid.startsWith('reaction-ally-') || sub === 'ally' || /\bally\b/.test(name), () => {
         if (tid.startsWith('reaction-ally-') || sub === 'ally')
             return true;
         if (!tid && !sub)

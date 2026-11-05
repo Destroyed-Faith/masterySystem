@@ -49,14 +49,14 @@ const REACTION_TYPES = new Set(['Reaction']);
 
 /** Category from identity when present; otherwise legacy type-text classifier. */
 function categoryFromIdentityOrType(row: ArtifactLevelProgressionRow): ArtifactRowCategory {
-  const legacy = classifyArtifactRowType(String(row.type || ''));
   // K8.c: artifactFunctionId / powerTemplateId decide; type-text is missing-ID bridge.
   // W1 / R1: titan-growth is Transformation → utility (combat radial), NEVER Active Buff.
   // Must be checked before contract.category === 'activeBuff' (contract lists activeBuff
   // for overlay bookkeeping; gameplay routing stays utility until GM action-economy decision).
+  // Legacy thunk (A1): type-text classifier skipped when identity resolves.
   return compareIdentityDecision(
     'artifact.rowCategory',
-    legacy,
+    () => classifyArtifactRowType(String(row.type || '')),
     () => {
       const fn = row.artifactFunctionId;
       if (fn && isArtifactFunctionId(fn)) {
@@ -479,15 +479,14 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             const structuredLimited =
               row.limited === true ||
               (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId)));
-            const limitedNameBridge =
+            const limitedNameBridge = () =>
               /\blimited\b/i.test(String(row.special || '')) ||
               /moonlight\s*judgment/i.test(name) ||
               /undead\s*tracer/i.test(name);
-            const legacyLimited = structuredLimited || limitedNameBridge;
             const rowLimited = compareIdentityDecision(
               'artifact.rowLimited',
-              legacyLimited,
-              () => structuredLimited || (!row.powerTemplateId && limitedNameBridge),
+              () => structuredLimited || limitedNameBridge(),
+              () => structuredLimited || (!row.powerTemplateId && limitedNameBridge()),
               {
                 echoArtifactKey: String(
                   item?.flags?.['mastery-system']?.echoArtifactKey || '',

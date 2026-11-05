@@ -700,11 +700,99 @@ export function getStoneAreaBonusMeters(
 }
 
 /**
+ * Deep-clone plain roundState for Foundry updates (no class instances).
+ */
+function cloneRoundState(state: RoundState): RoundState {
+  return JSON.parse(JSON.stringify(state)) as RoundState;
+}
+
+function readRoundStateFlag(o: any): RoundState | null {
+  try {
+    const fromGet = o.getFlag?.('mastery-system', 'roundState');
+    if (fromGet && typeof fromGet === 'object') return fromGet as RoundState;
+  } catch {
+    /* ignore */
+  }
+  const nested = o.flags?.['mastery-system']?.roundState;
+  return nested && typeof nested === 'object' ? (nested as RoundState) : null;
+}
+
+/** True when nested replace maps match (proves ForcedReplacement / == / unset+set worked, not merge). */
+function roundStateReplaceLooksApplied(got: RoundState | null, expected: RoundState): boolean {
+  if (!got || typeof got !== 'object') return false;
+  try {
+    if (
+      JSON.stringify(got.npcAttackUsesThisRound || {}) !==
+      JSON.stringify(expected.npcAttackUsesThisRound || {})
+    ) {
+      return false;
+    }
+    if (
+      JSON.stringify(got.npcMaximizationAttackUses || {}) !==
+      JSON.stringify(expected.npcMaximizationAttackUses || {})
+    ) {
+      return false;
+    }
+    if (
+      JSON.stringify(got.usedPowerIdsThisRound || []) !==
+      JSON.stringify(expected.usedPowerIdsThisRound || [])
+    ) {
+      return false;
+    }
+    if (JSON.stringify(got.stoneBonuses || null) !== JSON.stringify(expected.stoneBonuses || null)) {
+      return false;
+    }
+    if (JSON.stringify(got.reactionActions || null) !== JSON.stringify(expected.reactionActions || null)) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Foundry V14 prefers `ForcedReplacement` / `globalThis._replace` for full object
+ * replace. Legacy `==key` remains compatible through V16 and is the fallback.
+ */
+function buildRoundStateReplaceUpdate(payload: RoundState): Record<string, unknown> {
+  const g = globalThis as any;
+  const replaceFn =
+    typeof g._replace === 'function'
+      ? g._replace
+      : g.foundry?.data?.operators?.ForcedReplacement?.create;
+  if (typeof replaceFn === 'function') {
+    return { 'flags.mastery-system.roundState': replaceFn(payload) };
+  }
+  return { 'flags.mastery-system.==roundState': payload };
+}
+
+function buildRoundStateDeleteUpdate(): Record<string, unknown> {
+  const g = globalThis as any;
+  const del =
+    g._del ??
+    (typeof g.foundry?.data?.operators?.ForcedDeletion?.create === 'function'
+      ? g.foundry.data.operators.ForcedDeletion.create()
+      : null);
+  if (del != null) {
+    return { 'flags.mastery-system.roundState': del };
+  }
+  return { 'flags.mastery-system.-=roundState': null };
+}
+
+/**
  * Set round state on actor.
  *
  * Foundry `setFlag` **merges** object values — writing `npcAttackUsesThisRound: {}`
  * does NOT remove prior keys. That left spent NPC attack copies stuck forever across
- * rounds. Always replace the whole `roundState` flag (unset, then set).
+ * rounds.
+ *
+ * Prefer a single Foundry V14 write with ForcedReplacement / `_replace`:
+ *   `{ 'flags.mastery-system.roundState': _replace(toSave) }`
+ * Fall back to the legacy `==roundState` key (compatible through V16), then to
+ * unsetFlag + setFlag when `update` is missing, throws, or does not apply replace
+ * (common in unit-test doubles). Never treat an optimistic local mirror as proof
+ * of persistence — verify the document flag first.
  */
 export async function setRoundState(actor: Actor, state: RoundState): Promise<void> {
   const owner = getActionEconomyActor(actor) ?? actor;
@@ -718,23 +806,40 @@ export async function setRoundState(actor: Actor, state: RoundState): Promise<vo
   if (!toSave.npcMaximizationAttackUses) toSave.npcMaximizationAttackUses = {};
   if (!toSave.usedPowerIdsThisRound) toSave.usedPowerIdsThisRound = [];
 
-  const hadPrev =
-    !!o.getFlag?.('mastery-system', 'roundState') ||
-    !!o.flags?.['mastery-system']?.roundState;
-  if (hadPrev && typeof o.unsetFlag === 'function') {
+  const payload = cloneRoundState(toSave);
+  let wrote = false;
+  if (typeof o.update === 'function') {
     try {
-      await o.unsetFlag('mastery-system', 'roundState');
-    } catch (err) {
-      console.warn('Mastery System | unsetFlag(roundState) failed; attempting replace via update', err);
-      try {
-        await o.update?.({ 'flags.mastery-system.-=roundState': null });
-      } catch {
-        /* ignore — setFlag below still runs */
+      await o.update(buildRoundStateReplaceUpdate(payload));
+      // Verify persisted flag state BEFORE any local mirror (ActorDelta / world).
+      if (roundStateReplaceLooksApplied(readRoundStateFlag(o), payload)) {
+        wrote = true;
       }
+    } catch (err) {
+      console.warn(
+        'Mastery System | single-write roundState replace failed; falling back to unset+set',
+        err,
+      );
     }
   }
 
-  await o.setFlag('mastery-system', 'roundState', toSave);
+  if (!wrote) {
+    const hadPrev = !!readRoundStateFlag(o);
+    if (hadPrev && typeof o.unsetFlag === 'function') {
+      try {
+        await o.unsetFlag('mastery-system', 'roundState');
+      } catch (err) {
+        console.warn('Mastery System | unsetFlag(roundState) failed; attempting replace via update', err);
+        try {
+          await o.update?.(buildRoundStateDeleteUpdate());
+        } catch {
+          /* ignore — setFlag below still runs */
+        }
+      }
+    }
+    await o.setFlag('mastery-system', 'roundState', payload);
+  }
+
   Hooks.callAll('masterySystem.roundStateUpdated', { actorId: o.id });
 }
 

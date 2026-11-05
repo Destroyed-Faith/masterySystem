@@ -131,11 +131,13 @@ function currentTempHP(actor) {
     return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
 async function safeActorUpdate(actor, patch) {
-    const u = actor?.update;
-    if (typeof u !== 'function')
+    if (!actor || !patch || !Object.keys(patch).length)
         return;
     try {
-        await u.call(actor, patch);
+        // P0: player-initiated writes against unowned NPCs must use the GM relay
+        // (same path as HP apply). Direct actor.update fails silently for those.
+        const { updateActorViaGm } = await import('./gm-relay.js');
+        await updateActorViaGm(actor, patch);
     }
     catch (err) {
         console.warn('Mastery System | [passive-triggers] actor.update failed', err);

@@ -62,31 +62,30 @@ export function isCleanseRadialOption(
 ): boolean {
   if (!option || option.source !== 'power') return false;
 
-  // C2.e: structured ids win; name/description blob only when no template id (pre-migration).
+  // C2.e / K8.e: structured ids win; text blob only when no template id (pre-migration).
+  // Legacy thunk (A1) skips text work when identity resolves.
   const hasStructuredId = !!(
     option.artifactPowerTemplateId ||
     option.item?.system?.templateId
   );
-  let decided = false;
-  if (option.aoePlacementProfile === 'heal') decided = false;
-  else if (option.aoePlacementProfile === 'cleanse') decided = true;
-  else {
-    const tid = String(option.artifactPowerTemplateId || '');
-    if (tid && isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid)) decided = true;
-    else if (option.item?.type === 'power') {
-      const ptid = String(option.item.system?.templateId || '');
-      if (/heal-cleanse/i.test(ptid)) decided = false;
-      else decided = isCleansePowerItem(option.item);
-    } else if (!hasStructuredId && option.item?.type === 'artifact') {
-      const blob = `${option.name || ''} ${option.description || ''}`;
-      decided = /\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob);
-    }
-  }
-
-  // K8.e: identity templateId decides when resolvable; text blob only as missing-ID bridge.
   return compareIdentityDecision(
     'cleanse.isCleanseRadialOption',
-    decided,
+    () => {
+      if (option.aoePlacementProfile === 'heal') return false;
+      if (option.aoePlacementProfile === 'cleanse') return true;
+      const tid = String(option.artifactPowerTemplateId || '');
+      if (tid && isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid)) return true;
+      if (option.item?.type === 'power') {
+        const ptid = String(option.item.system?.templateId || '');
+        if (/heal-cleanse/i.test(ptid)) return false;
+        return isCleansePowerItem(option.item);
+      }
+      if (!hasStructuredId && option.item?.type === 'artifact') {
+        const blob = `${option.name || ''} ${option.description || ''}`;
+        return /\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob);
+      }
+      return false;
+    },
     () => {
       const id = resolvePowerIdentity({ kind: 'radial-option', option });
       if (!id.ok) return { kind: 'unresolved', reason: id.reason || 'missing-identity' };

@@ -63,20 +63,18 @@ function hasAnyMaintainedActiveBuff(actor: any): any | null {
 
 /** Parse the Growth Form Power Level out of the row effect text (fallback by row level). */
 function growthPowerLevelFor(option: RadialCombatOption): number {
-  const text = `${option.description || ''}`;
-  const m = text.match(/power level\s*(\d+)/i);
-  let legacy: number;
-  if (m) legacy = Math.max(1, Math.min(16, parseInt(m[1], 10)));
-  else {
-    const lvl = Number(option.artifactRowLevel) || 1;
-    if (lvl >= 7) legacy = 16;
-    else if (lvl >= 4) legacy = 10;
-    else legacy = 4;
-  }
   // K8.c: structured option.rank / stage mapping decides; text PL is missing-ID bridge.
   return compareIdentityDecision(
     'artifact.growthPowerLevel',
-    legacy,
+    () => {
+      const text = `${option.description || ''}`;
+      const m = text.match(/power level\s*(\d+)/i);
+      if (m) return Math.max(1, Math.min(16, parseInt(m[1], 10)));
+      const lvl = Number(option.artifactRowLevel) || 1;
+      if (lvl >= 7) return 16;
+      if (lvl >= 4) return 10;
+      return 4;
+    },
     () => {
       const ranked = Number((option as any).rank);
       if (Number.isFinite(ranked) && ranked >= 1 && ranked <= 16) return Math.floor(ranked);

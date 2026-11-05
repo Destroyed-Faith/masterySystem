@@ -3,7 +3,11 @@
  * for the legacy Limited Instant Damage aliases (Moonlight Judgment / Undead Tracer).
  */
 import { describe, expect, it } from 'vitest';
-import { clearIdentityShadowLog, getIdentityShadowLog } from '../src/utils/identity-shadow.js';
+import {
+  clearIdentityShadowLog,
+  getIdentityShadowLog,
+  setIdentityShadowEnabled,
+} from '../src/utils/identity-shadow.js';
 import { compareIdentityDecision } from '../src/utils/identity-shadow.js';
 import { isLimitedPowerTemplateId } from '../src/combat/limited-charge.js';
 
@@ -53,6 +57,7 @@ describe('K1 Limited Radial ↔ Executor parity', () => {
 
   it('K8.d: missing-ID name/special bridge still Limited when prefer identity', () => {
     clearIdentityShadowLog();
+    setIdentityShadowEnabled(true);
     const row = {
       limited: false,
       special: 'Limited',

@@ -63,12 +63,11 @@ export function isLimitedAttackDeclaration(opts: {
   if (isForbiddenLimitedTemplateId(tid)) return false;
   if (opts.limited === true || opts.artifactLimited === true) return true;
   if (opts.item?.system?.limited === true) return true;
-  const legacy = isLimitedPowerTemplateId(tid);
 
   // K8.d: identity.limited / Limited template ids decide when resolvable.
   return compareIdentityDecision(
     'limited.isLimitedAttackDeclaration',
-    legacy,
+    () => isLimitedPowerTemplateId(tid),
     () => {
       if (!opts.item && !tid) return false;
       const id = resolvePowerIdentity({

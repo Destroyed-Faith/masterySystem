@@ -20,8 +20,7 @@ function mechanicsOf(item) {
 export function isRiposteReaction(item) {
     const tid = templateIdOf(item);
     const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid === 'reaction-riposte' || name.includes('riposte') || name.includes('weapon damage');
-    return compareIdentityDecision('reaction.isRiposte', legacy, () => {
+    return compareIdentityDecision('reaction.isRiposte', () => tid === 'reaction-riposte' || name.includes('riposte') || name.includes('weapon damage'), () => {
         if (tid === 'reaction-riposte')
             return true;
         if (!tid)
@@ -33,8 +32,7 @@ export function isRiposteReaction(item) {
 export function isReflectionReaction(item) {
     const tid = templateIdOf(item);
     const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid === 'reaction-parry-reflection' || name.includes('reflection');
-    return compareIdentityDecision('reaction.isReflection', legacy, () => {
+    return compareIdentityDecision('reaction.isReflection', () => tid === 'reaction-parry-reflection' || name.includes('reflection'), () => {
         if (tid === 'reaction-parry-reflection')
             return true;
         if (!tid)
@@ -49,11 +47,10 @@ export function isReflectionReaction(item) {
 export function reactionMayRepeatThisRound(item) {
     const tid = templateIdOf(item);
     const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid === 'reaction-riposte' ||
+    return compareIdentityDecision('reaction.mayRepeatThisRound', () => tid === 'reaction-riposte' ||
         name.includes('parry + weapon damage') ||
         name.includes('riposte') ||
-        mechanicsOf(item)?.repeatable === true;
-    return compareIdentityDecision('reaction.mayRepeatThisRound', legacy, () => {
+        mechanicsOf(item)?.repeatable === true, () => {
         if (tid === 'reaction-riposte')
             return true;
         if (mechanicsOf(item)?.repeatable === true)

@@ -95,7 +95,7 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
             // getEffect remains the missing-ID bridge (pre-K9 / chat text payloads).
             try {
                 const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
-                const decidedId = compareIdentityDecision('specials.resolveByName', effectDef?.id || null, () => {
+                const decidedId = compareIdentityDecision('specials.resolveByName', () => effectDef?.id || null, () => {
                     const asId = getEffect(effectName);
                     return asId?.id && asId.id === effectName.toLowerCase().replace(/\s+/g, '-')
                         ? asId.id
