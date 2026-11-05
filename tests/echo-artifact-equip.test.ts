@@ -31,8 +31,30 @@ describe('echo-artifact-equip', () => {
     expect(getEchoArtifactKey(mockEchoItem())).toBe('dragonHead');
   });
 
-  it('isEchoArtifactInventoryHidden is true for echo-bound artifacts', () => {
-    expect(isEchoArtifactInventoryHidden(mockEchoItem())).toBe(true);
+  it('isEchoArtifactInventoryHidden hides slotted/equipped Echo; stowed Echo is visible', () => {
+    // Default mock: echo-bound but unequipped / no slot → backpack-visible (stow path).
+    expect(isEchoArtifactInventoryHidden(mockEchoItem())).toBe(false);
+    expect(
+      isEchoArtifactInventoryHidden(
+        mockEchoItem({
+          system: { binding: 'echo', equipped: true },
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      isEchoArtifactInventoryHidden(
+        mockEchoItem({
+          getFlag(ns: string, key: string) {
+            const bag: Record<string, unknown> = {
+              echoArtifactKey: 'dragonHead',
+              echoBound: true,
+              equipment: { slot: 'head' },
+            };
+            return (ns === 'mastery-system' ? bag[key] : undefined) as any;
+          },
+        }),
+      ),
+    ).toBe(true);
     expect(isEchoArtifactInventoryHidden({ type: 'weapon', name: 'Sword' })).toBe(false);
   });
 
