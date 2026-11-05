@@ -104,7 +104,7 @@ export interface TowerWizardSelection {
     stoneAssignments?: TowerWizardAttributeMap;
     /** Chosen Echo Imprint ids (max MR; linked Attribute ≥ 4). */
     echoImprintIds?: string[];
-    /** Starting Specializations (exactly five Rank 2). */
+    /** Starting Professions (exactly four Rank 2). */
     specializations?: SpecializationRecord[];
     /** Mastery Rank used for validation (defaults to 2 at creation). */
     masteryRank?: number;

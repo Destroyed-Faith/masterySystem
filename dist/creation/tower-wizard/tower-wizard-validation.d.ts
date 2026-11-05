@@ -24,7 +24,7 @@ export declare function wizardStoneCap(masteryRank: number): number;
 export declare function validateWizardAttributesAndStones(selection: Partial<TowerWizardSelection>, ctx?: TowerWizardIdentityContext): string[];
 /** Echo Imprints: ≤ MR, unique, linked Attribute ≥ 4 (shared rules validator). */
 export declare function validateWizardEchoImprints(selection: Partial<TowerWizardSelection>, ctx?: TowerWizardIdentityContext): string[];
-/** Starting Specializations: exactly five Rank 2 (shared rules validator). */
+/** Starting Professions: exactly four Rank 2 (shared rules validator). */
 export declare function validateWizardSpecializations(selection: Partial<TowerWizardSelection>): string[];
 /**
  * Validate the early identity DTO. Fields are only checked when present, so

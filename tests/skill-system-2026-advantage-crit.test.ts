@@ -18,6 +18,7 @@ import {
   skillCritDailyAllowance,
   skillCritUsesResetFlagUpdate,
   snapshotSpecializationIdentity,
+  syncSkillCritDayBoundary,
   specializationXpCostFromTo,
   specializationXpCostToReach,
   specializationRankUpCost,
@@ -98,17 +99,68 @@ describe('Skill Crit charges (flags only)', () => {
     expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(1);
   });
 
-  it('Safe Haven rest updates clear Skill Crit uses flag', () => {
+  it('Safe Haven rest does not refresh Training Crit mid-Tyhran-Day', () => {
     const updates = buildSafeHavenRestUpdates({
       skills: {},
       mastery: { rank: 2, charges: 2 },
       faithFractures: { current: 0, maximum: 3 },
       health: { bars: [{ current: 5, max: 10 }], currentBar: 0 },
     });
-    expect(updates['flags.mastery-system.skillCritUses']).toEqual({});
-    expect(skillCritUsesResetFlagUpdate()).toEqual({
+    expect(updates['flags.mastery-system.skillCritUses']).toBeUndefined();
+    expect(updates['flags.mastery-system.skillCritDayIndex']).toBeUndefined();
+    expect(skillCritUsesResetFlagUpdate(12)).toEqual({
       'flags.mastery-system.skillCritUses': {},
+      'flags.mastery-system.skillCritDayIndex': 12,
     });
+  });
+
+  it('refreshes Training Crit once per Tyhran Day and stays idempotent', async () => {
+    const day = { index: 100 };
+    (globalThis as any).game = {
+      settings: {
+        get(_scope: string, key: string) {
+          if (key === 'currentDayIndex') return day.index;
+          return 0;
+        },
+      },
+    };
+    const actor = mockActor([{ id: 'physical:stealth', rank: 7 }], 40);
+
+    expect(await consumeSkillCritUse(actor, 'physical:stealth', 7)).toBe(true);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(0);
+    expect(actor.getFlag('mastery-system', 'skillCritDayIndex')).toBe(100);
+
+    // Same-day sync / reload must not restore the spent use.
+    expect(await syncSkillCritDayBoundary(actor)).toBe(false);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(0);
+    expect(await consumeSkillCritUse(actor, 'physical:stealth', 7)).toBe(false);
+
+    // New Tyhran Day restores the allowance exactly once.
+    day.index = 101;
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(1);
+    expect(await syncSkillCritDayBoundary(actor)).toBe(true);
+    expect(await syncSkillCritDayBoundary(actor)).toBe(false);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(1);
+    expect(await consumeSkillCritUse(actor, 'physical:stealth', 7)).toBe(true);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(0);
+  });
+
+  it('migrates legacy Crit spends without wiping them on first day stamp', async () => {
+    const day = { index: 44 };
+    (globalThis as any).game = {
+      settings: {
+        get(_scope: string, key: string) {
+          if (key === 'currentDayIndex') return day.index;
+          return 0;
+        },
+      },
+    };
+    const actor = mockActor([{ id: 'physical:stealth', rank: 7 }], 40);
+    await actor.setFlag('mastery-system', 'skillCritUses', { 'physical:stealth': 1 });
+    // No skillCritDayIndex yet (pre-K8 day-stamp characters).
+    expect(await syncSkillCritDayBoundary(actor)).toBe(false);
+    expect(actor.getFlag('mastery-system', 'skillCritDayIndex')).toBe(44);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(0);
   });
 });
 

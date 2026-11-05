@@ -1,7 +1,7 @@
 /**
  * Comparative Skill Checks (Destroyed Faith).
  *
- * Both sides roll Attribute k MR with Skill Advantage / optional Skill Crit.
+ * Both sides roll Attribute k MR with Training Advantage / optional Training Crit.
  * No Task TN. No Skill Raises. Higher result wins; ties favor the defender/observer.
  */
 

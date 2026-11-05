@@ -90,6 +90,7 @@ export function buildWizardSpecRows(selection) {
             name: spec?.name ?? '',
             origin: spec?.origin ?? '',
             scope: spec?.scope ?? '',
+            category: spec?.category ?? '',
             rank: 2,
         };
     });

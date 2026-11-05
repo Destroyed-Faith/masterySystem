@@ -5,8 +5,8 @@
  * of these functions so the rules stay unit-testable:
  *
  * - Legacy Skills (name + rating) are listed for reference; names can be copied
- *   into five new Specializations. Every saved Spec is forced to Rank 2
- *   (starting budget: five × Rank 2). Legacy ratings are never converted.
+ *   into four new Professions. Every saved Spec is forced to Rank 2
+ *   (starting budget: four × Rank 2). Legacy ratings are never converted.
  * - Minor Expressions with no exact Echo Imprint mapping are listed as
  *   "unmapped" so the GM can pick an Imprint by hand.
  * - Imprint proposals exceeding Mastery Rank are flagged for trimming.
@@ -329,7 +329,7 @@ export function normalizeReviewSpecialization(
 ): SpecializationRecord | null {
   const name = String(raw?.name ?? '').trim();
   if (!name) return null;
-  // Perception is free universal — never saved as one of the five paid review Specs.
+  // Perception is free universal — never saved as one of the four paid review Specs.
   if (isCharacterPerceptionSpec({ name, field: raw?.field, id: raw?.id })) return null;
   const fieldRaw = String(raw?.field ?? '');
   const field: SkillField =
@@ -346,7 +346,7 @@ export function normalizeReviewSpecialization(
 /**
  * Validate GM input and build the actor update. Touches ONLY
  * `system.specializations`, `system.echoImprints` and the review stamp flag.
- * Specializations must be exactly five at Rank 2 (same as character creation).
+ * Professions must be exactly four at Rank 2 (same as character creation).
  */
 export function buildDf2026ReviewUpdate(
   actor: any,
@@ -361,7 +361,7 @@ export function buildDf2026ReviewUpdate(
   }
   const imprintIds = [...new Set((input?.echoImprints ?? []).map((v) => String(v ?? '').trim()).filter(Boolean))];
 
-  // Always keep free Perception alongside the five paid Specs.
+  // Always keep free Perception alongside the four paid Specs.
   const withPerception = ensureCharacterHasPerceptionSpec({
     specializations: specs,
   }).specializations;

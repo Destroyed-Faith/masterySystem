@@ -1,7 +1,7 @@
 /**
  * Pure Specialization roll planning + list helpers (Destroyed Faith Skill System).
  *
- * - Trained roll: Attribute dice, Keep = Mastery Rank; Rank grants Skill Advantage / Crit.
+ * - Trained roll: Attribute dice, Keep = Mastery Rank; Rank grants Training Advantage / Crit.
  * - Untrained: full Attribute pool with Disadvantage, 0 Raises.
  * - Task Level × 4 = Base TN; optional uncapped Paid Raises (+4 TN each).
  * - Free Raises from Skill Rank are retired.

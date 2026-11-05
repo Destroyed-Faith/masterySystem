@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.837] - 2026-11-06
+
+### Fixed
+
+- **K8 closure:** Tower Wizard Profession `category` survives re-render/save; `.spec-respec` included in creation-lock selectors (still gated by `creationComplete`); obsolete five-Profession / Skill Advantage comments cleaned.
+- **Ordinary Stealth:** removed the leftover automatic break after moving more than 3 m — movement alone no longer ends Profession concealment.
+- **Training Crit day cycle:** uses refresh on Tyhran `currentDayIndex` advance (idempotent day stamp); Safe Haven / Day of Rest within the same Tyhran Day no longer grant extra Crit uses; legacy spends migrate without a double wipe.
+- **Stationary Invisibility:** Perception dialog for invisible targets defaults to GM adjudication (No clue / Cancel); offering the dialog is not automatic permission to detect by ordinary sight.
+
 ## [0.9.836] - 2026-11-05
 
 ### Fixed

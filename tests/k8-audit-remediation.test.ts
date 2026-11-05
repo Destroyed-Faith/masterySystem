@@ -23,6 +23,10 @@ import {
   skillCritDailyAllowance,
 } from '../src/rules/skill-advantage.js';
 import { ritualTrainingModifiers } from '../src/rules/ritual-tn.js';
+import {
+  buildWizardSpecRows,
+  specRecordsFromDraft,
+} from '../src/creation/tower-wizard/tower-wizard-identity.js';
 
 describe('K8 Training Rank Progression (authoritative table)', () => {
   it('maps ranks 0–8 to Training Advantage reroll max', () => {
@@ -79,6 +83,69 @@ describe('K8 Profession category persistence', () => {
       startingSlot: true,
       rank: 2,
     });
+  });
+
+  it('preserves category across a Wizard re-render after changing a Profession', () => {
+    // Simulate picking a catalogue suggestion (sets name + category on the row).
+    const afterPick = specRecordsFromDraft([
+      {
+        name: 'Blacksmith',
+        origin: 'Apprenticed in Kalgrad.',
+        scope: 'Forge work and metal judgment.',
+        category: 'Trades',
+      },
+      { name: 'Tracker', origin: 'Forest patrols.', scope: 'Tracks and signs.', category: 'Wilderness' },
+      { name: 'Courtier', origin: 'Minor house.', scope: 'Favors and ceremony.', category: 'Society' },
+      { name: 'Burglar', origin: 'City rooftops.', scope: 'Quiet entries and locks.', category: 'Conflict' },
+    ]);
+    expect(afterPick[0]?.category).toBe('Trades');
+
+    // Change the first Profession (same flow as the dialog writing selection.specializations).
+    const afterChange = specRecordsFromDraft([
+      {
+        name: 'Alchemist',
+        origin: 'Guild lab.',
+        scope: 'Reagents and compounds.',
+        category: 'Knowledge',
+      },
+      ...afterPick.slice(1).map((s) => ({
+        name: s.name,
+        origin: s.origin,
+        scope: s.scope,
+        category: s.category,
+      })),
+    ]);
+    expect(afterChange[0]).toMatchObject({ name: 'Alchemist', category: 'Knowledge' });
+
+    // Re-render the Wizard step from selection (buildWizardSpecRows) — category must survive.
+    const rerendered = buildWizardSpecRows({ specializations: afterChange });
+    expect(rerendered).toHaveLength(4);
+    expect(rerendered[0]).toMatchObject({
+      name: 'Alchemist',
+      category: 'Knowledge',
+      rank: 2,
+    });
+    expect(rerendered[1]).toMatchObject({ name: 'Tracker', category: 'Wilderness' });
+    expect(rerendered[2]).toMatchObject({ name: 'Courtier', category: 'Society' });
+    expect(rerendered[3]).toMatchObject({ name: 'Burglar', category: 'Conflict' });
+
+    // Second re-render (leave / return to step) still carries category into the template attr.
+    const secondPass = buildWizardSpecRows({
+      specializations: specRecordsFromDraft(
+        rerendered.map((r) => ({
+          name: r.name,
+          origin: afterChange.find((s) => s.name === r.name)?.origin,
+          scope: r.scope,
+          category: r.category,
+        })),
+      ),
+    });
+    expect(secondPass.map((r) => r.category)).toEqual([
+      'Knowledge',
+      'Wilderness',
+      'Society',
+      'Conflict',
+    ]);
   });
 });
 
@@ -270,5 +337,57 @@ describe('K8 catalogue vs reconciled Player Guide', () => {
       }
     }
     expect(mismatches).toEqual([]);
+  });
+});
+
+describe('K8 ordinary Stealth — no fixed distance break', () => {
+  it('does not auto-break ordinary Stealth after moving more than 3 meters', async () => {
+    const src = readFileSync(resolve('src/combat/movement-tracker.ts'), 'utf8');
+    expect(src).not.toMatch(/totalMoved\s*>\s*3/);
+    expect(src).not.toMatch(/breakOrdinaryStealth\(\s*actor\s*,\s*['"]movement['"]\s*\)/);
+
+    const flags: Record<string, unknown> = {};
+    const actor = {
+      id: 'hero',
+      getFlag(_s: string, key: string) {
+        return flags[key];
+      },
+      async setFlag(_s: string, key: string, value: unknown) {
+        flags[key] = value;
+      },
+    };
+    const tokenDoc = {
+      actor,
+      parent: { grid: { size: 100, distance: 1 } },
+      x: 0,
+      y: 0,
+      _source: { x: 0, y: 0 },
+    };
+    (globalThis as any).game = {
+      user: { isGM: true },
+      combat: {
+        started: true,
+        combatant: { actor: { id: 'hero' } },
+      },
+    };
+    const { handleTokenMovement } = await import('../src/combat/movement-tracker.js');
+    // Move 5 m in one drag — must track meters for Lacerate but must NOT clear Stealth.
+    flags.hidden = true;
+    await handleTokenMovement(tokenDoc, { x: 500, y: 0 });
+    expect(Number(flags.movedThisTurnM)).toBeGreaterThan(3);
+    // breakOrdinaryStealth would clear perception hidden/stealth flags; those are not
+    // on this mock — assert the movement path never imported a stealth break by
+    // confirming the source contract above and that movement still recorded meters.
+    expect(flags.movedThisTurnM).toBe(5);
+  });
+});
+
+describe('K8 stationary Invisibility — GM adjudication', () => {
+  it('documents that an offered sight Perception roll is not automatic permission', () => {
+    const src = readFileSync(resolve('src/combat/perception-gate.ts'), 'utf8');
+    expect(src).toMatch(/Invisibility \(GM adjudication\)/);
+    expect(src).toMatch(/not<\/em> permission to roll|not.*permission to roll/i);
+    expect(src).toMatch(/No clue \/ Cancel/);
+    expect(src).toMatch(/default:\s*inv\s*>\s*0\s*\?\s*['"]cancel['"]/);
   });
 });

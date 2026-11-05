@@ -117,14 +117,8 @@ export async function handleTokenMovement(tokenDoc: any, changes: any): Promise<
   const prevMoved = Number(actor.getFlag(FLAG_SCOPE, FLAG_MOVED) ?? 0);
   const totalMoved = prevMoved + moved;
   await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, totalMoved);
-  if (totalMoved > 3) {
-    try {
-      const { breakOrdinaryStealth } = await import('./perception-combat-hooks.js');
-      await breakOrdinaryStealth(actor, 'movement');
-    } catch {
-      /* best-effort */
-    }
-  }
+  // Ordinary Stealth / Profession concealment is never broken by distance alone
+  // (no 3 m rule). Overt hostile actions, damage, and Reactions still end it.
 
   // Safe Movement, Disengage, and Slip do not open movement-triggered Reactions.
   try {

@@ -268,7 +268,7 @@ function buildPrintSkillRow(actor, key, rating, spent, masteryRank) {
 }
 /** Pips printed per Specialization (Rank 1–8). */
 const PRINT_SPEC_PIPS = Array.from({ length: SPECIALIZATION_MAX_RANK }, (_, i) => i + 1);
-/** Write-in lines padded under the Specialization list (starting characters have five). */
+/** Write-in lines padded under the Profession list (starting characters have four + Perception). */
 const PRINT_SPEC_MIN_ROWS = 4;
 /** DF 2026 Specializations grouped by Field, with Rank pips and Raise allowance. */
 function buildPrintSpecializations(system) {

@@ -1,7 +1,7 @@
 /**
  * Group Ambush — one Stealth roll for the party vs observer Perception.
  *
- * Specialist rolls Attribute k MR with Skill Advantage / optional Skill Crit.
+ * Specialist rolls Attribute k MR with Training Advantage / optional Training Crit.
  * Pool is reduced by the *combined* Physical Skill penalties of every
  * participating character (armor + shields), including the specialist.
  */

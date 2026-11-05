@@ -160,6 +160,7 @@ export interface WizardSpecRow {
     name: string;
     origin: string;
     scope: string;
+    category: string;
     rank: number;
 }
 
@@ -175,6 +176,7 @@ export function buildWizardSpecRows(selection: Partial<TowerWizardSelection>): W
             name: spec?.name ?? '',
             origin: spec?.origin ?? '',
             scope: spec?.scope ?? '',
+            category: spec?.category ?? '',
             rank: 2,
         };
     });

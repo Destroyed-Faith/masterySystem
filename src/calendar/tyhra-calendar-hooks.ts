@@ -76,9 +76,17 @@ export function initializeTyhraCalendar(): void {
     }
   });
 
-  Hooks.on('settingChange', (scope: string, key: string) => {
+  Hooks.on('settingChange', async (scope: string, key: string) => {
     if (scope === 'mastery-system' && key === 'currentDayIndex') {
       TyhraCalendarApplication.requestRefresh();
+      try {
+        const { syncAllCharacterSkillCritDayBoundaries } = await import(
+          '../rules/skill-advantage.js'
+        );
+        await syncAllCharacterSkillCritDayBoundaries();
+      } catch (err) {
+        console.error('Mastery System | Training Crit Tyhran Day sync failed', err);
+      }
     }
   });
 }

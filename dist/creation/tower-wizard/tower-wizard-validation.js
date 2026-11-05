@@ -67,7 +67,7 @@ export function validateWizardEchoImprints(selection, ctx = {}) {
     errors.push(...result.errors);
     return errors;
 }
-/** Starting Specializations: exactly five Rank 2 (shared rules validator). */
+/** Starting Professions: exactly four Rank 2 (shared rules validator). */
 export function validateWizardSpecializations(selection) {
     if (!selection.specializations)
         return [];

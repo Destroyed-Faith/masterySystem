@@ -113,7 +113,7 @@ export interface RollOptions {
    */
   rollAdvantage?: boolean;
   /**
-   * Skill Advantage: each initial face ≤ this value is rerolled once (keep new
+   * Training Advantage: each initial face ≤ this value is rerolled once (keep new
    * face), then explosions resolve. 0 / omitted with rollAdvantage false = none.
    * When set > 0, overrides the combat `rollAdvantage` face-1 shortcut.
    */
@@ -213,7 +213,7 @@ export interface MasteryRollRecipe {
   attackExplodeDiceOn78?: boolean;
   /** Mirrors `RollOptions.rollAdvantage` for Faith Fracture rerolls. */
   rollAdvantage?: boolean;
-  /** Mirrors `RollOptions.skillAdvantageRerollMax` for Faith Fracture / Skill Crit rerolls. */
+  /** Mirrors `RollOptions.skillAdvantageRerollMax` for Faith Fracture / Training Crit rerolls. */
   skillAdvantageRerollMax?: number;
   /** Mirrors `RollOptions.rollDisadvantage` for Faith Fracture rerolls. */
   rollDisadvantage?: boolean;

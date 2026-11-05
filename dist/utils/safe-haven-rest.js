@@ -164,10 +164,8 @@ export function buildSafeHavenRestUpdates(system, opts) {
     if (Array.isArray(system?.statusEffects) && system.statusEffects.length > 0) {
         updates['system.statusEffects'] = [];
     }
-    // Skill Crit daily uses refresh with other daily resources (Safe Haven / Day of Rest).
-    Object.assign(updates, {
-        'flags.mastery-system.skillCritUses': {},
-    });
+    // Training Crit refreshes on Tyhran Day (`currentDayIndex`), not on Safe Haven.
+    // Multiple rests in one Tyhran Day must not grant extra Crit allowances.
     return updates;
 }
 export async function applySafeHavenRest(actor, opts) {
@@ -313,8 +311,7 @@ export async function applyDayOfRest(actor) {
         ...(Object.prototype.hasOwnProperty.call(actor.system?.health ?? {}, 'scarred')
             ? { 'system.health.scarred': scarredCount }
             : {}),
-        // Day of Rest refreshes daily Skill Crit uses (same day-cycle as Safe Haven).
-        'flags.mastery-system.skillCritUses': {},
+        // Training Crit refreshes on Tyhran Day advance, not on Day of Rest alone.
     });
     return true;
 }

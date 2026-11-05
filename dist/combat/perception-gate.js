@@ -221,12 +221,16 @@ async function promptPerceptionCheck(observer, target, tn) {
     const formulaNote = inv > 0
         ? `(4×MR ${mr}) + Invis ${inv} − (${lost}×MR) `
         : `(4×MR ${mr}) + Stealth`;
+    const invisGmNote = inv > 0
+        ? `<p class="notes"><strong>Invisibility (GM adjudication):</strong> A fully stationary invisible creature with no perceptible visual clue cannot be discovered by ordinary sight alone. Offering this dialog is <em>not</em> permission to roll. Roll only if the target moved or another perceptible clue justifies Perception against the Invisibility TN. Choose <strong>No clue</strong> otherwise — Cancel / No clue does not spend the once-per-round attempt.</p>`
+        : '';
     return new Promise((resolve) => {
         try {
             new Dialog({
                 title: `Perception — ${obsName}`,
                 content: `<p>Locate <strong>${tgtName}</strong>?</p>
           <p>Perception TN: <strong>${tn}</strong> <span class="notes">${formulaNote}</span></p>
+          ${invisGmNote}
           <p class="notes">One attempt per target per Round. Success → located until end of this Round. Failure → cannot target this Turn (action not spent). Stealth is setup-first (no retroactive Stealth Points).</p>`,
                 buttons: {
                     roll: {
@@ -365,11 +369,12 @@ async function promptPerceptionCheck(observer, target, tn) {
                         callback: () => resolve({ success: false, total: 0, tn }),
                     },
                     cancel: {
-                        label: 'Cancel',
+                        label: inv > 0 ? 'No clue / Cancel' : 'Cancel',
                         callback: () => resolve({ success: false, total: 0, tn, cancelled: true }),
                     },
                 },
-                default: 'roll',
+                // Invisible targets default to GM adjudication, not an automatic sight roll.
+                default: inv > 0 ? 'cancel' : 'roll',
                 close: () => resolve({ success: false, total: 0, tn, cancelled: true }),
             }).render(true);
         }

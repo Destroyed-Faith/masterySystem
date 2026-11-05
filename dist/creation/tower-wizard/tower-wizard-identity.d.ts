@@ -55,6 +55,7 @@ export interface WizardSpecRow {
     name: string;
     origin: string;
     scope: string;
+    category: string;
     rank: number;
 }
 /** Always returns four editable rows (Rank 2 each), padded from the current draft. */

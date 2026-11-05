@@ -276,7 +276,7 @@
       <p class="tower-wizard-prose">Perception Rank 2 is already yours and does not use one of these four slots. The {{professionSuggestionCount}} suggestions in {{professionCategoryCount}} categories are examples. Picking one fills the name and, when scope is empty, its example scope; your own scope stays editable. Any other name is allowed.</p>
       {{#if identity.stepError}}<p class="tower-wizard-warn">{{identity.stepError}}</p>{{/if}}
       {{#each identity.specRows}}
-      <fieldset class="js-tw-spec-row tower-wizard-spec-row">
+      <fieldset class="js-tw-spec-row tower-wizard-spec-row" data-category="{{this.category}}">
         <legend>Profession {{this.index}}</legend>
         <div class="tower-wizard-spec-filters">
           <label class="tower-wizard-field">

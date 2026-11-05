@@ -1563,6 +1563,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const { describePendingHealing, isResolveHealingPendingLive, pendingHealingRound, } = await import('../stones/resolve-healing-pending.js');
             const { readActorResolveHealingPending } = await import('../stones/stone-resolution-ui.js');
             await syncRegenerationDayBoundary(this.actor);
+            try {
+                const { syncSkillCritDayBoundary } = await import('../rules/skill-advantage.js');
+                await syncSkillCritDayBoundary(this.actor);
+            }
+            catch {
+                /* best-effort — Crit spend paths also sync */
+            }
             const regen = getRegenerationState(this.actor);
             context.regenerationPassive = {
                 show: regen.level > 0 && regen.poolMax > 0,
@@ -6702,10 +6709,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         $scope.find('input[name="name"], textarea').prop('disabled', true);
         $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.spec-add):not(.spec-edit):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        // `.spec-respec` is listed with the other Spec controls so the lock selectors stay
+        // complete; the button itself only renders when `canBetaRespec` is true, which
+        // requires creationComplete — unfinished characters never see a usable Respec control.
+        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.spec-add):not(.spec-edit):not(.spec-respec):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .spec-add, .spec-edit, .spec-delete, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .spec-add, .spec-edit, .spec-respec, .spec-delete, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         $scope.find('.power-rank-select').prop('disabled', false);

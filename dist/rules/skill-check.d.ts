@@ -3,7 +3,7 @@
  *
  * GM defines: task, Attribute, Specialization/Untrained, Base TN.
  * Player declares optional uncapped Paid Raises before rolling.
- * Skill Rank grants Skill Advantage / Skill Crit (not Free Raises).
+ * Profession Rank grants Training Advantage / Training Crit (not Free Raises).
  * Paid Raise effects allocate on the result chat card.
  */
 import { type SkillRaiseAllowance, type SkillRaiseEffectAllocation } from './skill-raises.js';

@@ -6,7 +6,7 @@
  *
  * Per character it lists:
  *  - Legacy Skills the character had (name + rating) for reference
- *  - Exactly five Specializations at Rank 2 (no Rank picker — same as creation)
+ *  - Exactly four Professions at Rank 2 (no Rank picker — same as creation)
  *  - Unmapped Minor Expressions (need a manual Echo Imprint pick)
  *  - Echo Imprint trim warnings when the proposal exceeds Mastery Rank
  *

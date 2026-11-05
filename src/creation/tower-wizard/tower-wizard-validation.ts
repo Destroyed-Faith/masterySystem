@@ -134,7 +134,7 @@ export function validateWizardEchoImprints(
     return errors;
 }
 
-/** Starting Specializations: exactly five Rank 2 (shared rules validator). */
+/** Starting Professions: exactly four Rank 2 (shared rules validator). */
 export function validateWizardSpecializations(selection: Partial<TowerWizardSelection>): string[] {
     if (!selection.specializations) return [];
     return validateSpecializationList(selection.specializations, { requireStartingBudget: true }).errors;

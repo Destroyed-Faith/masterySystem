@@ -5,8 +5,8 @@
  * of these functions so the rules stay unit-testable:
  *
  * - Legacy Skills (name + rating) are listed for reference; names can be copied
- *   into five new Specializations. Every saved Spec is forced to Rank 2
- *   (starting budget: five × Rank 2). Legacy ratings are never converted.
+ *   into four new Professions. Every saved Spec is forced to Rank 2
+ *   (starting budget: four × Rank 2). Legacy ratings are never converted.
  * - Minor Expressions with no exact Echo Imprint mapping are listed as
  *   "unmapped" so the GM can pick an Imprint by hand.
  * - Imprint proposals exceeding Mastery Rank are flagged for trimming.
@@ -91,7 +91,7 @@ export declare function normalizeReviewSpecialization(raw: Partial<Specializatio
 /**
  * Validate GM input and build the actor update. Touches ONLY
  * `system.specializations`, `system.echoImprints` and the review stamp flag.
- * Specializations must be exactly five at Rank 2 (same as character creation).
+ * Professions must be exactly four at Rank 2 (same as character creation).
  */
 export declare function buildDf2026ReviewUpdate(actor: any, input: Df2026ReviewInput, now?: Date): Df2026ReviewUpdateResult;
 /** Validate and write one character's review. */
