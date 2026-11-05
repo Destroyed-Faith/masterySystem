@@ -269,6 +269,58 @@
     </section>
     {{/if}}
 
+    {{#if isSpecializations}}
+    <section class="tower-wizard-step">
+      <h3>{{copy.identity.specializations.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.identity.specializations.body}}</p>
+      <p class="tower-wizard-prose">Perception Rank 2 is already yours and does not use one of these four slots. The {{professionSuggestionCount}} suggestions in {{professionCategoryCount}} categories are examples. Picking one fills the name and, when scope is empty, its example scope; your own scope stays editable. Any other name is allowed.</p>
+      {{#if identity.stepError}}<p class="tower-wizard-warn">{{identity.stepError}}</p>{{/if}}
+      {{#each identity.specRows}}
+      <fieldset class="js-tw-spec-row tower-wizard-spec-row">
+        <legend>Profession {{this.index}}</legend>
+        <div class="tower-wizard-spec-filters">
+          <label class="tower-wizard-field">
+            <span>Category</span>
+            <select class="js-tw-spec-category" name="ms-tw-spec-category-{{this.index}}" form="ms-ui-only">
+              <option value="">All categories</option>
+              {{#each ../professionCategories}}
+              <option value="{{this}}">{{this}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label class="tower-wizard-field">
+            <span>Search</span>
+            <input type="search" class="js-tw-spec-search" placeholder="Names and descriptions" name="ms-tw-spec-search-{{this.index}}" form="ms-ui-only" />
+          </label>
+        </div>
+        <label class="tower-wizard-field">
+          <span>{{../copy.identity.specializations.suggestionLabel}}</span>
+          <select class="js-tw-spec-suggestion" name="ms-tw-spec-suggestion-{{this.index}}" form="ms-ui-only">
+            <option value="">Custom name</option>
+            {{#each ../professionSuggestions}}
+            <option value="{{this.name}}" data-category="{{this.category}}" data-scope="{{this.scope}}">{{this.category}} — {{this.name}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <p class="tower-wizard-prose tower-wizard-spec-preview js-tw-spec-preview">Pick a suggestion to preview its example scope.</p>
+        <label class="tower-wizard-field">
+          <span>{{../copy.identity.specializations.nameLabel}}</span>
+          <input type="text" class="js-tw-spec-input" data-prop="name" value="{{this.name}}" maxlength="60" name="ms-tw-spec-name-{{this.index}}" form="ms-ui-only" />
+        </label>
+        <label class="tower-wizard-field">
+          <span>{{../copy.identity.specializations.originLabel}}</span>
+          <input type="text" class="js-tw-spec-input" data-prop="origin" value="{{this.origin}}" maxlength="160" name="ms-tw-spec-origin-{{this.index}}" form="ms-ui-only" />
+        </label>
+        <label class="tower-wizard-field">
+          <span>{{../copy.identity.specializations.scopeLabel}}</span>
+          <input type="text" class="js-tw-spec-input" data-prop="scope" value="{{this.scope}}" maxlength="200" name="ms-tw-spec-scope-{{this.index}}" form="ms-ui-only" />
+        </label>
+        <p class="tower-wizard-prose">Rank {{this.rank}}</p>
+      </fieldset>
+      {{/each}}
+    </section>
+    {{/if}}
+
     {{#if isReview}}
     <section class="tower-wizard-step tower-wizard-review">
       <h3>{{copy.review.heading}}</h3>

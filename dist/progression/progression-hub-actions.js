@@ -9,7 +9,7 @@ import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE } from 
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, isSkillField, readSpecializations, specializationIdentityKey, specializationRankUpCost, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { SKILL_FIELD_LABELS, SPECIALIZATION_MAX_RANK, professionIdentityKey, readSpecializations, specializationRankUpCost, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import * as stepRule from '../utils/xp-step-rule.js';
 import { appendXpHistory, buildBandedStepEntries, currentXpUser, } from '../utils/xp-history.js';
 import { allocateSkillPending, readSkillPointPool, skillPointPoolUpdate, } from './skill-point-pool.js';
@@ -277,8 +277,8 @@ export function buildProgressionHubContext(actor) {
         specializations: readSpecializations(actor.system).map((s) => ({
             id: s.id,
             name: s.name,
-            field: s.field,
-            fieldLabel: SKILL_FIELD_LABELS[s.field] ?? s.field,
+            field: s.field ?? '',
+            fieldLabel: String(s.origin || '').trim() || (s.field ? SKILL_FIELD_LABELS[s.field] : ''),
             scope: s.scope,
             rank: s.rank,
             cost: specializationRankUpCost(s.rank),
@@ -489,31 +489,36 @@ export async function applySpecializationRankUp(actor, specId) {
     const res = await spendSpecializationXp(actor, specId, next, `${spec.name} ${spec.rank} → ${to} (Specialization)`, spec.rank, to, spec.name);
     return res.ok ? { ok: true, newRank: to } : res;
 }
-/** Learn a new Specialization at Rank 1 (4 XP). */
+/** Learn a new Profession at Rank 1 (4 XP). */
 export async function applySpecializationLearn(actor, input) {
     if (!assertProgressionEditable(actor)) {
         return { ok: false, error: 'Progression locked on unlinked token.' };
     }
     const name = String(input.name || '').trim();
-    if (!isSkillField(input.field))
-        return { ok: false, error: 'Choose a Field.' };
-    const field = input.field;
+    const origin = String(input.origin || '').trim();
+    const scope = String(input.scope || '').trim();
+    if (!name)
+        return { ok: false, error: 'Name the Profession.' };
+    if (!origin)
+        return { ok: false, error: 'Record how this Profession was learned.' };
+    if (!scope)
+        return { ok: false, error: 'Agree a one-sentence scope.' };
     const specs = readSpecializations(actor.system);
     const record = {
-        id: specializationIdentityKey(name, field),
+        id: professionIdentityKey(name),
         name,
-        field,
-        scope: String(input.scope || '').trim(),
+        origin,
+        scope,
         rank: 1,
     };
+    if (specs.some((s) => s.id === record.id || s.name.trim().toLowerCase() === name.toLowerCase())) {
+        return { ok: false, error: `${name} already exists — use Rank-up.` };
+    }
     const next = upsertSpecialization(specs, record);
     const check = validateSpecializationList(next);
     if (!check.ok)
         return { ok: false, error: check.errors.join(' ') };
-    if (specs.some((s) => s.id === record.id)) {
-        return { ok: false, error: `${name} already exists — use Rank-up.` };
-    }
-    const res = await spendSpecializationXp(actor, record.id, next, `${name} 0 → 1 (new Specialization)`, 0, 1, name);
+    const res = await spendSpecializationXp(actor, record.id, next, `${name} 0 → 1 (new Profession)`, 0, 1, name);
     return res.ok ? { ok: true, id: record.id } : res;
 }
 export async function applyPowerPendingChanges(actor, pendingMap) {

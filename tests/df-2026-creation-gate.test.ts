@@ -19,13 +19,13 @@ function fiveRank2() {
 }
 
 describe('DF 2026 creation gate (no Foundry)', () => {
-  it('requires exactly five Rank-2 Specializations (20 Creation Points)', () => {
-    expect(CREATION.STARTING_SPECIALIZATION_COUNT).toBe(5);
+  it('requires exactly four Rank-2 Professions', () => {
+    expect(CREATION.STARTING_SPECIALIZATION_COUNT).toBe(4);
     expect(CREATION.STARTING_SPECIALIZATION_RANK).toBe(2);
-    expect(CREATION.SKILL_POINTS).toBe(20);
+    expect(CREATION.SKILL_POINTS).toBe(0);
     expect(validateSpecializationList(fiveRank2(), { requireStartingBudget: true }).ok).toBe(true);
     expect(
-      validateSpecializationList(fiveRank2().slice(0, 4), { requireStartingBudget: true }).ok,
+      validateSpecializationList(fiveRank2().slice(0, 3), { requireStartingBudget: true }).ok,
     ).toBe(false);
   });
 

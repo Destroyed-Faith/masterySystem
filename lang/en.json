@@ -7,20 +7,21 @@
     "df2026": {
       "creation": {
         "specsShortLabel": "Specs",
-        "specsHeaderTitle": "Specializations — five Rank 2 at creation (20 Creation Points)",
-        "bannerSpecs": "Name exactly five Rank 2 Specializations before you finalize creation.",
-        "finalizeNeedSpecs": "Complete five Rank 2 Specializations before finishing character creation.",
-        "legacySkillsRetired": "Legacy skill allocation is retired. Use Specializations (five Rank 2 at creation).",
-        "legacyRedistributeRetired": "Legacy skill redistribute is retired. Raise Specializations with XP (4 XP per Rank)."
+        "specsHeaderTitle": "Professions — four at Rank 2 (Perception Rank 2 is free)",
+        "bannerSpecs": "Name exactly four Rank 2 Professions before you finalize creation.",
+        "finalizeNeedSpecs": "Complete four Rank 2 Professions before finishing character creation.",
+        "legacySkillsRetired": "Legacy skill allocation is retired. Use Professions (four at Rank 2 at creation).",
+        "legacyRedistributeRetired": "Legacy skill redistribute is retired. Raise Professions with XP."
       },
       "specializations": {
-        "title": "Specializations",
-        "add": "Add Specialization",
-        "edit": "Edit Specialization",
-        "delete": "Delete Specialization",
+        "title": "Professions",
+        "add": "Add Profession",
+        "edit": "Edit Profession",
+        "delete": "Delete Profession",
         "rankUp": "Raise one Rank for {cost} XP",
         "untrainedRoll": "Untrained Roll",
-        "field": "Field",
+        "field": "Origin",
+        "origin": "Origin",
         "scope": "Scope",
         "rank": "Rank",
         "raisePaid": "Paid Raises",
@@ -42,7 +43,7 @@
         "taskLevel": "Task Level",
         "namedTier": "Named Tier",
         "genericRaises": "Generic Raises",
-        "specialization": "Specialization (Free Raises)",
+        "specialization": "Profession (Training Advantage)",
         "sealedStones": "Sealed Stones",
         "finalTn": "Final TN",
         "sealPassageAlt": "Tier 4 is an alternate mode: open an existing sealed passage instead of sealing one. Declare before rolling."
@@ -64,7 +65,7 @@
         "save": "Save"
       },
       "progression": {
-        "specializationsSection": "Specializations",
+        "specializationsSection": "Professions",
         "rankUpXp": "+ {cost} XP"
       },
       "archive": {
@@ -604,7 +605,7 @@
         "nav": "Character sheet sections",
         "attributes": "Attributes",
         "echo": "Echo",
-        "skills": "Specializations",
+        "skills": "Professions",
         "powers": "Powers",
         "equipment": "Equipment",
         "disadvantages": "Disadvantages",

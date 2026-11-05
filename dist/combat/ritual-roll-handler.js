@@ -6,7 +6,8 @@
 import { masteryRoll } from '../dice/roll-handler.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { coreRitualTierText, isSealPassage, } from '../rules/core-rituals.js';
-import { planRitualRaises } from '../rules/ritual-tn.js';
+import { planRitualRaises, ritualTrainingModifiers } from '../rules/ritual-tn.js';
+import { consumeSkillCritUse, getSkillCritUsesRemaining, skillCritDailyAllowance, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 const ATTRIBUTE_KEYS = new Set([
     'might',
@@ -111,9 +112,24 @@ export async function performRitualRoll(actor, ritual, opts) {
             numDice = Math.max(1, numDice - pen);
     }
     const approach = String(opts.approach ?? '').trim();
+    const specId = String(opts.specialization?.id || '').trim();
+    let trainingCrit = false;
+    if (opts.declareTrainingCrit && specRank > 0 && specId && skillCritDailyAllowance(specRank) > 0) {
+        const remaining = getSkillCritUsesRemaining(actor, specId, specRank);
+        if (remaining <= 0) {
+            ui.notifications?.warn('No Training Crit uses remaining for this Profession today.');
+            return;
+        }
+        const spent = await consumeSkillCritUse(actor, specId, specRank);
+        if (!spent) {
+            ui.notifications?.warn('Failed to spend Training Crit use.');
+            return;
+        }
+        trainingCrit = true;
+    }
     const specLabel = opts.specialization?.name
-        ? ` Specialization: ${opts.specialization.name} (Rank ${specRank}, ${plan.freeRaises} Free).`
-        : '';
+        ? ` Profession: ${opts.specialization.name} (Rank ${specRank}).`
+        : ' No fitting Profession — no untrained Disadvantage.';
     const result = await masteryRoll({
         numDice,
         keepDice: masteryRank,
@@ -122,15 +138,19 @@ export async function performRitualRoll(actor, ritual, opts) {
         normalTn: baseTn,
         declaredRaiseSlots: plan.paidRaises,
         label: `Ritual: ${ritual.name}`,
-        flavor: `Base TN ${baseTn}, ${plan.totalRaises} Raise(s) (${plan.paidRaises} Paid, ${plan.freeRaises} Free) → Final TN ${finalTn}` +
+        flavor: `Base TN ${baseTn}, ${plan.totalRaises} Raise(s) → Final TN ${finalTn}` +
             `${gmMod ? ` · situational ${gmMod >= 0 ? '+' : ''}${gmMod}` : ''}.${specLabel}` +
-            `${approach ? ` Approach: ${approach}.` : ''}`,
+            `${approach ? ` Approach: ${approach}.` : ''}` +
+            (trainingCrit ? ' Training Crit: explode on 7–8.' : ''),
         actorId: actor.id,
         isSkillRoll: true,
         rollKind: 'skill',
         raiseModel: 'power',
         autoFailIntent: 'skill',
         poolAttribute: opts.attributeKey,
+        rollDisadvantage: ritualTrainingModifiers(specRank).rollDisadvantage,
+        skillAdvantageRerollMax: ritualTrainingModifiers(specRank).skillAdvantageRerollMax,
+        attackExplodeDiceOn78: trainingCrit,
     });
     const success = Math.floor(Number(result.total) || 0) >= finalTn;
     const sealOpenMode = isSealPassage(ritual) && plan.namedTier >= 4;

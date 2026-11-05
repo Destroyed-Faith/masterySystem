@@ -1347,6 +1347,10 @@ Hooks.once('init', async function () {
                 const { showDf2026MigrationReview } = await import('./migrations/df-2026-migration-review-dialog.js');
                 return showDf2026MigrationReview(opts ?? {});
             },
+            showProfessionMappingReview: async (actor) => {
+                const { showProfessionMappingReview } = await import('./migrations/profession-mapping-review-dialog.js');
+                return showProfessionMappingReview(actor);
+            },
             requestEpicMasteryRoll,
             getActiveEpicMasteryRollSession,
         };
@@ -2491,14 +2495,14 @@ function registerConfigConstants() {
     CONFIG.MASTERY.creation = {
         schticksAllowed: 2,
         attributeDistribution: [4, 4, 3, 3, 2, 2, 2],
-        /** @deprecated DF 2026 — use startingSpecializationCount / Rank instead. */
-        skillPoints: 20,
+        /** @deprecated K8 — creation no longer uses a skill-point pool. */
+        skillPoints: 0,
         maxAttributeAtCreation: 4,
         /** @deprecated Legacy fixed-skill creation cap. */
         maxSkillAtCreation: 4,
-        startingSpecializationCount: 5,
+        startingSpecializationCount: 4,
         startingSpecializationRank: 2,
-        startingSpecializationCreationPoints: 20,
+        startingSpecializationCreationPoints: 0,
         // Players Guide ~5158–5164: only the maximum (8) is canonical; the
         // minimum defaults to 0 so a character may take no disadvantages.
         minDisadvantagePoints: 0,

@@ -50,9 +50,9 @@ export const INITIATIVE_PER_COLORLESS_STONE = 4;
 export const CREATION = {
     ATTRIBUTE_DISTRIBUTION: [4, 4, 3, 3, 2, 2, 2],
     ATTRIBUTE_ALLOWED_VALUES: [2, 3, 4],
-    /** DF 2026: 20 Creation Points → five Rank-2 Specializations (2 pts per Rank). */
-    SKILL_POINTS: 20,
-    STARTING_SPECIALIZATION_COUNT: 5,
+    /** K8: no creation-point pool. Four Professions start at Rank 2. */
+    SKILL_POINTS: 0,
+    STARTING_SPECIALIZATION_COUNT: 4,
     STARTING_SPECIALIZATION_RANK: 2,
     MAX_ATTRIBUTE_AT_CREATION: 4,
     /** @deprecated Legacy fixed-skill creation. */

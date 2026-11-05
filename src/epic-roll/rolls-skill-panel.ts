@@ -295,10 +295,7 @@ export function groupAmbushPoolPreview(
   };
 }
 
-/** Prefer Stealth Spec when present for ambush preview. */
-export function resolveStealthRef(actor: any): SkillCheckSkillRef {
-  const specs = readSpecializations(actor?.system);
-  const stealth = specs.find((s) => /stealth/i.test(s.name));
-  if (stealth) return { kind: 'specialization', id: stealth.id };
+/** Concealment is a chosen Profession, not a skill named Stealth. */
+export function resolveStealthRef(_actor: any): SkillCheckSkillRef {
   return { kind: 'untrained' };
 }

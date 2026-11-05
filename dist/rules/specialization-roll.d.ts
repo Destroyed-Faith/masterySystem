@@ -60,8 +60,9 @@ export declare function rankUpSpecialization(specs: SpecializationRecord[], id: 
 export interface SpecializationSheetRow {
     id: string;
     name: string;
-    field: SkillField;
+    field?: SkillField;
     fieldLabel: string;
+    origin: string;
     scope: string;
     rank: number;
     maxPaid: number;

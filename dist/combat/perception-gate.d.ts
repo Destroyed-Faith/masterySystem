@@ -19,8 +19,9 @@ export interface PerceptionGateResult {
     senseUsed?: CombatSenseId;
 }
 /**
- * Perception TN vs an invisible creature, or the Stealth Final Result when only Hidden.
- * A Stealth check is not added on top of an Invisibility TN.
+ * Perception TN vs an invisible creature, or the concealment result when only Hidden.
+ * A Profession concealment result is not added on top of an Invisibility TN.
+ * Effective TN is the higher of the two.
  */
 export declare function computePerceptionTn(target: any, _observer?: any): number;
 /**

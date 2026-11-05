@@ -8097,6 +8097,13 @@ aside#tooltip,
   gap: 0.35rem;
 }
 
+.mastery-dialog-form.spec-edit-form .spec-suggestion-filters {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 2fr;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
 .mastery-system.mastery-roll-dialog .mastery-dialog-form .md-label {
   font-weight: 600;
   color: #333;

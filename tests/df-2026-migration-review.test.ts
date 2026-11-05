@@ -101,16 +101,16 @@ describe('DF 2026 migration review plan', () => {
     expect(listDf2026ReviewPlans([done], { includeReviewed: true })).toHaveLength(1);
   });
 
-  it('save forces five Rank-2 Specs and writes only specializations + echoImprints + review stamp', async () => {
+  it('save forces four Rank-2 Professions and writes only specializations + echoImprints + review stamp', async () => {
     const actor = migrated(legacyActor());
-    const five = Array.from({ length: 5 }, (_, i) => ({
+    const four = Array.from({ length: 4 }, (_, i) => ({
       name: `Spec ${i + 1}`,
       field: 'survival' as const,
       scope: `Scope ${i + 1}`,
       rank: 8, // ignored — migration starter Specs are always Rank 2
     }));
     const result = await applyDf2026Review(actor, {
-      specializations: five,
+      specializations: four,
       echoImprints: ['mage-hand'],
     });
     expect(result.ok).toBe(true);
@@ -125,8 +125,8 @@ describe('DF 2026 migration review plan', () => {
     );
     const specs = update['system.specializations'] as any[];
     // Five paid Specs + free universal Perception.
-    expect(specs).toHaveLength(6);
-    expect(specs.filter((s) => s.name !== 'Perception')).toHaveLength(5);
+    expect(specs).toHaveLength(5);
+    expect(specs.filter((s) => s.name !== 'Perception')).toHaveLength(4);
     expect(specs.find((s) => s.name === 'Perception')).toMatchObject({
       field: 'perception',
       rank: 2,
@@ -146,7 +146,7 @@ describe('DF 2026 migration review plan', () => {
       echoImprints: [],
     });
     expect(oneSpec.ok).toBe(false);
-    expect(oneSpec.errors.join(' ')).toMatch(/five Specializations/i);
+    expect(oneSpec.errors.join(' ')).toMatch(/exactly 4 Professions/i);
     expect(oneSpec.update).toBeNull();
 
     const noScope = buildDf2026ReviewUpdate(actor, {
@@ -266,7 +266,7 @@ describe('DF 2026 import shape', () => {
   });
 
   it('validates specializations + echoImprints', () => {
-    const fiveSpecs = Array.from({ length: 5 }, (_, i) => ({
+    const fourProfessions = Array.from({ length: 4 }, (_, i) => ({
       name: `Spec ${i + 1}`,
       field: 'finesse',
       scope: `Scope ${i + 1}`,
@@ -274,7 +274,7 @@ describe('DF 2026 import shape', () => {
     }));
     const ok = validateCharacterImportDocument(
       wrap({
-        specializations: fiveSpecs,
+        specializations: fourProfessions,
         echoImprints: ['mage-hand'],
       }),
     );
@@ -342,7 +342,7 @@ describe('DF 2026 print context', () => {
     };
     const ctx = buildCharacterPrintContext(actor) as any;
     expect(ctx.showSpecializations).toBe(true);
-    expect(ctx.specializationGroups[0].label).toBe('Finesse');
+    expect(ctx.specializationGroups[0].label).toBe('Professions');
     expect(ctx.specializationGroups[0].specs[0]).toMatchObject({ name: 'Lockpicking', rank: 3 });
     expect(ctx.specializationGroups[0].specs[0].pips.filter((p: any) => p.filled)).toHaveLength(3);
     expect(ctx.showEchoImprints).toBe(true);

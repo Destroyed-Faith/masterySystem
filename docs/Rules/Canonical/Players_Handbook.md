@@ -49,7 +49,7 @@ A Dark Fantasy Setting of Broken Gods and Doomed Inheritance
 ---
 - #### [{{ Attributes}}{{ 37}}](#p37)
 ---
-- #### [{{ Skills}}{{ 40}}](#p40)
+- #### [{{ Professions}}{{ 40}}](#p40)
 ---
 - #### [{{ Choose your Powers}}{{ 56}}](#p56)
 ---
@@ -1413,13 +1413,13 @@ Create your hero in a consistent order: decide what kind of Echo you are before 
 
 #### Step 3 - Choose Echo Imprints
 
-> **Immediately after Attributes**, select **up to MR** free Echo Imprints (normally 2), each tied to an **Attribute 4+**. They progress at Attribute 4/8/12/16/20. They create minor supernatural effects and Echo Memories, never Skill or Combat bonuses.
+> **Immediately after Attributes**, select **up to MR** free Echo Imprints (normally 2), each tied to an **Attribute 4+**. They progress at Attribute 4/8/12/16/20. They create minor supernatural effects and Echo Memories, never Profession or Combat bonuses.
 
 ---
 
-#### Step 4 - Choose Specializations
+#### Step 4 - Choose Four Professions
 
-> Choose **exactly five distinct, freely named Specializations**, each at **Rank 2**, and record their Fields and scopes. These five selections use the full **20 Skill Creation Points** (10 Ranks at 2 points per Rank). **Everyone also receives Perception at Rank 2 for free**, as a sixth, fixed starting Skill. Perception uses no Creation Points and cannot occupy one of the five selections. Learn additional Specializations later through XP advancement. See *Creating and Advancing Skills*.
+> Choose **exactly four distinct Professions**, each at **Rank 2**. A Profession is a concrete occupation, apprenticeship, or formative life path, not a narrow named skill. Give each one a name and a short description of how the character acquired it and what experience it covers; agree the scope with the GM. **Perception Rank 2 is granted to everyone for free** as a separate universal trained check, not as a fifth Profession slot. No separate creation-point pool is used. Additional Professions can be learned later through the existing XP advancement costs. See *Professions and Training*.
 
 ---
 
@@ -1548,7 +1548,7 @@ Alaris is built as a **mobile melee skirmisher**. She chooses her Elorian Echo f
 
 | **Attribute** | **Value** | **Why Alaris chooses it** |
 |:--|:--:|:--|
-| **Agility** | **4** | Her primary combat Attribute. It supports Finesse attacks, Evade, and movement-based Skills. |
+| **Agility** | **4** | Her primary combat Attribute. It supports Finesse attacks, Evade, and movement-based Professions. |
 | **Vitality** | **4** | Gives her enough Health to remain in melee when an attack does connect. |
 | **Might** | **3** | Keeps her dangerous with a greatsword and supports physical actions. |
 | **Wits** | **3** | Supports awareness, tracking, and fast battlefield decisions. |
@@ -1568,56 +1568,61 @@ Start with the character's intended playstyle, then place the fixed values where
 {{pageNumber,auto}}
 {{wide
 
-## Skills
+## Professions and Training
 
-*"What you know determines what you can attempt. How you act determines the Attribute. Training determines how reliably you use it."*
+*"Your past tells us what you might know. Your method tells us which Attribute you use."*
 
-**Skills** are learned fields of expertise represented by freely named **Specializations** (Rank 1–8; Rank 0 is untrained). The GM chooses the applicable Specialization and relevant Attribute from the character's described method. **Skills never add dice to the Attribute Pool, increase Keep, or grant flat bonuses.**
+<!-- Handbook note: the bold sentence below is printed as supplied in the K8 source. "narrow player Professions" reads as a substitution for "Skills" and was not rewritten. -->
+A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow player Professions.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
 
-### One Skill Roll, Two Comparisons
+A player describes their method and explains how a Profession helps. The GM decides whether that link is credible and selects a relevant **Attribute**; professions never prescribe fixed Attributes. A broad title must have an agreed concrete scope: *Assassin - worked as a quiet contract killer in Karaveth* is useful; *Good at Everything* is not.
 
-> **Skill Roll = Relevant Attribute k Mastery Rank, with Skill Advantage and optional Skill Crit.**
+**No automatic permissions:** Professions do not grant Powers, Spell access, weapon attacks, combat bonuses, Stone Abilities, extra Actions, or the ability to perform impossible tasks. Someone with no suitable Profession may still try an ordinary feasible task as **untrained**. Only a task that truly requires particular knowledge, tools, or access may be unavailable without a credible alternative method.
 
-Roll the normal exploding d8 Pool, applying ordinary equipment, Health, Fear, and other valid modifiers. **Skill Rank improves how the existing dice behave; it never changes the Pool or Keep.** Use the exact same Skill Roll in both cases:
+### One Training Roll, Two Comparisons
+
+> **Training Roll = Relevant Attribute k Mastery Rank, with Training Advantage and optional Training Crit.**
+
+Roll the normal exploding d8 Pool, applying equipment, Health, Fear, and other valid modifiers. **Training Rank improves only how the existing dice behave; it never adds dice or changes Keep.** This procedure is used for a relevant Profession or for the separately trained Perception ability.
 
 | Check | Resolution | Raises |
 |---|---|---|
-| **Standard Skill Check** | Compare the Skill Result against a **Task TN** set by the GM. Meet or exceed it to succeed. | Optional **Raises**, declared before rolling, increase the Task TN by **+4 each**. |
-| **Comparative Skill Check** | Each side makes **one Skill Roll** using its own Attribute, MR, Skill Rank, and applicable modifiers. **Higher result wins.** | **No Raises and no additional Task TN.** |
+| **Standard Training Check** | Compare the result against a GM-set **Task TN**. Meet or exceed it. | Optional **Raises**, declared before rolling, add **+4 TN each**. |
+| **Comparative Training Check** | Each side rolls once with its own Attribute, MR, applicable Profession or Perception Rank, and modifiers. **Higher result wins.** | **No Raises and no additional Task TN.** |
 
-Use a **Standard Skill Check** for a task with no active opposing creature or trained countermeasure. Use a **Comparative Skill Check** for active trained opposition, such as Stealth vs. Perception, Deception vs. Investigation, or concealing tracks vs. Tracking. Each participant describes its method and uses a fitting Attribute and Specialization. **Ties favor the observing or defending side; otherwise the existing situation remains unchanged.** An **Opposed Attribute Contest** remains separate and applies when no trained Skill method governs the contest.
+Choose **Standard** if no capable active opponent contests the task. Choose **Comparative** if one creature actively counters another (for instance, a Burglar's quiet approach versus a guard's Perception, a Courtier's deception versus an investigator's scrutiny, or a Tracker obscuring signs versus a pursuer reading them). **Ties favor the observing or defending party; otherwise the status quo remains.** When no professional/trained method applies and the contest is an immediate clash of raw capacity, use the separate **Opposed Attribute Contest** rules.
 
-### Skill Rank Progression
+### Training Rank Progression
 
-| Rank | Training | Skill Advantage | Skill Crit (per Tyhran Day) |
+| Rank | Training | Training Advantage | Training Crit (per Tyhran Day) |
 |:--:|---|---|:--:|
-| **0** | Untrained | **Disadvantage**; no Skill Advantage | — |
-| **1** | Novice | Normal Skill Roll | — |
-| **2** | Apprentice | May reroll initial **1s** | — |
-| **3** | Trained | May reroll initial **1s–2s** | — |
-| **4** | Professional | May reroll initial **1s–3s** | — |
-| **5** | Expert | May reroll initial **1s–3s** | **1 use** |
-| **6** | Master | May reroll initial **1s–4s** | **1 use** |
-| **7** | Grandmaster | May reroll initial **1s–5s** | **1 use** |
-| **8** | Legendary | May reroll initial **1s–5s** | **2 uses** |
+| **0** | Untrained | **Disadvantage**; no Training Advantage | - |
+| **1** | Novice | Normal Training Roll | - |
+| **2** | Apprentice | May reroll initial **1s** | - |
+| **3** | Trained | May reroll initial **1s-2s** | - |
+| **4** | Professional | May reroll initial **1s-3s** | - |
+| **5** | Expert | May reroll initial **1s-3s** | **1 use** |
+| **6** | Master | May reroll initial **1s-4s** | **1 use** |
+| **7** | Grandmaster | May reroll initial **1s-5s** | **1 use** |
+| **8** | Legendary | May reroll initial **1s-5s** | **2 uses** |
 
-**Skill Advantage:** On a Skill Roll with the relevant learned Specialization, you may reroll **any or all initial Pool dice** showing a number in your Rank's listed range. **Each die can be rerolled only once**, and its new result must be kept. Apply Skill Advantage **before resolving natural explosions and Keep**; dice rolled solely for explosions cannot be rerolled through Skill Advantage. Other sources of ordinary Advantage do not grant a second reroll of a die already rerolled through Skill Advantage. Natural **8s** still explode normally.
+**Training Advantage:** On a Training Roll using one relevant learned Profession, or Perception, you may reroll **any or all initial Pool dice** within the Rank's listed range. **Each die can be rerolled only once**, and the new result must be kept. Apply Training Advantage **before resolving natural explosions and Keep**; explosion-only dice cannot be rerolled by Training Advantage. Other ordinary Advantage sources do not permit a second reroll of a die already rerolled this way. Natural **8s** explode normally.
 
-**Skill Crit:** Beginning at Rank 5, you may designate a Skill Roll using that Specialization for **Critical before rolling**. On that roll, natural **7s and 8s explode**, including subsequent qualifying explosion rolls. Rank 5–7 grants **one use** and Rank 8 grants **two uses per Tyhran Day**, **per Specialization**; unused uses do not carry over. Skill Crit changes only the Skill Roll, not Damage Dice, and cannot be stacked with another Critical source on the same roll. Skill Crit does not remove a separately imposed Disadvantage's limit on exploding dice. In a Comparative Skill Check, both sides declare any Skill Crit before either result is revealed.
+**Training Crit:** At Rank 5 or higher, designate a Training Roll using that learned Profession or Perception for **Critical before rolling**. Natural **7s and 8s explode** on that roll, including qualifying explosions. Rank 5-7 provides **one use** and Rank 8 **two uses per Tyhran Day per Profession or Perception**; no carry-over. Training Crit modifies the Training Roll, not Damage Dice, and cannot stack with another Critical source on the same roll. Separately imposed Disadvantage still limits eligible exploding dice. In a Comparative Training Check, both sides declare Training Crit before either result is revealed.
 
-**Untrained:** Use the full relevant **Attribute k MR** with **Disadvantage** (only one eligible die may explode), **no Skill Advantage, no Skill Crit, and no Raises**. Specialist tasks still require credible training, knowledge, tools, or an alternative method.
+**Untrained:** If no Profession or Perception applies, roll full **Attribute k MR** with **Disadvantage** (only one eligible die may explode), **no Training Advantage, no Training Crit, and no Raises**. Untrained attempts are not prohibited merely for lacking a named occupation.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 
-### Standard Skill Checks and Raises
+### Standard Training Checks and Raises
 
-1. **Set the task:** The player describes the intended action. The GM selects the relevant Attribute, Specialization, and **Base TN = Task Level x 4** from the task itself, not from the character's MR.
-2. **Declare Raises (optional):** Before rolling, declare how many additional effects you want. **Each Raise adds +4 to the Task TN.** Skill Rank grants **no Free Raises and no Raise allowance or cap**. The GM approves only feasible additional effects.
-3. **Roll:** Use **Attribute k MR**, with the character's Skill Advantage and any declared Skill Crit. Meet or exceed **Final TN = Base TN + (4 x declared Raises)**.
-4. **Resolve:** On success, apply the basic outcome and the declared Raise effects. On failure, none of those effects is achieved. No undeclared Raises are gained from a high roll.
+1. **Describe the task:** The player explains the intended outcome and method. The GM chooses a fitting Attribute, the relevant Profession (if any), and the **Base TN = Task Level x 4** based on the task, not the actor's MR.
+2. **Declare Raises (optional):** The player declares additional feasible effects **before rolling**. Each Raise increases the Task TN by **+4**. Profession Rank grants **no Free Raises**, and there is no Rank-based Raise allowance or cap.
+3. **Roll:** Use **Attribute k MR** with any applicable Training Advantage and declared Training Crit. Meet or exceed **Final TN = Base TN + (4 x declared Raises)**.
+4. **Resolve:** On success, apply the basic outcome plus exactly the declared feasible additional effects. On failure, none of those effects is achieved. A high roll never grants undeclared Raises.
 
 | Task Level | Difficulty | Base TN | Example |
 |:--:|---|:--:|---|
@@ -1625,9 +1630,9 @@ Use a **Standard Skill Check** for a task with no active opposing creature or tr
 | **2** | Easy | **8** | Forge ordinary nails; follow obvious tracks |
 | **3** | Moderate | **12** | Repair an ordinary tool |
 | **4** | Demanding | **16** | Forge a reliable sword; treat illness under pressure |
-| **5** | Difficult | **20** | Diagnose a complex injury quickly |
+| **5** | Difficult | **20** | Diagnose a complex illness quickly |
 | **6** | Very difficult | **24** | Forge an unusual alloy blade |
-| **7** | Exceptional | **28** | Solve a rare, intricate professional problem |
+| **7** | Exceptional | **28** | Solve a rare professional problem |
 | **8+** | Extraordinary | **32+** | Accomplish an unprecedented feat |
 
 **Raise effects (one Raise each)**
@@ -1641,53 +1646,46 @@ Use a **Standard Skill Check** for a task with no active opposing creature or tr
 | **Insight** | Gain one additional fact, inference, or clue supported by the evidence |
 | **Safety** | Prevent or reduce one foreseeable secondary complication |
 
-Raises improve a **feasible result** within the method, resources, and circumstances already described. They do not create supernatural powers, free attacks, or guaranteed control of another character. **Comparative Skill Checks never use Raises.** Combat and Ritual Raises follow their separately printed rules.
+Raises improve an outcome already possible with the character's method, tools, and circumstances. They create no supernatural ability, free attack, or guaranteed control. **Comparative Training Checks never use Raises.** Combat and Ritual Raises retain their separate rules.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 
-### Passive Success, Perception, and Specializations
+### Defining and Advancing Professions
 
-**Familiar routine work:** A trained character automatically completes familiar work within the competence of their Skill Rank when time, tools, and conditions are suitable, achieving the basic outcome without a roll or Raise benefits.
+**Write each Profession as:** a concrete name, where or how it was learned, and a **one-sentence agreed scope**. "Woodcutter (Kalgrad forest camps) - trees, axes as work tools, timber hauling, and mountain trails" is a Profession. "Everything Outdoors" is too broad. A player may propose any credible profession or formative life background; an example catalogue is **inspirational, not a closed selection list**.
 
-**Passive Skill Value = 2 x relevant Attribute.** For calm, eligible **Standard Skill Checks**, compare this value with the Final TN, including any declared Raises. Meeting the full TN grants the declared, feasible Raise effects. Passive Success never applies to **Comparative Skill Checks**, danger, urgent opposition, or instability. Skill Advantage and Skill Crit require an actual roll.
+**One Profession per check.** When more than one of your Professions could apply, use **one fitting Rank**, never add Ranks or combine rerolls. The player may propose an unexpected application, explain their history, and let the GM judge it. An actor can try a possible task without relevant training using the untrained rule. The GM should not arbitrarily increase the TN merely because the selected background has a different title than an expected narrow skill; genuine differences in method, risk, or circumstances may affect the task's difficulty.
 
-**Perception:** Every character receives **Perception Rank 2 for free**, in addition to five chosen Specializations. Perception uses the same Skill Advantage and Skill Crit progression and the same escalating XP costs as every other Specialization (**6 XP for Rank 3, 8 XP for Rank 4, and so on**), up to Rank 8.
+**Non-combat boundary:** Professions never replace a weapon's Attack Pool, an Attack roll, a Spell Casting roll, a Power, or a Combat Sense. They can plausibly support preparation, specialized knowledge, climbing, concealment, investigation, social leverage, or other noncombat tasks. A purported 'Assassin' must define which kinds of professional experience they possess; it does not make every combat roll trained.
 
-| Attribute | Perception focus |
+**Routine work:** A trained character can complete familiar work within the competence of their Profession when appropriate tools, time, and conditions are available. This grants only the basic outcome, never undeclared Raise effects. **Passive Training Value = 2 x relevant Attribute** may settle calm eligible **Standard Training Checks**, even with predeclared Raises, if it meets the Final TN. It never applies to Comparative Checks, urgent danger, or instability; Training Advantage and Training Crit require a roll.
+
+**Perception:** Every character separately receives **Perception Rank 2 for free**; it is **not a Profession slot**. Perception follows the same Rank 0-8, Training Advantage, Training Crit, and XP progression. It is used to detect present movement, sound, concealment, creatures, and other sensory information. A relevant Profession may interpret evidence (*Tracker reads old footprints*, *Investigator reconstructs a scene*) but **does not replace or stack with Perception when the task is simply detecting a present target**. A Special Combat Sense determines *what* can be sensed, not whether perception succeeds.
+
+| Attribute | Typical Perception method |
 |---|---|
-| **Wits** | Movement, sound, concealed presence, ambush signs |
-| **Intellect** | Visible inconsistencies, patterns, spatial clues |
-| **Resolve** | Occult or spiritual pressure, when an active Sense permits it |
+| **Wits** | Movement, sound, hidden presence, and ambush cues |
+| **Intellect** | Visible anomalies, spatial clues, and technical inconsistencies |
+| **Resolve** | Occult/spiritual pressure, if a valid active Sense supports it |
 
-**Seven Fields of Expertise** organize freely named Specializations. The GM assigns the relevant **Attribute according to the method**, not the Field.
+**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases.
 
-| Field | Example Specializations |
-|---|---|
-| **Physical** | Climbing, Swimming |
-| **Finesse** | Stealth, Sleight of Hand |
-| **Survival** | Tracking, Animal Handling |
-| **Science & Craft** | Medicine, Alchemy, Blacksmithing |
-| **Occult** | Demonology, Warding Traditions |
-| **Social** | Persuasion, Deception |
-| **Investigation** | Forensics, Streetwise |
+**Armor and Shields:** Printed Physical Training dice penalties instead apply to physical Profession attempts, and to other physically impeded trained tasks, whichever Attribute is chosen. These penalties do not change the normal Combat Pools.
 
-**Define a Specialization:** Give it one Field, a name, and a one-sentence scope agreed with the GM. Equipment penalties to **Physical Skill Checks** also apply to Finesse and other physically impeded tasks, regardless of the Attribute used.
+### Worked Examples
 
-**At character creation:** Choose **five different Specializations at Rank 2** (20 Skill Creation Points total), plus **Perception Rank 2** for free. These starting Ranks use Creation Points or are granted free; they are not purchased with XP. **Advancement:** A new Rank 1 Specialization costs **4 XP**. Raising a Skill to Rank 2 also costs **4 XP**; each subsequent Rank costs **2 XP more than the previous Rank**. The costs for **Ranks 1–8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Rank 0 to Rank 8 costs **74 XP** in total; advancing a starting Rank 2 Skill to Rank 8 costs **66 XP**. Multiple consecutive Ranks may be purchased in one Upgrade Step by paying for every intermediate Rank. Training must fit the campaign fiction.
+1. **Blacksmith 4 - Standard:** Craft ordinary nails at Base TN **8**. Declare two Scope Raises (Final TN **16**) for four batches. Use Training Advantage to reroll initial 1s-3s.
+2. **Field Medic 4 - Standard:** With **Intellect 4, MR 2**, treat illness at TN **16**. Declare one Safety Raise (Final TN **20**). Roll **4k2** with Training Advantage.
+3. **Burglar vs. Perception - Comparative:** A trained Burglar achieves **24** while a guard gets **21** on Perception. The Burglar's concealed approach succeeds; no other Task TN or Raises apply.
+4. **Forensic Examiner 5 - Standard:** Investigate a disturbed room at TN **16** with two Insight Raises (Final TN **24**), potentially revealing two more supported clues.
+5. **Untrained healing:** Anyone may clean a superficial wound with an appropriate Attribute and Disadvantage; complex surgery requires actual expertise and tools.
+6. **Alaris at creation:** Choose **Wilderness Scout 2, Caravan Master 2, Field Medic 2, and Street Urchin 2**, plus **Perception 2** for free. Each is a part of her history, not an entry in a narrow fixed skill list.
+7. **Invisible movement:** A player describes how their **Burglar** or **Juggler** training lets them move quietly. Roll that fitting Profession against observing guards' Perception. If Invisibility covers the guard's Sense, apply the **higher of the Profession result and Invisibility TN**, never their sum. No fixed movement-distance limit exists.
 
-### Examples
-
-1. **Blacksmithing 4 — Standard:** Ordinary nails have Base TN **8**. Declare **two Raises** for Scope 2, raising Final TN to **16**. On success, produce four batches with enough materials. Skill Advantage may reroll initial 1s–3s; no Free Raises are added.
-2. **Medicine 4 — Standard:** A physician with **Intellect 4, MR 2** treats a wound at Base TN **16**. One declared Safety Raise gives Final TN **20**. Roll **4k2** with Skill Advantage (initial 1s–3s); success grants that improvement.
-3. **Stealth vs. Perception — Comparative:** A Stealth 5 character rolls **24** and a Perception 4 guard rolls **21**, each with their own Skill Advantage. The character remains undetected. **No extra setup TN or Raises** are used.
-4. **Forensics 5 — Standard:** Examine a disturbed chamber at Base TN **16**. Declare **two Insight Raises**, Final TN **24**. On success, discover two additional supported clues.
-5. **Untrained Medicine:** Basic wound cleaning may be attempted with the relevant **Attribute k MR**, Disadvantage, and no Raises. Complex surgery requires proper expertise.
-6. **Alaris at creation:** Choose **Stealth 2, Tracking 2, Acrobatics 2, Streetwise 2, Medicine 2**, plus **Perception 2** for free. The GM selects the Attribute appropriate to each method.
-
----
+**Example catalogue:** See the separate *Destroyed Faith - Profession Inspiration Catalogue*. The professions and categories listed there are optional ideas; players and GMs may create their own.
 
 }}
 \page
@@ -1696,19 +1694,19 @@ Raises improve a **feasible result** within the method, resources, and circumsta
 
 ### Group Ambush — Coordinated Stealth
 
-A group may attempt **one coordinated Comparative Stealth Check** to approach or occupy plausible ambush positions without being detected. This uses the normal Skill Roll and **no Raises, separate setup TN, bonus attack, or extra combat Round**.
+A group may attempt **one coordinated Comparative concealment Check** to approach or occupy plausible ambush positions without being detected. The designated specialist uses a fitting Profession (such as Burglar, Wilderness Scout, or Assassin with an appropriate scope) or the untrained rules; all observers use Perception. There are **no Raises, separate setup TN, bonus attacks, or extra combat Rounds**.
 
-1. **Select the specialist.** The group chooses the participating character with the **highest applicable Stealth Rank** to coordinate the attempt. This character need not be the group's narrative leader. If several are tied, the group chooses one. The specialist uses **their own relevant Attribute k MR**, Skill Advantage, and any declared Skill Crit.
-2. **Include every participant's equipment penalty.** Add together **all Physical Skill dice penalties from armor and equipped shields worn by every participating ambusher, including the specialist**. Subtract that total from the specialist's Attribute Pool **before rolling**, using the normal two-rolled-dice floor on legal standard rolls. **Medium Armor: -1d8; Heavy Armor: -2d8; Parry Shield: -1d8; Medium/Tower Shield: -2d8.** Light Armor has no such penalty. Do not add the other characters' Attributes or Skill Ranks to the Pool.
-3. **Roll once for the group.** Apply the specialist's Skill Advantage and optional Skill Crit to the reduced Pool. The same result represents the coordinated concealment of every eligible participant. Members do **not** make additional individual Stealth rolls or contribute Skill Raises. The group must have a credible method, route, cover, and opportunity to hide; Skill Rank cannot conceal an impossible position.
-4. **Oppose with Perception.** Every observer who can realistically notice the group may make **one Perception Skill Roll** with their own relevant Attribute, MR, Skill Advantage, and optional Skill Crit. Compare directly against the group's single Stealth result. **A tie favors the observer.** An observer who wins detects the ambush; one who loses remains unaware. Detection is observer-specific, and warnings reach other enemies only when the fiction allows them to.
+1. **Select the specialist.** The group chooses a participating character with the **highest fitting Profession Rank** for the declared approach. If several tie, the group chooses one. The specialist uses **their own relevant Attribute k MR**, Training Advantage, and any declared Training Crit; if none has a relevant Profession, the attempt is untrained.
+2. **Include every participant's equipment penalty.** Add together **all Physical Training dice penalties from armor and equipped shields worn by every participating ambusher, including the specialist**. Subtract that total from the specialist's Attribute Pool **before rolling**, using the normal two-rolled-dice floor on legal standard rolls. **Medium Armor: -1d8; Heavy Armor: -2d8; Parry Shield: -1d8; Medium/Tower Shield: -2d8.** Light Armor has no such penalty. Do not add the other characters' Attributes or Training Ranks to the Pool.
+3. **Roll once for the group.** Apply the specialist's Training Advantage and optional Training Crit to the reduced Pool. The result represents coordinated concealment for every eligible participant. Members do **not** make additional individual rolls or contribute Raises. The group needs a credible method, route, cover, and opportunity; even a high Profession Rank cannot conceal an impossible position.
+4. **Oppose with Perception.** Every observer with a plausible detection cue may make **one Perception Training Roll** using their own Attribute, MR, Training Advantage, and optional Training Crit. Compare it directly to the group's concealment result; a tie favors the observer. Detection remains observer-specific; warnings travel only as the fiction permits.
 5. **Resolve Surprise normally.** When combat begins, participating ambushers gain **Surprise Priority only against enemies who remain unaware of them**, following the existing Surprise rule. Roll Initiative and Initiative Exchange normally. Surprise Priority applies during the first Round only and grants no extra turn or automatic damage bonus.
 
-**Example:** The specialist starts with **12d8**. Three members wear Heavy Armor (**-6d8**) and one wears Medium Armor (**-1d8**), giving **12 - 7 = 5d8**. At **MR 3**, the group rolls **5k3**. If the specialist has **Stealth 6**, initial 1s–4s may be rerolled once and the character may use their available daily Skill Crit. Compare that single final result to each eligible guard's Perception roll.
+**Example:** A specialist has **12d8**. Three group members wear Heavy Armor (**-6d8**) and one Medium Armor (**-1d8**), so the group rolls **5k3** at MR 3. If the specialist has **Burglar 6** with a fitting concealment scope, reroll initial 1s-4s through Training Advantage and optionally declare Training Crit. Compare the result to each eligible guard's Perception roll.
 
-**Limits:** Only characters actually following the same feasible coordinated plan are covered. Characters taking an independent route or revealing themselves require separate resolution. A group ambush roll covers the agreed approach into the declared hiding positions; once Hidden is established, the ordinary conditions that end Stealth still apply, including hostile actions and voluntary movement of more than 3 m. A change of circumstances may require a new attempt, never automatic repeated checks against an unchanged situation.
+**Limits:** Only characters actually following the same feasible coordinated plan are covered. Characters taking an independent route or revealing themselves require separate resolution. A group ambush roll covers the agreed approach and coherent, careful movement along that plan. **There is no fixed distance limit on Stealth.** Overt hostile actions or abandoning the agreed concealment can end ordinary Stealth; a material change of circumstances may require a new attempt. Do not demand repeated rolls merely for continued movement or against unchanged opposition.
 
-**Related systems:** Ordinary Stealth and Invisibility remain separate. Invisibility keeps its own sense-specific detection TN. Opposed Attribute Contests remain Attribute-only, without Skill Rank benefits. Summon Skill Dice and the declared effect tiers of Rituals retain their own printed exceptions.
+**Related systems:** Ordinary concealment attempts and Invisibility remain separate. Invisibility retains its own sense-specific TN. Opposed Attribute Contests are Attribute-only and use no Profession training. Summon Skill Dice and Ritual effect tiers keep their printed exceptions.
 
 }}
 \page
@@ -1863,7 +1861,7 @@ Schticks are **narrative signatures** created by the power awakening within a ch
 
 #### What Are Schticks?
 
-A Schtick is a distinctive trait that makes a character recognizable and shows how their inner power manifests in the world. Schticks have **no mechanical effect**. They do not change Attributes, Skills, dice pools, Target Numbers, Damage, Armor, Evade, Movement, Senses, concealment, social rolls, or any other game value. A Schtick may influence how the world is described or how NPCs react in the fiction, but it never grants an automatic bonus, penalty, success, failure, or special capability.
+A Schtick is a distinctive trait that makes a character recognizable and shows how their inner power manifests in the world. Schticks have **no mechanical effect**. They do not change Attributes, Professions, dice pools, Target Numbers, Damage, Armor, Evade, Movement, Senses, concealment, social rolls, or any other game value. A Schtick may influence how the world is described or how NPCs react in the fiction, but it never grants an automatic bonus, penalty, success, failure, or special capability.
 
 > **A Schtick describes what your power looks or feels like. It does not determine what your power can do.**
 
@@ -2557,13 +2555,13 @@ The Oracle Frame channels **Influence** through protective fields, coordination,
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
-| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Active Buff: Armor (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 4)**: gain **+8 Armor** for Mastery Rank Rounds. |
+| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 1)</span> | Retired - redesign pending | Self | Radius 2 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+4 Armor**. |
 | **2** | **Oracle Evade Reduction I**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **3** | **Influence Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (2)</span> | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. |
-| **4** | **Oracle Field II**<span class="artifactTechnicalReference">Active Buff: Armor (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 10)**: gain **+20 Armor** for Mastery Rank Rounds. This replaces Oracle Field I. |
+| **4** | **Oracle Field III**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 3)</span> | Retired - redesign pending | Self | Radius 6 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+9 Armor**. This replaces Oracle Field I. |
 | **5** | **Oracle Evade Reduction II**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **6** | **Influence Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. |
-| **7** | **Oracle Field III**<span class="artifactTechnicalReference">Active Buff: Armor (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 16)**: gain **+32 Armor** for Mastery Rank Rounds. This replaces Oracle Field II. |
+| **7** | **Oracle Field V**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 5)</span> | Retired - redesign pending | Self | Radius 10 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+14 Armor**. This replaces Oracle Field III. |
 | **8** | **Oracle Evade Reduction III**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **9** | **Influence Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Oracle Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -2692,16 +2690,16 @@ Titan Scars use the standard Medium Armor Body baseline.
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
 |:---:|:---:|---|
-| Level 1 | +12 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 2 | +13 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 3 | +14 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 4 | +15 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 5 | +16 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 6 | +17 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 7 | +18 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 8 | +19 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 9 | +20 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
-| Level 10 | +22 Armor | -2 Evade, -4 Initiative, -1d8 Physical Skill Checks |
+| Level 1 | +12 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 2 | +13 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 3 | +14 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 4 | +15 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 5 | +16 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 6 | +17 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 7 | +18 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 8 | +19 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 9 | +20 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
+| Level 10 | +22 Armor | -2 Evade, -4 Initiative, -1d8 Physical Training Checks |
 
 Titan Scars count as Medium Armor for all rules that care about armor weight, armor drawbacks, or Body Armor. The Armor value already includes the Medium Armor base and the Artifact Armor Bonus.
 
@@ -2778,16 +2776,16 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
 |:---:|:---:|---|
-| Level 1 | +16 Armor | -2 Evade, -2 Initiative, -2d8 Physical Skill Checks |
-| Level 2 | +17 Armor | -2 Evade, -2 Initiative, -2d8 Physical Skill Checks |
-| Level 3 | +18 Armor | -2 Evade, -2 Initiative, -2d8 Physical Skill Checks |
-| Level 4 | +19 Armor | -4 Evade, -4 Initiative, -2d8 Physical Skill Checks |
-| Level 5 | +20 Armor | -4 Evade, -4 Initiative, -2d8 Physical Skill Checks |
-| Level 6 | +21 Armor | -4 Evade, -4 Initiative, -2d8 Physical Skill Checks |
-| Level 7 | +22 Armor | -6 Evade, -6 Initiative, -2d8 Physical Skill Checks |
-| Level 8 | +23 Armor | -6 Evade, -6 Initiative, -2d8 Physical Skill Checks |
-| Level 9 | +24 Armor | -6 Evade, -6 Initiative, -2d8 Physical Skill Checks |
-| Level 10 | +25 Armor | -6 Evade, -6 Initiative, -2d8 Physical Skill Checks |
+| Level 1 | +16 Armor | -2 Evade, -2 Initiative, -2d8 Physical Training Checks |
+| Level 2 | +17 Armor | -2 Evade, -2 Initiative, -2d8 Physical Training Checks |
+| Level 3 | +18 Armor | -2 Evade, -2 Initiative, -2d8 Physical Training Checks |
+| Level 4 | +19 Armor | -4 Evade, -4 Initiative, -2d8 Physical Training Checks |
+| Level 5 | +20 Armor | -4 Evade, -4 Initiative, -2d8 Physical Training Checks |
+| Level 6 | +21 Armor | -4 Evade, -4 Initiative, -2d8 Physical Training Checks |
+| Level 7 | +22 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
+| Level 8 | +23 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
+| Level 9 | +24 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
+| Level 10 | +25 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
 
 ![WyrmArmor](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Wyrm%20Scales.png){position:absolute,top:500px,right:250px,width:300px}
 ---
@@ -2989,7 +2987,7 @@ Dragon Claws occupy both hand Slots. Dragon Claws are Echo-bound and cannot norm
 | Level 9 | 15d8 | Penetration (5) | Brutal Impact(5) |
 | Level 10 | 16d8 | Penetration (5)| Brutal Impact(5) |
 
-Claw / Tail Damage is Weapon Damage. Penetration and Brutal Impact apply to Claw and Tail attacks granted by this Artifact. Rending Spiral is an **AoE** and adds **no Claw / Tail Weapon Damage**. **Tail Sweep is an approved Dragon Claws Artifact Special Rule:** a **single-target Martial Push** that uses matching Claw / Tail Weapon Damage when it hits and purchases no extra Power Damage. Other Powers must not treat this as a general exception to Special-only or Push/Pull catalogue rules. Rending Spiral applies the full printed **Lacerate(X)** to each hit creature without splitting. Both retain their PL 4/10/16 catalogue profiles.
+Claw / Tail Damage is Weapon Damage. Penetration and Brutal Impact apply to Claw and Tail attacks granted by this Artifact. Rending Spiral is an **AoE** and adds **no Claw / Tail Weapon Damage**. Tail Sweep is a **single-target Martial Push** and uses matching Claw / Tail Weapon Damage when it hits; it purchases no extra Power Damage. Rending Spiral applies the full printed **Lacerate(X)** to each hit creature without splitting. Both retain their PL 4/10/16 catalogue profiles.
 
 ---
 }}
@@ -3362,7 +3360,7 @@ Alchemist Coat uses the normal Medium Armor drawbacks unless another rule explic
 
 #### Alchemist Potions
 
-Alchemist Potions are normal **Active Buffs** and follow the universal free Preparation Phase activation, one-maintained-Buff limit, voluntary end, free Preparation replacement (including after Stone Confirmation), and MR-Round duration. Only one Buff may be active at a time. Replacing a Potion with another Buff ends the previous Potion first and does not restore already consumed limited-use resources. The Potion name is only the Artifact's flavour name; the mechanical Power is the listed existing Active Buff.
+Alchemist Potions are normal **Active Buffs** and follow the universal free Preparation Phase activation, one-activation-per-Combat limit and MR-Round duration. Only one may be active at a time. Activating a second Potion or replacing a Potion with another Buff in the same Combat is not allowed without an explicit exception. The Potion name is only the Artifact's flavour name; the mechanical Power is the listed existing Active Buff.
 
 ---
 
@@ -3777,19 +3775,19 @@ All Deathless hear the call. It is not always a voice. Sometimes it is a road se
 
 *Social Challenges optionally organize negotiations, intrigue, public arguments, and other meaningful conversations. They are not a separate dice or resource system.*
 
-**Use the universal Skill Roll: Attribute k MR, with Skill Advantage and optional Skill Crit.** One meaningful exchange normally needs one check. Longer scenes may contain distinct tasks, but there is no fixed number of phases or mandatory Lead.
+**Use the universal Training Roll: Attribute k MR, with Training Advantage and optional Training Crit from a fitting Profession.** One meaningful exchange normally needs one check. Longer scenes may contain distinct tasks, but there is no fixed number of phases or mandatory Lead.
 
-### Shared Skill Procedure
+### Shared Profession Procedure
 
-1. **Describe the objective.** Determine what the other person might plausibly agree to, reveal, or believe. Choose a fitting Attribute and Specialization, such as Persuasion, Deception, Etiquette, or Streetwise.
-2. **Choose the comparison.** An uncontested request, speech, or professional social task is a **Standard Skill Check** against **Task Level x 4**, with optional predeclared Raises at **+4 TN each**. If a trained opponent actively challenges the attempt, use a **Comparative Skill Check**: each side rolls once, with **no Task TN or Raises**.
-3. **Resolve.** Use Skill Advantage and any available declared Skill Crit on each eligible roll. For a Standard Check, success grants the basic outcome and its declared feasible Raise effects. For a Comparative Check, the **higher result wins**; a tie favors the defender or established position.
+1. **Describe the objective.** Determine what the other person might plausibly agree to, reveal, or believe. Choose a fitting Attribute and a plausible Profession such as Courtier, Merchant, Spy, or Street Urchin, based on how the player approaches the exchange.
+2. **Choose the comparison.** An uncontested request, speech, or professional social task is a **Standard Training Check** against **Task Level x 4**, with optional predeclared Raises at **+4 TN each**. If a trained opponent actively challenges the attempt, use a **Comparative Training Check**: each side rolls once, with **no Task TN or Raises**.
+3. **Resolve.** Use Training Advantage and any available declared Training Crit on each eligible roll. For a Standard Check, success grants the basic outcome and its declared feasible Raise effects. For a Comparative Check, the **higher result wins**; a tie favors the defender or established position.
 
-**Social agency:** Persuasion is not mind control. Success cannot compel an impossible concession or erase essential loyalties. Concrete leverage, evidence, and a credible proposal may change what is feasible, but do not automatically grant flat bonuses.
+**Social agency:** A persuasive approach is not mind control. Success cannot compel an impossible concession or erase essential loyalties. Concrete leverage, evidence, and a credible proposal may change what is feasible, but do not automatically grant flat bonuses.
 
 ### One Conversation — A City Gate
 
-The captain listens to a traveler requesting entry. The GM sets **Task Level 4 (Base TN 16)**. A negotiator with **Persuasion 4, Influence 4, MR 2** declares **one Quality Raise**, raising the **Final TN to 20**. They roll **4k2**, rerolling eligible initial 1s–3s through Skill Advantage. An outcome of **22** succeeds and secures the plausible assurance of future entry. **15** fails. There are **no additional Free Raises**. A fundamentally different offer may justify a new attempt; repeating the same pitch endlessly does not.
+The captain listens to a traveler requesting entry. The GM sets **Task Level 4 (Base TN 16)**. A negotiator with **Courtier 4, Influence 4, MR 2** declares **one Quality Raise**, raising the **Final TN to 20**. They roll **4k2**, rerolling eligible initial 1s–3s through Training Advantage. An outcome of **22** succeeds and secures the plausible assurance of future entry. **15** fails. There are **no additional Free Raises**. A fundamentally different offer may justify a new attempt; repeating the same pitch endlessly does not.
 
 }}
 \page
@@ -3800,20 +3798,20 @@ The captain listens to a traveler requesting entry. The GM sets **Task Level 4 (
 
 ### A Major Negotiation — The Prince's Troops
 
-**Find the real concern.** A character uses **Court Intelligence 3 (Investigation)** and Intellect at **Base TN 12**, declares **one Insight Raise** (**Final TN 16**), and discovers an additional supported fact: the prince fears leaving his capital defenseless.
+**Find the real concern.** A character uses **Courtier 3** and Intellect at **Base TN 12**, declares **one Insight Raise** (**Final TN 16**), and discovers an additional supported fact: the prince fears leaving his capital defenseless.
 
-**Create a credible offer.** Another uses **Etiquette 3** to formalize an undertaking at **Base TN 16**, declaring **one Quality Raise** (**Final TN 20**) for a dependable proposal.
+**Create a credible offer.** Another uses **Herald 3** to formalize an undertaking at **Base TN 16**, declaring **one Quality Raise** (**Final TN 20**) for a dependable proposal.
 
-**Ask for the troops.** Persuasion 4 may attempt a feasible request at **Base TN 20**; a further Quality Raise would make it **TN 24**. If the prince actively opposes the negotiator with a credible trained Skill method, replace the TN procedure with **one Comparative Skill Check per side, without Raises**. No mandatory preparatory phase exists: credible prior evidence may already support the direct request.
+**Ask for the troops.** Diplomat 4 may attempt a feasible request at **Base TN 20**; a further Quality Raise would make it **TN 24**. If the prince actively opposes the negotiator with a credible trained trained method, replace the TN procedure with **one Comparative Training Check per side, without Raises**. No mandatory preparatory phase exists: credible prior evidence may already support the direct request.
 
-### Comparative Skill Check — A False Courier
+### Comparative Training Check — A False Courier
 
-A character with **Deception 3, Influence 4, MR 2** poses as a courier. A suspicious guard uses **Investigation 2, Wits 4, MR 2** to expose the story. **No setup Task TN is required**: both roll **4k2**, each using their Skill Advantage. The courier obtains **22** and the guard **19**, so the cover holds. If the guard rolls **24**, the guard exposes the courier. A tie favors the inspecting guard. Neither participant declares Raises.
+A character with **Spy 3, Influence 4, MR 2** poses as a courier. A suspicious guard with **City Watchman 2, Wits 4, MR 2** tries to expose the story. **No setup Task TN is required**: both roll **4k2**, each using their Training Advantage. The courier obtains **22** and the guard **19**, so the cover holds. If the guard rolls **24**, the guard exposes the courier. A tie favors the inspecting guard. Neither participant declares Raises.
 
 ### Shared Table Guidance
 
 - **Cooperation:** Characters may contribute distinct credible actions, each with its own purpose and consequences. There is no obligatory lead or fixed assistance bonus.
-- **Raises:** Only Standard Skill Checks permit Raises. Declare their number before the roll (**+4 TN each**), and apply the approved effects on success. Skill Rank grants no Free Raises and imposes no fixed Raise cap.
+- **Raises:** Only Standard Training Checks permit Raises. Declare their number before the roll (**+4 TN each**), and apply the approved effects on success. Training Rank grants no Free Raises and imposes no fixed Raise cap.
 - **Consequences:** Failure can change trust, available options, time, or risk. Fear Checks are not automatic.
 - **Pacing:** Use one comparison where one meaningful decision settles the matter. Use several distinct checks only when the fiction presents genuinely different tasks.
 
@@ -3892,17 +3890,17 @@ If you are denied the source of your Addiction:
 
 | **Time Without** | **Penalty** |
 |---|:---:|
-| 1 Tyhran Day | –1d8 to all Attribute-based Skill Check Pools |
-| 7 Tyhran Days | –2d8 to all Attribute-based Skill Check Pools |
-| 1 Lunar Month (44 Tyhran Days) | –4d8 to all Attribute-based Skill Check Pools |
-| 3 Lunar Months or more | –8d8 to all Attribute-based Skill Check Pools |
+| 1 Tyhran Day | –1d8 to all Attribute-based Training Check Pools |
+| 7 Tyhran Days | –2d8 to all Attribute-based Training Check Pools |
+| 1 Lunar Month (44 Tyhran Days) | –4d8 to all Attribute-based Training Check Pools |
+| 3 Lunar Months or more | –8d8 to all Attribute-based Training Check Pools |
 
 When the Addiction is offered, threatened, denied, or becomes dangerous to pursue, the GM may call for a **Resolve k1** control check. The GM states the trigger and TN **before** the roll:
 
 - **TN 8 — Ordinary temptation or manageable withdrawal:** the source is nearby, available, or missed under otherwise tolerable conditions.
 - **TN 16 — Acute compulsion or severe withdrawal:** a powerful trigger, prolonged denial, or a particularly dangerous opportunity to satisfy the need.
 
-Use the fixed band that describes the **actual situation**, not the character's MR. This is an Attribute Check, not a Skill Check; **no Skill Raises** apply. The existing time-without penalties above remain in force on their stated schedule. On failure, the character suffers an appropriate complication, such as distraction, withdrawal, risky behavior, accepting a bad bargain, or exposing their weakness. Success means the character resists that specific trigger; it does not erase the Addiction or its ongoing penalties.
+Use the fixed band that describes the **actual situation**, not the character's MR. This is an Attribute Check, not a Training Check; **no Training Raises** apply. The existing time-without penalties above remain in force on their stated schedule. On failure, the character suffers an appropriate complication, such as distraction, withdrawal, risky behavior, accepting a bad bargain, or exposing their weakness. Success means the character resists that specific trigger; it does not erase the Addiction or its ongoing penalties.
 
 **Examples:**
 
@@ -3987,7 +3985,7 @@ They may affect:
 | Heavy Sleeper | 1 | You do not wake from normal noise. You wake only when damaged, physically shaken, or directly disturbed. |
 | Light Sleeper | 1 | You sleep poorly and may suffer complications during rests, watches, or exhaustion scenes. |
 | Sleepless | 2–3 | You cannot sleep normally. Define with the GM how you recover during rests. |
-| Chronic Pain | 1–2 | Under stress, the GM may require a **Resolve k1** check (**TN 8** for ordinary strain, **TN 16** for acute pain) to remain focused. State the TN before the roll; no Skill Raises. Failure causes an appropriate short-term pain complication; no unprinted permanent penalty. |
+| Chronic Pain | 1–2 | Under stress, the GM may require a **Resolve k1** check (**TN 8** for ordinary strain, **TN 16** for acute pain) to remain focused. State the TN before the roll; no Training Raises. Failure causes an appropriate short-term pain complication; no unprinted permanent penalty. |
 | Damaged Lungs | 1–2 | Smoke, poison gas, drowning, long chases, or exhaustion affect you more severely. |
 | Trembling Hands | 1–2 | Fine manipulation, delicate tools, ranged precision, or spell focus may become harder under pressure. |
 | Fragile Frame | 3 | Your Health Track has one fewer box on every level. |
@@ -4454,7 +4452,7 @@ For Healing, apply the current active-Bar HP cap. **Resolve: Healing** qualifies
 | **Special Boost** | **+2 Special(X)** | **+4 Special(X)** | **+8 Special(X)** | **+12 Special(X)** |
 | **Spell Resistance** | **+4 Spell Resistance** | **+8 Spell Resistance** | **+12 Spell Resistance** | **+16 Spell Resistance** |
 
-**Raises:** These are **Combat Free Raises**, a shared allowance for the current Round on eligible Martial and Spell Attack/Casting Rolls made with any Attribute; they are **not ordinary Skill or Ritual Raises**. **Before rolling, commit only how many Free Raises to use** alongside the number of Paid Raises; do not yet choose Damage or Special effects. **After the roll and hit checks**, allocate the committed Raises among eligible Damage and existing numeric Special effects, using the universal Combat Raises rules. Committed Free Raises are consumed even on failure, add **no TN or Raise Cost**, and do not bypass a prohibition on Raises. **Paid Raises add +4 TN each** and have no Raise Cost. Unused Free Raises expire at Round End.
+**Raises:** These are **Combat Free Raises**, a shared allowance for the current Round on eligible Martial and Spell Attack/Casting Rolls made with any Attribute; they are **not ordinary Training or Ritual Raises**. **Before rolling, commit only how many Free Raises to use** alongside the number of Paid Raises; do not yet choose Damage or Special effects. **After the roll and hit checks**, allocate the committed Raises among eligible Damage and existing numeric Special effects, using the universal Combat Raises rules. Committed Free Raises are consumed even on failure, add **no TN or Raise Cost**, and do not bypass a prohibition on Raises. **Paid Raises add +4 TN each** and have no Raise Cost. Unused Free Raises expire at Round End.
 
 **Range & AoE Boost:** During the current Round, improve only delivery components an eligible Attack or Power **already possesses**: Range, Melee Reach, and/or an existing AoE radius. This grants no new delivery mode, AoE, target, or attack. The temporary bonus may exceed the Power's purchased radius cap without changing its base profile.
 
@@ -4718,20 +4716,20 @@ A Special Sense never gains information outside its nature. Tremor Sense does no
 {{wide
 ## Stealth, Hidden, and Invisibility
 
-**Stealth** is the Skill used to hide presence, movement, traces, and position. **Hidden** means an observer has not successfully detected or located a creature. **Invisibility** Obscures specific Combat Senses, making the creature harder to locate, target, and perceive through those Senses. A creature may be Hidden without being invisible, invisible without using Stealth, or both. **Invisibility itself never breaks merely because the creature moves, attacks, casts, reacts, is detected, or takes damage.** Ordinary Stealth is a separate state and can still end for its printed reasons.
+**Stealth** is a *method of concealment*, not a required named player Profession. A character may justify it with a fitting Profession such as Burglar, Tracker, Juggler, or City Watch Scout, or attempt a feasible approach untrained. **Hidden** means an observer has not successfully detected or located a creature. **Invisibility** Obscures specific Combat Senses, making the creature harder to locate, target, and perceive through those Senses. A creature may be Hidden without being invisible, invisible without using Stealth, or both. **An invisible creature that remains motionless and gives no perceptible clues cannot be found by ordinary sight alone; do not call for a Perception roll without a possible sensory cue.** Movement produces visual distortion, much like shifting camouflage, and may allow observers to attempt Perception against the Invisibility TN. Sound, touch, tracks, contact, or a valid Special Combat Sense may provide their own grounds for detection. **Invisibility itself never ends merely because the creature moves, attacks, casts, reacts, is detected, or takes damage.** Ordinary Stealth is a separate state and can still end for its printed reasons.
 
 ### Stealth
 
-A creature must have a meaningful opportunity to conceal its presence, movements, or traces. **Use one normal Stealth Skill Roll: relevant Attribute k MR, with Skill Advantage and optional Skill Crit.**
+A creature must have a meaningful opportunity and a credible method to conceal its presence, movement, or traces. A player may describe an entire plausible careful route as one Stealth attempt. **Use one Training Roll: relevant Attribute k MR, with the Rank of one fitting Profession (or untrained Disadvantage), Training Advantage, and optional Training Crit.** No fixed distance ends a continuous careful approach.
 
-- **Against an active observer:** Resolve **Stealth vs. Perception as a Comparative Skill Check**, with **no separate Stealth setup TN and no Raises**. Compare the Stealth result directly to each eligible observer's Perception result; **ties favor the observer**. A creature that is not detected is **Hidden** from that observer. Keep the same Stealth result for the same unchanged concealment; do not reroll just because another observer checks.
-- **Against the environment without active opposition:** Use a **Standard Skill Check** against **Task Level x 4**. The player may declare ordinary Standard Skill Raises before rolling (**+4 TN each**); success establishes the intended concealment and its feasible added effects. A later observing creature still uses Perception against the established Stealth result, not against the earlier environmental Task TN.
+- **Against an active observer:** Resolve the chosen **Profession (or untrained concealment) vs. Perception** as a **Comparative Training Check**, with **no setup Task TN and no Raises**. Compare the concealment result to each eligible observer's Perception result; **ties favor the observer**. One established result continues for the same coherent approach and unchanged circumstances.
+- **Against the environment without active opposition:** Use a **Standard Training Check** against **Task Level x 4**. The player may declare ordinary Standard Training Raises before rolling (**+4 TN each**). An observer who arrives later tests Perception against the established concealment roll result, not the earlier Task TN.
 
-**Ordinary Stealth only:** Normal hiding ends when a creature clearly reveals its position, stops acting carefully, makes a direct Attack, casts a hostile Spell or uses a hostile Power, uses a visible Reaction, takes final HP Damage, or voluntarily moves more than **3 m** after the hiding position was established. A new attempt needs a genuine new opportunity. Ending ordinary Stealth never ends Invisibility or automatically reveals a creature to an Obscured Combat Sense.
+**Ordinary Stealth only:** Stealth ends when a creature clearly reveals its position, abandons its careful approach, makes a direct Attack, casts a hostile Spell or uses a hostile Power, uses a visible Reaction, or takes final HP Damage. **Movement alone does not end Stealth. There is no 3 m limit or other fixed distance limit.** A declared stealthy route continues to use the established concealment result while the character pursues the same credible concealment approach in substantially unchanged circumstances. An important change of approach, environment, or opposition may require a new attempt; never require repeated rolls solely for crossing an arbitrary distance. Ending ordinary Stealth never ends Invisibility or automatically reveals a creature to an Obscured Combat Sense.
 
-**Invisibility is separate:** Invisibility requires no ordinary Stealth Check. An invisible creature remains Obscured to the Combat Senses named by its effect. When it is also Hidden through an ordinary Stealth attempt, an eligible observer must overcome the **higher** of its existing Stealth result and its Invisibility TN, never their sum. When ordinary Stealth ends, only Invisibility's TN remains. An uncovered, Clear sense follows its normal detection rules.
+**Invisibility is separate:** Invisibility requires no ordinary Stealth Check. Standing still without any perceptible cue offers no Perception attempt through ordinary sight alone. Once the creature moves or another relevant cue exists, an eligible observer can attempt Perception against its Invisibility TN through a Sense covered by Invisibility. When the creature also uses ordinary Stealth, resolve the Stealth attempt normally and use the **higher** of its established Stealth roll result and its Invisibility TN against affected Senses, never their sum. A Stealth roll does not require the creature to stay in one place. When ordinary Stealth ends, only Invisibility's TN remains. An uncovered, Clear sense follows its normal detection rules.
 
-**Group Ambush:** A coordinated group may use the **Group Ambush — Coordinated Stealth** rule in the **Skills** chapter: one selected specialist's Stealth result, reduced by every participating member's armor and shield Physical Skill penalties, versus eligible observers' Perception results. There are no group Raises or extra setup TNs.
+**Group Ambush:** A coordinated group may use the **Group Ambush — Coordinated Stealth** rule in the **Professions** chapter: one selected specialist's concealment result, reduced by every participating member's armor and shield Physical Training penalties, versus eligible observers' Perception results. There are no group Raises or extra setup TNs.
 
 ---
 
@@ -4754,11 +4752,11 @@ Passive: Invisibility grants one additional Special Combat Sense selection at Po
 
 **Covered Sense — Obscured**
 
-If Invisibility covers a Combat Sense, the observer must succeed on a Perception Check against the creature's Invisibility TN to locate it.
+If Invisibility covers a Combat Sense, an observer with a **plausible cue detectable through that Sense** must succeed on a Perception Check against the creature's Invisibility TN to locate it. Moving invisible creatures create visible distortion. A stationary invisible creature without any ordinary visual clue cannot be found through ordinary sight alone, regardless of Perception Rank. Other perceptible clues can still justify a Check.
 
 **Uncovered Sense — Unaffected**
 
-If Invisibility does not cover a Combat Sense, that Sense is completely unaffected by Invisibility. The observer perceives the creature **normally through that Sense, as though the creature were not invisible**. No Invisibility TN applies. No Invisibility Bonus applies. Neither Invisibility nor extra Skill spending prevents detection through that Sense; ordinary Stealth remains a separate possible obstacle.
+If Invisibility does not cover a Combat Sense, that Sense is completely unaffected by Invisibility. The observer perceives the creature **normally through that Sense, as though the creature were not invisible**. No Invisibility TN applies. No Invisibility Bonus applies. Neither Invisibility nor extra Profession training prevents detection through that Sense; ordinary Stealth remains a separate possible obstacle.
 
 
 The Sense must still be capable of perceiving the creature and must satisfy its normal Range and detection requirements. Other independent forms of concealment or ordinary Stealth may still apply.
@@ -4769,7 +4767,7 @@ A Sense that is genuinely Blocked by another effect cannot be used for Perceptio
 
 ### Invisibility Detection TN
 
-An invisible creature's Perception TN comes from its MR, Invisibility Bonus and current Health Level. Concealment established through Stealth uses its own advance setup check.
+An invisible creature's Perception TN comes from its MR, Invisibility Bonus and current Health Level. A separately declared and credible concealment approach uses a fitting Profession (or untrained) Training Roll; no preliminary setup Task TN is added to an active Comparative Training Check.
 
 #### Step 1 — Base TN
 
@@ -4799,20 +4797,20 @@ These reductions use the number of lost Health Bars, not the percentage value of
 
 > **Invisibility Perception TN = (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR)**
 
-This is a **specific combat detection defense**, not a mundane Task TN and not a consumable Skill bonus. The Health Penalty is applied once, even when multiple Invisibility effects are combined.
+This is a **specific combat detection defense**, not a mundane Task TN and not a consumable Profession bonus. The Health Penalty is applied once, even when multiple Invisibility effects are combined.
 \page
 {{pageNumber,auto}}
 ### Stealth While Invisible
 
-**Establish Stealth before observation.** Against affected Senses, use the higher existing **Stealth roll result** or **Invisibility TN**, without summing them. Active opposition uses a direct **Comparative Stealth vs. Perception Check**, without a separate setup Task TN or Raises. Ordinary untrained hiding uses Disadvantage. Skill Advantage and any available Skill Crit apply to actual Skill Rolls; neither changes the separate Invisibility Bonus.
+**Declare a credible Stealth approach before resolving detection.** The player may describe moving carefully past guards, using shadows, timing, terrain, disguise, or other plausible cover. Use one fitting Profession's Training Roll or an untrained attempt. Against Senses affected by Invisibility, when a detection attempt is possible, use the higher existing **Stealth roll result** or **Invisibility TN**, without summing them. Active opposition uses a direct **Comparative Training Check** (fitting Profession or untrained approach versus Perception), without an added setup Task TN or Raises. **Continuous stealthy movement has no fixed distance limit.** Ordinary untrained hiding uses Disadvantage. Training Advantage and any available Training Crit apply to actual Training Rolls; neither changes the separate Invisibility Bonus.
 
-**Round-by-round visibility:** At the start of each Round, observer-specific locations found by Perception expire as described below. The Invisibility TN remains based on MR, Invisibility Bonus, and lost Health Bars only. Ordinary Stealth must follow its normal end conditions. Detection through a Clear, uncovered Combat Sense is unaffected by Invisibility.
+**Round-by-round visibility:** At the start of each Round, observer-specific locations found by Perception expire as described below. This does not create a visual cue where none exists: a wholly still, quiet invisible creature cannot be detected by ordinary sight alone. The Invisibility TN remains based on MR, Invisibility Bonus, and lost Health Bars only. Ordinary Stealth must follow its normal end conditions, without a movement-distance cutoff. Detection through a Clear, uncovered Combat Sense is unaffected by Invisibility.
 
 ---
 
 ### Targeting Through Concealment
 
-Before directly targeting a Hidden or invisible creature with an Attack, Spell, or hostile Power, check the attacker's active Combat Senses. **If the target is Obscured, the attacker may make a free Perception Check immediately before attempting direct targeting. This Check costs no Attack Action, Movement, Reaction, or Stone.** The starting Perception Rank is granted free; this action still follows the detection limits below.
+Before directly targeting a Hidden or invisible creature with an Attack, Spell, or hostile Power, check the attacker's active Combat Senses. **If the target is Obscured and there is a plausible detectable cue, the attacker may make a free Perception Check immediately before attempting direct targeting. This Check costs no Attack Action, Movement, Reaction, or Stone.** Ordinary sight alone offers no Perception attempt against a wholly still, quiet invisible target with no visual clue; sound, movement, touch, traces, a previously known approximate location with a usable cue, or an eligible Special Combat Sense may justify an attempt. The starting Perception Rank is granted free; this action still follows the detection limits below.
 
 - **Clear:** If an active Sense can clearly locate the creature, it may be targeted normally. An uncovered Special Combat Sense ignores Invisibility entirely.
 - **Obscured:** If Invisibility or another effect Obscures a valid Sense, make a Perception Check against the appropriate TN.
@@ -4828,7 +4826,7 @@ The observer cannot directly target the creature during its current Turn unless 
 
 ### Attacking from Invisibility
 
-An invisible creature **remains invisible when it attacks**. An Attack, Spell, hostile Power, Reaction, Movement, or other action does not automatically reveal its position, cancel Invisibility, or remove its protection for the remainder of the Round. **Normal Combat Awareness (including Darkvision) remains Obscured even after the attack.** Observers must locate the creature through their valid active Combat Senses using the rules above. A successful observer-specific Perception Check permits direct targeting until the end of that Round; **it does not make the creature visible or change its Invisibility status**. Normal cover and concealment rules still apply.
+An invisible creature **remains invisible when it attacks**. An Attack, Spell, hostile Power, Reaction, Movement, or other action does not automatically reveal its position, cancel Invisibility, or remove its protection for the remainder of the Round. However, movement, attacks, speech, and physical interactions can provide a visual distortion or other perceptible cue that makes a Perception attempt possible. **Normal Combat Awareness (including Darkvision) remains Obscured even after the attack.** Observers must locate the creature through their valid active Combat Senses using the rules above. A successful observer-specific Perception Check permits direct targeting until the end of that Round; **it does not make the creature visible or change its Invisibility status**. Normal cover and concealment rules still apply.
 
 ### Injury and Invisibility
 
@@ -4846,7 +4844,7 @@ If a creature initiates combat against an enemy that is unaware of it, the attac
 {{note
 ##### Quick Examples
 
-**Normal Stealth:** A character obtains **21** on a Stealth Skill Roll. An eligible guard obtains **19** on Perception, so the character remains Hidden; a Perception result of **21** would detect the character. **Invisibility:** MR 3 with Passive: Invisibility Level 6 has TN 12 + Bonus 6 = **18**. **Stealth plus Invisibility:** The invisible creature has a separate Stealth result **24**. An observer whose Combat Sense is Obscured uses the higher threshold **24**, not 24 + 18; Perception **23** fails. Comparative Stealth has **no setup Task TN and no Raises**.
+**Normal Stealth:** A character obtains **21** on a concealment Training Roll. An eligible guard obtains **19** on Perception, so the character remains Hidden; a Perception result of **21** would detect the character. **Invisibility:** MR 3 with Passive: Invisibility Level 6 has TN 12 + Bonus 6 = **18**. **Stealth plus Invisibility:** The invisible creature has a separate Stealth result **24**. An observer whose Combat Sense is Obscured uses the higher threshold **24**, not 24 + 18; Perception **23** fails. Comparative Stealth has **no setup Task TN and no Raises**.
 
 **Injured:** The same MR 3 character loses two Health Bars. Its Invisibility TN drops from 18 to **12**. A separately established Stealth TN remains subject to the ordinary Stealth rules, not post-roll spending.
 
@@ -5232,21 +5230,21 @@ Subtract total Armor from incoming damage. Armor applies to attacks and damage i
 
 ### Armor Types
 
-| **Armor Type** | **Armor Value** | **Evade** | **Initiative** | **Skill Penalty** |
+| **Armor Type** | **Armor Value** | **Evade** | **Initiative** | **Training Penalty** |
 |:--|:--:|:--:|:--:|:--|
 | **Light** | +4 | +0 | — | — |
-| **Medium** | +8 | −2 | −4 | −1d8 to Physical Skill checks |
-| **Heavy** | +12 | −4 | −8 | −2d8 to Physical Skill checks |
+| **Medium** | +8 | −2 | −4 | −1d8 to Physical Training checks |
+| **Heavy** | +12 | −4 | −8 | −2d8 to Physical Training checks |
 
 ---
 
 ### Shield Types
 
-| **Shield Type** | **Armor Value** | **Evade** | **Initiative** | **Skill Penalty** |
+| **Shield Type** | **Armor Value** | **Evade** | **Initiative** | **Training Penalty** |
 |:--|:--:|:--:|:--:|:--|
-| **Parry Shield** | +1 | +4 | — | −1d8 to Physical Skill checks |
-| **Medium Shield** | +4 | +0 | — | −2d8 to Physical Skill checks |
-| **Tower Shield** | +8 | −4 | −4 | −2d8 to Physical Skill checks |
+| **Parry Shield** | +1 | +4 | — | −1d8 to Physical Training checks |
+| **Medium Shield** | +4 | +0 | — | −2d8 to Physical Training checks |
+| **Tower Shield** | +8 | −4 | −4 | −2d8 to Physical Training checks |
 
 ---
 
@@ -5256,7 +5254,7 @@ Subtract total Armor from incoming damage. Armor applies to attacks and damage i
 {{wide
 ## Opposed Attribute Contests
 
-Sometimes the question is not whether a creature can overcome a fixed difficulty, but **which of two creatures wins when they directly oppose each other**. An **Opposed Attribute Contest** resolves that immediate struggle. Use it for direct contests of body, reflex, intellect, will, presence, or another personal capability when a normal Attack, Power, Special, or Skill Check does not already resolve the situation.
+Sometimes the question is not whether a creature can overcome a fixed difficulty, but **which of two creatures wins when they directly oppose each other**. An **Opposed Attribute Contest** resolves that immediate struggle. Use it for direct contests of body, reflex, intellect, will, presence, or another personal capability when a normal Attack, Power, Special, or Training Check does not already resolve the situation.
 
 ---
 
@@ -5273,7 +5271,7 @@ Each participant:
 
 There is **no Target Number**. There are **no Raises**.
 
-**Skill Advantage, Skill Crit, and Skill Raises do not modify an Opposed Attribute Contest.**
+**Training Advantage, Training Crit, and Training Raises do not modify an Opposed Attribute Contest.**
 
 The higher Final Result wins. On a tie, **the existing situation remains unchanged**.
 
@@ -5351,22 +5349,22 @@ Two characters settle a dispute with an arm-wrestling match. The fiction leaves 
 
 Two characters spend hours arguing across a tavern table about whether the old gods deserved obedience. The GM decides that the entire exchange can be resolved as one Contest because the only question is **who comes out on top in the argument**. One character builds a careful logical case with **Intellect**. The other argues from conviction and lived faith with **Resolve**. They roll directly against each other; the higher result wins the debate. The same rule can resolve a formal theological dispute, a battle of wits, or another focused one-on-one argument.
 
-Winning a Contest does not create mind control. If the scene is about forcing a lasting concession, changing a major belief, negotiating complex terms, or resolving several social objectives, use the normal **Skill Check** rules instead; the optional **Social Challenges** guidance can help organize a longer scene.
+Winning a Contest does not create mind control. If the scene is about forcing a lasting concession, changing a major belief, negotiating complex terms, or resolving several social objectives, use the normal **Training Check** rules instead; the optional **Social Challenges** guidance can help organize a longer scene.
 
 ---
 
-### Skill Opposition — Comparative Skill Checks
+### Trained Opposition — Comparative Training Checks
 
-Use **Comparative Skill Checks** when two creatures directly oppose one another through trained methods: **Stealth vs. Perception, Deception vs. Investigation, hiding tracks vs. Tracking**, and similar cases. This is **not** an Opposed Attribute Contest.
+Use **Comparative Training Checks** when two creatures directly oppose one another through trained methods: **a Burglar concealing movement vs. Perception, a Spy's cover story vs. a watch investigator, a Tracker concealing footprints vs. another Tracker**, and similar cases. This is **not** an Opposed Attribute Contest.
 
-1. **Identify the methods.** Each side chooses a credible Attribute and learned Specialization (or uses the Untrained rule). The opposed objective must be feasible given position, evidence, and available senses.
-2. **Roll once each.** Each side makes the same universal **Attribute k MR Skill Roll**, applying its own Skill Advantage, optional declared Skill Crit, and ordinary penalties. **No Task TN is established and no Raises are permitted for either side.**
-3. **Compare results.** The higher Skill Result wins. **Ties favor the observer or defender**; otherwise maintain the existing situation. For multiple observers against one unchanged concealment, reuse the original Stealth/Deception result and compare each eligible observer's own check to that single result.
+1. **Identify the methods.** Each side chooses a credible Attribute and learned Profession (or uses the Untrained rule). The opposed objective must be feasible given position, evidence, and available senses.
+2. **Roll once each.** Each side makes the same universal **Attribute k MR Training Roll**, applying its own Training Advantage, optional declared Training Crit, and ordinary penalties. **No Task TN is established and no Raises are permitted for either side.**
+3. **Compare results.** The higher Training Roll result wins. **Ties favor the observer or defender**; otherwise maintain the existing situation. For multiple observers against one unchanged concealment, reuse the original Profession result and compare each eligible observer's own check to that single result.
 4. **Respect what can be observed.** A creature with no valid way to notice a hidden action does not gain information through an invented roll. If the situation materially changes, resolve the new situation normally rather than repeatedly rolling an unchanged contest.
 
-**NPC response:** NPCs roll an appropriate situational Skill Pool and keep their MR, as described under **NPCs in Skill Checks and Contests**. Assign a situational Skill Rank where appropriate for Skill Advantage; NPC Skill Crit is available only when its limited-use specialist training is deliberately assigned. Do not automatically detect a trained setup without rolling when a valid Perception or Investigation response is possible.
+**NPC response:** NPCs roll an appropriate situational Training Pool and keep their MR, as described under **NPCs in Training Checks and Contests**. Assign a situational Training Rank where appropriate for Training Advantage; NPC Training Crit is available only when its limited-use specialist training is deliberately assigned. Do not automatically detect a trained setup without rolling when a valid Perception or Investigation response is possible.
 
-**Example:** A false courier obtains **22** on Deception while a trained guard obtains **19** on Investigation. The cover holds. A guard result of **24** exposes the deception; **22** also exposes it because ties favor the defender. Neither party uses Raises or a separate preliminary Task TN.
+**Example:** A false courier with Spy obtains **22** while a trained guard with City Watchman obtains **19**. The cover holds. A guard result of **24** exposes the deception; **22** also exposes it because ties favor the defender. Neither party uses Raises or a separate preliminary Task TN.
 
 
 }}
@@ -5401,7 +5399,7 @@ When an effect calls for an Attribute Check:
 3. Apply normal Pool modifiers unless the effect says otherwise.
 4. Compare the Final Result to the TN stated by the effect.
 
-Skill Advantage, Skill Crit, and ordinary Skill Raises do not apply unless the rule explicitly calls for a Skill Check. There is no Vitality Reserve expenditure, and no universal automatic-success mechanic for these checks. Rerolls and effects that explicitly modify Attribute Checks apply normally. When an effect explicitly allows an Attribute Check, use its **printed TN**. If no TN is printed:
+Training Advantage, Training Crit, and ordinary Training Raises do not apply unless the rule explicitly calls for a Training Check. There is no Vitality Reserve expenditure, and no universal automatic-success mechanic for these checks. Rerolls and effects that explicitly modify Attribute Checks apply normally. When an effect explicitly allows an Attribute Check, use its **printed TN**. If no TN is printed:
 
 - **Ranked source:** `TN = (8 × Source MR) − 2`.
 - **Unranked hazard:** `TN = Task Level × 4` based on the actual danger (for example, Level 4 poison: **TN 16**).
@@ -5424,10 +5422,10 @@ A successful Attack, Spell, or AoE normally resolves its full listed payload. Pu
 ### Which Rule Do I Use?
 
 - **Creature directly against creature:** Opposed Attribute Contest.
-- **Training against training or concealment:** Skill Opposition.
+- **Training against training or concealment:** Trained Opposition.
 - **Creature against a hostile effect:** Attribute Check against the effect's TN.
 - **Attack against a target:** normal Attack vs. Evade rules.
-- **Complex multi-stage social objective:** Linked normal Skill Checks, optionally organized using the **Social Challenges** guidance (no special resolution rules).
+- **Complex multi-stage social objective:** Linked normal Training Checks, optionally organized using the **Social Challenges** guidance (no special resolution rules).
 
 }}
 \page
@@ -5451,7 +5449,7 @@ When rolling with Disadvantage, only **one eligible die** from the Pool may expl
 
 ---
 
-### NPCs in Skill Checks and Contests
+### NPCs in Training Checks and Contests
 
 Outside combat, an NPC may still need to **roll** to observe a Hidden creature, challenge a Deception, negotiate, track, resist an effect, or win an Opposed Attribute Contest. **Do not build a full NPC character sheet:** assign an appropriate **situational d8 Pool** for that action and **keep the NPC's MR**. Record only the few noncombat Pools used in the scene; these do not change its printed Combat Attack Pools or damage values. For **competent, relevant NPC opposition**, these are **GM starting ranges**, not automatic values for every bystander:
 
@@ -5463,7 +5461,7 @@ Outside combat, an NPC may still need to **roll** to observe a Hidden creature, 
 
 The **MR 3 range is deliberately about four dice above MR 2**, as a playtest guideline. Even an MR 2 **6k2** guard is much better at the relevant check than a beginning hero rolling **4k2**; reserve the upper range for a genuinely capable specialist. A common bystander can use a smaller Pool. At MR 4+, set the Pool to the NPC's actual role and intended challenge; do **not** extend the +4 dice step mechanically without checking the resulting odds.
 
-**Skill Opposition:** When actively opposed, an NPC rolls its own situational Pool and compares directly with the other creature's Skill Result. There is **no preliminary setup Task TN and no Raises**. Give a trained specialist an appropriate situational **Skill Rank for Skill Advantage**, and Skill Crit only where specifically warranted; an untrained NPC follows normal Disadvantage. **Opposed Attribute Contests:** both creatures roll their relevant Attribute Pools with their own Keep as usual, without Skill benefits. A source-based resistance check still follows the effect's printed TN or fallback rule.
+**Trained Opposition:** When actively opposed, an NPC rolls its own situational Pool and compares directly with the other creature's Training Result. There is **no preliminary setup Task TN and no Raises**. Give a trained specialist an appropriate situational **Training Rank for Training Advantage**, and Training Crit only where specifically warranted; an untrained NPC follows normal Disadvantage. **Opposed Attribute Contests:** both creatures roll their relevant Attribute Pools with their own Keep as usual, without Profession benefits. A source-based resistance check still follows the effect's printed TN or fallback rule.
 
 }}
 \page
@@ -5505,7 +5503,7 @@ Health penalties reduce the number of dice you roll.
 |:--|:--:|:--:|:--:|:--:|:--:|:--:|
 | **Pool** | — | −10% | −20% | −40% | −50% | no actions |
 
-Round dice loss down, minimum 0. Applies to attacks, Attribute Checks, Skill Checks, spells, rituals, and initiative. Does not reduce damage dice unless a rule explicitly says so.
+Round dice loss down, minimum 0. Applies to attacks, Attribute Checks, Training Checks, spells, rituals, and initiative. Does not reduce damage dice unless a rule explicitly says so.
 
 ---
 
@@ -5514,11 +5512,11 @@ Round dice loss down, minimum 0. Applies to attacks, Attribute Checks, Skill Che
 When multiple rules modify a dice pool, apply them in this order:
 
 1. Start with the relevant Attribute.
-2. For Skill Checks, use the full relevant Attribute Pool regardless of Skill Rank. An untrained attempt normally has **Disadvantage**, not a smaller Pool. Specialist knowledge may restrict what task can be attempted, as described in Skills.
+2. For Training Checks, use the full relevant Attribute Pool regardless of Training Rank. An untrained attempt normally has **Disadvantage**, not a smaller Pool. Specialist knowledge may restrict what task can be attempted, as described in Professions.
 3. Apply all flat pool changes from range, environment, Powers, Stones, Buffs, Specials, **Fear**, or other effects. This includes **Weaken**, **Soulburn**, and a subtraction of **1 die for each point of Fear**.
 4. Apply the current percentage-based **Health Penalty** to the remaining pool.
 5. Round the number of dice lost to the Health Penalty down.
-6. **Protected two-dice floor:** After penalties, a legal Pool built with 2+ dice keeps at least **2 dice rolled**, not 2 kept. Applies to Attribute, Attack/Casting, Skill, Ritual, Fear, NPC, Summon, and Initiative rolls. Pools built with 0–1 dice remain 0–1.
+6. **Protected two-dice floor:** After penalties, a legal Pool built with 2+ dice keeps at least **2 dice rolled**, not 2 kept. Applies to Attribute, Attack/Casting, Training, Ritual, Fear, NPC, Summon, and Initiative rolls. Pools built with 0–1 dice remain 0–1.
 7. Keep up to MR dice, never more than rolled. The floor does not refund voluntarily split, spent or exchanged dice (**Guaranteed Eights**), add unpurchased dice, permit Incapacitated actions, or prevent **Parry/Counterspell** from canceling a roll.
 
 Combine flat penalties, then apply the percentage Health Penalty. The **two-dice floor comes last**. Fear does not reduce Damage Dice, MR-based Initiative dice, or Keep.
@@ -5562,10 +5560,10 @@ Someone with **Vitality 2** has the following Health Levels. Each normal Health 
 
 #### Pool Reduction Example
 
-A character has **Agility 16**, **Mastery Rank 3**, and is making a **Stealth** check using a learned Stealth Specialization. There is no Skill-based dice-pool threshold; the character is affected by **Weaken(4)** and is currently **Injured**.
+A character has **Agility 16**, **Mastery Rank 3**, and is making a **concealment** check using the learned Profession **Burglar**. There is no Profession-Rank dice-pool threshold; the character is affected by **Weaken(4)** and is currently **Injured**.
 
 1. Attribute Pool = 16  
-2. Skill Checks use the full Attribute Pool = 16 (no Skill Rating threshold)  
+2. Training Checks use the full Attribute Pool = 16 (no Profession-Rank threshold)  
 3. Weaken(4) removes 4 dice → 12 dice remain  
 4. Injured Health Penalty removes 20% of 12 → lose 2 dice  
 5. Final Pool = **10k3**
@@ -5582,9 +5580,9 @@ Healing has two distinct jobs: **restore HP in the current active Health Bar** o
 
 - **HP Healing:** **Resolve Stone Ability: Healing** heals Self or one ally with **4d8 / 8d8 / 12d8 / 16d8** at Ranks 1-4, within **2 / 4 / 8 / 16 m**. **Damage Transfer** heals its user by actual HP removed from an enemy. End-of-combat and rest recovery refill HP at their stated times.
 - **Current Bar:** Ordinary HP Healing fills only an **already available** active Health Bar up to its maximum. A completely Scarred, **Incapacitated** creature has **no** active Bar: ordinary HP Healing (including external Resolve Stone Healing) cannot reopen Broken or end Incapacitated.
-- **Restoring Scarred Bars:** **Restoration Actives**, **Passive: Regeneration** (Self), **Vitality: Remove Scar**, and specifically permitted natural, medical-aftercare or Artifact recovery return Scarred Bars **unscarred and at full current HP**. Each source follows its own stated cost and timing. Partially damaged, already available Bars retain their existing HP; damage stays on the Bar where it occurred. Medicine can accelerate eligible **rest**, not reopen a Bar instantly.
+- **Restoring Scarred Bars:** **Restoration Actives**, **Passive: Regeneration** (Self), **Vitality: Remove Scar**, and specifically permitted natural, medical-aftercare or Artifact recovery return Scarred Bars **unscarred and at full current HP**. Each source follows its own stated cost and timing. Partially damaged, already available Bars retain their existing HP; damage stays on the Bar where it occurred. Qualified medical aftercare can accelerate eligible **rest**, not reopen a Bar instantly.
 - **Recovery order:** Recover the lowest eligible Scarred Bar first, progressing toward Healthy. Recover **Broken** first when an Incapacitated character needs an available Bar. A specific recovery rule, such as a hidden Growth Bar rule, may specify a different eligible choice. Recalculate the highest available Bar and all applicable Health penalties after recovery.
-- **Resource cycles:** Each Restoration Power has one finite pool per **Safe Haven Rest**; several uses draw from that same pool. **Regeneration** spends its own Self-only allowance per **Tyhran Day**. A Safe Haven Rest naturally returns **one Scarred Bar**, plus up to **one or two extra** if qualified Medicine 4/8 aftercare applies. It spends no Restoration Points.
+- **Medical aftercare eligibility:** The caregiver must have a Profession with a concrete scope of direct medical treatment (for example Physician, Field Medic, or Surgeon); a title unrelated to practical patient care does not qualify. **Resource cycles:** Each Restoration Power has one finite pool per **Safe Haven Rest**; several uses draw from that same pool. **Regeneration** spends its own Self-only allowance per **Tyhran Day**. A Safe Haven Rest naturally returns **one Scarred Bar**, plus up to **one or two extra** if qualified medical Profession Rank 4/8 aftercare applies. It spends no Restoration Points.
 
 Restoration works with whole Bars and their full HP capacity; Resolve Healing works with rolled HP and the current Bar. Consult *Actives* and *Passives* for the level tables, legal targets and action timing.
 }}
@@ -5601,12 +5599,12 @@ Restoration works with whole Bars and their full HP capacity; Resolve Healing wo
 
 - **External Scarred-Bar Restoration:** A legal Restoration Active or other explicit eligible Scarred-Bar recovery can restore **Broken** at full HP. Once an available Bar has positive HP, the creature regains consciousness; it is still Prone until it can stand normally.
 - **Ordinary HP Healing cannot do this.** Resolve Stone Healing and Damage Transfer restore HP only inside an **available** Bar. They never reopen a Scarred Bar. An Incapacitated creature cannot spend its own Stones; even an ally's Resolve Healing cannot create the missing Bar.
-- **Natural recovery:** A completed eligible **Day of Rest** or **Safe Haven Rest** can restore a Scarred Bar and thereby end Incapacitated. Qualified **Medicine 4/8 aftercare** can accelerate this recovery during a Safe Haven Rest. Recovery requires the safety and care appropriate to the injury.
+- **Natural recovery:** A completed eligible **Day of Rest** or **Safe Haven Rest** can restore a Scarred Bar and thereby end Incapacitated. Qualified **medical Profession Rank 4/8 aftercare** can accelerate this recovery during a Safe Haven Rest. Recovery requires the safety and care appropriate to the injury.
 - **Self-only recovery:** Passive: Regeneration and Vitality: Remove Scar cannot be activated by an unconscious creature. Already active effects follow their ordinary rules.
 
 ### Stabilized
 
-Successful emergency Medicine or an explicitly legal stabilization effect controls a **medically treatable immediate danger**, such as an uncontrolled wound. The patient becomes **Stable** but remains Incapacitated, unconscious and without available Health Bars. Stabilization restores **no HP**, opens **no Scarred Bar**, and prevents neither renewed injury nor an otherwise genuinely fatal event. It is not a required step before legal Restoration or natural recovery.
+Successful emergency care by a relevant medical Profession (or an explicitly legal stabilization effect) controls a **medically treatable immediate danger**, such as an uncontrolled wound. The patient becomes **Stable** but remains Incapacitated, unconscious and without available Health Bars. Stabilization restores **no HP**, opens **no Scarred Bar**, and prevents neither renewed injury nor an otherwise genuinely fatal event. It is not a required step before legal Restoration or natural recovery.
 
 ### Death and What Comes After
 
@@ -5626,11 +5624,11 @@ What happens afterward, whether the character's story truly ends, and how the pl
 {{wide
 ### Healing & Assistance
 
-#### Emergency Medicine — Under Pressure
+#### Emergency Care — Under Pressure
 
-An adjacent, conscious helper may spend **1 Attack Action** to stabilize an **Incapacitated** creature. Use an appropriate Medicine Specialization and the normal Standard Skill Check: declare any optional Raises before rolling and apply their feasible effects on success, using the existing action economy.
+An adjacent, conscious helper may spend **1 Attack Action** to stabilize an **Incapacitated** creature. Use a relevant medical Profession (for example Field Medic, Physician, or Surgeon) whose agreed scope includes direct wound treatment, with the normal Standard Training Check: declare any optional Raises before rolling and apply their feasible effects on success, using the existing action economy.
 
-**Emergency Medicine Base Task Level = the patient's MR.**
+**Emergency Care Base Task Level = the patient's MR.**
 
 **Base TN = 4 × patient's MR**, not the healer's MR.
 
@@ -5638,13 +5636,13 @@ An adjacent, conscious helper may spend **1 Attack Action** to stabilize an **In
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 | **Base TN** | **4** | **8** | **12** | **16** | **20** | **24** | **28** | **32** |
 
-For this **Standard Medicine Skill Check**, any optional declared **Raise adds +4 TN** and grants its feasible added effect on success. **Medicine Rank supplies Skill Advantage and optional Skill Crit, not Free Raises.** Success makes the patient **Stable**, without restoring HP or Scarred Bars. Failure does not stabilize the patient; there are no Death Marks or automatic death countdown. Basic first aid may be attempted untrained with normal **Untrained Disadvantage** and no Raises; complex procedures require relevant training.
+For this **Standard Training Check for emergency medical care**, any optional declared **Raise adds +4 TN** and grants its feasible added effect on success. **The relevant medical Profession Rank supplies Training Advantage and optional Training Crit, not Free Raises.** Success makes the patient **Stable**, without restoring HP or Scarred Bars. Failure does not stabilize the patient; there are no Death Marks or automatic death countdown. Basic first aid may be attempted untrained with normal **Untrained Disadvantage** and no Raises; complex procedures require relevant training.
 
 #### Medical Aftercare — Safe Haven Rest
 
-When a patient completes a **Safe Haven Rest** under competent ongoing care, the assisting healer's Medicine Rank increases that patient's **natural** Scarred-Bar recovery:
+When a patient completes a **Safe Haven Rest** under competent ongoing care, the assisting healer's relevant medical Profession Rank increases that patient's **natural** Scarred-Bar recovery:
 
-| Healer's Medicine Rank | Extra Bars | Total Bars recovered at this Safe Haven Rest |
+| Healer's relevant medical Profession Rank | Extra Bars | Total Bars recovered at this Safe Haven Rest |
 |:--:|:--:|:--:|
 | **0–3** | **0** | **1** |
 | **4–7** | **+1** | **2** |
@@ -5687,9 +5685,9 @@ Continue this progression for greater distances.
 | **8-15** | **+1 Fear** |
 | **16 or higher** | **+0 Fear** |
 
-**Applying Fear.** Add Fear to the current total. Each point removes **one die from Attribute-based Pools**, including Martial Attack, Spell Casting, Skill, Attribute, Ritual and later Fear Checks. Apply it **before percentage Health Penalties**, but **never remove the last two rolled dice** of a normal Pool that began with 2+ dice. Fear Checks still keep only **one die** (`Resolve k1`). The Fear spiral is intentional; further Fear can still hinder other higher Pools. Keep, Damage Dice, and MR-based Initiative Dice never change.
+**Applying Fear.** Add Fear to the current total. Each point removes **one die from Attribute-based Pools**, including Martial Attack, Spell Casting, Training, Attribute, Ritual and later Fear Checks. Apply it **before percentage Health Penalties**, but **never remove the last two rolled dice** of a normal Pool that began with 2+ dice. Fear Checks still keep only **one die** (`Resolve k1`). The Fear spiral is intentional; further Fear can still hinder other higher Pools. Keep, Damage Dice, and MR-based Initiative Dice never change.
 
-**Recovery.** Fear continues across scenes and combats. A **Safe Haven Rest** returns Fear to **0**. Healing, Cleanse, Night Rest and Day of Rest resolve their own listed effects, leaving the Fear total in place. **Check procedure.** A Fear Check uses Resolve k1 and the fixed table. Specializations and Skill Raises are not part of this check; existing Mental Restrictions apply according to their own rules. **GM caution:** Fear is intentionally cumulative and self-reinforcing. Trigger it sparingly, especially against low-Resolve groups: multiple checks in one scene can quickly impair the entire party. Encounter pacing guidance belongs in the Game Master's Guide.
+**Recovery.** Fear continues across scenes and combats. A **Safe Haven Rest** returns Fear to **0**. Healing, Cleanse, Night Rest and Day of Rest resolve their own listed effects, leaving the Fear total in place. **Check procedure.** A Fear Check uses Resolve k1 and the fixed table. Professions and Training Raises are not part of this check; existing Mental Restrictions apply according to their own rules. **GM caution:** Fear is intentionally cumulative and self-reinforcing. Trigger it sparingly, especially against low-Resolve groups: multiple checks in one scene can quickly impair the entire party. Encounter pacing guidance belongs in the Game Master's Guide.
 
 ::
 
@@ -5899,12 +5897,12 @@ After **Flee**, resolve pursuit through **actual distance, Speed, movement modes
 
 **When the outcome is uncertain**, resolve one meaningful chase situation with the existing rules:
 
-- **Comparative Skill Check** when plausible trained techniques oppose each other: Athletics through a crowded street, Acrobatics over a rooftop, Stealth to disappear, or Tracking to follow. Each side uses **Attribute k MR** with its own Skill Advantage and optional Skill Crit. **Compare the two Skill Results directly; there is no setup Task TN and no Raises.**
+- **Comparative Training Check** when plausible trained techniques oppose each other: a City Watchman navigating a crowded street, a Juggler crossing rooftops, a Burglar disappearing into an alley, or a Tracker following signs. Each side uses **Attribute k MR** with its own Training Advantage and optional Training Crit. **Compare the two Training Results directly; there is no setup Task TN and no Raises.**
 - **Opposed Attribute Contest** if this is solely a direct test of speed, strength, or endurance with no meaningful trained technique: both use their relevant Attribute Pools and normal Keep, and the higher result wins.
 
 A successful escape attempt may put the fugitive out of reach, behind cover, or out of sight; a successful pursuit may close the distance, reveal a hiding place, or enable a catch. **The established positions and actual movement capabilities determine what is possible**, not a score threshold. Continue with another check only when a **new obstacle, tactic, or significant change** creates a new decision; do not repeat rolls for identical circumstances.
 
-**Example:** A courier dashes through a busy market using Acrobatics (Agility) and achieves **19**. A guard actively chasing the courier uses Athletics (Agility) and achieves **17**. The courier wins the **Comparative Skill Check** and may gain separation if the terrain permits. No additional Task TN is needed; the roll does not override an obviously faster pursuer on an open, unobstructed road.
+**Example:** A courier dashes through a busy market using Juggler (Agility) and achieves **19**. A guard actively chasing the courier uses City Watchman (Agility) and achieves **17**. The courier wins the **Comparative Training Check** and may gain separation if the terrain permits. No additional Task TN is needed; the roll does not override an obviously faster pursuer on an open, unobstructed road.
 
 ---
 :
@@ -5922,7 +5920,7 @@ A successful escape attempt may put the fugitive out of reach, behind cover, or 
 | **Passive: Regeneration** | Fully refilled Scarred Bars on Self | Limited pool per Tyhran Day |
 | **Vitality: Remove Scar** | Fully refilled Scarred Bars on Self | Sealed Vitality Stones, Rank limits |
 | **Natural / Safe Haven Recovery** | Printed active-Bar HP and Scarred-Bar recovery | Time and rest conditions |
-| **Medicine 4/8 Safe Haven Aftercare** | **+1 / +2** extra naturally recovered Scarred Bars for one cared-for patient | One qualified healer, one patient, one completed Safe Haven Rest |
+| **Qualified Medical Aftercare (Profession Rank 4/8)** | **+1 / +2** extra naturally recovered Scarred Bars for one cared-for patient | One qualified healer, one patient, one completed Safe Haven Rest |
 
 ---
 
@@ -5946,7 +5944,7 @@ When combat ends, all remaining Specials end.
 - **Restoration Actives:** Each Power has a finite pool refreshed once per **Safe Haven Rest**; spend **1 point per Scarred Bar restored to full HP**. Single Target Restoration restores Bars on one eligible recipient; AoE Restoration divides **one shared pool** among selected eligible recipients. The applicable delivery, action cost, Casting Roll and once-per-Round power-use rules govern each activation.
 - **Regeneration:** This Self-only Passive supplies **floor(PL / 2)** Scarred-Bar points per **Tyhran Day** (first available at PL 2). The character consciously activates it at a legal action boundary, spending no Attack Action, Reaction or Casting Roll. A capable character may distribute uses throughout the day. An Incapacitated character receives recovery from an external legal source.
 - **Other Scar recovery:** **Vitality: Remove Scar** and printed Natural, Ritual and Artifact recovery preserve their own costs and limits and restore the selected eligible Bar at full HP.
-- **Safe Haven Rest:** The rest naturally restores **one** Scarred Bar, **plus +1 with Medicine 4–7 aftercare or +2 with Medicine 8 aftercare** for that patient. It refills the current active Bar, clears Fear and renews resources with a Safe-Haven cycle. Renewing a Restoration pool makes its points available for later deliberate use; the rest itself spends none of them.
+- **Safe Haven Rest:** The rest naturally restores **one** Scarred Bar, **plus +1 with a qualified medical Profession at Rank 4-7 providing aftercare or +2 with a qualified medical Profession at Rank 8 providing aftercare** for that patient. It refills the current active Bar, clears Fear and renews resources with a Safe-Haven cycle. Renewing a Restoration pool makes its points available for later deliberate use; the rest itself spends none of them.
 - **Prepared Resolve Healing:** Pay the Stone cost during the Preparation Phase, then choose the legal target and trigger once later in the Round, including before incoming HP damage is applied. Its Healing Dice are rolled on triggering, optionally using **Maximization**. The pending application expires at Round End.
 
 > *You can patch a wound, but you cannot undo a battle without time.*
@@ -5993,7 +5991,7 @@ A Safe Haven Rest is a **Night Rest (1 Watch)** taken in a **Safe Haven** (secur
    - Any Stones **lost until Safe Haven Rest** return (e.g., Stones burned for Safe Haven Rest effects).
    - Ritual Stones that were **Sealed** become available again.
 2) **Form Release:** Stones bound by **Stone-Bound Form** are released.
-3) **Natural Recovery:** restore **1 Scarred Health Bar at full HP**, **plus 1** with continuous qualified **Medicine 4–7** aftercare, or **plus 2** with **Medicine 8** aftercare (maximum **3 Bars total**). The aftercare benefit is received once per patient per rest, cannot stack between healers, and fulfills natural recovery for that same rest period. Restoration Power pools refresh and become available for later deliberate use.
+3) **Natural Recovery:** restore **1 Scarred Health Bar at full HP**, **plus 1** with continuous qualified **a qualified medical Profession at Rank 4-7** providing aftercare, or **plus 2** with **a qualified medical Profession at Rank 8** providing aftercare (maximum **3 Bars total**). The aftercare benefit is received once per patient per rest, cannot stack between healers, and fulfills natural recovery for that same rest period. Restoration Power pools refresh and become available for later deliberate use.
 4) **Restores** your current active Health Bar to full (boxes only).
 5) **Clears Fear:** all accumulated Fear is removed; set Fear to **0**.
 
@@ -6031,7 +6029,7 @@ At the end of each session, the Game Master awards **Experience Points (XP)**. T
 Record the same award in two places:
 
 - **Lifetime Experience** is the total XP your character has ever earned. It only increases and is never reduced by spending XP.
-- **Banked XP** is the spendable currency used for Attributes, Skills, Powers, Artifacts, and other GM-approved progression options.
+- **Banked XP** is the spendable currency used for Attributes, Professions, Powers, Artifacts, and other GM-approved progression options.
 
 Players may save their XP and spend it later during downtime or another GM-approved Upgrade Step. Spending Banked XP never reduces Lifetime Experience. Every character begins with **2 permanent Stones** and earns **1 additional permanent Stone every 20 Lifetime XP**, independently of how XP is spent.
 
@@ -6051,13 +6049,13 @@ For standard group play, award the same session XP to all player characters so t
 
 ### Upgrade Steps
 
-XP is spent during an **Upgrade Step**. An Upgrade Step usually happens during downtime, after a session, during a Safe Haven Rest, or whenever the GM allows character progression. There is **no limit on how many times an individual Attribute, Specialization, Power, or Artifact may be increased during a single Upgrade Step**. Characters may purchase multiple consecutive increases in the same value, provided they have sufficient Banked XP and meet all applicable requirements.
+XP is spent during an **Upgrade Step**. An Upgrade Step usually happens during downtime, after a session, during a Safe Haven Rest, or whenever the GM allows character progression. There is **no limit on how many times an individual Attribute, Profession, Power, or Artifact may be increased during a single Upgrade Step**. Characters may purchase multiple consecutive increases in the same value, provided they have sufficient Banked XP and meet all applicable requirements.
 
 The following principles apply:
 
 - Every purchased increase must be paid for at its normal XP cost.
 - When purchasing multiple levels, the XP costs of all intermediate levels are added together.
-- Attribute, Skill, Power Level, Artifact Level, and Mastery Rank restrictions remain in effect.
+- Attribute, Profession, Power Level, Artifact Level, and Mastery Rank restrictions remain in effect.
 - Purchasing multiple levels does not bypass prerequisites or grant additional free abilities.
 - The GM determines when an Upgrade Step is available.
 
@@ -6071,8 +6069,8 @@ A character spends saved XP during downtime and chooses:
 
 - **Might** +1
 - **Agility** +2
-- **Climbing** +1 Skill Rank
-- **Tracking** +2 Skill Ranks
+- **Mountain Guide** +1 Training Rank
+- **Tracker** +2 Training Ranks
 - **Main Attack Power** +1 Level
 - **Armor Artifact** +2 Levels
 
@@ -6081,11 +6079,11 @@ All these purchases are legal during the same Upgrade Step, provided the charact
 ---
 
 
-### Attribute and Specialization Costs
+### Attribute and Profession Costs
 
-Attributes retain the compressed **1–40** scale. Specializations use **Skill Ranks 1–8**. A new Rank 1 Specialization costs **4 XP**. Rank 2 costs another **4 XP**, and every later Rank costs **2 XP more than the previous Rank**. When purchasing multiple Ranks, pay for every intermediate Rank. The complete Rank 0→8 progression costs **74 XP**. A character advancing one of their starting Rank 2 Specializations to Rank 8 pays **66 XP**. Perception follows the same costs after its free starting Rank 2.
+Attributes retain the compressed **1–40** scale. Professions use **Training Ranks 1–8**. A new Rank 1 Profession costs **4 XP**. Rank 2 costs another **4 XP**, and every later Rank costs **2 XP more than the previous Rank**. When purchasing multiple Ranks, pay for every intermediate Rank. The complete Rank 0→8 progression costs **74 XP**. A character advancing one of their starting Rank 2 Professions to Rank 8 pays **66 XP**. Perception follows the same costs after its free starting Rank 2.
 
-| **New Skill Rank** | **XP Cost for that Rank** | **Cumulative XP from Rank 0** |
+| **New Training Rank** | **XP Cost for that Rank** | **Cumulative XP from Rank 0** |
 |:--:|:--:|:--:|
 | **1** | **4 XP** | **4 XP** |
 | **2** | **4 XP** | **8 XP** |
@@ -6096,7 +6094,7 @@ Attributes retain the compressed **1–40** scale. Specializations use **Skill R
 | **7** | **14 XP** | **58 XP** |
 | **8** | **16 XP** | **74 XP** |
 
-**Character creation is unchanged:** Five Specializations start at Rank 2 using **20 Skill Creation Points**; Perception starts at Rank 2 for free. Creation Points and earned XP are separate budgets.
+**Character creation is unchanged:** Five Professions start at Rank 2 using **20 Profession Creation Points**; Perception starts at Rank 2 for free. Creation Points and earned XP are separate budgets.
 
 | **New Attribute Value** | **Attribute Cost / +1** |
 |:--:|:--:|
@@ -6111,9 +6109,9 @@ Attributes retain the compressed **1–40** scale. Specializations use **Skill R
 | **33–36** | **18 XP** |
 | **37–40** | **20 XP** |
 
-Attributes determine the number of dice in the Pool; Mastery Rank determines Keep. Specialization Ranks never add dice or flat bonuses: they improve Skill Rolls through **Skill Advantage** (Rank 2: reroll initial 1s; Rank 3: 1s-2s; Rank 4-5: 1s-3s; Rank 6: 1s-4s; Rank 7-8: 1s-5s) and **Skill Crit** (one use per Tyhran Day at Ranks 5-7, two at Rank 8). Skill Rank grants no Free Raises. Optional Raises are available on Standard Skill Checks at +4 TN each; Comparative Skill Checks allow no Raises. 
+Attributes determine the number of dice in the Pool; Mastery Rank determines Keep. Profession Ranks never add dice or flat bonuses: they improve Training Rolls through **Training Advantage** (Rank 2: reroll initial 1s; Rank 3: 1s-2s; Rank 4-5: 1s-3s; Rank 6: 1s-4s; Rank 7-8: 1s-5s) and **Training Crit** (one use per Tyhran Day at Ranks 5-7, two at Rank 8). Training Rank grants no Free Raises. Optional Raises are available on Standard Training Checks at +4 TN each; Comparative Training Checks allow no Raises. 
 
-*Example:* Blacksmithing Rank 4→6 costs **22 XP** (**10 XP** for Rank 5 and **12 XP** for Rank 6). A new Alchemy Rank 1 costs **4 XP**. Raising Perception Rank 2→4 costs **14 XP** (**6 XP** for Rank 3 and **8 XP** for Rank 4). Intellect 8→10 costs **12 XP**.
+*Example:* Blacksmith Rank 4→6 costs **22 XP** (**10 XP** for Rank 5 and **12 XP** for Rank 6). A new Alchemist Rank 1 costs **4 XP**. Raising Perception Rank 2→4 costs **14 XP** (**6 XP** for Rank 3 and **8 XP** for Rank 4). Intellect 8→10 costs **12 XP**.
 
 ---
 
@@ -6855,7 +6853,7 @@ The creator must spend **one Attack Action per maintained Zone at the start of e
 
 ### Special Auras
 
-A Special Aura is **not a placed Zone**. It is an **Active Buff** with **Self range and a radius centered on its caster**; the radius moves with them. It is a self-centered melee-radius area, **not a Melee Attack or an attack-delivery roll**. It is activated freely in the Preparation Phase under the normal Active Buff lifecycle (one maintained Buff, voluntary end, free Preparation replace including after Stone Confirmation). The catalogue contains **fourteen** named Special Aura Powers, each with one fixed printed Special. It lasts **MR complete Rounds** and costs no Attack Actions to sustain. It applies its printed Special automatically with the same **one application per Aura/creature/Combat Round** rule. **The Aura caster alone is immune to their own Aura; every other creature in the radius, including allies and Summons, is affected**, without target selection or further exceptions. Special Auras make no Attack/Casting/Damage Roll and grant no Weapon or Spell Focus Damage. See the Special Aura Active Buff entries for Power-Level values.
+A Special Aura is **not a placed Zone**. It is an **Active Buff** with **Self range and a radius centered on its caster**; the radius moves with them. It is a self-centered melee-radius area, **not a Melee Attack or an attack-delivery roll**. It is activated freely in the Preparation Phase, uses the normal one-Active-Buff-per-Combat restriction, lasts **MR complete Rounds**, and costs no Attack Actions to sustain. It applies its printed Special automatically with the same **one application per Aura/creature/Combat Round** rule. **The Aura caster alone is immune to their own Aura; every other creature in the radius, including allies and Summons, is affected**, without target selection or further exceptions. Special Auras make no Attack/Casting/Damage Roll and grant no Weapon or Spell Focus Damage. See the new Special Aura Active Buff entries for Power-Level values.
 
 ---
 :
@@ -7005,7 +7003,7 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 **Aura classification:** **Special Auras are Active Buffs**: Self-range, caster-centered and moving, automatically applying only their printed Special to every creature in radius **except the Aura caster**; allies are not exempt. They occupy the single simultaneously maintained Active Buff slot and last MR complete Rounds per activation. **Persistent Special Zones remain stationary Actives**, placed with one Attack Action and sustained with one Attack Action per Zone each subsequent creator Turn; overlapping Zones are allowed.
 
-**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. **Moonlight Shadow** now uses the official **Active Buff: Sundered Aura** (Batch 9I). **Draconic Roar** remains an approved artifact-only Armor Aura exception and is **not** remapped to a Special Aura. Oracle Field has been replaced by standard **Active Buff: Armor**.
+**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. Their Artifact/Echo references (Oracle Field, Draconic Roar and Moonlight Shadow) remain pending deliberate replacement. The new Special Aura Active Buffs do **not** automatically replace those effects or alter their Artifact progression.
 
 Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff during the Preparation Phase costs **no Attack Action and no Stones**. It does not remove or commit the character's base Attack Action for the upcoming Round.
 
@@ -7089,7 +7087,7 @@ See: <a href="http://homebrewery.naturalcrit.com/share/pyfkMUFdD_C7" target="_bl
 {{wide
 ### Form and Transformation
 
-**Form** describes how a character looks: human, wolf, bear, a clawed monster, or another suitable appearance. Every Form uses **one character sheet** with the same purchased Attributes, Skills, Powers, Stone Abilities, attacks, Damage, Armor, Health, senses, Movement, Reach, Range, and occupied Hexes. A character may describe or change their Form freely, **including during combat**, without an Action, Stone cost, use limit, or activation time. Features such as keen scent, special vision, claws, flight, or a powerful bite use the corresponding abilities already purchased on the character sheet.
+**Form** describes how a character looks: human, wolf, bear, a clawed monster, or another suitable appearance. Every Form uses **one character sheet** with the same purchased Attributes, Professions, Powers, Stone Abilities, attacks, Damage, Armor, Health, senses, Movement, Reach, Range, and occupied Hexes. A character may describe or change their Form freely, **including during combat**, without an Action, Stone cost, use limit, or activation time. Features such as keen scent, special vision, claws, flight, or a powerful bite use the corresponding abilities already purchased on the character sheet.
 
 **Transformation** changes a creature's **actual size and occupied Hex footprint**. Its mechanical consequences are specified by the applicable Growth rule. **Polymorph and True Polymorph are not separate Powers**: appearance changes use Form, and changes to occupied Hexes use Transformation.
 
@@ -7173,7 +7171,7 @@ Damage Reduction and Phasing may not be casually added as secondary riders. They
 
 *The soul remembers what the person has forgotten.*
 
-Echo Imprints are small, instinctive supernatural manifestations of memories that outlast their owners. Some are traces of earlier lives; others survive as impressions of an Echo's ancient people, ancestral customs, and forgotten history. An Imprint might steady an object, touch the rhythm of life, create a faint illusion, or guide a familiar movement. These are **not Powers, Spells, combat techniques, Skill Ranks, or Rituals**.
+Echo Imprints are small, instinctive supernatural manifestations of memories that outlast their owners. Some are traces of earlier lives; others survive as impressions of an Echo's ancient people, ancestral customs, and forgotten history. An Imprint might steady an object, touch the rhythm of life, create a faint illusion, or guide a familiar movement. These are **not Powers, Spells, combat techniques, Training Ranks, or Rituals**.
 
 Each Imprint has a clear minor effect and a short **GM - Echo Memory** prompt. When a character uses an Imprint, the GM should add one brief sensory impression from an earlier life or their Echo's inherited past: another face, body, city, scent, language, relationship, or feeling. Prefer a sentence rather than a scene. A player may suggest details. Repeated motifs can slowly establish the shape of a remembered life; no new person or location is required on every use.
 
@@ -7211,11 +7209,11 @@ Use the highest unlocked tier. Intellect 11 uses Tier 8 of Mage Hand; Vitality 2
 
 ### Use and Boundaries
 
-The minor supernatural manifestation itself succeeds without a roll in ordinary circumstances. It cannot automatically accomplish an additional **risky, contested, complex, or professionally trained task**. For such an objective, use a Standard Skill Check with a Task TN and optional Raises, or a Comparative Skill Check when another trained creature actively opposes it. An Imprint never grants extra dice, free Raises, Skill Ranks, automatic discovery, or a TN discount.
+The minor supernatural manifestation itself succeeds without a roll in ordinary circumstances. It cannot automatically accomplish an additional **risky, contested, complex, or professionally trained task**. For such an objective, use a Standard Training Check with a Task TN and optional Raises, or a Comparative Training Check when another trained creature actively opposes it. An Imprint never grants extra dice, free Raises, Training Ranks, automatic discovery, or a TN discount.
 
 **Imprints are for exploration and roleplay, not tactical Powers.** They cannot inflict damage, heal HP or Scarred Health Bars, stabilize Incapacitated characters, grant Armor/Evade, bypass Fear, produce extra actions, replace Movement Powers, create valuable items, or substitute for Ritual analysis and wards. During combat they may color narration or harmless interaction, but cannot confer a combat advantage or replace an Active, Passive, Active Buff, Reaction, Stone Ability, or maneuver.
 
-An Imprint may show **where to look**, what a faint impression feels like, or a possible approach. It does not establish that the character succeeds at the underlying Skill. When an Imprint intersects with another rule, apply the narrower Imprint limit and resolve the actual task normally.
+An Imprint may show **where to look**, what a faint impression feels like, or a possible approach. It does not establish that the character succeeds at the underlying Profession check. When an Imprint intersects with another rule, apply the narrower Imprint limit and resolve the actual task normally.
 
 ---
 
@@ -7229,7 +7227,7 @@ Every use should feel like a trace of another existence, even if it is only a qu
 
 ### Scope of the Catalogue
 
-Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Echo Memory**. Higher tiers increase only the effect's subtlety, range, number of trivial objects, or duration. They never turn an Imprint into a Power, professional Skill, or Ritual. The listed effects and limits are rules; the memory is an illustrative prompt.
+Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Echo Memory**. Higher tiers increase only the effect's subtlety, range, number of trivial objects, or duration. They never turn an Imprint into a Power, Profession, or Ritual. The listed effects and limits are rules; the memory is an illustrative prompt.
 
 ---
 
@@ -7285,7 +7283,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 ---
 
 #### Might - Hollow Echo
-*Tap a reachable surface to sense broad differences in its resonance. A hollow response suggests where to investigate; finding a concealed seam, trap or mechanism still requires an appropriate Skill.*
+*Tap a reachable surface to sense broad differences in its resonance. A hollow response suggests where to investigate; finding a concealed seam, trap or mechanism still requires an appropriate Profession or untrained check.*
 
 | Attribute | Effect |
 |:--:|---|
@@ -7293,7 +7291,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 | **8** | Follow changes in that sound across a small reachable surface. |
 | **12** | Sense a vague resonance pattern along one connected, ordinary wall or floor section. |
 | **16** | Distinguish several broad resonance differences within the same accessible surface. |
-| **20** | Feel a clearer local pattern of pressure and hollow space; it can suggest where to search, but precise discovery remains a Skill task. |
+| **20** | Feel a clearer local pattern of pressure and hollow space; it can suggest where to search, but precise discovery remains an ordinary trained or untrained task. |
 
 *The vibration becomes another hammer striking another stone. For a heartbeat you stand in a mine abandoned centuries ago.*
 
@@ -7557,7 +7555,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 | **8** | Briefly change fabric colors, hair highlights, or surface ornaments. |
 | **12** | Give an entire outfit a slightly different appearance for a few minutes. |
 | **16** | Portray a plausible costume or social style briefly, but not a specific person. |
-| **20** | Maintain a coherent cosmetic appearance through a scene; a serious identity check still uses ordinary Skill Opposition. |
+| **20** | Maintain a coherent cosmetic appearance through a scene; a serious identity check still uses ordinary Trained Opposition. |
 
 *The mirror fills with a glittering hall. The face inside belongs to someone else, and yet you recognize it as your own.*
 
@@ -7586,7 +7584,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 | **8** | Keep an unusual tone through several sentences. |
 | **12** | Suggest a general age or vocal persona without copying a specific speaker. |
 | **16** | Briefly evoke a recognizable remembered timbre, still imperfectly. |
-| **20** | Maintain a detailed imitation through a short conversation; impersonation remains an ordinary Skill Opposition. |
+| **20** | Maintain a detailed imitation through a short conversation; impersonation remains an ordinary Trained Opposition. |
 
 *Your voice catches on one syllable. You remember a lullaby you once sang from another mouth.*
 
@@ -7633,7 +7631,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 | **8** | Leave two or three signs along the same route back. |
 | **12** | Mark a short path through a building you already know. |
 | **16** | Mark one small local route through an evening. |
-| **20** | Temporarily mark a connected route across a small area; Navigation and finding new routes remain Skills. |
+| **20** | Temporarily mark a connected route across a small area; Navigation and finding new routes remain Professions. |
 
 *You place a sign on a stone. Suddenly you remember the same mark on trees in a forest you have never seen.*
 
@@ -7672,27 +7670,27 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 {{wide
 ## Rituals
 
-Rituals are deliberate supernatural workings outside ordinary combat: interpretation, binding, cleansing, distant sight, memory, sealing, and spiritual transformation. They are **normal Skill Checks with a prescribed supernatural effect and a Sealed-Stone cost**, not another dice engine.
+Rituals are deliberate supernatural workings outside ordinary combat: interpretation, binding, cleansing, distant sight, memory, sealing, and spiritual transformation. They are **normal Training Checks with a prescribed supernatural effect and a Sealed-Stone cost**, not another dice engine.
 
-### Rituals Use the Skill Check Engine
+### Rituals Use the Training Check Engine
 
 **Every character knows all sixteen Core Rituals from creation onward.** To perform one, describe the method—song, forged sigil, herbal arrangement, prayer, dance, diagram or remembered gesture—provide the printed targets and materials, spend **one Tyhran Hour** and Seal the required Stones. Choose the **Attribute that genuinely powers the approach** and roll **Relevant Attribute k Mastery Rank**. The Ritual's Task Level follows the supernatural task or source, independently of the caster. Rituals are available to every character; the method defines how each character expresses the same magic.
 
-A genuinely applicable **learned Specialization** grants its ordinary **Skill Advantage and optional daily Skill Crit** on the Ritual's Skill Roll. It grants **no Free Raises**: every declared Ritual Raise increases the final TN by **+4**. A character with no applicable learned Specialization can still perform the Ritual without mundane Untrained Disadvantage, but gains no Skill Advantage or Skill Crit. A superficial explanation for an unrelated high-Rank Skill does not qualify.
+A genuinely applicable **learned Profession** grants its ordinary **Training Advantage and optional daily Training Crit** on the Ritual's Training Roll. It grants **no Free Raises**: every declared Ritual Raise increases the final TN by **+4**. A character with no applicable learned Profession can still perform the Ritual without mundane Untrained Disadvantage, but gains no Training Advantage or Training Crit. A superficial explanation for an unrelated high-Rank Profession does not qualify.
 
-**Rituals use the same Skill Roll, including eligible Skill Advantage and Skill Crit. Rituals are an exception in how Raise effects work: named tiers and generic Raise effects are all declared BEFORE rolling.**
+**Rituals use the same Training Roll, including eligible Training Advantage and Training Crit. Rituals are an exception in how Raise effects work: named tiers and generic Raise effects are all declared BEFORE rolling.**
 
 - Start at **Ritual Task Level 3 (Base TN 12)** for each of the sixteen Rituals. If the target or task has a **genuinely higher** relevant Task Level, use it instead. **Base Ritual TN = max(3, relevant Task Level) x 4**, never from the caster's own MR.
 - Select a named **effect tier 0-4**: the tier costs that many Raises and includes lower tiers on success.
 - You may declare appropriate additional **Scope, Speed, Quality, Efficiency, Insight, or Safety** Raises. **All Rituals have a maximum of 8 total declared Raises**, including named plus generic effects.
-- **Each declared Ritual Raise adds +4 TN**; there are no Skill-derived Free Raises. One final TN decides the entire declared result. Missing it means failure, even if the roll meets the unraised base TN.
-- Pay and **Seal** the Ritual's Stones **before** the attempt. They are a price for supernatural work, not Skill Points.
+- **Each declared Ritual Raise adds +4 TN**; there are no Profession-derived Free Raises. One final TN decides the entire declared result. Missing it means failure, even if the roll meets the unraised base TN.
+- Pay and **Seal** the Ritual's Stones **before** the attempt. They are a price for supernatural work, not Profession Points.
 
 Printed Ritual limits override generic Raise effects. An ordinary Raise cannot create a new Power, raise a named Ritual tier above 4, grant magical healing, or restore a Scarred Health Bar.
 
-### Rituals Are Not Skill Replacements
+### Rituals Do Not Replace Ordinary Professions
 
-Rituals do not replace normal Skill Checks. If a task can reasonably be solved with a mundane Skill Check, use the Skill Check instead.
+Rituals do not replace normal Training Checks. If a task can reasonably be solved with a mundane Training Check, use the Training Check instead.
 
 Rituals should not replace:
 
@@ -7712,9 +7710,9 @@ Rituals are used when the effect is supernatural, long-lasting, hidden, spiritua
 \page
 {{pageNumber,auto}}
 {{wide
-### Approaches, Not Skill Prerequisites
+### Approaches, Not Profession Prerequisites
 
-Skill Fields are **examples of how** a Ritual may be performed, never eligibility lists. A player may draw upon **any** suitable Specialization and use any Attribute justified by the described method:
+Thematic approaches are **examples of how** a Ritual may be performed, never eligibility lists. A player may draw upon **any** suitable Profession and use any Attribute justified by the described method:
 
 | Field | A possible Ritual approach |
 |---|---|
@@ -7726,7 +7724,7 @@ Skill Fields are **examples of how** a Ritual may be performed, never eligibilit
 | **Social** | Song, communal witness, vows, storytelling, or guided remembrance |
 | **Investigation** | Reconstructing the history and traces of an object or location |
 
-These are **inspiration**, not a mandatory catalogue. The GM asks: *What exactly do you do? Why would this method work? Which Attribute expresses it?* A fitting learned Skill supplies Skill Advantage and optional Skill Crit; the same Ritual remains available without that Skill.
+These are **inspiration**, not a mandatory catalogue. The GM asks: *What exactly do you do? Why would this method work? Which Attribute expresses it?* A fitting learned Profession supplies Training Advantage and optional Training Crit; the same Ritual remains available without that Profession.
 
 ---
 
@@ -7734,7 +7732,7 @@ These are **inspiration**, not a mandatory catalogue. The GM asks: *What exactly
 
 1. Choose **any of the sixteen universally available Rituals**. Describe **what the character physically or spiritually does** and why it suits their background. The entry's **Example Approaches** are illustrations, never restrictions.
 2. Choose the **Attribute** that best represents that working. A Blacksmith may forge a binding mark with Might; a singer may use Influence; a priest may pray with Resolve; a herbalist may use Vitality; a scholar may build an Intellect diagram. The GM approves a credible match.
-3. If a **learned Specialization actually contributes**, name it and use its Skill Advantage and optional Skill Crit. No relevant Skill? The Ritual remains available without that benefit and without mundane Untrained Disadvantage.
+3. If a **learned Profession actually contributes**, name it and use its Training Advantage and optional Training Crit. No relevant Profession? The Ritual remains available without that benefit and without mundane Untrained Disadvantage.
 4. Set **Task Level 3 (TN 12) as the minimum**, or use the higher genuinely relevant source/task level; select a named effect tier and optional generic Raise effects (up to **8 total Raises**) **before** rolling. Every Raise adds +4 TN.
 5. Pay and Seal Stones, finish the Ritual's required time, and resolve **one final Attribute k MR check**, unless Passive Success applies.
 
@@ -7744,7 +7742,7 @@ These are **inspiration**, not a mandatory catalogue. The GM asks: *What exactly
 {{wide
 ### Ritual Task Level: The Task, Not the Caster
 
-**Minimum Base Ritual TN = 12 (Task Level 3) for every listed Ritual.** If the actual target/source or the intrinsic task is harder, use its higher Task Level. **Base Ritual TN = 4 x max(3, relevant Task Level).** A Ritual involving the same seal, spirit, artifact, or place has the same difficulty regardless of the caster's MR. Do not charge a higher TN just for choosing a different credible Attribute or Skill approach.
+**Minimum Base Ritual TN = 12 (Task Level 3) for every listed Ritual.** If the actual target/source or the intrinsic task is harder, use its higher Task Level. **Base Ritual TN = 4 x max(3, relevant Task Level).** A Ritual involving the same seal, spirit, artifact, or place has the same difficulty regardless of the caster's MR. Do not charge a higher TN just for choosing a different credible Attribute or Profession-based approach.
 
 | Ritual target or obstacle | Task Level to use |
 |---|---|
@@ -7760,11 +7758,11 @@ The GM may set a **higher intrinsic Task Level** if the Ritual itself is more di
 
 ### Ritual Raises: One Final Target Number
 
-A Ritual effect tier (0-4) determines the **named results** available from its printed table; tier 3 requires **three declared Raises** and normally provides tiers 0-3 on success. **Explicit alternative modes**, such as Seal Passage Raise 4 opening, replace incompatible lower-tier effects rather than stacking them. Further Raises, if eligible, use the same universal Skill catalogue. **All Ritual Raises increase the TN by +4 each.** A learned Skill improves the actual Ritual Skill Roll through Skill Advantage and optional Skill Crit, not Free Raises.
+A Ritual effect tier (0-4) determines the **named results** available from its printed table; tier 3 requires **three declared Raises** and normally provides tiers 0-3 on success. **Explicit alternative modes**, such as Seal Passage Raise 4 opening, replace incompatible lower-tier effects rather than stacking them. Further Raises, if eligible, use the same universal noncombat Raise-effect catalogue. **All Ritual Raises increase the TN by +4 each.** A learned Profession improves the actual Ritual Training Roll through Training Advantage and optional Training Crit, not Free Raises.
 
 **Final Ritual TN = (Task Level x 4) + (declared Raises x 4).**
 
-Agree on optional Scope, Speed, Quality, Efficiency, Insight, or Safety improvements **before** rolling. The total across named tier plus generic improvements cannot exceed **8 Raises for any Ritual**, regardless of Skill Rank. Printed Ritual requirements and Limits always override generic benefits; generic Raises cannot produce effects reserved for a higher named tier.
+Agree on optional Scope, Speed, Quality, Efficiency, Insight, or Safety improvements **before** rolling. The total across named tier plus generic improvements cannot exceed **8 Raises for any Ritual**, regardless of Training Rank. Printed Ritual requirements and Limits always override generic benefits; generic Raises cannot produce effects reserved for a higher named tier.
 
 | Roll result | Resolution |
 |---|---|
@@ -7787,11 +7785,11 @@ Rituals continue to pay their costs with **Sealed Stones** before the check. The
 | **2-3** | **2 Stones** |
 | **4-8** | **3 Stones** |
 
-Use any available Stone; its color need not match the Skill Field. The stones paid to attempt the ritual become **Sealed**, cannot recover through normal Round recovery, and return after a **Safe Haven Rest**, unless the ritual has a more restrictive printed rule (for example, Word of Recall). **Sealed Stones remain spent on failure.** A group may contribute Stones with GM approval, but performs **one lead-caster check** with at most **8 declared Raises**. Only the lead caster's applicable Specialization supplies Skill Advantage and optional Skill Crit.
+Use any available Stone; its color need not match the described approach. The stones paid to attempt the ritual become **Sealed**, cannot recover through normal Round recovery, and return after a **Safe Haven Rest**, unless the ritual has a more restrictive printed rule (for example, Word of Recall). **Sealed Stones remain spent on failure.** A group may contribute Stones with GM approval, but performs **one lead-caster check** with at most **8 declared Raises**. Only the lead caster's applicable Profession supplies Training Advantage and optional Training Crit.
 
 ### Additional Raises Do Not Rewrite a Ritual
 
-The printed **named tiers 0-4** establish the ritual's distinctive supernatural effects. Other declared Raises may improve only appropriate secondary features using the normal Skill catalogue: **Scope**, **Speed**, **Quality**, **Efficiency**, **Insight**, or **Safety**. For example, **Speed 1** can halve a normal 1-Tyhran-Hour ritual to **1 Forearm**. **Insight 1** can reveal one further supportable clue *within the named tier already reached*. Scope cannot circumvent a ritual's fixed targets, range restrictions, or named area upgrades. **Efficiency never reduces Sealed-Stone costs**; Safety cannot cancel explicit ritual dangers. No optional Raise supplies a spell, an entirely new magical effect, a higher printed tier, or a bypass of Ritual Limits.
+The printed **named tiers 0-4** establish the ritual's distinctive supernatural effects. Other declared Raises may improve only appropriate secondary features using the normal Raise effect catalogue: **Scope**, **Speed**, **Quality**, **Efficiency**, **Insight**, or **Safety**. For example, **Speed 1** can halve a normal 1-Tyhran-Hour ritual to **1 Forearm**. **Insight 1** can reveal one further supportable clue *within the named tier already reached*. Scope cannot circumvent a ritual's fixed targets, range restrictions, or named area upgrades. **Efficiency never reduces Sealed-Stone costs**; Safety cannot cancel explicit ritual dangers. No optional Raise supplies a spell, an entirely new magical effect, a higher printed tier, or a bypass of Ritual Limits.
 
 ---
 
@@ -7840,7 +7838,7 @@ The **selected named Ritual tier** determines which layers of information a succ
 
 ### Ritual Failure
 
-If the Ritual Skill Check fails, the Ritual does not produce its intended effect. The Stones paid for the Ritual are still Sealed. The GM may apply a fitting consequence, especially if the Ritual involved dangerous Resonance, hostile entities, corrupted places, ancient relics, demonic marks, the dead, dreams, or the Veil.
+If the Ritual Training Check fails, the Ritual does not produce its intended effect. The Stones paid for the Ritual are still Sealed. The GM may apply a fitting consequence, especially if the Ritual involved dangerous Resonance, hostile entities, corrupted places, ancient relics, demonic marks, the dead, dreams, or the Veil.
 
 Possible consequences include:
 
@@ -7860,26 +7858,26 @@ Failure should create pressure, not shut down the story.
 {{wide
 ### Ritual Summary — One Roll, Any Credible Method
 
-1. Choose **any of the 16 Core Rituals** (all are available to every character for free from the start). Describe **how you perform it**; there are **no required Skill Fields or specific Specializations**.
-2. Choose a fitting **Attribute** for that method. A genuinely relevant learned Skill provides its **Skill Advantage and optional Skill Crit**. No learned Ritual Skill is required, and lacking one does not impose mundane Untrained Disadvantage.
+1. Choose **any of the 16 Core Rituals** (all are available to every character for free from the start). Describe **how you perform it**; There are **no required Profession categories or named ritual occupations**.
+2. Choose a fitting **Attribute** for that method. A genuinely relevant learned Profession provides **Training Advantage and optional Training Crit**. No specific Profession is required, and lacking one does not impose mundane Untrained Disadvantage.
 3. Start with **Task Level 3 (Base TN 12)**, then use a higher Task Level when the actual work or source requires it, never based on the caster's MR. **Base TN = 4 x max(3, relevant Task Level)**.
 4. Declare a named effect tier **0-4** and suitable generic Raise effects, **maximum 8 Raises total**, before rolling.
 5. **Final TN = Base TN + 4 x declared Raises**. Pay and **Seal** Stones: 1 Stone for 0-1 Raises, 2 for 2-3, 3 for 4-8.
-6. Perform the Ritual for **1 Tyhran Hour** (or 1 Forearm with an eligible Speed Raise), then roll **relevant Attribute k MR**, using eligible Skill Advantage or declared Skill Crit, unless legal Passive Success applies. Success grants exactly the declared effects; failure grants none and Stones remain Sealed.
+6. Perform the Ritual for **1 Tyhran Hour** (or 1 Forearm with an eligible Speed Raise), then roll **relevant Attribute k MR**, using eligible Training Advantage or declared Training Crit, unless legal Passive Success applies. Success grants exactly the declared effects; failure grants none and Stones remain Sealed.
 
 ### Passive Ritual Success
 
-A learned Skill does **not automatically complete a supernatural Ritual** merely because the character knows routine professional tasks. The normal **Passive Skill Value = 2 x relevant Attribute** may resolve a familiar, safe, uncontested, non-urgent Ritual **only if it reaches the entire final TN**, including all declared Raises. Supernatural opposition, danger, unstable sites, or meaningful immediate risk require a roll. **The Stones are still Sealed**, with or without a roll. Passive success never creates undeclared effects.
+A Profession does **not automatically complete a supernatural Ritual** merely because the character knows routine professional tasks. The normal **Passive Training Value = 2 x relevant Attribute** may resolve a familiar, safe, uncontested, non-urgent Ritual **only if it reaches the entire final TN**, including all declared Raises. Supernatural opposition, danger, unstable sites, or meaningful immediate risk require a roll. **The Stones are still Sealed**, with or without a roll. Passive success never creates undeclared effects.
 
 ### Example: Three Ways to Cleanse a Shrine
 
-A shrine has a fixed **Task Level 4 (Base TN 16)**. One character traces an alchemical circle using **Alchemy 4 + Intellect**; a second chants through **Performance 4 + Influence**; a third lays out a pattern of stones using **Survival + Wits**, without a relevant learned Specialization. **Each can attempt the same Purify Ground Ritual.** They must describe their method; the Task Level does not change because the method or caster changes.
+A shrine has a fixed **Task Level 4 (Base TN 16)**. One character traces an alchemical circle using **Alchemist 4 + Intellect**; a second chants through **Cantor 4 + Influence**; a third lays out a pattern of stones using **Survival + Wits**, without a relevant learned Profession. **Each can attempt the same Purify Ground Ritual.** They must describe their method; the Task Level does not change because the method or caster changes.
 
-All declare **named tier 2** (**two Raises, Final TN 24, 2 Sealed Stones**). The Alchemy 4 and Performance 4 characters may reroll initial 1s–3s through Skill Advantage. The untrained ritualist receives no Skill Advantage but also suffers no mundane Untrained Disadvantage. All face the same TN 24. Success grants tiers 0-2; no high roll creates undeclared effects.
+All declare **named tier 2** (**two Raises, Final TN 24, 2 Sealed Stones**). The Alchemist 4 and Cantor 4 characters may reroll initial 1s–3s through Training Advantage. The untrained ritualist receives no Training Advantage but also suffers no mundane Untrained Disadvantage. All face the same TN 24. Success grants tiers 0-2; no high roll creates undeclared effects.
 
-### Example: No Learned Ritual Skill
+### Example: No Relevant Profession
 
-Another caster with no related Specialization reads **PL 6** Resonance at **Base TN 24**, declaring **named tier 2**. Both Raises increase the TN: **Final TN 32**, **2 Sealed Stones**. The Ritual is permitted without learned training and does not incur mundane Untrained Disadvantage. A genuinely applicable **Warding Traditions 4** would retain **TN 32**, but allow Skill Advantage to reroll initial 1s–3s.
+Another caster with no related Profession reads **PL 6** Resonance at **Base TN 24**, declaring **named tier 2**. Both Raises increase the TN: **Final TN 32**, **2 Sealed Stones**. The Ritual is permitted without learned training and does not incur mundane Untrained Disadvantage. A genuinely applicable **Temple Keeper 4** would retain **TN 32**, but allow Training Advantage to reroll initial 1s–3s.
 
 }}
 \page
@@ -8042,7 +8040,7 @@ Threshold Alarm **warns of a crossing**; the named tiers determine its reach and
 | **Raise 4 - Alternative Opening Mode** | You may use this Ritual to open an existing sealed, hidden, or forgotten passage, but only if such a passage truly exists. This mode costs **3 Stones** and **does not also apply any Raise 0-3 sealing effects**. It cannot create a new tunnel, doorway, road, or exit where none exists. |
 
 #### Scope & Limits
-Seal Passage applies a supernatural seal to an **existing passage** or opens such a seal at Raise 4. Declare **sealing or opening before rolling**; the Raise-4 opening mode replaces the lower sealing tiers. Ordinary locks, construction and excavation use their relevant Skills.
+Seal Passage applies a supernatural seal to an **existing passage** or opens such a seal at Raise 4. Declare **sealing or opening before rolling**; the Raise-4 opening mode replaces the lower sealing tiers. Ordinary locks, construction and excavation use their relevant Professions.
 
 ### Purify Ground (Ritual)
 
@@ -8455,7 +8453,7 @@ All Bodies belonging to that Summon Bond use the chosen Movement Mode. The selec
 {{wide
 ### Summon Token Costs
 
-Summon Tokens may buy improvements to the Bond, to an individual Body, or to the Bond's selected **Summon Skill Dice**. These are not player Specialization resources.
+Summon Tokens may buy improvements to the Bond, to an individual Body, or to the Bond's selected **Summon Skill Dice**. These are not player Profession resources.
 
 | **Upgrade** | **Scope** | **Starting Value** | **Cost** | **Gain** |
 |---|---|:--:|:--:|---|
@@ -8497,7 +8495,7 @@ It then uses the Bond's Attack, Damage, Movement, Summon Attacks, Special, and p
 | Extra Attack | Maximum 3 Summon Attacks per Bond per Round. |
 | Special Access | Maximum 1 Special per Bond. |
 | Special Value | Maximum Special(4). |
-| Summon Skills | Two to four selected Skills, based on Bound Stones. |
+| Summon Professions | Two to four selected Summon Professions, based on Bound Stones. |
 | Canonical Powers | Maximum Power Level is set by the owner's Mastery Rank. |
 
 HP, Armor, Evade, Attack, and Damage have no separate Summon maximum. Their practical limit is the available Token investment.
@@ -8544,7 +8542,7 @@ Summons cannot delay, ready, or select a separate Initiative count. Summons cann
 {{wide
 ### Summon Skills
 
-A Summon does not receive Attributes or the complete character Skill system. Instead, the Bond selects a limited number of **Summon task skills from the closed list below**. The player-character Specialization list remains open and freely named.
+A Summon does not receive Attributes or a character's Professions. Instead, the Bond chooses a limited number of **Summon task skills from the closed list below**. This is a dedicated Summon technical subsystem, not a fixed player Profession list. Player Professions remain freely named and scoped.
 
 | **Bound Stones** | **Selected Summon Skills** |
 |:--:|:--:|
@@ -8560,15 +8558,15 @@ Bonus Summon Tokens do not increase the number of selected Skills. The **only pe
 - Athletics, Acrobatics
 - Search (basic physical searching), Survival (outdoor fieldcraft)
 
-This is a **closed Summon list**, not a mandatory player Skill list. Summons cannot independently purchase Social persuasion, academic lore, Medicine, Blacksmithing, Alchemy, engineering, or other professional tasks. For each selected Summon task except Perception, the owner must possess a **learned, fitting Specialization**.
+This is a **closed Summon-only task list**, never a required player Profession list. Summons cannot independently purchase negotiation, academic lore, medicine, smithing, alchemy, engineering, or other full professional tasks. For each selected Summon task except Perception, the owner must have **one learned Profession with a credible matching scope**.
 
 ---
 
 ### Buying and Distributing Skill Dice
 
-**Match meaning, not spelling:** A player's freely named **Woodland Stalking 3** can qualify a Summon for **Stealth** in woodland if the agreed scope covers the task, but not automatically for urban Stealth or Tracking. The GM records any terrain or method restriction when selecting the Bond's Summon Skills. This mapping does not give the Summon player Skill Ranks, Skill Advantage, Skill Crit, Skill Raises, or broader professional competence.
+**Match meaning, not spelling:** The owner's **Wilderness Scout 3** may qualify a Summon for **Stealth** in woodlands if the agreed scope includes that approach. It does not automatically qualify for urban Stealth, Navigation, or Tracking. The GM records any terrain or method restriction on each Summon task. This mapping gives no additional owner dice, Rank, Training Advantage, Training Crit, Raises, or professional competence.
 
-Each **Summon Skill Dice** purchase costs **1 Token** and grants **2 Skill Dice**. These dice may be divided freely among the Bond's selected Summon Skills, including one die at a time. For any selected Summon task except Perception, the number of assigned Skill Dice cannot exceed **twice the Rank of one matching, learned owner Specialization** (as agreed and scoped above). Do not add multiple Specialization Ranks together. A Summon cannot select a task without a matching learned Specialization. For the universal **Summon Perception** task, the cap remains **twice the owner's Mastery Rank**, independent of the owner's free Perception Rank.
+Each **Summon Skill Dice** purchase costs **1 Token** and grants **2 Skill Dice**. These dice may be divided freely among the Bond's selected Summon Skills, including one die at a time. For any selected Summon task except Perception, assigned Skill Dice cannot exceed **twice the Rank of one matching, learned owner Profession** with the agreed scope. Never add multiple Profession Ranks together. A Summon cannot select that task without a matching learned Profession. For the universal **Summon Perception** task, the cap remains **twice the owner's Mastery Rank**, independent of the owner's free Perception Rank.
 
 These caps limit **Summon Token purchases only**. Player characters never add these dice to their Attribute Pools.
 
@@ -8577,8 +8575,8 @@ These caps limit **Summon Token purchases only**. Player characters never add th
 The owner has:
 
 - Mastery Rank 2 (Summon Perception Dice cap 4)
-- Stealth Rank 2 (Summon Stealth Dice cap 4)
-- Tracking Rank 1 (Summon Tracking Dice cap 2)
+- Wilderness Scout Rank 2 (agreed scope qualifies Summon Stealth; cap 4)
+- Tracker Rank 1 (agreed scope qualifies Summon Tracking; cap 2)
 
 The Bond has bought 4 Skill Dice. It may distribute them as:
 
@@ -8586,7 +8584,7 @@ The Bond has bought 4 Skill Dice. It may distribute them as:
 - Stealth 1d8
 - Tracking 1d8
 
-It could instead assign all 4 dice to Perception or Stealth, but it could not assign 4 dice to Tracking because the owner's Tracking Rank 1 allows a maximum of 2 assigned dice.
+It could assign all 4 dice to Perception or Stealth, but not to Tracking: the owner's fitting Tracker Rank 1 allows at most 2 Tracking dice.
 
 ---
 }}
@@ -8599,7 +8597,7 @@ When a Summon independently performs a selected Skill task, roll its assigned Sk
 
 > **Summon Skill Check = assigned Skill Dice k owner's Mastery Rank**
 
-The number of kept dice can never exceed the number of dice rolled. Summon Skill Dice are a **separate Summon Bond purchase**, not consumable player Skill Points. They are the complete dice pool used for the Summon's independent check. Summons do not gain character Skill Ranks, Skill Advantage, Skill Crit, or ordinary Skill Raises, and cannot perform complex professional tasks merely by rolling well. All Bodies share the same selected Skills and Skill Dice. Body count never grants repeated rolls for one task.
+The number of kept dice can never exceed the number of dice rolled. Summon Skill Dice are a **separate Summon Bond purchase**, not consumable player Profession points. They are the complete dice pool used for the Summon's independent check. Summons do not gain character Training Ranks, Training Advantage, Training Crit, or ordinary Training Raises, and cannot perform complex professional tasks merely by rolling well. All Bodies share the same selected Skills and Skill Dice. Body count never grants repeated rolls for one task.
 
 ---
 
@@ -8614,7 +8612,7 @@ A Shared Sense is assigned to one Body.
 | Taste / Smell | 2 Tokens |
 | Touch / Pressure | 2 Tokens |
 
-When the owner actively perceives through a Body's Shared Sense, the owner makes an ordinary universal Perception check with **their own relevant Attribute and Mastery Rank**, from the Body's position and through that Sense Group. The owner uses their **Perception Rank** (starting at 2) for **Skill Advantage and optional Skill Crit**; Perception adds no dice to the Attribute Pool. Comparative perception grants no Raises. When the Summon observes independently, it uses the Bond's purchased Summon Perception Dice instead. Switching between the owner's senses and a Summon's Shared Senses costs **1 Movement** during combat. Outside combat, switching senses requires no action. Shared Senses grant sensory access only. They do not grant automatic success, knowledge, analysis, or additional Skill checks.
+When the owner actively perceives through a Body's Shared Sense, the owner makes an ordinary universal Perception check with **their own relevant Attribute and Mastery Rank**, from the Body's position and through that Sense Group. The owner uses their **Perception Rank** (starting at 2) for **Training Advantage and optional Training Crit**; Perception adds no dice to the Attribute Pool. Comparative perception grants no Raises. When the Summon observes independently, it uses the Bond's purchased Summon Perception Dice instead. Switching between the owner's senses and a Summon's Shared Senses costs **1 Movement** during combat. Outside combat, switching senses requires no action. Shared Senses grant sensory access only. They do not grant automatic success, knowledge, analysis, or additional Training Checks.
 
 ---
 }}
@@ -8711,7 +8709,7 @@ The following examples are not separate Summon classes. Every example uses the s
 
 **Concept:** A simple flying Familiar used for reconnaissance.
 
-**Available:** 8 Summon Tokens **Selected Movement Mode:** Flying **Selected Skills:** Perception, Stealth
+**Available:** 8 Summon Tokens **Selected Movement Mode:** Flying **Selected Summon Skills:** Perception, Stealth
 
 | **Purchase** | **Cost** |
 |---|:--:|
@@ -8721,7 +8719,7 @@ The following examples are not separate Summon classes. Every example uses the s
 | +4 m Movement | 2 Tokens |
 | **Total** | **8 Tokens** |
 
-Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assuming the owner has **MR 1+** and **Stealth Rank 1+**.
+Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assuming the owner has **MR 1+** and **one suitable Profession at Rank 1+** that covers the intended concealment.
 
 **Finished Owl:**
 
@@ -8809,7 +8807,7 @@ The seven Skeletons occupy separate spaces and may move independently during the
 
 **Concept:** A fast, elusive predator inspired by an elite magical panther companion.
 
-**Available:** 16 Summon Tokens **Selected Movement Mode:** Walking **Selected Skills:** Perception, Stealth, Tracking
+**Available:** 16 Summon Tokens **Selected Movement Mode:** Walking **Selected Summon Skills:** Perception, Stealth, Tracking
 
 | **Purchase** | **Cost** |
 |---|:--:|
@@ -8822,7 +8820,7 @@ The seven Skeletons occupy separate spaces and may move independently during the
 | 4 Summon Skill Dice | 2 Tokens |
 | **Total** | **16 Tokens** |
 
-Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has **Stealth Rank 2 or higher**.
+Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has **one Profession at Rank 2+** that credibly covers that Summon Stealth task.
 
 **Finished Panther:**
 
@@ -8939,7 +8937,7 @@ If an Artifact occupies a Slot, that Slot cannot be used by another Artifact or 
 ---
 ### Binding and Awakening an Artifact
 
-A newly acquired ordinary Artifact is initially dormant until the character chooses to bind it. **Binding requires no Ritual, Skill Check, Stone expenditure, or XP.** If the character has sufficient **Artifact Capacity** and the required free **Equipment Slot or Slots**, they may bind an acquired Artifact and awaken it at **Artifact Level 1**. Binding does not bypass ordinary requirements for holding, wearing, or changing equipment during combat. If the capacity or slot requirements are not met, the Artifact remains dormant and grants no Artifact functions.
+A newly acquired ordinary Artifact is initially dormant until the character chooses to bind it. **Binding requires no Ritual, Training Check, Stone expenditure, or XP.** If the character has sufficient **Artifact Capacity** and the required free **Equipment Slot or Slots**, they may bind an acquired Artifact and awaken it at **Artifact Level 1**. Binding does not bypass ordinary requirements for holding, wearing, or changing equipment during combat. If the capacity or slot requirements are not met, the Artifact remains dormant and grants no Artifact functions.
 
 **Artifact Level 1 is free.** No XP is required for the first awakening. A bound Artifact counts against Artifact Capacity and occupies its required Equipment Slots as normal. Later Artifact Levels are purchased through XP progression. **Echo Artifacts granted at character creation begin already bound at Artifact Level 1**, subject to their normal capacity and slot rules; they never require a separate binding procedure.
 
@@ -9027,28 +9025,6 @@ can be found in the separate **Artifacts Catalogue**:
 
 [Open the complete Artifacts Catalogue](https://homebrewery.naturalcrit.com/share/TigfuySgic8x)
 
-#### Approved General Artifact Clarification — Heart of Winter / Frostwave
-
-**Approved clarification (Batch 9G.3):** Heart of Winter **Frostwave** grants only the standard catalogue Power **Melee AoE Special: Slow** from Actives. It adds **no** Artifact Slow bonus and deals **no** direct Power, Weapon, or Spell Focus Damage. Delivery remains the normal self-centered Melee AoE Attack Roll with individual Evade / Dive for Cover. Stage II replaces I; stage III replaces II. Frozen Reserve, Glacial Intercept, Shield Armor, and Artifact Awakening are unchanged by this clarification.
-
-| **Artifact Level** | **Name** | **Exact official Power** | **Effect** | **Radius** |
-| :---: | --- | --- | --- | :---: |
-| **3** | **Frostwave I** | Melee AoE Special: Slow **PL 4** | **Slow(5)**; no direct damage | **3 m** |
-| **6** | **Frostwave II** | Melee AoE Special: Slow **PL 8** | **Slow(7)**; no direct damage | **5 m** |
-| **9** | **Frostwave III** | Melee AoE Special: Slow **PL 16** | **Slow(10)**; no direct damage | **7 m** |
-
-Frostwave II uses catalogue **PL 8** (not PL 10) so the printed Instant AoE Slow is **Slow(7)** with Radius **5 m**. Do not grant PL 10 Slow(9) with a manually reduced effect, and do not change the shared Actives Melee AoE Special: Slow table.
-
-#### Approved General Artifact Clarification — Moonlight Greatsword / Moonlight Shadow
-
-**Approved clarification (Batch 9I):** Moonlight Greatsword **Moonlight Shadow** grants the official catalogue Power **Active Buff: Sundered Aura** from Active Buffs. It uses the normal single Active-Buff slot, free Preparation-Phase activation/replacement, and Mastery Rank Round duration. There is **no separate Safe Haven Rest use limit**, no direct Aura damage, no Ruin/Hex/Damage Aura substitute, and no access to other named Auras. Stage II replaces I; stage III replaces II. Moonlight Mending, Moonlight Judgment, and Artifact Awakening are unchanged by this clarification.
-
-| **Artifact Level** | **Name** | **Exact official Power** | **Effect** | **Radius** |
-| :---: | --- | --- | --- | :---: |
-| **3** | **Moonlight Shadow I** | Active Buff: Sundered Aura **PL 4** | **Sundered(4)**; no direct damage | **2 m** |
-| **6** | **Moonlight Shadow II** | Active Buff: Sundered Aura **PL 10** | **Sundered(7)**; no direct damage | **3 m** |
-| **9** | **Moonlight Shadow III** | Active Buff: Sundered Aura **PL 16** | **Sundered(10)**; no direct damage | **3 m** |
-
 }}
 \page
 {{pageNumber,auto}}
@@ -9064,9 +9040,9 @@ Frostwave II uses catalogue **PL 8** (not PL 10) so the printed Instant AoE Slow
 
 **Attribute k MR:** Roll Attribute d8, keep MR, sum the kept dice. Natural **8s explode** (designated Critical: **7–8**). **Guaranteed Eight:** trade 8 Pool dice for one exploding 8, counted as one result. Example: Might 8, MR 3 = `8k3`.
 
-#### **2) Skill Checks**
+#### **2) Training Checks**
 
-**One universal Skill Roll:** **Attribute k MR** with the relevant **Skill Advantage** (Rank 2: reroll 1; 3: 1-2; 4-5: 1-3; 6: 1-4; 7-8: 1-5, once per eligible initial die). **Skill Crit** at Rank 5-7: once per Tyhran Day; Rank 8: twice per day, per Specialization; declare before rolling, exploding on natural 7-8. **Standard Check:** against Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects on success, with no Skill Rank Raise cap. **Comparative Check:** both parties roll; higher wins, defending/observing side wins ties; **no Task TN or Raises**. Rank 0 uses Disadvantage and no Raises. Familiar safe work may succeed routinely.
+**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **One universal Training Roll:** **Attribute k MR** with the relevant **Training Advantage** (Rank 2: reroll 1; 3: 1-2; 4-5: 1-3; 6: 1-4; 7-8: 1-5, once per eligible initial die). **Training Crit** at Rank 5-7: once per Tyhran Day; Rank 8: twice per day, per Profession or Perception; declare before rolling, exploding on natural 7-8. **Standard Check:** against Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects on success, with no Training Rank Raise cap. **Comparative Check:** both parties roll; higher wins, defending/observing side wins ties; **no Task TN or Raises**. Rank 0 uses Disadvantage and no Raises. Familiar safe work may succeed routinely.
 
 **Echo Imprints:** Immediately after starting Attributes, choose up to MR free Imprints tied to Attributes **4+**; they express small magic and Echo Memories.
 
@@ -9074,7 +9050,7 @@ Frostwave II uses catalogue **PL 8** (not PL 10) so the printed Instant AoE Slow
 
 **Combat:** **Before** an Attack or Casting Roll, declare the number of Paid Raises and commit the number of eligible Intellect Free Raises. **Paid +4 TN; Free +0. After** the roll and hit checks, choose the Damage/Special allocation for those Raises; never add more Raises after the roll. A successful Damage Raise grants **+MR d8** (AoE: **+ceil(MR/2) d8**); a Special Raise adds **+MR** to an existing numeric Special. **Special-only Attacks (Single Target or AoE)** may use only Special Raises, never Damage Raises. AoE, Split Attack and Autofire choose one **shared after-roll allocation** per Power use. **Persistent Special Zones and Special Auras cannot use Raises** because they make no Attack or Casting Roll. Spells use **Base TN = cast PL × 4**; direct Spells add effective Spell Resistance and Paid Raises to the target's TN. Other placed Spells use their normal Creation TN.
 
-**Rituals:** Every character knows all **16 Core Rituals**. Choose a fitting approach and Attribute; spend **1 Tyhran Hour** and Seal Stones. **Base TN = 4 x max(3, Task Level)**; **8 Raises maximum** across named tier 0-4 and compatible generic effects. Every declared Ritual Raise adds **+4 TN**; Skill Rank grants **no Free Raises**. A genuinely relevant Specialization supplies **Skill Advantage and optional Skill Crit** on the Ritual roll. Seal **1 Stone for 0-1 Raises; 2 for 2-3; 3 for 4-8**. Success grants exactly the declared effects; failure leaves Stones Sealed.
+**Rituals:** Every character knows all **16 Core Rituals**. Choose a fitting approach and Attribute; spend **1 Tyhran Hour** and Seal Stones. **Base TN = 4 x max(3, Task Level)**; **8 Raises maximum** across named tier 0-4 and compatible generic effects. Every declared Ritual Raise adds **+4 TN**; Training Rank grants **no Free Raises**. A genuinely relevant Profession supplies **Training Advantage and optional Training Crit** on the Ritual roll. Seal **1 Stone for 0-1 Raises; 2 for 2-3; 3 for 4-8**. Success grants exactly the declared effects; failure leaves Stones Sealed.
 
 </div>
 <div style="flex: 1;">
@@ -9146,7 +9122,7 @@ If this yields zero, the natural-8 minimum still deals **1 damage per natural 8 
 
 #### **11) Health & Fear**
 
-**Health:** Five normal Bars, each with **Vitality × 4 boxes** (Fortitude can raise that to ×5/×6/×7/×8 at PL 4/8/12/16). A fully marked Bar becomes **Scarred**. HP Healing refills an available Bar; **Restoration** reopens a Scarred Bar at full HP, including Broken to awaken an Incapacitated creature. Emergency Medicine: adjacent helper, **1 Attack Action**, **Base TN = patient MR × 4**, success stabilizes; medical aftercare during Safe Haven Rest restores **2 Bars total with Medicine 4–7**, **3 with Medicine 8**, instead of the normal 1. Incapacitated characters cannot act or spend Stones; death follows the fiction, with reincarnation reserved for the GM Guide.
+**Health:** Five normal Bars, each with **Vitality × 4 boxes** (Fortitude can raise that to ×5/×6/×7/×8 at PL 4/8/12/16). A fully marked Bar becomes **Scarred**. HP Healing refills an available Bar; **Restoration** reopens a Scarred Bar at full HP, including Broken to awaken an Incapacitated creature. Emergency Medicine: adjacent helper, **1 Attack Action**, **Base TN = patient MR × 4**, success stabilizes; medical aftercare during Safe Haven Rest restores **2 Bars total with medical Profession Rank 4-7**, **3 with medical Profession Rank 8**, instead of the normal 1. Incapacitated characters cannot act or spend Stones; death follows the fiction, with reincarnation reserved for the GM Guide.
 
 **Fear:** Roll **Resolve k1** when called for: **below 8: +2 Fear; 8–15: +1; 16+: +0**. Each Fear removes one Attribute-Pool die before Health penalties; standard affected rolls retain **at least 2 dice** if the original Pool began at 2+. Fear is cleared by Safe Haven Rest.
 
@@ -9166,7 +9142,7 @@ Maximum = Disadvantage Points. Refresh after **Safe Haven Rest**. Spend 1 to rer
 
 #### **15) Safe Haven Rest**
 
-Restore **Reroll Points, Sealed Stones, eligible spent Stones and the available Health Bar**; release Stone-Bound Form investments, return **1 Scarred Bar** (Medicine aftercare: **2 or 3 total**), and clear **Fear**.
+Restore **Reroll Points, Sealed Stones, eligible spent Stones and the available Health Bar**; release Stone-Bound Form investments, return **1 Scarred Bar** (qualified medical Profession aftercare: **2 or 3 total**), and clear **Fear**.
 
 </div>
 </div>
@@ -9253,7 +9229,7 @@ The normal Attribute range now ends at **40**. The table below highlights repres
 
 ### Source-Based TN Reference: Keep the Scales Separate
 
-**Ordinary Skills:** Base TN = **4 x Task Level**. **Rituals:** Base TN = **4 x max(3, relevant Task Level)**, minimum **12**. A specific spell or power being examined uses the relevant **Power Level** as its Task Level; a levelled Artifact uses **Artifact Level**. A ritual targeting a creature or creator with **Source MR** uses **2 x Source MR** as Task Level. Never use the performing character's MR to make the same task harder.
+**Ordinary Profession Tasks:** Base TN = **4 x Task Level**. **Rituals:** Base TN = **4 x max(3, relevant Task Level)**, minimum **12**. A specific spell or power being examined uses the relevant **Power Level** as its Task Level; a levelled Artifact uses **Artifact Level**. A ritual targeting a creature or creator with **Source MR** uses **2 x Source MR** as Task Level. Never use the performing character's MR to make the same task harder.
 
 **Hostile Attribute Checks against effects:** Use any printed TN first. If none is printed and the hostile effect has a real **Source MR**, the default remains **(8 x Source MR) - 2**. If there is **no meaningful Source MR** (e.g., natural poison or a collapsing floor), use **4 x the hazard's Task Level**, fixed by the GM before rolling. An Attribute Check is available only if another rule calls for it; none of these TN formulas adds an automatic second save. This is **not** the Ritual formula.
 
@@ -9268,7 +9244,7 @@ The normal Attribute range now ends at **40**. The table below highlights repres
 | 7 | 14 | 56 | 54 |
 | 8 | 16 | 64 | 62 |
 
-**Unopposed ordinary Skill Tasks:** Simple 4, Easy 8, Moderate 12, Demanding 16, Difficult 20, Very Difficult 24, Exceptional 28, Extraordinary 32+. **Comparative Skill Checks:** opposed roll vs. opposed roll, no static Task TN or Raises. **Rituals:** minimum Task TN 12 and a maximum of 8 declared Raises. Skill Rank grants Skill Advantage and optional Crit, never Free Raises. **All ordinary Task and Ritual Raises add +4 TN each.** **Spell Casting:** base TN 4 x Power Level plus applicable Spell Resistance.
+**Unopposed ordinary Training Tasks:** Simple 4, Easy 8, Moderate 12, Demanding 16, Difficult 20, Very Difficult 24, Exceptional 28, Extraordinary 32+. **Comparative Training Checks:** opposed roll vs. opposed roll, no static Task TN or Raises. **Rituals:** minimum Task TN 12 and a maximum of 8 declared Raises. Training Rank grants Training Advantage and optional Crit, never Free Raises. **All ordinary Task and Ritual Raises add +4 TN each.** **Spell Casting:** base TN 4 x Power Level plus applicable Spell Resistance.
 
 }}
 \page

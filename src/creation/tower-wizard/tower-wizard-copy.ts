@@ -133,12 +133,13 @@ export const TOWER_WIZARD_COPY = {
             pickedLabel: 'Imprints chosen',
         },
         specializations: {
-            heading: 'SPECIALIZATIONS',
-            body: 'Name exactly five Specializations — each is Rank 2 (20 Creation Points). Free name, Field, and one-sentence scope. There is no Rank picker.',
+            heading: 'FOUR PROFESSIONS',
+            body: 'Name exactly four Professions at Rank 2. Each needs a name, how you learned it, and a one-sentence scope. Perception Rank 2 is free and is not one of the four. Suggestions are optional — a custom name is always allowed.',
             nameLabel: 'Name',
-            fieldLabel: 'Field',
+            originLabel: 'Origin',
             scopeLabel: 'Scope (one sentence)',
             rankLabel: 'Rank',
+            suggestionLabel: 'Suggestion (optional)',
         },
         reconcileHeading: 'Powers already chosen — re-check later steps',
     },
@@ -200,10 +201,10 @@ export function localizedTowerWizardCopy(): typeof TOWER_WIZARD_COPY {
                     'MASTERY.df2026.creation.specsHeaderTitle',
                     base.identity.specializations.heading,
                 ) as typeof base.identity.specializations.heading,
-                fieldLabel: masteryLocalize(
-                    'MASTERY.df2026.specializations.field',
-                    base.identity.specializations.fieldLabel,
-                ) as typeof base.identity.specializations.fieldLabel,
+                originLabel: masteryLocalize(
+                    'MASTERY.df2026.specializations.origin',
+                    base.identity.specializations.originLabel,
+                ) as typeof base.identity.specializations.originLabel,
                 scopeLabel: (masteryLocalize('MASTERY.df2026.specializations.scope', 'Scope') +
                     ' (one sentence)') as typeof base.identity.specializations.scopeLabel,
                 rankLabel: masteryLocalize(

@@ -104,12 +104,12 @@ export declare function groupAmbushPoolPreview(specialist: any, participants: an
         name: string;
         penalty: number;
     }[];
-    skillAdvantageRerollMax: 0 | 3 | 2 | 1 | 5 | 4;
+    skillAdvantageRerollMax: 0 | 3 | 1 | 4 | 2 | 5;
     skillRank: number;
     skillName: string;
     attributeKey: string;
     masteryRank: number;
 };
-/** Prefer Stealth Spec when present for ambush preview. */
-export declare function resolveStealthRef(actor: any): SkillCheckSkillRef;
+/** Concealment is a chosen Profession, not a skill named Stealth. */
+export declare function resolveStealthRef(_actor: any): SkillCheckSkillRef;
 //# sourceMappingURL=rolls-skill-panel.d.ts.map

@@ -218,10 +218,14 @@ export function passiveSkillSucceeds(attribute: number, finalTn: number): boolea
   return passiveSkillValue(attribute) >= Math.floor(Number(finalTn) || 0);
 }
 
-/** Starting creation: 20 Skill Creation Points, 2 per Rank, five Rank-2 Specializations. */
-export const SKILL_CREATION_POINTS = 20;
+/**
+ * Creation no longer spends a Skill Creation Point pool.
+ * Four Professions start at Rank 2. Perception Rank 2 is free and separate.
+ * `SKILL_CREATION_POINTS` remains exported so older callers compile; it is not a budget.
+ */
+export const SKILL_CREATION_POINTS = 0;
 export const SKILL_CREATION_COST_PER_RANK = 2;
-export const STARTING_SPECIALIZATION_COUNT = 5;
+export const STARTING_SPECIALIZATION_COUNT = 4;
 export const STARTING_SPECIALIZATION_RANK = 2;
 
 /**

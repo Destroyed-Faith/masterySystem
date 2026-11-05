@@ -11,7 +11,12 @@ import {
   isSealPassage,
   type CoreRitualDefinition,
 } from '../rules/core-rituals.js';
-import { planRitualRaises } from '../rules/ritual-tn.js';
+import { planRitualRaises, ritualTrainingModifiers } from '../rules/ritual-tn.js';
+import {
+  consumeSkillCritUse,
+  getSkillCritUsesRemaining,
+  skillCritDailyAllowance,
+} from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 
 const ATTRIBUTE_KEYS = new Set([
@@ -82,8 +87,10 @@ export interface PerformRitualRollOptions {
   taskLevel: number;
   /** Free-text description of how the Ritual is performed. */
   approach?: string;
-  /** Optional relevant Specialization — contributes Free Raises by Rank. */
+  /** Optional relevant Profession — Training Advantage and optional Training Crit. No Profession does not impose untrained Disadvantage. */
   specialization?: { id?: string; name: string; field?: string; rank: number } | null;
+  /** Spend one Training Crit use before the roll when a fitting Profession is selected. */
+  declareTrainingCrit?: boolean;
   /** Named tier 0–4 (Seal Passage Tier 4 = open-passage mode). */
   namedTier: number;
   /** Additional generic Raises beyond the named tier. */
@@ -150,9 +157,24 @@ export async function performRitualRoll(
   }
 
   const approach = String(opts.approach ?? '').trim();
+  const specId = String(opts.specialization?.id || '').trim();
+  let trainingCrit = false;
+  if (opts.declareTrainingCrit && specRank > 0 && specId && skillCritDailyAllowance(specRank) > 0) {
+    const remaining = getSkillCritUsesRemaining(actor, specId, specRank);
+    if (remaining <= 0) {
+      ui.notifications?.warn('No Training Crit uses remaining for this Profession today.');
+      return;
+    }
+    const spent = await consumeSkillCritUse(actor, specId, specRank);
+    if (!spent) {
+      ui.notifications?.warn('Failed to spend Training Crit use.');
+      return;
+    }
+    trainingCrit = true;
+  }
   const specLabel = opts.specialization?.name
-    ? ` Specialization: ${opts.specialization.name} (Rank ${specRank}, ${plan.freeRaises} Free).`
-    : '';
+    ? ` Profession: ${opts.specialization.name} (Rank ${specRank}).`
+    : ' No fitting Profession — no untrained Disadvantage.';
   const result = await masteryRoll({
     numDice,
     keepDice: masteryRank,
@@ -162,15 +184,19 @@ export async function performRitualRoll(
     declaredRaiseSlots: plan.paidRaises,
     label: `Ritual: ${ritual.name}`,
     flavor:
-      `Base TN ${baseTn}, ${plan.totalRaises} Raise(s) (${plan.paidRaises} Paid, ${plan.freeRaises} Free) → Final TN ${finalTn}` +
+      `Base TN ${baseTn}, ${plan.totalRaises} Raise(s) → Final TN ${finalTn}` +
       `${gmMod ? ` · situational ${gmMod >= 0 ? '+' : ''}${gmMod}` : ''}.${specLabel}` +
-      `${approach ? ` Approach: ${approach}.` : ''}`,
+      `${approach ? ` Approach: ${approach}.` : ''}` +
+      (trainingCrit ? ' Training Crit: explode on 7–8.' : ''),
     actorId: (actor as any).id,
     isSkillRoll: true,
     rollKind: 'skill',
     raiseModel: 'power',
     autoFailIntent: 'skill',
     poolAttribute: opts.attributeKey,
+    rollDisadvantage: ritualTrainingModifiers(specRank).rollDisadvantage,
+    skillAdvantageRerollMax: ritualTrainingModifiers(specRank).skillAdvantageRerollMax,
+    attackExplodeDiceOn78: trainingCrit,
   } as any);
 
   const success = Math.floor(Number(result.total) || 0) >= finalTn;

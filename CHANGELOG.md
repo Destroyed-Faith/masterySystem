@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.835] - 2026-11-05
+
+### Changed
+
+- **K8 Professions:** character creation picks four freely named Professions at Rank 2 plus free Perception Rank 2 (no Creation Point pool). Profession records carry `name / origin / scope / rank` with `profession:<name>` ids; legacy Field rows keep working until mapped.
+- **Approved Profession catalogue:** 90 entries in five categories (Trades, Wilderness, Society, Conflict, Knowledge) as searchable, category-filterable suggestions in the character sheet, Guided Builder, manual build, and advancement pickers. Custom Professions are always valid.
+- **Roll call sites:** Group Ambush uses an explicitly chosen Profession (or untrained) instead of a named Stealth lookup; medical aftercare, rituals, and Summon Skill Dice resolve on Profession scope; Invisibility TN remains the higher of concealment and Invisibility TN.
+- **Migration:** confirm-to-apply Profession mapping dialog (`showProfessionMappingReview`) preserves legacy ranks and XP and never auto-renames.
+- **Rules text:** canonical Players Handbook and rules journals updated to the K8 Core wording (Profession, Training Advantage, Training Crit).
+
 ## [0.9.834] - 2026-11-05
 
 ### Fixed

@@ -68,9 +68,12 @@ export async function executeSkillCheck(opts) {
         return { ok: false, error: plan.error || 'Invalid Skill Check.' };
     const isNpcSituational = !!draft.npcSituational || draft.skill.kind === 'npc-situational';
     let equipPenalty = 0;
-    if (!isNpcSituational && draft.skill.kind === 'specialization') {
-        const spec = findSpecializationById(readSpecializations(system), draft.skill.id);
-        if (spec?.field === 'physical') {
+    if (!isNpcSituational && (draft.skill.kind === 'specialization' || draft.physicalAttempt)) {
+        const spec = draft.skill.kind === 'specialization'
+            ? findSpecializationById(readSpecializations(system), draft.skill.id)
+            : null;
+        const legacyPhysical = spec?.field === 'physical' || spec?.field === 'finesse';
+        if (legacyPhysical || draft.physicalAttempt) {
             equipPenalty = Math.max(0, Number(getEquippedPhysicalSkillPenaltyDice(actor)) || 0);
         }
     }
@@ -84,7 +87,7 @@ export async function executeSkillCheck(opts) {
     if (draft.declareSkillCrit && plan.skillCritTrackId) {
         const remaining = getSkillCritUsesRemaining(actor, plan.skillCritTrackId, plan.rank);
         if (remaining <= 0) {
-            return { ok: false, error: 'No Skill Crit uses remaining for this Skill today.' };
+            return { ok: false, error: 'No Training Crit uses remaining for this Profession today.' };
         }
         const spent = await consumeSkillCritUse(actor, plan.skillCritTrackId, plan.rank);
         if (!spent) {
@@ -109,7 +112,7 @@ export async function executeSkillCheck(opts) {
         }
     }
     if (skillCritActive) {
-        flavor += ' Skill Crit: explode on 7–8.';
+        flavor += ' Training Crit: explode on 7–8.';
     }
     if (equipPenalty > 0) {
         flavor += ` Equipped armor/shield physical penalty: −${equipPenalty}d8.`;
@@ -135,8 +138,8 @@ export async function executeSkillCheck(opts) {
         label: isComparative ? `${plan.skillName} (Comparative)` : label,
         flavor,
         actorId: String(actor.id),
-        ...(normalizedName === 'stealth' ? { skillKey: 'stealth' } : {}),
-        ...(normalizedName === 'perception' ? { skillKey: 'perception' } : {}),
+        ...(draft.concealmentAttempt ? { skillKey: 'stealth' } : {}),
+        ...(draft.skill.kind === 'perception' ? { skillKey: 'perception' } : {}),
         isSkillRoll: true,
         baseModifier: 0,
         rollKind: 'skill',

@@ -197,12 +197,8 @@ export function groupAmbushPoolPreview(specialist, participants, attributeKey) {
         masteryRank: plan.masteryRank,
     };
 }
-/** Prefer Stealth Spec when present for ambush preview. */
-export function resolveStealthRef(actor) {
-    const specs = readSpecializations(actor?.system);
-    const stealth = specs.find((s) => /stealth/i.test(s.name));
-    if (stealth)
-        return { kind: 'specialization', id: stealth.id };
+/** Concealment is a chosen Profession, not a skill named Stealth. */
+export function resolveStealthRef(_actor) {
     return { kind: 'untrained' };
 }
 //# sourceMappingURL=rolls-skill-panel.js.map

@@ -71,9 +71,9 @@ describe('Character Creation Constants', () => {
     expect(CREATION.ATTRIBUTE_ALLOWED_VALUES).toEqual([2, 3, 4]);
   });
 
-  it('20 creation points → five Rank-2 Specializations', () => {
-    expect(CREATION.SKILL_POINTS).toBe(20);
-    expect(CREATION.STARTING_SPECIALIZATION_COUNT).toBe(5);
+  it('four Professions start at Rank 2; there is no creation-point pool', () => {
+    expect(CREATION.SKILL_POINTS).toBe(0);
+    expect(CREATION.STARTING_SPECIALIZATION_COUNT).toBe(4);
     expect(CREATION.STARTING_SPECIALIZATION_RANK).toBe(2);
   });
 

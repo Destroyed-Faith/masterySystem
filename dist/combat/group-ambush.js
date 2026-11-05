@@ -6,7 +6,7 @@
  * participating character (armor + shields), including the specialist.
  */
 import { stealthBeatsObserver } from '../rules/comparative-skill-check.js';
-import { consumeSkillCritUse, findSpecializationByName, getSkillCritUsesRemaining, readSpecializations, skillAdvantageRerollMax, } from '../rules/index.js';
+import { consumeSkillCritUse, findSpecializationById, getSkillCritUsesRemaining, isCharacterPerceptionSpec, readSpecializations, skillAdvantageRerollMax, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 export function sumGroupPhysicalSkillPenalties(participants) {
@@ -25,23 +25,25 @@ export function sumGroupPhysicalSkillPenalties(participants) {
     }
     return { total, rows };
 }
-function resolveStealthSpec(actor) {
-    const specs = readSpecializations(actor?.system);
-    return (findSpecializationByName(specs, 'Stealth') ||
-        findSpecializationByName(specs, 'Stealth & Infiltration') ||
-        specs.find((s) => /stealth/i.test(s.name)) ||
-        null);
+function findAmbushProfession(actor, professionId) {
+    const id = String(professionId || '').trim();
+    if (!id)
+        return null;
+    const spec = findSpecializationById(readSpecializations(actor?.system), id);
+    if (!spec || isCharacterPerceptionSpec(spec))
+        return null;
+    return spec;
 }
 /**
- * Plan the group's single Stealth pool.
- * `attributeKey` defaults to Agility (typical Stealth); callers may override.
+ * Plan the group's single concealment roll.
+ * The specialist's Profession is chosen explicitly. With no Profession, the roll is untrained.
  */
 export function planGroupAmbushStealthPool(opts) {
     const specialist = opts.specialist;
     if (!specialist) {
         return {
             ok: false,
-            error: 'No Stealth specialist selected.',
+            error: 'No concealment specialist selected.',
             attributeKey: 'agility',
             attributeValue: 0,
             masteryRank: 1,
@@ -53,7 +55,7 @@ export function planGroupAmbushStealthPool(opts) {
             skillRank: 0,
             skillAdvantageRerollMax: 0,
             skillCritTrackId: '',
-            skillName: 'Stealth',
+            skillName: 'Untrained',
         };
     }
     const participants = Array.isArray(opts.participants) ? opts.participants.filter(Boolean) : [];
@@ -63,7 +65,7 @@ export function planGroupAmbushStealthPool(opts) {
     const attrKey = String(opts.attributeKey || 'agility').toLowerCase();
     const attributeValue = Math.max(0, Math.floor(Number(specialist.system?.attributes?.[attrKey]?.value) || 0));
     const masteryRank = Math.max(1, Math.floor(Number(getRulesMasteryRank(specialist)) || 1));
-    const spec = resolveStealthSpec(specialist);
+    const spec = findAmbushProfession(specialist, opts.professionId);
     const skillRank = Math.max(0, Math.floor(Number(spec?.rank) || 0));
     const { total, rows } = sumGroupPhysicalSkillPenalties(participants);
     const finalPool = Math.max(0, attributeValue - total);
@@ -81,7 +83,7 @@ export function planGroupAmbushStealthPool(opts) {
         skillRank,
         skillAdvantageRerollMax: skillAdvantageRerollMax(skillRank),
         skillCritTrackId: spec?.id || '',
-        skillName: spec?.name || 'Stealth',
+        skillName: spec?.name || 'Untrained',
     };
 }
 /**
@@ -94,6 +96,7 @@ export async function executeGroupAmbushStealthRoll(opts) {
         specialist: opts.specialist,
         participants: opts.participants,
         attributeKey: opts.attributeKey,
+        professionId: opts.professionId,
     });
     if (!plan.ok)
         return { ok: false, error: plan.error, plan };
@@ -101,7 +104,7 @@ export async function executeGroupAmbushStealthRoll(opts) {
     if (opts.declareSkillCrit && plan.skillCritTrackId) {
         const remaining = getSkillCritUsesRemaining(opts.specialist, plan.skillCritTrackId, plan.skillRank);
         if (remaining <= 0) {
-            return { ok: false, error: 'No Skill Crit uses remaining for Stealth today.', plan };
+            return { ok: false, error: 'No Training Crit uses remaining for this Profession today.', plan };
         }
         const spent = await consumeSkillCritUse(opts.specialist, plan.skillCritTrackId, plan.skillRank);
         if (!spent)
@@ -112,7 +115,7 @@ export async function executeGroupAmbushStealthRoll(opts) {
     const flavor = `Group Ambush · ${plan.skillName} (Rank ${plan.skillRank}) · ` +
         `${plan.attributeKey} ${plan.basePool} − ${plan.combinedPenalty} combined armor/shield = ` +
         `${plan.finalPool}k${plan.keepDice}` +
-        (skillCritActive ? ' · Skill Crit' : '');
+        (skillCritActive ? ' · Training Crit' : '');
     const { masteryRoll } = await import('../dice/roll-handler.js');
     const result = await masteryRoll({
         numDice: plan.finalPool,
@@ -128,7 +131,7 @@ export async function executeGroupAmbushStealthRoll(opts) {
         rollDisadvantage,
         skillAdvantageRerollMax: rollDisadvantage ? 0 : plan.skillAdvantageRerollMax,
         attackExplodeDiceOn78: skillCritActive,
-        label: 'Group Ambush Stealth',
+        label: 'Group Ambush Concealment',
         flavor,
         actorId: String(opts.specialist.id),
         skillKey: 'stealth',

@@ -1,36 +1,38 @@
 /**
- * Free-named Specializations organized into seven Fields.
- * Replaces the fixed purchasable Skill catalog.
+ * Freely named Professions. Stored on `system.specializations` so existing
+ * summon maps, export, and XP history keep their key. Legacy rows may still
+ * carry a Field; new rows use `origin` and an id of `profession:<name>`.
+ * The 90-entry catalogue is suggestion data only — never a whitelist.
  */
 export declare const SKILL_FIELDS: readonly ["physical", "finesse", "survival", "science-craft", "occult", "social", "investigation", "perception"];
 export type SkillField = (typeof SKILL_FIELDS)[number];
 /** Fields a player may choose for paid Specializations (excludes universal Perception). */
 export declare const PAID_SKILL_FIELDS: readonly SkillField[];
 export declare const SKILL_FIELD_LABELS: Record<SkillField, string>;
-/** Example free-named Specs per Field (inspiration only — not a closed list). */
-export interface SpecializationFieldExample {
-    name: string;
-    /** One-sentence scope; often reads like a job vignette. */
-    scope: string;
-}
-export declare const SPECIALIZATION_FIELD_EXAMPLES: Record<SkillField, SpecializationFieldExample[]>;
 export interface SpecializationRecord {
-    /** Stable identity key (normalized name + field). */
+    /** Stable identity key. New rows: `profession:<name>`. Legacy rows may be `field:name`. */
     id: string;
     name: string;
-    field: SkillField;
-    /** One-sentence scope. */
+    /** Legacy Field. Omitted on new Profession rows. */
+    field?: SkillField;
+    /** How the character acquired this Profession. */
+    origin?: string;
+    /** One-sentence agreed scope. */
     scope: string;
     rank: number;
 }
 export declare function normalizeSpecializationName(name: string): string;
 export declare function specializationIdentityKey(name: string, field: SkillField): string;
+/** Identity for a new Profession. Not derived from a Field. */
+export declare function professionIdentityKey(name: string): string;
+/** True when this row still uses the pre-K8 Field identity. */
+export declare function isLegacyFieldSpecialization(spec: Pick<Partial<SpecializationRecord>, 'id' | 'field' | 'name'>): boolean;
 export declare function isSkillField(value: string | null | undefined): value is SkillField;
 export interface SpecializationValidation {
     ok: boolean;
     errors: string[];
 }
-/** Free universal Perception Spec — not one of the five paid starting Specs. */
+/** Free universal Perception — not one of the four starting Professions. */
 export declare const CHARACTER_PERCEPTION_FIELD: SkillField;
 /** Legacy id when Perception was wrongly stored under Investigation. */
 export declare const CHARACTER_PERCEPTION_LEGACY_SPEC_ID = "investigation:perception";
@@ -59,19 +61,25 @@ export declare function validateSpecializationList(specs: Array<Partial<Speciali
 /** Read an actor's Specialization list tolerant of array / keyed-object shapes. */
 export declare function readActorSpecializations(system: any): Array<Partial<SpecializationRecord>>;
 /**
- * Highest Rank among Medicine-like Specializations: name or scope mentions
- * medicine / medic / healing, or a Science & Craft Spec named Medicine.
+ * Highest Rank among medical Professions: name or scope covers practical wound
+ * care (medicine, medic, physician, surgery, first aid). One healer only —
+ * ranks are not added together. Legacy Science & Craft rows named like medicine
+ * still qualify.
  */
 export declare function medicineSpecializationRank(system: any): number;
 /** Closed Summon task list (owner mapping). */
 export declare const SUMMON_TASKS: readonly ["perception", "tracking", "navigation", "weather-sense", "stealth", "concealment", "athletics", "acrobatics", "search", "survival"];
 export type SummonTask = (typeof SUMMON_TASKS)[number];
 export declare function summonTaskSlotCount(boundStones: number): number;
-/** Dice cap for a Summon task: Perception uses 2×owner MR; others 2×one matching Spec Rank. */
+/**
+ * Dice cap for a Summon task: Perception uses 2×owner MR; others 2×one mapped Profession Rank.
+ * An unrelated Profession (scope does not cover the task) contributes 0.
+ */
 export declare function summonSkillDiceCap(opts: {
     task: SummonTask;
     ownerMasteryRank: number;
     matchingSpecializationRank?: number;
+    scopeCoversTask?: boolean;
 }): number;
 /** Task → owner Specialization id mapping stored on a Summon Bond. */
 export type SummonTaskSpecMap = Partial<Record<SummonTask, string>>;

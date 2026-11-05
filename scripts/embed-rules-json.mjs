@@ -17,6 +17,7 @@ const dataDir = path.join(root, 'src', 'rules', 'data');
 const catalogs = [
   { json: 'echo-imprints.json', ts: 'echo-imprints-data.ts' },
   { json: 'core-rituals.json', ts: 'core-rituals-data.ts' },
+  { json: 'professions-catalogue.json', ts: 'professions-catalogue-data.ts' },
 ];
 
 for (const { json, ts } of catalogs) {

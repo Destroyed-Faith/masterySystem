@@ -12,11 +12,7 @@ import {
     type EchoImprintAttribute,
 } from '../../rules/echo-imprints.js';
 import {
-    PAID_SKILL_FIELDS,
-    SKILL_FIELD_LABELS,
-    isSkillField,
-    specializationIdentityKey,
-    type SkillField,
+    professionIdentityKey,
     type SpecializationRecord,
 } from '../../rules/specializations.js';
 import { readSpecializations } from '../../rules/specialization-roll.js';
@@ -162,46 +158,45 @@ export function buildWizardImprintGroups(
 export interface WizardSpecRow {
     index: number;
     name: string;
-    field: SkillField;
+    origin: string;
     scope: string;
     rank: number;
-    fieldOptions: Array<{ value: SkillField; label: string; selected: boolean }>;
 }
 
-/** Always returns five editable rows (Rank 2 each), padded from the current draft. */
+/** Always returns four editable rows (Rank 2 each), padded from the current draft. */
 export function buildWizardSpecRows(selection: Partial<TowerWizardSelection>): WizardSpecRow[] {
-    const specs = selection.specializations ?? [];
+    const specs = (selection.specializations ?? []).filter(
+        (spec) => String(spec.name || '').trim().toLowerCase() !== 'perception',
+    );
     return Array.from({ length: TOWER_WIZARD_STARTING_SPECIALIZATIONS }, (_, index) => {
         const spec = specs[index];
-        const field: SkillField = isSkillField(spec?.field) ? spec!.field : 'physical';
         return {
-            index,
+            index: index + 1,
             name: spec?.name ?? '',
-            field,
+            origin: spec?.origin ?? '',
             scope: spec?.scope ?? '',
             rank: 2,
-            fieldOptions: PAID_SKILL_FIELDS.map((f) => ({
-                value: f,
-                label: SKILL_FIELD_LABELS[f],
-                selected: f === field,
-            })),
         };
     });
 }
 
-/** Normalize draft rows into Rank-2 records; drops fully blank rows. */
+/** Normalize draft rows into Rank-2 Profession records; drops fully blank rows. */
 export function specRecordsFromDraft(
-    rows: Array<{ name?: string; field?: string; scope?: string }>,
+    rows: Array<{ name?: string; origin?: string; scope?: string }>,
 ): SpecializationRecord[] {
     const out: SpecializationRecord[] = [];
     for (const row of rows) {
         const name = String(row.name ?? '').trim();
+        const origin = String(row.origin ?? '').trim();
         const scope = String(row.scope ?? '').trim();
-        if (!name && !scope) continue;
-        const rawField = String(row.field ?? '');
-        const field: SkillField =
-            isSkillField(rawField) && rawField !== 'perception' ? rawField : 'physical';
-        out.push({ id: specializationIdentityKey(name, field), name, field, scope, rank: 2 });
+        if (!name && !origin && !scope) continue;
+        out.push({
+            id: professionIdentityKey(name || 'profession'),
+            name,
+            origin,
+            scope,
+            rank: 2,
+        });
     }
     return out;
 }
@@ -260,11 +255,12 @@ export function buildIdentityUpdateData(selection: Partial<TowerWizardSelection>
     if (selection.echoImprintIds) data['system.echoImprints'] = [...new Set(selection.echoImprintIds)];
     if (selection.specializations) {
         data['system.specializations'] = selection.specializations.map((s) => ({
-            id: s.id || specializationIdentityKey(s.name, s.field),
+            id: s.id || professionIdentityKey(s.name),
             name: String(s.name).trim(),
-            field: s.field,
+            origin: String(s.origin ?? '').trim(),
             scope: String(s.scope).trim(),
             rank: Math.floor(Number(s.rank) || 2),
+            ...(s.field ? { field: s.field } : {}),
         }));
     }
     return data;

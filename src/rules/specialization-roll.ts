@@ -25,6 +25,7 @@ import {
   SKILL_FIELD_LABELS,
   isSkillField,
   normalizeSpecializationName,
+  professionIdentityKey,
   specializationIdentityKey,
   type SkillField,
   type SpecializationRecord,
@@ -137,12 +138,14 @@ export function readSpecializations(system: any): SpecializationRecord[] {
   const out: SpecializationRecord[] = [];
   for (const s of list) {
     if (!s || !String(s.name ?? '').trim()) continue;
-    const field: SkillField = isSkillField(s.field) ? s.field : 'physical';
+    const field = isSkillField(s.field) ? s.field : undefined;
     const name = String(s.name).trim();
+    const origin = String(s.origin ?? '').trim();
     out.push({
-      id: String(s.id || specializationIdentityKey(name, field)),
+      id: String(s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name))),
       name,
-      field,
+      ...(field ? { field } : {}),
+      ...(origin ? { origin } : {}),
       scope: String(s.scope ?? ''),
       rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(s.rank) || 0))),
     });
@@ -208,8 +211,9 @@ export function rankUpSpecialization(
 export interface SpecializationSheetRow {
   id: string;
   name: string;
-  field: SkillField;
+  field?: SkillField;
   fieldLabel: string;
+  origin: string;
   scope: string;
   rank: number;
   maxPaid: number;
@@ -247,17 +251,20 @@ export function buildSpecializationSheetRows(
     const a = getSkillRaiseAllowance(s.rank);
     const crit = skillCritDailyAllowance(s.rank);
     const adv = skillAdvantageLabel(s.rank);
+    const origin = String(s.origin || '').trim();
+    const legacyField = s.field && SKILL_FIELD_LABELS[s.field] ? SKILL_FIELD_LABELS[s.field] : '';
     return {
       id: s.id,
       name: s.name,
-      field: s.field,
-      fieldLabel: SKILL_FIELD_LABELS[s.field] ?? s.field,
+      ...(s.field ? { field: s.field } : {}),
+      fieldLabel: origin || legacyField,
+      origin,
       scope: s.scope,
       rank: s.rank,
       maxPaid: Number.isFinite(a.maxPaid) ? a.maxPaid : SKILL_PAID_RAISE_UI_HINT,
       maxFree: 0,
       maxTotal: Number.isFinite(a.maxTotal) ? a.maxTotal : SKILL_PAID_RAISE_UI_HINT,
-      allowanceLabel: crit > 0 ? `${adv} · Skill Crit ${crit}/day` : adv,
+      allowanceLabel: crit > 0 ? `${adv} · Training Crit ${crit}/day` : adv,
       skillAdvantageLabel: adv,
       skillCritDailyAllowance: crit,
       nextRankXpCost: specializationRankUpCost(s.rank),

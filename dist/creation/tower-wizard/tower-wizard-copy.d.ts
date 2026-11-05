@@ -112,12 +112,13 @@ export declare const TOWER_WIZARD_COPY: {
             readonly pickedLabel: "Imprints chosen";
         };
         readonly specializations: {
-            readonly heading: "SPECIALIZATIONS";
-            readonly body: "Name exactly five Specializations — each is Rank 2 (20 Creation Points). Free name, Field, and one-sentence scope. There is no Rank picker.";
+            readonly heading: "FOUR PROFESSIONS";
+            readonly body: "Name exactly four Professions at Rank 2. Each needs a name, how you learned it, and a one-sentence scope. Perception Rank 2 is free and is not one of the four. Suggestions are optional — a custom name is always allowed.";
             readonly nameLabel: "Name";
-            readonly fieldLabel: "Field";
+            readonly originLabel: "Origin";
             readonly scopeLabel: "Scope (one sentence)";
             readonly rankLabel: "Rank";
+            readonly suggestionLabel: "Suggestion (optional)";
         };
         readonly reconcileHeading: "Powers already chosen — re-check later steps";
     };

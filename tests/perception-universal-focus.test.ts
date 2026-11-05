@@ -189,7 +189,7 @@ describe('DF 2026 migration review: Perception does not consume a Spec slot', ()
     expect(plan.currentSpecializations.every((s) => !isCharacterPerceptionSpec(s))).toBe(true);
   });
 
-  it('saves five paid Specs and re-attaches free Perception', () => {
+  it('saves four paid Professions and re-attaches free Perception', () => {
     const actor = {
       id: 'hero',
       name: 'Hero',
@@ -201,14 +201,14 @@ describe('DF 2026 migration review: Perception does not consume a Spec slot', ()
       },
       getFlag: () => undefined,
     };
-    const five = paidSpecs();
+    const four = paidSpecs().slice(0, 4);
     const result = buildDf2026ReviewUpdate(actor, {
-      specializations: five,
+      specializations: four,
       echoImprints: [],
     });
     expect(result.ok).toBe(true);
-    expect(result.specializations).toHaveLength(6);
-    expect(paidSpecializations(result.specializations!)).toHaveLength(5);
+    expect(result.specializations).toHaveLength(5);
+    expect(paidSpecializations(result.specializations!)).toHaveLength(4);
     expect(result.specializations!.find((s) => isCharacterPerceptionSpec(s))?.field).toBe(
       'perception',
     );

@@ -86,10 +86,14 @@ export declare function validateSkillRaiseEffectAllocation(available: number, al
 /** Passive Skill Value = 2 × relevant Attribute. */
 export declare function passiveSkillValue(attribute: number): number;
 export declare function passiveSkillSucceeds(attribute: number, finalTn: number): boolean;
-/** Starting creation: 20 Skill Creation Points, 2 per Rank, five Rank-2 Specializations. */
-export declare const SKILL_CREATION_POINTS = 20;
+/**
+ * Creation no longer spends a Skill Creation Point pool.
+ * Four Professions start at Rank 2. Perception Rank 2 is free and separate.
+ * `SKILL_CREATION_POINTS` remains exported so older callers compile; it is not a budget.
+ */
+export declare const SKILL_CREATION_POINTS = 0;
 export declare const SKILL_CREATION_COST_PER_RANK = 2;
-export declare const STARTING_SPECIALIZATION_COUNT = 5;
+export declare const STARTING_SPECIALIZATION_COUNT = 4;
 export declare const STARTING_SPECIALIZATION_RANK = 2;
 /**
  * XP to purchase the given Rank (1–8). Future advancements only —

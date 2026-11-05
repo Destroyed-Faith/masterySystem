@@ -18,8 +18,9 @@ export declare class RitualWorkshopController {
     taskLevel: number;
     gmMod: number;
     attributeKey: PoolAttr;
-    /** Selected Specialization key ('' = none). */
+    /** Selected Profession key ('' = none). No Profession does not impose untrained Disadvantage. */
     specKey: string;
+    declareTrainingCrit: boolean;
     placed: string[];
     uiScrollTop: number;
     private onRefresh;

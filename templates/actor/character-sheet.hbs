@@ -278,7 +278,7 @@
     <div class="creation-banner-content">
       <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
       <p>Distribute attributes: <strong>2×4, 2×3, 3×2</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}). 
-      Specializations: <strong>{{creation.specializationRank2Count}}</strong> / {{creation.startingSpecializationCount}} at Rank {{creation.startingSpecializationRank}} ({{creation.specializationBudgetHint}}). 
+      Professions: <strong>{{creation.specializationRank2Count}}</strong> / {{creation.startingSpecializationCount}} at Rank {{creation.startingSpecializationRank}} ({{creation.specializationBudgetHint}}). 
       <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / {{creation.disadvantagePointsMax}} pts — <strong>at least {{creation.disadvantagePointsMin}} pts required</strong> to finalize.</p>
       <button type="button" class="reset-creation-attributes" title="Set all attributes to 2 so you can redistribute (fixes hidden dropdown options)">
         <i class="fas fa-undo"></i> Reset attributes
@@ -289,7 +289,7 @@
       </button>
       {{else}}
       <span class="creation-status">
-        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}), Specs ({{#if creation.specializationsValid}}done{{else}}{{creation.specializationRank2Count}}/{{creation.startingSpecializationCount}} Rank {{creation.startingSpecializationRank}}{{/if}}), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}), Professions ({{#if creation.specializationsValid}}done{{else}}{{creation.specializationRank2Count}}/{{creation.startingSpecializationCount}} Rank {{creation.startingSpecializationRank}}{{/if}}), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
       </span>
       {{/if}}
     </div>
@@ -1362,40 +1362,45 @@
 
     </div>
     
-    <!-- SKILLS TAB (DF 2026: Specializations) -->
+    <!-- PROFESSIONS TAB -->
     <div class="tab skills" data-group="primary" data-tab="skills">
 
       <section class="specializations-panel">
         <header class="specializations-header">
-          <h3><i class="fas fa-graduation-cap"></i> Specializations</h3>
+          <h3><i class="fas fa-graduation-cap"></i> Professions</h3>
           <div class="specializations-header-actions">
-            <button type="button" class="spec-roll spec-roll-untrained" data-spec-id="" title="Untrained roll: full Attribute pool with Disadvantage, 0 Raises.">
+            <button type="button" class="spec-roll spec-roll-untrained" data-spec-id="" title="Untrained roll: full Attribute pool with Disadvantage, no Raises.">
               <i class="fas fa-dice-d20"></i> Untrained Roll
             </button>
             {{#if canEditSpecializations}}
-            <button type="button" class="spec-add" title="{{#if creationComplete}}Learn a new Specialization at Rank 1 ({{specializationXpPerRank}} XP){{else}}Add a Specialization{{/if}}">
-              <i class="fas fa-plus"></i> Add Specialization{{#if creationComplete}}{{#unless isGM}} ({{specializationXpPerRank}} XP){{/unless}}{{/if}}
+            {{#if needsProfessionMapping}}
+            <button type="button" class="spec-map-professions" title="Copy stored Specializations into Professions without renaming them">
+              Map to Professions
+            </button>
+            {{/if}}
+            <button type="button" class="spec-add" title="{{#if creationComplete}}Learn a new Profession at Rank 1 ({{specializationXpPerRank}} XP){{else}}Add a Profession{{/if}}">
+              <i class="fas fa-plus"></i> Add Profession{{#if creationComplete}}{{#unless isGM}} ({{specializationXpPerRank}} XP){{/unless}}{{/if}}
             </button>
             {{/if}}
           </div>
         </header>
         <p class="stat-summary-hint specializations-hint">
-          Roll <strong>Attribute dice, keep Mastery Rank</strong>. Skill Rank grants Skill Advantage / Skill Crit (not extra dice). Base TN = Task Level × 4; optional uncapped Paid Raises (+4 TN each). Comparative checks: higher wins, ties favor the defender. Passive Skill Value = 2 × Attribute.
+          Roll <strong>Attribute dice, keep Mastery Rank</strong>. Profession Rank grants Training Advantage / Training Crit (not extra dice). Base TN = Task Level × 4; optional Raises (+4 TN each). Comparative checks: higher wins, ties favor the observer. Passive value = 2 × Attribute.
         </p>
         {{#if system.combat.physicalSkillPenaltyDisplay}}
-        <p class="stat-summary-hint skills-equipment-penalty-hint"><i class="fas fa-shield-alt" aria-hidden="true"></i> {{system.combat.physicalSkillPenaltyDisplay}} from equipped armor / shield / body artifact (Physical Field rolls).</p>
+        <p class="stat-summary-hint skills-equipment-penalty-hint"><i class="fas fa-shield-alt" aria-hidden="true"></i> {{system.combat.physicalSkillPenaltyDisplay}} from equipped armor / shield / body artifact (physical Profession attempts).</p>
         {{/if}}
 
         {{#if hasSpecializations}}
         <div class="specializations-list">
           {{#each specializations}}
           <div class="spec-row" data-spec-id="{{this.id}}">
-            <button type="button" class="spec-roll" data-spec-id="{{this.id}}" title="Roll {{this.name}} (Rank {{this.rank}}: {{this.allowanceLabel}} Raises)">
+            <button type="button" class="spec-roll" data-spec-id="{{this.id}}" title="Roll {{this.name}} (Rank {{this.rank}})">
               <i class="fas fa-dice-d20"></i>
             </button>
             <div class="spec-main">
               <span class="spec-name">{{this.name}}</span>
-              <span class="spec-field attr-badge">{{this.fieldLabel}}</span>
+              {{#if this.fieldLabel}}<span class="spec-field attr-badge">{{this.fieldLabel}}</span>{{/if}}
               <span class="spec-scope">{{this.scope}}</span>
               <span class="spec-hint" title="{{this.passiveHint}}">{{this.allowanceLabel}} · {{this.passiveHint}}</span>
             </div>
@@ -1407,15 +1412,15 @@
                 <i class="fas fa-arrow-up"></i> {{this.nextRankXpCost}} XP
               </button>
               {{/if}}
-              <button type="button" class="spec-edit" data-spec-id="{{this.id}}" title="Edit Specialization"><i class="fas fa-edit"></i></button>
-              <button type="button" class="spec-delete" data-spec-id="{{this.id}}" title="Delete Specialization"><i class="fas fa-trash"></i></button>
+              <button type="button" class="spec-edit" data-spec-id="{{this.id}}" title="Edit Profession"><i class="fas fa-edit"></i></button>
+              <button type="button" class="spec-delete" data-spec-id="{{this.id}}" title="Delete Profession"><i class="fas fa-trash"></i></button>
             </div>
             {{/if}}
           </div>
           {{/each}}
         </div>
         {{else}}
-        <p class="stat-summary-hint specializations-empty">No Specializations yet. Starting characters pick five Rank&nbsp;2 Specializations (20 Creation Points).</p>
+        <p class="stat-summary-hint specializations-empty">No Professions yet. Starting characters pick four Rank&nbsp;2 Professions. Perception Rank&nbsp;2 is free.</p>
         {{/if}}
 
         {{#if creationComplete}}{{#unless skillsRedistributing}}

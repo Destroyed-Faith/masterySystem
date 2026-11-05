@@ -5,7 +5,7 @@
  * Skills are NOT written here: the legacy fixed-skill ratings are left untouched.
  */
 import { type EchoImprintAttribute } from '../../rules/echo-imprints.js';
-import { type SkillField, type SpecializationRecord } from '../../rules/specializations.js';
+import { type SpecializationRecord } from '../../rules/specializations.js';
 import { type AttributeKeyName } from '../../progression/v099-rules.js';
 import { type TowerWizardIdentityContext } from './tower-wizard-validation.js';
 import type { TowerWizardSelection } from './tower-wizard-types.js';
@@ -53,21 +53,16 @@ export declare function buildWizardImprintGroups(selection: Partial<TowerWizardS
 export interface WizardSpecRow {
     index: number;
     name: string;
-    field: SkillField;
+    origin: string;
     scope: string;
     rank: number;
-    fieldOptions: Array<{
-        value: SkillField;
-        label: string;
-        selected: boolean;
-    }>;
 }
-/** Always returns five editable rows (Rank 2 each), padded from the current draft. */
+/** Always returns four editable rows (Rank 2 each), padded from the current draft. */
 export declare function buildWizardSpecRows(selection: Partial<TowerWizardSelection>): WizardSpecRow[];
-/** Normalize draft rows into Rank-2 records; drops fully blank rows. */
+/** Normalize draft rows into Rank-2 Profession records; drops fully blank rows. */
 export declare function specRecordsFromDraft(rows: Array<{
     name?: string;
-    field?: string;
+    origin?: string;
     scope?: string;
 }>): SpecializationRecord[];
 /** Read the actor's existing identity data so the dialog opens pre-filled. */

@@ -88,8 +88,9 @@ export class RitualWorkshopController {
   taskLevel = 3;
   gmMod = 0;
   attributeKey: PoolAttr = POOL_ATTRS[0];
-  /** Selected Specialization key ('' = none). */
+  /** Selected Profession key ('' = none). No Profession does not impose untrained Disadvantage. */
   specKey = '';
+  declareTrainingCrit = false;
   placed: string[] = [];
   uiScrollTop = 0;
   private onRefresh: () => void | Promise<void>;
@@ -283,6 +284,7 @@ export class RitualWorkshopController {
         : null,
       approach: this.approach,
       approachChips,
+      declareTrainingCrit: this.declareTrainingCrit,
       taskLevel: this.taskLevel,
       gmMod: this.gmMod,
       namedTier: this.namedTier,
@@ -398,8 +400,13 @@ export class RitualWorkshopController {
 
     root.querySelector('.js-rw-spec')?.addEventListener('change', (ev) => {
       this.specKey = (ev.target as HTMLSelectElement).value;
+      if (!this.specKey) this.declareTrainingCrit = false;
       this.#trimPlacedToCost();
       refresh();
+    });
+
+    root.querySelector('.js-rw-training-crit')?.addEventListener('change', (ev) => {
+      this.declareTrainingCrit = !!(ev.target as HTMLInputElement).checked;
     });
 
     root.querySelector('.js-rw-attr')?.addEventListener('change', (ev) => {
@@ -460,6 +467,7 @@ export class RitualWorkshopController {
       genericRaises: this.genericRaises,
       gmMod: this.gmMod,
       placedAttrs: [...this.placed],
+      declareTrainingCrit: this.declareTrainingCrit && !!spec,
     });
     this.placed = [];
     await this.onRefresh();

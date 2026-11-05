@@ -10,8 +10,8 @@ import {
 } from '../src/rules/index.js';
 
 const paidSpecs = (): SpecializationRecord[] =>
-  ['Lockpicking', 'Athletics', 'Stealth', 'Persuasion', 'Alchemy'].map((name, i) => {
-    const field = (['finesse', 'physical', 'finesse', 'social', 'science-craft'] as const)[i]!;
+  ['Lockpicking', 'Athletics', 'Persuasion', 'Alchemy'].map((name, i) => {
+    const field = (['finesse', 'physical', 'social', 'science-craft'] as const)[i]!;
     return {
       id: specializationIdentityKey(name, field),
       name,
@@ -25,7 +25,7 @@ describe('Character free Perception Spec', () => {
   it('seeds Perception Rank 2 when missing', () => {
     const first = ensureCharacterHasPerceptionSpec({ specializations: paidSpecs() });
     expect(first.changed).toBe(true);
-    expect(first.specializations).toHaveLength(6);
+    expect(first.specializations).toHaveLength(5);
     const perc = first.specializations.find((s) => isCharacterPerceptionSpec(s));
     expect(perc).toMatchObject({
       id: CHARACTER_PERCEPTION_SPEC_ID,
@@ -71,26 +71,26 @@ describe('Character free Perception Spec', () => {
     expect(out.specializations.find((s) => s.name === 'Perception')?.rank).toBe(4);
   });
 
-  it('starting budget ignores free Perception (5 paid + Perception ok)', () => {
-    const five = paidSpecs();
-    expect(validateSpecializationList(five, { requireStartingBudget: true }).ok).toBe(true);
+  it('starting budget ignores free Perception (4 Professions + Perception ok)', () => {
+    const four = paidSpecs();
+    expect(validateSpecializationList(four, { requireStartingBudget: true }).ok).toBe(true);
 
     const withPerception = ensureCharacterHasPerceptionSpec({
-      specializations: five,
+      specializations: four,
     }).specializations;
-    expect(withPerception).toHaveLength(6);
+    expect(withPerception).toHaveLength(5);
     expect(validateSpecializationList(withPerception, { requireStartingBudget: true }).ok).toBe(
       true,
     );
   });
 
-  it('starting budget still requires five paid Specs', () => {
-    const four = paidSpecs().slice(0, 4);
+  it('starting budget still requires four paid Professions', () => {
+    const three = paidSpecs().slice(0, 3);
     const withPerception = ensureCharacterHasPerceptionSpec({
-      specializations: four,
+      specializations: three,
     }).specializations;
     const check = validateSpecializationList(withPerception, { requireStartingBudget: true });
     expect(check.ok).toBe(false);
-    expect(check.errors[0]).toMatch(/exactly five/i);
+    expect(check.errors[0]).toMatch(/exactly 4/i);
   });
 });

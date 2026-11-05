@@ -258,9 +258,21 @@ export async function promptSkillCheckRollDialog(opts) {
       <div class="md-group ms-sc-crit-group" hidden>
         <label class="md-label ms-sc-crit-check-label">
           <input type="checkbox" name="declareSkillCrit" class="ms-sc-crit-check" />
-          ${masteryLocalize('MASTERY.df2026.skillCheck.skillCrit', 'Declare Skill Crit (explode on 7–8)')}
+          ${masteryLocalize('MASTERY.df2026.skillCheck.skillCrit', 'Declare Training Crit (explode on 7–8)')}
         </label>
         <small class="md-sublabel ms-sc-crit-remaining"></small>
+      </div>
+      <div class="md-group">
+        <label class="md-label">
+          <input type="checkbox" name="physicalAttempt" />
+          Physical attempt (armor and shield penalty)
+        </label>
+      </div>
+      <div class="md-group">
+        <label class="md-label">
+          <input type="checkbox" name="concealmentAttempt" />
+          Concealment attempt
+        </label>
       </div>
       ${paidBlock}
       ${mathBlock}
@@ -337,10 +349,14 @@ export async function promptSkillCheckRollDialog(opts) {
                 nextSource.skill = skill;
             }
             const declareSkillCrit = !!root?.querySelector('[name="declareSkillCrit"]')?.checked;
+            const physicalAttempt = !!root?.querySelector('[name="physicalAttempt"]')?.checked;
+            const concealmentAttempt = !!root?.querySelector('[name="concealmentAttempt"]')?.checked;
             return {
                 actorId: String(actor?.id ?? ''),
                 paidRaises: paid,
                 declareSkillCrit,
+                physicalAttempt,
+                concealmentAttempt,
                 skill,
                 attributeKey: nextSource.attributeKey,
                 baseTn: isComparative ? 0 : nextSource.baseTn,

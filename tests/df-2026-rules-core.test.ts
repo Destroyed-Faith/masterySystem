@@ -75,20 +75,19 @@ describe('Skill Raises', () => {
     expect(passiveSkillSucceeds(8, 20)).toBe(false);
   });
 
-  it('starting budget is five Rank-2 Specializations / 20 Creation Points', () => {
-    expect(STARTING_SPECIALIZATION_COUNT).toBe(5);
+  it('starting budget is four Rank-2 Professions and free Perception', () => {
+    expect(STARTING_SPECIALIZATION_COUNT).toBe(4);
     expect(STARTING_SPECIALIZATION_RANK).toBe(2);
-    expect(SKILL_CREATION_POINTS).toBe(20);
+    expect(SKILL_CREATION_POINTS).toBe(0);
     const ok = validateSpecializationList(
-      Array.from({ length: 5 }, (_, i) => ({
-        name: `Spec ${i}`,
-        field: 'physical',
+      Array.from({ length: 4 }, (_, i) => ({
+        name: `Profession ${i}`,
+        origin: 'Learned it.',
         scope: 'test',
         rank: 2,
       })),
       { requireStartingBudget: true },
     );
-    // duplicate field+name normalized differently — Spec 0..4 are unique
     expect(ok.ok).toBe(true);
   });
 });

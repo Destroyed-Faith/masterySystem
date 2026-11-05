@@ -2,7 +2,8 @@
  * Specializations dialogs for the character sheet (DF Players Guide 2026-10-23).
  * Add / Edit / Delete a free-named Specialization and the pre-roll option picker.
  */
-import { PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, SPECIALIZATION_FIELD_EXAMPLES, SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, isSkillField, readSpecializations, removeSpecialization, specializationIdentityKey, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { PROFESSION_CATALOGUE, PROFESSION_CATALOGUE_CATEGORIES, } from '../rules/profession-catalogue.js';
+import { SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, professionIdentityKey, readSpecializations, removeSpecialization, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 function escapeHtml(value) {
     return String(value ?? '')
@@ -38,7 +39,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     const fixedStartingRank = !!opts.fixedStartingRank;
     const paidSpecCount = specs.filter((s) => !isCharacterPerceptionSpec(s)).length;
     if (fixedStartingRank && !existing && paidSpecCount >= STARTING_SPECIALIZATION_COUNT) {
-        globalThis.ui?.notifications?.warn?.(masteryLocalize('MASTERY.df2026.creation.finalizeNeedSpecs', `Starting characters pick exactly ${STARTING_SPECIALIZATION_COUNT} Rank ${STARTING_SPECIALIZATION_RANK} Specializations.`));
+        globalThis.ui?.notifications?.warn?.(masteryLocalize('MASTERY.df2026.creation.finalizeNeedSpecs', `Starting characters pick exactly ${STARTING_SPECIALIZATION_COUNT} Rank ${STARTING_SPECIALIZATION_RANK} Professions.`));
         return false;
     }
     const learnWithXp = !!opts.learnWithXp && !existing;
@@ -46,37 +47,45 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     const startRank = fixedStartingRank
         ? STARTING_SPECIALIZATION_RANK
         : (existing?.rank ?? 1);
-    const fieldOptions = PAID_SKILL_FIELDS.map((f) => `<option value="${f}" ${existing?.field === f ? 'selected' : ''}>${escapeHtml(SKILL_FIELD_LABELS[f])}</option>`).join('');
+    const exampleOptions = PROFESSION_CATALOGUE.map((ex) => `<option value="${escapeHtml(ex.name)}" data-name="${escapeHtml(ex.name)}" data-category="${escapeHtml(ex.category)}" data-scope="${escapeHtml(ex.scope_example)}">${escapeHtml(ex.category)} — ${escapeHtml(ex.name)}</option>`).join('');
+    const categoryOptions = PROFESSION_CATALOGUE_CATEGORIES.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
     const rankBlock = fixedStartingRank
         ? `<div class="md-group">
         <label class="md-label">${masteryLocalize('MASTERY.df2026.specializations.rank', 'Rank')}</label>
-        <p class="md-sublabel">Rank ${STARTING_SPECIALIZATION_RANK} — ${masteryLocalize('MASTERY.df2026.creation.specsHeaderTitle', 'five Rank 2 at creation (20 Creation Points)')}</p>
+        <p class="md-sublabel">Rank ${STARTING_SPECIALIZATION_RANK} — ${masteryLocalize('MASTERY.df2026.creation.specsHeaderTitle', 'four Rank 2 Professions (Perception is free)')}</p>
         <input type="hidden" name="rank" value="${STARTING_SPECIALIZATION_RANK}" />
       </div>`
         : `<div class="md-group">
         <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'})</span></label>
         <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${allowRankEdit ? '' : 'disabled'} />
       </div>`;
-    const exampleOptions = PAID_SKILL_FIELDS.flatMap((f) => (SPECIALIZATION_FIELD_EXAMPLES[f] ?? []).map((ex) => `<option value="${escapeHtml(f)}::${escapeHtml(ex.name)}" data-field="${escapeHtml(f)}" data-name="${escapeHtml(ex.name)}" data-scope="${escapeHtml(ex.scope)}">${escapeHtml(SKILL_FIELD_LABELS[f])} — ${escapeHtml(ex.name)}</option>`)).join('');
     const content = `
     <form class="mastery-dialog-form spec-edit-form">
       <div class="md-group">
-        <label class="md-label">Example <span class="md-sublabel">(optional — fills name, Field, and scope)</span></label>
+        <label class="md-label">Suggestions <span class="md-sublabel">(${PROFESSION_CATALOGUE.length} examples in ${PROFESSION_CATALOGUE_CATEGORIES.length} categories — optional, not a closed list)</span></label>
+        <div class="spec-suggestion-filters">
+          <select name="exampleCategory" class="md-select js-spec-example-category">
+            <option value="">All categories</option>
+            ${categoryOptions}
+          </select>
+          <input type="search" name="exampleSearch" class="md-input js-spec-example-search" placeholder="Search names and descriptions" />
+        </div>
         <select name="example" class="md-select js-spec-example">
-          <option value="">— Free name —</option>
+          <option value="">— Custom name —</option>
           ${exampleOptions}
         </select>
+        <p class="md-sublabel js-spec-example-preview">Pick a suggestion to preview its example scope. Your own scope stays editable.</p>
       </div>
       <div class="md-group">
-        <label class="md-label">Name <span class="md-sublabel">(free-named, e.g. Lockpicking)</span></label>
+        <label class="md-label">Name <span class="md-sublabel">(occupation, apprenticeship, or life path)</span></label>
         <input type="text" name="name" class="md-input" value="${escapeHtml(existing?.name ?? '')}" maxlength="60" />
       </div>
       <div class="md-group">
-        <label class="md-label">Field</label>
-        <select name="field" class="md-select">${fieldOptions}</select>
+        <label class="md-label">Origin <span class="md-sublabel">(how this was learned)</span></label>
+        <input type="text" name="origin" class="md-input" value="${escapeHtml(existing?.origin ?? '')}" maxlength="160" />
       </div>
       <div class="md-group">
-        <label class="md-label">Scope <span class="md-sublabel">(one sentence)</span></label>
+        <label class="md-label">Scope <span class="md-sublabel">(one sentence, agreed with the GM)</span></label>
         <input type="text" name="scope" class="md-input" value="${escapeHtml(existing?.scope ?? '')}" maxlength="200" />
       </div>
       ${rankBlock}
@@ -100,34 +109,42 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                     callback: async (html) => {
                         const root = rootOf(html);
                         const name = readValue(root, 'name').trim();
-                        const fieldRaw = readValue(root, 'field');
+                        const origin = readValue(root, 'origin').trim();
                         const scope = readValue(root, 'scope').trim();
                         const rank = fixedStartingRank
                             ? STARTING_SPECIALIZATION_RANK
                             : allowRankEdit
                                 ? Math.floor(Number(readValue(root, 'rank')) || 0)
                                 : (existing?.rank ?? 1);
-                        if (!isSkillField(fieldRaw) || fieldRaw === 'perception') {
-                            globalThis.ui?.notifications?.warn?.('Choose a Field.');
+                        if (!name) {
+                            globalThis.ui?.notifications?.warn?.('Name the Profession.');
+                            return done(false);
+                        }
+                        if (!origin) {
+                            globalThis.ui?.notifications?.warn?.('Record how this Profession was learned.');
                             return done(false);
                         }
                         if (isCharacterPerceptionSpec({ name })) {
-                            globalThis.ui?.notifications?.warn?.('Perception is free for every character — it is not one of the five Specializations.');
+                            globalThis.ui?.notifications?.warn?.('Perception is free for every character — it is not one of the four Professions.');
                             return done(false);
                         }
-                        const field = fieldRaw;
                         const record = {
-                            id: specializationIdentityKey(name, field),
+                            id: existing?.id && existing.id.startsWith('profession:')
+                                ? professionIdentityKey(name)
+                                : existing?.id || professionIdentityKey(name),
                             name,
-                            field,
+                            origin,
                             scope,
                             rank,
+                            ...(existing?.field ? { field: existing.field } : {}),
                         };
+                        if (!existing)
+                            record.id = professionIdentityKey(name);
                         if (learnWithXp) {
                             const { applySpecializationLearn } = await import('../progression/progression-hub-actions.js');
-                            const res = await applySpecializationLearn(actor, { name, field, scope });
+                            const res = await applySpecializationLearn(actor, { name, origin, scope });
                             if (!res.ok) {
-                                globalThis.ui?.notifications?.warn?.(res.error ?? 'Could not learn Specialization.');
+                                globalThis.ui?.notifications?.warn?.(res.error ?? 'Could not learn Profession.');
                                 return done(false);
                             }
                             return done(true);
@@ -149,21 +166,44 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
             render: (html) => {
                 const root = rootOf(html);
                 const exampleSelect = root?.querySelector('.js-spec-example');
+                const categorySelect = root?.querySelector('.js-spec-example-category');
+                const searchInput = root?.querySelector('.js-spec-example-search');
+                const preview = root?.querySelector('.js-spec-example-preview');
+                const applyFilter = () => {
+                    if (!exampleSelect)
+                        return;
+                    const category = String(categorySelect?.value || '');
+                    const query = String(searchInput?.value || '').trim().toLowerCase();
+                    for (const opt of Array.from(exampleSelect.options)) {
+                        if (!opt.value)
+                            continue;
+                        const matchesCategory = !category || opt.dataset.category === category;
+                        const haystack = `${opt.dataset.name ?? ''} ${opt.dataset.scope ?? ''}`.toLowerCase();
+                        const matchesQuery = !query || haystack.includes(query);
+                        opt.hidden = !(matchesCategory && matchesQuery);
+                    }
+                    const selected = exampleSelect.selectedOptions?.[0];
+                    if (selected?.hidden)
+                        exampleSelect.value = '';
+                };
+                categorySelect?.addEventListener('change', applyFilter);
+                searchInput?.addEventListener('input', applyFilter);
                 exampleSelect?.addEventListener('change', () => {
                     const opt = exampleSelect.selectedOptions?.[0];
-                    if (!opt?.value)
+                    if (!opt?.value) {
+                        if (preview)
+                            preview.textContent = 'Pick a suggestion to preview its example scope. Your own scope stays editable.';
                         return;
+                    }
                     const name = String(opt.dataset.name || '').trim();
-                    const field = String(opt.dataset.field || '').trim();
                     const scope = String(opt.dataset.scope || '').trim();
+                    if (preview)
+                        preview.textContent = scope ? `${name}: ${scope}` : name;
                     const nameEl = root?.querySelector('[name="name"]');
-                    const fieldEl = root?.querySelector('[name="field"]');
                     const scopeEl = root?.querySelector('[name="scope"]');
                     if (name && nameEl)
                         nameEl.value = name;
-                    if (isSkillField(field) && fieldEl)
-                        fieldEl.value = field;
-                    if (scope && scopeEl)
+                    if (scope && scopeEl && !scopeEl.value.trim())
                         scopeEl.value = scope;
                 });
             },
@@ -177,7 +217,7 @@ export async function deleteSpecializationWithConfirm(actor, specId) {
     if (!spec)
         return false;
     if (isCharacterPerceptionSpec(spec)) {
-        globalThis.ui?.notifications?.warn?.('Perception is a free universal Specialization and cannot be removed.');
+        globalThis.ui?.notifications?.warn?.('Perception is a free universal check and cannot be removed.');
         return false;
     }
     const Dialog = globalThis.Dialog;
@@ -216,7 +256,7 @@ export async function promptSpecializationRollOptions(actor, spec) {
             skill: skillRef,
         },
         lockGmFields: false,
-        title: spec ? `${spec.name} · Skill Check` : 'Untrained · Skill Check',
+        title: spec ? `${spec.name} · Training Check` : 'Untrained · Training Check',
     });
     if (!choice)
         return null;

@@ -7,20 +7,21 @@
     "df2026": {
       "creation": {
         "specsShortLabel": "Spez.",
-        "specsHeaderTitle": "Spezialisierungen — fünf Rang 2 bei der Erstellung (20 Erstellungspunkte)",
-        "bannerSpecs": "Lege genau fünf Spezialisierungen auf Rang 2 fest, bevor du die Erstellung abschließt.",
-        "finalizeNeedSpecs": "Schließe zuerst fünf Spezialisierungen auf Rang 2 ab.",
-        "legacySkillsRetired": "Die alte Fertigkeitsverteilung entfällt. Nutze Spezialisierungen (fünf Rang 2 bei der Erstellung).",
-        "legacyRedistributeRetired": "Die alte Fertigkeits-Umverteilung entfällt. Steigere Spezialisierungen mit EP (4 EP pro Rang)."
+        "specsHeaderTitle": "Berufe — vier auf Rang 2 (Wahrnehmung Rang 2 ist frei)",
+        "bannerSpecs": "Lege genau vier Berufe auf Rang 2 fest, bevor du die Erstellung abschließt.",
+        "finalizeNeedSpecs": "Schließe zuerst vier Berufe auf Rang 2 ab.",
+        "legacySkillsRetired": "Die alte Fertigkeitsverteilung entfällt. Nutze Berufe (vier auf Rang 2 bei der Erstellung).",
+        "legacyRedistributeRetired": "Die alte Fertigkeits-Umverteilung entfällt. Steigere Berufe mit EP."
       },
       "specializations": {
-        "title": "Spezialisierungen",
-        "add": "Spezialisierung hinzufügen",
-        "edit": "Spezialisierung bearbeiten",
-        "delete": "Spezialisierung löschen",
+        "title": "Berufe",
+        "add": "Beruf hinzufügen",
+        "edit": "Beruf bearbeiten",
+        "delete": "Beruf löschen",
         "rankUp": "Einen Rang für {cost} EP steigern",
         "untrainedRoll": "Ungeübter Wurf",
-        "field": "Feld",
+        "field": "Herkunft",
+        "origin": "Herkunft",
         "scope": "Anwendungsbereich",
         "rank": "Rang",
         "raisePaid": "Bezahlte Raises",
@@ -64,7 +65,7 @@
         "save": "Speichern"
       },
       "progression": {
-        "specializationsSection": "Spezialisierungen",
+        "specializationsSection": "Berufe",
         "rankUpXp": "+ {cost} EP"
       },
       "archive": {
@@ -604,7 +605,7 @@
         "nav": "Charakterbogen-Bereiche",
         "attributes": "Attribute",
         "echo": "Echo",
-        "skills": "Spezialisierungen",
+        "skills": "Berufe",
         "powers": "Powers",
         "equipment": "Equipment",
         "disadvantages": "Nachteile",

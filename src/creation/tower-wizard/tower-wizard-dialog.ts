@@ -2,6 +2,7 @@
  * Tower Wizard — guided combat package dialog.
  */
 
+import { PROFESSION_CATALOGUE, PROFESSION_CATALOGUE_CATEGORIES } from '../../rules/profession-catalogue.js';
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY, localizedTowerWizardCopy } from './tower-wizard-copy.js';
 import {
@@ -388,6 +389,16 @@ export class TowerWizardDialog extends BaseDialog {
             warnings,
             validationError,
             identity: identityView,
+            professionSuggestions: this.step === 'specializations'
+                ? PROFESSION_CATALOGUE.map((entry) => ({
+                    name: entry.name,
+                    category: entry.category,
+                    scope: entry.scope_example,
+                }))
+                : [],
+            professionCategories: this.step === 'specializations' ? [...PROFESSION_CATALOGUE_CATEGORIES] : [],
+            professionSuggestionCount: PROFESSION_CATALOGUE.length,
+            professionCategoryCount: PROFESSION_CATALOGUE_CATEGORIES.length,
             isEcho: this.step === 'echo',
             isAttributesStones: this.step === 'attributesStones',
             isEchoImprints: this.step === 'echoImprints',
@@ -806,13 +817,51 @@ export class TowerWizardDialog extends BaseDialog {
             this.#recordEarlyChange('imprints');
         });
 
+        const filterSuggestionRow = (row: JQuery) => {
+            const category = String(row.find('.js-tw-spec-category').val() || '');
+            const query = String(row.find('.js-tw-spec-search').val() || '').trim().toLowerCase();
+            const select = row.find('.js-tw-spec-suggestion');
+            select.find('option').each((_i, el) => {
+                const opt = el as HTMLOptionElement;
+                if (!opt.value) return;
+                const matchesCategory = !category || opt.dataset.category === category;
+                const haystack = `${opt.value} ${opt.dataset.scope ?? ''}`.toLowerCase();
+                const matchesQuery = !query || haystack.includes(query);
+                opt.hidden = !(matchesCategory && matchesQuery);
+            });
+            const selected = (select.get(0) as HTMLSelectElement | undefined)?.selectedOptions?.[0];
+            if (selected?.hidden) select.val('');
+        };
+        root.find('.js-tw-spec-category').on('change', (ev) => {
+            filterSuggestionRow($(ev.currentTarget).closest('.js-tw-spec-row'));
+        });
+        root.find('.js-tw-spec-search').on('input', (ev) => {
+            filterSuggestionRow($(ev.currentTarget).closest('.js-tw-spec-row'));
+        });
+
+        root.find('.js-tw-spec-suggestion').on('change', (ev) => {
+            const select = $(ev.currentTarget);
+            const opt = select.find('option:selected');
+            const name = String(opt.val() || '');
+            const scope = String(opt.data('scope') || '');
+            const row = select.closest('.js-tw-spec-row');
+            row.find('.js-tw-spec-preview').text(
+                name ? (scope ? `${name}: ${scope}` : name) : 'Pick a suggestion to preview its example scope.',
+            );
+            if (name) row.find('[data-prop="name"]').val(name);
+            if (scope && !String(row.find('[data-prop="scope"]').val() || '').trim()) {
+                row.find('[data-prop="scope"]').val(scope);
+            }
+            row.find('.js-tw-spec-input').trigger('change');
+        });
+
         root.find('.js-tw-spec-input').on('change input', () => {
-            const rows: Array<{ name?: string; field?: string; scope?: string }> = [];
+            const rows: Array<{ name?: string; origin?: string; scope?: string }> = [];
             root.find('.js-tw-spec-row').each((_i, el) => {
                 const row = $(el);
                 rows.push({
                     name: String(row.find('[data-prop="name"]').val() ?? ''),
-                    field: String(row.find('[data-prop="field"]').val() ?? ''),
+                    origin: String(row.find('[data-prop="origin"]').val() ?? ''),
                     scope: String(row.find('[data-prop="scope"]').val() ?? ''),
                 });
             });

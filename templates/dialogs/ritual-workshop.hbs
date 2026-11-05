@@ -86,12 +86,16 @@
         <label class="rw-field">{{localize "MASTERY.df2026.rituals.genericRaises"}}
           <input type="number" class="js-rw-generic" min="0" max="{{maxGenericRaises}}" step="1" value="{{genericRaises}}"  name="ms-js-rw-generic" form="ms-ui-only"/>
         </label>
-        <label class="rw-field">{{localize "MASTERY.df2026.rituals.specialization"}}
+        <label class="rw-field">Profession
           <select class="js-rw-spec" name="ms-js-rw-spec" form="ms-ui-only">
             {{#each specOptions}}
             <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
+        </label>
+        <label class="rw-field">
+          <input type="checkbox" class="js-rw-training-crit" name="ms-js-rw-training-crit" form="ms-ui-only" {{#if declareTrainingCrit}}checked{{/if}} />
+          Training Crit
         </label>
         <label class="rw-field">Attribute
           <select class="js-rw-attr" name="ms-js-rw-attr" form="ms-ui-only">

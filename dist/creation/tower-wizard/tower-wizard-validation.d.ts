@@ -5,8 +5,8 @@ import type { PackagePowerOverride, TowerWizardAttributeMap, TowerWizardSelectio
 import type { TowerWizardEchoContext } from './tower-wizard-echo-advisor.js';
 /** Starting Attribute Stones (permanent; independent of Attribute scores). */
 export declare const TOWER_WIZARD_STARTING_STONES: number;
-/** Starting Specializations: five at Rank 2 (20 Creation Points). */
-export declare const TOWER_WIZARD_STARTING_SPECIALIZATIONS = 5;
+/** Starting Professions: four at Rank 2. Perception is free and not one of the four. */
+export declare const TOWER_WIZARD_STARTING_SPECIALIZATIONS = 4;
 /** Standard starting Mastery Rank. */
 export declare const TOWER_WIZARD_DEFAULT_MASTERY_RANK = 2;
 export interface TowerWizardIdentityContext {

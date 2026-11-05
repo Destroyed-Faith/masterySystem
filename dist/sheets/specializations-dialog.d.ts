@@ -11,7 +11,7 @@ export declare function showSpecializationEditDialog(actor: any, opts?: {
     learnWithXp?: boolean;
     /**
      * Character creation / migration starter: Rank is fixed at 2, no Rank picker.
-     * Adding is capped at five Specs.
+     * Adding is capped at four Professions.
      */
     fixedStartingRank?: boolean;
 }): Promise<boolean>;

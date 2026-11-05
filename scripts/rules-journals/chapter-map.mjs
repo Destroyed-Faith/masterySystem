@@ -32,14 +32,14 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-core', journal: 'Character Creation', page: 'Attributes', start: /^## Attributes\s*$/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Starting Attributes', start: /^## Starting Attributes/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Attributes', start: /^## Example: Alaris Chooses Her Attributes/ },
-  { pack: 'rules-core', journal: 'Character Creation', page: 'Skills', start: /^## Skills\s*$/ },
+  { pack: 'rules-core', journal: 'Character Creation', page: 'Professions', start: /^## Professions and Training\s*$/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Choosing Powers', start: /^## Choose your Powers/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Powers', start: /^## Example: Alaris Chooses Her Powers/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Languages', start: /^## Choose a Language/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Schticks', start: /^## Schticks/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Languages and Schticks', start: /^## Example: Alaris Chooses Languages and Schticks/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Social Challenges', start: /^## Social Challenges\s*$/ },
-  { pack: 'rules-core', journal: 'Character Creation', page: 'Social Challenges — Worked Scenes', start: /^## Social Challenges - Worked Scenes/ },
+  { pack: 'rules-core', journal: 'Character Creation', page: 'Social Challenges — Worked Scenes', start: /^## Social Challenges [—-] Worked Scenes/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Disadvantages', start: /^## Disadvantages/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Example: Disadvantages', start: /^## Example: Alaris Chooses Disadvantages/ },
   { pack: 'rules-core', journal: 'Character Creation', page: 'Finished Character: Alaris', start: /^## The Finished Character: Alaris/ },
@@ -101,7 +101,7 @@ export const CHAPTER_SPECS = [
 
   // ── Advanced (GM-leaning) ───────────────────────────────────────
   { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Game System Details', start: /^## Game System Details/ },
-  { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Limited Power Modifier', start: /^## Limited Power Modifier/ },
+  { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Limited Damage Powers', start: /^## Limited Damage Powers/ },
 
   // ── Quick Reference (cheat sheets live in the PG appendix) ──────
   { pack: 'rules-quickref', journal: 'Player Cheat Sheets', page: 'Core Flow', start: /^#### \*\*Player Cheat Sheet: Core Flow\*\*/ },

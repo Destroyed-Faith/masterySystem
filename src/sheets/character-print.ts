@@ -84,8 +84,6 @@ import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
 import {
   DF_2026_RULES_SCHEMA_VERSION,
   ECHO_IMPRINT_MIN_ATTRIBUTE,
-  PAID_SKILL_FIELDS,
-  SKILL_FIELD_LABELS,
   SPECIALIZATION_MAX_RANK,
   echoImprintTierFromAttribute,
   findEchoImprint,
@@ -402,7 +400,7 @@ function buildPrintSkillRow(
 /** Pips printed per Specialization (Rank 1–8). */
 const PRINT_SPEC_PIPS = Array.from({ length: SPECIALIZATION_MAX_RANK }, (_, i) => i + 1);
 /** Write-in lines padded under the Specialization list (starting characters have five). */
-const PRINT_SPEC_MIN_ROWS = 5;
+const PRINT_SPEC_MIN_ROWS = 4;
 
 /** DF 2026 Specializations grouped by Field, with Rank pips and Raise allowance. */
 function buildPrintSpecializations(system: any): {
@@ -442,7 +440,7 @@ function buildPrintSpecializations(system: any): {
     specs.push({
       id: 'perception-gifted',
       name: 'Perception',
-      field: 'investigation',
+      field: 'perception',
       scope: 'Notice, search, and read the scene',
       rank,
     } as any);
@@ -460,14 +458,16 @@ function buildPrintSpecializations(system: any): {
     };
   };
   // Perception is elevated above Spec groups (same R·paid / pips row as Specs).
-  const groups = PAID_SKILL_FIELDS.map((field) => ({
-    key: field,
-    label: SKILL_FIELD_LABELS[field],
-    specs: specs
-      .filter((s) => s.field === field && !isCharacterPerceptionSpec(s))
-      .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
-      .map((s) => mapSpec(s)),
-  })).filter((g) => g.specs.length > 0);
+  const paid = specs
+    .filter((s) => !isCharacterPerceptionSpec(s))
+    .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name))
+    .map((s) => ({
+      ...mapSpec(s),
+      scope: [s.origin, s.scope].filter((part) => String(part || '').trim()).join(' — ') || s.scope,
+    }));
+  const groups = paid.length
+    ? [{ key: 'professions', label: 'Professions', specs: paid }]
+    : [];
   const perceptionSpec = specs.find((s) => isCharacterPerceptionSpec(s));
   const perceptionSpecialization = perceptionSpec
     ? mapSpec(perceptionSpec, perceptionSpec.id === 'perception-gifted')

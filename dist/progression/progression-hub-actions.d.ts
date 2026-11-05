@@ -111,10 +111,10 @@ export declare function applySpecializationRankUp(actor: Actor, specId: string):
     error?: string;
     newRank?: number;
 }>;
-/** Learn a new Specialization at Rank 1 (4 XP). */
+/** Learn a new Profession at Rank 1 (4 XP). */
 export declare function applySpecializationLearn(actor: Actor, input: {
     name: string;
-    field: string;
+    origin?: string;
     scope: string;
 }): Promise<{
     ok: boolean;

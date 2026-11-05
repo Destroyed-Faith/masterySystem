@@ -2,6 +2,8 @@
  * Core Ritual TN / Stone costs — DF Players Guide 2026-10-23.
  */
 
+import { skillAdvantageRerollMax } from './skill-advantage.js';
+
 /** Base Ritual TN = 4 × max(3, taskLevel). Minimum 12. */
 export function ritualBaseTn(taskLevel: number): number {
   const level = Math.max(3, Math.floor(Number(taskLevel) || 3));
@@ -30,6 +32,18 @@ export const RITUAL_MAX_NAMED_TIER = 4;
  */
 export function ritualFreeRaisesFromSpecialization(_rank: number): number {
   return 0;
+}
+
+/** A fitting Profession supplies Training Advantage. No Profession does not impose untrained Disadvantage. */
+export function ritualTrainingModifiers(rank: number): {
+  rollDisadvantage: false;
+  skillAdvantageRerollMax: number;
+} {
+  const trained = Math.max(0, Math.floor(Number(rank) || 0));
+  return {
+    rollDisadvantage: false,
+    skillAdvantageRerollMax: trained > 0 ? skillAdvantageRerollMax(trained) : 0,
+  };
 }
 
 export interface RitualRaisePlan {

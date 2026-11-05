@@ -12,13 +12,15 @@ export interface PerformRitualRollOptions {
     taskLevel: number;
     /** Free-text description of how the Ritual is performed. */
     approach?: string;
-    /** Optional relevant Specialization — contributes Free Raises by Rank. */
+    /** Optional relevant Profession — Training Advantage and optional Training Crit. No Profession does not impose untrained Disadvantage. */
     specialization?: {
         id?: string;
         name: string;
         field?: string;
         rank: number;
     } | null;
+    /** Spend one Training Crit use before the roll when a fitting Profession is selected. */
+    declareTrainingCrit?: boolean;
     /** Named tier 0–4 (Seal Passage Tier 4 = open-passage mode). */
     namedTier: number;
     /** Additional generic Raises beyond the named tier. */

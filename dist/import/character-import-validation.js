@@ -146,7 +146,7 @@ function validateSpecsAndImprints(opts) {
         }
     }
     else if (opts.requireStartingBudget) {
-        errors.push('Starting characters need exactly five Specializations at Rank 2.');
+        errors.push('Starting characters need exactly four Professions at Rank 2.');
     }
     if (opts.echoImprints !== undefined && opts.echoImprints !== null) {
         if (!Array.isArray(opts.echoImprints)) {

@@ -5,7 +5,7 @@
  * Skills are NOT written here: the legacy fixed-skill ratings are left untouched.
  */
 import { ECHO_IMPRINTS, ECHO_IMPRINT_MIN_ATTRIBUTE, echoImprintTierFromAttribute, } from '../../rules/echo-imprints.js';
-import { PAID_SKILL_FIELDS, SKILL_FIELD_LABELS, isSkillField, specializationIdentityKey, } from '../../rules/specializations.js';
+import { professionIdentityKey, } from '../../rules/specializations.js';
 import { readSpecializations } from '../../rules/specialization-roll.js';
 import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE, startingPackageIsValid, } from '../../progression/v099-rules.js';
 import { TOWER_WIZARD_STARTING_SPECIALIZATIONS, TOWER_WIZARD_STARTING_STONES, resolveWizardMasteryRank, wizardStoneCap, } from './tower-wizard-validation.js';
@@ -80,37 +80,36 @@ export function buildWizardImprintGroups(selection, ctx = {}) {
         };
     });
 }
-/** Always returns five editable rows (Rank 2 each), padded from the current draft. */
+/** Always returns four editable rows (Rank 2 each), padded from the current draft. */
 export function buildWizardSpecRows(selection) {
-    const specs = selection.specializations ?? [];
+    const specs = (selection.specializations ?? []).filter((spec) => String(spec.name || '').trim().toLowerCase() !== 'perception');
     return Array.from({ length: TOWER_WIZARD_STARTING_SPECIALIZATIONS }, (_, index) => {
         const spec = specs[index];
-        const field = isSkillField(spec?.field) ? spec.field : 'physical';
         return {
-            index,
+            index: index + 1,
             name: spec?.name ?? '',
-            field,
+            origin: spec?.origin ?? '',
             scope: spec?.scope ?? '',
             rank: 2,
-            fieldOptions: PAID_SKILL_FIELDS.map((f) => ({
-                value: f,
-                label: SKILL_FIELD_LABELS[f],
-                selected: f === field,
-            })),
         };
     });
 }
-/** Normalize draft rows into Rank-2 records; drops fully blank rows. */
+/** Normalize draft rows into Rank-2 Profession records; drops fully blank rows. */
 export function specRecordsFromDraft(rows) {
     const out = [];
     for (const row of rows) {
         const name = String(row.name ?? '').trim();
+        const origin = String(row.origin ?? '').trim();
         const scope = String(row.scope ?? '').trim();
-        if (!name && !scope)
+        if (!name && !origin && !scope)
             continue;
-        const rawField = String(row.field ?? '');
-        const field = isSkillField(rawField) && rawField !== 'perception' ? rawField : 'physical';
-        out.push({ id: specializationIdentityKey(name, field), name, field, scope, rank: 2 });
+        out.push({
+            id: professionIdentityKey(name || 'profession'),
+            name,
+            origin,
+            scope,
+            rank: 2,
+        });
     }
     return out;
 }
@@ -169,11 +168,12 @@ export function buildIdentityUpdateData(selection) {
         data['system.echoImprints'] = [...new Set(selection.echoImprintIds)];
     if (selection.specializations) {
         data['system.specializations'] = selection.specializations.map((s) => ({
-            id: s.id || specializationIdentityKey(s.name, s.field),
+            id: s.id || professionIdentityKey(s.name),
             name: String(s.name).trim(),
-            field: s.field,
+            origin: String(s.origin ?? '').trim(),
             scope: String(s.scope).trim(),
             rank: Math.floor(Number(s.rank) || 2),
+            ...(s.field ? { field: s.field } : {}),
         }));
     }
     return data;

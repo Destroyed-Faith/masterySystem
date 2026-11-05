@@ -13,6 +13,11 @@ export declare const RITUAL_MAX_NAMED_TIER = 4;
  * Skill Free Raise progression is retired — always 0 from Spec Rank.
  */
 export declare function ritualFreeRaisesFromSpecialization(_rank: number): number;
+/** A fitting Profession supplies Training Advantage. No Profession does not impose untrained Disadvantage. */
+export declare function ritualTrainingModifiers(rank: number): {
+    rollDisadvantage: false;
+    skillAdvantageRerollMax: number;
+};
 export interface RitualRaisePlan {
     namedTier: number;
     genericRaises: number;

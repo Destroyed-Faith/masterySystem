@@ -62,13 +62,19 @@ write('creation-rules.json', {
   defaultMasteryRank: 2,
 });
 
-// --- Specialization Fields --------------------------------------------------
+// --- Profession catalogue (suggestions only) -------------------------------
+const professions = await import('../dist/rules/profession-catalogue.js');
+write('profession-catalogue.json', {
+  notClosedList: professions.PROFESSION_CATALOGUE_NOT_CLOSED_LIST,
+  entries: professions.PROFESSION_CATALOGUE,
+});
+
+// --- Legacy field labels (no longer a creation whitelist) ------------------
 const specializations = await import('../dist/rules/specializations.js');
 write('specialization-fields.json', {
   fields: specializations.SKILL_FIELDS,
   labels: specializations.SKILL_FIELD_LABELS,
-  /** Inspiration only — free-named Specs; eight examples per Field with job-style scopes. */
-  examples: specializations.SPECIALIZATION_FIELD_EXAMPLES,
+  examples: {},
 });
 
 // --- Echo Imprints ----------------------------------------------------------

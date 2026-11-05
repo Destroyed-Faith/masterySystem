@@ -708,6 +708,18 @@
   color: inherit;
 }
 
+.tower-wizard-spec-filters {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 2fr;
+  gap: 8px;
+}
+
+.tower-wizard-spec-preview {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin: 0 0 8px;
+}
+
 .tower-wizard-checkbox {
   flex-direction: row;
   align-items: center;

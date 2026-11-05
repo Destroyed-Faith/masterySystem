@@ -2,7 +2,7 @@
  * GM/party Group Ambush dialog — pick specialist + participants, roll Stealth.
  */
 import { executeGroupAmbushStealthRoll, planGroupAmbushStealthPool, } from '../combat/group-ambush.js';
-import { getSkillCritUsesRemaining, skillCritDailyAllowance } from '../rules/index.js';
+import { getSkillCritUsesRemaining, isCharacterPerceptionSpec, readSpecializations, skillCritDailyAllowance } from '../rules/index.js';
 function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -27,11 +27,14 @@ export async function openGroupAmbushDialog() {
         .join('');
     const content = `
     <form class="mastery-dialog-form">
-      <p>One Stealth specialist rolls for the group. Combined Physical Skill penalties
-      from every participant reduce the pool. Compare the result against each observer's Perception.</p>
+      <p>One specialist rolls concealment for the group, using one chosen Profession or an untrained roll. Combined equipment penalties from every participant reduce the pool. There is no distance cutoff. Compare the result against each observer's Perception.</p>
       <div class="md-group">
-        <label class="md-label">Stealth specialist</label>
+        <label class="md-label">Specialist</label>
         <select name="specialist" class="md-select">${options}</select>
+      </div>
+      <div class="md-group">
+        <label class="md-label">Concealment Profession</label>
+        <select name="profession" class="md-select"><option value="">Untrained</option></select>
       </div>
       <div class="md-group">
         <label class="md-label">Participating characters (armor/shield penalties stack)</label>
@@ -54,7 +57,7 @@ export async function openGroupAmbushDialog() {
             buttons: {
                 roll: {
                     icon: '<i class="fas fa-user-secret"></i>',
-                    label: 'Roll Group Stealth',
+                    label: 'Roll Group Concealment',
                     callback: async (html) => {
                         const root = html?.[0] ?? html;
                         const specialistId = String(root.querySelector('[name="specialist"]')?.value || '');
@@ -76,9 +79,11 @@ export async function openGroupAmbushDialog() {
                                 perceptionTotal: total,
                             });
                         }
+                        const professionId = String(root.querySelector('[name="profession"]')?.value || '');
                         const res = await executeGroupAmbushStealthRoll({
                             specialist,
                             participants,
+                            professionId,
                             declareSkillCrit,
                             observerPerceptionTotals,
                         });
@@ -88,7 +93,7 @@ export async function openGroupAmbushDialog() {
                         }
                         const wins = (res.observerResults || []).filter((r) => r.stealthWins).length;
                         const totalObs = (res.observerResults || []).length;
-                        ui.notifications?.info(`Group Ambush Stealth total ${res.stealthTotal}` +
+                        ui.notifications?.info(`Group concealment total ${res.stealthTotal}` +
                             (totalObs
                                 ? ` · beats ${wins}/${totalObs} observer Perception check(s)`
                                 : ' · enter observer Perception totals to compare'));
@@ -104,7 +109,24 @@ export async function openGroupAmbushDialog() {
                     const specialist = characters.find((a) => a.id === specialistId);
                     const partIds = Array.from(root.querySelectorAll('[name="part"]:checked')).map((el) => el.value);
                     const participants = characters.filter((a) => partIds.includes(a.id));
-                    const plan = planGroupAmbushStealthPool({ specialist, participants });
+                    const professionSelect = root.querySelector('[name="profession"]');
+                    const previous = professionSelect?.value || '';
+                    const specs = readSpecializations(specialist?.system).filter((s) => !isCharacterPerceptionSpec(s));
+                    if (professionSelect) {
+                        professionSelect.innerHTML =
+                            `<option value="">Untrained</option>` +
+                                specs
+                                    .map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)} (Rank ${s.rank})</option>`)
+                                    .join('');
+                        if (Array.from(professionSelect.options).some((opt) => opt.value === previous)) {
+                            professionSelect.value = previous;
+                        }
+                    }
+                    const plan = planGroupAmbushStealthPool({
+                        specialist,
+                        participants,
+                        professionId: professionSelect?.value || '',
+                    });
                     const preview = root.querySelector('.ms-group-ambush-preview');
                     if (preview && plan.ok) {
                         const critAllow = skillCritDailyAllowance(plan.skillRank);

@@ -59,8 +59,8 @@ import {
 
 /** Starting Attribute Stones (permanent; independent of Attribute scores). */
 export const TOWER_WIZARD_STARTING_STONES = permanentStonesFromLifetimeXp(0);
-/** Starting Specializations: five at Rank 2 (20 Creation Points). */
-export const TOWER_WIZARD_STARTING_SPECIALIZATIONS = 5;
+/** Starting Professions: four at Rank 2. Perception is free and not one of the four. */
+export const TOWER_WIZARD_STARTING_SPECIALIZATIONS = 4;
 /** Standard starting Mastery Rank. */
 export const TOWER_WIZARD_DEFAULT_MASTERY_RANK = 2;
 
@@ -155,7 +155,7 @@ export function validateTowerWizardIdentity(
         if (!ctx.hasEcho && !String(selection.echoKey || '').trim()) errors.push('Choose your Echo.');
         if (!selection.attributeValues) errors.push('Assign your Attributes.');
         if (!selection.stoneAssignments) errors.push('Place your starting Stones.');
-        if (!selection.specializations) errors.push('Choose your five Specializations.');
+        if (!selection.specializations) errors.push('Choose your four Professions.');
     }
     errors.push(...validateWizardAttributesAndStones(selection, ctx));
     errors.push(...validateWizardEchoImprints(selection, ctx));

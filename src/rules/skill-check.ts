@@ -91,8 +91,12 @@ export interface SkillCheckDraft {
   actorId: string;
   /** Only player-chosen pre-roll values. */
   paidRaises: number;
-  /** Declare Skill Crit before the roll (consumes one daily charge when available). */
+  /** Declare Training Crit before the roll (consumes one daily charge when available). */
   declareSkillCrit?: boolean;
+  /** Physical Profession attempt: armor and shield dice penalties apply. */
+  physicalAttempt?: boolean;
+  /** Concealment approach. Stores the result for Hidden / Invisibility comparison. */
+  concealmentAttempt?: boolean;
   /**
    * Skill / Attribute / Base TN / task — mirrored for convenience; authoritative
    * values always come from `source` via `authoritativeCheckContext`.

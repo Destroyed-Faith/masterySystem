@@ -34,13 +34,15 @@ export declare function sumGroupPhysicalSkillPenalties(participants: any[]): {
     }>;
 };
 /**
- * Plan the group's single Stealth pool.
- * `attributeKey` defaults to Agility (typical Stealth); callers may override.
+ * Plan the group's single concealment roll.
+ * The specialist's Profession is chosen explicitly. With no Profession, the roll is untrained.
  */
 export declare function planGroupAmbushStealthPool(opts: {
     specialist: any;
     participants: any[];
     attributeKey?: string;
+    /** Chosen Profession on the specialist. Omitted = untrained concealment. */
+    professionId?: string | null;
 }): GroupAmbushPoolPlan;
 export interface GroupAmbushRollResult {
     ok: boolean;
@@ -63,6 +65,7 @@ export declare function executeGroupAmbushStealthRoll(opts: {
     specialist: any;
     participants: any[];
     attributeKey?: string;
+    professionId?: string | null;
     declareSkillCrit?: boolean;
     /** Precomputed Perception totals keyed by observer actor id. */
     observerPerceptionTotals: Array<{

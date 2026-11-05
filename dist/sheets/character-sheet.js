@@ -3,7 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
+import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, isLegacyFieldSpecialization, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
@@ -1152,7 +1152,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             specializationCount,
             specializationRank2Count,
             specializationsValid,
-            specializationBudgetHint: `${startingSpecCount}× Rank ${startingSpecRank} (20 Creation Points)`,
+            specializationBudgetHint: `${startingSpecCount}× Rank ${startingSpecRank} (Perception Rank 2 is free)`,
             attrCount4: count4,
             attrCount3: count3,
             attrCount2: count2,
@@ -2589,6 +2589,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.spec-edit', this.#onSpecializationEdit.bind(this));
         bindReliableControlClick(html, '.spec-delete', this.#onSpecializationDelete.bind(this));
         bindReliableControlClick(html, '.spec-rank-up', this.#onSpecializationRankUp.bind(this));
+        bindReliableControlClick(html, '.spec-map-professions', this.#onProfessionMapping.bind(this));
         bindReliableControlClick(html, '.safe-haven-rest', this.#onSafeHavenRest.bind(this));
         bindReliableControlClick(html, '.passive-regeneration-activate', this.#onPassiveRegeneration.bind(this));
         bindReliableControlClick(html, '.health-fallback-restoration', this.#onPassiveRegeneration.bind(this));
@@ -5776,6 +5777,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.specializationXpPerRank = null;
         context.specializationXpLadder = true;
         context.showSpecializationRankUp = isOwner && context.creationComplete !== false;
+        context.needsProfessionMapping = specs.some((spec) => isLegacyFieldSpecialization(spec));
+    }
+    async #onProfessionMapping(event) {
+        event.preventDefault();
+        const { showProfessionMappingReview } = await import('../migrations/profession-mapping-review-dialog.js');
+        const saved = await showProfessionMappingReview(this.actor);
+        if (saved)
+            this.render(false);
     }
     async #onSpecializationAdd(event) {
         event.preventDefault();
@@ -7689,7 +7698,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         if (!specAlloc.ok) {
             ui.notifications?.error(specAlloc.errors[0] ||
-                `Starting characters need exactly ${STARTING_SPECIALIZATION_COUNT} Specializations at Rank ${STARTING_SPECIALIZATION_RANK}.`);
+                `Starting characters need exactly ${STARTING_SPECIALIZATION_COUNT} Professions at Rank ${STARTING_SPECIALIZATION_RANK}.`);
             return;
         }
         const towerErr = validateTowerWizardCreation(this.actor);
