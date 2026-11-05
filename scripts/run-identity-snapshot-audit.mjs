@@ -40,8 +40,10 @@ function assertSnapshot(snap) {
   if (snap.format !== FORMAT) {
     fail(`Unexpected format "${snap.format}" (expected ${FORMAT})`);
   }
-  if (Number(snap.formatVersion) !== 1) {
-    fail(`Unsupported formatVersion ${snap.formatVersion} (expected 1)`);
+  const fv = Number(snap.formatVersion);
+  // v1 = original export; v2 = X1–X4 corrections (MR path, picks level/kind, provenance flags).
+  if (!Number.isFinite(fv) || fv < 1 || fv > 2) {
+    fail(`Unsupported formatVersion ${snap.formatVersion} (expected 1 or 2)`);
   }
   if (!Array.isArray(snap.actors)) fail('Snapshot.actors missing');
 }

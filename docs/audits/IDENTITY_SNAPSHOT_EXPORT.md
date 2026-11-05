@@ -6,7 +6,7 @@ Standalone Foundry **Script Macro** to export identity-relevant world data from 
 |---|---|
 | Macro source | `macros/export-identity-snapshot.js` |
 | Offline adapter | `scripts/run-identity-snapshot-audit.mjs` |
-| Format | `mastery-identity-snapshot` / version `1` |
+| Format | `mastery-identity-snapshot` / version `2` (adapter still accepts `1`) |
 | Side effects | **None** (read-only; browser download only) |
 
 ## How to run in Foundry (Forge)
@@ -69,4 +69,16 @@ Actors in the snapshot are already shaped for `preflightActor` / `planActorIdent
 - Artifact `system.levelProgression[]` / `progressionPicks[].authoredStages[]` with identity fields
 - `effects[]` with `flags['mastery-system'].activeBuff|powerId|powerTemplateId|…`
 
-See `tests/__fixtures__/identity-snapshot-minimal.json` for a minimal valid fixture.
+### formatVersion 2 (Forge Reality Audit X1–X4)
+
+| Field | Change |
+|---|---|
+| `actors[].system.masteryRank` | Read from `system.mastery.rank` (fallback: legacy `masteryRank` / `mr`) |
+| `actors[].system.mastery.rank` | Also exported when present |
+| `progressionPicks[]` | Exports `level` / `kind` (authored pick shape); no longer invents `id` / `name` |
+| Provenance flags | `nodeId`, `seedVersion`, `evolutionNodeId`, `parentIds` (+ `childIds`, `isRoot`, `echoBound`, …) included when present |
+| Incomplete tokens | Missing synthetic actors reported with `error: synthetic-actor-missing`, empty `items`/`effects`, and a clear warning |
+
+The offline adapter accepts **both** `formatVersion` 1 and 2 so previously exported Forge dumps remain auditable.
+
+See `tests/__fixtures__/identity-snapshot-minimal.json` for a minimal valid v1 fixture.

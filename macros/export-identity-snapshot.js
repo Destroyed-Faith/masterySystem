@@ -20,7 +20,14 @@
   'use strict';
 
   const FORMAT = 'mastery-identity-snapshot';
-  const FORMAT_VERSION = 1;
+  /**
+   * formatVersion 2 (Forge Reality Audit X1–X4):
+   * - masteryRank from system.mastery.rank
+   * - progressionPicks export level/kind (not nonexistent id/name)
+   * - provenance flags: nodeId, seedVersion, evolutionNodeId, parentIds
+   * Offline adapter still accepts formatVersion 1.
+   */
+  const FORMAT_VERSION = 2;
   const MS = 'mastery-system';
 
   // Keys / substrings that must never leave the world.
@@ -45,6 +52,16 @@
     'isUtility',
     'sourceKind',
     'buffTemplateId',
+    // Builder / evolution provenance (X4)
+    'nodeId',
+    'seedVersion',
+    'evolutionNodeId',
+    'parentIds',
+    'childIds',
+    'isRoot',
+    'echoBound',
+    'echoLocked',
+    'artifactActivated',
   ]);
 
   const ITEM_TYPES = new Set(['power', 'artifact', 'weapon', 'equipment', 'consumable', 'loot', 'feat']);
@@ -215,8 +232,9 @@
           levelProgression: rows.map(exportProgressionRow).filter(Boolean),
           progressionPicks: picks.map((pick, pIdx) => ({
             pickIndex: pIdx,
-            id: pick?.id ?? null,
-            name: pick?.name ?? null,
+            // Authored picks are { level, kind, authoredStages } — not id/name (X3).
+            level: pick?.level ?? null,
+            kind: pick?.kind ?? null,
             authoredStages: Array.isArray(pick?.authoredStages)
               ? pick.authoredStages.map(exportProgressionRow).filter(Boolean)
               : [],
@@ -310,7 +328,19 @@
       flags: mastery ? { [MS]: mastery } : undefined,
       system: {
         // Identity / combat-relevant scalars only — no biography or notes.
-        masteryRank: sys.masteryRank ?? sys.mr ?? null,
+        // X1: rules MR lives at system.mastery.rank (see mastery-rank-sync.ts).
+        masteryRank:
+          sys?.mastery?.rank != null && sys.mastery.rank !== ''
+            ? Number(sys.mastery.rank) || null
+            : sys.masteryRank ?? sys.mr ?? null,
+        mastery: sys?.mastery
+          ? {
+              rank:
+                sys.mastery.rank != null && sys.mastery.rank !== ''
+                  ? Number(sys.mastery.rank) || null
+                  : null,
+            }
+          : undefined,
         level: sys.level ?? null,
         details: undefined,
       },
@@ -415,19 +445,28 @@
           if (linked) continue;
           const synthetic = token.actor;
           if (!synthetic) {
+            // X2: report missing synthetic actors clearly; never invent items/effects.
             noteWarn(
               `scene:${scene.id}/token:${token.id}`,
-              'Unlinked token has no synthetic actor (not loaded?)',
+              `Unlinked token "${token.name || token.id}" has no synthetic actor (deleted base actor, not loaded, or broken link). Identity for this token is NOT VERIFIED.`,
             );
             tokenOverrides.push({
+              id: null,
+              name: token.name ?? null,
+              type: null,
+              source: 'token-override',
               sceneId: scene.id,
-              sceneName: scene.name,
+              sceneName: scene.name ?? null,
               tokenId: token.id,
-              tokenName: token.name,
+              tokenName: token.name ?? null,
               actorId: token.actorId ?? null,
+              baseActorId: token.actorId ?? null,
               actorLink: false,
               incomplete: true,
+              incompleteDetail: { items: true, effects: true, syntheticActor: true },
               error: 'synthetic-actor-missing',
+              items: [],
+              effects: [],
             });
             continue;
           }

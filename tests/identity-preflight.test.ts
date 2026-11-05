@@ -200,4 +200,173 @@ describe('identity preflight', () => {
     const md = formatIdentityPreflightMarkdown(report);
     expect(md).toContain('Identity Preflight');
   });
+
+  /**
+   * Forge Reality Audit W1: Lor-Keth's legacy titanScarsIntellect item grants
+   * ab-armor-temp-hp as "Titan Growth I" instead of artifactFunctionId titan-growth.
+   * Preflight must detect this as catalog-divergence + legacy-alias-key without
+   * proposing an automatic affinity rewrite.
+   */
+  it('W1: detects legacy titanScarsIntellect + ab-armor-temp-hp as catalog-divergence (manual)', () => {
+    const updates: unknown[] = [];
+    const actor = {
+      id: 'HscDyhZJsKyTJLMJ',
+      name: 'Lor-Keth',
+      items: [
+        {
+          id: 'lVEhzTR1AvkERGQZ',
+          type: 'artifact',
+          name: 'Titan Scars - Level 2-1',
+          flags: { 'mastery-system': { echoArtifactKey: 'titanScarsIntellect' } },
+          system: {
+            currentLevel: 2,
+            echoKey: 'titanborn',
+            useAuthoredLevelProgression: false,
+            levelProgression: [
+              {
+                level: 1,
+                name: 'Titan Growth I',
+                type: 'Active Buff',
+                powerTemplateId: 'ab-armor-temp-hp',
+                artifactFunctionId: null,
+                rank: null,
+              },
+              {
+                level: 2,
+                name: 'Titan Intellect Pool I',
+                type: 'Stone Pool',
+                special: 'stonePool',
+              },
+            ],
+            progressionPicks: [],
+          },
+          update: (data: unknown) => updates.push(data),
+        },
+      ],
+      effects: [],
+    };
+
+    const report = preflightActor(actor);
+    expect(updates).toEqual([]);
+
+    const alias = report.entries.find((e) => e.reason === 'legacy-alias-key');
+    expect(alias).toBeTruthy();
+    expect(alias?.severity).toBe('informational');
+    expect(alias?.disposition).toBe('manual');
+    expect(alias?.canonicalArtifactKey).toBe('titanScars');
+    expect(alias?.ref.actorId).toBe('HscDyhZJsKyTJLMJ');
+    expect(alias?.ref.itemId).toBe('lVEhzTR1AvkERGQZ');
+    expect(alias?.suggestedIdentity).toBeUndefined();
+
+    const divergence = report.entries.find((e) => e.reason === 'catalog-divergence');
+    expect(divergence).toBeTruthy();
+    expect(divergence?.severity).toBe('informational');
+    expect(divergence?.disposition).toBe('manual');
+    expect(divergence?.ref.rowLevel).toBe(1);
+    expect(divergence?.observedIdentity?.powerTemplateId).toBe('ab-armor-temp-hp');
+    expect(divergence?.expectedIdentity?.artifactFunctionId).toBe('titan-growth');
+    expect(divergence?.expectedIdentity?.powerTemplateId).toBeNull();
+    expect(divergence?.canonicalArtifactKey).toBe('titanScars');
+    // Never tempt auto-migration with a suggestion for affinity/progression rewrites.
+    expect(divergence?.suggestedIdentity).toBeUndefined();
+
+    const md = formatIdentityPreflightMarkdown(report);
+    expect(md).toContain('catalog-divergence');
+    expect(md).toContain('legacy-alias-key');
+  });
+
+  it('catalog-divergence: matching structured identities are not flagged', () => {
+    const actor = {
+      id: 'ActorOk1',
+      name: 'Scurry',
+      items: [
+        {
+          id: 'dragonHeadOk',
+          type: 'artifact',
+          name: 'Dragon Head - Level 3-1',
+          flags: { 'mastery-system': { echoArtifactKey: 'dragonHead' } },
+          system: {
+            currentLevel: 3,
+            echoKey: 'dragonborn',
+            levelProgression: [
+              {
+                level: 1,
+                name: 'Breath Weapon I',
+                type: 'Melee AoE',
+                powerTemplateId: 'active-melee-weapon-aoe',
+                artifactFunctionId: 'dragon-breath',
+                rank: 4,
+              },
+              {
+                level: 2,
+                name: 'Draconic Roar I',
+                type: 'Active Buff',
+                powerTemplateId: 'ab-armor-aura',
+                rank: 4,
+              },
+              {
+                level: 3,
+                name: 'Draconic Recovery I',
+                type: 'Stone Refresh',
+                special: 'Stone Refresh',
+              },
+            ],
+          },
+        },
+        {
+          id: 'moonlightOk',
+          type: 'artifact',
+          name: 'Moonlight Greatsword - Level 2-1',
+          flags: { 'mastery-system': { echoArtifactKey: 'moonlightGreatsword' } },
+          system: {
+            currentLevel: 2,
+            levelProgression: [
+              {
+                level: 1,
+                name: 'Moonlight Mending I',
+                type: 'Ranged',
+                powerTemplateId: 'active-ranged-single-heal',
+                rank: 4,
+              },
+              {
+                level: 2,
+                name: 'Moonlight Judgment I',
+                type: 'Artifact Active, Spell',
+                powerTemplateId: 'active-ranged-limited-aoe',
+                rank: 4,
+                limited: true,
+              },
+            ],
+          },
+        },
+        {
+          id: 'powerOk',
+          type: 'power',
+          name: 'Strike',
+          system: { templateId: 'active-melee-weapon-single', rank: 2, category: 'active' },
+        },
+      ],
+      effects: [],
+    };
+
+    const report = preflightActor(actor);
+    expect(report.entries.filter((e) => e.reason === 'catalog-divergence')).toEqual([]);
+    expect(report.entries.filter((e) => e.reason === 'legacy-alias-key')).toEqual([]);
+    expect(report.totals.blocksActivation).toBe(0);
+  });
+
+  it('catalog-divergence: does not overwrite or suggest when identity already present', () => {
+    const suggested = suggestIdentityForUnresolved({
+      kind: 'artifact-row',
+      item: {
+        flags: { 'mastery-system': { echoArtifactKey: 'titanScarsIntellect' } },
+      },
+      row: {
+        level: 1,
+        powerTemplateId: 'ab-armor-temp-hp',
+      },
+    });
+    // Rows that already carry identity never receive a suggestion (protects GM edits).
+    expect(suggested).toBeUndefined();
+  });
 });

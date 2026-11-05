@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.827] - 2026-11-05
+
+### Added
+
+- **Preflight catalog-divergence / legacy-alias-key:** Detects wrong-but-valid artifact identities (e.g. Lor-Keth Titan Scars `ab-armor-temp-hp` vs `titan-growth`) as manual-review diagnostics; never auto-migrates customized progressions.
+- **Forge Reality Audit docs:** `FORGE_REALITY_AUDIT_PRE_K8.md`, evidence JSON, and unresolved findings (W1/W2/W3/W5) preserved for rules-owner decisions.
+
+### Changed
+
+- **Identity Snapshot export v2:** Mastery Rank from `system.mastery.rank`; progression picks export `level`/`kind`; provenance flags (`nodeId`, `seedVersion`, …); clearer incomplete token reporting. Offline adapter still accepts v1 dumps.
+
+### Notes
+
+- No K8 cutover, no K9 pack rebuild, no world migration applied.
+
 ## [0.9.826] - 2026-11-05
 
 ### Added

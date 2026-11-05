@@ -11,6 +11,8 @@
  *   (never `system.echoKey`, which is the Echo imprint key).
  */
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
+import { type EchoArtifactDefinition } from './echo-artifacts.js';
+import { type GeneralArtifactDefinition } from './general-artifacts.js';
 /** Identity fields that may be filled from the catalog for blank rows. */
 declare const IDENTITY_FIELDS: readonly ["powerTemplateId", "artifactFunctionId", "rank", "limited", "isSpell", "castingAttribute", "spellResolution", "chosenSpecialKey"];
 export type ArtifactRowIdentityField = (typeof IDENTITY_FIELDS)[number];
@@ -23,10 +25,20 @@ export interface ArtifactIdentityHost {
     };
     system?: {
         echoKey?: unknown;
+        currentLevel?: unknown;
+        level?: unknown;
         levelProgression?: ArtifactLevelProgressionRow[];
     } | null;
 }
 export declare function resolveEchoArtifactKey(item: ArtifactIdentityHost | null | undefined): string;
+/** Resolve legacy catalog keys (e.g. titanScarsIntellect → titanScars). */
+export declare function resolveCanonicalArtifactKey(storedKey: string | null | undefined): {
+    storedKey: string;
+    canonicalKey: string;
+    isAlias: boolean;
+};
+/** Alias-aware lookup across echo + general artifact catalogs. */
+export declare function lookupArtifactDefinition(key: string | null | undefined): EchoArtifactDefinition | GeneralArtifactDefinition | null;
 export declare function rowHasStructuredIdentity(row: Pick<ArtifactLevelProgressionRow, 'powerTemplateId' | 'artifactFunctionId'> | null | undefined): boolean;
 /**
  * If the row already has structured identity, return it unchanged.

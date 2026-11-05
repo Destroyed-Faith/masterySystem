@@ -16,6 +16,9 @@ function clampRank(raw) {
     return r;
 }
 function severityFor(reason, source) {
+    if (reason === 'legacy-alias-key' || reason === 'catalog-divergence') {
+        return 'informational';
+    }
     if (reason === 'missing-identity' || reason === 'unknown-template-id' || reason === 'unknown-artifact-function-id') {
         return source === 'active-effect' ? 'omits-contribution' : 'blocks-activation';
     }

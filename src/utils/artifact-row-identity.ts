@@ -12,8 +12,12 @@
  */
 
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
-import { ECHO_ARTIFACTS } from './echo-artifacts.js';
-import { GENERAL_ARTIFACTS } from './general-artifacts.js';
+import {
+  ECHO_ARTIFACT_KEY_ALIASES,
+  getEchoArtifact,
+  type EchoArtifactDefinition,
+} from './echo-artifacts.js';
+import { getGeneralArtifact, type GeneralArtifactDefinition } from './general-artifacts.js';
 
 /** Identity fields that may be filled from the catalog for blank rows. */
 const IDENTITY_FIELDS = [
@@ -34,6 +38,8 @@ export interface ArtifactIdentityHost {
   flags?: { 'mastery-system'?: { echoArtifactKey?: unknown } };
   system?: {
     echoKey?: unknown;
+    currentLevel?: unknown;
+    level?: unknown;
     levelProgression?: ArtifactLevelProgressionRow[];
   } | null;
 }
@@ -44,6 +50,26 @@ export function resolveEchoArtifactKey(item: ArtifactIdentityHost | null | undef
   return String(item?.flags?.['mastery-system']?.echoArtifactKey || '').trim();
 }
 
+/** Resolve legacy catalog keys (e.g. titanScarsIntellect → titanScars). */
+export function resolveCanonicalArtifactKey(storedKey: string | null | undefined): {
+  storedKey: string;
+  canonicalKey: string;
+  isAlias: boolean;
+} {
+  const stored = String(storedKey || '').trim();
+  const mapped = stored ? ECHO_ARTIFACT_KEY_ALIASES[stored] : undefined;
+  if (mapped) return { storedKey: stored, canonicalKey: mapped, isAlias: true };
+  return { storedKey: stored, canonicalKey: stored, isAlias: false };
+}
+
+/** Alias-aware lookup across echo + general artifact catalogs. */
+export function lookupArtifactDefinition(
+  key: string | null | undefined,
+): EchoArtifactDefinition | GeneralArtifactDefinition | null {
+  if (!key) return null;
+  return getEchoArtifact(key) || getGeneralArtifact(key) || null;
+}
+
 export function rowHasStructuredIdentity(
   row: Pick<ArtifactLevelProgressionRow, 'powerTemplateId' | 'artifactFunctionId'> | null | undefined,
 ): boolean {
@@ -52,10 +78,7 @@ export function rowHasStructuredIdentity(
 }
 
 function catalogDefinition(key: string): { levelProgression?: ArtifactLevelProgressionRow[] } | null {
-  const echo = (ECHO_ARTIFACTS as Record<string, { levelProgression?: ArtifactLevelProgressionRow[] } | undefined>)[key];
-  if (echo) return echo;
-  const general = (GENERAL_ARTIFACTS as Record<string, { levelProgression?: ArtifactLevelProgressionRow[] } | undefined>)[key];
-  return general || null;
+  return lookupArtifactDefinition(key);
 }
 
 /**

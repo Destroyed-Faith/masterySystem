@@ -1,0 +1,101 @@
+{
+  "report": "docs/audits/FORGE_REALITY_AUDIT_PRE_K8.md",
+  "generatedAt": "2026-11-05",
+  "source": {
+    "file": "C:\\Users\\navar\\Downloads\\GM Dump Forge.txt",
+    "format": "mastery-identity-snapshot",
+    "formatVersion": 1,
+    "exportedAt": "2026-11-05T08:03:43.169Z",
+    "worldId": "destroyed-faith-mastery-system",
+    "systemVersion": "0.9.826",
+    "coreVersion": "14.369",
+    "hostIsForge": true,
+    "repoHead": "888398f1",
+    "repoTag": "v0.9.826",
+    "deploymentMismatch": false
+  },
+  "stats": {
+    "actors": 15,
+    "actorsIncomplete": 0,
+    "tokenOverrides": 16,
+    "tokenOverridesIncomplete": 3,
+    "compendiumDocuments": 220,
+    "compendiumIncomplete": 0,
+    "errors": 0,
+    "warnings": 3,
+    "powerItems": 26,
+    "artifactItems": 11
+  },
+  "gates": {
+    "tsc": "PASS (exit 0)",
+    "vitest": "PASS (363 files, 3835 tests)",
+    "dryRun": {
+      "tool": "scripts/run-identity-snapshot-audit.mjs",
+      "actorsAudited": 28,
+      "preflightTotals": { "sources": 137, "resolved": 137, "unresolved": 0, "blocksActivation": 0, "omitsContribution": 0, "informational": 0 },
+      "migrationProposals": { "total": 0, "autoStableKey": 0, "autoProvenance": 0, "manual": 0, "notActivatable": 0 }
+    }
+  },
+  "worldIdentity": {
+    "powerItems": { "total": 65, "world": 26, "tokenCopies": 39, "distinctTemplateIds": 22, "templateIdMissing": 0, "templateIdUnknown": 0, "rankOutOfRange": 0, "limitedMismatch": 0, "duplicatePerActor": 0, "identityFail": 0 },
+    "artifactItems": { "unique": 11, "uniqueRows": 27, "rowsWithTemplateId": 19, "rowsWithArtifactFunctionId": 1, "rowsWithoutIdentity": 8, "rowsWithoutIdentityTypes": ["Stone Power Support", "Stone Pool", "Stone Battery", "Stone Refresh"], "limitedRows": 1, "rowsMatchingBuilderAtHead": 26, "rowsNotComparable": 1 },
+    "activeEffects": { "total": 3, "withPowerTemplateId": 3, "danglingPowerId": 0 }
+  },
+  "findings": [
+    {
+      "id": "W1",
+      "severity": "HIGH",
+      "title": "Legacy alias key titanScarsIntellect; 'Titan Growth I' carries retired ab-armor-temp-hp instead of artifactFunctionId titan-growth",
+      "classification": "Requires manual review",
+      "documents": [
+        { "source": "world", "actorId": "HscDyhZJsKyTJLMJ", "actorName": "Lor-Keth", "itemId": "lVEhzTR1AvkERGQZ", "itemName": "Titan Scars - Level 2-1" },
+        { "source": "token", "sceneId": "NwpxJf6a5palklSk", "tokenId": "uWNkQ0l833x2HR87", "actorName": "Lor-Keth", "itemId": "lVEhzTR1AvkERGQZ" }
+      ],
+      "observed": { "echoArtifactKey": "titanScarsIntellect", "rows": [ { "level": 1, "name": "Titan Growth I", "type": "Active Buff", "powerTemplateId": "ab-armor-temp-hp", "rank": null }, { "level": 2, "name": "Titan Intellect Pool I", "type": "Stone Pool" } ] },
+      "expected": { "echoArtifactKey": "titanScars", "rows": [ { "level": 1, "name": "Titan Growth I", "type": "Transformation", "artifactFunctionId": "titan-growth" }, { "level": 2, "name": "Titan Might I", "type": "Stone Power Support", "special": "might.meleeDamage" } ] },
+      "evidence": ["src/utils/echo-artifacts.ts:440-575", "src/utils/echo-artifacts.ts:591 (alias)", "docs/Rules/Canonical/Players_Handbook.md:2683,2717", "src/utils/identity-preflight.ts:81,353-363"]
+    },
+    {
+      "id": "W2",
+      "severity": "MEDIUM",
+      "title": "Draconic Roar: rulebook table 'Retired - redesign pending' vs 'approved Armor Aura exception'; catalog grants ab-armor-aura PL4",
+      "classification": "Ambiguous (rules conflict, report only)",
+      "documents": [
+        { "source": "world", "actorId": "NkKUS1LAD4iLnjzf", "itemId": "IqH2PUiBdJzevU5Q", "row": 2 },
+        { "source": "token", "sceneId": "xW8wvYRpnmKAMEGB", "tokenId": "5G4UdMVxvkBRFE37", "itemId": "IqH2PUiBdJzevU5Q", "row": 2 },
+        { "source": "token", "sceneId": "NwpxJf6a5palklSk", "tokenId": "FmumkQB2hsjg8X0P", "itemId": "IqH2PUiBdJzevU5Q", "row": 2 }
+      ],
+      "evidence": ["docs/Rules/Canonical/Players_Handbook.md:2939,2942,2945,7008", "src/utils/echo-artifacts.ts:1081-1086,1121-1130"]
+    },
+    { "id": "W3", "severity": "LOW", "title": "Breath Weapon geometry text: catalog 'Cone' vs rulebook 'radius'", "evidence": ["src/utils/echo-artifacts.ts:1112", "docs/Rules/Canonical/Players_Handbook.md:2938"] },
+    { "id": "W4", "severity": "LOW", "title": "Stale combat-scoped flags", "documents": [ { "actorId": "s36N3Q5lXFFr8e9Z", "flags": ["phasingChargesPending", "phasingCharges.combatId=YWZQ8LsnXVkQUGaH", "msActiveBuffEmpowermentUsed.combatId=WSfN8fhF3FeKlcoL"] }, { "actorId": "u3G8Y7YWZICdL4sV", "flags": ["phasingCharges.combatId=suSPl2t4ouQbSh9w"] }, { "actorId": "NkKUS1LAD4iLnjzf", "flags": ["phasingCharges.combatId=YWZQ8LsnXVkQUGaH"] } ] },
+    { "id": "W5", "severity": "LOW", "title": "echoBound flag boolean (world) vs string echoKey (builder)", "evidence": ["src/artifacts/echo-artifact-tree-builder.ts:953", "src/module.ts:4115"] },
+    {
+      "id": "P1",
+      "severity": "HIGH",
+      "title": "Compendium mastery-system.echo-artifacts is pre-identity (stale vs builder@0.9.826)",
+      "classification": "Safely auto-migratable via K9 pack rebuild (not this migration API)",
+      "pack": "mastery-system.echo-artifacts",
+      "docsTotal": 220,
+      "docsWithDivergence": 193,
+      "rowsTotal": 606,
+      "rowsRankNull": 606,
+      "rowsRankNullWhereBuilderNumeric": 296,
+      "rowsMissingArtifactFunctionId": {
+        "artifact-awakening": ["4M0eDEpzOnEEacnv:L10","4W8C5p9WL6amvT7L:L10","841zBBthQ8CBeKpG:L10","CO3VJBx0ReKBg8FF:L10","GsYR4D1UxZ5DkclA:L10","JoNIlEYBz9jEnYa1:L10","O4HaFD9ggiGDsoUJ:L10","OlYUKC9NxcLCu0Ll:L10","WZAEVBHCZMWB2oxU:L10","Y8FH8DJleP9D4N3X:L10","c7F1PBNke9QB6rSk:L10","g3xiTRgMrUAoASRv:L10","kvPlhCVYotiCEgcU:L10","nlBXjB28mOiBHWOG:L10","r2uQEC6PWIDCNIih:L10","rH8ufE6ejmeEL2Ke:L10","svcH0DdY1P1DMgp0:L10","uMjiKfz7qLO7vRI9:L10","umrNXEfPGWYEOX46:L10","vaXPCAy8GBRqKgEg:L10","wH2A9ChuQJADQ2Eu:L10","zpLUIEEDxLHETaYD:L10"],
+        "dragon-breath": ["8Wo1dCt9CAfCembI:L4","Bq45FCQDgxECfaHp:L4","EjVSrBzLuasBiTiB:L7","U8ohjDFlDqkD0Ncy:L1","X1F4KDmOrvJD1lSn:L1","YJgnbJw4vc23sWZn:L1","mLPeXBXynmYBIbCv:L7","svcH0DdY1P1DMgp0:L7","t1hAZE8OJ2XEPHVR:L7","vQlqNAoMiMRgY7Pg:L4"],
+        "life-absorption": ["8om7kCtRBGmCe4ZO:L5","BJqy5QgRq4hYdF8w:L5","BiRtNCQ52kMCfSec:L5","EbsFzBzDHO0BiL5y:L2","XJSZTDmg3QSD13eI:L8","aCtv4CLpH45C4w5e:L8","mDmRfBXqAagBITZi:L2","nlBXjB28mOiBHWOG:L8","tt4xgE8GgpfEP9rE:L2"],
+        "titan-growth": ["FuLLEDUHxCDDjeY4:L7","IDcPqC3p0XrCmxo8:L4","L62lRCaTedQCrLq2:L1","LVegjDasFYiDpFrP:L1","OO52KD90TBMDs8Hm:L1","nskU3D2FMM2DJ8Xl:L7","vaXPCAy8GBRqKgEg:L7","w0yE1ChdNN2CSGmV:L4","wCAJcBhpYRdBSSxZ:L7","zU25LBEsdxKBVkpM:L4"]
+      },
+      "rowsMissingPowerTemplateId": ["U2cT7BFf1b8B0HQk:L4:Remembered Hands I→active-ranged-health-level-heal","U2cT7BFf1b8B0HQk:L6:Burden Lifted II→active-ranged-single-cleanse","XhdbKm4ETJ1RqKIG:L7:Remembered Hands II→active-ranged-health-level-heal","XhdbKm4ETJ1RqKIG:L8:Hearth Circle II→active-melee-aoe-restoration","Z7uMoCoUWEnC5Mid:L7:Remembered Hands II→active-ranged-health-level-heal","Z7uMoCoUWEnC5Mid:L6:Burden Lifted II→active-ranged-single-cleanse","cbuIHCNEJRIC6L71:L7:Remembered Hands II→active-ranged-health-level-heal","cbuIHCNEJRIC6L71:L8:Hearth Circle II→active-melee-aoe-restoration","cbuIHCNEJRIC6L71:L6:Burden Lifted II→active-ranged-single-cleanse","ocnorZFCxsKsa5t5:L2:Burden Lifted I→active-ranged-single-cleanse","pW0CfE4tb4dEJHDw:L4:Remembered Hands I→active-ranged-health-level-heal","pW0CfE4tb4dEJHDw:L3:Hearth Circle I→active-melee-aoe-restoration","sPfyHEd236IEMAsh:L4:Remembered Hands I→active-ranged-health-level-heal","sPfyHEd236IEMAsh:L2:Burden Lifted I→active-ranged-single-cleanse","sPfyHEd236IEMAsh:L3:Hearth Circle I→active-melee-aoe-restoration","th5hYB84gZXBPxsy:L2:Burden Lifted I→active-ranged-single-cleanse","th5hYB84gZXBPxsy:L3:Hearth Circle I→active-melee-aoe-restoration","zpLUIEEDxLHETaYD:L7:Remembered Hands II→active-ranged-health-level-heal","zpLUIEEDxLHETaYD:L8:Hearth Circle II→active-melee-aoe-restoration"],
+      "authoredStagesWithoutIdentity": { "hollowCrown": 30, "ringchainOfKeptNames": 30, "titanScars": 10 },
+      "nameCollisions": { "Predator Crown - Level N-1": 3 },
+      "generalArtifactKeysWithoutPackDocs": ["moonlightGreatsword","soulSigil","frostboundReturningAxe","shadowgraveArmor","staffOfTheDark","starfallenForceshield","heartOfWinter","heartseeker","falconWideBrim","lanternOfTheHollowStar","lorKethsStaff"]
+    },
+    { "id": "X1", "severity": "MEDIUM", "title": "Export macro reads masteryRank from wrong path", "evidence": ["macros/export-identity-snapshot.js:313 (system.masteryRank ?? system.mr)", "src/utils/mastery-rank-sync.ts:61 (system.mastery.rank)"], "affectedActors": 15 },
+    { "id": "X2", "severity": "MEDIUM", "title": "Unlinked tokens without synthetic actor", "documents": [ { "sceneId": "xW8wvYRpnmKAMEGB", "tokenId": "XumJmU3SvEEx4iXy" }, { "sceneId": "xW8wvYRpnmKAMEGB", "tokenId": "ra5OUBJuwTZp9tIN" }, { "sceneId": "GbqpEJ08LXtTMrea", "tokenId": "g6LAAbvPDwYnkIX0" } ], "error": "synthetic-actor-missing" },
+    { "id": "X3", "severity": "LOW", "title": "Export progressionPicks id/name read non-existent keys (picks are {level, kind, authoredStages})", "evidence": ["macros/export-identity-snapshot.js:218-219", "src/utils/echo-artifacts.ts:2262"] },
+    { "id": "X4", "severity": "LOW", "title": "Builder provenance flags (nodeId, seedVersion, evolutionNodeId, parentIds) filtered by MASTERY_FLAG_ALLOW", "evidence": ["macros/export-identity-snapshot.js:30,126"] }
+  ],
+  "decision": "PARTIAL"
+}

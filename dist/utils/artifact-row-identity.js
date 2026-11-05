@@ -10,8 +10,8 @@
  * - Artifact key comes only from `flags['mastery-system'].echoArtifactKey`
  *   (never `system.echoKey`, which is the Echo imprint key).
  */
-import { ECHO_ARTIFACTS } from './echo-artifacts.js';
-import { GENERAL_ARTIFACTS } from './general-artifacts.js';
+import { ECHO_ARTIFACT_KEY_ALIASES, getEchoArtifact, } from './echo-artifacts.js';
+import { getGeneralArtifact } from './general-artifacts.js';
 /** Identity fields that may be filled from the catalog for blank rows. */
 const IDENTITY_FIELDS = [
     'powerTemplateId',
@@ -28,17 +28,27 @@ export function resolveEchoArtifactKey(item) {
     void item?.system?.echoKey;
     return String(item?.flags?.['mastery-system']?.echoArtifactKey || '').trim();
 }
+/** Resolve legacy catalog keys (e.g. titanScarsIntellect → titanScars). */
+export function resolveCanonicalArtifactKey(storedKey) {
+    const stored = String(storedKey || '').trim();
+    const mapped = stored ? ECHO_ARTIFACT_KEY_ALIASES[stored] : undefined;
+    if (mapped)
+        return { storedKey: stored, canonicalKey: mapped, isAlias: true };
+    return { storedKey: stored, canonicalKey: stored, isAlias: false };
+}
+/** Alias-aware lookup across echo + general artifact catalogs. */
+export function lookupArtifactDefinition(key) {
+    if (!key)
+        return null;
+    return getEchoArtifact(key) || getGeneralArtifact(key) || null;
+}
 export function rowHasStructuredIdentity(row) {
     if (!row)
         return false;
     return !!(row.powerTemplateId || row.artifactFunctionId);
 }
 function catalogDefinition(key) {
-    const echo = ECHO_ARTIFACTS[key];
-    if (echo)
-        return echo;
-    const general = GENERAL_ARTIFACTS[key];
-    return general || null;
+    return lookupArtifactDefinition(key);
 }
 /**
  * If the row already has structured identity, return it unchanged.

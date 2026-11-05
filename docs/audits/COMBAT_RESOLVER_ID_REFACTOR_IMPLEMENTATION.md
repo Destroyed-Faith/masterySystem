@@ -170,3 +170,63 @@ See `docs/audits/identity-matrix-report-2026-11-04.md`. Catalog templates: 0 unr
 Core identity contract, Cleanse alignment, shadow-compare, fixture migration, and full unit regression are complete and green. Cutover is **not** claimable as “ID-based architecture abgeschlossen” (Release Gate G1–G10) while pack JSON is unrebuilt, residual text paths remain for unmigrated data, and the GM migration UI is absent.
 
 **No publication.** Awaiting independent Fable review.
+
+---
+
+## 11. Pre-K8 Forge Reality Audit corrections (2026-11-05)
+
+Source: `docs/audits/FORGE_REALITY_AUDIT_PRE_K8.md` · Unresolved preserved in `docs/audits/FORGE_REALITY_AUDIT_UNRESOLVED.md`.
+
+**Goal:** Make diagnostic tooling detect the real-world inconsistencies Fable found (especially W1 wrong-but-valid identity) before K8. No K8/K9, no world writes, no rule changes, no combat mechanic changes.
+
+### 11.1 Files changed
+
+| File | Change |
+|---|---|
+| `src/utils/power-identity.ts` | Reasons `legacy-alias-key`, `catalog-divergence`; `IdentityFieldSnapshot`; observed/expected/canonical fields |
+| `src/utils/artifact-row-identity.ts` | `resolveCanonicalArtifactKey`, `lookupArtifactDefinition` (alias-aware); enrich uses alias-aware lookup |
+| `src/utils/identity-preflight.ts` | Alias diagnostic; catalog-divergence vs builder; markdown detail column; never suggests auto-migration for divergences |
+| `macros/export-identity-snapshot.js` | formatVersion **2**; X1 MR path; X3 picks `level`/`kind`; X4 provenance flags; X2 clearer incomplete tokens |
+| `scripts/run-identity-snapshot-audit.mjs` | Accepts formatVersion 1 **and** 2 |
+| `docs/audits/IDENTITY_SNAPSHOT_EXPORT.md` | v2 schema notes |
+| `docs/audits/FORGE_REALITY_AUDIT_UNRESOLVED.md` | **New** — W1/W2/W3/W5 preserved |
+| `tests/identity-preflight.test.ts` | W1 Lor-Keth fixture + matching-identity regression |
+| `tests/identity-snapshot-offline.test.ts` | v1 compatibility + v2 shape smoke |
+
+### 11.2 Behavior before / after
+
+| Case | Before | After |
+|---|---|---|
+| Lor-Keth `titanScarsIntellect` + `ab-armor-temp-hp` (W1) | Preflight: **resolved** (valid template). Migration: 0 proposals (structured identity protected). Silent. | Preflight: `legacy-alias-key` + `catalog-divergence` (informational, disposition **manual**). Includes actor/item ids, observed vs expected identity, canonical key `titanScars`. **No** `suggestedIdentity`. Migration still skips overwrite. |
+| Matching Dragon Head / Moonlight rows | Resolved, no entries | Unchanged — no false catalog-divergence |
+| Valid power `templateId` | Resolved | Unchanged |
+| Export MR | Always `null` (read `system.masteryRank`) | Reads `system.mastery.rank` (+ nested `mastery.rank`) |
+| Export picks | Fake `id`/`name` nulls | Real `level`/`kind` |
+| Export provenance | Filtered out | `nodeId` / `seedVersion` / `evolutionNodeId` / `parentIds` included |
+| Offline adapter on old Forge dump (v1) | Accepted | Still accepted |
+
+### 11.3 Tests and results
+
+| Gate | Result |
+|---|---|
+| `npx tsc --noEmit` | PASS (exit 0) |
+| `npx vitest run` | PASS — **363 files / 3839 tests** (+4 vs 3835: W1 fixture, matching identities, suggest guard, v2 snapshot shape) |
+| `npm run build` | PASS |
+| Offline Forge dump (v1, read-only) | Preflight `unresolved: 4` informational = 2× `legacy-alias-key` + 2× `catalog-divergence` (world Lor-Keth + token copy). Migration proposals **0**. Other actors unchanged. **Not** runtime validation. |
+
+### 11.4 Remaining manual decisions (not implemented)
+
+- **W1 world:** GM re-sync of Lor-Keth Titan Scars on an isolated copy — affinity/progression choice is intentional data, not auto-fixed.
+- **W2:** Draconic Roar rules conflict (retired table vs approved exception).
+- **W3:** Breath cone vs radius text.
+- **W5:** `echoBound` boolean vs string.
+
+### 11.5 Remaining blockers for production cutover (unchanged)
+
+1. Isolated reference-world copy + Foundry-side dry-run / Playwright smoke — **missing**.
+2. K9 pack rebuild (compendium still pre-identity) — **not run**.
+3. K8 cluster cutover d→e→c→a→b→f→g — **not started**.
+4. Rules-owner decisions on W2 (before Active Buff cluster) and W1 world fix.
+5. Re-export with macro v2 to verify MR / provenance on Forge (tooling ready; world not modified).
+
+**Still PARTIAL. No K8. No commit/push.**

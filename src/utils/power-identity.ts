@@ -27,9 +27,25 @@ export type UnresolvedIdentityReason =
   | 'rank-missing'
   | 'rank-out-of-range'
   | 'category-conflict'
-  | 'special-key-unknown';
+  | 'special-key-unknown'
+  /** Stored echoArtifactKey is a legacy alias (e.g. titanScarsIntellect → titanScars). */
+  | 'legacy-alias-key'
+  /**
+   * Row already has a valid structured identity that disagrees with the
+   * authoritative catalog/builder definition for the same key+level.
+   * Manual review only — never auto-migrated.
+   */
+  | 'catalog-divergence';
 
 export type UnresolvedSeverity = 'blocks-activation' | 'omits-contribution' | 'informational';
+
+/** Structured identity snapshot used by catalog-divergence diagnostics. */
+export interface IdentityFieldSnapshot {
+  powerTemplateId: string | null;
+  artifactFunctionId: string | null;
+  rank: number | null;
+  limited: boolean | null;
+}
 
 export interface ResolvedPowerIdentity {
   ok: true;
@@ -67,6 +83,12 @@ export interface UnresolvedPowerIdentity {
     rank?: number;
     basis: 'echoArtifactKey+level' | 'flags.powerId' | 'templateName-exact';
   };
+  /** Present for catalog-divergence / legacy-alias-key diagnostics. */
+  observedIdentity?: IdentityFieldSnapshot;
+  /** Authoritative builder/catalog identity the row was compared against. */
+  expectedIdentity?: IdentityFieldSnapshot;
+  /** Alias-resolved catalog key (when echoArtifactKey was a legacy alias). */
+  canonicalArtifactKey?: string;
 }
 
 export type PowerIdentityResult = ResolvedPowerIdentity | UnresolvedPowerIdentity;
@@ -80,6 +102,9 @@ function clampRank(raw: unknown): number | null {
 }
 
 function severityFor(reason: UnresolvedIdentityReason, source: PowerIdentitySource['kind']): UnresolvedSeverity {
+  if (reason === 'legacy-alias-key' || reason === 'catalog-divergence') {
+    return 'informational';
+  }
   if (reason === 'missing-identity' || reason === 'unknown-template-id' || reason === 'unknown-artifact-function-id') {
     return source === 'active-effect' ? 'omits-contribution' : 'blocks-activation';
   }

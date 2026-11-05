@@ -6,7 +6,8 @@ import { resolvePowerIdentity } from './power-identity.js';
 import { ALL_POWER_TEMPLATES } from './powers/templates/index.js';
 import { ECHO_ARTIFACTS } from './echo-artifacts.js';
 import { GENERAL_ARTIFACTS } from './general-artifacts.js';
-import { enrichArtifactRowIdentity, resolveEchoArtifactKey } from './artifact-row-identity.js';
+import { enrichArtifactRowIdentity, lookupArtifactDefinition, resolveCanonicalArtifactKey, resolveEchoArtifactKey, rowHasStructuredIdentity, } from './artifact-row-identity.js';
+import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
 const NON_ACTIVATABLE_TYPES = /stone\s*(power\s*)?support|stone\s*pool|stone\s*refresh|^passive$|base\s*value/i;
 function exactTemplateNameMap() {
     const counts = new Map();
@@ -32,9 +33,152 @@ function templateNameMap() {
     return cachedNameMap;
 }
 function catalogArtifactByKey(key) {
-    return (ECHO_ARTIFACTS[key] ||
-        GENERAL_ARTIFACTS[key] ||
-        null);
+    // Alias-aware (titanScarsIntellect → titanScars, etc.).
+    return lookupArtifactDefinition(key);
+}
+/** Cache builder trees so actor scans do not rebuild per row. */
+const builderTreeCache = new Map();
+function builderTreeFor(def) {
+    const cacheKey = String(def.key || '');
+    if (!cacheKey)
+        return null;
+    let tree = builderTreeCache.get(cacheKey);
+    if (!tree) {
+        try {
+            tree = buildEchoArtifactTree(def);
+            builderTreeCache.set(cacheKey, tree);
+        }
+        catch {
+            return null;
+        }
+    }
+    return tree;
+}
+function snapshotIdentity(row) {
+    const rankRaw = row?.rank;
+    const rankNum = rankRaw == null || rankRaw === '' ? null : Number(rankRaw);
+    return {
+        powerTemplateId: row?.powerTemplateId ? String(row.powerTemplateId) : null,
+        artifactFunctionId: row?.artifactFunctionId ? String(row.artifactFunctionId) : null,
+        rank: Number.isFinite(rankNum) ? Math.floor(rankNum) : null,
+        limited: row?.limited === true ? true : row?.limited === false ? false : null,
+    };
+}
+/**
+ * Authoritative compiled row for (canonicalKey, currentLevel, row.level).
+ * Prefers the builder (same source packs are rebuilt from); falls back to
+ * source levelProgression when the builder has no matching row.
+ */
+function authoritativeCatalogRow(def, currentLevel, rowLevel) {
+    const tree = builderTreeFor(def);
+    if (tree) {
+        const node = tree.nodes.find((n) => Number(n.level) === Number(currentLevel));
+        const system = (node?.itemData?.system ?? null);
+        const rows = system?.levelProgression;
+        if (Array.isArray(rows)) {
+            const match = rows.find((r) => Number(r?.level) === Number(rowLevel));
+            if (match)
+                return match;
+        }
+    }
+    return (def.levelProgression?.find((r) => Number(r?.level) === Number(rowLevel)) ?? null);
+}
+/** True when an existing structured identity disagrees with the catalog/builder. */
+function structuredIdentitiesConflict(observed, expected) {
+    const obsHas = !!(observed.powerTemplateId || observed.artifactFunctionId);
+    const expHas = !!(expected.powerTemplateId || expected.artifactFunctionId);
+    if (!obsHas || !expHas)
+        return false;
+    if (observed.powerTemplateId !== expected.powerTemplateId)
+        return true;
+    if (observed.artifactFunctionId !== expected.artifactFunctionId)
+        return true;
+    if (expected.limited === true && observed.limited !== true)
+        return true;
+    if (expected.limited === false && observed.limited === true)
+        return true;
+    if (observed.rank != null &&
+        expected.rank != null &&
+        observed.rank !== expected.rank) {
+        return true;
+    }
+    return false;
+}
+function pushDiagnostic(report, entry) {
+    report.totals.sources += 1;
+    report.totals.unresolved += 1;
+    if (entry.severity === 'blocks-activation')
+        report.totals.blocksActivation += 1;
+    else if (entry.severity === 'omits-contribution')
+        report.totals.omitsContribution += 1;
+    else
+        report.totals.informational += 1;
+    report.entries.push(entry);
+}
+/**
+ * Detect wrong-but-valid identities and legacy alias keys (Forge Reality Audit W1).
+ * Never writes. Never proposes auto-migration for these diagnostics.
+ */
+function collectArtifactCatalogDiagnostics(report, actor, item) {
+    const storedKey = resolveEchoArtifactKey(item);
+    if (!storedKey)
+        return;
+    const { canonicalKey, isAlias } = resolveCanonicalArtifactKey(storedKey);
+    const def = catalogArtifactByKey(storedKey);
+    const actorRef = {
+        actorId: actor?.id ? String(actor.id) : undefined,
+        actorName: actor?.name ? String(actor.name) : undefined,
+        itemId: item?.id ? String(item.id) : undefined,
+        itemName: item?.name ? String(item.name) : undefined,
+        echoArtifactKey: storedKey,
+    };
+    if (isAlias) {
+        pushDiagnostic(report, {
+            ok: false,
+            reason: 'legacy-alias-key',
+            severity: 'informational',
+            diagnostic: `echoArtifactKey "${storedKey}" is a legacy alias of "${canonicalKey}". Remap only after GM review — do not auto-migrate affinity/progression.`,
+            ref: actorRef,
+            disposition: 'manual',
+            affected: 'unknown',
+            canonicalArtifactKey: canonicalKey,
+        });
+    }
+    if (!def)
+        return;
+    const defWithKey = {
+        key: String(def.key || canonicalKey),
+        levelProgression: def.levelProgression,
+    };
+    const currentLevel = Number(item.system?.currentLevel ?? item.system?.level ?? 10);
+    const rows = Array.isArray(item.system?.levelProgression) ? item.system.levelProgression : [];
+    for (const rawRow of rows) {
+        if (Number(rawRow?.level) > currentLevel)
+            continue;
+        // Only flag wrong-but-valid identities. Blank rows are handled by resolve + suggest.
+        if (!rowHasStructuredIdentity(rawRow))
+            continue;
+        const expectedRow = authoritativeCatalogRow(defWithKey, currentLevel, Number(rawRow.level));
+        if (!expectedRow || !rowHasStructuredIdentity(expectedRow))
+            continue;
+        const observed = snapshotIdentity(rawRow);
+        const expected = snapshotIdentity(expectedRow);
+        if (!structuredIdentitiesConflict(observed, expected))
+            continue;
+        pushDiagnostic(report, {
+            ok: false,
+            reason: 'catalog-divergence',
+            severity: 'informational',
+            diagnostic: `Row L${rawRow.level} identity disagrees with catalog/builder for ${canonicalKey} at artifact level ${currentLevel}. Manual review required — do not overwrite customized progressions.`,
+            ref: { ...actorRef, rowLevel: Number(rawRow.level) },
+            disposition: 'manual',
+            affected: 'activation',
+            observedIdentity: observed,
+            expectedIdentity: expected,
+            canonicalArtifactKey: canonicalKey,
+            // Intentionally omit suggestedIdentity — never auto-migrate divergences.
+        });
+    }
 }
 /**
  * Migration suggestion for unresolved sources. Never guesses under ambiguity.
@@ -279,6 +423,8 @@ export function preflightActor(actor) {
                 pushResult(report, result, null, { suggested });
             }
             if (item?.type === 'artifact') {
+                // Wrong-but-valid / alias diagnostics first (read-only; never auto-migrate).
+                collectArtifactCatalogDiagnostics(report, actor, item);
                 const rows = Array.isArray(item.system?.levelProgression)
                     ? item.system.levelProgression
                     : [];
@@ -426,16 +572,29 @@ export function formatIdentityPreflightMarkdown(report) {
         lines.push('_No unresolved entries._');
     }
     else {
-        lines.push('| Severity | Reason | Actor/Item | Disposition | Suggestion |');
+        lines.push('| Severity | Reason | Actor/Item | Disposition | Detail |');
         lines.push('|---|---|---|---|---|');
         for (const e of report.entries.slice(0, 200)) {
-            const who = [e.ref.actorName, e.ref.itemName, e.ref.echoArtifactKey && `L${e.ref.rowLevel}`]
+            const who = [
+                e.ref.actorName,
+                e.ref.itemName,
+                e.ref.echoArtifactKey &&
+                    (e.ref.rowLevel != null ? `${e.ref.echoArtifactKey} L${e.ref.rowLevel}` : e.ref.echoArtifactKey),
+            ]
                 .filter(Boolean)
                 .join(' · ');
-            const sug = e.suggestedIdentity
-                ? `${e.suggestedIdentity.templateId || e.suggestedIdentity.artifactFunctionId || '?'} (${e.suggestedIdentity.basis})`
-                : '—';
-            lines.push(`| ${e.severity} | ${e.reason} | ${who || '—'} | ${e.disposition} | ${sug} |`);
+            let detail = '—';
+            if (e.reason === 'catalog-divergence' && e.observedIdentity && e.expectedIdentity) {
+                const fmt = (s) => `tid=${s.powerTemplateId ?? '∅'} afid=${s.artifactFunctionId ?? '∅'} r=${s.rank ?? '∅'} lim=${s.limited ?? '∅'}`;
+                detail = `obs{${fmt(e.observedIdentity)}} ≠ exp{${fmt(e.expectedIdentity)}} (${e.canonicalArtifactKey || '—'})`;
+            }
+            else if (e.reason === 'legacy-alias-key') {
+                detail = `${e.ref.echoArtifactKey} → ${e.canonicalArtifactKey || '?'}`;
+            }
+            else if (e.suggestedIdentity) {
+                detail = `${e.suggestedIdentity.templateId || e.suggestedIdentity.artifactFunctionId || '?'} (${e.suggestedIdentity.basis})`;
+            }
+            lines.push(`| ${e.severity} | ${e.reason} | ${who || '—'} | ${e.disposition} | ${detail} |`);
         }
     }
     if (report.errors?.length) {

@@ -20,8 +20,23 @@ export type PowerIdentitySource = {
     kind: 'radial-option';
     option: any;
 };
-export type UnresolvedIdentityReason = 'missing-identity' | 'unknown-template-id' | 'unknown-artifact-function-id' | 'artifact-function-contract-violation' | 'rank-missing' | 'rank-out-of-range' | 'category-conflict' | 'special-key-unknown';
+export type UnresolvedIdentityReason = 'missing-identity' | 'unknown-template-id' | 'unknown-artifact-function-id' | 'artifact-function-contract-violation' | 'rank-missing' | 'rank-out-of-range' | 'category-conflict' | 'special-key-unknown'
+/** Stored echoArtifactKey is a legacy alias (e.g. titanScarsIntellect → titanScars). */
+ | 'legacy-alias-key'
+/**
+ * Row already has a valid structured identity that disagrees with the
+ * authoritative catalog/builder definition for the same key+level.
+ * Manual review only — never auto-migrated.
+ */
+ | 'catalog-divergence';
 export type UnresolvedSeverity = 'blocks-activation' | 'omits-contribution' | 'informational';
+/** Structured identity snapshot used by catalog-divergence diagnostics. */
+export interface IdentityFieldSnapshot {
+    powerTemplateId: string | null;
+    artifactFunctionId: string | null;
+    rank: number | null;
+    limited: boolean | null;
+}
 export interface ResolvedPowerIdentity {
     ok: true;
     templateId: string | null;
@@ -57,6 +72,12 @@ export interface UnresolvedPowerIdentity {
         rank?: number;
         basis: 'echoArtifactKey+level' | 'flags.powerId' | 'templateName-exact';
     };
+    /** Present for catalog-divergence / legacy-alias-key diagnostics. */
+    observedIdentity?: IdentityFieldSnapshot;
+    /** Authoritative builder/catalog identity the row was compared against. */
+    expectedIdentity?: IdentityFieldSnapshot;
+    /** Alias-resolved catalog key (when echoArtifactKey was a legacy alias). */
+    canonicalArtifactKey?: string;
 }
 export type PowerIdentityResult = ResolvedPowerIdentity | UnresolvedPowerIdentity;
 /**
