@@ -38,6 +38,8 @@ function clampArtifactLevel(level: number): number {
 /** Level-10 capstone rows (Awakening / legacy True … Ultimate) — not a fourth staged slot. */
 export function isUltimateProgressionRow(row: ArtifactLevelProgressionRow): boolean {
   if (Number(row.level) !== 10) return false;
+  // K8.c: structured artifactFunctionId first; name/type bridges for missing-ID rows.
+  if (String((row as any).artifactFunctionId || '') === 'artifact-awakening') return true;
   const type = String(row.type || '').toLowerCase();
   const name = String(row.name || '').trim();
   if (type === 'ultimate') return true;

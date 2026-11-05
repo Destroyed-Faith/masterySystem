@@ -139,17 +139,48 @@ function pushEntry(entry: IdentityShadowEntry): void {
   sessionLog.push(entry);
 }
 
+function isUnresolvedIdentityValue(value: unknown): boolean {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const kind = (value as { kind?: unknown }).kind;
+  return kind === 'unresolved' || kind === 'identity-threw';
+}
+
+export type IdentityDecisionPrefer = 'legacy' | 'identity';
+
 /**
- * Compare legacy decision vs identity decision. Always returns the legacy value.
- * Identity exceptions are swallowed and logged — they must never affect the legacy path.
+ * Compare legacy decision vs identity decision and return the preferred path.
+ *
+ * - `prefer: 'legacy'` (default, C1): always returns legacy; identity is shadow-only.
+ * - `prefer: 'identity'` (K8 cluster cuts): returns identity when it resolves to a
+ *   concrete value; on unresolved/throw, falls back to legacy unless
+ *   `unresolvedFallsBackToLegacy: false` (then returns the unresolved object cast
+ *   through as T — callers must narrow).
  */
 export function compareIdentityDecision<T>(
   siteId: string,
   legacyDecision: T,
   identityDecisionFactory: () => unknown,
   ref?: Record<string, unknown>,
+  opts?: {
+    prefer?: IdentityDecisionPrefer;
+    unresolvedFallsBackToLegacy?: boolean;
+  },
 ): T {
-  if (!enabled) return legacyDecision;
+  const prefer = opts?.prefer ?? 'legacy';
+  const unresolvedFallsBack = opts?.unresolvedFallsBackToLegacy !== false;
+
+  if (!enabled) {
+    if (prefer === 'identity') {
+      try {
+        const identity = identityDecisionFactory();
+        if (!isUnresolvedIdentityValue(identity)) return identity as T;
+        return unresolvedFallsBack ? legacyDecision : (identity as T);
+      } catch {
+        return legacyDecision;
+      }
+    }
+    return legacyDecision;
+  }
   if (shouldSkipRef(ref)) {
     skippedNpcOrManeuver += 1;
     return legacyDecision;
@@ -178,6 +209,11 @@ export function compareIdentityDecision<T>(
   pushEntry(entry);
   if (!equal && typeof console !== 'undefined' && console.info) {
     console.info('[identity-shadow]', siteId, { legacy: legacyDecision, identity, ref });
+  }
+
+  if (prefer === 'identity') {
+    if (!isUnresolvedIdentityValue(identity)) return identity as T;
+    return unresolvedFallsBack ? legacyDecision : (identity as T);
   }
   return legacyDecision;
 }

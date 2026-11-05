@@ -59,7 +59,7 @@ export function isLimitedAttackDeclaration(opts) {
     if (opts.item?.system?.limited === true)
         return true;
     const legacy = isLimitedPowerTemplateId(tid);
-    // C1 Shadow-Compare (identity.limited); legacy decides.
+    // K8.d: identity.limited / Limited template ids decide when resolvable.
     return compareIdentityDecision('limited.isLimitedAttackDeclaration', legacy, () => {
         if (!opts.item && !tid)
             return false;
@@ -70,7 +70,7 @@ export function isLimitedAttackDeclaration(opts) {
         if (!id.ok)
             return false;
         return id.limited === true || isLimitedPowerTemplateId(id.templateId || '');
-    }, { templateId: tid });
+    }, { templateId: tid }, { prefer: 'identity' });
 }
 function readSpent(actor) {
     if (!actor)

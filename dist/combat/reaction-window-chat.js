@@ -997,11 +997,18 @@ async function executeReactionSpend(params) {
                             const eid = String(entry?.id || entry?.name || '').toLowerCase();
                             const legacyHit = eid === chosen.id.toLowerCase() ||
                                 String(entry?.name || '').toLowerCase().includes(chosen.id);
-                            // K5: identity path prefers exact id match only (no substring).
+                            // K8.g: exact special id decides; substring name match is missing-ID bridge.
                             let hit = legacyHit;
                             try {
                                 const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
-                                hit = compareIdentityDecision('reaction.specialIncreaseMatch', legacyHit, () => eid === chosen.id.toLowerCase(), { chosenId: chosen.id, entryId: eid });
+                                hit = compareIdentityDecision('reaction.specialIncreaseMatch', legacyHit, () => {
+                                    if (eid === chosen.id.toLowerCase())
+                                        return true;
+                                    // No structured id on the status entry → unresolved → legacy substring.
+                                    if (!entry?.id)
+                                        return { kind: 'unresolved', reason: 'missing-identity' };
+                                    return false;
+                                }, { chosenId: chosen.id, entryId: eid }, { prefer: 'identity' });
                             }
                             catch {
                                 hit = legacyHit;

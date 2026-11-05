@@ -44,9 +44,18 @@ export declare function exportIdentityShadowReport(opts?: {
 };
 /** Group mismatches by siteId prefix (first segment before `.`). */
 export declare function exportIdentityShadowClusterReports(): Record<string, ReturnType<typeof exportIdentityShadowReport>>;
+export type IdentityDecisionPrefer = 'legacy' | 'identity';
 /**
- * Compare legacy decision vs identity decision. Always returns the legacy value.
- * Identity exceptions are swallowed and logged — they must never affect the legacy path.
+ * Compare legacy decision vs identity decision and return the preferred path.
+ *
+ * - `prefer: 'legacy'` (default, C1): always returns legacy; identity is shadow-only.
+ * - `prefer: 'identity'` (K8 cluster cuts): returns identity when it resolves to a
+ *   concrete value; on unresolved/throw, falls back to legacy unless
+ *   `unresolvedFallsBackToLegacy: false` (then returns the unresolved object cast
+ *   through as T — callers must narrow).
  */
-export declare function compareIdentityDecision<T>(siteId: string, legacyDecision: T, identityDecisionFactory: () => unknown, ref?: Record<string, unknown>): T;
+export declare function compareIdentityDecision<T>(siteId: string, legacyDecision: T, identityDecisionFactory: () => unknown, ref?: Record<string, unknown>, opts?: {
+    prefer?: IdentityDecisionPrefer;
+    unresolvedFallsBackToLegacy?: boolean;
+}): T;
 //# sourceMappingURL=identity-shadow.d.ts.map

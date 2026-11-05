@@ -238,15 +238,17 @@ export function isHealRadialOption(
     decided = true;
   }
 
+  // K8.e: identity templateId decides when resolvable; text/legacy only as missing-ID bridge.
   return compareIdentityDecision(
     'heal.isHealRadialOption',
     decided,
     () => {
       const id = resolvePowerIdentity({ kind: 'radial-option', option });
-      if (!id.ok) return false;
+      if (!id.ok) return { kind: 'unresolved', reason: id.reason || 'missing-identity' };
       return isHealTemplateId(id.templateId);
     },
     { name: option.name },
+    { prefer: 'identity' },
   );
 }
 
@@ -263,8 +265,14 @@ export function healPowerItemFromRadialOption(
   const tid = String(option.artifactPowerTemplateId || '');
   if (tid && isHealTemplateId(tid)) {
     const tpl = getTemplate(tid);
+    // K8.e / F12: prefer structured option.rank when present.
+    const rankFromOption =
+      option.rank != null && Number.isFinite(Number(option.rank))
+        ? Math.max(1, Math.floor(Number(option.rank)))
+        : null;
     const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
-    const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
+    const rank =
+      rankFromOption ?? Math.max(1, Math.floor(Number(rankKey) || 1));
     return {
       type: 'power',
       id: option.id,
@@ -295,8 +303,13 @@ export function healPowerItemFromRadialOption(
         ? 'active-melee-single-heal'
         : 'active-ranged-single-heal';
       const tpl = getTemplate(templateId);
+      const rankFromOption =
+        option.rank != null && Number.isFinite(Number(option.rank))
+          ? Math.max(1, Math.floor(Number(option.rank)))
+          : null;
       const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
-      const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
+      const rank =
+        rankFromOption ?? Math.max(1, Math.floor(Number(rankKey) || 1));
       return {
         type: 'power',
         id: option.id,
@@ -315,8 +328,13 @@ export function healPowerItemFromRadialOption(
     if (inferred || artifactRowLooksLikeHeal(option)) {
       const templateId = inferred?.templateId ?? 'active-ranged-health-level-heal';
       const tpl = getTemplate(templateId);
+      const rankFromOption =
+        option.rank != null && Number.isFinite(Number(option.rank))
+          ? Math.max(1, Math.floor(Number(option.rank)))
+          : null;
       const rankKey = inferred?.pl ?? artifactLevelToTemplateRank(option.artifactRowLevel || 1);
-      const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
+      const rank =
+        rankFromOption ?? Math.max(1, Math.floor(Number(rankKey) || 1));
       return {
         type: 'power',
         id: option.id,

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.829] - 2026-11-05
+
+### Changed
+
+- **K8 identity cutover (d→e→c→a→b→f→g):** Combat/radial routing is identity-primary via `compareIdentityDecision(..., { prefer: 'identity' })` when structured IDs resolve; allowlisted legacy text remains the pre-K9 missing-ID bridge. Heal/cleanse prefer `option.rank` (F12). Breath mode no longer silently defaults to `'damage'` when identity is breath but mode is missing.
+
+### Notes
+
+- W1 Titan Growth name holdout retained (incomplete for wrong-tid Lor-Keth radial classification — see independent review). Cluster **b** (DR/Phasing) is live in this build; W2 remains a process gate, not a runtime flag. No K9 pack rebuild, no Forge world writes, fail-closed-on-missing-ID not enabled.
+- Implementation report: `docs/audits/COMBAT_RESOLVER_ID_REFACTOR_IMPLEMENTATION.md` §12.
+
 ## [0.9.828] - 2026-11-05
 
 ### Fixed

@@ -1695,7 +1695,10 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   const isUtility = option.slot === 'utility';
   if (isUtility) {
     // Titan Growth / Transformation — self activate, no targeting.
+    // K8.c / W1 holdout: prefer artifactFunctionId + transformation tag; keep
+    // /titan\s*growth/i name bridge until Lor-Keth catalog-divergence is resolved.
     const isTransformation =
+      (option as any).artifactFunctionId === 'titan-growth' ||
       (option.tags || []).includes('transformation') ||
       /titan\s*growth/i.test(String(option.name || '')) ||
       /transformation/i.test(String(option.artifactRowSpecial || ''));

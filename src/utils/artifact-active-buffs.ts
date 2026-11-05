@@ -73,7 +73,7 @@ function growthPowerLevelFor(option: RadialCombatOption): number {
     else if (lvl >= 4) legacy = 10;
     else legacy = 4;
   }
-  // K5: structured rank / stage mapping shadows the text parse; legacy still decides.
+  // K8.c: structured option.rank / stage mapping decides; text PL is missing-ID bridge.
   return compareIdentityDecision(
     'artifact.growthPowerLevel',
     legacy,
@@ -89,6 +89,7 @@ function growthPowerLevelFor(option: RadialCombatOption): number {
       rank: (option as any).rank ?? null,
       artifactRowLevel: option.artifactRowLevel ?? null,
     },
+    { prefer: 'identity' },
   );
 }
 
@@ -204,7 +205,10 @@ export async function activateArtifactActiveBuff(
   const optionName = String(option.name || '');
 
   // Titan Growth is Transformation Growth — not Active Buff: Growth Form (own rules).
+  // K8.c / W1 holdout: prefer artifactFunctionId; keep name/special bridges until W1
+  // (Lor-Keth stores ab-armor-temp-hp on a row named Titan Growth I).
   const isTitanGrowth =
+    (option as any).artifactFunctionId === 'titan-growth' ||
     /titan\s*growth/i.test(optionName) ||
     String(option.artifactRowSpecial || '').toLowerCase().includes('transformation (growth');
   if (isTitanGrowth) {
@@ -281,11 +285,16 @@ export async function activateArtifactActiveBuff(
     }
   }
 
-  const isMoonlightShadow = /moonlight\s*shadow/i.test(optionName);
+  // K8.c: structured templateId first; name bridge only when tid absent.
+  const isMoonlightShadow =
+    option.artifactPowerTemplateId === 'ab-sundered-aura' ||
+    (!option.artifactPowerTemplateId && /moonlight\s*shadow/i.test(optionName));
   // Moonlight Shadow uses official Active Buff: Sundered Aura — no separate
   // Safe Haven Rest use limit (Batch 9I / Artifacts_FULL_Moonlight_Sundered).
 
-  const isGrowth = String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
+  const isGrowth =
+    option.artifactPowerTemplateId === 'ab-growth-form' ||
+    String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
   const masteryRank = getMasteryRank(actor);
   const {
     preparationTargetRound,

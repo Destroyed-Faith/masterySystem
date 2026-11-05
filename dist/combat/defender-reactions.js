@@ -8,6 +8,7 @@
 import { getActionEconomyActor, getReactionActionsSummary, hasPowerBeenUsedThisRound, } from './action-economy.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
@@ -126,18 +127,35 @@ export function dedupeOverlappingBasicReactions(powers) {
         if ((Number(mech?.evade) || 0) > 0)
             return true;
         const tid = String(p?.system?.templateId ?? '').toLowerCase();
-        if (tid.includes('evade') && !tid.includes('ally'))
-            return true;
         const name = String(p?.name ?? '').toLowerCase();
-        return /\bevade\b/.test(name) && !/\bally\b/.test(name);
+        const legacy = (tid.includes('evade') && !tid.includes('ally')) ||
+            (/\bevade\b/.test(name) && !/\bally\b/.test(name));
+        // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
+        return compareIdentityDecision('reaction.hasPowerEvade', legacy, () => {
+            if (tid.includes('evade') && !tid.includes('ally'))
+                return true;
+            if (!tid)
+                return { kind: 'unresolved', reason: 'missing-identity' };
+            return false;
+        }, { tid, name }, { prefer: 'identity' });
     });
     const hasPowerGuard = nonBasic.some((p) => {
         const tid = String(p?.system?.templateId ?? '').toLowerCase();
         const name = String(p?.name ?? '').toLowerCase();
-        if (tid.includes('guard') || tid === 'reaction-armor' || tid.includes('pure-defense')) {
-            return true;
-        }
-        return /\bguard\b/.test(name) || /^reaction:\s*armor\b/.test(name);
+        const legacy = tid.includes('guard') ||
+            tid === 'reaction-armor' ||
+            tid.includes('pure-defense') ||
+            /\bguard\b/.test(name) ||
+            /^reaction:\s*armor\b/.test(name);
+        // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
+        return compareIdentityDecision('reaction.hasPowerGuard', legacy, () => {
+            if (tid.includes('guard') || tid === 'reaction-armor' || tid.includes('pure-defense')) {
+                return true;
+            }
+            if (!tid)
+                return { kind: 'unresolved', reason: 'missing-identity' };
+            return false;
+        }, { tid, name }, { prefer: 'identity' });
     });
     return powers.filter((p) => {
         if (p?.basicReaction === 'evade' && hasPowerEvade)
@@ -152,13 +170,17 @@ const ALLY_REACTION_RANGE_M = 4;
 /** Ally-protection reactions (help another creature in range). */
 export function isAllyReactionPower(item) {
     const tid = String(item?.system?.templateId ?? '').toLowerCase();
-    if (tid.startsWith('reaction-ally-'))
-        return true;
     const sub = String(item?.system?.subfamily ?? '').toLowerCase();
-    if (sub === 'ally')
-        return true;
     const name = String(item?.name ?? '').toLowerCase();
-    return /\bally\b/.test(name);
+    const legacy = tid.startsWith('reaction-ally-') || sub === 'ally' || /\bally\b/.test(name);
+    // K8.f: templateId/subfamily decide; name regex is pre-K9 missing-ID bridge.
+    return compareIdentityDecision('reaction.isAlly', legacy, () => {
+        if (tid.startsWith('reaction-ally-') || sub === 'ally')
+            return true;
+        if (!tid && !sub)
+            return { kind: 'unresolved', reason: 'missing-identity' };
+        return false;
+    }, { tid, sub, name }, { prefer: 'identity' });
 }
 /** Synthetic Interpose button (ally ≤2 m takes half damage). */
 export function buildInterposeReactionItem() {

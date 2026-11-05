@@ -639,8 +639,8 @@ function legacySegmentIdForOption(option) {
 }
 export function getSegmentIdForOption(option) {
     const legacy = legacySegmentIdForOption(option);
-    // C1 Shadow-Compare: identity path does not decide (plan §10.5).
-    // K5: skip npc-attack / maneuver noise in the shadow log.
+    // K8.a: identity category/segment decides when resolvable; legacy text/tags are
+    // the missing-ID bridge (and consumable attack-slot policy).
     return compareIdentityDecision('radial.getSegmentIdForOption', legacy, () => {
         if (option.source === 'maneuver' || option.source === 'npc-attack')
             return legacy;
@@ -663,7 +663,7 @@ export function getSegmentIdForOption(option) {
         if (id.category === 'passive')
             return legacy;
         return legacy;
-    }, { optionId: option.id, name: option.name, source: option.source });
+    }, { optionId: option.id, name: option.name, source: option.source }, { prefer: 'identity' });
 }
 /**
  * Get all combat options for an actor (all categories)

@@ -51,6 +51,7 @@ export declare function progressionRowRangeAoe(row: {
     level?: number;
     range?: string;
     aoe?: string;
+    artifactFunctionId?: string | null;
 } | null | undefined, fallbackLevel?: number): {
     range: string;
     aoe: string;

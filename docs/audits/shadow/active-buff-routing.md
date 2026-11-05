@@ -2,7 +2,7 @@
 
 Source: **unit-test fixtures** (catalog template ids + neutral ZZZ_* names). Not a Foundry reference world. Legacy path decides.
 
-Generated: 2026-11-05T07:24:14.499Z
+Generated: 2026-11-05T10:22:04.212Z
 
 ## Summary
 
@@ -21,7 +21,7 @@ Generated: 2026-11-05T07:24:14.499Z
 ## Cases
 
 - **damage-transfer-stance-text**: legacy=`"attack"` identity=`"attack"` equal=true — C2.a — templateId present ⇒ stance text ignored; both attack
-- **support-heal-segment**: legacy=`"attack"` identity=`"utility"` equal=false — approved C1 — legacy attack vs identity utility (matrix exception / C2.a work list)
+- **support-heal-segment**: legacy=`"utility"` identity=`"utility"` equal=false — approved C1 — legacy attack vs identity utility (matrix exception / C2.a work list)
 
 ## Approved exceptions
 

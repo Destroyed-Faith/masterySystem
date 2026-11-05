@@ -61,7 +61,7 @@ function growthPowerLevelFor(option) {
         else
             legacy = 4;
     }
-    // K5: structured rank / stage mapping shadows the text parse; legacy still decides.
+    // K8.c: structured option.rank / stage mapping decides; text PL is missing-ID bridge.
     return compareIdentityDecision('artifact.growthPowerLevel', legacy, () => {
         const ranked = Number(option.rank);
         if (Number.isFinite(ranked) && ranked >= 1 && ranked <= 16)
@@ -74,7 +74,7 @@ function growthPowerLevelFor(option) {
         name: option.name,
         rank: option.rank ?? null,
         artifactRowLevel: option.artifactRowLevel ?? null,
-    });
+    }, { prefer: 'identity' });
 }
 /**
  * Resolve the `ab-growth-form` level mechanics for a Growth Power Level (4/10/16).
@@ -189,7 +189,10 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
     const buffKey = String(option.id || `${artifactItem.id}:${option.name}`);
     const optionName = String(option.name || '');
     // Titan Growth is Transformation Growth — not Active Buff: Growth Form (own rules).
-    const isTitanGrowth = /titan\s*growth/i.test(optionName) ||
+    // K8.c / W1 holdout: prefer artifactFunctionId; keep name/special bridges until W1
+    // (Lor-Keth stores ab-armor-temp-hp on a row named Titan Growth I).
+    const isTitanGrowth = option.artifactFunctionId === 'titan-growth' ||
+        /titan\s*growth/i.test(optionName) ||
         String(option.artifactRowSpecial || '').toLowerCase().includes('transformation (growth');
     if (isTitanGrowth) {
         try {
@@ -249,10 +252,13 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
             return false;
         }
     }
-    const isMoonlightShadow = /moonlight\s*shadow/i.test(optionName);
+    // K8.c: structured templateId first; name bridge only when tid absent.
+    const isMoonlightShadow = option.artifactPowerTemplateId === 'ab-sundered-aura' ||
+        (!option.artifactPowerTemplateId && /moonlight\s*shadow/i.test(optionName));
     // Moonlight Shadow uses official Active Buff: Sundered Aura — no separate
     // Safe Haven Rest use limit (Batch 9I / Artifacts_FULL_Moonlight_Sundered).
-    const isGrowth = String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
+    const isGrowth = option.artifactPowerTemplateId === 'ab-growth-form' ||
+        String(option.artifactRowSpecial || '').toLowerCase().includes('growth');
     const masteryRank = getMasteryRank(actor);
     const { preparationTargetRound, computeLastActiveRound, } = await import('../combat/active-buff-lifecycle.js');
     const activationRound = combat ? preparationTargetRound(combat) : Math.max(1, getCurrentRound());

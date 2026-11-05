@@ -49,28 +49,44 @@ const REACTION_TYPES = new Set(['Reaction']);
 
 /** Category from identity when present; otherwise legacy type-text classifier. */
 function categoryFromIdentityOrType(row: ArtifactLevelProgressionRow): ArtifactRowCategory {
-  const fn = row.artifactFunctionId;
-  if (fn && isArtifactFunctionId(fn)) {
-    const contract = ARTIFACT_FUNCTION_CONTRACT[fn];
-    if (contract.klass === 'K2') {
-      if (contract.category === 'activeBuff') return 'activeBuff';
-      if (fn === 'titan-growth') return 'utility'; // Transformation Growth surfaces as utility
-      return 'passive';
-    }
-    if (fn === 'dragon-breath') return 'attack';
-  }
-  if (row.powerTemplateId) {
-    const tpl = getTemplate(row.powerTemplateId);
-    if (tpl?.category === 'activeBuff') return 'activeBuff';
-    if (tpl?.category === 'movement') return 'movement';
-    if (tpl?.category === 'reaction') return 'reaction';
-    if (tpl?.category === 'passive') return 'passive';
-    if (tpl?.category === 'active') {
-      if (tpl.subfamily?.startsWith('support-')) return 'utility';
-      return 'attack';
-    }
-  }
-  return classifyArtifactRowType(String(row.type || ''));
+  const legacy = classifyArtifactRowType(String(row.type || ''));
+  // K8.c: artifactFunctionId / powerTemplateId decide; type-text is missing-ID bridge.
+  // W1: titan-growth stays utility (Transformation), never Armor Active Buff via wrong tid.
+  return compareIdentityDecision(
+    'artifact.rowCategory',
+    legacy,
+    () => {
+      const fn = row.artifactFunctionId;
+      if (fn && isArtifactFunctionId(fn)) {
+        const contract = ARTIFACT_FUNCTION_CONTRACT[fn];
+        if (contract.klass === 'K2') {
+          if (contract.category === 'activeBuff') return 'activeBuff';
+          if (fn === 'titan-growth') return 'utility';
+          return 'passive';
+        }
+        if (fn === 'dragon-breath') return 'attack';
+      }
+      if (row.powerTemplateId) {
+        const tpl = getTemplate(row.powerTemplateId);
+        if (tpl?.category === 'activeBuff') return 'activeBuff';
+        if (tpl?.category === 'movement') return 'movement';
+        if (tpl?.category === 'reaction') return 'reaction';
+        if (tpl?.category === 'passive') return 'passive';
+        if (tpl?.category === 'active') {
+          if (tpl.subfamily?.startsWith('support-')) return 'utility';
+          return 'attack';
+        }
+      }
+      return { kind: 'unresolved', reason: 'missing-identity' };
+    },
+    {
+      artifactFunctionId: row.artifactFunctionId || null,
+      powerTemplateId: row.powerTemplateId || null,
+      type: row.type || null,
+      name: row.name || null,
+    },
+    { prefer: 'identity' },
+  );
 }
 
 type ArtifactRowCategory =
@@ -456,20 +472,20 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 option.forcedWeaponItemId = item.id;
             }
             // Limited Instant Damage (e.g. Moonlight Judgment): share global Limited charge.
-            // Prefer mechanical `row.limited` / Special column over name matching.
-            // K1 / C1: restore legacy Limited detection so Radial matches attack-executor;
-            // structured identity path is shadow-compared only and never decides.
-            const legacyLimited =
+            // K8.d: structured row.limited / Limited template ids decide; name/special
+            // bridges remain only when powerTemplateId is absent (pre-K9 missing-ID).
+            const structuredLimited =
               row.limited === true ||
+              (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId)));
+            const limitedNameBridge =
               /\blimited\b/i.test(String(row.special || '')) ||
               /moonlight\s*judgment/i.test(name) ||
               /undead\s*tracer/i.test(name);
+            const legacyLimited = structuredLimited || limitedNameBridge;
             const rowLimited = compareIdentityDecision(
               'artifact.rowLimited',
               legacyLimited,
-              () =>
-                row.limited === true ||
-                (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId))),
+              () => structuredLimited || (!row.powerTemplateId && limitedNameBridge),
               {
                 echoArtifactKey: String(
                   item?.flags?.['mastery-system']?.echoArtifactKey || '',
@@ -478,6 +494,7 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 name,
                 powerTemplateId: row.powerTemplateId || null,
               },
+              { prefer: 'identity' },
             );
             if (rowLimited) {
                 // Martial weapon off for spell Limited; Spell Focus still applies when unlocked.
@@ -529,8 +546,12 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             } else {
                 option.defaultTargetGroup = 'enemy';
             }
-            // Dragon Head Breath: Damage + Ruin (shared use). Prefer artifactFunctionId (C2).
-            if (row.artifactFunctionId === 'dragon-breath' || isBreathWeaponName(name)) {
+            // Dragon Head Breath: Damage + Ruin (shared use).
+            // K8.d: artifactFunctionId decides; isBreathWeaponName only when afid absent.
+            if (
+              row.artifactFunctionId === 'dragon-breath' ||
+              (!row.artifactFunctionId && isBreathWeaponName(name))
+            ) {
                 const dmgL = breathDamageConeMeters(currentLevel);
                 const ruinL = breathRuinConeMeters(currentLevel);
                 const ruinV = breathRuinValue(currentLevel);

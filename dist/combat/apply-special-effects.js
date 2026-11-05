@@ -90,21 +90,23 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
                 continue;
             const effectName = match[1].trim();
             const effectValue = match[2] ? parseInt(match[2], 10) : null;
-            const effectDef = getEffect(effectName);
-            // K5: specials still resolve by display name (legacy). Shadow notes when a
-            // structured key would be preferred — does not change application.
+            let effectDef = getEffect(effectName);
+            // K8.g: prefer catalog id when the token is already an id; display-name
+            // getEffect remains the missing-ID bridge (pre-K9 / chat text payloads).
             try {
                 const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
-                compareIdentityDecision('specials.resolveByName', effectDef?.id || null, () => {
-                    // Identity path: only accept if the string already looks like a catalog id.
+                const decidedId = compareIdentityDecision('specials.resolveByName', effectDef?.id || null, () => {
                     const asId = getEffect(effectName);
                     return asId?.id && asId.id === effectName.toLowerCase().replace(/\s+/g, '-')
                         ? asId.id
                         : { kind: 'unresolved', reason: 'special-key-required', name: effectName };
-                }, { name: effectName });
+                }, { name: effectName }, { prefer: 'identity' });
+                if (typeof decidedId === 'string' && decidedId) {
+                    effectDef = getEffect(decidedId) || effectDef;
+                }
             }
             catch {
-                /* shadow must never affect specials */
+                /* identity must never throw out of specials */
             }
             const effectId = effectDef?.id;
             if (effectDef?.category === 'instant')

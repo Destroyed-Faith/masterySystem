@@ -1,491 +1,491 @@
 {
-  "description": "K6b: Known mechanical text-matching sites pending C2/K8. Entry matches only when file AND line equal and hit text contains `match`. Broad tokens name/heal/breath/limited are forbidden. Display sites use reason starting with display.",
+  "description": "K6b/K8: Mechanical text-matching sites. Identity-primary cutover keeps pre-K9 missing-ID bridges + W1 Titan Growth holdout. Entry matches only when file AND line equal and hit text contains match. Broad tokens name/heal/breath/limited forbidden. Display sites use reason starting with display.",
   "entries": [
     {
-      "file": "src/combat/active-buff-lifecycle.ts",
+      "file": "src\\combat\\active-buff-lifecycle.ts",
       "line": 270,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/active-buff-lifecycle.ts",
+      "file": "src\\combat\\active-buff-lifecycle.ts",
       "line": 271,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/attack-executor.ts",
-      "line": 624,
+      "file": "src\\combat\\attack-executor.ts",
+      "line": 627,
       "match": "/moonlight",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/combat/attack-executor.ts",
-      "line": 625,
-      "match": "/undead",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
-    },
-    {
-      "file": "src/combat/attack-executor.ts",
-      "line": 649,
-      "match": "/moonlight",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
-    },
-    {
-      "file": "src/combat/attack-executor.ts",
-      "line": 674,
+      "file": "src\\combat\\attack-executor.ts",
+      "line": 680,
       "match": "/breath",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/combat/cleanse-resolution.ts",
+      "file": "src\\combat\\attack-executor.ts",
+      "line": 720,
+      "match": "/breath",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\combat\\cleanse-resolution.ts",
       "line": 38,
       "match": "/\\bcleanse",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/cleanse-resolution.ts",
+      "file": "src\\combat\\cleanse-resolution.ts",
       "line": 47,
       "match": "/\\bcleanse",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/cleanse-resolution.ts",
+      "file": "src\\combat\\cleanse-resolution.ts",
       "line": 82,
       "match": "/\\bcleanse",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/damage-negation.ts",
+      "file": "src\\combat\\damage-negation.ts",
       "line": 512,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/damage-negation.ts",
+      "file": "src\\combat\\damage-negation.ts",
       "line": 513,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/defender-reactions.ts",
-      "line": 179,
-      "match": "return /\\bevade\\b/.test(name) && !/\\bally\\b/.tes",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "file": "src\\combat\\defender-reactions.ts",
+      "line": 181,
+      "match": "/\\bevade",
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/defender-reactions.ts",
-      "line": 188,
-      "match": "return /\\bguard\\b/.test(name) || /^reaction:\\s*a",
-      "reason": "C2.b/f — name-class mechanics until K8"
-    },
-    {
-      "file": "src/combat/heal-resolution.ts",
+      "file": "src\\combat\\heal-resolution.ts",
       "line": 163,
       "match": "/\\bheal",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
+      "file": "src\\combat\\heal-resolution.ts",
       "line": 173,
       "match": "/\\bheal",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
+      "file": "src\\combat\\heal-resolution.ts",
       "line": 175,
-      "match": "/\\bheal",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "match": "/\\b",
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
+      "file": "src\\combat\\heal-resolution.ts",
       "line": 191,
       "match": "/\\bheal",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
+      "file": "src\\combat\\heal-resolution.ts",
       "line": 229,
       "match": "artifactRowLooksLikeHeal",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
+      "file": "src\\combat\\heal-resolution.ts",
       "line": 234,
       "match": "inferRestoration",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
-      "line": 290,
+      "file": "src\\combat\\heal-resolution.ts",
+      "line": 298,
       "match": "/moonlight",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
-      "line": 314,
+      "file": "src\\combat\\heal-resolution.ts",
+      "line": 327,
       "match": "inferRestoration",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
-      "line": 315,
+      "file": "src\\combat\\heal-resolution.ts",
+      "line": 328,
       "match": "artifactRowLooksLikeHeal",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/heal-resolution.ts",
-      "line": 474,
+      "file": "src\\combat\\heal-resolution.ts",
+      "line": 492,
       "match": "toLowerCase().includes(",
-      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+      "reason": "K8.e — pre-K9 missing-ID bridge (heal/cleanse text)"
     },
     {
-      "file": "src/combat/parry-recovery.ts",
+      "file": "src\\combat\\parry-recovery.ts",
       "line": 58,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/parry-recovery.ts",
+      "file": "src\\combat\\parry-recovery.ts",
       "line": 59,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/parry.ts",
-      "line": 70,
-      "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
-    },
-    {
-      "file": "src/combat/parry.ts",
+      "file": "src\\combat\\parry.ts",
       "line": 71,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/parry.ts",
-      "line": 412,
+      "file": "src\\combat\\parry.ts",
+      "line": 72,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/parry.ts",
-      "line": 419,
-      "match": "toLowerCase().includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "file": "src\\combat\\parry.ts",
+      "line": 413,
+      "match": "name.includes(",
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/perception-state.ts",
+      "file": "src\\combat\\parry.ts",
+      "line": 431,
+      "match": "name.includes(",
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
+    },
+    {
+      "file": "src\\combat\\perception-state.ts",
       "line": 217,
       "match": "name.includes(",
       "reason": "display"
     },
     {
-      "file": "src/combat/perception-state.ts",
+      "file": "src\\combat\\perception-state.ts",
       "line": 218,
       "match": "name.includes(",
       "reason": "display"
     },
     {
-      "file": "src/combat/perception-state.ts",
+      "file": "src\\combat\\perception-state.ts",
       "line": 219,
       "match": "name.includes(",
       "reason": "display"
     },
     {
-      "file": "src/combat/perception-state.ts",
+      "file": "src\\combat\\perception-state.ts",
       "line": 220,
       "match": "name.includes(",
       "reason": "display"
     },
     {
-      "file": "src/combat/perception-state.ts",
+      "file": "src\\combat\\perception-state.ts",
       "line": 221,
       "match": "name.includes(",
       "reason": "display"
     },
     {
-      "file": "src/combat/perception-state.ts",
+      "file": "src\\combat\\perception-state.ts",
       "line": 222,
       "match": "name.includes(",
       "reason": "display"
     },
     {
-      "file": "src/combat/persistent-zone-runtime.ts",
+      "file": "src\\combat\\persistent-zone-runtime.ts",
       "line": 117,
       "match": "tags.includes(",
       "reason": "C2 — spell/tag delivery (not power-name)"
     },
     {
-      "file": "src/combat/raise-resolution.ts",
+      "file": "src\\combat\\raise-resolution.ts",
       "line": 740,
       "match": "tags.includes(",
       "reason": "C2 — spell/tag delivery (not power-name)"
     },
     {
-      "file": "src/combat/reaction-eligibility.ts",
-      "line": 187,
+      "file": "src\\combat\\reaction-eligibility.ts",
+      "line": 189,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/reaction-eligibility.ts",
-      "line": 312,
+      "file": "src\\combat\\reaction-eligibility.ts",
+      "line": 190,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/reaction-eligibility.ts",
-      "line": 316,
+      "file": "src\\combat\\reaction-eligibility.ts",
+      "line": 329,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/reaction-eligibility.ts",
-      "line": 317,
+      "file": "src\\combat\\reaction-eligibility.ts",
+      "line": 333,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/reaction-followups.ts",
+      "file": "src\\combat\\reaction-eligibility.ts",
+      "line": 334,
+      "match": "name.includes(",
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
+    },
+    {
+      "file": "src\\combat\\reaction-followups.ts",
       "line": 63,
       "match": "name.includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/reaction-window-chat.ts",
+      "file": "src\\combat\\reaction-window-chat.ts",
       "line": 765,
       "match": "toLowerCase().includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/reaction-window-chat.ts",
+      "file": "src\\combat\\reaction-window-chat.ts",
       "line": 1172,
       "match": "toLowerCase().includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/thorns.ts",
+      "file": "src\\combat\\thorns.ts",
       "line": 34,
       "match": "toLowerCase().includes(",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/combat/thorns.ts",
+      "file": "src\\combat\\thorns.ts",
       "line": 64,
       "match": "/\\bthorns",
-      "reason": "C2.b/f — name-class mechanics until K8"
+      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
+      "file": "src\\radial-menu\\artifact-options.ts",
       "line": 41,
       "match": "isBreathWeaponName",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 73,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 52,
       "match": "classifyArtifactRowType",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 220,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 236,
       "match": "/\\bheal",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 224,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 240,
       "match": "/\\bcleanse",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 228,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 244,
       "match": "/\\bcleanse",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 229,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 245,
       "match": "/\\bheal",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 230,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 246,
       "match": "/\\bheal",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 314,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 330,
       "match": "isBreathWeaponName",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 464,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 481,
       "match": "/\\blimited",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 465,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 482,
       "match": "/moonlight",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 466,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 483,
       "match": "/undead",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 533,
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 550,
       "match": "isBreathWeaponName",
-      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/radial-menu/artifact-options.ts",
-      "line": 539,
-      "match": "const stageSuffix = (name.match(/\\s(I{1,3})\\b/) ",
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 553,
+      "match": "isBreathWeaponName",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 560,
+      "match": "const stageSuffix",
       "reason": "display"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 139,
       "match": "toLowerCase().includes(",
       "reason": "display"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 571,
       "match": "name.includes(",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 582,
       "match": "name.includes(",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 660,
       "match": "tags.includes(",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 678,
       "match": "textSuggestsActiveBuff",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 687,
       "match": "tags.includes(",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/options.ts",
+      "file": "src\\radial-menu\\options.ts",
       "line": 690,
       "match": "textSuggestsActiveBuff",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/options.ts",
-      "line": 908,
+      "file": "src\\radial-menu\\options.ts",
+      "line": 909,
       "match": "tags.includes(",
-      "reason": "C2.a — segment/tag/text routing until K8"
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
-      "file": "src/radial-menu/power-radial-label.ts",
+      "file": "src\\radial-menu\\power-radial-label.ts",
       "line": 25,
-      "match": "if (/^melee\\s+damage\\b/i.test(name) && !/\\bspell",
+      "match": "/\\bspell",
       "reason": "display"
     },
     {
-      "file": "src/radial-menu/power-radial-label.ts",
+      "file": "src\\radial-menu\\power-radial-label.ts",
       "line": 27,
-      "match": "} else if (/^ranged\\s+damage\\b/i.test(name) && !",
+      "match": "/\\bspell",
       "reason": "display"
     },
     {
-      "file": "src/utils/power-mechanics.ts",
+      "file": "src\\utils\\power-mechanics.ts",
       "line": 286,
       "match": "canonicalPowerLookupName",
-      "reason": "K1 restored name fallback until C2.b"
+      "reason": "K8.b — missing-tid name catalog bridge (Forge activation blocked on W2)"
     },
     {
-      "file": "src/utils/power-mechanics.ts",
+      "file": "src\\utils\\power-mechanics.ts",
       "line": 290,
       "match": "canonicalPowerLookupName",
-      "reason": "K1 restored name fallback until C2.b"
+      "reason": "K8.b — missing-tid name catalog bridge (Forge activation blocked on W2)"
     },
     {
-      "file": "src/utils/power-mechanics.ts",
+      "file": "src\\utils\\power-mechanics.ts",
       "line": 306,
       "match": "canonicalPowerLookupName",
-      "reason": "K1 restored name fallback until C2.b"
+      "reason": "K8.b — missing-tid name catalog bridge (Forge activation blocked on W2)"
     },
     {
-      "file": "src/utils/artifact-active-buffs.ts",
+      "file": "src\\utils\\artifact-active-buffs.ts",
       "line": 67,
       "match": "power level",
-      "reason": "C2.c — growth/PL text until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/utils/artifact-active-buffs.ts",
-      "line": 284,
+      "file": "src\\utils\\artifact-active-buffs.ts",
+      "line": 291,
       "match": "/moonlight",
-      "reason": "C2.c — growth/PL text until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/utils/breath-weapon.ts",
+      "file": "src\\utils\\breath-weapon.ts",
       "line": 21,
       "match": "/breath",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/utils/breath-weapon.ts",
-      "line": 119,
+      "file": "src\\utils\\breath-weapon.ts",
+      "line": 131,
       "match": "isBreathWeaponName",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
-      "file": "src/utils/artifact-visible-abilities.ts",
+      "file": "src\\utils\\artifact-visible-abilities.ts",
       "line": 26,
       "match": "isUltimateProgressionRow",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/utils/artifact-visible-abilities.ts",
-      "line": 66,
+      "file": "src\\utils\\artifact-visible-abilities.ts",
+      "line": 68,
       "match": "isUltimateProgressionRow",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/utils/artifact-visible-abilities.ts",
-      "line": 67,
+      "file": "src\\utils\\artifact-visible-abilities.ts",
+      "line": 69,
       "match": "isUltimateProgressionRow",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/utils/artifact-visible-abilities.ts",
-      "line": 89,
+      "file": "src\\utils\\artifact-visible-abilities.ts",
+      "line": 91,
       "match": "isUltimateProgressionRow",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     },
     {
-      "file": "src/utils/artifact-visible-abilities.ts",
-      "line": 90,
+      "file": "src\\utils\\artifact-visible-abilities.ts",
+      "line": 92,
       "match": "isUltimateProgressionRow",
-      "reason": "C2.c/d — breath/ultimate name until K8"
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
     }
   ]
 }

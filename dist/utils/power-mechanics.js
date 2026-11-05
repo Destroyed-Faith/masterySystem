@@ -302,11 +302,17 @@ function resolveMechanicsFromCatalogLegacy(powerItem, rank) {
 function resolveMechanicsFromCatalog(powerItem, rank) {
     const legacy = resolveMechanicsFromCatalogLegacy(powerItem, rank);
     const sys = powerItem.system ?? {};
-    return compareIdentityDecision('mechanics.resolveFromCatalog', legacy, () => resolveMechanicsFromCatalogByIdOnly(powerItem, rank), {
+    // K8.b: templateId-only resolve when present; name lookup remains missing-ID bridge.
+    return compareIdentityDecision('mechanics.resolveFromCatalog', legacy, () => {
+        const tid = sys.templateId ? String(sys.templateId) : '';
+        if (!tid)
+            return { kind: 'unresolved', reason: 'missing-identity' };
+        return resolveMechanicsFromCatalogByIdOnly(powerItem, rank);
+    }, {
         templateId: sys.templateId ? String(sys.templateId) : null,
         name: powerItem.name ?? sys.name ?? null,
         rank,
-    });
+    }, { prefer: 'identity' });
 }
 /**
  * Closed-subsystem whitelist for Damage Reduction. Only these three power
@@ -400,12 +406,17 @@ function isSanctionedDR(contribution) {
             legacy = true;
         }
     }
-    const decided = compareIdentityDecision('mechanics.isSanctionedDR', legacy, () => isSanctionedDRByTemplateId(contribution), {
+    // K8.b: templateId sanction decides when ids present; name remains missing-ID bridge.
+    const decided = compareIdentityDecision('mechanics.isSanctionedDR', legacy, () => {
+        if (!buffTid && !powerTid)
+            return { kind: 'unresolved', reason: 'missing-identity' };
+        return isSanctionedDRByTemplateId(contribution);
+    }, {
         powerName: contribution.powerName,
         sourceKind: contribution.sourceKind,
         buffTemplateId: buffTid || null,
         powerTemplateId: powerTid || null,
-    });
+    }, { prefer: 'identity' });
     if (!decided) {
         console.warn(`Mastery System | DR rule violation: power "${contribution.powerName}" ` +
             `(${contribution.sourceKind}) declares damageReductionPct but only ` +
@@ -430,10 +441,13 @@ export function isSanctionedPhasingName(powerName, sourceKind, templateId) {
     else {
         legacy = raw === expected || stripped === expected;
     }
+    // K8.b: templateId sanction decides when present; name aliases are missing-ID bridge.
     return compareIdentityDecision('mechanics.isSanctionedPhasing', legacy, () => {
         const tid = String(templateId || '').trim();
+        if (!tid)
+            return { kind: 'unresolved', reason: 'missing-identity' };
         return tid === PHASING_SANCTIONED_TEMPLATE_IDS[sourceKind];
-    }, { powerName, sourceKind, templateId: templateId || null });
+    }, { powerName, sourceKind, templateId: templateId || null }, { prefer: 'identity' });
 }
 /**
  * Enumerate every active mechanics contribution for an actor:

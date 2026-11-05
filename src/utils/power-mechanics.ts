@@ -320,15 +320,21 @@ function resolveMechanicsFromCatalog(
 ): PowerMechanics | null {
   const legacy = resolveMechanicsFromCatalogLegacy(powerItem, rank);
   const sys = powerItem.system ?? {};
+  // K8.b: templateId-only resolve when present; name lookup remains missing-ID bridge.
   return compareIdentityDecision(
     'mechanics.resolveFromCatalog',
     legacy,
-    () => resolveMechanicsFromCatalogByIdOnly(powerItem, rank),
+    () => {
+      const tid = sys.templateId ? String(sys.templateId) : '';
+      if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
+      return resolveMechanicsFromCatalogByIdOnly(powerItem, rank);
+    },
     {
       templateId: sys.templateId ? String(sys.templateId) : null,
       name: powerItem.name ?? sys.name ?? null,
       rank,
     },
+    { prefer: 'identity' },
   );
 }
 
@@ -432,16 +438,21 @@ function isSanctionedDR(contribution: MechanicsContribution): boolean {
     }
   }
 
+  // K8.b: templateId sanction decides when ids present; name remains missing-ID bridge.
   const decided = compareIdentityDecision(
     'mechanics.isSanctionedDR',
     legacy,
-    () => isSanctionedDRByTemplateId(contribution),
+    () => {
+      if (!buffTid && !powerTid) return { kind: 'unresolved', reason: 'missing-identity' };
+      return isSanctionedDRByTemplateId(contribution);
+    },
     {
       powerName: contribution.powerName,
       sourceKind: contribution.sourceKind,
       buffTemplateId: buffTid || null,
       powerTemplateId: powerTid || null,
     },
+    { prefer: 'identity' },
   );
 
   if (!decided) {
@@ -475,14 +486,17 @@ export function isSanctionedPhasingName(
   } else {
     legacy = raw === expected || stripped === expected;
   }
+  // K8.b: templateId sanction decides when present; name aliases are missing-ID bridge.
   return compareIdentityDecision(
     'mechanics.isSanctionedPhasing',
     legacy,
     () => {
       const tid = String(templateId || '').trim();
+      if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
       return tid === PHASING_SANCTIONED_TEMPLATE_IDS[sourceKind];
     },
     { powerName, sourceKind, templateId: templateId || null },
+    { prefer: 'identity' },
   );
 }
 

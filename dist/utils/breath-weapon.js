@@ -102,7 +102,9 @@ export function breathWeaponRowDisplay(artifactLevel) {
 export function progressionRowRangeAoe(row, fallbackLevel) {
     if (!row)
         return { range: '', aoe: '' };
-    if (isBreathWeaponName(row.name)) {
+    // K8.d: prefer artifactFunctionId; name bridge when afid absent.
+    if (row.artifactFunctionId === 'dragon-breath' ||
+        (!row.artifactFunctionId && isBreathWeaponName(row.name))) {
         return breathWeaponRowDisplay(Number(row.level) || Number(fallbackLevel) || 1);
     }
     return { range: String(row.range || ''), aoe: String(row.aoe || '') };

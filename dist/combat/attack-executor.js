@@ -444,16 +444,15 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         const templateId = String(option.item?.system?.templateId ||
             option.artifactPowerTemplateId ||
             '');
-        const legacyClaimsLimited = option.limited === true ||
+        const structuredClaimsLimited = option.limited === true ||
             option.artifactLimited === true ||
             option.item?.system?.limited === true ||
-            /moonlight\s*judgment/i.test(optionName) ||
-            /undead\s*tracer/i.test(optionName);
-        // K5: legacy decides Limited claim; identity path compares structured flags/ids only.
-        const claimsLimited = compareIdentityDecision('executor.claimsLimited', legacyClaimsLimited, () => option.limited === true ||
-            option.artifactLimited === true ||
-            option.item?.system?.limited === true ||
-            isLimitedPowerTemplateId(templateId), { name: optionName, templateId });
+            isLimitedPowerTemplateId(templateId);
+        // pre-K9 missing-ID bridge: Moonlight Judgment / Undead Tracer name aliases.
+        const limitedNameBridge = /moonlight\s*judgment/i.test(optionName) || /undead\s*tracer/i.test(optionName);
+        const legacyClaimsLimited = structuredClaimsLimited || limitedNameBridge;
+        // K8.d: structured flags/ids decide; name bridge only when no templateId.
+        const claimsLimited = compareIdentityDecision('executor.claimsLimited', legacyClaimsLimited, () => structuredClaimsLimited || (!templateId && limitedNameBridge), { name: optionName, templateId }, { prefer: 'identity' });
         if (claimsLimited && isForbiddenLimitedTemplateId(templateId)) {
             ui.notifications?.warn('This Power cannot be used as a Limited Attack.');
             return null;
@@ -464,8 +463,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             templateId,
             item: option.item,
         });
-        // Moonlight Judgment (legacy alias: Undead Tracer) is always Limited Instant AoE Spell.
-        const isMoonlightJudgment = /moonlight\s*judgment/i.test(optionName) || /undead\s*tracer/i.test(optionName);
+        // Moonlight Judgment (legacy alias: Undead Tracer): name bridge and/or Limited AoE template.
+        const isMoonlightJudgment = limitedNameBridge ||
+            (isLimitedPowerTemplateId(templateId) && /limited-aoe/i.test(templateId));
         if (isMoonlightJudgment || isLimitedDecl) {
             if (option.limitedChargeSpent === true) {
                 // Same declaration recreating a card — do not spend again.
@@ -490,18 +490,20 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             }
         }
         else {
-            const legacyIsBreath = /breath\s*weapon/i.test(optionName) ||
-                /damage\s*breath/i.test(optionName) ||
-                /ruin\s*breath/i.test(optionName) ||
+            const afid = String(option.artifactFunctionId || '');
+            const structuredBreath = afid === 'dragon-breath' ||
                 option.dragonHeadBreathMode === 'damage' ||
                 option.dragonHeadBreathMode === 'ruin';
-            const isBreath = compareIdentityDecision('executor.isBreathWeapon', legacyIsBreath, () => option.artifactFunctionId === 'dragon-breath' ||
-                option.dragonHeadBreathMode === 'damage' ||
-                option.dragonHeadBreathMode === 'ruin', {
+            const breathNameBridge = /breath\s*weapon/i.test(optionName) ||
+                /damage\s*breath/i.test(optionName) ||
+                /ruin\s*breath/i.test(optionName);
+            const legacyIsBreath = structuredBreath || breathNameBridge;
+            // K8.d: afid/mode decide; name bridge only when afid absent.
+            const isBreath = compareIdentityDecision('executor.isBreathWeapon', legacyIsBreath, () => structuredBreath || (!afid && breathNameBridge), {
                 name: optionName,
-                artifactFunctionId: option.artifactFunctionId || null,
+                artifactFunctionId: afid || null,
                 mode: option.dragonHeadBreathMode || null,
-            });
+            }, { prefer: 'identity' });
             if (isBreath) {
                 const { assertDragonBreathAvailable, spendDragonBreathUse } = await import('./artifact-rest-uses.js');
                 const gate = assertDragonBreathAvailable(attacker);
@@ -516,12 +518,26 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                     ui.notifications?.warn('Breath Weapon: use could not be spent.');
                     return null;
                 }
-                const legacyMode = option.dragonHeadBreathMode ||
-                    (/ruin\s*breath/i.test(optionName) ? 'ruin' : 'damage');
-                // K5: identity refuses to invent a mode when none is structured (no silent 'damage' default).
-                const mode = compareIdentityDecision('executor.breathMode', legacyMode, () => option.dragonHeadBreathMode === 'damage' || option.dragonHeadBreathMode === 'ruin'
+                const structuredMode = option.dragonHeadBreathMode === 'damage' || option.dragonHeadBreathMode === 'ruin'
                     ? option.dragonHeadBreathMode
-                    : { kind: 'unresolved', reason: 'breath-mode-missing' }, { name: optionName });
+                    : null;
+                const nameBridgeMode = /ruin\s*breath/i.test(optionName)
+                    ? 'ruin'
+                    : /damage\s*breath/i.test(optionName) || /breath\s*weapon/i.test(optionName)
+                        ? 'damage'
+                        : null;
+                // Old silent default: mode || (ruin name ? ruin : 'damage'). K8.d: no invent when
+                // structured breath identity has neither mode nor name bridge.
+                const legacyMode = structuredMode || nameBridgeMode || 'damage';
+                const mode = compareIdentityDecision('executor.breathMode', legacyMode, () => structuredMode ||
+                    nameBridgeMode ||
+                    { kind: 'unresolved', reason: 'breath-mode-missing' }, { name: optionName, artifactFunctionId: afid || null }, { prefer: 'identity', unresolvedFallsBackToLegacy: false });
+                if (mode != null &&
+                    typeof mode === 'object' &&
+                    mode.kind === 'unresolved') {
+                    ui.notifications?.warn('Breath Weapon: mode missing (expected dragonHeadBreathMode damage|ruin).');
+                    return null;
+                }
                 if (mode === 'ruin') {
                     option = { ...option, ignoreWeaponDamage: true, dragonHeadDamageBreath: false };
                 }

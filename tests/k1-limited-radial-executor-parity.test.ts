@@ -51,7 +51,7 @@ describe('K1 Limited Radial ↔ Executor parity', () => {
     expect(executorClaimsLimitedByName('Breath Weapon I')).toBe(false);
   });
 
-  it('shadow compare logs identity-only Limited without changing legacy', () => {
+  it('K8.d: missing-ID name/special bridge still Limited when prefer identity', () => {
     clearIdentityShadowLog();
     const row = {
       limited: false,
@@ -59,22 +59,41 @@ describe('K1 Limited Radial ↔ Executor parity', () => {
       name: 'Legacy Special Limited',
       powerTemplateId: undefined as string | undefined,
     };
-    const legacy = radialLegacyLimited(row);
+    const structured =
+      row.limited === true ||
+      (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId)));
+    const nameBridge =
+      /\blimited\b/i.test(String(row.special || '')) ||
+      /moonlight\s*judgment/i.test(row.name) ||
+      /undead\s*tracer/i.test(row.name);
+    const legacy = structured || nameBridge;
     const decided = compareIdentityDecision(
       'artifact.rowLimited',
       legacy,
-      () =>
-        row.limited === true ||
-        (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId))),
+      () => structured || (!row.powerTemplateId && nameBridge),
       { name: row.name },
+      { prefer: 'identity' },
     );
     expect(decided).toBe(true);
     expect(legacy).toBe(true);
     const log = getIdentityShadowLog().filter((e) => e.siteId === 'artifact.rowLimited');
     expect(log.length).toBeGreaterThan(0);
     expect(log[log.length - 1]!.legacy).toBe(true);
-    // Identity path without flag/templateId would say false — mismatch expected until migration.
-    expect(log[log.length - 1]!.identity).toBe(false);
-    expect(log[log.length - 1]!.equal).toBe(false);
+    expect(log[log.length - 1]!.identity).toBe(true);
+    expect(log[log.length - 1]!.equal).toBe(true);
+  });
+
+  it('K8.d: with Limited templateId, name bridge is not required', () => {
+    clearIdentityShadowLog();
+    const tid = 'active-ranged-limited-aoe';
+    const structured = isLimitedPowerTemplateId(tid);
+    const decided = compareIdentityDecision(
+      'artifact.rowLimited',
+      structured,
+      () => structured,
+      { powerTemplateId: tid },
+      { prefer: 'identity' },
+    );
+    expect(decided).toBe(true);
   });
 });

@@ -112,11 +112,24 @@ export function breathWeaponRowDisplay(artifactLevel: number): { range: string; 
 
 /** Range / AoE text for any progression row, with Breath Weapon dual cones applied. */
 export function progressionRowRangeAoe(
-  row: { name?: string; level?: number; range?: string; aoe?: string } | null | undefined,
+  row:
+    | {
+        name?: string;
+        level?: number;
+        range?: string;
+        aoe?: string;
+        artifactFunctionId?: string | null;
+      }
+    | null
+    | undefined,
   fallbackLevel?: number,
 ): { range: string; aoe: string } {
   if (!row) return { range: '', aoe: '' };
-  if (isBreathWeaponName(row.name)) {
+  // K8.d: prefer artifactFunctionId; name bridge when afid absent.
+  if (
+    row.artifactFunctionId === 'dragon-breath' ||
+    (!row.artifactFunctionId && isBreathWeaponName(row.name))
+  ) {
     return breathWeaponRowDisplay(Number(row.level) || Number(fallbackLevel) || 1);
   }
   return { range: String(row.range || ''), aoe: String(row.aoe || '') };

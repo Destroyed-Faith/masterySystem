@@ -28,6 +28,9 @@ function clampArtifactLevel(level) {
 export function isUltimateProgressionRow(row) {
     if (Number(row.level) !== 10)
         return false;
+    // K8.c: structured artifactFunctionId first; name/type bridges for missing-ID rows.
+    if (String(row.artifactFunctionId || '') === 'artifact-awakening')
+        return true;
     const type = String(row.type || '').toLowerCase();
     const name = String(row.name || '').trim();
     if (type === 'ultimate')

@@ -153,7 +153,7 @@ Legend — Mode **RO** = read-only on production (no dice resolution, no documen
 | R-14 | ISO (+fixture) | Any actor + **added** Ringchain of Kept Names L2 (Burden Lifted I, `active-ranged-single-cleanse`) | Cleanse one condition | PL 4 cleanse controls per `Actives.md` 1223–1238 (Decision 14.1) | chat card + shadow `cleanse` line | `cleanse` | PASS if controls = PL 4 table. *No cleanse power exists in the live world → requires a fixture item on the copy* |
 | R-15 | RO→ISO | Lor-Keth · Titan Scars L1 "Titan Growth I" (stored `ab-armor-temp-hp`) | RO: open Radial, observe which slot/label the row gets (expected: utility slot, labelled Active Buff — identity classification — but routed as Transformation on click, R-19). ISO: GM re-syncs item from `titanScars` tree L2 on the copy, re-run preflight | After re-sync: L1 = Transformation `titan-growth`; preflight clean; Growth 1 available as Transformation; `artifactRestUses.titanGrowth` still honoured | preflight whisper before/after; item JSON | `artifact` (functions) | PASS if divergence disappears **without** touching other actors; GM records affinity decision |
 | R-16 | ISO | Oda · Staff of the Dark L2 Life Taken I (`active-ranged-single-target-damage-transfer`) | Spell attack on dummy | Damage-transfer mechanics; Spell casting attribute; shadow `executor` agrees | chat | `executor`, `mechanics` | PASS if identity = legacy decision |
-| R-17 | RO | All four characters | Open Radial per actor, iterate every option once (no activation); export `exportIdentityShadowReport()` JSON | First live dump (pre-fix): 81 entries / 76 matches / **5 mismatches**, all `radial.getSegmentIdForOption` (§7.1). After code fix (0.9.828 pending deploy): those 5 are expected to **match**. W1 deferred (segment already matched `active-buff==active-buff`; mechanic class is R-19, not R-17). | structured shadow JSON download | `radial` (+ other clusters if logged) | PASS if re-export after deploy shows **0** unresolved among the five fixed options; FAIL if any of Potion / Dragon Wings / Elorian Cling / Ruin Breath still unresolved |
+| R-17 | RO | All four characters | Open Radial per actor, iterate every option once (no activation); export `exportIdentityShadowReport()` JSON | Pre-fix: 81/76/**5** mismatches. Post-deploy **0.9.828**: `identity-shadow-1793872396659.json` → **80/80/0** mismatches; all five former failures match (§7.1). W1 deferred (segment already `active-buff==active-buff`; mechanic class is R-19). | structured shadow JSON | `radial` (+ other clusters) | **PASS (Forge, 2026-11-05)** |
 | R-18 | — | — | Re-run **v2 macro**, export | `formatVersion: 2`, MR populated, picks `level/kind`, `seedVersion` present | genuine export 08:55:09Z (§2) | — | **PASS (done 2026-11-05)** |
 | R-19 | ISO | Lor-Keth · Titan Scars L1 "Titan Growth I" **before** any re-sync | Activate the row from the Radial on the copy | **Legacy expectation:** Transformation Growth activates (token grows to 2×2, `artifactRestUses.titanGrowth` +1, Growth bars) and **no** Armor/Temp-HP effect is created. Confirms that W1 is behavior-changing under ID routing | token size + flags before/after; Active Effects tab | `artifact`, `activeBuff` | PASS if Growth activates and no `ab-armor-temp-hp` effect appears; FAIL (and W1 re-classified benign) if an Armor+TempHP effect is created instead |
 
@@ -181,14 +181,9 @@ Destructive tests (apply migration, rollback, pack rebuild) are **ISO-only** and
 
 **Regression:** `tests/r17-radial-identity-mismatches.test.ts` (+ assertions in `consumable-slots.test.ts`, `artifact-radial-options.test.ts`). Suite after fix: **364 files / 3845 tests**, `tsc --noEmit` PASS, `npm run build` PASS.
 
-**Expected after deploy:** all five previously failing options **match** (`equal: true`). Titan Growth I already matched on segment in the live dump (`active-buff == active-buff`); mechanic-class W1 remains deferred (R-19).
+**Post-deploy verify (0.9.828):** `identity-shadow-1793872396659.json` (`generatedAt 2026-11-05T09:53:16.658Z`) → **80 entries, 0 mismatches**. All five former failures `equal: true` (both potions `attack==attack`, Ruin Breath `attack==attack`, Dragon Wings / Elorian Cling `movement==movement`). Titan Growth I still `active-buff==active-buff` (segment only; W1 deferred). Console silent = expected (shadow only `console.info`s mismatches).
 
-**Still required on Forge (after system deploy containing these fixes):**
-1. Reload world / refresh clients so new `dist/` is live.
-2. Clear shadow log, re-open Radial on all four characters (no activations).
-3. Re-download `exportIdentityShadowReport()` JSON; confirm 0 mismatches for the five options above.
-4. Spot-check Ruin Breath still offers Ruin-only (no Bite / no damage dice) — runtime unchanged by design.
-5. R-1 whisper, R-2/R-5(RO), and full ISO matrix remain open; no K8 cutover.
+**Still open on Forge (not R-17):** R-1 whisper; R-2/R-5(RO); ISO matrix R-3…R-16/R-19; W1; no K8 cutover. Optional spot-check: Ruin Breath still Ruin-only / no Bite damage at the table.
 
 ---
 
@@ -203,7 +198,7 @@ Destructive tests (apply migration, rollback, pack rebuild) are **ISO-only** and
 | Text guard (fail-closed) | PASS | allowlist line numbers refreshed for radial edits |
 | Golden baselines | PASS | in suite |
 | Shadow fixtures | PASS | in suite |
-| Shadow on Forge | **PARTIAL** | first JSON dump analyzed (§7.1); **re-verify after deploy** |
+| Shadow on Forge (R-17 radial) | **PASS** | 0.9.828 dump: 80/80/0; five prior gaps closed (§7.1) |
 | Preflight on Forge data (offline, genuine v2) | PASS, **4 informational (W1) open** | 141 / 137 / 4 / 0 / 0 proposals |
 | Preflight live whisper | NOT VERIFIED | R-1 pending |
 | Deployed version == HEAD | PASS | 0.9.827 == `effcd1c0` |

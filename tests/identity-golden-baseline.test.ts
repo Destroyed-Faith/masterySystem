@@ -161,14 +161,19 @@ describe('K8 golden baseline (legacy behaviour)', () => {
                     ? 'movement'
                     : null
               : null,
-          documentedDeviation:
-            s.id === 'heal-ranged'
-              ? 'C1: legacy attack vs identity utility (support-heal)'
-              : null,
+          documentedDeviation: null as string | null,
         };
-      });
+      }).map((row) => ({
+        ...row,
+        // K8.a: getSegmentIdForOption is identity-primary; deviation only when paths still diverge.
+        documentedDeviation:
+          row.legacySegment !== row.identitySegment && row.identitySegment != null
+            ? `segment drift: returned=${row.legacySegment} identity=${row.identitySegment}`
+            : null,
+      }));
       readOrWrite('power-routing-radial.json', {
-        description: 'Legacy getSegmentIdForOption baseline. Source: unit fixtures.',
+        description:
+          'K8.a getSegmentIdForOption (identity-primary). `legacySegment` field = returned segment. Source: unit fixtures.',
         rows,
       });
     } finally {

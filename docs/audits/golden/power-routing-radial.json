@@ -1,5 +1,5 @@
 {
-  "description": "Legacy getSegmentIdForOption baseline. Source: unit fixtures.",
+  "description": "K8.a getSegmentIdForOption (identity-primary). `legacySegment` field = returned segment. Source: unit fixtures.",
   "rows": [
     {
       "id": "damage-transfer-stance",
@@ -18,9 +18,9 @@
     {
       "id": "heal-ranged",
       "templateId": "active-ranged-single-heal",
-      "legacySegment": "attack",
+      "legacySegment": "utility",
       "identitySegment": "utility",
-      "documentedDeviation": "C1: legacy attack vs identity utility (support-heal)"
+      "documentedDeviation": null
     },
     {
       "id": "movement-teleport",

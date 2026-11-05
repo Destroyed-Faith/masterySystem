@@ -70,13 +70,14 @@ export function isCleanseRadialOption(option) {
             decided = /\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob);
         }
     }
+    // K8.e: identity templateId decides when resolvable; text blob only as missing-ID bridge.
     return compareIdentityDecision('cleanse.isCleanseRadialOption', decided, () => {
         const id = resolvePowerIdentity({ kind: 'radial-option', option });
         if (!id.ok)
-            return false;
+            return { kind: 'unresolved', reason: id.reason || 'missing-identity' };
         const tid = id.templateId || '';
         return isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid);
-    }, { name: option.name });
+    }, { name: option.name }, { prefer: 'identity' });
 }
 /** Synthetic power item so Cleanse(X) can be read from an artifact row. */
 export function cleansePowerItemFromRadialOption(option) {
@@ -87,8 +88,12 @@ export function cleansePowerItemFromRadialOption(option) {
     const tid = String(option.artifactPowerTemplateId || '');
     if (tid && isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid)) {
         const tpl = getTemplate(tid);
+        // K8.e / F12: prefer structured option.rank when present.
+        const rankFromOption = option.rank != null && Number.isFinite(Number(option.rank))
+            ? Math.max(1, Math.floor(Number(option.rank)))
+            : null;
         const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
-        const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
+        const rank = rankFromOption ?? Math.max(1, Math.floor(Number(rankKey) || 1));
         return {
             type: 'power',
             id: option.id,

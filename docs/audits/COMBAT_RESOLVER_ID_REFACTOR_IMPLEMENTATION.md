@@ -221,12 +221,57 @@ Source: `docs/audits/FORGE_REALITY_AUDIT_PRE_K8.md` · Unresolved preserved in `
 - **W3:** Breath cone vs radius text.
 - **W5:** `echoBound` boolean vs string.
 
-### 11.5 Remaining blockers for production cutover (unchanged)
+### 11.5 Remaining blockers for production cutover (updated after K8)
 
-1. Isolated reference-world copy + Foundry-side dry-run / Playwright smoke — **missing**.
-2. K9 pack rebuild (compendium still pre-identity) — **not run**.
-3. K8 cluster cutover d→e→c→a→b→f→g — **not started**.
-4. Rules-owner decisions on W2 (before Active Buff cluster) and W1 world fix.
+1. Isolated reference-world copy + Foundry-side dry-run / Playwright smoke — **missing** (Forge production activation checklist).
+2. K9 pack rebuild (compendium still pre-identity) — **required before removing missing-ID bridges / hard-fail**.
+3. ~~K8 cluster cutover d→e→c→a→b→f→g~~ — **code complete** (see §12). Forge enablement of cluster **b** still blocked on **W2**.
+4. Rules-owner decisions on **W2** (before activating cluster b gameplay expectations) and **W1** world fix (Titan Growth holdout).
 5. Re-export with macro v2 to verify MR / provenance on Forge (tooling ready; world not modified).
+6. Explicit GM/Fable sign-off to treat identity-primary builds as live combat authority on Forge.
+7. Open rules topics 14.1b / 14.7 / 14.8 / AoE Restoration (out of code or resolved first).
 
-**Still PARTIAL. No K8. No commit/push.**
+**Still PARTIAL for Forge production activation. K8 code cutover shipped in tree. No world/pack writes. No commit/push unless requested.**
+
+---
+
+## 12. K8 Identity Cutover (clusters d→e→c→a→b→f→g) — 2026-11-05
+
+**Policy:** `compareIdentityDecision(..., { prefer: 'identity' })` returns identity when resolved; allowlisted legacy text remains the **pre-K9 missing-ID bridge** and the shadow peer. No fail-closed-on-missing-ID. No world/actor/pack writes. No new name heuristics.
+
+### 12.1 Cluster status
+
+| Cluster | Status | Primary files | Remaining bridges |
+|---|---|---|---|
+| **d** Limited / Breath | DONE | `limited-charge.ts`, `attack-executor.ts`, `artifact-options.ts`, `breath-weapon.ts` | Moonlight/Undead/`\blimited\` / breath name regex when IDs absent; no silent `'damage'` mode when identity is breath but mode missing |
+| **e** Heal / Cleanse + F12 rank | DONE | `heal-resolution.ts`, `cleanse-resolution.ts` | Text classifiers / `artifactRowLooksLikeHeal` / `inferRestoration*` when templateId absent; **`option.rank` preferred** when present |
+| **c** Artifact rows + W1 | DONE | `artifact-options.ts` (`categoryFromIdentityOrType`), `artifact-active-buffs.ts`, `artifact-visible-abilities.ts`, `token-action-selector.ts` | Type-text / name PL / ultimate name; **W1 holdout** `/titan\s*growth/i` + `artifactFunctionId === 'titan-growth'` forces Transformation path (not Armor+TempHP) |
+| **a** Segment | DONE | `options.ts` `getSegmentIdForOption` | `textSuggestsActiveBuff` / tag / bless-beacon keywords only when identity unresolved; golden `power-routing-radial.json` updated (heal → utility) |
+| **b** DR / Phasing / catalog | DONE (code) | `power-mechanics.ts` | Name catalog / DR-Phasing name sanction when tid absent. **Forge activation of b blocked until W2** |
+| **f** Reactions | DONE | `reaction-eligibility.ts`, `defender-reactions.ts`, `parry.ts`, `reaction-window-chat.ts` | Name includes for riposte/reflection/evade/guard/ally when tid absent |
+| **g** Specials | DONE | `reaction-window-chat.ts` Special Increase exact id; `apply-special-effects.ts` | Display-name `getEffect` when key/id unresolved |
+
+### 12.2 Infrastructure
+
+- `src/utils/identity-shadow.ts`: `prefer: 'legacy' \| 'identity'`, `unresolvedFallsBackToLegacy` (default true).
+- Allowlist refreshed: `tests/__fixtures__/identity-text-guard-allowlist.json` (~81 sites) with reasons `K8.* — pre-K9 missing-ID bridge` / `W1 holdout` / `display`.
+- Tests: `tests/k8-cluster-d-limited-breath.test.ts`, `tests/k8-cluster-e-heal-rank.test.ts`; golden heal segment aligned to identity-primary.
+
+### 12.3 Gates (this cutover)
+
+| Gate | Result |
+|---|---|
+| `npx tsc --noEmit` | PASS |
+| Full Vitest | PASS — **367 files / 3859 tests** |
+| `npm run build` | PASS (`0.9.828`) |
+| World / pack writes | **None** |
+| Fail-closed missing ID | **Not enabled** (post-K9 production activation) |
+
+### 12.4 Blockers for Forge production activation (not for merging K8 code)
+
+1. **K9** pack rebuild (P1 / N1 seed skew) before deleting missing-ID bridges / hard-fail.
+2. **Isolated world copy** + Playwright smoke (Limited, Breath Damage/Ruin, heal/cleanse, reaction, Armor buff).
+3. **W1** Titan Growth manual GM decision → then delete holdout in `token-action-selector.ts` / `artifact-active-buffs.ts`.
+4. **W2** before treating cluster **b** (DR/Phasing / Draconic Roar expectations) as live.
+5. Rules 14.1b / 14.7 / 14.8 / AoE Restoration.
+6. Explicit GM/Fable sign-off for identity-primary as live Forge combat authority.

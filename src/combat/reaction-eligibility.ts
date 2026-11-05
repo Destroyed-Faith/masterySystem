@@ -9,6 +9,7 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { parseArtifactWeaponRangeMeters } from '../utils/artifact-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { isBasicReactionItem } from './basic-combat.js';
 import { isAllyReactionPower, isThreatenedDeclarationLegalReaction } from './defender-reactions.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
@@ -182,10 +183,25 @@ export function isParryFollowUpReaction(item: any): boolean {
 /** Explicit exception: Parry + Weapon Damage may be used again. Each use still costs 1 Reaction. */
 export function reactionMayRepeatThisRound(item: any): boolean {
   const tid = templateIdOf(item);
-  if (tid === 'reaction-riposte') return true;
   const name = String(item?.name ?? '').toLowerCase();
-  if (name.includes('parry + weapon damage') || name.includes('riposte')) return true;
-  return mechanicsOf(item)?.repeatable === true;
+  const legacy =
+    tid === 'reaction-riposte' ||
+    name.includes('parry + weapon damage') ||
+    name.includes('riposte') ||
+    mechanicsOf(item)?.repeatable === true;
+  // K8.f: templateId / repeatable flag decide; name includes are pre-K9 missing-ID bridge.
+  return compareIdentityDecision(
+    'reaction.mayRepeatThisRound',
+    legacy,
+    () => {
+      if (tid === 'reaction-riposte') return true;
+      if (mechanicsOf(item)?.repeatable === true) return true;
+      if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
+      return false;
+    },
+    { tid, name },
+    { prefer: 'identity' },
+  );
 }
 
 export function isInterposeReaction(item: any): boolean {
@@ -309,12 +325,36 @@ export function evaluateReactionEligibility(power: any, ctx: ReactionTriggerCont
       return { shown: false, enabled: false, reason: 'Parry follow-ups are defender reactions' };
     }
     const name = String(power?.name ?? '').toLowerCase();
-    const riposte = tid === 'reaction-riposte' || name.includes('weapon damage') || name.includes('riposte');
-    const reflection =
+    const riposteLegacy =
+      tid === 'reaction-riposte' || name.includes('weapon damage') || name.includes('riposte');
+    const reflectionLegacy =
       tid === 'reaction-parry-reflection' ||
       tid.includes('reflection') ||
       name.includes('attack reflection') ||
       name.includes('reflection');
+    // K8.f: identity-primary for riposte/reflection classification.
+    const riposte = compareIdentityDecision(
+      'reaction.eligibility.riposte',
+      riposteLegacy,
+      () => {
+        if (tid === 'reaction-riposte') return true;
+        if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
+        return false;
+      },
+      { tid, name },
+      { prefer: 'identity' },
+    );
+    const reflection = compareIdentityDecision(
+      'reaction.eligibility.reflection',
+      reflectionLegacy,
+      () => {
+        if (tid === 'reaction-parry-reflection' || tid.includes('reflection')) return true;
+        if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
+        return false;
+      },
+      { tid, name },
+      { prefer: 'identity' },
+    );
     const martialFull = !!ctx.hasParryThisHit && ctx.parryDelivery !== 'spell' && !ctx.spellFullyCountered;
     const spellFull = !!ctx.spellFullyCountered && ctx.parryDelivery !== 'martial';
     if (riposte && !reflection) {
