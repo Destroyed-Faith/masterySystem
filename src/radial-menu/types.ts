@@ -59,6 +59,10 @@ export interface RadialCombatOption {
   artifactCastingAttribute?: string;
   artifactSpellResolution?: 'spellAttack';
   artifactPowerTemplateId?: string;
+  /** Artifact-function overlay (Batch B): dragon-breath | titan-growth | life-absorption | artifact-awakening. */
+  artifactFunctionId?: string;
+  /** Numeric catalog Power Level for artifact-derived options. */
+  rank?: number;
   artifactChosenSpecialKey?: string;
   costsMovement?: boolean; // Whether this option consumes Movement resource
   costsAction?: boolean; // Whether this option consumes Attack Action resource

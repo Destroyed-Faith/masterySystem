@@ -968,6 +968,11 @@ export interface ArtifactProgressionPick {
   kind: 'none' | 'power' | 'stoneFunction' | 'authored';
   /** For `power`: the catalog `templateId`. */
   powerTemplateId?: string;
+  /**
+   * Artifact-function overlay (Batch B). Propagated onto compiled levelProgression rows.
+   * Values: 'dragon-breath' | 'titan-growth' | 'life-absorption' | 'artifact-awakening'.
+   */
+  artifactFunctionId?: string;
   /** For martial damage picks: delivery form (Special-first UI). */
   delivery?: 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
   /** For martial damage picks: bound Special + derived tier. */
@@ -1032,6 +1037,13 @@ export interface ArtifactLevelProgressionRow {
   special?: string;
   /** Catalog template backing this row (power picks only). */
   powerTemplateId?: string;
+  /**
+   * Artifact-function overlay id (Batch B). K2 = function only; K3 = with powerTemplateId.
+   * Values: 'dragon-breath' | 'titan-growth' | 'life-absorption' | 'artifact-awakening'.
+   */
+  artifactFunctionId?: string;
+  /** Numeric Power Level (1..16) for catalog mechanics. Never derived from effect text. */
+  rank?: number;
   /** Bound Special key when the pick uses a catalog Special slot. */
   chosenSpecialKey?: string;
   /** Propagated from the pick when this Active is cast as a Spell. */

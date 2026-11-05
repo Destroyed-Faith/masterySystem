@@ -439,15 +439,21 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     // Global Limited charge (1 / Safe Haven) + Dragon Breath once/combat.
     try {
         const optionName = String(option.name || '');
-        const { isLimitedAttackDeclaration, isLimitedChargeAvailable, spendLimitedCharge, isForbiddenLimitedTemplateId, } = await import('./limited-charge.js');
+        const { isLimitedAttackDeclaration, isLimitedChargeAvailable, spendLimitedCharge, isForbiddenLimitedTemplateId, isLimitedPowerTemplateId, } = await import('./limited-charge.js');
+        const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
         const templateId = String(option.item?.system?.templateId ||
             option.artifactPowerTemplateId ||
             '');
-        const claimsLimited = option.limited === true ||
+        const legacyClaimsLimited = option.limited === true ||
             option.artifactLimited === true ||
             option.item?.system?.limited === true ||
             /moonlight\s*judgment/i.test(optionName) ||
             /undead\s*tracer/i.test(optionName);
+        // K5: legacy decides Limited claim; identity path compares structured flags/ids only.
+        const claimsLimited = compareIdentityDecision('executor.claimsLimited', legacyClaimsLimited, () => option.limited === true ||
+            option.artifactLimited === true ||
+            option.item?.system?.limited === true ||
+            isLimitedPowerTemplateId(templateId), { name: optionName, templateId });
         if (claimsLimited && isForbiddenLimitedTemplateId(templateId)) {
             ui.notifications?.warn('This Power cannot be used as a Limited Attack.');
             return null;
@@ -483,58 +489,72 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 option.ignoreWeaponDamage = true;
             }
         }
-        else if (/breath\s*weapon/i.test(optionName) ||
-            /damage\s*breath/i.test(optionName) ||
-            /ruin\s*breath/i.test(optionName) ||
-            option.dragonHeadBreathMode === 'damage' ||
-            option.dragonHeadBreathMode === 'ruin') {
-            const { assertDragonBreathAvailable, spendDragonBreathUse } = await import('./artifact-rest-uses.js');
-            const gate = assertDragonBreathAvailable(attacker);
-            if (!gate.ok) {
-                ui.notifications?.warn(gate.reason === 'combat'
-                    ? 'Breath Weapon: already used this Combat (shared Damage/Ruin limit).'
-                    : 'Breath Weapon: no Safe Haven Rest uses remaining.');
-                return null;
-            }
-            const spent = await spendDragonBreathUse(attacker);
-            if (!spent) {
-                ui.notifications?.warn('Breath Weapon: use could not be spent.');
-                return null;
-            }
-            const mode = option.dragonHeadBreathMode ||
-                (/ruin\s*breath/i.test(optionName) ? 'ruin' : 'damage');
-            if (mode === 'ruin') {
-                option = { ...option, ignoreWeaponDamage: true, dragonHeadDamageBreath: false };
-            }
-            else {
-                // Damage Breath: keep Bite on the shared Instant AoE pool.
-                option = {
-                    ...option,
-                    ignoreWeaponDamage: false,
-                    dragonHeadDamageBreath: true,
-                    dragonHeadBreathMode: 'damage',
-                };
-            }
-            // Might or Agility — choose before the Attack Roll; never combine pools.
-            if (!option.attackAttributeOverride && !option.storedAttackPool?.attribute) {
-                const Dialog = globalThis.Dialog;
-                let attr = 'might';
-                if (Dialog?.wait) {
-                    const choice = await Dialog.wait({
-                        title: 'Breath Weapon — Attack Attribute',
-                        content: '<p>Choose <strong>Might</strong> or <strong>Agility</strong> for this Breath Attack Roll. Do not combine Attribute Pools.</p>',
-                        buttons: {
-                            might: { label: 'Might', callback: () => 'might' },
-                            agility: { label: 'Agility', callback: () => 'agility' },
-                        },
-                        default: 'might',
-                        close: () => null,
-                    });
-                    if (choice !== 'might' && choice !== 'agility')
-                        return null;
-                    attr = choice;
+        else {
+            const legacyIsBreath = /breath\s*weapon/i.test(optionName) ||
+                /damage\s*breath/i.test(optionName) ||
+                /ruin\s*breath/i.test(optionName) ||
+                option.dragonHeadBreathMode === 'damage' ||
+                option.dragonHeadBreathMode === 'ruin';
+            const isBreath = compareIdentityDecision('executor.isBreathWeapon', legacyIsBreath, () => option.artifactFunctionId === 'dragon-breath' ||
+                option.dragonHeadBreathMode === 'damage' ||
+                option.dragonHeadBreathMode === 'ruin', {
+                name: optionName,
+                artifactFunctionId: option.artifactFunctionId || null,
+                mode: option.dragonHeadBreathMode || null,
+            });
+            if (isBreath) {
+                const { assertDragonBreathAvailable, spendDragonBreathUse } = await import('./artifact-rest-uses.js');
+                const gate = assertDragonBreathAvailable(attacker);
+                if (!gate.ok) {
+                    ui.notifications?.warn(gate.reason === 'combat'
+                        ? 'Breath Weapon: already used this Combat (shared Damage/Ruin limit).'
+                        : 'Breath Weapon: no Safe Haven Rest uses remaining.');
+                    return null;
                 }
-                option = { ...option, attackAttributeOverride: attr };
+                const spent = await spendDragonBreathUse(attacker);
+                if (!spent) {
+                    ui.notifications?.warn('Breath Weapon: use could not be spent.');
+                    return null;
+                }
+                const legacyMode = option.dragonHeadBreathMode ||
+                    (/ruin\s*breath/i.test(optionName) ? 'ruin' : 'damage');
+                // K5: identity refuses to invent a mode when none is structured (no silent 'damage' default).
+                const mode = compareIdentityDecision('executor.breathMode', legacyMode, () => option.dragonHeadBreathMode === 'damage' || option.dragonHeadBreathMode === 'ruin'
+                    ? option.dragonHeadBreathMode
+                    : { kind: 'unresolved', reason: 'breath-mode-missing' }, { name: optionName });
+                if (mode === 'ruin') {
+                    option = { ...option, ignoreWeaponDamage: true, dragonHeadDamageBreath: false };
+                }
+                else {
+                    // Damage Breath: keep Bite on the shared Instant AoE pool.
+                    option = {
+                        ...option,
+                        ignoreWeaponDamage: false,
+                        dragonHeadDamageBreath: true,
+                        dragonHeadBreathMode: 'damage',
+                    };
+                }
+                // Might or Agility — choose before the Attack Roll; never combine pools.
+                if (!option.attackAttributeOverride && !option.storedAttackPool?.attribute) {
+                    const Dialog = globalThis.Dialog;
+                    let attr = 'might';
+                    if (Dialog?.wait) {
+                        const choice = await Dialog.wait({
+                            title: 'Breath Weapon — Attack Attribute',
+                            content: '<p>Choose <strong>Might</strong> or <strong>Agility</strong> for this Breath Attack Roll. Do not combine Attribute Pools.</p>',
+                            buttons: {
+                                might: { label: 'Might', callback: () => 'might' },
+                                agility: { label: 'Agility', callback: () => 'agility' },
+                            },
+                            default: 'might',
+                            close: () => null,
+                        });
+                        if (choice !== 'might' && choice !== 'agility')
+                            return null;
+                        attr = choice;
+                    }
+                    option = { ...option, attackAttributeOverride: attr };
+                }
             }
         }
     }

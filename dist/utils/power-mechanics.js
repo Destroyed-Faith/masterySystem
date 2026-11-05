@@ -17,6 +17,7 @@
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { targetPerceivedByNonSightSense, targetUnseenByObserver, } from '../combat/perception-gate.js';
 import { countAdjacentHostileTokenCount, countAdjacentAllyTokenCount, getPrimaryTokenForActor, } from './mechanics-adjacency.js';
+import { compareIdentityDecision } from './identity-shadow.js';
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown() {
     return {
@@ -156,6 +157,27 @@ function canonicalPowerLookupName(raw) {
         .trim()
         .toLowerCase();
 }
+/**
+ * Catalog mechanics by templateId + rank only. No name fallback (Batch B / plan §7).
+ */
+export function resolvePowerMechanicsById(templateId, rank) {
+    const id = templateId ? String(templateId).trim() : '';
+    if (!id)
+        return null;
+    const r = Math.max(1, Math.min(16, Number.isFinite(rank) ? Math.floor(rank) : 1));
+    const def = ALL_POWER_TEMPLATES.find((t) => t?.templateId === id);
+    if (!def)
+        return null;
+    const defLevels = def.levels;
+    if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
+        const key = String(r);
+        const lvl = defLevels[key] ?? defLevels['1'];
+        const m = lvl?.mechanics;
+        if (m && typeof m === 'object')
+            return m;
+    }
+    return null;
+}
 export function resolvePowerMechanics(powerItem) {
     if (!powerItem)
         return null;
@@ -212,8 +234,35 @@ export function extractMeleeAoePowerBonusD8(powerItem) {
  * Look the canonical mechanics up in the live template registry. Prefers a
  * `templateId` match (set on new item documents) and falls back to matching
  * the power name for legacy items still living through the transition.
+ *
+ * K1 / C1: name fallback is restored as the deciding legacy path. ID-only
+ * resolution runs in shadow-compare only and never changes the return value.
  */
-function resolveMechanicsFromCatalog(powerItem, rank) {
+function mechanicsFromTemplateDef(def, rank) {
+    if (!def)
+        return null;
+    const defLevels = def.levels;
+    if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
+        const key = String(rank);
+        const lvl = defLevels[key] ?? defLevels['1'];
+        const m = lvl?.mechanics;
+        if (m && typeof m === 'object')
+            return m;
+    }
+    const topM = def.mechanics;
+    if (topM && typeof topM === 'object')
+        return topM;
+    return null;
+}
+function resolveMechanicsFromCatalogByIdOnly(powerItem, rank) {
+    const sys = powerItem.system ?? {};
+    const templateId = sys.templateId ? String(sys.templateId) : undefined;
+    if (!templateId)
+        return null;
+    const def = ALL_POWER_TEMPLATES.find((t) => t?.templateId === templateId);
+    return mechanicsFromTemplateDef(def, rank);
+}
+function resolveMechanicsFromCatalogLegacy(powerItem, rank) {
     const sys = powerItem.system ?? {};
     const name = powerItem.name ?? sys.name;
     const templateId = sys.templateId ? String(sys.templateId) : undefined;
@@ -248,19 +297,16 @@ function resolveMechanicsFromCatalog(powerItem, rank) {
                 def = byTemplateName[0];
         }
     }
-    if (!def)
-        return null;
-    const defLevels = def.levels;
-    if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
-        const lvl = defLevels[String(rank)] ?? defLevels['1'];
-        const m = lvl?.mechanics;
-        if (m && typeof m === 'object')
-            return m;
-    }
-    const topM = def.mechanics;
-    if (topM && typeof topM === 'object')
-        return topM;
-    return null;
+    return mechanicsFromTemplateDef(def, rank);
+}
+function resolveMechanicsFromCatalog(powerItem, rank) {
+    const legacy = resolveMechanicsFromCatalogLegacy(powerItem, rank);
+    const sys = powerItem.system ?? {};
+    return compareIdentityDecision('mechanics.resolveFromCatalog', legacy, () => resolveMechanicsFromCatalogByIdOnly(powerItem, rank), {
+        templateId: sys.templateId ? String(sys.templateId) : null,
+        name: powerItem.name ?? sys.name ?? null,
+        rank,
+    });
 }
 /**
  * Closed-subsystem whitelist for Damage Reduction. Only these three power
@@ -303,59 +349,91 @@ function stripBuffPrefixForDrName(name) {
         .trim();
     return s;
 }
+function isSanctionedDRByTemplateId(contribution) {
+    const buffTid = String(contribution.buffTemplateId || '').trim();
+    const powerTid = String(contribution.powerTemplateId || '').trim();
+    if (contribution.sourceKind === 'passive')
+        return powerTid === 'passive-damage-reduction';
+    if (contribution.sourceKind === 'buff')
+        return buffTid === 'ab-damage-reduction';
+    if (contribution.sourceKind === 'reaction')
+        return powerTid === 'reaction-damage-reduction';
+    return false;
+}
 function isSanctionedDR(contribution) {
     const expected = DR_SANCTIONED_POWER_NAMES[contribution.sourceKind];
     const actual = normalizePowerName(contribution.powerName);
     const stripped = stripBuffPrefixForDrName(contribution.powerName);
     const buffTid = String(contribution.buffTemplateId || '').trim();
     const powerTid = String(contribution.powerTemplateId || '').trim();
+    let legacy = false;
     if (actual === expected || stripped === expected)
-        return true;
-    if (contribution.sourceKind === 'passive') {
+        legacy = true;
+    else if (contribution.sourceKind === 'passive') {
         if (powerTid === 'passive-damage-reduction')
-            return true;
-        if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
-            return true;
-        if (/\bdamage\s+reduction\b/i.test(stripped))
-            return true;
-        if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
-            return true;
+            legacy = true;
+        else if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
+            legacy = true;
+        else if (/\bdamage\s+reduction\b/i.test(stripped))
+            legacy = true;
+        else if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
+            legacy = true;
+        }
     }
-    // Canonical catalog buff is "Active Buff: Damage Reduction" — match template name.
-    if (contribution.sourceKind === 'buff') {
+    else if (contribution.sourceKind === 'buff') {
         if (buffTid === 'ab-damage-reduction')
-            return true;
-        if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
-            return true;
-        // Localized / renamed copies of the catalog buff (parentheticals, em dash, etc.)
-        if (/\bdamage\s+reduction\b/i.test(stripped))
-            return true;
-        // German catalog / sheet naming
-        if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
-            return true;
+            legacy = true;
+        else if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
+            legacy = true;
+        else if (/\bdamage\s+reduction\b/i.test(stripped))
+            legacy = true;
+        else if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
+            legacy = true;
+        }
     }
-    if (contribution.sourceKind === 'reaction') {
+    else if (contribution.sourceKind === 'reaction') {
         if (powerTid === 'reaction-damage-reduction')
-            return true;
-        if (/\bdamage\s+reduction\b/i.test(stripped))
-            return true;
-        if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
-            return true;
+            legacy = true;
+        else if (/\bdamage\s+reduction\b/i.test(stripped))
+            legacy = true;
+        else if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' '))) {
+            legacy = true;
+        }
     }
-    console.warn(`Mastery System | DR rule violation: power "${contribution.powerName}" ` +
-        `(${contribution.sourceKind}) declares damageReductionPct but only ` +
-        `"${expected}" may grant DR at this layer. Contribution dropped.`);
-    return false;
+    const decided = compareIdentityDecision('mechanics.isSanctionedDR', legacy, () => isSanctionedDRByTemplateId(contribution), {
+        powerName: contribution.powerName,
+        sourceKind: contribution.sourceKind,
+        buffTemplateId: buffTid || null,
+        powerTemplateId: powerTid || null,
+    });
+    if (!decided) {
+        console.warn(`Mastery System | DR rule violation: power "${contribution.powerName}" ` +
+            `(${contribution.sourceKind}) declares damageReductionPct but only ` +
+            `"${expected}" may grant DR at this layer. Contribution dropped.`);
+    }
+    return decided;
 }
+const PHASING_SANCTIONED_TEMPLATE_IDS = {
+    passive: 'passive-ghostform',
+    buff: 'ab-phasing',
+    reaction: 'reaction-phasing',
+};
 /** Same check for Phasing declarations. Exported so the runtime can reuse. */
-export function isSanctionedPhasingName(powerName, sourceKind) {
+export function isSanctionedPhasingName(powerName, sourceKind, templateId) {
     const expected = PHASING_SANCTIONED_POWER_NAMES[sourceKind];
     const raw = normalizePowerName(powerName);
     const stripped = stripBuffPrefixForDrName(powerName);
+    let legacy;
     if (sourceKind === 'passive') {
-        return PHASING_PASSIVE_ALIASES.has(raw) || PHASING_PASSIVE_ALIASES.has(stripped);
+        legacy = PHASING_PASSIVE_ALIASES.has(raw) || PHASING_PASSIVE_ALIASES.has(stripped);
     }
-    return raw === expected || stripped === expected;
+    else {
+        legacy = raw === expected || stripped === expected;
+    }
+    return compareIdentityDecision('mechanics.isSanctionedPhasing', legacy, () => {
+        const tid = String(templateId || '').trim();
+        return tid === PHASING_SANCTIONED_TEMPLATE_IDS[sourceKind];
+    }, { powerName, sourceKind, templateId: templateId || null });
 }
 /**
  * Enumerate every active mechanics contribution for an actor:

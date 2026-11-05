@@ -995,7 +995,18 @@ async function executeReactionSpend(params) {
                         for (let i = 0; i < raw.length; i++) {
                             const entry = raw[i];
                             const eid = String(entry?.id || entry?.name || '').toLowerCase();
-                            if (eid === chosen.id.toLowerCase() || String(entry?.name || '').toLowerCase().includes(chosen.id)) {
+                            const legacyHit = eid === chosen.id.toLowerCase() ||
+                                String(entry?.name || '').toLowerCase().includes(chosen.id);
+                            // K5: identity path prefers exact id match only (no substring).
+                            let hit = legacyHit;
+                            try {
+                                const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
+                                hit = compareIdentityDecision('reaction.specialIncreaseMatch', legacyHit, () => eid === chosen.id.toLowerCase(), { chosenId: chosen.id, entryId: eid });
+                            }
+                            catch {
+                                hit = legacyHit;
+                            }
+                            if (hit) {
                                 raw[i] = { ...entry, value: Math.max(0, Math.floor(Number(entry?.value) || 0)) + amount };
                                 updated = true;
                                 break;

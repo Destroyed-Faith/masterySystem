@@ -1,0 +1,108 @@
+{
+  "description": "Identity-Matrix exceptions (plan §11.2 / K6). Dual-run mismatches must match an entry or fail. K1b documents the approved C2.a catalog-bound routing behaviour.",
+  "c2aCatalogBoundRouting": {
+    "ruleCite": "Players_Handbook / Actives: power category and radial segment come from the catalog template (templateId), never from instance name or description. Legacy textSuggestsActiveBuff (stance/buff wording) is a known false positive for Actives such as Damage Transfer. With a valid templateId, getSegmentIdForOption must ignore text heuristics and keep Active→attack (or Active Buff→active-buff from identity). Items without templateId keep the pre-migration text heuristic until Batch E / K8.",
+    "approvedBehaviours": [
+      {
+        "case": "active-with-templateId-and-stance-text",
+        "legacySegment": "attack",
+        "note": "C2.a already live: textSuggestsActiveBuff skipped when templateId present"
+      },
+      {
+        "case": "active-with-templateId-and-instance-text",
+        "legacySegment": "attack",
+        "note": "Same gate; 'instance' must not reclassify"
+      },
+      {
+        "case": "activeBuff-with-templateId",
+        "legacySegment": "active-buff",
+        "note": "Identity category activeBuff → active-buff segment"
+      },
+      {
+        "case": "active-without-templateId-stance-text",
+        "legacySegment": "active-buff",
+        "note": "Pre-migration legacy heuristic retained until K8"
+      }
+    ]
+  },
+  "segmentMismatches": [
+    {
+      "templateId": "active-ranged-barrier",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — deriveActiveSegment uses roll.kind/subfamily; legacy getSegmentIdForOption defaults actives to attack. C2.a must adopt identity."
+    },
+    {
+      "templateId": "active-ranged-illusion-image",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — illusion roll.kind none → utility; legacy attack. C2.a."
+    },
+    {
+      "templateId": "active-melee-single-heal",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-ranged-single-heal",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-melee-health-level-heal",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-ranged-health-level-heal",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-melee-aoe-restoration",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-ranged-aoe-restoration",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-cleanse-absorption",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — support-cleanse → utility; legacy attack. C2.a/e."
+    },
+    {
+      "templateId": "active-mental-attack",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — mental roll.kind none → utility; legacy attack. C2.a decision needed."
+    },
+    {
+      "templateId": "active-mind-illusion",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — mental → utility; legacy attack. C2.a."
+    },
+    {
+      "templateId": "active-mind-probe",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — mental → utility; legacy attack. C2.a."
+    },
+    {
+      "templateId": "active-mental-control",
+      "identity": "utility",
+      "legacy": "attack",
+      "ruleCite": "C1 — mental → utility; legacy attack. C2.a."
+    }
+  ]
+}

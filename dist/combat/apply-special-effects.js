@@ -91,6 +91,21 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
             const effectName = match[1].trim();
             const effectValue = match[2] ? parseInt(match[2], 10) : null;
             const effectDef = getEffect(effectName);
+            // K5: specials still resolve by display name (legacy). Shadow notes when a
+            // structured key would be preferred — does not change application.
+            try {
+                const { compareIdentityDecision } = await import('../utils/identity-shadow.js');
+                compareIdentityDecision('specials.resolveByName', effectDef?.id || null, () => {
+                    // Identity path: only accept if the string already looks like a catalog id.
+                    const asId = getEffect(effectName);
+                    return asId?.id && asId.id === effectName.toLowerCase().replace(/\s+/g, '-')
+                        ? asId.id
+                        : { kind: 'unresolved', reason: 'special-key-required', name: effectName };
+                }, { name: effectName });
+            }
+            catch {
+                /* shadow must never affect specials */
+            }
             const effectId = effectDef?.id;
             if (effectDef?.category === 'instant')
                 continue;

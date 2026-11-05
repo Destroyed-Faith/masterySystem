@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.825] - 2026-11-05
+
+### Added
+
+- **Combat Resolver ID Refactor (C1 / K0–K7 + K8 prep):** `resolvePowerIdentity`, artifact-function contract, identity shadow-compare (legacy decides), identity preflight (read-only hooks), fixture-safe identity migration + GM review dialog, identity matrix (all PL 1–16), fail-closed text-matching guard, golden baselines, shadow fixture reports under `docs/audits/shadow/` and `docs/audits/golden/`.
+- **Audits:** Fable reviews, K0–K7 correction report, K8 readiness (`docs/audits/COMBAT_ID_REFACTOR_*`).
+
+### Changed
+
+- **Mechanics / Limited / Radial:** Name fallback and Limited Radial heuristics restored under shadow-compare (K1); no C2 hard cut.
+- **Artifact row identity:** Safe enrichment only for rows without structured IDs (`artifact-row-identity.ts`); `useAuthoredLevelProgression` reverted on Titan Scars / Hollow Crown / Ringchain (K3).
+- **Migration rollback:** Foundry-correct `-=` deletions for identity fields and backup flag (K7b).
+- **Cleanse Ranged Single:** Catalog table aligned to `Actives.md` (Decision 14.1).
+
+### Notes
+
+- Reference-world migration dry-run: **NOT VERIFIED** (no isolated world copy). Pack rebuild and productive migration not run. K8/C2 hard cut not started.
+
 ## [0.9.824] - 2026-11-04
 
 ### Added

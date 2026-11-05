@@ -24,10 +24,6 @@ export declare function buildNpcAttackRadialOptions(actor: any): RadialCombatOpt
  * Substring `includes('stance')` falsely matches Transfer Life fluff ("damage instance").
  */
 export declare function textSuggestsActiveBuff(name: string, description?: string): boolean;
-/**
- * Map an option to one of the 4 inner segment IDs
- * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
- */
 export declare function getSegmentIdForOption(option: RadialCombatOption): InnerSegment['id'];
 /**
  * Get all combat options for an actor (all categories)

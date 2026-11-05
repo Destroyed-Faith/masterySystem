@@ -113,6 +113,11 @@ export interface EchoArtifactProgressionPickSpec {
     spellResolution?: SpellResolution;
     /** Limited Instant Active (e.g. Moonlight Judgment). */
     limited?: boolean;
+    /**
+     * Artifact-function overlay (Batch B). Propagated onto progression picks and
+     * compiled levelProgression rows (e.g. dragon-breath on Breath Weapon).
+     */
+    artifactFunctionId?: string;
 }
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */

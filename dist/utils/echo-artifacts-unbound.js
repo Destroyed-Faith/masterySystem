@@ -12,6 +12,7 @@ function artifactAwakeningStage(artifactName) {
         duration: 'Special',
         effect: ARTIFACT_AWAKENING_EFFECT,
         special: `Artifact Level 10: Awakening (${artifactName})`,
+        artifactFunctionId: 'artifact-awakening',
     };
 }
 function tenLevels(a, b, c, ultimate) {
@@ -27,16 +28,29 @@ function tenLevels(a, b, c, ultimate) {
         [9, c[2]],
         [10, ultimate],
     ];
-    return placed.map(([level, row]) => ({
-        level,
-        name: row.name,
-        type: row.type,
-        range: row.range,
-        aoe: row.aoe,
-        duration: row.duration,
-        effect: row.effect,
-        special: row.special,
-    }));
+    return placed.map(([level, row]) => {
+        const out = {
+            level,
+            name: row.name,
+            type: row.type,
+            range: row.range,
+            aoe: row.aoe,
+            duration: row.duration,
+            effect: row.effect,
+            special: row.special,
+        };
+        if (row.powerTemplateId)
+            out.powerTemplateId = row.powerTemplateId;
+        if (row.artifactFunctionId)
+            out.artifactFunctionId = row.artifactFunctionId;
+        if (row.rank != null)
+            out.rank = row.rank;
+        if (row.limited === true)
+            out.limited = true;
+        if (row.chosenSpecialKey)
+            out.chosenSpecialKey = row.chosenSpecialKey;
+        return out;
+    });
 }
 const RETALIATORY_BITE = [
     {

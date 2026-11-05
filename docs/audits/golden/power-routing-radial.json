@@ -1,0 +1,40 @@
+{
+  "description": "Legacy getSegmentIdForOption baseline. Source: unit fixtures.",
+  "rows": [
+    {
+      "id": "damage-transfer-stance",
+      "templateId": "active-melee-single-target-damage-transfer",
+      "legacySegment": "attack",
+      "identitySegment": "attack",
+      "documentedDeviation": null
+    },
+    {
+      "id": "ab-armor",
+      "templateId": "ab-armor",
+      "legacySegment": "active-buff",
+      "identitySegment": "active-buff",
+      "documentedDeviation": null
+    },
+    {
+      "id": "heal-ranged",
+      "templateId": "active-ranged-single-heal",
+      "legacySegment": "attack",
+      "identitySegment": "utility",
+      "documentedDeviation": "C1: legacy attack vs identity utility (support-heal)"
+    },
+    {
+      "id": "movement-teleport",
+      "templateId": "movement-teleport",
+      "legacySegment": "movement",
+      "identitySegment": "movement",
+      "documentedDeviation": null
+    },
+    {
+      "id": "legacy-stance-no-id",
+      "templateId": null,
+      "legacySegment": "active-buff",
+      "identitySegment": null,
+      "documentedDeviation": null
+    }
+  ]
+}

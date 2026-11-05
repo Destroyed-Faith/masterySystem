@@ -64,6 +64,7 @@ export function artifactAwakeningRow(artifactName: string): ArtifactLevelProgres
     duration: 'Special',
     effect: ARTIFACT_AWAKENING_EFFECT,
     special: `Artifact Level 10: Awakening (${artifactName})`,
+    artifactFunctionId: 'artifact-awakening',
   };
 }
 
@@ -144,6 +145,11 @@ export interface EchoArtifactProgressionPickSpec {
   spellResolution?: SpellResolution;
   /** Limited Instant Active (e.g. Moonlight Judgment). */
   limited?: boolean;
+  /**
+   * Artifact-function overlay (Batch B). Propagated onto progression picks and
+   * compiled levelProgression rows (e.g. dragon-breath on Breath Weapon).
+   */
+  artifactFunctionId?: string;
 }
 
 export interface EchoArtifactBaseValueHint {
@@ -443,6 +449,8 @@ const TITAN_SCARS: EchoArtifactDefinition = {
     'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
   // Slot 1 is authored Transformation Growth (not ab-growth-form Active Buff).
   // Slots 2–3 are Stone Power Support (Might Damage / Remove Scar).
+  // K3: do not set useAuthoredLevelProgression — picks-compiled trees differ from
+  // the printed table beyond identity fields (Stone Support effect wording).
   progressionPickSpecs: {
     2: {
       name: 'Titan Might',
@@ -481,6 +489,7 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       effect:
         'You may assume **Growth 1** using the universal Transformation rules. Grants one additional 0-penalty Growth Health Bar and +2 m Melee Reach; reduces Push/Pull by **1 × MR m**. Uses: Mastery Rank times per Safe Haven Rest.',
       special: 'Artifact Function: Transformation (Growth 1)',
+      artifactFunctionId: 'titan-growth',
     },
     {
       level: 2,
@@ -510,6 +519,7 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       effect:
         'You may assume **Growth 2**. Grants two 0-penalty Growth Health Bars and +4 m Melee Reach; reduces Push/Pull by **2 × MR m**. Physical Ranged and Spell Range are doubled once. Replaces Growth I.',
       special: 'Artifact Function: Transformation (Growth 2)',
+      artifactFunctionId: 'titan-growth',
     },
     {
       level: 5,
@@ -539,6 +549,7 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       effect:
         'You may assume **Growth 3**. Grants three 0-penalty Growth Health Bars and +6 m Melee Reach; reduces Push/Pull by **3 × MR m**. Physical Ranged and Spell Range remain doubled once. Replaces Growth II.',
       special: 'Artifact Function: Transformation (Growth 3)',
+      artifactFunctionId: 'titan-growth',
     },
     {
       level: 8,
@@ -1059,6 +1070,7 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
     1: {
       name: 'Breath Weapon',
       templateId: 'active-melee-weapon-aoe',
+      artifactFunctionId: 'dragon-breath',
       stagePowerLevels: ['4', '10', '16'],
       stageEffectTexts: [
         'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
@@ -1102,6 +1114,9 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
       effect:
         'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
       special: 'Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)',
+      powerTemplateId: 'active-melee-weapon-aoe',
+      artifactFunctionId: 'dragon-breath',
+      rank: 4,
     },
     {
       level: 2,
@@ -1132,6 +1147,9 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
       effect:
         'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
       special: 'Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)',
+      powerTemplateId: 'active-melee-weapon-aoe',
+      artifactFunctionId: 'dragon-breath',
+      rank: 10,
     },
     {
       level: 5,
@@ -1162,6 +1180,9 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
       effect:
         'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
       special: 'Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)',
+      powerTemplateId: 'active-melee-weapon-aoe',
+      artifactFunctionId: 'dragon-breath',
+      rank: 16,
     },
     {
       level: 8,
@@ -1629,6 +1650,8 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
     'Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Melee AoE Restoration (Hearth Circle), and Ranged Single Target Restoration (Remembered Hands).',
   restriction:
     'The Ringchain occupies the Amulet Slot. A Halfling with the Ringchain cannot wear another Amulet Artifact. Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
+  // K3: do not set useAuthoredLevelProgression — picks-compiled trees differ from
+  // the printed table beyond identity fields (aoe/display normalization).
   extraStoneFunctions: [
     {
       level: 1,
@@ -1667,6 +1690,8 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       duration: 'Instant',
       effect: 'Remove up to 6 total points of eligible negative Special value from one creature.',
       special: 'Ranged Single Target Cleanse (PL 4)',
+      powerTemplateId: 'active-ranged-single-cleanse',
+      rank: 4,
     },
     {
       level: 3,
@@ -1678,6 +1703,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       effect: 'Restore up to 2 Scarred Health Bars per Safe Haven Rest among allies within 2 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP.',
       special: 'Melee AoE Restoration (PL 4)',
       powerTemplateId: 'active-melee-aoe-restoration',
+      rank: 4,
     },
     {
       level: 4,
@@ -1688,6 +1714,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       effect: 'Restore up to 6 Scarred Health Bars per Safe Haven Rest on one creature at a time (full HP each). Does not heal HP.',
       special: 'Ranged Single Target Restoration (PL 10)',
       powerTemplateId: 'active-ranged-health-level-heal',
+      rank: 10,
     },
     {
       level: 5,
@@ -1706,6 +1733,8 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       duration: 'Instant',
       effect: 'Remove up to 10 total points of eligible negative Special value from one creature. This replaces Burden Lifted I.',
       special: 'Ranged Single Target Cleanse (PL 10)',
+      powerTemplateId: 'active-ranged-single-cleanse',
+      rank: 10,
     },
     {
       level: 7,
@@ -1716,6 +1745,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       effect: 'Restore up to 10 Scarred Health Bars per Safe Haven Rest on one creature at a time (full HP each). Does not heal HP. Replaces Remembered Hands I.',
       special: 'Ranged Single Target Restoration (PL 16)',
       powerTemplateId: 'active-ranged-health-level-heal',
+      rank: 16,
     },
     {
       level: 8,
@@ -1727,6 +1757,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       effect: 'Restore up to 9 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.',
       special: 'Melee AoE Restoration (PL 16)',
       powerTemplateId: 'active-melee-aoe-restoration',
+      rank: 16,
     },
     {
       level: 9,
@@ -1755,6 +1786,8 @@ const HOLLOW_CROWN: EchoArtifactDefinition = {
     'The Hollow Crown marks the place where death failed. Deathless Body, Life Sense (Life Sight 30 m), Hollow Stillness, and Life Absorption.',
   restriction:
     'Hollow Crown occupies the Head Slot. It cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
+  // K3: do not set useAuthoredLevelProgression — picks-compiled trees differ from
+  // the printed table beyond identity fields (aoe/display normalization).
   baseValues: [
     {
       slot: 'a',
@@ -1782,6 +1815,7 @@ const HOLLOW_CROWN: EchoArtifactDefinition = {
       effect:
         'Drain living creatures for Absorbed Vitality Stones. Maximum 2 Stones per Safe Haven Rest. Not usable in combat.',
       special: 'Hollow Crown: Life Absorption I',
+      artifactFunctionId: 'life-absorption',
     },
     {
       level: 3,
@@ -1810,6 +1844,7 @@ const HOLLOW_CROWN: EchoArtifactDefinition = {
       duration: 'Out of combat',
       effect: 'Maximum 4 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption I.',
       special: 'Hollow Crown: Life Absorption II',
+      artifactFunctionId: 'life-absorption',
     },
     {
       level: 6,
@@ -1837,6 +1872,7 @@ const HOLLOW_CROWN: EchoArtifactDefinition = {
       duration: 'Out of combat',
       effect: 'Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II.',
       special: 'Hollow Crown: Life Absorption III',
+      artifactFunctionId: 'life-absorption',
     },
     {
       level: 9,
@@ -2120,6 +2156,7 @@ export function buildEchoProgressionPicks(
       ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
       ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),
       ...(spec.limited ? { limited: true } : {}),
+      ...(spec.artifactFunctionId ? { artifactFunctionId: spec.artifactFunctionId } : {}),
     };
     if (spec.stoneFunction) {
       const sfSpec = spec.stoneFunction;
@@ -2197,16 +2234,30 @@ export function buildEchoProgressionPicks(
       const stages = [baseLevel, baseLevel + 3, baseLevel + 6]
         .map((lvl) => authoredRows.find((r) => Number(r.level) === lvl))
         .filter((r): r is NonNullable<typeof r> => !!r)
-        .map((r) => ({
-          level: Number(r.level),
-          name: r.name || '',
-          type: r.type || '',
-          range: r.range || '',
-          aoe: r.aoe || '',
-          duration: r.duration || '',
-          effect: r.effect || '',
-          special: r.special || '',
-        }));
+        .map((r) => {
+          const stage: ArtifactLevelProgressionRow = {
+            level: Number(r.level),
+            name: r.name || '',
+            type: r.type || '',
+            range: r.range || '',
+            aoe: r.aoe || '',
+            duration: r.duration || '',
+            effect: r.effect || '',
+            special: r.special || '',
+          };
+          // Batch B / Z2: identity fields must survive into authoredStages → packs.
+          if (r.powerTemplateId) stage.powerTemplateId = r.powerTemplateId;
+          if (r.artifactFunctionId) stage.artifactFunctionId = r.artifactFunctionId;
+          if (r.rank != null && Number.isFinite(Number(r.rank))) stage.rank = Number(r.rank);
+          if (r.limited === true) stage.limited = true;
+          if (r.isSpell === true) {
+            stage.isSpell = true;
+            if (r.castingAttribute) stage.castingAttribute = r.castingAttribute;
+            if (r.spellResolution) stage.spellResolution = r.spellResolution;
+          }
+          if (r.chosenSpecialKey) stage.chosenSpecialKey = r.chosenSpecialKey;
+          return stage;
+        });
       if (stages.length > 0) {
         picks[baseLevel - 1] = { level: baseLevel, kind: 'authored', authoredStages: stages };
       }

@@ -20,14 +20,51 @@
  * attached so downstream consumers can identify the row.
  */
 import { isSpecialOnlyTemplateId } from '../combat/damage-transfer.js';
-import { isLimitedChargeAvailable } from '../combat/limited-charge.js';
+import { isLimitedChargeAvailable, isLimitedPowerTemplateId, } from '../combat/limited-charge.js';
 import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
 import { breathDamageConeMeters, breathRuinConeMeters, breathRuinValue, damageBreathSharedPoolFormula, isBreathWeaponName, } from '../utils/breath-weapon.js';
+import { ARTIFACT_FUNCTION_CONTRACT, isArtifactFunctionId } from '../utils/artifact-functions.js';
+import { enrichArtifactRowIdentity } from '../utils/artifact-row-identity.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
+import { getTemplate } from '../utils/powers/templates/index.js';
 const REACTION_TYPES = new Set(['Reaction']);
+/** Category from identity when present; otherwise legacy type-text classifier. */
+function categoryFromIdentityOrType(row) {
+    const fn = row.artifactFunctionId;
+    if (fn && isArtifactFunctionId(fn)) {
+        const contract = ARTIFACT_FUNCTION_CONTRACT[fn];
+        if (contract.klass === 'K2') {
+            if (contract.category === 'activeBuff')
+                return 'activeBuff';
+            if (fn === 'titan-growth')
+                return 'utility'; // Transformation Growth surfaces as utility
+            return 'passive';
+        }
+        if (fn === 'dragon-breath')
+            return 'attack';
+    }
+    if (row.powerTemplateId) {
+        const tpl = getTemplate(row.powerTemplateId);
+        if (tpl?.category === 'activeBuff')
+            return 'activeBuff';
+        if (tpl?.category === 'movement')
+            return 'movement';
+        if (tpl?.category === 'reaction')
+            return 'reaction';
+        if (tpl?.category === 'passive')
+            return 'passive';
+        if (tpl?.category === 'active') {
+            if (tpl.subfamily?.startsWith('support-'))
+                return 'utility';
+            return 'attack';
+        }
+    }
+    return classifyArtifactRowType(String(row.type || ''));
+}
 /**
  * Classify a Level Progression row `type` into a radial category. The Type
  * column mixes Player's-Guide labels ("Active", "Active Buff", "Movement",
@@ -258,16 +295,20 @@ export function buildArtifactRadialOptions(actor) {
         // sheet): Titan Growth I/II/III surfaces as just the current stage, not
         // three separate radial entries.
         const rows = visibleAbilityRows(progression, currentLevel);
-        for (const row of rows) {
+        for (const rawRow of rows) {
+            const row = enrichArtifactRowIdentity(item, rawRow);
             const lvl = Number(row.level) || 1;
             if (lvl > currentLevel)
                 continue;
             const rowType = String(row.type || '').trim();
             const name = row.name || `${item.name} L${lvl}`;
-            // Breath Weapon must always be an attack option (Damage + Ruin modes),
-            // even when an older embed still carries a non-martial type label.
-            let category = classifyArtifactRowType(rowType);
-            if (category === 'passive' && isBreathWeaponName(name)) {
+            // Prefer structured identity (Batch C2); fall back to type-text for
+            // rows that still lack catalog identity (migration debt).
+            let category = categoryFromIdentityOrType(row);
+            if (category === 'passive' &&
+                !row.artifactFunctionId &&
+                !row.powerTemplateId &&
+                isBreathWeaponName(name)) {
                 category = 'attack';
             }
             // Passives are descriptive only; Reactions are surfaced via the
@@ -312,10 +353,13 @@ export function buildArtifactRadialOptions(actor) {
                     artifactRowSpecial: row.special || '',
                     artifactRowLevel: lvl,
                     artifactPowerTemplateId: row.powerTemplateId || undefined,
+                    artifactFunctionId: row.artifactFunctionId || undefined,
+                    rank: row.rank,
                 });
                 continue;
             }
-            if (category === 'utility' && /transformation/i.test(rowType)) {
+            if (category === 'utility' &&
+                (/transformation/i.test(rowType) || row.artifactFunctionId === 'titan-growth')) {
                 out.push({
                     id,
                     name,
@@ -333,10 +377,18 @@ export function buildArtifactRadialOptions(actor) {
                     aoePlacementProfile: 'utility',
                     artifactRowSpecial: row.special || '',
                     artifactRowLevel: lvl,
+                    artifactFunctionId: row.artifactFunctionId || undefined,
+                    artifactPowerTemplateId: row.powerTemplateId || undefined,
+                    rank: row.rank,
                 });
                 continue;
             }
             if (category === 'utility') {
+                const isHealish = !!row.powerTemplateId &&
+                    /health-level-heal|aoe-restoration|\bheal\b/i.test(row.powerTemplateId);
+                const isCleansish = !!row.powerTemplateId &&
+                    /\bcleanse\b/i.test(row.powerTemplateId) &&
+                    !/heal-cleanse/i.test(row.powerTemplateId);
                 out.push({
                     id,
                     name,
@@ -352,7 +404,11 @@ export function buildArtifactRadialOptions(actor) {
                     allowManualTargetSelection: true,
                     defaultTargetGroup: 'ally',
                     aoeShape: 'none',
-                    aoePlacementProfile: 'utility',
+                    aoePlacementProfile: isHealish ? 'heal' : isCleansish ? 'cleanse' : 'utility',
+                    artifactRowLevel: lvl,
+                    artifactPowerTemplateId: row.powerTemplateId || undefined,
+                    artifactFunctionId: row.artifactFunctionId || undefined,
+                    rank: row.rank,
                 });
                 continue;
             }
@@ -382,10 +438,19 @@ export function buildArtifactRadialOptions(actor) {
             }
             // Limited Instant Damage (e.g. Moonlight Judgment): share global Limited charge.
             // Prefer mechanical `row.limited` / Special column over name matching.
-            const rowLimited = row.limited === true ||
+            // K1 / C1: restore legacy Limited detection so Radial matches attack-executor;
+            // structured identity path is shadow-compared only and never decides.
+            const legacyLimited = row.limited === true ||
                 /\blimited\b/i.test(String(row.special || '')) ||
                 /moonlight\s*judgment/i.test(name) ||
                 /undead\s*tracer/i.test(name);
+            const rowLimited = compareIdentityDecision('artifact.rowLimited', legacyLimited, () => row.limited === true ||
+                (!!row.powerTemplateId && isLimitedPowerTemplateId(String(row.powerTemplateId))), {
+                echoArtifactKey: String(item?.flags?.['mastery-system']?.echoArtifactKey || ''),
+                level: lvl,
+                name,
+                powerTemplateId: row.powerTemplateId || null,
+            });
             if (rowLimited) {
                 // Martial weapon off for spell Limited; Spell Focus still applies when unlocked.
                 if (row.isSpell)
@@ -399,10 +464,14 @@ export function buildArtifactRadialOptions(actor) {
                 option.artifactPowerTemplateId = row.powerTemplateId;
                 option.artifactChosenSpecialKey = row.chosenSpecialKey;
                 option.artifactRowSpecial = row.special || '';
+                option.rank = row.rank;
                 if (isSpecialOnlyTemplateId(row.powerTemplateId)) {
                     option.specialOnly = true;
                     option.ignoreWeaponDamage = true;
                 }
+            }
+            if (row.artifactFunctionId) {
+                option.artifactFunctionId = row.artifactFunctionId;
             }
             if (row.isSpell && row.powerTemplateId) {
                 option.artifactIsSpell = true;
@@ -436,9 +505,8 @@ export function buildArtifactRadialOptions(actor) {
             else {
                 option.defaultTargetGroup = 'enemy';
             }
-            // Dragon Head Breath: Damage + Ruin (shared use). Cone specialty (aimed from
-            // caster) — still Instant Melee AoE: one shared roll vs each Evade, no Primary.
-            if (isBreathWeaponName(name)) {
+            // Dragon Head Breath: Damage + Ruin (shared use). Prefer artifactFunctionId (C2).
+            if (row.artifactFunctionId === 'dragon-breath' || isBreathWeaponName(name)) {
                 const dmgL = breathDamageConeMeters(currentLevel);
                 const ruinL = breathRuinConeMeters(currentLevel);
                 const ruinV = breathRuinValue(currentLevel);

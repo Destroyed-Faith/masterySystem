@@ -1,0 +1,497 @@
+{
+  "description": "K6b: Known mechanical text-matching sites pending C2/K8. Entry matches only when file AND line equal and hit text contains `match`. Broad tokens name/heal/breath/limited are forbidden. Display sites use reason starting with display.",
+  "entries": [
+    {
+      "file": "src/combat/active-buff-lifecycle.ts",
+      "line": 270,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/active-buff-lifecycle.ts",
+      "line": 271,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/attack-executor.ts",
+      "line": 624,
+      "match": "/moonlight",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/combat/attack-executor.ts",
+      "line": 625,
+      "match": "/undead",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/combat/attack-executor.ts",
+      "line": 649,
+      "match": "/moonlight",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/combat/attack-executor.ts",
+      "line": 674,
+      "match": "/breath",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/combat/cleanse-resolution.ts",
+      "line": 38,
+      "match": "/\\bcleanse",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/cleanse-resolution.ts",
+      "line": 47,
+      "match": "/\\bcleanse",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/cleanse-resolution.ts",
+      "line": 82,
+      "match": "/\\bcleanse",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/damage-negation.ts",
+      "line": 512,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/damage-negation.ts",
+      "line": 513,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/defender-reactions.ts",
+      "line": 179,
+      "match": "return /\\bevade\\b/.test(name) && !/\\bally\\b/.tes",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/defender-reactions.ts",
+      "line": 188,
+      "match": "return /\\bguard\\b/.test(name) || /^reaction:\\s*a",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 163,
+      "match": "/\\bheal",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 173,
+      "match": "/\\bheal",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 175,
+      "match": "/\\bheal",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 191,
+      "match": "/\\bheal",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 229,
+      "match": "artifactRowLooksLikeHeal",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 234,
+      "match": "inferRestoration",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 290,
+      "match": "/moonlight",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 314,
+      "match": "inferRestoration",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 315,
+      "match": "artifactRowLooksLikeHeal",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/heal-resolution.ts",
+      "line": 474,
+      "match": "toLowerCase().includes(",
+      "reason": "C2.e — heal/cleanse text or tid classifier until K8"
+    },
+    {
+      "file": "src/combat/parry-recovery.ts",
+      "line": 58,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/parry-recovery.ts",
+      "line": 59,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/parry.ts",
+      "line": 70,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/parry.ts",
+      "line": 71,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/parry.ts",
+      "line": 412,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/parry.ts",
+      "line": 419,
+      "match": "toLowerCase().includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/perception-state.ts",
+      "line": 217,
+      "match": "name.includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/combat/perception-state.ts",
+      "line": 218,
+      "match": "name.includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/combat/perception-state.ts",
+      "line": 219,
+      "match": "name.includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/combat/perception-state.ts",
+      "line": 220,
+      "match": "name.includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/combat/perception-state.ts",
+      "line": 221,
+      "match": "name.includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/combat/perception-state.ts",
+      "line": 222,
+      "match": "name.includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/combat/persistent-zone-runtime.ts",
+      "line": 117,
+      "match": "tags.includes(",
+      "reason": "C2 — spell/tag delivery (not power-name)"
+    },
+    {
+      "file": "src/combat/raise-resolution.ts",
+      "line": 740,
+      "match": "tags.includes(",
+      "reason": "C2 — spell/tag delivery (not power-name)"
+    },
+    {
+      "file": "src/combat/reaction-eligibility.ts",
+      "line": 187,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/reaction-eligibility.ts",
+      "line": 312,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/reaction-eligibility.ts",
+      "line": 316,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/reaction-eligibility.ts",
+      "line": 317,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/reaction-followups.ts",
+      "line": 63,
+      "match": "name.includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/reaction-window-chat.ts",
+      "line": 765,
+      "match": "toLowerCase().includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/reaction-window-chat.ts",
+      "line": 1172,
+      "match": "toLowerCase().includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/thorns.ts",
+      "line": 34,
+      "match": "toLowerCase().includes(",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/combat/thorns.ts",
+      "line": 64,
+      "match": "/\\bthorns",
+      "reason": "C2.b/f — name-class mechanics until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 41,
+      "match": "isBreathWeaponName",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 73,
+      "match": "classifyArtifactRowType",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 220,
+      "match": "/\\bheal",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 224,
+      "match": "/\\bcleanse",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 228,
+      "match": "/\\bcleanse",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 229,
+      "match": "/\\bheal",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 230,
+      "match": "/\\bheal",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 314,
+      "match": "isBreathWeaponName",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 458,
+      "match": "/\\blimited",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 459,
+      "match": "/moonlight",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 460,
+      "match": "/undead",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 527,
+      "match": "isBreathWeaponName",
+      "reason": "C2.d/K1 — Limited/Breath legacy (shadowed until K8)"
+    },
+    {
+      "file": "src/radial-menu/artifact-options.ts",
+      "line": 533,
+      "match": "const stageSuffix = (name.match(/\\s(I{1,3})\\b/) ",
+      "reason": "display"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 136,
+      "match": "toLowerCase().includes(",
+      "reason": "display"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 568,
+      "match": "name.includes(",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 579,
+      "match": "name.includes(",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 657,
+      "match": "tags.includes(",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 671,
+      "match": "textSuggestsActiveBuff",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 675,
+      "match": "textSuggestsActiveBuff",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 684,
+      "match": "tags.includes(",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 687,
+      "match": "textSuggestsActiveBuff",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/options.ts",
+      "line": 901,
+      "match": "tags.includes(",
+      "reason": "C2.a — segment/tag/text routing until K8"
+    },
+    {
+      "file": "src/radial-menu/power-radial-label.ts",
+      "line": 25,
+      "match": "if (/^melee\\s+damage\\b/i.test(name) && !/\\bspell",
+      "reason": "display"
+    },
+    {
+      "file": "src/radial-menu/power-radial-label.ts",
+      "line": 27,
+      "match": "} else if (/^ranged\\s+damage\\b/i.test(name) && !",
+      "reason": "display"
+    },
+    {
+      "file": "src/utils/power-mechanics.ts",
+      "line": 286,
+      "match": "canonicalPowerLookupName",
+      "reason": "K1 restored name fallback until C2.b"
+    },
+    {
+      "file": "src/utils/power-mechanics.ts",
+      "line": 290,
+      "match": "canonicalPowerLookupName",
+      "reason": "K1 restored name fallback until C2.b"
+    },
+    {
+      "file": "src/utils/power-mechanics.ts",
+      "line": 306,
+      "match": "canonicalPowerLookupName",
+      "reason": "K1 restored name fallback until C2.b"
+    },
+    {
+      "file": "src/utils/artifact-active-buffs.ts",
+      "line": 67,
+      "match": "power level",
+      "reason": "C2.c — growth/PL text until K8"
+    },
+    {
+      "file": "src/utils/artifact-active-buffs.ts",
+      "line": 284,
+      "match": "/moonlight",
+      "reason": "C2.c — growth/PL text until K8"
+    },
+    {
+      "file": "src/utils/breath-weapon.ts",
+      "line": 21,
+      "match": "/breath",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    },
+    {
+      "file": "src/utils/breath-weapon.ts",
+      "line": 119,
+      "match": "isBreathWeaponName",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    },
+    {
+      "file": "src/utils/artifact-visible-abilities.ts",
+      "line": 26,
+      "match": "isUltimateProgressionRow",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    },
+    {
+      "file": "src/utils/artifact-visible-abilities.ts",
+      "line": 66,
+      "match": "isUltimateProgressionRow",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    },
+    {
+      "file": "src/utils/artifact-visible-abilities.ts",
+      "line": 67,
+      "match": "isUltimateProgressionRow",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    },
+    {
+      "file": "src/utils/artifact-visible-abilities.ts",
+      "line": 89,
+      "match": "isUltimateProgressionRow",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    },
+    {
+      "file": "src/utils/artifact-visible-abilities.ts",
+      "line": 90,
+      "match": "isUltimateProgressionRow",
+      "reason": "C2.c/d — breath/ultimate name until K8"
+    }
+  ]
+}

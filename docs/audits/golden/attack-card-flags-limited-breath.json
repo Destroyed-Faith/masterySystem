@@ -1,0 +1,36 @@
+{
+  "description": "Legacy Limited/Breath decision baseline. Source: unit fixtures.",
+  "rows": [
+    {
+      "id": "limited-melee-single",
+      "templateId": "active-melee-limited-single",
+      "isLimitedDeclaration": true,
+      "inLimitedIdSet": true
+    },
+    {
+      "id": "non-limited-damage-transfer",
+      "templateId": "active-melee-single-target-damage-transfer",
+      "isLimitedDeclaration": false,
+      "inLimitedIdSet": false
+    },
+    {
+      "id": "breath-name-damage",
+      "name": "Damage Breath",
+      "isBreathWeaponName": true,
+      "legacyModeDefault": "damage",
+      "documentedDeviation": "C1/C2.d: executor still defaults mode to damage when unstructured; identity would unresolved"
+    },
+    {
+      "id": "breath-name-ruin",
+      "name": "Ruin Breath",
+      "isBreathWeaponName": true,
+      "legacyModeDefault": "ruin"
+    },
+    {
+      "id": "moonlight-judgment-name",
+      "name": "Moonlight Judgment",
+      "note": "Executor Limited via name heuristic; isLimitedAttackDeclaration requires flag/id",
+      "isLimitedDeclarationWithoutFlag": false
+    }
+  ]
+}

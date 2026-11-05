@@ -3332,6 +3332,8 @@ Hooks.once('ready', async function () {
     registerPerceptionCombatHooks();
     const { registerInvisibilityTokenEffectToggle } = await import('./combat/invisibility-presentation.js');
     registerInvisibilityTokenEffectToggle();
+    const { registerIdentityPreflightHooks } = await import('./utils/identity-preflight-hooks.js');
+    registerIdentityPreflightHooks();
     // Register skill spend click handler
     const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
     registerSkillSpendClickHandler();

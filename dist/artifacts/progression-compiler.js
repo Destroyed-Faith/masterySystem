@@ -271,6 +271,7 @@ export function deriveLevelProgressionFromPicks(picks) {
                         ? 'Artifact Active, Spell'
                         : lr.type || tpl.category || 'Active'
                     : lr.type || tpl.category || 'Active';
+                const powerRank = Number(pl) || undefined;
                 rows.push({
                     level,
                     name: rowName,
@@ -282,6 +283,8 @@ export function deriveLevelProgressionFromPicks(picks) {
                     special: specialCol,
                     powerTemplateId: templateId,
                     chosenSpecialKey: chosenKey,
+                    ...(powerRank ? { rank: powerRank } : {}),
+                    ...(pick.artifactFunctionId ? { artifactFunctionId: pick.artifactFunctionId } : {}),
                     ...(limited ? { limited: true } : {}),
                     ...(pick.isSpell
                         ? {
@@ -296,13 +299,14 @@ export function deriveLevelProgressionFromPicks(picks) {
         else if (pick.kind === 'authored' && Array.isArray(pick.authoredStages)) {
             // Bespoke line: emit the stored staged rows verbatim at levels
             // base / base+3 / base+6 (stage I / II / III). No catalog lookup.
+            // Batch B / Z2: identity fields must be forwarded.
             const stages = pick.authoredStages.slice(0, STAGE_NUMERALS.length);
             for (let s = 0; s < stages.length; s++) {
                 const stored = stages[s];
                 if (!stored)
                     continue;
                 const level = baseLevel + 3 * s;
-                rows.push({
+                const row = {
                     level,
                     name: stored.name || '',
                     type: stored.type || '',
@@ -311,7 +315,26 @@ export function deriveLevelProgressionFromPicks(picks) {
                     duration: stored.duration || '',
                     effect: stored.effect || '',
                     special: stored.special || '',
-                });
+                };
+                if (stored.powerTemplateId)
+                    row.powerTemplateId = stored.powerTemplateId;
+                if (stored.artifactFunctionId)
+                    row.artifactFunctionId = stored.artifactFunctionId;
+                if (stored.rank != null && Number.isFinite(Number(stored.rank))) {
+                    row.rank = Number(stored.rank);
+                }
+                if (stored.limited === true)
+                    row.limited = true;
+                if (stored.isSpell === true) {
+                    row.isSpell = true;
+                    if (stored.castingAttribute)
+                        row.castingAttribute = stored.castingAttribute;
+                    if (stored.spellResolution)
+                        row.spellResolution = stored.spellResolution;
+                }
+                if (stored.chosenSpecialKey)
+                    row.chosenSpecialKey = stored.chosenSpecialKey;
+                rows.push(row);
             }
         }
         else if (pick.kind === 'stoneFunction' && pick.stoneFunction) {

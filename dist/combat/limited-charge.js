@@ -5,6 +5,8 @@
  * Spent at attack declaration (createAttackCard), even on miss / resisted spell /
  * empty Instant AoE. Cleared only by Safe Haven Rest.
  */
+import { resolvePowerIdentity } from '../utils/power-identity.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 export const LIMITED_CHARGE_FLAG = 'limitedChargeSpent';
 /** Canonical Limited Active template ids (exactly four Instant Damage deliveries). */
 export const LIMITED_POWER_TEMPLATE_IDS = [
@@ -56,7 +58,19 @@ export function isLimitedAttackDeclaration(opts) {
         return true;
     if (opts.item?.system?.limited === true)
         return true;
-    return isLimitedPowerTemplateId(tid);
+    const legacy = isLimitedPowerTemplateId(tid);
+    // C1 Shadow-Compare (identity.limited); legacy decides.
+    return compareIdentityDecision('limited.isLimitedAttackDeclaration', legacy, () => {
+        if (!opts.item && !tid)
+            return false;
+        const id = resolvePowerIdentity({
+            kind: 'power-item',
+            item: opts.item ?? { system: { templateId: tid, limited: opts.limited } },
+        });
+        if (!id.ok)
+            return false;
+        return id.limited === true || isLimitedPowerTemplateId(id.templateId || '');
+    }, { templateId: tid });
 }
 function readSpent(actor) {
     if (!actor)

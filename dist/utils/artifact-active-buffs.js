@@ -14,6 +14,7 @@
  *     token size on the effect so it can be restored when the buff ends.
  */
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
+import { compareIdentityDecision } from './identity-shadow.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 function getMasteryRank(actor) {
     return getRulesMasteryRank(actor);
@@ -48,14 +49,32 @@ function hasAnyMaintainedActiveBuff(actor) {
 function growthPowerLevelFor(option) {
     const text = `${option.description || ''}`;
     const m = text.match(/power level\s*(\d+)/i);
+    let legacy;
     if (m)
-        return Math.max(1, Math.min(16, parseInt(m[1], 10)));
-    const lvl = Number(option.artifactRowLevel) || 1;
-    if (lvl >= 7)
-        return 16;
-    if (lvl >= 4)
-        return 10;
-    return 4;
+        legacy = Math.max(1, Math.min(16, parseInt(m[1], 10)));
+    else {
+        const lvl = Number(option.artifactRowLevel) || 1;
+        if (lvl >= 7)
+            legacy = 16;
+        else if (lvl >= 4)
+            legacy = 10;
+        else
+            legacy = 4;
+    }
+    // K5: structured rank / stage mapping shadows the text parse; legacy still decides.
+    return compareIdentityDecision('artifact.growthPowerLevel', legacy, () => {
+        const ranked = Number(option.rank);
+        if (Number.isFinite(ranked) && ranked >= 1 && ranked <= 16)
+            return Math.floor(ranked);
+        const lvl = Number(option.artifactRowLevel) || 1;
+        if (lvl >= 1 && lvl <= 9)
+            return [4, 10, 16][Math.floor((lvl - 1) / 3)];
+        return { kind: 'unresolved', reason: 'growth-rank-missing' };
+    }, {
+        name: option.name,
+        rank: option.rank ?? null,
+        artifactRowLevel: option.artifactRowLevel ?? null,
+    });
 }
 /**
  * Resolve the `ab-growth-form` level mechanics for a Growth Power Level (4/10/16).
@@ -302,6 +321,11 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
                 artifactItemId: artifactItem.id,
                 powerName: option.name,
                 powerTemplateId: catalogTemplateId,
+                /** Numeric catalog PL for identity resolution (Batch B). */
+                rank: catalogPowerLevel || undefined,
+                artifactFunctionId: option.artifactFunctionId
+                    ? String(option.artifactFunctionId)
+                    : undefined,
                 masteryRank,
                 durationRounds: masteryRank,
                 effectiveDuration: masteryRank,

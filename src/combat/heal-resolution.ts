@@ -28,6 +28,8 @@ import {
   HL_HEAL_MELEE_POOL,
   HL_HEAL_RANGED_POOL,
 } from '../utils/powers/templates/actives.js';
+import { resolvePowerIdentity } from '../utils/power-identity.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import type { RadialCombatOption } from '../radial-menu/types.js';
 
 export const HEAL_CHAT_FLAG = 'healResolution';
@@ -213,19 +215,39 @@ export function isHealRadialOption(
   } | null | undefined,
 ): boolean {
   if (!option || option.source !== 'power') return false;
-  if (option.aoePlacementProfile === 'heal') return true;
-  if (isHealTemplateId(option.artifactPowerTemplateId)) return true;
-  if (option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) return true;
-  if (
+
+  // C2.e: prefer structured identity. Text inference only when no template id exists
+  // on the option/item (pre-migration). Once a template id is present, text is ignored.
+  const hasStructuredId = !!(
+    option.artifactPowerTemplateId ||
+    option.item?.system?.templateId
+  );
+  let decided = false;
+  if (option.aoePlacementProfile === 'heal') decided = true;
+  else if (isHealTemplateId(option.artifactPowerTemplateId)) decided = true;
+  else if (option.item && isHealPowerItem(option.item)) decided = true;
+  else if (!hasStructuredId && option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
+    decided = true;
+  } else if (
+    !hasStructuredId &&
     option.item?.type === 'artifact' &&
     inferRestorationTemplateFromArtifactText(
       `${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`,
     )
   ) {
-    return true;
+    decided = true;
   }
-  if (option.item && isHealPowerItem(option.item)) return true;
-  return false;
+
+  return compareIdentityDecision(
+    'heal.isHealRadialOption',
+    decided,
+    () => {
+      const id = resolvePowerIdentity({ kind: 'radial-option', option });
+      if (!id.ok) return false;
+      return isHealTemplateId(id.templateId);
+    },
+    { name: option.name },
+  );
 }
 
 /**

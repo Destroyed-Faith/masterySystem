@@ -17,6 +17,7 @@
 import type { RadialCombatOption } from '../radial-menu/types.js';
 import type { PowerMechanics } from '../types/item.js';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
+import { compareIdentityDecision } from './identity-shadow.js';
 
 interface TokenSizeSnapshot {
   sceneId: string;
@@ -64,11 +65,31 @@ function hasAnyMaintainedActiveBuff(actor: any): any | null {
 function growthPowerLevelFor(option: RadialCombatOption): number {
   const text = `${option.description || ''}`;
   const m = text.match(/power level\s*(\d+)/i);
-  if (m) return Math.max(1, Math.min(16, parseInt(m[1], 10)));
-  const lvl = Number(option.artifactRowLevel) || 1;
-  if (lvl >= 7) return 16;
-  if (lvl >= 4) return 10;
-  return 4;
+  let legacy: number;
+  if (m) legacy = Math.max(1, Math.min(16, parseInt(m[1], 10)));
+  else {
+    const lvl = Number(option.artifactRowLevel) || 1;
+    if (lvl >= 7) legacy = 16;
+    else if (lvl >= 4) legacy = 10;
+    else legacy = 4;
+  }
+  // K5: structured rank / stage mapping shadows the text parse; legacy still decides.
+  return compareIdentityDecision(
+    'artifact.growthPowerLevel',
+    legacy,
+    () => {
+      const ranked = Number((option as any).rank);
+      if (Number.isFinite(ranked) && ranked >= 1 && ranked <= 16) return Math.floor(ranked);
+      const lvl = Number(option.artifactRowLevel) || 1;
+      if (lvl >= 1 && lvl <= 9) return ([4, 10, 16] as const)[Math.floor((lvl - 1) / 3)];
+      return { kind: 'unresolved', reason: 'growth-rank-missing' };
+    },
+    {
+      name: option.name,
+      rank: (option as any).rank ?? null,
+      artifactRowLevel: option.artifactRowLevel ?? null,
+    },
+  );
 }
 
 /**
@@ -349,6 +370,11 @@ export async function activateArtifactActiveBuff(
         artifactItemId: artifactItem.id,
         powerName: option.name,
         powerTemplateId: catalogTemplateId,
+        /** Numeric catalog PL for identity resolution (Batch B). */
+        rank: catalogPowerLevel || undefined,
+        artifactFunctionId: option.artifactFunctionId
+          ? String(option.artifactFunctionId)
+          : undefined,
         masteryRank,
         durationRounds: masteryRank,
         effectiveDuration: masteryRank,

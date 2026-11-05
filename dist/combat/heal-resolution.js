@@ -18,6 +18,8 @@ import { getActionEconomyActor } from './action-economy.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
 import { HL_HEAL_MELEE_POOL, HL_HEAL_RANGED_POOL, } from '../utils/powers/templates/actives.js';
+import { resolvePowerIdentity } from '../utils/power-identity.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 export const HEAL_CHAT_FLAG = 'healResolution';
 /** Caster flag: `{ [powerKey]: spentLevels }` since last Safe Haven Rest. */
 export const HLR_SPENT_FLAG = 'healthLevelRecoverySpent';
@@ -204,19 +206,31 @@ export function isHealPowerItem(item) {
 export function isHealRadialOption(option) {
     if (!option || option.source !== 'power')
         return false;
+    // C2.e: prefer structured identity. Text inference only when no template id exists
+    // on the option/item (pre-migration). Once a template id is present, text is ignored.
+    const hasStructuredId = !!(option.artifactPowerTemplateId ||
+        option.item?.system?.templateId);
+    let decided = false;
     if (option.aoePlacementProfile === 'heal')
-        return true;
-    if (isHealTemplateId(option.artifactPowerTemplateId))
-        return true;
-    if (option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option))
-        return true;
-    if (option.item?.type === 'artifact' &&
-        inferRestorationTemplateFromArtifactText(`${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`)) {
-        return true;
+        decided = true;
+    else if (isHealTemplateId(option.artifactPowerTemplateId))
+        decided = true;
+    else if (option.item && isHealPowerItem(option.item))
+        decided = true;
+    else if (!hasStructuredId && option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
+        decided = true;
     }
-    if (option.item && isHealPowerItem(option.item))
-        return true;
-    return false;
+    else if (!hasStructuredId &&
+        option.item?.type === 'artifact' &&
+        inferRestorationTemplateFromArtifactText(`${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`)) {
+        decided = true;
+    }
+    return compareIdentityDecision('heal.isHealRadialOption', decided, () => {
+        const id = resolvePowerIdentity({ kind: 'radial-option', option });
+        if (!id.ok)
+            return false;
+        return isHealTemplateId(id.templateId);
+    }, { name: option.name });
 }
 /**
  * Resolve a power-shaped item for heal dice / HLR — real power, or a synthetic

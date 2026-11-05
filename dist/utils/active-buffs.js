@@ -374,6 +374,8 @@ export async function activateActiveBuff(actor, power, opts) {
                 powerName: power.name,
                 /** Closed-subsystem DR whitelist (see `power-mechanics.ts` / `isSanctionedDR`). */
                 powerTemplateId: powerSys?.templateId ? String(powerSys.templateId) : null,
+                /** Numeric catalog PL for identity resolution (Batch B). */
+                rank: Number(powerLevelKey) || Number(powerSys?.rank) || Number(powerSys?.level) || 1,
                 masteryRank: masteryRank,
                 durationRounds: durationRounds,
                 effectiveDuration: durationRounds,

@@ -428,7 +428,8 @@ function controlTemplate(def: {
 // Scarred Bar Restoration pools live in combat/r05-restoration.ts.
 // Cleanse rank (0 = no version available at that Power rank).
 const CLEANSE_MELEE_SINGLE: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-const CLEANSE_RANGED_SINGLE: readonly number[] = [1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 11, 12, 13];
+// Source: Actives.md 1223–1238 (Ranged Single Target Cleanse). Decision 14.1.
+const CLEANSE_RANGED_SINGLE: readonly number[] = [3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
 const CLEANSE_MELEE_AOE: readonly number[] = [0, 1, 2, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 11, 12, 13];
 const CLEANSE_RANGED_AOE: readonly number[] = [0, 1, 2, 2, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9];
 const CLEANSE_AOE_RADIUS_MELEE: readonly number[] = [0, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4];

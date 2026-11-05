@@ -1,0 +1,27 @@
+{
+  "description": "Legacy heal/cleanse classifiers + special display-name resolution. Source: unit fixtures.",
+  "healIsHeal": true,
+  "cleanseIsCleanse": true,
+  "specials": [
+    {
+      "name": "Slow",
+      "effectId": "slow",
+      "category": "diminishing"
+    },
+    {
+      "name": "Prone",
+      "effectId": "prone",
+      "category": "timed"
+    },
+    {
+      "name": "Blind",
+      "effectId": null,
+      "category": null
+    },
+    {
+      "name": "Riposte",
+      "effectId": null,
+      "category": null
+    }
+  ]
+}

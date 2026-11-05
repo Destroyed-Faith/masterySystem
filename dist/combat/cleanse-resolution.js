@@ -12,6 +12,8 @@ import { escapeStoneChat } from '../stones/stone-resolution.js';
 import { powerItemRank } from './heal-resolution.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
+import { resolvePowerIdentity } from '../utils/power-identity.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 export const CLEANSE_CHAT_FLAG = 'cleanseResolution';
 /** Cast ids already refunded / committed (Cancel must not double-refund AoE cards). */
 const refundedCleanseCastIds = new Set();
@@ -44,24 +46,37 @@ export function isCleansePowerItem(item) {
 export function isCleanseRadialOption(option) {
     if (!option || option.source !== 'power')
         return false;
+    // C2.e: structured ids win; name/description blob only when no template id (pre-migration).
+    const hasStructuredId = !!(option.artifactPowerTemplateId ||
+        option.item?.system?.templateId);
+    let decided = false;
     if (option.aoePlacementProfile === 'heal')
-        return false;
-    if (option.aoePlacementProfile === 'cleanse')
-        return true;
-    const tid = String(option.artifactPowerTemplateId || '');
-    // Pure cleanse only — heal+cleanse mixed stays on the heal path.
-    if (tid && /\bcleanse\b/i.test(tid) && !/\bheal\b/i.test(tid))
-        return true;
-    if (option.item?.type === 'artifact') {
-        const blob = `${option.name || ''} ${option.description || ''}`;
-        return /\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob);
+        decided = false;
+    else if (option.aoePlacementProfile === 'cleanse')
+        decided = true;
+    else {
+        const tid = String(option.artifactPowerTemplateId || '');
+        if (tid && isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid))
+            decided = true;
+        else if (option.item?.type === 'power') {
+            const ptid = String(option.item.system?.templateId || '');
+            if (/heal-cleanse/i.test(ptid))
+                decided = false;
+            else
+                decided = isCleansePowerItem(option.item);
+        }
+        else if (!hasStructuredId && option.item?.type === 'artifact') {
+            const blob = `${option.name || ''} ${option.description || ''}`;
+            decided = /\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob);
+        }
     }
-    if (!option.item || option.item.type !== 'power')
-        return false;
-    const ptid = String(option.item.system?.templateId || '');
-    if (/heal-cleanse/i.test(ptid))
-        return false;
-    return isCleansePowerItem(option.item);
+    return compareIdentityDecision('cleanse.isCleanseRadialOption', decided, () => {
+        const id = resolvePowerIdentity({ kind: 'radial-option', option });
+        if (!id.ok)
+            return false;
+        const tid = id.templateId || '';
+        return isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid);
+    }, { name: option.name });
 }
 /** Synthetic power item so Cleanse(X) can be read from an artifact row. */
 export function cleansePowerItemFromRadialOption(option) {

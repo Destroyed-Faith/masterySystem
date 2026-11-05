@@ -49,6 +49,7 @@ describe('resolvePowerMechanics Armor name collision', () => {
       system: { rank: 1, category: 'activeBuff', powerType: 'buff' },
     });
     // Category-scoped templateName match → Active Buff L1 = +2
+    // (K1: name fallback restored as deciding legacy path until C2.)
     expect(mech?.armor).toBe(2);
   });
 });

@@ -36,6 +36,10 @@ export declare function emptyBreakdown(): MechanicsBreakdown;
  * false, so a bare `items.get` miss used to drop all passive mechanics.
  */
 export declare function findPowerItemOnActor(actor: any, pid: string | undefined | null): any;
+/**
+ * Catalog mechanics by templateId + rank only. No name fallback (Batch B / plan §7).
+ */
+export declare function resolvePowerMechanicsById(templateId: string | null | undefined, rank: number): PowerMechanics | null;
 export declare function resolvePowerMechanics(powerItem: any): PowerMechanics | null;
 /**
  * How many d8 the power adds as **splash** for melee weapon AoE secondaries,
@@ -58,7 +62,7 @@ interface MechanicsContribution {
     powerTemplateId?: string | null;
 }
 /** Same check for Phasing declarations. Exported so the runtime can reuse. */
-export declare function isSanctionedPhasingName(powerName: string, sourceKind: 'passive' | 'buff' | 'reaction'): boolean;
+export declare function isSanctionedPhasingName(powerName: string, sourceKind: 'passive' | 'buff' | 'reaction', templateId?: string | null): boolean;
 /**
  * Enumerate every active mechanics contribution for an actor:
  * - owned Passive powers (always-on; Passive Slot Manager removed)

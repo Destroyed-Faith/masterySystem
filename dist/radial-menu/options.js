@@ -15,6 +15,8 @@ import { readGrowthFormRider } from '../combat/growth-form.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, } from '../utils/npc-attack-model.js';
 import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-debug.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { resolvePowerIdentity, deriveActiveSegment } from '../utils/power-identity.js';
+import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
@@ -541,7 +543,7 @@ export function textSuggestsActiveBuff(name, description) {
  * Map an option to one of the 4 inner segment IDs
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
-export function getSegmentIdForOption(option) {
+function legacySegmentIdForOption(option) {
     // Maneuvers: Parry, Basic Attack, and the Grapple family live in the blue
     // MAN. segment even though their slot is 'attack'. The Atk ring stays for
     // powers. They still spend an Attack Action.
@@ -588,25 +590,34 @@ export function getSegmentIdForOption(option) {
                 return 'active-buff';
             }
         }
-        // Also check if power type is 'active' but has buff-like characteristics
-        if (powerType === 'active' && option.slot === 'attack') {
-            if (textSuggestsActiveBuff(option.name, option.description)) {
+        // C2.a: when templateId is present, category comes from identity — never from
+        // name/description (fixes stance-in-instance false positive).
+        const templateId = String(option.item.system?.templateId || '').trim();
+        if (templateId) {
+            const id = resolvePowerIdentity({ kind: 'radial-option', option });
+            if (id.ok && id.category === 'activeBuff' && powerCostPaysAction(cost)) {
                 return 'active-buff';
             }
+            // Identity resolved to non-buff: do not consult textSuggestsActiveBuff.
         }
-        // Check if it's a utility that is Self-targeting (these are also active buffs)
-        if (powerType === 'utility' && powerCostPaysAction(cost)) {
-            const rangeStr = range?.toString().toLowerCase() || '';
-            // If range is "Self" or 0, it's a self-buff utility
-            if (rangeStr === 'self' || rangeStr === '0' || range === 0) {
-                return 'active-buff';
+        else {
+            // Legacy items without templateId: keep prior text heuristic until migrated (E).
+            if (powerType === 'active' && option.slot === 'attack') {
+                if (textSuggestsActiveBuff(option.name, option.description)) {
+                    return 'active-buff';
+                }
             }
-            // Also check if it has buff-like tags or characteristics
-            if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
-                return 'active-buff';
-            }
-            if (textSuggestsActiveBuff(option.name, option.description)) {
-                return 'active-buff';
+            if (powerType === 'utility' && powerCostPaysAction(cost)) {
+                const rangeStr = range?.toString().toLowerCase() || '';
+                if (rangeStr === 'self' || rangeStr === '0' || range === 0) {
+                    return 'active-buff';
+                }
+                if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
+                    return 'active-buff';
+                }
+                if (textSuggestsActiveBuff(option.name, option.description)) {
+                    return 'active-buff';
+                }
             }
         }
     }
@@ -625,6 +636,29 @@ export function getSegmentIdForOption(option) {
             // Default to attack for offensive actions
             return 'attack';
     }
+}
+export function getSegmentIdForOption(option) {
+    const legacy = legacySegmentIdForOption(option);
+    // C1 Shadow-Compare: identity path does not decide (plan §10.5).
+    // K5: skip npc-attack / maneuver noise in the shadow log.
+    return compareIdentityDecision('radial.getSegmentIdForOption', legacy, () => {
+        if (option.source === 'maneuver' || option.source === 'npc-attack')
+            return legacy;
+        const id = resolvePowerIdentity({ kind: 'radial-option', option });
+        if (!id.ok)
+            return { kind: 'unresolved', reason: id.reason, legacy };
+        if (id.category === 'activeBuff')
+            return 'active-buff';
+        if (id.category === 'movement')
+            return 'movement';
+        if (id.category === 'active')
+            return deriveActiveSegment(id);
+        if (id.category === 'reaction')
+            return 'utility';
+        if (id.category === 'passive')
+            return legacy;
+        return legacy;
+    }, { optionId: option.id, name: option.name, source: option.source });
 }
 /**
  * Get all combat options for an actor (all categories)
