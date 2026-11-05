@@ -8,12 +8,13 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { parseArtifactWeaponRangeMeters } from '../utils/artifact-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
-import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { isBasicReactionItem } from './basic-combat.js';
 import { isAllyReactionPower, isThreatenedDeclarationLegalReaction } from './defender-reactions.js';
+import { isReflectionReaction, isRiposteReaction, } from './reaction-kind.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 import { currentMeleeReachMeters } from './threat-zone.js';
+export { reactionMayRepeatThisRound } from './reaction-kind.js';
 function mechanicsOf(item) {
     if (item?.mechanics && typeof item.mechanics === 'object') {
         return item.mechanics;
@@ -132,25 +133,6 @@ export function isParryFollowUpReaction(item) {
     if (tid === 'reaction-riposte' || tid === 'reaction-parry-reflection')
         return true;
     return subfamilyOf(item) === 'parry';
-}
-/** Explicit exception: Parry + Weapon Damage may be used again. Each use still costs 1 Reaction. */
-export function reactionMayRepeatThisRound(item) {
-    const tid = templateIdOf(item);
-    const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid === 'reaction-riposte' ||
-        name.includes('parry + weapon damage') ||
-        name.includes('riposte') ||
-        mechanicsOf(item)?.repeatable === true;
-    // K8.f: templateId / repeatable flag decide; name includes are pre-K9 missing-ID bridge.
-    return compareIdentityDecision('reaction.mayRepeatThisRound', legacy, () => {
-        if (tid === 'reaction-riposte')
-            return true;
-        if (mechanicsOf(item)?.repeatable === true)
-            return true;
-        if (!tid)
-            return { kind: 'unresolved', reason: 'missing-identity' };
-        return false;
-    }, { tid, name }, { prefer: 'identity' });
 }
 export function isInterposeReaction(item) {
     return item?.basicReaction === 'interpose' || String(item?.id || '') === 'basic-reaction-interpose';
@@ -280,27 +262,9 @@ export function evaluateReactionEligibility(power, ctx) {
         if (phase !== 'defender') {
             return { shown: false, enabled: false, reason: 'Parry follow-ups are defender reactions' };
         }
-        const name = String(power?.name ?? '').toLowerCase();
-        const riposteLegacy = tid === 'reaction-riposte' || name.includes('weapon damage') || name.includes('riposte');
-        const reflectionLegacy = tid === 'reaction-parry-reflection' ||
-            tid.includes('reflection') ||
-            name.includes('attack reflection') ||
-            name.includes('reflection');
-        // K8.f: identity-primary for riposte/reflection classification.
-        const riposte = compareIdentityDecision('reaction.eligibility.riposte', riposteLegacy, () => {
-            if (tid === 'reaction-riposte')
-                return true;
-            if (!tid)
-                return { kind: 'unresolved', reason: 'missing-identity' };
-            return false;
-        }, { tid, name }, { prefer: 'identity' });
-        const reflection = compareIdentityDecision('reaction.eligibility.reflection', reflectionLegacy, () => {
-            if (tid === 'reaction-parry-reflection' || tid.includes('reflection'))
-                return true;
-            if (!tid)
-                return { kind: 'unresolved', reason: 'missing-identity' };
-            return false;
-        }, { tid, name }, { prefer: 'identity' });
+        // R3: same predicates as spend (`isRiposteReaction` / `isReflectionReaction`).
+        const riposte = isRiposteReaction(power);
+        const reflection = isReflectionReaction(power);
         const martialFull = !!ctx.hasParryThisHit && ctx.parryDelivery !== 'spell' && !ctx.spellFullyCountered;
         const spellFull = !!ctx.spellFullyCountered && ctx.parryDelivery !== 'martial';
         if (riposte && !reflection) {

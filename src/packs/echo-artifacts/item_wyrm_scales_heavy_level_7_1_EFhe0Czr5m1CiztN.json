@@ -42,7 +42,8 @@
         "duration": "Instant",
         "effect": "Fly up to **24 m**.",
         "special": "",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "rank": 16
       },
       {
         "level": 5,
@@ -53,7 +54,8 @@
         "duration": "MR Rounds",
         "effect": "Gain **+20 Armor**. This replaces Wyrm Scales I.",
         "special": "",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "rank": 10
       },
       {
         "level": 6,

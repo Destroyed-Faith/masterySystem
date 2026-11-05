@@ -32,7 +32,8 @@
         "duration": "Instant",
         "effect": "Gain **+2 Evade** against the triggering attack.",
         "special": "",
-        "powerTemplateId": "reaction-evade"
+        "powerTemplateId": "reaction-evade",
+        "rank": 2
       }
     ],
     "stoneFunction": null,

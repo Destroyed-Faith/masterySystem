@@ -42,7 +42,8 @@
         "duration": "Instant",
         "effect": "Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool.",
         "special": "Ranged Single Target Restoration (PL 16; Artifact Range 8 m)",
-        "powerTemplateId": "active-ranged-health-level-heal"
+        "powerTemplateId": "active-ranged-health-level-heal",
+        "rank": 16
       },
       {
         "level": 8,

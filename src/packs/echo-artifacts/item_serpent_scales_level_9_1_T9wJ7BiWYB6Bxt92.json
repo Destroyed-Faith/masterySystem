@@ -42,7 +42,8 @@
         "duration": "Instant",
         "effect": "Fly up to **24 m**.",
         "special": "",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "rank": 16
       },
       {
         "level": 8,
@@ -53,7 +54,8 @@
         "duration": "MR Rounds",
         "effect": "Gain **+32 Evade** from the standard Active Buff: Evade (PL 16). This replaces Serpent Evasion II.",
         "special": "",
-        "powerTemplateId": "ab-evade"
+        "powerTemplateId": "ab-evade",
+        "rank": 16
       },
       {
         "level": 9,

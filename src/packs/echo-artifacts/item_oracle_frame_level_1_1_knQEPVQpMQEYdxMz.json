@@ -42,7 +42,8 @@
         "duration": "MR Rounds",
         "effect": "Use standard **Active Buff: Armor (PL 4)**: gain **+8 Armor** for Mastery Rank Rounds.",
         "special": "",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

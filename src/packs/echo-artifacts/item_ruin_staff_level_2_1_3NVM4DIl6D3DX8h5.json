@@ -52,6 +52,7 @@
         "special": "Spell, Root(3)",
         "powerTemplateId": "active-ranged-aoe-damage-t5",
         "chosenSpecialKey": "root",
+        "rank": 4,
         "isSpell": true,
         "castingAttribute": "intellect",
         "spellResolution": "spellAttack"

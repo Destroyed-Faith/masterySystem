@@ -47,7 +47,9 @@
         "duration": "Instant",
         "effect": "Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.",
         "special": "",
-        "powerTemplateId": "active-melee-weapon-aoe"
+        "powerTemplateId": "active-melee-weapon-aoe",
+        "rank": 16,
+        "artifactFunctionId": "dragon-breath"
       },
       {
         "level": 8,
@@ -58,7 +60,8 @@
         "duration": "MR Rounds",
         "effect": "You and allies within **32 m** gain **+16 Armor**.",
         "special": "",
-        "powerTemplateId": "ab-armor-aura"
+        "powerTemplateId": "ab-armor-aura",
+        "rank": 16
       },
       {
         "level": 6,
@@ -91,7 +94,8 @@
           "Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.",
           "Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.",
           "Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II."
-        ]
+        ],
+        "artifactFunctionId": "dragon-breath"
       },
       {
         "level": 2,

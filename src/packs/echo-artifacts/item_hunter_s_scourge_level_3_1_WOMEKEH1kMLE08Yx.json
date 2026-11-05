@@ -33,6 +33,7 @@
         "effect": "Use **Limited Melee Single Target Attack** (PL 4) with Hunter's Scourge: on hit, deal Weapon Damage + printed **+8d8** Power Damage (**×4** at resolution = **+32d8** Power). Weapon Damage is added once and is not multiplied. **Shares the character's one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Specials.",
         "special": "Limited",
         "powerTemplateId": "active-melee-limited-single",
+        "rank": 4,
         "limited": true
       },
       {
@@ -55,7 +56,8 @@
         "effect": "Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(5)**. **Special-only:** no Power Damage, no Weapon Damage, no Spell Focus, no Damage Roll, and no Maximization.",
         "special": "Expose(5)",
         "powerTemplateId": "active-melee-instant-special-t6",
-        "chosenSpecialKey": "expose"
+        "chosenSpecialKey": "expose",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

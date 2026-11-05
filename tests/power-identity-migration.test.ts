@@ -388,6 +388,48 @@ describe('power identity migration (fixtures)', () => {
     expect(again).toBe(0);
   });
 
+  it('M7c: power-item system.templateId rollback uses Foundry -= under merge semantics', async () => {
+    // Unique templateName (Flight) → auto-provenance. "Armor" collides across categories.
+    const power = withFoundryUpdate({
+      id: 'powMissing',
+      type: 'power',
+      name: 'Flight',
+      system: {
+        templateName: 'Flight',
+        category: 'movement',
+        rank: 4,
+      },
+    });
+    const actor = { id: 'ActorPowerMerge', items: [power], effects: [] };
+
+    const proposals = planActorIdentityMigration(actor);
+    const powerProp = proposals.find(
+      (p) => p.itemId === 'powMissing' && p.path.includes('templateId'),
+    );
+    expect(powerProp).toBeTruthy();
+    expect(powerProp!.disposition).toBe('auto-provenance');
+    expect(powerProp!.after.templateId).toBe('movement-flight');
+    powerProp!.selected = true;
+
+    await applyIdentityMigrationProposals(actor, proposals);
+    expect(power.system.templateId).toBe('movement-flight');
+    expect(power.flags?.['mastery-system']?.[IDENTITY_BACKUP_FLAG]).toBeTruthy();
+
+    const restored = await rollbackIdentityMigration(actor);
+    expect(restored).toBeGreaterThan(0);
+
+    // Foundry merge: templateId must be gone (not null).
+    expect(Object.prototype.hasOwnProperty.call(power.system, 'templateId')).toBe(false);
+    expect(power.flags?.['mastery-system']?.[IDENTITY_BACKUP_FLAG]).toBeUndefined();
+
+    const powerRollback = [...power.updateCalls].reverse().find((c: any) =>
+      JSON.stringify(c).includes('-=templateId'),
+    ) as any;
+    expect(powerRollback).toBeTruthy();
+    expect(powerRollback.system['-=templateId']).toBeNull();
+    expect(powerRollback.flags['mastery-system'][`-=${IDENTITY_BACKUP_FLAG}`]).toBeNull();
+  });
+
   it('K7: dry-run report has four sections', () => {
     const actor = ringchainFixture();
     const proposals = planActorIdentityMigration(actor);

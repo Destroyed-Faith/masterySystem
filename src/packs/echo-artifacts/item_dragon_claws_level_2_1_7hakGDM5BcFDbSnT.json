@@ -43,7 +43,8 @@
         "effect": "Apply **Lacerate(5)** to each hit creature; **no damage**.",
         "special": "Lacerate(5)",
         "powerTemplateId": "active-melee-aoe-damage-t4",
-        "chosenSpecialKey": "lacerate"
+        "chosenSpecialKey": "lacerate",
+        "rank": 4
       }
     ],
     "stoneFunction": {

@@ -2,7 +2,7 @@
 
 Source: **unit-test fixtures** (catalog template ids + neutral ZZZ_* names). Not a Foundry reference world. Legacy path decides.
 
-Generated: 2026-11-05T10:22:04.213Z
+Generated: 2026-11-05T11:06:02.210Z
 
 ## Summary
 

@@ -22,6 +22,26 @@ import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.
 export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
 export const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = 'General Artifacts';
+/** World setting: when true, GM-ready skips seedVersion-driven tree refresh + actor push. */
+export const HOLD_ARTIFACT_LIBRARY_AUTO_REFRESH_SETTING = 'holdArtifactLibraryAutoRefresh';
+/**
+ * Fields a library refresh overwrites on world nodes (and then pushes to matching
+ * embedded actor items via `pushWorldArtifactNodeToEmbeddedActors`):
+ * - `name`, `img`
+ * - entire `system` (levelProgression, progressionPicks, baseValues, stoneFunction, …)
+ * - flags: nodeId, parentIds, childIds, echoArtifactKey, seedVersion, echoBound?, isRoot?
+ * Preserved: document `_id`, folder, root `actorLevels`; on embeds also
+ * `artifactActivated`, `equipment`, `evolutionRootItemId`, `evolutionNodeId`.
+ */
+export function isArtifactLibraryAutoRefreshHeld() {
+    try {
+        return game?.settings?.get?.('mastery-system', HOLD_ARTIFACT_LIBRARY_AUTO_REFRESH_SETTING) === true;
+    }
+    catch {
+        // Settings not registered yet (unit tests / early init) → hold by default.
+        return true;
+    }
+}
 function findItemFolder(name, parentId) {
     return game.folders?.find((f) => f.type === 'Item' && f.name === name && (f.folder?.id ?? null) === parentId);
 }
@@ -123,6 +143,9 @@ export async function seedArtifactLibrary(options = {}) {
     if (!game.user?.isGM)
         return 0;
     const force = options.force === true;
+    // Safety gate (K0–K9 audit P1): seedVersion-driven refresh is held until the GM
+    // clears the world setting. Manual `force: true` (Refresh Artifact Library) still runs.
+    const holdAutoRefresh = !force && isArtifactLibraryAutoRefreshHeld();
     // Echo trees live under "Echo Artifacts", general (bound) trees under
     // "General Artifacts" — both share the same idempotent upgrade logic.
     const libraries = [
@@ -131,6 +154,7 @@ export async function seedArtifactLibrary(options = {}) {
     ];
     const toCreate = [];
     let upgraded = 0;
+    let heldStale = 0;
     const newTreeNames = [];
     const repairedTrees = [];
     for (const library of libraries) {
@@ -142,11 +166,15 @@ export async function seedArtifactLibrary(options = {}) {
             const expected = tree.nodes.length;
             if (existing.length > 0) {
                 const isIncomplete = existing.length < expected;
-                const isStale = force ||
-                    isIncomplete ||
-                    existing.some((it) => Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !==
-                        ECHO_ARTIFACT_SEED_VERSION);
+                const seedSkew = existing.some((it) => Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !==
+                    ECHO_ARTIFACT_SEED_VERSION);
+                const isStale = force || isIncomplete || seedSkew;
                 if (isStale) {
+                    if (holdAutoRefresh && !isIncomplete) {
+                        // Hold seedVersion-only refreshes; still repair incomplete trees.
+                        heldStale += existing.length;
+                        continue;
+                    }
                     const before = existing.length;
                     upgraded += await upgradeEchoArtifactTreeInPlace(tree, existing);
                     if (isIncomplete) {
@@ -188,6 +216,9 @@ export async function seedArtifactLibrary(options = {}) {
     if (upgraded > 0) {
         const repairHint = repairedTrees.length > 0 ? ` Repaired incomplete trees: ${repairedTrees.join(', ')}.` : '';
         ui.notifications?.info(`Refreshed ${upgraded} artifact items to v${ECHO_ARTIFACT_SEED_VERSION} (icons, base values, abilities).${repairHint}`);
+    }
+    if (heldStale > 0) {
+        ui.notifications?.warn(`Artifact library auto-refresh held (${heldStale} stale node(s) at seed ≠ v${ECHO_ARTIFACT_SEED_VERSION}). Clear "Hold Artifact Library Auto-Refresh" or use "Refresh Artifact Library" after backup. Run R-20 diagnostic first.`);
     }
     return count + upgraded;
 }

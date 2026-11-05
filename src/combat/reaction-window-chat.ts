@@ -46,6 +46,7 @@ import {
   isReflectionReaction,
   isRiposteReaction,
 } from './parry.js';
+import { reactionMayRepeatThisRound } from './reaction-kind.js';
 
 export type { ReactionWindowPhase } from './reaction-eligibility.js';
 
@@ -760,10 +761,12 @@ async function executeReactionSpend(params: {
     return { state, note: 'Could not spend Reaction.' };
   }
 
-  const repeatableReaction =
-    String(power?.system?.templateId ?? '') === 'reaction-riposte' ||
-    String(power?.name ?? '').toLowerCase().includes('parry + weapon damage');
-  if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction && !repeatableReaction) {
+  // R3: same repeatable predicate as pool / eligibility.
+  if (
+    !isBasicReactionItem(power) &&
+    !power?.npcConfiguredReaction &&
+    !reactionMayRepeatThisRound(power)
+  ) {
     await markPowerUsedThisRound(economy, combat, power.id);
   }
 

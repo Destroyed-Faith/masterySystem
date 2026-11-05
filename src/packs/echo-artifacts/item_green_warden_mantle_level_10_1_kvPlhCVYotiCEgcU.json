@@ -42,7 +42,8 @@
         "duration": "MR Rounds",
         "effect": "Gain **Thorns 16d8**. When you take final HP damage, deal that much (capped by the loss) to the source.",
         "special": "",
-        "powerTemplateId": "ab-thorns"
+        "powerTemplateId": "ab-thorns",
+        "rank": 16
       },
       {
         "level": 8,
@@ -53,7 +54,8 @@
         "duration": "Instant",
         "effect": "The ally gains **+31 Armor** against the triggering attack or damage instance.",
         "special": "",
-        "powerTemplateId": "reaction-ally-armor"
+        "powerTemplateId": "reaction-ally-armor",
+        "rank": 16
       },
       {
         "level": 9,
@@ -72,7 +74,8 @@
         "range": "Self",
         "duration": "Special",
         "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
-        "special": "Artifact Level 10: Awakening (Green Warden Mantle)"
+        "special": "Artifact Level 10: Awakening (Green Warden Mantle)",
+        "artifactFunctionId": "artifact-awakening"
       }
     ],
     "stoneFunction": {

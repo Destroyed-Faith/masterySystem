@@ -57,7 +57,8 @@
         "duration": "Instant",
         "effect": "Deal **4d8 damage** to the triggering creature.",
         "special": "",
-        "powerTemplateId": "reaction-counter-damage"
+        "powerTemplateId": "reaction-counter-damage",
+        "rank": 4
       }
     ],
     "stoneFunction": {

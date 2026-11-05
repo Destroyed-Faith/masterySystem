@@ -299,6 +299,14 @@ function resolveMechanicsFromCatalogLegacy(powerItem, rank) {
     }
     return mechanicsFromTemplateDef(def, rank);
 }
+function stableMechanicsEqual(a, b) {
+    try {
+        return JSON.stringify(a) === JSON.stringify(b);
+    }
+    catch {
+        return a === b;
+    }
+}
 function resolveMechanicsFromCatalog(powerItem, rank) {
     const legacy = resolveMechanicsFromCatalogLegacy(powerItem, rank);
     const sys = powerItem.system ?? {};
@@ -307,7 +315,19 @@ function resolveMechanicsFromCatalog(powerItem, rank) {
         const tid = sys.templateId ? String(sys.templateId) : '';
         if (!tid)
             return { kind: 'unresolved', reason: 'missing-identity' };
-        return resolveMechanicsFromCatalogByIdOnly(powerItem, rank);
+        const byId = resolveMechanicsFromCatalogByIdOnly(powerItem, rank);
+        // R4: unknown / conflicting templateId must be visible, not a silent null.
+        if (!byId) {
+            const label = String(powerItem?.name ?? sys.name ?? tid);
+            console.warn(`Mastery System | Unknown or unranked templateId "${tid}" on "${label}" — ` +
+                'catalog mechanics omitted (no name fallback while a structured id is set).');
+        }
+        else if (legacy && !stableMechanicsEqual(legacy, byId)) {
+            const label = String(powerItem?.name ?? sys.name ?? tid);
+            console.warn(`Mastery System | templateId "${tid}" on "${label}" resolves different mechanics ` +
+                'than the legacy name path — identity (by-id) wins.');
+        }
+        return byId;
     }, {
         templateId: sys.templateId ? String(sys.templateId) : null,
         name: powerItem.name ?? sys.name ?? null,

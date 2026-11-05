@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.830] - 2026-11-05
+
+### Changed
+
+- **K9 canonical Echo Artifact compendium rebuild:** `mastery-system.echo-artifacts` regenerated from the canonical builder with persisted structured identity (`powerTemplateId` 316→335, `artifactFunctionId` 0→51, `rank` 0→335 rows; authoredStages identity 120/210). 204/243 docs changed, 0 ids added/removed, 595 leaf changes all classified as expected identity additions, 0 unexpected. P1 closed: `enrichArtifactRowIdentity` is a no-op on the new pack. Sentinel Frame *Single Restoration I/II/III* now persist `rank` 4/10/16 (printed PL, no mechanical change). `ECHO_ARTIFACT_SEED_VERSION` unchanged (60).
+
+### Fixed
+
+- **K0–K9 targeted corrections (audit PARTIAL):** Titan Growth stays Transformation utility until GM action-economy decision (R1); Phasing combat-start passes `templateId` (R2); riposte/reflection/repeatable predicates unified (R3); unknown `templateId` warns visibly (R4); Moonlight Judgment name bridge cannot override a conflicting structured id (R5); `audit:dr-phasing` G10 whitelist repaired.
+
+### Added
+
+- World setting **Hold Artifact Library Auto-Refresh** (default ON) — blocks seedVersion-driven library refresh + actor push on GM ready; manual Refresh still works. Read-only R-20 diagnostic macro. Correction report: `docs/audits/K0_K9_CORRECTION_REPORT.md`.
+- `scripts/k9-pack-identity-audit.mjs` (`npm run k9:audit`), `scripts/lib/echo-pack-ids.mjs`, pack/correction regression tests.
+
+### Notes
+
+- No Forge world writes in this release. Missing-ID bridges retained. Clear the auto-refresh hold only after R-20 + backup. W1 / W2 / W5 remain GM decisions.
+
 ## [0.9.829] - 2026-11-05
 
 ### Changed

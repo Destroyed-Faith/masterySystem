@@ -19,6 +19,18 @@
 export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 export declare const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = "Echo Artifacts";
 export declare const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = "General Artifacts";
+/** World setting: when true, GM-ready skips seedVersion-driven tree refresh + actor push. */
+export declare const HOLD_ARTIFACT_LIBRARY_AUTO_REFRESH_SETTING = "holdArtifactLibraryAutoRefresh";
+/**
+ * Fields a library refresh overwrites on world nodes (and then pushes to matching
+ * embedded actor items via `pushWorldArtifactNodeToEmbeddedActors`):
+ * - `name`, `img`
+ * - entire `system` (levelProgression, progressionPicks, baseValues, stoneFunction, …)
+ * - flags: nodeId, parentIds, childIds, echoArtifactKey, seedVersion, echoBound?, isRoot?
+ * Preserved: document `_id`, folder, root `actorLevels`; on embeds also
+ * `artifactActivated`, `equipment`, `evolutionRootItemId`, `evolutionNodeId`.
+ */
+export declare function isArtifactLibraryAutoRefreshHeld(): boolean;
 /** Find a seeded Echo-Artifact node item by its catalog key + node flag. */
 export declare function findEchoArtifactWorldItem(echoArtifactKey: string, predicate?: (item: any) => boolean): any;
 /** Resolve the Level-1 *root* world item for an Echo Artifact (the tree entry point). */

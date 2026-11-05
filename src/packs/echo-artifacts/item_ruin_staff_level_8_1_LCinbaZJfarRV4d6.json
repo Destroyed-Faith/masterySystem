@@ -60,6 +60,7 @@
         "special": "Spell, Root(7)",
         "powerTemplateId": "active-ranged-aoe-damage-t5",
         "chosenSpecialKey": "root",
+        "rank": 16,
         "isSpell": true,
         "castingAttribute": "intellect",
         "spellResolution": "spellAttack"
@@ -75,6 +76,7 @@
         "special": "Spell, Ruin(10)",
         "powerTemplateId": "active-ranged-instant-special-t4",
         "chosenSpecialKey": "ruin",
+        "rank": 10,
         "isSpell": true,
         "castingAttribute": "intellect",
         "spellResolution": "spellAttack"

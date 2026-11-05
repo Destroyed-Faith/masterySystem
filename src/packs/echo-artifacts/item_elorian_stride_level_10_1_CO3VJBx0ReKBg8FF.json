@@ -39,7 +39,8 @@
         "duration": "Instant",
         "effect": "Gain **+6 Evade** against the triggering attack.",
         "special": "",
-        "powerTemplateId": "reaction-evade"
+        "powerTemplateId": "reaction-evade",
+        "rank": 6
       },
       {
         "level": 8,
@@ -50,7 +51,8 @@
         "duration": "Instant",
         "effect": "Move up to **28 m** along walls, ceilings, or similar solid surfaces.",
         "special": "",
-        "powerTemplateId": "movement-wall-walk"
+        "powerTemplateId": "movement-wall-walk",
+        "rank": 16
       },
       {
         "level": 9,
@@ -69,7 +71,8 @@
         "range": "Self",
         "duration": "Special",
         "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
-        "special": "Artifact Level 10: Awakening (Elorian Stride)"
+        "special": "Artifact Level 10: Awakening (Elorian Stride)",
+        "artifactFunctionId": "artifact-awakening"
       }
     ],
     "stoneFunction": null,

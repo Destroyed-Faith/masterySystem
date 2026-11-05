@@ -42,7 +42,8 @@
         "duration": "MR Rounds",
         "effect": "Use standard **Active Buff: Armor (PL 16)**: gain **+32 Armor** for Mastery Rank Rounds. This replaces Oracle Field II.",
         "special": "",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "rank": 16
       },
       {
         "level": 8,
@@ -71,7 +72,8 @@
         "range": "Self",
         "duration": "Special",
         "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
-        "special": "Artifact Level 10: Awakening (Oracle Frame)"
+        "special": "Artifact Level 10: Awakening (Oracle Frame)",
+        "artifactFunctionId": "artifact-awakening"
       }
     ],
     "stoneFunction": null,

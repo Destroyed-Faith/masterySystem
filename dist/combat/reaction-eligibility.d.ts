@@ -4,6 +4,7 @@
  * Predicates are based on templateId / subfamily / mechanics shape (not free-text
  * trigger strings). Used by the Reaction Window card filters.
  */
+export { reactionMayRepeatThisRound } from './reaction-kind.js';
 /** Shared with the Reaction Window chat card. */
 export type ReactionWindowPhase = 'defender' | 'allies' | 'others' | 'opportunity';
 export interface ReactionTriggerContext {
@@ -61,8 +62,6 @@ export declare function isGhostSlipReaction(item: any): boolean;
 export declare function isCleanseReaction(item: any): boolean;
 export declare function isOverloadReaction(item: any): boolean;
 export declare function isParryFollowUpReaction(item: any): boolean;
-/** Explicit exception: Parry + Weapon Damage may be used again. Each use still costs 1 Reaction. */
-export declare function reactionMayRepeatThisRound(item: any): boolean;
 export declare function isInterposeReaction(item: any): boolean;
 export declare function actorHasPassiveDR(actor: any): boolean;
 export declare function actorHasPassivePhasing(actor: any): boolean;

@@ -5,11 +5,11 @@
  * Scans every Mastery-Tree power definition (plus stone powers and spells)
  * for any source that declares `damageReductionPct`, `phasing`, or
  * `triggers.combatStart.phasingCharges`. Confirms that the declaring power
- * name is in the whitelist of six sanctioned subsystems:
+ * matches one of the six sanctioned catalog lines (by templateId preferred,
+ * then by catalog display name):
  *
- *   - DR%:      Damage Reduction (passive), Unyielding Shell (buff),
- *               Unyielding Intercept (reaction)
- *   - Phasing:  Ghostform (passive), Ghost Mantle (buff), Ghost Slip (reaction)
+ *   - DR%:      passive-damage-reduction / ab-damage-reduction / reaction-damage-reduction
+ *   - Phasing:  passive-ghostform / ab-phasing / reaction-phasing
  *
  * Writes a human-readable report to `reports/dr-phasing-exclusivity.md`.
  * Exits with a non-zero code when violations are found — CI and pre-commit
@@ -35,12 +35,35 @@ const SCAN_TARGETS = [
   { dir: path.resolve(ROOT, 'src', 'system'), kind: 'system' },
 ];
 
+/** Canonical templateIds (identity-primary; matches power-mechanics.ts). */
+const SANCTIONED_DR_IDS = new Set([
+  'passive-damage-reduction',
+  'ab-damage-reduction',
+  'reaction-damage-reduction',
+]);
+const SANCTIONED_PHASING_IDS = new Set([
+  'passive-ghostform',
+  'ab-phasing',
+  'reaction-phasing',
+]);
+
+/** Catalog display names currently used in templates/*.ts (G10 repair). */
 const SANCTIONED_DR_NAMES = new Set([
   'Damage Reduction',
+  'Active Buff: Damage Reduction',
+  'Reaction: Damage Reduction',
+  // Legacy / handbook aliases (kept for stone/manifest text).
   'Unyielding Shell',
   'Unyielding Intercept',
 ]);
-const SANCTIONED_PHASING_NAMES = new Set(['Ghostform', 'Ghost Mantle', 'Ghost Slip']);
+const SANCTIONED_PHASING_NAMES = new Set([
+  'Phasing',
+  'Ghostform',
+  'Active Buff: Phasing',
+  'Ghost Mantle',
+  'Reaction: Phasing',
+  'Ghost Slip',
+]);
 
 /**
  * Find the nearest enclosing object literal that contains a `name: '...'`
@@ -53,6 +76,17 @@ function findEnclosingName(src, offset) {
   const window = src.substring(windowStart, offset);
   const matches = [...window.matchAll(/\bname\s*:\s*['"`]([^'"`]+)['"`]/g)];
   if (matches.length === 0) return '(unnamed)';
+  return matches[matches.length - 1][1];
+}
+
+/** Nearest templateId / id field in the enclosing object (preferred sanction key). */
+function findEnclosingTemplateId(src, offset) {
+  const windowStart = Math.max(0, offset - 64 * 1024);
+  const window = src.substring(windowStart, offset);
+  const matches = [
+    ...window.matchAll(/\b(?:templateId|id)\s*:\s*['"`]([^'"`]+)['"`]/g),
+  ];
+  if (matches.length === 0) return null;
   return matches[matches.length - 1][1];
 }
 
@@ -80,11 +114,13 @@ function scanFileForDeclarations(file, src) {
     let m;
     while ((m = pat.regex.exec(src)) != null) {
       const name = findEnclosingName(src, m.index);
+      const templateId = findEnclosingTemplateId(src, m.index);
       findings.push({
         file,
         axis: pat.axis,
         field: pat.label,
         name,
+        templateId,
         offset: m.index,
       });
     }
@@ -111,8 +147,14 @@ function walkDir(dir, out = []) {
 }
 
 function isSanctionedFinding(f) {
-  if (f.axis === 'dr') return SANCTIONED_DR_NAMES.has(f.name);
-  if (f.axis === 'phasing') return SANCTIONED_PHASING_NAMES.has(f.name);
+  if (f.axis === 'dr') {
+    if (f.templateId && SANCTIONED_DR_IDS.has(f.templateId)) return true;
+    return SANCTIONED_DR_NAMES.has(f.name);
+  }
+  if (f.axis === 'phasing') {
+    if (f.templateId && SANCTIONED_PHASING_IDS.has(f.templateId)) return true;
+    return SANCTIONED_PHASING_NAMES.has(f.name);
+  }
   return false;
 }
 
@@ -172,11 +214,13 @@ function run() {
   } else {
     lines.push('## Violations');
     lines.push('');
-    lines.push('| Power | Field | Axis | File |');
-    lines.push('| --- | --- | --- | --- |');
+    lines.push('| Power | templateId | Field | Axis | File |');
+    lines.push('| --- | --- | --- | --- | --- |');
     for (const v of violations) {
       const rel = path.relative(ROOT, v.file).replace(/\\/g, '/');
-      lines.push(`| ${v.name} | \`${v.field}\` | ${v.axis} | ${rel} |`);
+      lines.push(
+        `| ${v.name} | \`${v.templateId || ''}\` | \`${v.field}\` | ${v.axis} | ${rel} |`,
+      );
     }
   }
 
@@ -187,11 +231,13 @@ function run() {
     lines.push('_None found. The six sanctioned powers must be defined somewhere —');
     lines.push('check `src/utils/powers/sanctioned-subsystems.ts`._');
   } else {
-    lines.push('| Power | Field | Axis | File |');
-    lines.push('| --- | --- | --- | --- |');
+    lines.push('| Power | templateId | Field | Axis | File |');
+    lines.push('| --- | --- | --- | --- | --- |');
     for (const s of sanctioned) {
       const rel = path.relative(ROOT, s.file).replace(/\\/g, '/');
-      lines.push(`| ${s.name} | \`${s.field}\` | ${s.axis} | ${rel} |`);
+      lines.push(
+        `| ${s.name} | \`${s.templateId || ''}\` | \`${s.field}\` | ${s.axis} | ${rel} |`,
+      );
     }
   }
 

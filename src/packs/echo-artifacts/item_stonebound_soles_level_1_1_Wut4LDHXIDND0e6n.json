@@ -40,7 +40,8 @@
         "duration": "MR Rounds",
         "effect": "Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP.",
         "special": "",
-        "powerTemplateId": "ab-temp-hp"
+        "powerTemplateId": "ab-temp-hp",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

@@ -42,7 +42,8 @@
         "duration": "MR Rounds",
         "effect": "Use standard **Active Buff: Armor (PL 10)**: gain **+20 Armor** for Mastery Rank Rounds. This replaces Oracle Field I.",
         "special": "",
-        "powerTemplateId": "ab-armor"
+        "powerTemplateId": "ab-armor",
+        "rank": 10
       },
       {
         "level": 5,

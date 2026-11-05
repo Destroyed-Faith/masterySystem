@@ -50,7 +50,8 @@
         "effect": "Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I.",
         "special": "Lacerate(9)",
         "powerTemplateId": "active-melee-aoe-damage-t4",
-        "chosenSpecialKey": "lacerate"
+        "chosenSpecialKey": "lacerate",
+        "rank": 10
       },
       {
         "level": 6,
@@ -62,7 +63,8 @@
         "effect": "Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. Approved Dragon Claws Artifact Special Rule — not a general Special-only exception.",
         "special": "Push",
         "powerTemplateId": "active-melee-control-push-pull",
-        "chosenSpecialKey": "push"
+        "chosenSpecialKey": "push",
+        "rank": 10
       }
     ],
     "stoneFunction": {

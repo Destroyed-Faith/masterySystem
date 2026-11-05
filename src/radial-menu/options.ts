@@ -727,6 +727,9 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
       // (`buildConsumableAttackOption.slot = 'attack'`), even when the stored
       // power is a heal/support template. Structured check via consumableItemId/tag.
       if (isConsumableCombatOption(option)) return 'attack';
+      // W1 / R1: Titan Growth is Transformation utility until GM action-economy decision.
+      // Contract category 'activeBuff' must not move it to the Prep Active-Buff list.
+      if (id.artifactFunctionId === 'titan-growth') return 'utility';
       if (id.category === 'activeBuff') return 'active-buff';
       if (id.category === 'movement') return 'movement';
       if (id.category === 'active') return deriveActiveSegment(id);

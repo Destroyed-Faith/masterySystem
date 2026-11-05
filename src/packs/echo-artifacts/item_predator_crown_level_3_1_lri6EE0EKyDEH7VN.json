@@ -57,7 +57,8 @@
         "duration": "Instant",
         "effect": "Deal **4d8 damage** to the triggering creature.",
         "special": "",
-        "powerTemplateId": "reaction-counter-damage"
+        "powerTemplateId": "reaction-counter-damage",
+        "rank": 4
       },
       {
         "level": 3,
@@ -68,7 +69,8 @@
         "duration": "MR Rounds",
         "effect": "Your attacks deal **+4d8** damage while the buff is active.",
         "special": "",
-        "powerTemplateId": "ab-damage"
+        "powerTemplateId": "ab-damage",
+        "rank": 4
       }
     ],
     "stoneFunction": {

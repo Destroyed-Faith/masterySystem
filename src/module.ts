@@ -1925,12 +1925,24 @@ function registerSystemSettings() {
     default: true
   });
   
+  // Safety gate (K0–K9 audit P1): when held, GM-ready will not refresh stale
+  // seedVersion trees or push system overwrites to actor-owned artifacts.
+  // Manual "Refresh Artifact Library" still works (force: true). Default ON.
+  (game as any).settings.register('mastery-system', 'holdArtifactLibraryAutoRefresh', {
+    name: 'Hold Artifact Library Auto-Refresh',
+    hint: 'When enabled (default), the GM ready hook will NOT rewrite world Echo/General Artifact trees that are behind the system seedVersion, and will NOT push system overwrites to actor-owned copies. Clear only after R-20 diagnostic + world backup. Incomplete trees are still repaired. Manual "Refresh Artifact Library" always bypasses this hold.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   // GM "button": toggling this on force-refreshes the Echo Artifact library
   // (rebuilds every seeded tree from the current generator and pushes the
   // refresh to embedded actor copies), then resets itself to off.
   (game as any).settings.register('mastery-system', 'refreshEchoArtifacts', {
     name: 'Refresh Artifact Library',
-    hint: 'Enable and Save to rebuild all Echo Artifact and General Artifact trees in the world from the latest data (icons, base values, abilities). Also repairs incomplete trees (e.g. 1/10 nodes) and creates any missing General Artifacts. Resets automatically.',
+    hint: 'Enable and Save to rebuild all Echo Artifact and General Artifact trees in the world from the latest data (icons, base values, abilities). Also repairs incomplete trees (e.g. 1/10 nodes) and creates any missing General Artifacts. Bypasses the Auto-Refresh Hold. Resets automatically. Backup the world first.',
     scope: 'world',
     config: true,
     type: Boolean,

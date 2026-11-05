@@ -1,0 +1,5357 @@
+{
+  "generatedAt": "2026-11-05T11:06:14.687Z",
+  "baseline": {
+    "oldSource": "git:HEAD",
+    "newSource": "src\\packs\\echo-artifacts"
+  },
+  "seedVersion": 60,
+  "counts": {
+    "old": {
+      "total": 243,
+      "items": 220,
+      "folders": 23
+    },
+    "new": {
+      "total": 243,
+      "items": 220,
+      "folders": 23
+    },
+    "catalogArtifacts": 22
+  },
+  "ids": {
+    "stable": true,
+    "added": [],
+    "removed": [],
+    "derivationMismatches": [],
+    "nameChanges": [],
+    "folderChanges": []
+  },
+  "builderParity": {
+    "builderItems": 220,
+    "packItems": 220,
+    "identical": true,
+    "drift": [],
+    "extraInPack": []
+  },
+  "diff": {
+    "summary": {
+      "documentsCompared": 243,
+      "documentsChanged": 204,
+      "documentsUnchanged": 39,
+      "expectedIdentityAdditions": 595,
+      "identityValueChanges": 0,
+      "unexpectedChanges": 0,
+      "byField": {
+        "system.levelProgression[].rank": 335,
+        "system.levelProgression[].artifactFunctionId": 51,
+        "system.progressionPicks[].artifactFunctionId": 10,
+        "system.progressionPicks[].authoredStages[].artifactFunctionId": 60,
+        "system.levelProgression[].powerTemplateId": 19,
+        "system.progressionPicks[].authoredStages[].powerTemplateId": 60,
+        "system.progressionPicks[].authoredStages[].rank": 60
+      }
+    },
+    "perDocument": [
+      {
+        "id": "841zBBthQ8CBeKpG",
+        "file": "item_alchemist_coat_level_10_1_841zBBthQ8CBeKpG.json",
+        "name": "Alchemist Coat - Level 10-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 10,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "GiwtqC1KL2rCkS9c",
+        "file": "item_alchemist_coat_level_1_1_GiwtqC1KL2rCkS9c.json",
+        "name": "Alchemist Coat - Level 1-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "z0QKjDEO2BiDVGEb",
+        "file": "item_alchemist_coat_level_2_1_z0QKjDEO2BiDVGEb.json",
+        "name": "Alchemist Coat - Level 2-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 2,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "sK8nhdxWwiOav4j9",
+        "file": "item_alchemist_coat_level_3_1_sK8nhdxWwiOav4j9.json",
+        "name": "Alchemist Coat - Level 3-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 3,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "HpZqOBWCBiNBlZmZ",
+        "file": "item_alchemist_coat_level_4_1_HpZqOBWCBiNBlZmZ.json",
+        "name": "Alchemist Coat - Level 4-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 4,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "KiEc15Kdk2oSRLzZ",
+        "file": "item_alchemist_coat_level_5_1_KiEc15Kdk2oSRLzZ.json",
+        "name": "Alchemist Coat - Level 5-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 5,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "JbbfTCYyCXSCpqOw",
+        "file": "item_alchemist_coat_level_6_1_JbbfTCYyCXSCpqOw.json",
+        "name": "Alchemist Coat - Level 6-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 6,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "G7Xo8D1jww9DmML5",
+        "file": "item_alchemist_coat_level_7_1_G7Xo8D1jww9DmML5.json",
+        "name": "Alchemist Coat - Level 7-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 7,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "fbzqpEuyaioE9LCa",
+        "file": "item_alchemist_coat_level_8_1_fbzqpEuyaioE9LCa.json",
+        "name": "Alchemist Coat - Level 8-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 8,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "iUecSET72kTECFrL",
+        "file": "item_alchemist_coat_level_9_1_iUecSET72kTECFrL.json",
+        "name": "Alchemist Coat - Level 9-1",
+        "echoArtifactKey": "alchemistCoat",
+        "level": 9,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "umrNXEfPGWYEOX46",
+        "file": "item_blight_staff_level_10_1_umrNXEfPGWYEOX46.json",
+        "name": "Blight Staff - Level 10-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "XZ1FKCmwc7IC1JEz",
+        "file": "item_blight_staff_level_2_1_XZ1FKCmwc7IC1JEz.json",
+        "name": "Blight Staff - Level 2-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "aSg1wBL549xB4Ctk",
+        "file": "item_blight_staff_level_3_1_aSg1wBL549xB4Ctk.json",
+        "name": "Blight Staff - Level 3-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "zkAP4DE8lG3DV0xf",
+        "file": "item_blight_staff_level_4_1_zkAP4DE8lG3DV0xf.json",
+        "name": "Blight Staff - Level 4-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "84ZDdBthyLeBeKNU",
+        "file": "item_blight_staff_level_5_1_84ZDdBthyLeBeKNU.json",
+        "name": "Blight Staff - Level 5-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "By0ZEBQLcRDBfiDJ",
+        "file": "item_blight_staff_level_6_1_By0ZEBQLcRDBfiDJ.json",
+        "name": "Blight Staff - Level 6-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "GsVgCD1UuoDDkciP",
+        "file": "item_blight_staff_level_7_1_GsVgCD1UuoDDkciP.json",
+        "name": "Blight Staff - Level 7-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "tZTMYD8w4DXDPpGd",
+        "file": "item_blight_staff_level_8_1_tZTMYD8w4DXDPpGd.json",
+        "name": "Blight Staff - Level 8-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "oUPssCZ7n0tCKkC9",
+        "file": "item_blight_staff_level_9_1_oUPssCZ7n0tCKkC9.json",
+        "name": "Blight Staff - Level 9-1",
+        "echoArtifactKey": "witchStaffBlight",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "GsYR4D1UxZ5DkclA",
+        "file": "item_dragon_claws_level_10_1_GsYR4D1UxZ5DkclA.json",
+        "name": "Dragon Claws - Level 10-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "7hakGDM5BcFDbSnT",
+        "file": "item_dragon_claws_level_2_1_7hakGDM5BcFDbSnT.json",
+        "name": "Dragon Claws - Level 2-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "8z0TXtcPcYckDDVN",
+        "file": "item_dragon_claws_level_3_1_8z0TXtcPcYckDDVN.json",
+        "name": "Dragon Claws - Level 3-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "V75WJkUhOI1MtnLG",
+        "file": "item_dragon_claws_level_4_1_V75WJkUhOI1MtnLG.json",
+        "name": "Dragon Claws - Level 4-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "iD9hZCTqXqaCETwy",
+        "file": "item_dragon_claws_level_5_1_iD9hZCTqXqaCETwy.json",
+        "name": "Dragon Claws - Level 5-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "lWPmBC0t0dACFHcV",
+        "file": "item_dragon_claws_level_6_1_lWPmBC0t0dACFHcV.json",
+        "name": "Dragon Claws - Level 6-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "oPq8mBZ2EHoBIA3r",
+        "file": "item_dragon_claws_level_7_1_oPq8mBZ2EHoBIA3r.json",
+        "name": "Dragon Claws - Level 7-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Ti2qUEi5diTEzxp7",
+        "file": "item_dragon_claws_level_8_1_Ti2qUEi5diTEzxp7.json",
+        "name": "Dragon Claws - Level 8-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "M2jKTB7e8SUBsHXb",
+        "file": "item_dragon_claws_level_9_1_M2jKTB7e8SUBsHXb.json",
+        "name": "Dragon Claws - Level 9-1",
+        "echoArtifactKey": "dragonClaws",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "svcH0DdY1P1DMgp0",
+        "file": "item_dragon_head_level_10_1_svcH0DdY1P1DMgp0.json",
+        "name": "Dragon Head - Level 10-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 10,
+        "expectedIdentityAdditions": 5,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "U8ohjDFlDqkD0Ncy",
+        "file": "item_dragon_head_level_1_1_U8ohjDFlDqkD0Ncy.json",
+        "name": "Dragon Head - Level 1-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 1,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "X1F4KDmOrvJD1lSn",
+        "file": "item_dragon_head_level_2_1_X1F4KDmOrvJD1lSn.json",
+        "name": "Dragon Head - Level 2-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 2,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "YJgnbJw4vc23sWZn",
+        "file": "item_dragon_head_level_3_1_YJgnbJw4vc23sWZn.json",
+        "name": "Dragon Head - Level 3-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 3,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "vQlqNAoMiMRgY7Pg",
+        "file": "item_dragon_head_level_4_1_vQlqNAoMiMRgY7Pg.json",
+        "name": "Dragon Head - Level 4-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 4,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "8Wo1dCt9CAfCembI",
+        "file": "item_dragon_head_level_5_1_8Wo1dCt9CAfCembI.json",
+        "name": "Dragon Head - Level 5-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 5,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Bq45FCQDgxECfaHp",
+        "file": "item_dragon_head_level_6_1_Bq45FCQDgxECfaHp.json",
+        "name": "Dragon Head - Level 6-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 6,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "EjVSrBzLuasBiTiB",
+        "file": "item_dragon_head_level_7_1_EjVSrBzLuasBiTiB.json",
+        "name": "Dragon Head - Level 7-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 7,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "t1hAZE8OJ2XEPHVR",
+        "file": "item_dragon_head_level_8_1_t1hAZE8OJ2XEPHVR.json",
+        "name": "Dragon Head - Level 8-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 8,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "mLPeXBXynmYBIbCv",
+        "file": "item_dragon_head_level_9_1_mLPeXBXynmYBIbCv.json",
+        "name": "Dragon Head - Level 9-1",
+        "echoArtifactKey": "dragonHead",
+        "level": 9,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].artifactFunctionId",
+            "new": "dragon-breath",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "CO3VJBx0ReKBg8FF",
+        "file": "item_elorian_stride_level_10_1_CO3VJBx0ReKBg8FF.json",
+        "name": "Elorian Stride - Level 10-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 6,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "IGHnpB3sfvqBoV43",
+        "file": "item_elorian_stride_level_1_1_IGHnpB3sfvqBoV43.json",
+        "name": "Elorian Stride - Level 1-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 2,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "dkeWNEs7FOME7UrF",
+        "file": "item_elorian_stride_level_2_1_dkeWNEs7FOME7UrF.json",
+        "name": "Elorian Stride - Level 2-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 2,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 2,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "gdJI0DRGiQ1DAOW1",
+        "file": "item_elorian_stride_level_3_1_gdJI0DRGiQ1DAOW1.json",
+        "name": "Elorian Stride - Level 3-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 2,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "hvj1GBwILtFBDBXI",
+        "file": "item_elorian_stride_level_4_1_hvj1GBwILtFBDBXI.json",
+        "name": "Elorian Stride - Level 4-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "cqR8ZNTqGb85EPct",
+        "file": "item_elorian_stride_level_5_1_cqR8ZNTqGb85EPct.json",
+        "name": "Elorian Stride - Level 5-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "fj6tCu6hlB9TJdS3",
+        "file": "item_elorian_stride_level_6_1_fj6tCu6hlB9TJdS3.json",
+        "name": "Elorian Stride - Level 6-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "mEcdVEXr0lWEGzoM",
+        "file": "item_elorian_stride_level_7_1_mEcdVEXr0lWEGzoM.json",
+        "name": "Elorian Stride - Level 7-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 6,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "p72z6D4Uer5DLNqG",
+        "file": "item_elorian_stride_level_8_1_p72z6D4Uer5DLNqG.json",
+        "name": "Elorian Stride - Level 8-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 6,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "yRSofBj4qwgBUhF5",
+        "file": "item_elorian_stride_level_9_1_yRSofBj4qwgBUhF5.json",
+        "name": "Elorian Stride - Level 9-1",
+        "echoArtifactKey": "elorianStride",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 6,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "kvPlhCVYotiCEgcU",
+        "file": "item_green_warden_mantle_level_10_1_kvPlhCVYotiCEgcU.json",
+        "name": "Green Warden Mantle - Level 10-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "YmVELJPuMM41IVNp",
+        "file": "item_green_warden_mantle_level_1_1_YmVELJPuMM41IVNp.json",
+        "name": "Green Warden Mantle - Level 1-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "tGtxsC8dUprCN15g",
+        "file": "item_green_warden_mantle_level_2_1_tGtxsC8dUprCN15g.json",
+        "name": "Green Warden Mantle - Level 2-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 2,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "w9JKUChmiSVCQuW3",
+        "file": "item_green_warden_mantle_level_3_1_w9JKUChmiSVCQuW3.json",
+        "name": "Green Warden Mantle - Level 3-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "zSaO6BEqBG5BViNf",
+        "file": "item_green_warden_mantle_level_4_1_zSaO6BEqBG5BViNf.json",
+        "name": "Green Warden Mantle - Level 4-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "uNWuQBf0u2RBQdJB",
+        "file": "item_green_warden_mantle_level_5_1_uNWuQBf0u2RBQdJB.json",
+        "name": "Green Warden Mantle - Level 5-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "xGxG2CeY80R19zzg",
+        "file": "item_green_warden_mantle_level_6_1_xGxG2CeY80R19zzg.json",
+        "name": "Green Warden Mantle - Level 6-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "2kcfzCnN1n0CWVpO",
+        "file": "item_green_warden_mantle_level_7_1_2kcfzCnN1n0CWVpO.json",
+        "name": "Green Warden Mantle - Level 7-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "5dHRcCK1sIbCbt4h",
+        "file": "item_green_warden_mantle_level_8_1_5dHRcCK1sIbCbt4h.json",
+        "name": "Green Warden Mantle - Level 8-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "EygFBza5NCkDUWDV",
+        "file": "item_green_warden_mantle_level_9_1_EygFBza5NCkDUWDV.json",
+        "name": "Green Warden Mantle - Level 9-1",
+        "echoArtifactKey": "greenWardenMantle",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "nlBXjB28mOiBHWOG",
+        "file": "item_hollow_crown_level_10_1_nlBXjB28mOiBHWOG.json",
+        "name": "Hollow Crown - Level 10-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 10,
+        "expectedIdentityAdditions": 5,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "568XsBKUkPrBZrLH",
+        "file": "item_hollow_crown_level_1_1_568XsBKUkPrBZrLH.json",
+        "name": "Hollow Crown - Level 1-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 1,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "mDmRfBXqAagBITZi",
+        "file": "item_hollow_crown_level_2_1_mDmRfBXqAagBITZi.json",
+        "name": "Hollow Crown - Level 2-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 2,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "tt4xgE8GgpfEP9rE",
+        "file": "item_hollow_crown_level_3_1_tt4xgE8GgpfEP9rE.json",
+        "name": "Hollow Crown - Level 3-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 3,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "EbsFzBzDHO0BiL5y",
+        "file": "item_hollow_crown_level_4_1_EbsFzBzDHO0BiL5y.json",
+        "name": "Hollow Crown - Level 4-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 4,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "BiRtNCQ52kMCfSec",
+        "file": "item_hollow_crown_level_5_1_BiRtNCQ52kMCfSec.json",
+        "name": "Hollow Crown - Level 5-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 5,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "8om7kCtRBGmCe4ZO",
+        "file": "item_hollow_crown_level_6_1_8om7kCtRBGmCe4ZO.json",
+        "name": "Hollow Crown - Level 6-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 6,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "BJqy5QgRq4hYdF8w",
+        "file": "item_hollow_crown_level_7_1_BJqy5QgRq4hYdF8w.json",
+        "name": "Hollow Crown - Level 7-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 7,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "aCtv4CLpH45C4w5e",
+        "file": "item_hollow_crown_level_8_1_aCtv4CLpH45C4w5e.json",
+        "name": "Hollow Crown - Level 8-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 8,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "XJSZTDmg3QSD13eI",
+        "file": "item_hollow_crown_level_9_1_XJSZTDmg3QSD13eI.json",
+        "name": "Hollow Crown - Level 9-1",
+        "echoArtifactKey": "hollowCrown",
+        "level": 9,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[1].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].artifactFunctionId",
+            "new": "life-absorption",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "wH2A9ChuQJADQ2Eu",
+        "file": "item_hunter_s_scourge_level_10_1_wH2A9ChuQJADQ2Eu.json",
+        "name": "Hunter's Scourge - Level 10-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "80Jj9BtdirACeG7z",
+        "file": "item_hunter_s_scourge_level_1_1_80Jj9BtdirACeG7z.json",
+        "name": "Hunter's Scourge - Level 1-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "TVhShEisIKgExFuB",
+        "file": "item_hunter_s_scourge_level_2_1_TVhShEisIKgExFuB.json",
+        "name": "Hunter's Scourge - Level 2-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "WOMEKEH1kMLE08Yx",
+        "file": "item_hunter_s_scourge_level_3_1_WOMEKEH1kMLE08Yx.json",
+        "name": "Hunter's Scourge - Level 3-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "XgmxaBm3NpZB3vZE",
+        "file": "item_hunter_s_scourge_level_4_1_XgmxaBm3NpZB3vZE.json",
+        "name": "Hunter's Scourge - Level 4-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "SbU4tDEtCvyqHLwj",
+        "file": "item_hunter_s_scourge_level_5_1_SbU4tDEtCvyqHLwj.json",
+        "name": "Hunter's Scourge - Level 5-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "VU9pWkrkhVzEMZUE",
+        "file": "item_hunter_s_scourge_level_6_1_VU9pWkrkhVzEMZUE.json",
+        "name": "Hunter's Scourge - Level 6-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "czeZpENc3hqE6jrI",
+        "file": "item_hunter_s_scourge_level_7_1_czeZpENc3hqE6jrI.json",
+        "name": "Hunter's Scourge - Level 7-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "fs5vQEuFhnPEB8sC",
+        "file": "item_hunter_s_scourge_level_8_1_fs5vQEuFhnPEB8sC.json",
+        "name": "Hunter's Scourge - Level 8-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "oCVkzBZpts0BKSI1",
+        "file": "item_hunter_s_scourge_level_9_1_oCVkzBZpts0BKSI1.json",
+        "name": "Hunter's Scourge - Level 9-1",
+        "echoArtifactKey": "huntersScourge",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "r2uQEC6PWIDCNIih",
+        "file": "item_judicator_frame_level_10_1_r2uQEC6PWIDCNIih.json",
+        "name": "Judicator Frame - Level 10-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 10,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "LWKTLCatvKKCrl7j",
+        "file": "item_judicator_frame_level_1_1_LWKTLCatvKKCrl7j.json",
+        "name": "Judicator Frame - Level 1-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "cdfkTBNG4sUB6NsT",
+        "file": "item_judicator_frame_level_2_1_cdfkTBNG4sUB6NsT.json",
+        "name": "Judicator Frame - Level 2-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "bvdiDEqIFaCE5fqR",
+        "file": "item_judicator_frame_level_3_1_bvdiDEqIFaCE5fqR.json",
+        "name": "Judicator Frame - Level 3-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 3,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "AGZw9vsx4ABgVMDC",
+        "file": "item_judicator_frame_level_4_1_AGZw9vsx4ABgVMDC.json",
+        "name": "Judicator Frame - Level 4-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 4,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "1v97aDGJlzZDXBxO",
+        "file": "item_judicator_frame_level_5_1_1v97aDGJlzZDXBxO.json",
+        "name": "Judicator Frame - Level 5-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 5,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "G2e4N1e3CPkmrnLV",
+        "file": "item_judicator_frame_level_6_1_G2e4N1e3CPkmrnLV.json",
+        "name": "Judicator Frame - Level 6-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 6,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "D9DimSWpZlhtQRkw",
+        "file": "item_judicator_frame_level_7_1_D9DimSWpZlhtQRkw.json",
+        "name": "Judicator Frame - Level 7-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 7,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "sqnvkEdTC4lEO6aC",
+        "file": "item_judicator_frame_level_8_1_sqnvkEdTC4lEO6aC.json",
+        "name": "Judicator Frame - Level 8-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 8,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "tjq9k86R1jPzdQne",
+        "file": "item_judicator_frame_level_9_1_tjq9k86R1jPzdQne.json",
+        "name": "Judicator Frame - Level 9-1",
+        "echoArtifactKey": "judicatorFrame",
+        "level": 9,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Y8FH8DJleP9D4N3X",
+        "file": "item_oracle_frame_level_10_1_Y8FH8DJleP9D4N3X.json",
+        "name": "Oracle Frame - Level 10-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 10,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "knQEPVQpMQEYdxMz",
+        "file": "item_oracle_frame_level_1_1_knQEPVQpMQEYdxMz.json",
+        "name": "Oracle Frame - Level 1-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "lhdcCE04EUBEHxQt",
+        "file": "item_oracle_frame_level_2_1_lhdcCE04EUBEHxQt.json",
+        "name": "Oracle Frame - Level 2-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "e1K6ABPejECBAH8M",
+        "file": "item_oracle_frame_level_3_1_e1K6ABPejECBAH8M.json",
+        "name": "Oracle Frame - Level 3-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 3,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "bJhWIqgIOH53tFGK",
+        "file": "item_oracle_frame_level_4_1_bJhWIqgIOH53tFGK.json",
+        "name": "Oracle Frame - Level 4-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 4,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "ioCGbETRbOcECZPz",
+        "file": "item_oracle_frame_level_5_1_ioCGbETRbOcECZPz.json",
+        "name": "Oracle Frame - Level 5-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 5,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "P6cw6CeTEo5CvLQD",
+        "file": "item_oracle_frame_level_6_1_P6cw6CeTEo5CvLQD.json",
+        "name": "Oracle Frame - Level 6-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 6,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "McZ5lE7EyDnEsrMM",
+        "file": "item_oracle_frame_level_7_1_McZ5lE7EyDnEsrMM.json",
+        "name": "Oracle Frame - Level 7-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 7,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "PhBWyCe4mNxCtROF",
+        "file": "item_oracle_frame_level_8_1_PhBWyCe4mNxCtROF.json",
+        "name": "Oracle Frame - Level 8-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 8,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "QzbFFBc0NGujoyCf",
+        "file": "item_oracle_frame_level_9_1_QzbFFBc0NGujoyCf.json",
+        "name": "Oracle Frame - Level 9-1",
+        "echoArtifactKey": "oracleFrame",
+        "level": 9,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "O4HaFD9ggiGDsoUJ",
+        "file": "item_predator_crown_level_10_1_O4HaFD9ggiGDsoUJ.json",
+        "name": "Predator Crown - Level 10-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "rH8ufE6ejmeEL2Ke",
+        "file": "item_predator_crown_level_10_1_rH8ufE6ejmeEL2Ke.json",
+        "name": "Predator Crown - Level 10-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "WZAEVBHCZMWB2oxU",
+        "file": "item_predator_crown_level_10_1_WZAEVBHCZMWB2oxU.json",
+        "name": "Predator Crown - Level 10-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "90CISEOOo9QEdlP1",
+        "file": "item_predator_crown_level_2_1_90CISEOOo9QEdlP1.json",
+        "name": "Predator Crown - Level 2-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "gmecZDRP3kaDC2Rt",
+        "file": "item_predator_crown_level_2_1_gmecZDRP3kaDC2Rt.json",
+        "name": "Predator Crown - Level 2-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "nGvb2C2dWT1CJWis",
+        "file": "item_predator_crown_level_2_1_nGvb2C2dWT1CJWis.json",
+        "name": "Predator Crown - Level 2-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "AJd1iBvv19jBe3pk",
+        "file": "item_predator_crown_level_3_1_AJd1iBvv19jBe3pk.json",
+        "name": "Predator Crown - Level 3-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "lri6EE0EKyDEH7VN",
+        "file": "item_predator_crown_level_3_1_lri6EE0EKyDEH7VN.json",
+        "name": "Predator Crown - Level 3-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "yBZSxCjoxayCURMj",
+        "file": "item_predator_crown_level_3_1_yBZSxCjoxayCURMj.json",
+        "name": "Predator Crown - Level 3-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "DCInLBSZteKBjR53",
+        "file": "item_predator_crown_level_4_1_DCInLBSZteKBjR53.json",
+        "name": "Predator Crown - Level 4-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "ftoqTBuGQiSB9d1Z",
+        "file": "item_predator_crown_level_4_1_ftoqTBuGQiSB9d1Z.json",
+        "name": "Predator Crown - Level 4-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "iYS2cETBrAeECJfl",
+        "file": "item_predator_crown_level_4_1_iYS2cETBrAeECJfl.json",
+        "name": "Predator Crown - Level 4-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "AiEw0CvKd41Cgx1C",
+        "file": "item_predator_crown_level_5_1_AiEw0CvKd41Cgx1C.json",
+        "name": "Predator Crown - Level 5-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "bTm0KqqNsJ5DzjIK",
+        "file": "item_predator_crown_level_5_1_bTm0KqqNsJ5DzjIK.json",
+        "name": "Predator Crown - Level 5-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "imFD5TPeL6CXSw2x",
+        "file": "item_predator_crown_level_5_1_imFD5TPeL6CXSw2x.json",
+        "name": "Predator Crown - Level 5-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "BQGyGQnrpFfAThEu",
+        "file": "item_predator_crown_level_6_1_BQGyGQnrpFfAThEu.json",
+        "name": "Predator Crown - Level 6-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "KBewTC5n24UCqQRD",
+        "file": "item_predator_crown_level_6_1_KBewTC5n24UCqQRD.json",
+        "name": "Predator Crown - Level 6-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "TgkGIEi3L8GEzvXX",
+        "file": "item_predator_crown_level_6_1_TgkGIEi3L8GEzvXX.json",
+        "name": "Predator Crown - Level 6-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "c094qBNdYDsB8FxL",
+        "file": "item_predator_crown_level_7_1_c094qBNdYDsB8FxL.json",
+        "name": "Predator Crown - Level 7-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "IVAPaE37YXbEmFN8",
+        "file": "item_predator_crown_level_7_1_IVAPaE37YXbEmFN8.json",
+        "name": "Predator Crown - Level 7-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "PGiQ9CedJI8CvVVh",
+        "file": "item_predator_crown_level_7_1_PGiQ9CedJI8CvVVh.json",
+        "name": "Predator Crown - Level 7-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "JIoAOYfP2Mn20tL2",
+        "file": "item_predator_crown_level_8_1_JIoAOYfP2Mn20tL2.json",
+        "name": "Predator Crown - Level 8-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Jna8qBYAC0pBp2NP",
+        "file": "item_predator_crown_level_8_1_Jna8qBYAC0pBp2NP.json",
+        "name": "Predator Crown - Level 8-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "SkvldCDNKueCwU8U",
+        "file": "item_predator_crown_level_8_1_SkvldCDNKueCwU8U.json",
+        "name": "Predator Crown - Level 8-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "PrG00CeEsrzCtbTj",
+        "file": "item_predator_crown_level_9_1_PrG00CeEsrzCtbTj.json",
+        "name": "Predator Crown - Level 9-1",
+        "echoArtifactKey": "predatorCrownIntellect",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "QnJugEBQi2hEuXWd",
+        "file": "item_predator_crown_level_9_1_QnJugEBQi2hEuXWd.json",
+        "name": "Predator Crown - Level 9-1",
+        "echoArtifactKey": "predatorCrownWits",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Ui0ZkBFLPilB0xnq",
+        "file": "item_predator_crown_level_9_1_Ui0ZkBFLPilB0xnq.json",
+        "name": "Predator Crown - Level 9-1",
+        "echoArtifactKey": "predatorCrownMight",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "4M0eDEpzOnEEacnv",
+        "file": "item_primal_vestment_level_10_1_4M0eDEpzOnEEacnv.json",
+        "name": "Primal Vestment - Level 10-1",
+        "echoArtifactKey": "primalVestment",
+        "level": 10,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[2].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "zpLUIEEDxLHETaYD",
+        "file": "item_ringchain_of_kept_names_level_10_1_zpLUIEEDxLHETaYD.json",
+        "name": "Ringchain of Kept Names - Level 10-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 10,
+        "expectedIdentityAdditions": 17,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "rVSaU6s3RTLGfJSa",
+        "file": "item_ringchain_of_kept_names_level_1_1_rVSaU6s3RTLGfJSa.json",
+        "name": "Ringchain of Kept Names - Level 1-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 1,
+        "expectedIdentityAdditions": 12,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "ocnorZFCxsKsa5t5",
+        "file": "item_ringchain_of_kept_names_level_2_1_ocnorZFCxsKsa5t5.json",
+        "name": "Ringchain of Kept Names - Level 2-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 2,
+        "expectedIdentityAdditions": 14,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "th5hYB84gZXBPxsy",
+        "file": "item_ringchain_of_kept_names_level_3_1_th5hYB84gZXBPxsy.json",
+        "name": "Ringchain of Kept Names - Level 3-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 3,
+        "expectedIdentityAdditions": 16,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "sPfyHEd236IEMAsh",
+        "file": "item_ringchain_of_kept_names_level_4_1_sPfyHEd236IEMAsh.json",
+        "name": "Ringchain of Kept Names - Level 4-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 4,
+        "expectedIdentityAdditions": 18,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "pW0CfE4tb4dEJHDw",
+        "file": "item_ringchain_of_kept_names_level_5_1_pW0CfE4tb4dEJHDw.json",
+        "name": "Ringchain of Kept Names - Level 5-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 5,
+        "expectedIdentityAdditions": 16,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "U2cT7BFf1b8B0HQk",
+        "file": "item_ringchain_of_kept_names_level_6_1_U2cT7BFf1b8B0HQk.json",
+        "name": "Ringchain of Kept Names - Level 6-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 6,
+        "expectedIdentityAdditions": 16,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Z7uMoCoUWEnC5Mid",
+        "file": "item_ringchain_of_kept_names_level_7_1_Z7uMoCoUWEnC5Mid.json",
+        "name": "Ringchain of Kept Names - Level 7-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 7,
+        "expectedIdentityAdditions": 16,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "cbuIHCNEJRIC6L71",
+        "file": "item_ringchain_of_kept_names_level_8_1_cbuIHCNEJRIC6L71.json",
+        "name": "Ringchain of Kept Names - Level 8-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 8,
+        "expectedIdentityAdditions": 18,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "XhdbKm4ETJ1RqKIG",
+        "file": "item_ringchain_of_kept_names_level_9_1_XhdbKm4ETJ1RqKIG.json",
+        "name": "Ringchain of Kept Names - Level 9-1",
+        "echoArtifactKey": "ringchainOfKeptNames",
+        "level": 9,
+        "expectedIdentityAdditions": 16,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].powerTemplateId",
+            "new": "active-ranged-health-level-heal",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[1].authoredStages[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].powerTemplateId",
+            "new": "active-melee-aoe-restoration",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].powerTemplateId",
+            "new": "active-ranged-single-cleanse",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[2].authoredStages[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "4W8C5p9WL6amvT7L",
+        "file": "item_root_staff_level_10_1_4W8C5p9WL6amvT7L.json",
+        "name": "Root Staff - Level 10-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "R9OPsDgW0GrDxOCg",
+        "file": "item_root_staff_level_2_1_R9OPsDgW0GrDxOCg.json",
+        "name": "Root Staff - Level 2-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "KT6sq55U1rqit9sb",
+        "file": "item_root_staff_level_3_1_KT6sq55U1rqit9sb.json",
+        "name": "Root Staff - Level 3-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Jm4EICY9f6GCnWHy",
+        "file": "item_root_staff_level_4_1_Jm4EICY9f6GCnWHy.json",
+        "name": "Root Staff - Level 4-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "OGkdFE9s8lGEs0wM",
+        "file": "item_root_staff_level_5_1_OGkdFE9s8lGEs0wM.json",
+        "name": "Root Staff - Level 5-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "3MzORIkaGQZcmfTo",
+        "file": "item_root_staff_level_6_1_3MzORIkaGQZcmfTo.json",
+        "name": "Root Staff - Level 6-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "0svX6BlVKg7BW8io",
+        "file": "item_root_staff_level_7_1_0svX6BlVKg7BW8io.json",
+        "name": "Root Staff - Level 7-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "3xXyIIL9pHXikhGm",
+        "file": "item_root_staff_level_8_1_3xXyIIL9pHXikhGm.json",
+        "name": "Root Staff - Level 8-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "8RDNGCt4bVHCcCQ6",
+        "file": "item_root_staff_level_9_1_8RDNGCt4bVHCcCQ6.json",
+        "name": "Root Staff - Level 9-1",
+        "echoArtifactKey": "witchStaffRoot",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "g3xiTRgMrUAoASRv",
+        "file": "item_ruin_staff_level_10_1_g3xiTRgMrUAoASRv.json",
+        "name": "Ruin Staff - Level 10-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "3NVM4DIl6D3DX8h5",
+        "file": "item_ruin_staff_level_2_1_3NVM4DIl6D3DX8h5.json",
+        "name": "Ruin Staff - Level 2-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "6GA8gDrtYGiDa1Mr",
+        "file": "item_ruin_staff_level_3_1_6GA8gDrtYGiDa1Mr.json",
+        "name": "Ruin Staff - Level 3-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "RNPq7gk0h6xcC79C",
+        "file": "item_ruin_staff_level_4_1_RNPq7gk0h6xcC79C.json",
+        "name": "Ruin Staff - Level 4-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "et3JNDPWSSODA9qa",
+        "file": "item_ruin_staff_level_5_1_et3JNDPWSSODA9qa.json",
+        "name": "Ruin Staff - Level 5-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "hmUgyCw95XxCBXhP",
+        "file": "item_ruin_staff_level_6_1_hmUgyCw95XxCBXhP.json",
+        "name": "Ruin Staff - Level 6-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "iUk7FT78FHCFxqDx",
+        "file": "item_ruin_staff_level_7_1_iUk7FT78FHCFxqDx.json",
+        "name": "Ruin Staff - Level 7-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "LCinbaZJfarRV4d6",
+        "file": "item_ruin_staff_level_8_1_LCinbaZJfarRV4d6.json",
+        "name": "Ruin Staff - Level 8-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "KJtycE5vH7dEqYgF",
+        "file": "item_ruin_staff_level_9_1_KJtycE5vH7dEqYgF.json",
+        "name": "Ruin Staff - Level 9-1",
+        "echoArtifactKey": "witchStaffRuin",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "c7F1PBNke9QB6rSk",
+        "file": "item_sentinel_frame_level_10_1_c7F1PBNke9QB6rSk.json",
+        "name": "Sentinel Frame - Level 10-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 10,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "2TQ9LCn6oHNCYjDQ",
+        "file": "item_sentinel_frame_level_1_1_2TQ9LCn6oHNCYjDQ.json",
+        "name": "Sentinel Frame - Level 1-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "5mgDyBKAI5wBZXtw",
+        "file": "item_sentinel_frame_level_2_1_5mgDyBKAI5wBZXtw.json",
+        "name": "Sentinel Frame - Level 2-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 2,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "8f7ZZBtIWiaBcQKJ",
+        "file": "item_sentinel_frame_level_3_1_8f7ZZBtIWiaBcQKJ.json",
+        "name": "Sentinel Frame - Level 3-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 3,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "BZmLCBQwNDBBhoZc",
+        "file": "item_sentinel_frame_level_4_1_BZmLCBQwNDBBhoZc.json",
+        "name": "Sentinel Frame - Level 4-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 4,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "O5QpRD9hpxSDuKE6",
+        "file": "item_sentinel_frame_level_5_1_O5QpRD9hpxSDuKE6.json",
+        "name": "Sentinel Frame - Level 5-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 5,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "RyrB3CgLT31Cvi4u",
+        "file": "item_sentinel_frame_level_6_1_RyrB3CgLT31Cvi4u.json",
+        "name": "Sentinel Frame - Level 6-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 6,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "SGIvJDtg3Kw0UeHh",
+        "file": "item_sentinel_frame_level_7_1_SGIvJDtg3Kw0UeHh.json",
+        "name": "Sentinel Frame - Level 7-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 7,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "RNJcBDgkuTADxc6s",
+        "file": "item_sentinel_frame_level_8_1_RNJcBDgkuTADxc6s.json",
+        "name": "Sentinel Frame - Level 8-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 8,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "OtFlqE5JPEBqwnMC",
+        "file": "item_sentinel_frame_level_9_1_OtFlqE5JPEBqwnMC.json",
+        "name": "Sentinel Frame - Level 9-1",
+        "echoArtifactKey": "sentinelFrame",
+        "level": 9,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "JoNIlEYBz9jEnYa1",
+        "file": "item_serpent_scales_level_10_1_JoNIlEYBz9jEnYa1.json",
+        "name": "Serpent Scales - Level 10-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "pYmvbE4vNnaEJJze",
+        "file": "item_serpent_scales_level_1_1_pYmvbE4vNnaEJJze.json",
+        "name": "Serpent Scales - Level 1-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "keVEfCVHuMgCGuIV",
+        "file": "item_serpent_scales_level_2_1_keVEfCVHuMgCGuIV.json",
+        "name": "Serpent Scales - Level 2-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 2,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "n8Y5z2VAxyJOMM2Y",
+        "file": "item_serpent_scales_level_3_1_n8Y5z2VAxyJOMM2Y.json",
+        "name": "Serpent Scales - Level 3-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "kFuJNBVsISOBE062",
+        "file": "item_serpent_scales_level_4_1_kFuJNBVsISOBE062.json",
+        "name": "Serpent Scales - Level 4-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "jxTa6DyK5R5DDigJ",
+        "file": "item_serpent_scales_level_5_1_jxTa6DyK5R5DDigJ.json",
+        "name": "Serpent Scales - Level 5-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Q4KtuDBhj1vDwJ89",
+        "file": "item_serpent_scales_level_6_1_Q4KtuDBhj1vDwJ89.json",
+        "name": "Serpent Scales - Level 6-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "TYOkFCivzbECznB1",
+        "file": "item_serpent_scales_level_7_1_TYOkFCivzbECznB1.json",
+        "name": "Serpent Scales - Level 7-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Ydci4DJG1q5D2NpR",
+        "file": "item_serpent_scales_level_8_1_Ydci4DJG1q5D2NpR.json",
+        "name": "Serpent Scales - Level 8-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "T9wJ7BiWYB6Bxt92",
+        "file": "item_serpent_scales_level_9_1_T9wJ7BiWYB6Bxt92.json",
+        "name": "Serpent Scales - Level 9-1",
+        "echoArtifactKey": "wyrmScalesLight",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "OlYUKC9NxcLCu0Ll",
+        "file": "item_stonebound_soles_level_10_1_OlYUKC9NxcLCu0Ll.json",
+        "name": "Stonebound Soles - Level 10-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 10,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "Wut4LDHXIDND0e6n",
+        "file": "item_stonebound_soles_level_1_1_Wut4LDHXIDND0e6n.json",
+        "name": "Stonebound Soles - Level 1-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "FDOVEEUazMDElSBm",
+        "file": "item_stonebound_soles_level_2_1_FDOVEEUazMDElSBm.json",
+        "name": "Stonebound Soles - Level 2-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 2,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "OXnJnB99BSoBumaa",
+        "file": "item_stonebound_soles_level_3_1_OXnJnB99BSoBumaa.json",
+        "name": "Stonebound Soles - Level 3-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 3,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "5E3hJKceZIZzFRHo",
+        "file": "item_stonebound_soles_level_4_1_5E3hJKceZIZzFRHo.json",
+        "name": "Stonebound Soles - Level 4-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 4,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "CKjjbExw7rcEg4vS",
+        "file": "item_stonebound_soles_level_5_1_CKjjbExw7rcEg4vS.json",
+        "name": "Stonebound Soles - Level 5-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 5,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "t1y77C8Oaz6CPHmO",
+        "file": "item_stonebound_soles_level_6_1_t1y77C8Oaz6CPHmO.json",
+        "name": "Stonebound Soles - Level 6-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 6,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "2vmdhnYBmiYBaujJ",
+        "file": "item_stonebound_soles_level_7_1_2vmdhnYBmiYBaujJ.json",
+        "name": "Stonebound Soles - Level 7-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 7,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "npHhuD2CtYtDHaUQ",
+        "file": "item_stonebound_soles_level_8_1_npHhuD2CtYtDHaUQ.json",
+        "name": "Stonebound Soles - Level 8-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 8,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "qii3VDbL7BXDKTvm",
+        "file": "item_stonebound_soles_level_9_1_qii3VDbL7BXDKTvm.json",
+        "name": "Stonebound Soles - Level 9-1",
+        "echoArtifactKey": "stoneboundSoles",
+        "level": 9,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[2].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "vaXPCAy8GBRqKgEg",
+        "file": "item_titan_scars_level_10_1_vaXPCAy8GBRqKgEg.json",
+        "name": "Titan Scars - Level 10-1",
+        "echoArtifactKey": "titanScars",
+        "level": 10,
+        "expectedIdentityAdditions": 5,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "L62lRCaTedQCrLq2",
+        "file": "item_titan_scars_level_1_1_L62lRCaTedQCrLq2.json",
+        "name": "Titan Scars - Level 1-1",
+        "echoArtifactKey": "titanScars",
+        "level": 1,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "OO52KD90TBMDs8Hm",
+        "file": "item_titan_scars_level_2_1_OO52KD90TBMDs8Hm.json",
+        "name": "Titan Scars - Level 2-1",
+        "echoArtifactKey": "titanScars",
+        "level": 2,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "LVegjDasFYiDpFrP",
+        "file": "item_titan_scars_level_3_1_LVegjDasFYiDpFrP.json",
+        "name": "Titan Scars - Level 3-1",
+        "echoArtifactKey": "titanScars",
+        "level": 3,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "w0yE1ChdNN2CSGmV",
+        "file": "item_titan_scars_level_4_1_w0yE1ChdNN2CSGmV.json",
+        "name": "Titan Scars - Level 4-1",
+        "echoArtifactKey": "titanScars",
+        "level": 4,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "zU25LBEsdxKBVkpM",
+        "file": "item_titan_scars_level_5_1_zU25LBEsdxKBVkpM.json",
+        "name": "Titan Scars - Level 5-1",
+        "echoArtifactKey": "titanScars",
+        "level": 5,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "IDcPqC3p0XrCmxo8",
+        "file": "item_titan_scars_level_6_1_IDcPqC3p0XrCmxo8.json",
+        "name": "Titan Scars - Level 6-1",
+        "echoArtifactKey": "titanScars",
+        "level": 6,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "FuLLEDUHxCDDjeY4",
+        "file": "item_titan_scars_level_7_1_FuLLEDUHxCDDjeY4.json",
+        "name": "Titan Scars - Level 7-1",
+        "echoArtifactKey": "titanScars",
+        "level": 7,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "wCAJcBhpYRdBSSxZ",
+        "file": "item_titan_scars_level_8_1_wCAJcBhpYRdBSSxZ.json",
+        "name": "Titan Scars - Level 8-1",
+        "echoArtifactKey": "titanScars",
+        "level": 8,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "nskU3D2FMM2DJ8Xl",
+        "file": "item_titan_scars_level_9_1_nskU3D2FMM2DJ8Xl.json",
+        "name": "Titan Scars - Level 9-1",
+        "echoArtifactKey": "titanScars",
+        "level": 9,
+        "expectedIdentityAdditions": 4,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[0].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[1].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.progressionPicks[0].authoredStages[2].artifactFunctionId",
+            "new": "titan-growth",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "uMjiKfz7qLO7vRI9",
+        "file": "item_wyrm_scales_heavy_level_10_1_uMjiKfz7qLO7vRI9.json",
+        "name": "Wyrm Scales (Heavy) - Level 10-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 10,
+        "expectedIdentityAdditions": 3,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[3].artifactFunctionId",
+            "new": "artifact-awakening",
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "mraqgCXUzyhCI7N7",
+        "file": "item_wyrm_scales_heavy_level_1_1_mraqgCXUzyhCI7N7.json",
+        "name": "Wyrm Scales (Heavy) - Level 1-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 1,
+        "expectedIdentityAdditions": 1,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "pkFcJC47qTICJVSL",
+        "file": "item_wyrm_scales_heavy_level_2_1_pkFcJC47qTICJVSL.json",
+        "name": "Wyrm Scales (Heavy) - Level 2-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 2,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "sdgyuBdG56vBMOth",
+        "file": "item_wyrm_scales_heavy_level_3_1_sdgyuBdG56vBMOth.json",
+        "name": "Wyrm Scales (Heavy) - Level 3-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 3,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "x7LNsDCVxErDTN9d",
+        "file": "item_wyrm_scales_heavy_level_4_1_x7LNsDCVxErDTN9d.json",
+        "name": "Wyrm Scales (Heavy) - Level 4-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 4,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 4,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "82zDnDtfOMoDeInU",
+        "file": "item_wyrm_scales_heavy_level_5_1_82zDnDtfOMoDeInU.json",
+        "name": "Wyrm Scales (Heavy) - Level 5-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 5,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "9KQx3Oi1o2d5cg1s",
+        "file": "item_wyrm_scales_heavy_level_6_1_9KQx3Oi1o2d5cg1s.json",
+        "name": "Wyrm Scales (Heavy) - Level 6-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 6,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "EFhe0Czr5m1CiztN",
+        "file": "item_wyrm_scales_heavy_level_7_1_EFhe0Czr5m1CiztN.json",
+        "name": "Wyrm Scales (Heavy) - Level 7-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 7,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 10,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "BlhiXDQ8IaWDh0Uz",
+        "file": "item_wyrm_scales_heavy_level_8_1_BlhiXDQ8IaWDh0Uz.json",
+        "name": "Wyrm Scales (Heavy) - Level 8-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 8,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      },
+      {
+        "id": "6fPpqCrIoxrCcvC6",
+        "file": "item_wyrm_scales_heavy_level_9_1_6fPpqCrIoxrCcvC6.json",
+        "name": "Wyrm Scales (Heavy) - Level 9-1",
+        "echoArtifactKey": "wyrmScalesHeavy",
+        "level": 9,
+        "expectedIdentityAdditions": 2,
+        "unexpected": [],
+        "changes": [
+          {
+            "path": "system.levelProgression[0].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          },
+          {
+            "path": "system.levelProgression[1].rank",
+            "new": 16,
+            "kind": "expected-identity-addition"
+          }
+        ]
+      }
+    ]
+  },
+  "identity": {
+    "old": {
+      "rowsTotal": 606,
+      "rowsWithRank": 0,
+      "rowsWithArtifactFunctionId": 0,
+      "rowsWithPowerTemplateId": 316
+    },
+    "new": {
+      "rowsTotal": 606,
+      "rowsWithPowerTemplateId": 335,
+      "rowsWithArtifactFunctionId": 51,
+      "rowsWithRank": 335,
+      "rowsLimited": 10,
+      "rowsSpell": 51,
+      "rowsResolvedByIdentity": 376,
+      "rowsNoIdentity": 230,
+      "rowsNoIdentityInapplicable": 230,
+      "rowsUnresolved": 0
+    },
+    "artifactFunctionCounts": {
+      "artifact-awakening": 22,
+      "dragon-breath": 10,
+      "life-absorption": 9,
+      "titan-growth": 10
+    },
+    "authoredStages": {
+      "authoredStagesTotal": 210,
+      "authoredStagesWithIdentity": 120,
+      "authoredStagesWithout": []
+    },
+    "unresolvedRows": [],
+    "inapplicableRows": {
+      "count": 230,
+      "byType": {
+        "Stone Power Support": 181,
+        "Stone Refresh": 8,
+        "Passive": 18,
+        "Stone Pool": 23
+      }
+    }
+  },
+  "contracts": {
+    "violations": [],
+    "rankIssues": []
+  },
+  "enrichmentNoOp": {
+    "ok": true,
+    "rowsEnrichmentWouldChange": []
+  },
+  "echoBound": {
+    "byType": {
+      "string": 220
+    },
+    "byBinding": {
+      "echo": {
+        "string": 220
+      }
+    },
+    "note": "W5: builder emits echoBound as the echoKey string for echo-bound trees and omits it for general (bound) artifacts; runtime readers use truthiness except src/module.ts (=== true). Semantics not changed in K9 — reported only."
+  },
+  "knownFindings": {
+    "seedVersions": {
+      "60": 220
+    },
+    "N1": "Pack/builder seedVersion 60; world artifacts (seed 57) intentionally NOT touched by K9.",
+    "N2": "Elorian Stride legacy node ids in world — not rewritten by K9 (pack nodeIds are canonical `<key>-l<level>`).",
+    "W1": "Titan Scars pack rows carry artifactFunctionId titan-growth (K2, no powerTemplateId); Lor-Keth world item (ab-armor-temp-hp) untouched; K8 holdout retained.",
+    "W2": "Draconic Roar rows remain ab-armor-aura (rank 4/10/16) exactly as authored — no mechanical change."
+  },
+  "levelDb": {
+    "verified": true,
+    "documents": 243,
+    "missing": [],
+    "extra": [],
+    "contentMismatch": 0,
+    "extractedTo": "C:\\Users\\navar\\AppData\\Local\\Temp\\k9-ldb-WhVsc5"
+  },
+  "verdict": {
+    "pass": true,
+    "blockers": []
+  }
+}

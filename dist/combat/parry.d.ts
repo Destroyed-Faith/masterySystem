@@ -7,6 +7,7 @@
  * already committed during Preparation to activate an Active Buff, Parry may
  * instead spend one legally available additional Attack Action (e.g. Extra Attack).
  */
+export { isRiposteReaction, isReflectionReaction } from './reaction-kind.js';
 export declare const SPELL_PARRY_ORIGIN_M = 22;
 export type ParryDelivery = 'martial' | 'spell';
 export type ParryAttribute = 'might' | 'agility' | 'intellect' | 'resolve' | 'influence';
@@ -86,6 +87,4 @@ export declare function buildReflectionFormula(triggerDamage: number, attacker: 
     spell?: boolean;
     powerDamageDice?: number;
 }): string;
-export declare function isRiposteReaction(item: any): boolean;
-export declare function isReflectionReaction(item: any): boolean;
 //# sourceMappingURL=parry.d.ts.map

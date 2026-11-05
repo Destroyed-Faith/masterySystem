@@ -42,7 +42,8 @@
         "duration": "MR Rounds",
         "effect": "Gain **Thorns 4d8**. When you take final HP damage, deal that much (capped by the loss) to the source.",
         "special": "",
-        "powerTemplateId": "ab-thorns"
+        "powerTemplateId": "ab-thorns",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

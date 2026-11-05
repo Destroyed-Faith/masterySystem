@@ -1,11 +1,12 @@
 {
   "name": "mastery-system",
-  "version": "0.9.829",
+  "version": "0.9.830",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
     "build": "node scripts/embed-rules-json.mjs && tsc && node scripts/fix-imports.js",
     "build:packs": "node scripts/build-echo-artifact-pack.mjs",
+    "k9:audit": "node scripts/k9-pack-identity-audit.mjs --verify-leveldb --strict",
     "build:rules-journals": "node scripts/build-rules-journals.mjs",
     "watch": "tsc --watch",
     "clean": "rimraf dist",

@@ -42,7 +42,8 @@
         "duration": "MR Rounds",
         "effect": "Your attacks deal **+4d8** damage while the buff is active.",
         "special": "",
-        "powerTemplateId": "ab-damage"
+        "powerTemplateId": "ab-damage",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

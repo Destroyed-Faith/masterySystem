@@ -18,6 +18,7 @@ import { isBasicReactionItem } from './basic-combat.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { buildReactionTriggerContext, evaluateReactionEligibility, isCounterDamageReaction, isEvadeOnlyReaction, isGhostSlipReaction, isInterposeReaction, isParryFollowUpReaction, isRepositionReaction, isSpecialIncreaseReaction, } from './reaction-eligibility.js';
 import { buildReflectionFormula, buildRiposteFormula, isReflectionReaction, isRiposteReaction, } from './parry.js';
+import { reactionMayRepeatThisRound } from './reaction-kind.js';
 const SOCKET_NAME = 'system.mastery-system';
 const pendingWaiters = new Map();
 /** Reaction windows currently resolving a blocking Counterattack/OA. */
@@ -596,9 +597,10 @@ async function executeReactionSpend(params) {
     if (!spent) {
         return { state, note: 'Could not spend Reaction.' };
     }
-    const repeatableReaction = String(power?.system?.templateId ?? '') === 'reaction-riposte' ||
-        String(power?.name ?? '').toLowerCase().includes('parry + weapon damage');
-    if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction && !repeatableReaction) {
+    // R3: same repeatable predicate as pool / eligibility.
+    if (!isBasicReactionItem(power) &&
+        !power?.npcConfiguredReaction &&
+        !reactionMayRepeatThisRound(power)) {
         await markPowerUsedThisRound(economy, combat, power.id);
     }
     state.spentActorIds.push(actorId);

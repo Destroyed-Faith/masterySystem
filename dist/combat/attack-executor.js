@@ -463,9 +463,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             templateId,
             item: option.item,
         });
-        // Moonlight Judgment (legacy alias: Undead Tracer): name bridge and/or Limited AoE template.
-        const isMoonlightJudgment = limitedNameBridge ||
-            (isLimitedPowerTemplateId(templateId) && /limited-aoe/i.test(templateId));
+        // Moonlight Judgment (legacy alias: Undead Tracer): Limited AoE template, or
+        // name bridge ONLY when no conflicting structured templateId is present (R5).
+        const isMoonlightJudgment = (isLimitedPowerTemplateId(templateId) && /limited-aoe/i.test(templateId)) ||
+            (!templateId && limitedNameBridge);
         if (isMoonlightJudgment || isLimitedDecl) {
             if (option.limitedChargeSpent === true) {
                 // Same declaration recreating a card — do not spend again.

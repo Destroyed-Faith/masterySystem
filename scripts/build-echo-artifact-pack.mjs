@@ -21,6 +21,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { echoPackFolderId, echoPackItemId, echoPackRootFolderId } from './lib/echo-pack-ids.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -28,27 +29,6 @@ const SRC_DIR = path.join(ROOT, 'src', 'packs', 'echo-artifacts');
 const PACK_DIR = path.join(ROOT, 'packs', 'echo-artifacts');
 const PACK_LABEL = 'Echo Artifacts';
 const PARENT_FOLDER_NAME = 'Echo Artifacts';
-
-/** Deterministic 16-char alphanumeric Foundry id from any seed string. */
-function stableId(seed) {
-  const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  // FNV-1a → expand to 16 chars by re-hashing with a salt counter.
-  let out = '';
-  let counter = 0;
-  while (out.length < 16) {
-    let h = 0x811c9dc5;
-    const s = `${seed}#${counter++}`;
-    for (let i = 0; i < s.length; i++) {
-      h ^= s.charCodeAt(i);
-      h = Math.imul(h, 0x01000193) >>> 0;
-    }
-    while (h > 0 && out.length < 16) {
-      out += ALPHA[h % ALPHA.length];
-      h = Math.floor(h / ALPHA.length);
-    }
-  }
-  return out.slice(0, 16);
-}
 
 function folderDoc(id, name, parentId) {
   return {
@@ -82,14 +62,14 @@ async function main() {
   await mkdir(SRC_DIR, { recursive: true });
 
   const docs = [];
-  const parentId = stableId('folder:echo-artifacts-root');
+  const parentId = echoPackRootFolderId();
   docs.push(folderDoc(parentId, PARENT_FOLDER_NAME, null));
 
   for (const tree of trees) {
-    const subId = stableId(`folder:${tree.echoArtifactKey}`);
+    const subId = echoPackFolderId(tree.echoArtifactKey);
     docs.push(folderDoc(subId, tree.folderName, parentId));
     for (const node of tree.nodes) {
-      const id = stableId(`item:${node.nodeId}`);
+      const id = echoPackItemId(node.nodeId);
       docs.push(itemDoc(id, node.itemData, subId));
     }
   }

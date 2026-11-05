@@ -10,7 +10,7 @@
 import { getActionEconomyActor, getAvailableAttackActions, getRoundState, setRoundState, } from './action-economy.js';
 import { passiveParryPoolForLevel } from '../utils/powers/templates/passives.js';
 import { isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
-import { compareIdentityDecision } from '../utils/identity-shadow.js';
+export { isRiposteReaction, isReflectionReaction } from './reaction-kind.js';
 export const SPELL_PARRY_ORIGIN_M = 22;
 function actorItems(actor) {
     const items = actor?.items;
@@ -335,31 +335,5 @@ export function buildReflectionFormula(triggerDamage, attacker, riderFlat, opts)
     if (raw > 0)
         return rider ? `${raw}+${rider}` : String(raw);
     return buildDamageFormula(resolveEquippedWeaponDamageFormula(attacker), riderFlat);
-}
-export function isRiposteReaction(item) {
-    const tid = String(item?.system?.templateId ?? '').toLowerCase();
-    const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid === 'reaction-riposte' || name.includes('riposte') || name.includes('weapon damage');
-    // K8.f: templateId decides; name includes are pre-K9 missing-ID bridge.
-    return compareIdentityDecision('reaction.isRiposte', legacy, () => {
-        if (tid === 'reaction-riposte')
-            return true;
-        if (!tid)
-            return { kind: 'unresolved', reason: 'missing-identity' };
-        return false;
-    }, { tid, name }, { prefer: 'identity' });
-}
-export function isReflectionReaction(item) {
-    const tid = String(item?.system?.templateId ?? '').toLowerCase();
-    const name = String(item?.name ?? '').toLowerCase();
-    const legacy = tid === 'reaction-parry-reflection' || name.includes('reflection');
-    // K8.f: templateId decides; name includes are pre-K9 missing-ID bridge.
-    return compareIdentityDecision('reaction.isReflection', legacy, () => {
-        if (tid === 'reaction-parry-reflection')
-            return true;
-        if (!tid)
-            return { kind: 'unresolved', reason: 'missing-identity' };
-        return false;
-    }, { tid, name }, { prefer: 'identity' });
 }
 //# sourceMappingURL=parry.js.map

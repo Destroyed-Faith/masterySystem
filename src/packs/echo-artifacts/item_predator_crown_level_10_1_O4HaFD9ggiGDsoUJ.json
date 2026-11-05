@@ -57,7 +57,8 @@
         "duration": "Instant",
         "effect": "Deal **16d8 damage** to the triggering creature.",
         "special": "",
-        "powerTemplateId": "reaction-counter-damage"
+        "powerTemplateId": "reaction-counter-damage",
+        "rank": 16
       },
       {
         "level": 9,
@@ -68,7 +69,8 @@
         "duration": "MR Rounds",
         "effect": "Your attacks deal **+16d8** damage while the buff is active.",
         "special": "",
-        "powerTemplateId": "ab-damage"
+        "powerTemplateId": "ab-damage",
+        "rank": 16
       },
       {
         "level": 10,
@@ -77,7 +79,8 @@
         "range": "Self",
         "duration": "Special",
         "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
-        "special": "Artifact Level 10: Awakening (Predator Crown)"
+        "special": "Artifact Level 10: Awakening (Predator Crown)",
+        "artifactFunctionId": "artifact-awakening"
       }
     ],
     "stoneFunction": {

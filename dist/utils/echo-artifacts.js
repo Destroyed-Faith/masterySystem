@@ -1020,6 +1020,8 @@ const SENTINEL_FRAME = {
             effect: 'Restore up to **2 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Artifact Range remains 8 m.',
             special: 'Ranged Single Target Restoration (PL 4; Artifact Range 8 m)',
             powerTemplateId: 'active-ranged-health-level-heal',
+            // K9: persist the printed PL as structured rank (stage I default 4).
+            rank: 4,
         },
         {
             level: 2,
@@ -1049,6 +1051,7 @@ const SENTINEL_FRAME = {
             effect: 'Restore up to **6 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool.',
             special: 'Ranged Single Target Restoration (PL 10; Artifact Range 8 m)',
             powerTemplateId: 'active-ranged-health-level-heal',
+            rank: 10,
         },
         {
             level: 5,
@@ -1078,6 +1081,7 @@ const SENTINEL_FRAME = {
             effect: 'Restore up to **10 full Scarred Health Bars** on one legal creature from this Power\'s shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool.',
             special: 'Ranged Single Target Restoration (PL 16; Artifact Range 8 m)',
             powerTemplateId: 'active-ranged-health-level-heal',
+            rank: 16,
         },
         {
             level: 8,

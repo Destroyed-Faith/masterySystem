@@ -14,6 +14,7 @@ import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 import { buildBasicReactionItems, isBasicReactionItem } from './basic-combat.js';
 import { actorParticipatesInReactions, materializeNpcReactionPowers, } from '../utils/npc-reactions.js';
+import { reactionMayRepeatThisRound } from './reaction-kind.js';
 /**
  * Reaction Evade vs a known attack total.
  * Hit rule is attack ≥ Evade, so the reaction negates only when
@@ -75,10 +76,11 @@ export function getEligibleReactionPowers(defender, combat) {
             continue;
         if (sys?.showInRadialMenu === false)
             continue;
-        const repeatable = String(sys?.templateId ?? '') === 'reaction-riposte' ||
-            resolvePowerMechanics(item)?.repeatable === true;
-        if (!repeatable && hasPowerBeenUsedThisRound(owner, combat, item.id))
+        // R3: same repeatable predicate as spend / eligibility.
+        if (!reactionMayRepeatThisRound(item) &&
+            hasPowerBeenUsedThisRound(owner, combat, item.id)) {
             continue;
+        }
         // Ghost Slip (phasing.reactionSingleHit) stays in the pool; the Reaction
         // Window eligibility layer hides it unless Passive Phasing + hit apply.
         out.push(item);

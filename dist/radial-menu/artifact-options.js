@@ -36,16 +36,18 @@ const REACTION_TYPES = new Set(['Reaction']);
 function categoryFromIdentityOrType(row) {
     const legacy = classifyArtifactRowType(String(row.type || ''));
     // K8.c: artifactFunctionId / powerTemplateId decide; type-text is missing-ID bridge.
-    // W1: titan-growth stays utility (Transformation), never Armor Active Buff via wrong tid.
+    // W1 / R1: titan-growth is Transformation → utility (combat radial), NEVER Active Buff.
+    // Must be checked before contract.category === 'activeBuff' (contract lists activeBuff
+    // for overlay bookkeeping; gameplay routing stays utility until GM action-economy decision).
     return compareIdentityDecision('artifact.rowCategory', legacy, () => {
         const fn = row.artifactFunctionId;
         if (fn && isArtifactFunctionId(fn)) {
+            if (fn === 'titan-growth')
+                return 'utility';
             const contract = ARTIFACT_FUNCTION_CONTRACT[fn];
             if (contract.klass === 'K2') {
                 if (contract.category === 'activeBuff')
                     return 'activeBuff';
-                if (fn === 'titan-growth')
-                    return 'utility';
                 return 'passive';
             }
             if (fn === 'dragon-breath')

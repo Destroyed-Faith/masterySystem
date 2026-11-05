@@ -40,7 +40,8 @@
         "duration": "MR Rounds",
         "effect": "Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP.",
         "special": "",
-        "powerTemplateId": "ab-temp-hp"
+        "powerTemplateId": "ab-temp-hp",
+        "rank": 4
       },
       {
         "level": 2,
@@ -51,7 +52,8 @@
         "duration": "Instant",
         "effect": "Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions.",
         "special": "",
-        "powerTemplateId": "movement-safe-movement"
+        "powerTemplateId": "movement-safe-movement",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

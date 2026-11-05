@@ -42,7 +42,8 @@
         "duration": "Instant",
         "effect": "Fly up to **6 m**.",
         "special": "",
-        "powerTemplateId": "movement-flight"
+        "powerTemplateId": "movement-flight",
+        "rank": 4
       }
     ],
     "stoneFunction": null,

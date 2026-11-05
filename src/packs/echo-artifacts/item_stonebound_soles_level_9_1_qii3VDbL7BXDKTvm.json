@@ -48,7 +48,8 @@
         "duration": "MR Rounds",
         "effect": "Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II.",
         "special": "",
-        "powerTemplateId": "ab-temp-hp"
+        "powerTemplateId": "ab-temp-hp",
+        "rank": 16
       },
       {
         "level": 8,
@@ -59,7 +60,8 @@
         "duration": "Instant",
         "effect": "Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions.",
         "special": "",
-        "powerTemplateId": "movement-safe-movement"
+        "powerTemplateId": "movement-safe-movement",
+        "rank": 16
       },
       {
         "level": 9,
@@ -70,7 +72,8 @@
         "duration": "",
         "effect": "When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.",
         "special": "",
-        "powerTemplateId": "empower-buff-armor"
+        "powerTemplateId": "empower-buff-armor",
+        "rank": 16
       }
     ],
     "stoneFunction": null,

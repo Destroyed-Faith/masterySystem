@@ -33,7 +33,8 @@
         "aoe": "",
         "duration": "Out of combat",
         "effect": "Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II.",
-        "special": "Hollow Crown: Life Absorption III"
+        "special": "Hollow Crown: Life Absorption III",
+        "artifactFunctionId": "life-absorption"
       },
       {
         "level": 9,
@@ -52,7 +53,8 @@
         "range": "Self",
         "duration": "Special",
         "effect": "Use the universal Artifact Awakening rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged.",
-        "special": "Artifact Level 10: Awakening (Hollow Crown)"
+        "special": "Artifact Level 10: Awakening (Hollow Crown)",
+        "artifactFunctionId": "artifact-awakening"
       }
     ],
     "stoneFunction": null,
@@ -106,7 +108,8 @@
             "aoe": "",
             "duration": "Out of combat",
             "effect": "Drain living creatures for Absorbed Vitality Stones. Maximum 2 Stones per Safe Haven Rest. Not usable in combat.",
-            "special": "Hollow Crown: Life Absorption I"
+            "special": "Hollow Crown: Life Absorption I",
+            "artifactFunctionId": "life-absorption"
           },
           {
             "level": 5,
@@ -116,7 +119,8 @@
             "aoe": "",
             "duration": "Out of combat",
             "effect": "Maximum 4 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption I.",
-            "special": "Hollow Crown: Life Absorption II"
+            "special": "Hollow Crown: Life Absorption II",
+            "artifactFunctionId": "life-absorption"
           },
           {
             "level": 8,
@@ -126,7 +130,8 @@
             "aoe": "",
             "duration": "Out of combat",
             "effect": "Maximum 8 Absorbed Vitality Stones per Safe Haven Rest. Replaces Life Absorption II.",
-            "special": "Hollow Crown: Life Absorption III"
+            "special": "Hollow Crown: Life Absorption III",
+            "artifactFunctionId": "life-absorption"
           }
         ]
       },

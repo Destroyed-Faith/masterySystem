@@ -245,10 +245,10 @@ Source: `docs/audits/FORGE_REALITY_AUDIT_PRE_K8.md` · Unresolved preserved in `
 |---|---|---|---|
 | **d** Limited / Breath | DONE | `limited-charge.ts`, `attack-executor.ts`, `artifact-options.ts`, `breath-weapon.ts` | Moonlight/Undead/`\blimited\` / breath name regex when IDs absent; no silent `'damage'` mode when identity is breath but mode missing |
 | **e** Heal / Cleanse + F12 rank | DONE | `heal-resolution.ts`, `cleanse-resolution.ts` | Text classifiers / `artifactRowLooksLikeHeal` / `inferRestoration*` when templateId absent; **`option.rank` preferred** when present |
-| **c** Artifact rows + W1 | DONE | `artifact-options.ts` (`categoryFromIdentityOrType`), `artifact-active-buffs.ts`, `artifact-visible-abilities.ts`, `token-action-selector.ts` | Type-text / name PL / ultimate name; **W1 holdout** `/titan\s*growth/i` + `artifactFunctionId === 'titan-growth'` forces Transformation path (not Armor+TempHP) |
+| **c** Artifact rows + W1 | DONE (+ R1 correction) | `artifact-options.ts` (`categoryFromIdentityOrType`), `options.ts` segment, `artifact-active-buffs.ts`, `artifact-visible-abilities.ts`, `token-action-selector.ts` | Type-text / name PL / ultimate name; **W1:** `titan-growth` routes as Transformation **utility** (combat radial) before contract `activeBuff`; Lor-Keth name holdout retained until GM decision |
 | **a** Segment | DONE | `options.ts` `getSegmentIdForOption` | `textSuggestsActiveBuff` / tag / bless-beacon keywords only when identity unresolved; golden `power-routing-radial.json` updated (heal → utility) |
 | **b** DR / Phasing / catalog | DONE (code) | `power-mechanics.ts` | Name catalog / DR-Phasing name sanction when tid absent. **Forge activation of b blocked until W2** |
-| **f** Reactions | DONE | `reaction-eligibility.ts`, `defender-reactions.ts`, `parry.ts`, `reaction-window-chat.ts` | Name includes for riposte/reflection/evade/guard/ally when tid absent |
+| **f** Reactions | DONE (+ R3 correction) | `reaction-kind.ts` (shared), `reaction-eligibility.ts`, `defender-reactions.ts`, `parry.ts` (re-exports), `reaction-window-chat.ts` | Name includes for riposte/reflection/evade/guard/ally when tid absent — **same predicates** for eligibility, pool, and spend |
 | **g** Specials | DONE | `reaction-window-chat.ts` Special Increase exact id; `apply-special-effects.ts` | Display-name `getEffect` when key/id unresolved |
 
 ### 12.2 Infrastructure
@@ -275,3 +275,30 @@ Source: `docs/audits/FORGE_REALITY_AUDIT_PRE_K8.md` · Unresolved preserved in `
 4. **W2** before treating cluster **b** (DR/Phasing / Draconic Roar expectations) as live.
 5. Rules 14.1b / 14.7 / 14.8 / AoE Restoration.
 6. Explicit GM/Fable sign-off for identity-primary as live Forge combat authority.
+
+## 13. K9 Canonical Echo Artifact Compendium Rebuild — 2026-11-05
+
+Done; see `docs/audits/K9_PACK_REBUILD_REPORT.md` (counts, gates, findings, deployment steps) and
+`docs/audits/K9_PACK_REBUILD_DIFF.json` (machine-readable before/after). Summary: 220 items / 23 folders, ids
+stable, builder parity identical, 595 expected identity additions / 0 unexpected, 376 rows resolved by identity,
+0 unresolved, 0 contract violations, P1 enrichment no-op, LevelDB verified (243 docs), seedVersion unchanged
+(60). Blocker 1 of §12.4 (pack rebuild) is closed; blockers 2–6 remain, plus N1 (world refresh decision) and W5
+(`echoBound` boolean vs string).
+
+## 14. K0–K9 Targeted Corrections — 2026-11-05
+
+Independent audit verdict was **PARTIAL**. Confirmed code findings corrected; see
+`docs/audits/K0_K9_CORRECTION_REPORT.md`.
+
+| Finding | Correction |
+|---|---|
+| N1 auto-refresh | World setting `holdArtifactLibraryAutoRefresh` **default true**; R-20 read-only macro |
+| R1 Titan Growth | `titan-growth` checked before contract `activeBuff`; segment forced to `utility` |
+| R2 Phasing | `TriggerOwner.templateId` passed into `isSanctionedPhasingName` |
+| R3 Reactions | Shared `src/combat/reaction-kind.ts` for riposte / reflection / repeatable |
+| R4 Unknown tid | `console.warn` when catalog by-id fails / conflicts with legacy |
+| R5 Moonlight | Name bridge only when `templateId` absent; Limited AoE tid still qualifies |
+| G10 `audit:dr-phasing` | Sanction by catalog `templateId` + current display names |
+
+**Architecture note:** Plan §10.5 forbids ID-first+text-fallback; current tree is **identity-primary with
+explicit missing-ID bridges** by design until post-K9 bridge removal. Documented in the correction report §D.

@@ -214,6 +214,9 @@ function collectTriggerOwners(actor) {
             ownerId: pid,
             name: slot.passive.name ?? powerItem.name ?? 'Passive',
             mechanics: mech,
+            templateId: powerItem?.system?.templateId
+                ? String(powerItem.system.templateId)
+                : null,
         });
     }
     // 2) ActiveEffect buffs (created by activateActiveBuff in src/utils/active-buffs.ts)
@@ -271,6 +274,11 @@ function buildBuffOwner(actor, effect) {
         ownerId: effectId,
         name: flags.powerName ?? effect?.name ?? 'Active Buff',
         mechanics: mech,
+        templateId: flags.powerTemplateId
+            ? String(flags.powerTemplateId)
+            : flags.buffTemplateId
+                ? String(flags.buffTemplateId)
+                : null,
     };
 }
 // ---------------------------------------------------------------------------
@@ -353,7 +361,8 @@ async function applyTriggerToOwners(actor, owners, triggerKinds, combat) {
         // Phasing: combatStart passive grants base charges; buff augment layers.
         if (triggerKinds.includes('combatStart')) {
             const phasing = owner.mechanics.phasing;
-            if (phasing && isSanctionedPhasingName(owner.name, owner.ownerKind)) {
+            // R2: pass structured templateId so identity-primary sanction can decide.
+            if (phasing && isSanctionedPhasingName(owner.name, owner.ownerKind, owner.templateId)) {
                 if (owner.ownerKind === 'passive' && phasing.combatStart?.charges && phasing.combatStart.charges > 0) {
                     await grantPhasingCharges(actor, combat, phasing.combatStart.charges, {
                         ownerKind: 'passive',
