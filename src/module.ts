@@ -1911,6 +1911,16 @@ function exposeMasterySystemApi(): void {
       );
       return runArtifactAlignmentMigration(opts);
     },
+    /**
+     * R-20 read-only artifact library diagnostic (seedVersions / overwrite risk).
+     * Console: await game.masterySystem.diagnoseArtifactLibrary()
+     */
+    diagnoseArtifactLibrary: async (opts?: { download?: boolean }) => {
+      const { diagnoseArtifactLibrary } = await import(
+        './utils/r20-artifact-library-diagnostic.js'
+      );
+      return diagnoseArtifactLibrary(opts);
+    },
   });
 }
 
@@ -1930,7 +1940,7 @@ function registerSystemSettings() {
   // Manual "Refresh Artifact Library" still works (force: true). Default ON.
   (game as any).settings.register('mastery-system', 'holdArtifactLibraryAutoRefresh', {
     name: 'Hold Artifact Library Auto-Refresh',
-    hint: 'When enabled (default), the GM ready hook will NOT rewrite world Echo/General Artifact trees that are behind the system seedVersion, and will NOT push system overwrites to actor-owned copies. Clear only after R-20 diagnostic + world backup. Incomplete trees are still repaired. Manual "Refresh Artifact Library" always bypasses this hold.',
+    hint: 'When enabled (default), the GM ready hook will NOT rewrite world Echo/General Artifact trees that are behind the system seedVersion, and will NOT push system overwrites to actor-owned copies. Clear only after R-20 diagnostic + world backup. Run diagnostic from F12: await game.masterySystem.diagnoseArtifactLibrary(). Incomplete trees are still repaired. Manual "Refresh Artifact Library" always bypasses this hold.',
     scope: 'world',
     config: true,
     type: Boolean,

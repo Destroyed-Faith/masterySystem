@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.831] - 2026-11-05
+
+### Fixed
+
+- **R-20 artifact library diagnostic:** exposed as `game.masterySystem.diagnoseArtifactLibrary()` (download via Foundry `saveDataToFile`). Macro is a thin Script wrapper — Chat-type macros only post text and are not supported.
+
 ## [0.9.830] - 2026-11-05
 
 ### Changed
