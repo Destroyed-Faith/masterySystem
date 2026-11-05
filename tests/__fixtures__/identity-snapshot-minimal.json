@@ -1,0 +1,139 @@
+{
+  "format": "mastery-identity-snapshot",
+  "formatVersion": 1,
+  "exportedAt": "2026-11-05T00:00:00.000Z",
+  "readOnly": true,
+  "purpose": "combat-resolver-id-refactor-offline-audit",
+  "system": {
+    "id": "mastery-system",
+    "version": "0.9.825",
+    "title": "Mastery System / Destroyed Faith"
+  },
+  "core": {
+    "version": "13.345",
+    "release": "13.345"
+  },
+  "world": {
+    "id": "fixture-world",
+    "title": "Fixture World"
+  },
+  "host": {
+    "isForge": true,
+    "hostname": "example.forge-vtt.com"
+  },
+  "exporter": {
+    "userId": "UserFixture",
+    "userName": "GM",
+    "isGM": true
+  },
+  "stats": {
+    "actors": 1,
+    "actorsIncomplete": 0,
+    "tokenOverrides": 0,
+    "tokenOverridesIncomplete": 0,
+    "compendiumDocuments": 0,
+    "compendiumIncomplete": 0,
+    "errors": 0,
+    "warnings": 0,
+    "powerItems": 1,
+    "artifactItems": 1
+  },
+  "errors": [],
+  "warnings": [],
+  "actors": [
+    {
+      "id": "ActorFix1",
+      "uuid": "Actor.ActorFix1",
+      "name": "Fixture Halfling",
+      "type": "character",
+      "source": "world",
+      "sceneId": null,
+      "tokenId": null,
+      "actorLink": null,
+      "baseActorId": null,
+      "incomplete": false,
+      "incompleteDetail": { "items": false, "effects": false },
+      "flags": {},
+      "system": { "masteryRank": 4, "level": null },
+      "items": [
+        {
+          "id": "pow1",
+          "uuid": "Actor.ActorFix1.Item.pow1",
+          "name": "Damage Transfer",
+          "type": "power",
+          "incomplete": false,
+          "system": {
+            "templateId": "active-melee-single-target-damage-transfer",
+            "templateName": "Damage Transfer",
+            "rank": 4,
+            "level": null,
+            "category": "active",
+            "powerType": "active",
+            "limited": null,
+            "chosenSpecialKey": null,
+            "cost": { "action": "attack" },
+            "levelKeys": ["1", "4", "10", "16"],
+            "description": ""
+          }
+        },
+        {
+          "id": "art1",
+          "uuid": "Actor.ActorFix1.Item.art1",
+          "name": "Ringchain of Kept Names - Level 8-1",
+          "type": "artifact",
+          "incomplete": false,
+          "flags": {
+            "mastery-system": {
+              "echoArtifactKey": "ringchainOfKeptNames"
+            }
+          },
+          "system": {
+            "currentLevel": 8,
+            "echoKey": "halflings",
+            "useAuthoredLevelProgression": false,
+            "levelProgression": [
+              {
+                "level": 3,
+                "name": "Hearth Circle I",
+                "type": "Active, Support",
+                "range": null,
+                "aoe": null,
+                "duration": null,
+                "special": null,
+                "effect": "Restore…",
+                "powerTemplateId": null,
+                "artifactFunctionId": null,
+                "rank": null,
+                "limited": null,
+                "chosenSpecialKey": null,
+                "isSpell": null,
+                "castingAttribute": null,
+                "spellResolution": null,
+                "embeddedPowerId": null
+              }
+            ],
+            "progressionPicks": []
+          }
+        }
+      ],
+      "effects": [
+        {
+          "id": "e1",
+          "uuid": null,
+          "name": "Armor",
+          "disabled": false,
+          "transfer": false,
+          "origin": null,
+          "flags": {
+            "mastery-system": {
+              "activeBuff": true,
+              "powerId": "pow1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "tokenOverrides": [],
+  "compendiumDocuments": []
+}

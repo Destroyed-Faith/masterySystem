@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.826] - 2026-11-05
+
+### Added
+
+- **Identity Snapshot export (Forge-ready):** GM-only read-only Script Macro `macros/export-identity-snapshot.js` downloads structured JSON of actors, artifact progressions, effects, packs, and unlinked token overrides for offline ID-refactor audit.
+- **Offline adapter:** `scripts/run-identity-snapshot-audit.mjs` runs preflight + migration dry-run against a snapshot; docs in `docs/audits/IDENTITY_SNAPSHOT_EXPORT.md`.
+
 ## [0.9.825] - 2026-11-05
 
 ### Added
