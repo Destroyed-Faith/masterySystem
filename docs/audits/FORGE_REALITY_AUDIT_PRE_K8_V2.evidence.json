@@ -1,0 +1,1010 @@
+{
+    "report":  "FORGE_REALITY_AUDIT_PRE_K8_V2.md",
+    "revision":  2,
+    "generatedAt":  "2026-11-05T09:04:34.8247504Z",
+    "readOnly":  true,
+    "sourceExport":  {
+                         "format":  "mastery-identity-snapshot",
+                         "formatVersion":  2,
+                         "exportedAt":  "2026-11-05T08:55:09.448Z",
+                         "systemVersion":  "0.9.827",
+                         "coreVersion":  "14.369",
+                         "hostIsForge":  true,
+                         "worldId":  "destroyed-faith-mastery-system",
+                         "stats":  {
+                                       "actors":  15,
+                                       "actorsIncomplete":  0,
+                                       "tokenOverrides":  16,
+                                       "tokenOverridesIncomplete":  3,
+                                       "compendiumDocuments":  220,
+                                       "compendiumIncomplete":  0,
+                                       "errors":  0,
+                                       "warnings":  3,
+                                       "powerItems":  26,
+                                       "artifactItems":  11
+                                   },
+                         "warnings":  [
+                                          {
+                                              "where":  "scene:xW8wvYRpnmKAMEGB/token:XumJmU3SvEEx4iXy",
+                                              "message":  "Unlinked token \"Alaris\" has no synthetic actor (deleted base actor, not loaded, or broken link). Identity for this token is NOT VERIFIED."
+                                          },
+                                          {
+                                              "where":  "scene:xW8wvYRpnmKAMEGB/token:ra5OUBJuwTZp9tIN",
+                                              "message":  "Unlinked token \"Red Priest Acolyte\" has no synthetic actor (deleted base actor, not loaded, or broken link). Identity for this token is NOT VERIFIED."
+                                          },
+                                          {
+                                              "where":  "scene:GbqpEJ08LXtTMrea/token:g6LAAbvPDwYnkIX0",
+                                              "message":  "Unlinked token \"Test5\" has no synthetic actor (deleted base actor, not loaded, or broken link). Identity for this token is NOT VERIFIED."
+                                          }
+                                      ],
+                         "storedOutsideRepo":  "%TEMP%\\forge-snapshot-v2-real.json"
+                     },
+    "offlineDryRun":  {
+                          "tool":  "scripts/run-identity-snapshot-audit.mjs",
+                          "distVersion":  "0.9.827",
+                          "actorsAudited":  28,
+                          "actorsSkippedIncomplete":  3,
+                          "preflightTotals":  {
+                                                  "sources":  141,
+                                                  "resolved":  137,
+                                                  "unresolved":  4,
+                                                  "blocksActivation":  0,
+                                                  "omitsContribution":  0,
+                                                  "informational":  4
+                                              },
+                          "migrationProposalCounts":  {
+                                                          "total":  0,
+                                                          "autoStableKey":  0,
+                                                          "autoProvenance":  0,
+                                                          "manual":  0,
+                                                          "notActivatable":  0
+                                                      },
+                          "entries":  [
+                                          {
+                                              "reason":  "legacy-alias-key",
+                                              "severity":  "informational",
+                                              "disposition":  "manual",
+                                              "actorId":  "HscDyhZJsKyTJLMJ",
+                                              "itemId":  "lVEhzTR1AvkERGQZ",
+                                              "snapshotSource":  "world",
+                                              "canonicalArtifactKey":  "titanScars",
+                                              "observedIdentity":  null,
+                                              "expectedIdentity":  null,
+                                              "hasSuggestedIdentity":  false
+                                          },
+                                          {
+                                              "reason":  "catalog-divergence",
+                                              "severity":  "informational",
+                                              "disposition":  "manual",
+                                              "actorId":  "HscDyhZJsKyTJLMJ",
+                                              "itemId":  "lVEhzTR1AvkERGQZ",
+                                              "snapshotSource":  "world",
+                                              "canonicalArtifactKey":  "titanScars",
+                                              "observedIdentity":  {
+                                                                       "powerTemplateId":  "ab-armor-temp-hp",
+                                                                       "artifactFunctionId":  null,
+                                                                       "rank":  null,
+                                                                       "limited":  null
+                                                                   },
+                                              "expectedIdentity":  {
+                                                                       "powerTemplateId":  null,
+                                                                       "artifactFunctionId":  "titan-growth",
+                                                                       "rank":  null,
+                                                                       "limited":  null
+                                                                   },
+                                              "hasSuggestedIdentity":  false
+                                          },
+                                          {
+                                              "reason":  "legacy-alias-key",
+                                              "severity":  "informational",
+                                              "disposition":  "manual",
+                                              "actorId":  "HscDyhZJsKyTJLMJ",
+                                              "itemId":  "lVEhzTR1AvkERGQZ",
+                                              "snapshotSource":  "token-override",
+                                              "canonicalArtifactKey":  "titanScars",
+                                              "observedIdentity":  null,
+                                              "expectedIdentity":  null,
+                                              "hasSuggestedIdentity":  false
+                                          },
+                                          {
+                                              "reason":  "catalog-divergence",
+                                              "severity":  "informational",
+                                              "disposition":  "manual",
+                                              "actorId":  "HscDyhZJsKyTJLMJ",
+                                              "itemId":  "lVEhzTR1AvkERGQZ",
+                                              "snapshotSource":  "token-override",
+                                              "canonicalArtifactKey":  "titanScars",
+                                              "observedIdentity":  {
+                                                                       "powerTemplateId":  "ab-armor-temp-hp",
+                                                                       "artifactFunctionId":  null,
+                                                                       "rank":  null,
+                                                                       "limited":  null
+                                                                   },
+                                              "expectedIdentity":  {
+                                                                       "powerTemplateId":  null,
+                                                                       "artifactFunctionId":  "titan-growth",
+                                                                       "rank":  null,
+                                                                       "limited":  null
+                                                                   },
+                                              "hasSuggestedIdentity":  false
+                                          }
+                                      ]
+                      },
+    "v1VsV2":  {
+                   "v1ExportedAt":  "2026-11-05T08:47:23.455Z",
+                   "v1FormatVersion":  1,
+                   "actorIdSetsEqual":  true,
+                   "worldItemIdSetsEqual":  true,
+                   "tokenSetsEqual":  true,
+                   "compendiumIdSetsEqual":  true,
+                   "artifactIdentityTuplesEqual":  true,
+                   "artifactIdentityTupleCount":  27,
+                   "v1MasteryRankNullCount":  15
+               },
+    "X1_masteryRank":  {
+                           "actors":  [
+                                          {
+                                              "id":  "s36N3Q5lXFFr8e9Z",
+                                              "name":  "Alaris",
+                                              "type":  "character",
+                                              "masteryRank":  3,
+                                              "masteryDotRank":  3
+                                          },
+                                          {
+                                              "id":  "xdqIIuXPSXTaSU2P",
+                                              "name":  "Aldren",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "4SOZ6CYbiTPmrOlx",
+                                              "name":  "AttackDummy",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "Kxhsdw49m8ZjU9fx",
+                                              "name":  "Borin",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "QjHd8NjX7o6cGwmH",
+                                              "name":  "Corvin",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "dfl0iKoZT2xvS8Mp",
+                                              "name":  "Daro",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "ijlC7M4hXuJ3kAv5",
+                                              "name":  "Esma",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "HscDyhZJsKyTJLMJ",
+                                              "name":  "Lor-Keth",
+                                              "type":  "character",
+                                              "masteryRank":  3,
+                                              "masteryDotRank":  3
+                                          },
+                                          {
+                                              "id":  "Awr6Oepdyt6FFUbP",
+                                              "name":  "Mara",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "kSL6v4Li8yjEuFqw",
+                                              "name":  "Morcant",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "u3G8Y7YWZICdL4sV",
+                                              "name":  "Oda",
+                                              "type":  "character",
+                                              "masteryRank":  3,
+                                              "masteryDotRank":  3
+                                          },
+                                          {
+                                              "id":  "qJ0TdBjrAlsuzsJ5",
+                                              "name":  "Perrin",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "2YTouPmzKlPU9bBG",
+                                              "name":  "Raukar",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          },
+                                          {
+                                              "id":  "NkKUS1LAD4iLnjzf",
+                                              "name":  "Scurry",
+                                              "type":  "character",
+                                              "masteryRank":  3,
+                                              "masteryDotRank":  3
+                                          },
+                                          {
+                                              "id":  "KoloityfHeQSfaL1",
+                                              "name":  "Vaelor",
+                                              "type":  "npc",
+                                              "masteryRank":  2,
+                                              "masteryDotRank":  2
+                                          }
+                                      ],
+                           "tokenOverrides":  [
+                                                  {
+                                                      "sceneId":  "xW8wvYRpnmKAMEGB",
+                                                      "tokenId":  "5G4UdMVxvkBRFE37",
+                                                      "name":  "Scurry",
+                                                      "baseActorId":  "NkKUS1LAD4iLnjzf",
+                                                      "masteryRank":  3
+                                                  },
+                                                  {
+                                                      "sceneId":  "abDdxyILDPDKcJNE",
+                                                      "tokenId":  "MMxtsiW8YsFxD1bH",
+                                                      "name":  "AttackDummy",
+                                                      "baseActorId":  "4SOZ6CYbiTPmrOlx",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "abDdxyILDPDKcJNE",
+                                                      "tokenId":  "aS98eFfmPh5MdbBD",
+                                                      "name":  "AttackDummy",
+                                                      "baseActorId":  "4SOZ6CYbiTPmrOlx",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "abDdxyILDPDKcJNE",
+                                                      "tokenId":  "9gTlcMH2d47WdWDJ",
+                                                      "name":  "AttackDummy",
+                                                      "baseActorId":  "4SOZ6CYbiTPmrOlx",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "abDdxyILDPDKcJNE",
+                                                      "tokenId":  "vSFrQHkyNcPebtJY",
+                                                      "name":  "AttackDummy",
+                                                      "baseActorId":  "4SOZ6CYbiTPmrOlx",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "GbqpEJ08LXtTMrea",
+                                                      "tokenId":  "AsAPwwnYUqqucIdd",
+                                                      "name":  "Alaris",
+                                                      "baseActorId":  "s36N3Q5lXFFr8e9Z",
+                                                      "masteryRank":  3
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "ATGMwp0AG1q5Irxm",
+                                                      "name":  "Aldren",
+                                                      "baseActorId":  "kSL6v4Li8yjEuFqw",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "vKXhgx2dDwX7UEis",
+                                                      "name":  "Vaelor",
+                                                      "baseActorId":  "KoloityfHeQSfaL1",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "qFEPjuMyiaA3xTtJ",
+                                                      "name":  "Morcant",
+                                                      "baseActorId":  "xdqIIuXPSXTaSU2P",
+                                                      "masteryRank":  2
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "wG4djqMoANxj0TWa",
+                                                      "name":  "Alaris",
+                                                      "baseActorId":  "s36N3Q5lXFFr8e9Z",
+                                                      "masteryRank":  3
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "uWNkQ0l833x2HR87",
+                                                      "name":  "Lor-Keth",
+                                                      "baseActorId":  "HscDyhZJsKyTJLMJ",
+                                                      "masteryRank":  3
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "L5cRVPbHsCtBdDwB",
+                                                      "name":  "Oda",
+                                                      "baseActorId":  "u3G8Y7YWZICdL4sV",
+                                                      "masteryRank":  3
+                                                  },
+                                                  {
+                                                      "sceneId":  "NwpxJf6a5palklSk",
+                                                      "tokenId":  "FmumkQB2hsjg8X0P",
+                                                      "name":  "Scurry",
+                                                      "baseActorId":  "NkKUS1LAD4iLnjzf",
+                                                      "masteryRank":  3
+                                                  }
+                                              ]
+                       },
+    "X2_incompleteTokens":  [
+                                {
+                                    "sceneId":  "xW8wvYRpnmKAMEGB",
+                                    "tokenId":  "XumJmU3SvEEx4iXy",
+                                    "name":  "Alaris",
+                                    "baseActorId":  "VCfDdcNoX8hdh6hB",
+                                    "baseActorExists":  false,
+                                    "error":  "synthetic-actor-missing",
+                                    "incompleteDetail":  {
+                                                             "items":  true,
+                                                             "effects":  true,
+                                                             "syntheticActor":  true
+                                                         },
+                                    "items":  0,
+                                    "effects":  0
+                                },
+                                {
+                                    "sceneId":  "xW8wvYRpnmKAMEGB",
+                                    "tokenId":  "ra5OUBJuwTZp9tIN",
+                                    "name":  "Red Priest Acolyte",
+                                    "baseActorId":  "x57epffUIwPZTTlb",
+                                    "baseActorExists":  false,
+                                    "error":  "synthetic-actor-missing",
+                                    "incompleteDetail":  {
+                                                             "items":  true,
+                                                             "effects":  true,
+                                                             "syntheticActor":  true
+                                                         },
+                                    "items":  0,
+                                    "effects":  0
+                                },
+                                {
+                                    "sceneId":  "GbqpEJ08LXtTMrea",
+                                    "tokenId":  "g6LAAbvPDwYnkIX0",
+                                    "name":  "Test5",
+                                    "baseActorId":  "eaEhItdyRTX9KoxD",
+                                    "baseActorExists":  false,
+                                    "error":  "synthetic-actor-missing",
+                                    "incompleteDetail":  {
+                                                             "items":  true,
+                                                             "effects":  true,
+                                                             "syntheticActor":  true
+                                                         },
+                                    "items":  0,
+                                    "effects":  0
+                                }
+                            ],
+    "X3_picks":  [
+                     {
+                         "actor":  "Alaris",
+                         "item":  "Moonlight Greatsword - Level 2-1",
+                         "currentLevel":  2,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:power",
+                                       "3:power"
+                                   ]
+                     },
+                     {
+                         "actor":  "Alaris",
+                         "item":  "Soul Sigil - Level 3-1",
+                         "currentLevel":  3,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:stoneFunction",
+                                       "2:power",
+                                       "3:power"
+                                   ]
+                     },
+                     {
+                         "actor":  "Alaris",
+                         "item":  "Elorian Stride - Level 2-1",
+                         "currentLevel":  2,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:power",
+                                       "3:stoneFunction"
+                                   ]
+                     },
+                     {
+                         "actor":  "Lor-Keth",
+                         "item":  "Lor-Keth\u0027s Staff - Level 3-1",
+                         "currentLevel":  3,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:power",
+                                       "3:stoneFunction"
+                                   ]
+                     },
+                     {
+                         "actor":  "Lor-Keth",
+                         "item":  "Titan Scars - Level 2-1",
+                         "currentLevel":  2,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:stoneFunction",
+                                       "3:power"
+                                   ]
+                     },
+                     {
+                         "actor":  "Oda",
+                         "item":  "Staff of the Dark - Level 3-1",
+                         "currentLevel":  3,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:power",
+                                       "3:power"
+                                   ]
+                     },
+                     {
+                         "actor":  "Oda",
+                         "item":  "Shadowgrave Armor - Level 2-1",
+                         "currentLevel":  2,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:stoneFunction",
+                                       "2:power",
+                                       "3:power"
+                                   ]
+                     },
+                     {
+                         "actor":  "Oda",
+                         "item":  "Lantern of the Hollow Star - Level 2-1",
+                         "currentLevel":  2,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:stoneFunction",
+                                       "2:stoneFunction",
+                                       "3:stoneFunction"
+                                   ]
+                     },
+                     {
+                         "actor":  "Scurry",
+                         "item":  "Dragon Claws - Level 3-1",
+                         "currentLevel":  3,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:stoneFunction",
+                                       "2:power",
+                                       "3:power"
+                                   ]
+                     },
+                     {
+                         "actor":  "Scurry",
+                         "item":  "Dragon Head - Level 3-1",
+                         "currentLevel":  3,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:power",
+                                       "3:stoneFunction"
+                                   ]
+                     },
+                     {
+                         "actor":  "Scurry",
+                         "item":  "Serpent Scales - Level 2-1",
+                         "currentLevel":  2,
+                         "useAuthoredLevelProgression":  false,
+                         "picks":  [
+                                       "1:power",
+                                       "2:power",
+                                       "3:stoneFunction"
+                                   ]
+                     }
+                 ],
+    "X4_provenanceFlags":  [
+                               {
+                                   "actor":  "Alaris",
+                                   "itemId":  "Bv6OPz3fU1IzAb0p",
+                                   "item":  "Moonlight Greatsword - Level 2-1",
+                                   "echoArtifactKey":  "moonlightGreatsword",
+                                   "echoKey":  "",
+                                   "nodeId":  "moonlightGreatsword-l1",
+                                   "childIds":  [
+                                                    "moonlightGreatsword-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "moonlightGreatsword-l2",
+                                   "artifactActivated":  true,
+                                   "echoBound":  null,
+                                   "echoBoundType":  null,
+                                   "echoLocked":  null
+                               },
+                               {
+                                   "actor":  "Alaris",
+                                   "itemId":  "fBKJdsvWKNEXH3Zn",
+                                   "item":  "Soul Sigil - Level 3-1",
+                                   "echoArtifactKey":  "soulSigil",
+                                   "echoKey":  "",
+                                   "nodeId":  "soulSigil-l1",
+                                   "childIds":  [
+                                                    "soulSigil-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "soulSigil-l3",
+                                   "artifactActivated":  true,
+                                   "echoBound":  null,
+                                   "echoBoundType":  null,
+                                   "echoLocked":  null
+                               },
+                               {
+                                   "actor":  "Alaris",
+                                   "itemId":  "4UfdSf0d4CpJOtQ6",
+                                   "item":  "Elorian Stride - Level 2-1",
+                                   "echoArtifactKey":  "elorianStride",
+                                   "echoKey":  "elorians",
+                                   "nodeId":  "elvenStrideAir-l1",
+                                   "childIds":  [
+                                                    "elvenStrideAir-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "elorianStride-l2",
+                                   "artifactActivated":  true,
+                                   "echoBound":  true,
+                                   "echoBoundType":  "Boolean",
+                                   "echoLocked":  true
+                               },
+                               {
+                                   "actor":  "Lor-Keth",
+                                   "itemId":  "lSqKokGmDKKkzyNX",
+                                   "item":  "Lor-Keth\u0027s Staff - Level 3-1",
+                                   "echoArtifactKey":  "lorKethsStaff",
+                                   "echoKey":  "",
+                                   "nodeId":  "lorKethsStaff-l1",
+                                   "childIds":  [
+                                                    "lorKethsStaff-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "lorKethsStaff-l3",
+                                   "artifactActivated":  true,
+                                   "echoBound":  null,
+                                   "echoBoundType":  null,
+                                   "echoLocked":  null
+                               },
+                               {
+                                   "actor":  "Lor-Keth",
+                                   "itemId":  "lVEhzTR1AvkERGQZ",
+                                   "item":  "Titan Scars - Level 2-1",
+                                   "echoArtifactKey":  "titanScarsIntellect",
+                                   "echoKey":  "titanborn",
+                                   "nodeId":  "titanScarsIntellect-l1",
+                                   "childIds":  [
+                                                    "titanScarsIntellect-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "titanScarsIntellect-l2",
+                                   "artifactActivated":  true,
+                                   "echoBound":  true,
+                                   "echoBoundType":  "Boolean",
+                                   "echoLocked":  true
+                               },
+                               {
+                                   "actor":  "Oda",
+                                   "itemId":  "8r9HN3QskMxD7otJ",
+                                   "item":  "Staff of the Dark - Level 3-1",
+                                   "echoArtifactKey":  "staffOfTheDark",
+                                   "echoKey":  "",
+                                   "nodeId":  "staffOfTheDark-l1",
+                                   "childIds":  [
+                                                    "staffOfTheDark-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "staffOfTheDark-l3",
+                                   "artifactActivated":  true,
+                                   "echoBound":  null,
+                                   "echoBoundType":  null,
+                                   "echoLocked":  null
+                               },
+                               {
+                                   "actor":  "Oda",
+                                   "itemId":  "txIhgwhCWO6wltd2",
+                                   "item":  "Shadowgrave Armor - Level 2-1",
+                                   "echoArtifactKey":  "shadowgraveArmor",
+                                   "echoKey":  "",
+                                   "nodeId":  "shadowgraveArmor-l1",
+                                   "childIds":  [
+                                                    "shadowgraveArmor-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "shadowgraveArmor-l2",
+                                   "artifactActivated":  true,
+                                   "echoBound":  null,
+                                   "echoBoundType":  null,
+                                   "echoLocked":  null
+                               },
+                               {
+                                   "actor":  "Oda",
+                                   "itemId":  "ATcQZSwEr33TzUBz",
+                                   "item":  "Lantern of the Hollow Star - Level 2-1",
+                                   "echoArtifactKey":  "lanternOfTheHollowStar",
+                                   "echoKey":  "",
+                                   "nodeId":  "lanternOfTheHollowStar-l1",
+                                   "childIds":  [
+                                                    "lanternOfTheHollowStar-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "lanternOfTheHollowStar-l2",
+                                   "artifactActivated":  true,
+                                   "echoBound":  null,
+                                   "echoBoundType":  null,
+                                   "echoLocked":  null
+                               },
+                               {
+                                   "actor":  "Scurry",
+                                   "itemId":  "VU2NRXG9O0SlnW8b",
+                                   "item":  "Dragon Claws - Level 3-1",
+                                   "echoArtifactKey":  "dragonClaws",
+                                   "echoKey":  "dragonborn",
+                                   "nodeId":  "dragonClaws-l1",
+                                   "childIds":  [
+                                                    "dragonClaws-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "dragonClaws-l3",
+                                   "artifactActivated":  true,
+                                   "echoBound":  true,
+                                   "echoBoundType":  "Boolean",
+                                   "echoLocked":  true
+                               },
+                               {
+                                   "actor":  "Scurry",
+                                   "itemId":  "IqH2PUiBdJzevU5Q",
+                                   "item":  "Dragon Head - Level 3-1",
+                                   "echoArtifactKey":  "dragonHead",
+                                   "echoKey":  "dragonborn",
+                                   "nodeId":  "dragonHead-l1",
+                                   "childIds":  [
+                                                    "dragonHead-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "dragonHead-l3",
+                                   "artifactActivated":  true,
+                                   "echoBound":  true,
+                                   "echoBoundType":  "Boolean",
+                                   "echoLocked":  true
+                               },
+                               {
+                                   "actor":  "Scurry",
+                                   "itemId":  "YKYNcATGmbUS7yEL",
+                                   "item":  "Serpent Scales - Level 2-1",
+                                   "echoArtifactKey":  "wyrmScalesLight",
+                                   "echoKey":  "dragonborn",
+                                   "nodeId":  "wyrmScalesLight-l1",
+                                   "childIds":  [
+                                                    "wyrmScalesLight-l2"
+                                                ],
+                                   "isRoot":  true,
+                                   "seedVersion":  57,
+                                   "evolutionNodeId":  "wyrmScalesLight-l2",
+                                   "artifactActivated":  true,
+                                   "echoBound":  true,
+                                   "echoBoundType":  "Boolean",
+                                   "echoLocked":  true
+                               }
+                           ],
+    "N1_seedVersion":  {
+                           "worldArtifactSeedVersions":  [
+                                                             {
+                                                                 "seedVersion":  57,
+                                                                 "count":  11
+                                                             }
+                                                         ],
+                           "compendiumSeedVersions":  [
+                                                          {
+                                                              "seedVersion":  60,
+                                                              "count":  220
+                                                          }
+                                                      ],
+                           "builderSeedVersion":  60,
+                           "compendiumEchoBoundSample":  [
+                                                             {
+                                                                 "name":  "Root Staff - Level 7-1",
+                                                                 "echoBound":  "unbound"
+                                                             },
+                                                             {
+                                                                 "name":  "Judicator Frame - Level 5-1",
+                                                                 "echoBound":  "sentinels"
+                                                             },
+                                                             {
+                                                                 "name":  "Sentinel Frame - Level 1-1",
+                                                                 "echoBound":  "sentinels"
+                                                             },
+                                                             {
+                                                                 "name":  "Green Warden Mantle - Level 7-1",
+                                                                 "echoBound":  "unbound"
+                                                             },
+                                                             {
+                                                                 "name":  "Stonebound Soles - Level 7-1",
+                                                                 "echoBound":  "dwarfs"
+                                                             }
+                                                         ]
+                       },
+    "P1_packVsWorld_dragonHeadL1":  {
+                                        "world":  {
+                                                      "level":  1,
+                                                      "name":  "Breath Weapon I",
+                                                      "powerTemplateId":  "active-melee-weapon-aoe",
+                                                      "artifactFunctionId":  "dragon-breath",
+                                                      "rank":  4
+                                                  },
+                                        "pack":  {
+                                                     "level":  1,
+                                                     "name":  "Breath Weapon I",
+                                                     "powerTemplateId":  "active-melee-weapon-aoe",
+                                                     "artifactFunctionId":  null,
+                                                     "rank":  null
+                                                 }
+                                    },
+    "W1_runtimeEvidence":  {
+                               "worldRowL1":  {
+                                                  "level":  1,
+                                                  "name":  "Titan Growth I",
+                                                  "type":  "Active Buff",
+                                                  "powerTemplateId":  "ab-armor-temp-hp",
+                                                  "artifactFunctionId":  null,
+                                                  "rank":  null
+                                              },
+                               "tokenArtifactRestUses":  {
+                                                             "titanGrowth":  3
+                                                         },
+                               "baseActorArtifactRestUses":  null,
+                               "legacyNameRoutingCode":  [
+                                                             "src/radial-menu/artifact-options.ts:62-64 (powerTemplateId ab-armor-temp-hp -\u003e activeBuff -\u003e slot utility)",
+                                                             "src/token-action-selector.ts:1695-1713 (/titan\\s*growth/i on option.name -\u003e activateArtifactActiveBuff)",
+                                                             "src/utils/artifact-active-buffs.ts:207-219 (/titan\\s*growth/i -\u003e activateTitanGrowth)",
+                                                             "src/combat/transformation-growth.ts:326-329 (spendArtifactRestUse titanGrowth)"
+                                                         ],
+                               "interpretation":  "Stored identity = Active Buff Armor+TempHP; legacy runtime = Transformation Growth by name; token has 3 titanGrowth rest uses spent. Behavior-changing under ID routing. Past activations themselves are not proven by the export (R-19)."
+                           },
+    "W4_tokenRuntimeFlags":  [
+                                 {
+                                     "sceneId":  "xW8wvYRpnmKAMEGB",
+                                     "tokenId":  "5G4UdMVxvkBRFE37",
+                                     "name":  "Scurry",
+                                     "flagKeys":  [
+                                                      "phasingCharges"
+                                                  ],
+                                     "phasingMax":  1,
+                                     "phasingCurrent":  1,
+                                     "phasingCombatId":  "YWZQ8LsnXVkQUGaH",
+                                     "artifactRestUses":  null
+                                 },
+                                 {
+                                     "sceneId":  "GbqpEJ08LXtTMrea",
+                                     "tokenId":  "AsAPwwnYUqqucIdd",
+                                     "name":  "Alaris",
+                                     "flagKeys":  [
+                                                      "phasingChargesPending",
+                                                      "phasingCharges",
+                                                      "msActiveBuffEmpowermentUsed"
+                                                  ],
+                                     "phasingMax":  0,
+                                     "phasingCurrent":  0,
+                                     "phasingCombatId":  "",
+                                     "artifactRestUses":  null
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "ATGMwp0AG1q5Irxm",
+                                     "name":  "Aldren",
+                                     "flagKeys":  [
+                                                      "statusJson",
+                                                      "specialRoundApps"
+                                                  ],
+                                     "phasingMax":  null,
+                                     "phasingCurrent":  null,
+                                     "phasingCombatId":  null,
+                                     "artifactRestUses":  null
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "vKXhgx2dDwX7UEis",
+                                     "name":  "Vaelor",
+                                     "flagKeys":  [
+                                                      "statusJson",
+                                                      "specialRoundApps"
+                                                  ],
+                                     "phasingMax":  null,
+                                     "phasingCurrent":  null,
+                                     "phasingCombatId":  null,
+                                     "artifactRestUses":  null
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "qFEPjuMyiaA3xTtJ",
+                                     "name":  "Morcant",
+                                     "flagKeys":  [
+                                                      "statusJson",
+                                                      "specialRoundApps"
+                                                  ],
+                                     "phasingMax":  null,
+                                     "phasingCurrent":  null,
+                                     "phasingCombatId":  null,
+                                     "artifactRestUses":  null
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "wG4djqMoANxj0TWa",
+                                     "name":  "Alaris",
+                                     "flagKeys":  [
+                                                      "phasingChargesPending",
+                                                      "phasingCharges",
+                                                      "msActiveBuffEmpowermentUsed",
+                                                      "artifactRestUses"
+                                                  ],
+                                     "phasingMax":  0,
+                                     "phasingCurrent":  0,
+                                     "phasingCombatId":  "",
+                                     "artifactRestUses":  {
+                                                              "moonlightJudgment":  1
+                                                          }
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "uWNkQ0l833x2HR87",
+                                     "name":  "Lor-Keth",
+                                     "flagKeys":  [
+                                                      "statusJson",
+                                                      "specialRoundApps",
+                                                      "naturalSpecialRecovery",
+                                                      "artifactRestUses"
+                                                  ],
+                                     "phasingMax":  null,
+                                     "phasingCurrent":  null,
+                                     "phasingCombatId":  null,
+                                     "artifactRestUses":  {
+                                                              "titanGrowth":  3
+                                                          }
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "L5cRVPbHsCtBdDwB",
+                                     "name":  "Oda",
+                                     "flagKeys":  [
+                                                      "statusJson",
+                                                      "phasingCharges"
+                                                  ],
+                                     "phasingMax":  0,
+                                     "phasingCurrent":  0,
+                                     "phasingCombatId":  "",
+                                     "artifactRestUses":  null
+                                 },
+                                 {
+                                     "sceneId":  "NwpxJf6a5palklSk",
+                                     "tokenId":  "FmumkQB2hsjg8X0P",
+                                     "name":  "Scurry",
+                                     "flagKeys":  [
+                                                      "phasingCharges",
+                                                      "artifactRestUses",
+                                                      "statusJson",
+                                                      "specialRoundApps",
+                                                      "naturalSpecialRecovery"
+                                                  ],
+                                     "phasingMax":  1,
+                                     "phasingCurrent":  1,
+                                     "phasingCombatId":  "YWZQ8LsnXVkQUGaH",
+                                     "artifactRestUses":  {
+                                                              "dragonBreath":  1
+                                                          }
+                                 }
+                             ],
+    "tokenItemDelta":  [
+                           {
+                               "sceneId":  "xW8wvYRpnmKAMEGB",
+                               "tokenId":  "5G4UdMVxvkBRFE37",
+                               "name":  "Scurry",
+                               "tokenItems":  9,
+                               "baseItems":  9,
+                               "extra":  [
+
+                                         ]
+                           },
+                           {
+                               "sceneId":  "GbqpEJ08LXtTMrea",
+                               "tokenId":  "AsAPwwnYUqqucIdd",
+                               "name":  "Alaris",
+                               "tokenItems":  12,
+                               "baseItems":  11,
+                               "extra":  [
+                                             "0YtY7XW6YlETpypi Passive: Restoration (passive-regeneration r4)"
+                                         ]
+                           },
+                           {
+                               "sceneId":  "NwpxJf6a5palklSk",
+                               "tokenId":  "wG4djqMoANxj0TWa",
+                               "name":  "Alaris",
+                               "tokenItems":  11,
+                               "baseItems":  11,
+                               "extra":  [
+
+                                         ]
+                           },
+                           {
+                               "sceneId":  "NwpxJf6a5palklSk",
+                               "tokenId":  "uWNkQ0l833x2HR87",
+                               "name":  "Lor-Keth",
+                               "tokenItems":  9,
+                               "baseItems":  9,
+                               "extra":  [
+
+                                         ]
+                           },
+                           {
+                               "sceneId":  "NwpxJf6a5palklSk",
+                               "tokenId":  "L5cRVPbHsCtBdDwB",
+                               "name":  "Oda",
+                               "tokenItems":  10,
+                               "baseItems":  10,
+                               "extra":  [
+
+                                         ]
+                           },
+                           {
+                               "sceneId":  "NwpxJf6a5palklSk",
+                               "tokenId":  "FmumkQB2hsjg8X0P",
+                               "name":  "Scurry",
+                               "tokenItems":  9,
+                               "baseItems":  9,
+                               "extra":  [
+
+                                         ]
+                           }
+                       ],
+    "effects":  [
+                    {
+                        "owner":  "token:Alaris@NwpxJf6a5palklSk",
+                        "id":  "ZkCM7X96CZheNa1E",
+                        "name":  "Evade",
+                        "powerTemplateId":  "ab-evade",
+                        "masteryRank":  3,
+                        "artifactActiveBuff":  null
+                    },
+                    {
+                        "owner":  "token:Oda@NwpxJf6a5palklSk",
+                        "id":  "49T674Of48B8kFdw",
+                        "name":  "Active Buff: Special Overdrive",
+                        "powerTemplateId":  "ab-special-overdrive",
+                        "masteryRank":  3,
+                        "artifactActiveBuff":  null
+                    },
+                    {
+                        "owner":  "token:Scurry@NwpxJf6a5palklSk",
+                        "id":  "oUOBU17ZXc180bL3",
+                        "name":  "Serpent Evasion I",
+                        "powerTemplateId":  "ab-evade",
+                        "masteryRank":  3,
+                        "artifactActiveBuff":  true
+                    }
+                ]
+}

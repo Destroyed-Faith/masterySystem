@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.828] - 2026-11-05
+
+### Fixed
+
+- **R-17 radial identity mismatches:** Consumable radial options propagate Minor Magic `snapshot.templateId`; artifact Movement options keep `artifactPowerTemplateId`; Ruin Breath keeps K3 `dragon-breath` + `active-melee-weapon-aoe` (ruin-only via mode flags, not by clearing templateId).
+
+### Added
+
+- **Forge Reality Audit V2:** `FORGE_REALITY_AUDIT_PRE_K8_V2.md` + evidence JSON; R-17 live shadow analysis (§7.1) and regression tests (`tests/r17-radial-identity-mismatches.test.ts`).
+
+### Notes
+
+- W1 / Titan Growth still deferred. No K8 cutover, no K9 pack rebuild, no Forge world writes.
+
 ## [0.9.827] - 2026-11-05
 
 ### Added

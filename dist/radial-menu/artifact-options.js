@@ -332,6 +332,12 @@ export function buildArtifactRadialOptions(actor) {
                     tags: ['artifact', typeTag],
                     costsMovement: true,
                     costsAction: false,
+                    // R-17: identity path needs structured row ids (e.g. movement-flight,
+                    // movement-wall-walk). Omitting them produced missing-identity shadows.
+                    artifactRowLevel: lvl,
+                    artifactPowerTemplateId: row.powerTemplateId || undefined,
+                    artifactFunctionId: row.artifactFunctionId || undefined,
+                    rank: row.rank,
                 });
                 continue;
             }
@@ -533,6 +539,9 @@ export function buildArtifactRadialOptions(actor) {
                     forcedWeaponItemId: item.id,
                     artifactRowSpecial: '',
                 };
+                // Keep K3 identity (`dragon-breath` + requiresTemplateId). Ruin-only /
+                // no-damage behaviour is carried by dragonHeadBreathMode + ignoreWeaponDamage
+                // + cleared forcedWeapon — not by stripping the templateId (R-17).
                 const ruinOpt = {
                     ...option,
                     id: `${id}:ruin`,
@@ -552,7 +561,6 @@ export function buildArtifactRadialOptions(actor) {
                     dragonHeadDamageBreath: false,
                     dragonHeadBreathMode: 'ruin',
                     forcedWeaponItemId: undefined,
-                    artifactPowerTemplateId: undefined,
                     artifactRowSpecial: `Ruin(${ruinV})`,
                 };
                 out.push(damageOpt);

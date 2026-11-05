@@ -265,6 +265,10 @@ export function buildConsumableAttackOption(actor, item) {
     const badge = localizeConsumable('MASTERY.consumable.badge', 'Consumable');
     const powerName = snapshot?.powerName || '';
     const displayName = powerName ? `${item.name} (${powerName})` : String(item.name || badge);
+    // Canonical identity from the Minor Magic snapshot (R-17): without templateId the
+    // radial shadow path reports missing-identity even though the stored power is known.
+    const templateId = snapshot?.templateId ? String(snapshot.templateId).trim() : '';
+    const powerLevel = snapshot?.powerLevel ?? snapshot?.definitionRank ?? null;
     return {
         id: `consumable-${item.id}`,
         name: `${badge}: ${displayName}`,
@@ -279,11 +283,15 @@ export function buildConsumableAttackOption(actor, item) {
             img: item.img,
             type: 'power',
             system: {
+                templateId: templateId || undefined,
+                templateName: snapshot?.templateName || undefined,
                 powerType: 'active',
-                category: 'active',
+                category: snapshot?.category || 'active',
                 isSpell: snapshot?.isSpell ?? false,
                 castingAttribute: snapshot?.castingAttribute,
-                level: snapshot?.powerLevel,
+                level: powerLevel,
+                rank: powerLevel,
+                chosenSpecialKey: snapshot?.chosenSpecialKey || undefined,
                 specials: snapshotSpecialsList(snapshot),
                 roll: {
                     damage: snapshot?.damage && snapshot.damage !== '—' ? snapshot.damage : '',
@@ -301,6 +309,7 @@ export function buildConsumableAttackOption(actor, item) {
         consumableItemId: String(item.id || ''),
         storedAttackPool: snapshot?.attackPool ?? null,
         ignoreWeaponDamage: true,
+        rank: powerLevel != null ? Number(powerLevel) : undefined,
         powerData: {
             specials: snapshotSpecialsList(snapshot),
             damage: snapshot?.damage && snapshot.damage !== '—' ? snapshot.damage : '',

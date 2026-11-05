@@ -22,7 +22,7 @@ import { buildArtifactRadialOptions } from './artifact-options.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
-import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
+import { buildConsumableRadialOptions, isConsumableCombatOption, } from '../utils/consumable-slots.js';
 import { getActiveAmmoPair, quiverAmmunitionLabel } from '../utils/ammunition.js';
 function meleeReachBonusMeters(actor) {
     return getStoneAreaBonusMeters(actor, 'reach') + (readGrowthFormRider(actor)?.reachBonusM ?? 0);
@@ -598,7 +598,7 @@ function legacySegmentIdForOption(option) {
             if (id.ok && id.category === 'activeBuff' && powerCostPaysAction(cost)) {
                 return 'active-buff';
             }
-            // Identity resolved to non-buff: do not consult textSuggestsActiveBuff.
+            // Identity resolved to non-buff: do not consult legacy name/description heuristics.
         }
         else {
             // Legacy items without templateId: keep prior text heuristic until migrated (E).
@@ -647,6 +647,11 @@ export function getSegmentIdForOption(option) {
         const id = resolvePowerIdentity({ kind: 'radial-option', option });
         if (!id.ok)
             return { kind: 'unresolved', reason: id.reason, legacy };
+        // Consumables spend an Attack Action and are attack-slotted by design
+        // (`buildConsumableAttackOption.slot = 'attack'`), even when the stored
+        // power is a heal/support template. Structured check via consumableItemId/tag.
+        if (isConsumableCombatOption(option))
+            return 'attack';
         if (id.category === 'activeBuff')
             return 'active-buff';
         if (id.category === 'movement')

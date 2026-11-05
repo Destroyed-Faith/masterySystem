@@ -148,6 +148,9 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
             range: 'Self',
             aoe: 'Damage: Cone 3 m / Ruin: Cone 3 m',
             effect: 'Damage Breath or Ruin Breath',
+            powerTemplateId: 'active-melee-weapon-aoe',
+            artifactFunctionId: 'dragon-breath',
+            rank: 4,
           },
         ],
       },
@@ -162,10 +165,16 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(damage?.ignoreWeaponDamage).toBe(false);
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('dh2');
+    expect(damage?.artifactPowerTemplateId).toBe('active-melee-weapon-aoe');
+    expect(damage?.artifactFunctionId).toBe('dragon-breath');
     expect(ruin?.aoeShape).toBe('cone');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
     expect(ruin?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
     expect(ruin?.forcedWeaponItemId).toBeUndefined();
+    // R-17: Ruin keeps K3 identity; ruin-only via mode flags, not by clearing templateId.
+    expect(ruin?.artifactPowerTemplateId).toBe('active-melee-weapon-aoe');
+    expect(ruin?.artifactFunctionId).toBe('dragon-breath');
+    expect((ruin as any)?.dragonHeadBreathMode).toBe('ruin');
     expect(opts.some((option) => option.id === 'natural-weapon-select:dh2')).toBe(false);
     expect(opts.some((option) => option.id.startsWith('artifact-weapon:'))).toBe(false);
   });

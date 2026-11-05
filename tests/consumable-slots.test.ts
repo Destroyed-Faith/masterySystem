@@ -284,6 +284,12 @@ describe('stored power payload', () => {
     expect(option.powerData.specials).toEqual(['bleed(2)']);
     expect(option.item.system.effect).toBe('One melee attack.');
   });
+
+  it('18b. R-17: snapshot.templateId propagates onto the radial option', () => {
+    const option = buildConsumableAttackOption(actorStub(2), consumableItem('c1', 0));
+    expect(option.item.system.templateId).toBe('active-melee-damage-t3');
+    expect(option.item.system.rank).toBe(3);
+  });
 });
 
 describe('persistence and localization', () => {
