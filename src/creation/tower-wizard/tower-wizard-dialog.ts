@@ -844,6 +844,7 @@ export class TowerWizardDialog extends BaseDialog {
             const opt = select.find('option:selected');
             const name = String(opt.val() || '');
             const scope = String(opt.data('scope') || '');
+            const category = String(opt.data('category') || '');
             const row = select.closest('.js-tw-spec-row');
             row.find('.js-tw-spec-preview').text(
                 name ? (scope ? `${name}: ${scope}` : name) : 'Pick a suggestion to preview its example scope.',
@@ -852,17 +853,19 @@ export class TowerWizardDialog extends BaseDialog {
             if (scope && !String(row.find('[data-prop="scope"]').val() || '').trim()) {
                 row.find('[data-prop="scope"]').val(scope);
             }
+            row.attr('data-category', category);
             row.find('.js-tw-spec-input').trigger('change');
         });
 
         root.find('.js-tw-spec-input').on('change input', () => {
-            const rows: Array<{ name?: string; origin?: string; scope?: string }> = [];
+            const rows: Array<{ name?: string; origin?: string; scope?: string; category?: string }> = [];
             root.find('.js-tw-spec-row').each((_i, el) => {
                 const row = $(el);
                 rows.push({
                     name: String(row.find('[data-prop="name"]').val() ?? ''),
                     origin: String(row.find('[data-prop="origin"]').val() ?? ''),
                     scope: String(row.find('[data-prop="scope"]').val() ?? ''),
+                    category: String(row.attr('data-category') || ''),
                 });
             });
             const records = specRecordsFromDraft(rows);

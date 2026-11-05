@@ -433,7 +433,7 @@ export async function promptSkillCheckRollDialog(opts) {
                     const advLabel = root.querySelector('.ms-sc-advantage-label');
                     if (advLabel) {
                         advLabel.textContent = plan.ok
-                            ? `Skill Advantage: ${skillAdvantageLabel(plan.rank)}`
+                            ? `Training Advantage: ${skillAdvantageLabel(plan.rank)}`
                             : '';
                     }
                     const critGroup = root.querySelector('.ms-sc-crit-group');
@@ -448,7 +448,7 @@ export async function promptSkillCheckRollDialog(opts) {
                     if (critHint) {
                         critHint.textContent =
                             plan.ok && plan.skillCritDailyAllowance > 0
-                                ? `Skill Crit ${plan.skillCritDailyAllowance}/day · ${critLeft} remaining`
+                                ? `Training Crit ${plan.skillCritDailyAllowance}/day · ${critLeft} remaining`
                                 : '';
                     }
                     if (critRemaining) {
@@ -456,7 +456,7 @@ export async function promptSkillCheckRollDialog(opts) {
                             critLeft > 0
                                 ? `${critLeft} use${critLeft === 1 ? '' : 's'} remaining today`
                                 : plan.skillCritDailyAllowance > 0
-                                    ? 'No Skill Crit uses remaining today'
+                                    ? 'No Training Crit uses remaining today'
                                     : '';
                     }
                     if (critCheck) {

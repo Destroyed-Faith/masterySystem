@@ -1572,8 +1572,7 @@ Start with the character's intended playstyle, then place the fixed values where
 
 *"Your past tells us what you might know. Your method tells us which Attribute you use."*
 
-<!-- Handbook note: the bold sentence below is printed as supplied in the K8 source. "narrow player Professions" reads as a substitution for "Skills" and was not rewritten. -->
-A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow player Professions.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
+A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow player Skills.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
 
 A player describes their method and explains how a Profession helps. The GM decides whether that link is credible and selects a relevant **Attribute**; professions never prescribe fixed Attributes. A broad title must have an agreed concrete scope: *Assassin - worked as a quiet contract killer in Karaveth* is useful; *Good at Everything* is not.
 
@@ -1597,22 +1596,400 @@ Choose **Standard** if no capable active opponent contests the task. Choose **Co
 | Rank | Training | Training Advantage | Training Crit (per Tyhran Day) |
 |:--:|---|---|:--:|
 | **0** | Untrained | **Disadvantage**; no Training Advantage | - |
-| **1** | Novice | Normal Training Roll | - |
-| **2** | Apprentice | May reroll initial **1s** | - |
-| **3** | Trained | May reroll initial **1s-2s** | - |
-| **4** | Professional | May reroll initial **1s-3s** | - |
-| **5** | Expert | May reroll initial **1s-3s** | **1 use** |
-| **6** | Master | May reroll initial **1s-4s** | **1 use** |
-| **7** | Grandmaster | May reroll initial **1s-5s** | **1 use** |
-| **8** | Legendary | May reroll initial **1s-5s** | **2 uses** |
+| **1** | Novice | May reroll initial **1s** | - |
+| **2** | Apprentice | May reroll initial **1s-2s** | - |
+| **3** | Trained | May reroll initial **1s-3s** | - |
+| **4** | Professional | May reroll initial **1s-4s** | - |
+| **5** | Expert | May reroll initial **1s-5s** | - |
+| **6** | Master | May reroll initial **1s-6s** | - |
+| **7** | Grandmaster | May reroll initial **1s-6s** | **1 use** |
+| **8** | Legendary | May reroll initial **1s-6s** | **2 uses** |
 
 **Training Advantage:** On a Training Roll using one relevant learned Profession, or Perception, you may reroll **any or all initial Pool dice** within the Rank's listed range. **Each die can be rerolled only once**, and the new result must be kept. Apply Training Advantage **before resolving natural explosions and Keep**; explosion-only dice cannot be rerolled by Training Advantage. Other ordinary Advantage sources do not permit a second reroll of a die already rerolled this way. Natural **8s** explode normally.
 
-**Training Crit:** At Rank 5 or higher, designate a Training Roll using that learned Profession or Perception for **Critical before rolling**. Natural **7s and 8s explode** on that roll, including qualifying explosions. Rank 5-7 provides **one use** and Rank 8 **two uses per Tyhran Day per Profession or Perception**; no carry-over. Training Crit modifies the Training Roll, not Damage Dice, and cannot stack with another Critical source on the same roll. Separately imposed Disadvantage still limits eligible exploding dice. In a Comparative Training Check, both sides declare Training Crit before either result is revealed.
+**Training Crit:** At Rank 7 or higher, designate a Training Roll using that learned Profession or Perception for **Critical before rolling**. Natural **7s and 8s explode** on that roll, including qualifying explosions. Rank 7 provides **one use** and Rank 8 **two uses per Tyhran Day per Profession or Perception**; no carry-over. Training Crit modifies the Training Roll, not Damage Dice, and cannot stack with another Critical source on the same roll. Separately imposed Disadvantage still limits eligible exploding dice. In a Comparative Training Check, both sides declare Training Crit before either result is revealed.
 
 **Untrained:** If no Profession or Perception applies, roll full **Attribute k MR** with **Disadvantage** (only one eligible die may explode), **no Training Advantage, no Training Crit, and no Raises**. Untrained attempts are not prohibited merely for lacking a named occupation.
 
+### Beta Profession Respec (Optional)
+
+A GM may enable the World Setting **Allow Profession Respec (Beta)**. While it is on, a player may freely replace or edit one of their **four free starting Professions** — choosing another catalogue Profession or a custom Profession, and editing name, origin/background, description/scope, and category — while **keeping the existing Rank and invested XP**. Example: Burglar Rank 5 becomes Blacksmith Rank 5 at no XP cost. Perception is never changed. Disabling the setting blocks free replacement but does not block normal XP advancement. Existing characters and legacy migrations remain safe; the four starting slots are preserved without duplicating records.
+
+
 }}
+
+
+## Profession Examples (Approved Catalogue)
+
+The following ninety examples are suggestions only — never a whitelist. Characters may always invent a custom Profession with an agreed scope.
+
+### Trades
+
+Professions are lived experience, not a closed skill list. Choose four at Rank 2, plus Perception at Rank 2 for free. 
+
+{{df-professions-columns
+
+{{df-professions-column
+
+**Blacksmith:**  
+You can forge and repair iron tools, judge the quality of metalwork, and recognize the marks left by faulty tools or unusual workshop methods.
+
+**Armorer:**  
+You understand how armor is made, fitted, maintained, and repaired, and can recognize weak joints, damaged plates, or an unfamiliar style of protection.
+
+**Carpenter:**  
+You can build or repair wooden structures, assess doors and beams, and spot construction details that might hide an opening or reveal an unsafe building.
+
+**Locksmith:**  
+You understand locks, keys, and their mechanisms, and can examine a damaged lock, repair its parts, or explain how a particular design might be opened.
+
+**Tanner:**  
+You know how hides are prepared and preserved, can identify leatherworking materials, and recognize the smells and residues of a tannery.
+
+**Tailor:**  
+You can cut, fit, and mend clothing, recognize expensive or unusual fabrics, and use the details of a garment to infer its origin or purpose.
+
+**Glassblower:**  
+You know how glass is shaped and cooled, can judge vessels and lenses, and recognize fractures or flaws that may make a glass object dangerous.
+
+**Mason:**  
+You understand stone construction, mortar, and load-bearing walls, and can identify weak joints, recent repairs, or passages concealed within masonry.
+
+**Potter:**  
+You can shape and fire clay vessels, recognize common glazes and kilns, and notice when a container has been resealed or made for a special purpose.
+
+
+}}
+
+{{df-professions-column
+
+**Apothecary:**  
+You know how to prepare and store remedies, handle ingredients, and recognize common preparations, although identifying rare substances may require further investigation.
+
+**Baker:**  
+You know ovens, grains, and food preparation, and can recognize spoiled ingredients, manage a busy bakehouse, or find practical work in an unfamiliar settlement.
+
+**Brewer:**  
+You understand fermentation, brewing vessels, and cellar work, and can judge whether a drink has spoiled, been watered down, or been tampered with.
+
+**Innkeeper:**  
+You know hospitality, supplies, guests, and local gossip, and can judge a traveler's needs or recognize the ordinary routines of a roadside inn.
+
+**Merchant:**  
+You can value familiar goods, negotiate prices, read market behavior, and recognize when a deal, shipment, or contract seems unusually risky.
+
+**Market Broker:**  
+You know how buyers and sellers find one another, can assess market demand, and recognize the customs and middlemen behind local trade.
+
+**Shipwright:**  
+You understand hulls, ribs, rigging supports, and ship repairs, and can assess whether a vessel is seaworthy or has been recently altered.
+
+**Bloodsilver Assayer:**  
+You recognize the methods used to examine Bloodsilver, can inspect marks and measurements, and know which traders or officials normally verify its authenticity.
+
+**Kalgrad Forge Tender:**  
+You know the routines of Kalgrad forges, including fuel, tools, and furnace care, and can recognize interruptions or irregularities in forge operations.
+
+
+}}
+
+}}
+
+\page
+
+### Wilderness
+
+The wilderness rewards familiarity with terrain, weather, beasts, and the rhythms of travel.
+
+{{df-professions-columns
+
+{{df-professions-column
+
+**Woodcutter:**  
+You can fell and split timber safely, read the condition of trees, and find practical routes through working forests and logging grounds.
+
+**Tracker:**  
+You can interpret footprints, broken vegetation, and disturbed earth to estimate where a creature went and how recently it passed.
+
+**Wilderness Scout:**  
+You know how to travel quietly, observe camps from cover, recognize field signs, and return with useful information about difficult ground.
+
+**Forest Guide:**  
+You understand woodland landmarks, seasonal trails, and local dangers, and can lead travelers around obstacles without relying on a marked road.
+
+**Trapper:**  
+You can set and examine snares, recognize animal habits, and determine whether a trap was disturbed by prey, weather, or another person.
+
+**Hunter:**  
+You know how to stalk game, judge tracks and wind direction, and prepare what you catch without wasting useful resources.
+
+**Herbalist:**  
+You can identify familiar wild plants, gather them without ruining the source, and recognize those that are useful, harmful, or easily confused.
+
+**Falconer:**  
+You understand the care and training of birds of prey, can read their behavior, and recognize the equipment used by professional handlers.
+
+**Beast Handler:**  
+You can safely restrain and transport difficult animals, read warning signs, and improvise practical ways to calm a frightened creature.
+
+
+
+}}
+
+{{df-professions-column
+
+**Marsh Guide:**  
+You know how to find firm ground among reeds and pools, recognize dangerous water, and follow routes that disappear with the seasons.
+
+**Desert Guide:**  
+You can estimate travel needs in arid country, recognize useful landmarks, and judge how heat, sand, or scarce water will affect a journey.
+
+**Pathfinder:**  
+You can select a route through unknown terrain, weigh distance against danger, and recognize signs that a path has recently been used.
+
+**River Forager:**  
+You know riverbanks, reeds, and shallow waters, and can find food or materials while noticing changes in currents and seasonal flooding.
+
+**Cave Explorer:**  
+You understand cave passages, rope work, and underground hazards, and can recognize unstable ground or signs of earlier visitors.
+
+**Ruin Explorer:**  
+You know how to move through damaged structures, identify unsafe surfaces, and distinguish old collapse from signs of recent entry.
+
+**Storm Watcher:**  
+You can read clouds, winds, and changing pressure, and recognize weather patterns that may threaten travel, camps, or exposed settlements.
+
+**Caravan Master:**  
+You can organize supplies and animals for a long journey, judge delays, and identify practical risks along trade routes.
+
+**Astralan Mist Runner:**  
+You know how Astralan routes change in the mist, can follow subtle landmarks, and recognize the hazards of moving where visibility fails.
+
+
+
+}}
+
+}}
+
+\page
+
+### Society
+
+A city's doors open through reputation, persuasion, cunning, or an understanding of its hidden routines.
+
+{{df-professions-columns
+
+{{df-professions-column
+
+**Burglar:**  
+You understand doors, windows, alarms, and escape routes, and can plan a quiet entry or recognize the weak points of a guarded building.
+
+**Cat Burglar:**  
+You are practiced at approaching buildings by roofs, ledges, and upper windows, and can judge handholds and unnoticed routes above street level.
+
+**Pickpocket:**  
+You understand crowded movement, distracting gestures, and the placement of valuables, and can recognize when someone is working a crowd.
+
+**Forger:**  
+You know seals, signatures, and document materials, and can imitate familiar records or spot inconsistencies in suspicious paperwork.
+
+**Smuggler:**  
+You understand hidden cargo, bribery, false declarations, and unofficial routes, and can recognize how goods move beyond ordinary inspection.
+
+**Spy:**  
+You know how to observe without drawing attention, maintain a cover story, and gather information from contacts while protecting your identity.
+
+**Informant:**  
+You understand the trade in rumors and secrets, and can judge whom to approach, what a source wants, and whether information sounds planted.
+
+**Disguise Artist:**  
+You can alter clothing, posture, and presentation, and know which small details make an assumed identity believable to a casual observer.
+
+**Juggler:**  
+You have practiced precise hand movements, public performances, and timed distractions, and can use those skills when a situation rewards coordination.
+
+
+}}
+
+{{df-professions-column
+
+**Courtier:**  
+You know etiquette, favors, titles, and the unspoken rules of court, and can judge how to approach someone without causing offense.
+
+**Herald:**  
+You know coats of arms, formal announcements, and noble lineages, and can recognize ceremonial errors or a claim of questionable status.
+
+**Political Organizer:**  
+You understand meetings, factions, public sentiment, and recruitment, and can build support or recognize who influences a community.
+
+**Street Urchin:**  
+You grew up navigating alleys, shelters, and informal street networks, and know how to find food, information, or a place to hide.
+
+**Beggar:**  
+You understand shelters, charitable habits, and the flow of street life, and may notice details ignored by people who rarely look down.
+
+**Refugee:**  
+You know how to adapt without secure possessions or status, locate practical aid, and understand the pressures within displaced communities.
+
+**Servant:**  
+You understand household routines, deliveries, back entrances, and etiquette, and can recognize when a residence is running differently than usual.
+
+**Hidden Flame Courier:**  
+You understand discreet deliveries, safe houses, and resistance contacts, and know why secrecy and trustworthy routes matter to the Hidden Flame.
+
+**Demon House Steward:**  
+You know the hierarchy and daily routines of a Demon House, and can interpret records, servants' behavior, and changes in household procedure.
+
+}}
+
+}}
+
+\page
+
+### Conflict
+
+These backgrounds represent experience around violence, military structures, and security.
+
+{{df-professions-columns
+
+{{df-professions-column
+
+**City Watchman:**  
+You know patrol routines, local enforcement procedures, and public disturbances, and can recognize when guards or criminals depart from expected behavior.
+
+**Sentry:**  
+You understand watch rotations, fields of view, and alarm procedures, and can judge where an entrance or camp is most vulnerable.
+
+**Patrol Scout:**  
+You are accustomed to moving ahead of armed groups, reading recent traces, and reporting dangers without exposing the main force.
+
+**Mercenary:**  
+You understand paid campaigns, contract obligations, and rough deployments, and know how professional fighting companies recruit and operate.
+
+**Militia Member:**  
+You know local defense drills, musters, and improvised preparations, and can help organize civilians when a settlement faces danger.
+
+**Bodyguard:**  
+You are trained to notice threats to a protected person, assess exits and crowds, and plan safer movement through hostile surroundings.
+
+**Captain:**  
+You understand command structures, orders, and morale, and can coordinate personnel or recognize when a unit is close to breaking down.
+
+**Quartermaster:**  
+You understand supplies, rations, equipment records, and shortages, and can recognize unusual requisitions or prepare a force for a demanding march.
+
+**Gate Guard:**  
+You understand inspections, access records, and common pretexts for entry, and can recognize when a visitor or delivery warrants closer scrutiny.
+
+}}
+
+{{df-professions-column
+
+**Prison Jailer:**  
+You know locks, watch routines, inmate behavior, and secure transfers, and can judge how confinement procedures might be compromised.
+
+**Field Medic:**  
+You are practiced at triage, bandaging, casualty transport, and care under pressure, allowing you to apply the existing medical rules where appropriate.
+
+**Siege Engineer:**  
+You understand fortifications, siege machines, and approaches to defended positions, and can identify structural weaknesses or practical obstacles.
+
+**Military Engineer:**  
+You know bridges, earthworks, field defenses, and logistics, and can assess how terrain or damaged infrastructure affects a campaign.
+
+**Naval Marine:**  
+You are accustomed to shipboard security, boarding routines, and cramped fighting environments, and understand the hazards of armed service at sea.
+
+**Interrogator:**  
+You know interviewing methods, pressure tactics, and inconsistent testimony, and can recognize when a subject is withholding information.
+
+**Bounty Hunter:**  
+You understand warrants, informants, and pursuit routines, and can trace a target through contacts, records, or practical signs of travel.
+
+**Sentinel Signal Keeper:**  
+You understand traditional Sentinel commands, warning signs, and patrol signals, and can recognize when a message or procedure seems incorrect.
+
+**Hidden Flame Quartermaster:**  
+You know how the Hidden Flame hides, distributes, and records supplies, and can recognize the logistical needs of a clandestine cell.
+
+}}
+
+}}
+
+\page
+
+### Knowledge
+
+Knowledge comes from study, observation, and repeated practice. 
+
+{{df-professions-columns
+
+{{df-professions-column
+
+**Physician:**  
+You understand symptoms, diagnosis, and traditional treatment, and can evaluate a patient and apply the existing rules for medical care.
+
+**Surgeon:**  
+You know anatomy, surgical tools, and wound treatment, and can recognize injuries or procedures that require specialist attention.
+
+**Herbal Physician:**  
+You understand medicinal plants and their preparation, and can recognize common remedies, dangerous mixtures, or mistakes in dosage.
+
+**Anatomist:**  
+You have studied the structure of living bodies, and can interpret unusual wounds or identify anatomical details others might overlook.
+
+**Detective:**  
+You know investigative routines, records, and interviews, and can connect scattered clues without assuming that every witness is reliable.
+
+**Forensic Examiner:**  
+You can inspect physical evidence, marks, and remains, and recognize details that suggest how or when an event occurred.
+
+**Scholar:**  
+You know how to consult sources, question claims, and organize research, and can identify which field of knowledge may hold an answer.
+
+**Historian:**  
+You understand chronicles, dates, and competing accounts, and can recognize anachronisms or trace a claim to its earliest known source.
+
+**Archivist:**  
+You know how records are classified, stored, and altered, and can retrieve obscure information or notice gaps in an official archive.
+
+}}
+
+{{df-professions-column
+
+**Linguist:**  
+You understand how languages change and relate, and can analyze unfamiliar grammar, names, or inscriptions without automatically knowing their meaning.
+
+**Cartographer:**  
+You know how to draw and interpret maps, compare distances, and recognize when a chart is inaccurate, incomplete, or deliberately misleading.
+
+**Architect:**  
+You understand plans, building styles, and structural design, and can assess the intended function or weaknesses of a constructed space.
+
+**Astronomer:**  
+You can track celestial movements and calculate observations, and recognize irregularities in calendars, star charts, or recorded night skies.
+
+**Theologian:**  
+You know religious doctrines, debates, and histories, and can distinguish established teachings from local interpretations or deliberate heresy.
+
+**Ritual Assistant:**  
+You understand the preparation, tools, and formal steps of rites you have witnessed, but your background alone does not grant magical powers.
+
+**Omen Interpreter:**  
+You know customary signs, prophecies, and divination traditions, and can explain what an omen would mean to a particular community.
+
+**Velenor Star Reader:**  
+You know Velenor traditions of observing the skies, and can interpret familiar charts and the cultural importance of celestial events.
+
+**Red Priest Scribe:**  
+You know the records, formulas, and terminology used by Red Priest scribes, and can recognize suspicious alterations to familiar documents.
+
+}}
+
+}}
+
+}}
+
 \page
 {{pageNumber,auto}}
 {{wide
@@ -1677,7 +2054,7 @@ Raises improve an outcome already possible with the character's method, tools, a
 
 ### Worked Examples
 
-1. **Blacksmith 4 - Standard:** Craft ordinary nails at Base TN **8**. Declare two Scope Raises (Final TN **16**) for four batches. Use Training Advantage to reroll initial 1s-3s.
+1. **Blacksmith 4 - Standard:** Craft ordinary nails at Base TN **8**. Declare two Scope Raises (Final TN **16**) for four batches. Use Training Advantage to reroll initial 1s-4s.
 2. **Field Medic 4 - Standard:** With **Intellect 4, MR 2**, treat illness at TN **16**. Declare one Safety Raise (Final TN **20**). Roll **4k2** with Training Advantage.
 3. **Burglar vs. Perception - Comparative:** A trained Burglar achieves **24** while a guard gets **21** on Perception. The Burglar's concealed approach succeeds; no other Task TN or Raises apply.
 4. **Forensic Examiner 5 - Standard:** Investigate a disturbed room at TN **16** with two Insight Raises (Final TN **24**), potentially revealing two more supported clues.
@@ -1702,7 +2079,7 @@ A group may attempt **one coordinated Comparative concealment Check** to approac
 4. **Oppose with Perception.** Every observer with a plausible detection cue may make **one Perception Training Roll** using their own Attribute, MR, Training Advantage, and optional Training Crit. Compare it directly to the group's concealment result; a tie favors the observer. Detection remains observer-specific; warnings travel only as the fiction permits.
 5. **Resolve Surprise normally.** When combat begins, participating ambushers gain **Surprise Priority only against enemies who remain unaware of them**, following the existing Surprise rule. Roll Initiative and Initiative Exchange normally. Surprise Priority applies during the first Round only and grants no extra turn or automatic damage bonus.
 
-**Example:** A specialist has **12d8**. Three group members wear Heavy Armor (**-6d8**) and one Medium Armor (**-1d8**), so the group rolls **5k3** at MR 3. If the specialist has **Burglar 6** with a fitting concealment scope, reroll initial 1s-4s through Training Advantage and optionally declare Training Crit. Compare the result to each eligible guard's Perception roll.
+**Example:** A specialist has **12d8**. Three group members wear Heavy Armor (**-6d8**) and one Medium Armor (**-1d8**), so the group rolls **5k3** at MR 3. If the specialist has **Burglar 6** with a fitting concealment scope, reroll initial 1s-6s through Training Advantage. Training Crit is unavailable below Rank 7. Compare the result to each eligible guard's Perception roll.
 
 **Limits:** Only characters actually following the same feasible coordinated plan are covered. Characters taking an independent route or revealing themselves require separate resolution. A group ambush roll covers the agreed approach and coherent, careful movement along that plan. **There is no fixed distance limit on Stealth.** Overt hostile actions or abandoning the agreed concealment can end ordinary Stealth; a material change of circumstances may require a new attempt. Do not demand repeated rolls merely for continued movement or against unchanged opposition.
 
@@ -3787,7 +4164,7 @@ All Deathless hear the call. It is not always a voice. Sometimes it is a road se
 
 ### One Conversation — A City Gate
 
-The captain listens to a traveler requesting entry. The GM sets **Task Level 4 (Base TN 16)**. A negotiator with **Courtier 4, Influence 4, MR 2** declares **one Quality Raise**, raising the **Final TN to 20**. They roll **4k2**, rerolling eligible initial 1s–3s through Training Advantage. An outcome of **22** succeeds and secures the plausible assurance of future entry. **15** fails. There are **no additional Free Raises**. A fundamentally different offer may justify a new attempt; repeating the same pitch endlessly does not.
+The captain listens to a traveler requesting entry. The GM sets **Task Level 4 (Base TN 16)**. A negotiator with **Courtier 4, Influence 4, MR 2** declares **one Quality Raise**, raising the **Final TN to 20**. They roll **4k2**, rerolling eligible initial 1s–4s through Training Advantage. An outcome of **22** succeeds and secures the plausible assurance of future entry. **15** fails. There are **no additional Free Raises**. A fundamentally different offer may justify a new attempt; repeating the same pitch endlessly does not.
 
 }}
 \page
@@ -6094,7 +6471,7 @@ Attributes retain the compressed **1–40** scale. Professions use **Training Ra
 | **7** | **14 XP** | **58 XP** |
 | **8** | **16 XP** | **74 XP** |
 
-**Character creation is unchanged:** Five Professions start at Rank 2 using **20 Profession Creation Points**; Perception starts at Rank 2 for free. Creation Points and earned XP are separate budgets.
+**Character creation:** Choose **four free Professions at Rank 2**, plus **Perception Rank 2 for free**. There is no Profession Creation Point pool. Additional Professions are learned later through XP. Creation budgets and earned XP remain separate.
 
 | **New Attribute Value** | **Attribute Cost / +1** |
 |:--:|:--:|
@@ -6109,7 +6486,7 @@ Attributes retain the compressed **1–40** scale. Professions use **Training Ra
 | **33–36** | **18 XP** |
 | **37–40** | **20 XP** |
 
-Attributes determine the number of dice in the Pool; Mastery Rank determines Keep. Profession Ranks never add dice or flat bonuses: they improve Training Rolls through **Training Advantage** (Rank 2: reroll initial 1s; Rank 3: 1s-2s; Rank 4-5: 1s-3s; Rank 6: 1s-4s; Rank 7-8: 1s-5s) and **Training Crit** (one use per Tyhran Day at Ranks 5-7, two at Rank 8). Training Rank grants no Free Raises. Optional Raises are available on Standard Training Checks at +4 TN each; Comparative Training Checks allow no Raises. 
+Attributes determine the number of dice in the Pool; Mastery Rank determines Keep. Profession Ranks never add dice or flat bonuses: they improve Training Rolls through **Training Advantage** (Rank 1: reroll initial 1s; Rank 2: 1s-2s; Rank 3: 1s-3s; Rank 4: 1s-4s; Rank 5: 1s-5s; Rank 6-8: 1s-6s) and **Training Crit** (one use per Tyhran Day at Rank 7, two at Rank 8). Training Rank grants no Free Raises. Optional Raises are available on Standard Training Checks at +4 TN each; Comparative Training Checks allow no Raises. 
 
 *Example:* Blacksmith Rank 4→6 costs **22 XP** (**10 XP** for Rank 5 and **12 XP** for Rank 6). A new Alchemist Rank 1 costs **4 XP**. Raising Perception Rank 2→4 costs **14 XP** (**6 XP** for Rank 3 and **8 XP** for Rank 4). Intellect 8→10 costs **12 XP**.
 
@@ -7873,11 +8250,11 @@ A Profession does **not automatically complete a supernatural Ritual** merely be
 
 A shrine has a fixed **Task Level 4 (Base TN 16)**. One character traces an alchemical circle using **Alchemist 4 + Intellect**; a second chants through **Cantor 4 + Influence**; a third lays out a pattern of stones using **Survival + Wits**, without a relevant learned Profession. **Each can attempt the same Purify Ground Ritual.** They must describe their method; the Task Level does not change because the method or caster changes.
 
-All declare **named tier 2** (**two Raises, Final TN 24, 2 Sealed Stones**). The Alchemist 4 and Cantor 4 characters may reroll initial 1s–3s through Training Advantage. The untrained ritualist receives no Training Advantage but also suffers no mundane Untrained Disadvantage. All face the same TN 24. Success grants tiers 0-2; no high roll creates undeclared effects.
+All declare **named tier 2** (**two Raises, Final TN 24, 2 Sealed Stones**). The Alchemist 4 and Cantor 4 characters may reroll initial 1s–4s through Training Advantage. The untrained ritualist receives no Training Advantage but also suffers no mundane Untrained Disadvantage. All face the same TN 24. Success grants tiers 0-2; no high roll creates undeclared effects.
 
 ### Example: No Relevant Profession
 
-Another caster with no related Profession reads **PL 6** Resonance at **Base TN 24**, declaring **named tier 2**. Both Raises increase the TN: **Final TN 32**, **2 Sealed Stones**. The Ritual is permitted without learned training and does not incur mundane Untrained Disadvantage. A genuinely applicable **Temple Keeper 4** would retain **TN 32**, but allow Training Advantage to reroll initial 1s–3s.
+Another caster with no related Profession reads **PL 6** Resonance at **Base TN 24**, declaring **named tier 2**. Both Raises increase the TN: **Final TN 32**, **2 Sealed Stones**. The Ritual is permitted without learned training and does not incur mundane Untrained Disadvantage. A genuinely applicable **Temple Keeper 4** would retain **TN 32**, but allow Training Advantage to reroll initial 1s–4s.
 
 }}
 \page
@@ -9042,7 +9419,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **2) Training Checks**
 
-**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **One universal Training Roll:** **Attribute k MR** with the relevant **Training Advantage** (Rank 2: reroll 1; 3: 1-2; 4-5: 1-3; 6: 1-4; 7-8: 1-5, once per eligible initial die). **Training Crit** at Rank 5-7: once per Tyhran Day; Rank 8: twice per day, per Profession or Perception; declare before rolling, exploding on natural 7-8. **Standard Check:** against Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects on success, with no Training Rank Raise cap. **Comparative Check:** both parties roll; higher wins, defending/observing side wins ties; **no Task TN or Raises**. Rank 0 uses Disadvantage and no Raises. Familiar safe work may succeed routinely.
+**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **One universal Training Roll:** **Attribute k MR** with the relevant **Training Advantage** (Rank 1: reroll 1; 2: 1-2; 3: 1-3; 4: 1-4; 5: 1-5; 6-8: 1-6, once per eligible initial die). **Training Crit** at Rank 7: once per Tyhran Day; Rank 8: twice per day, per Profession or Perception; declare before rolling, exploding on natural 7-8. **Standard Check:** against Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects on success, with no Training Rank Raise cap. **Comparative Check:** both parties roll; higher wins, defending/observing side wins ties; **no Task TN or Raises**. Rank 0 uses Disadvantage and no Raises. Familiar safe work may succeed routinely.
 
 **Echo Imprints:** Immediately after starting Attributes, choose up to MR free Imprints tied to Attributes **4+**; they express small magic and Echo Memories.
 

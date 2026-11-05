@@ -274,7 +274,8 @@ type PoolRollOpts = {
 
 function resolveAdvantageRerollMax(options?: PoolRollOpts): number {
   const explicit = Math.max(0, Math.floor(Number(options?.skillAdvantageRerollMax) || 0));
-  if (explicit > 0) return Math.min(5, explicit);
+  // Training Advantage Rank 6–8 rerolls initial faces 1–6.
+  if (explicit > 0) return Math.min(6, explicit);
   return options?.rollAdvantage ? 1 : 0;
 }
 
@@ -662,14 +663,14 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   const rollDisadvantage = !!options.rollDisadvantage;
   const skillAdvMax = Math.max(
     0,
-    Math.min(5, Math.floor(Number(options.skillAdvantageRerollMax) || 0)),
+    Math.min(6, Math.floor(Number(options.skillAdvantageRerollMax) || 0)),
   );
   const effectiveAdvMax = skillAdvMax > 0 ? skillAdvMax : rollAdvantage ? 1 : 0;
   if (effectiveAdvMax > 0) {
     const note =
       effectiveAdvMax === 1
-        ? 'Advantage: reroll any face of 1 once'
-        : `Skill Advantage: reroll initial faces 1–${effectiveAdvMax} once`;
+        ? 'Training Advantage: reroll any face of 1 once'
+        : `Training Advantage: reroll initial faces 1–${effectiveAdvMax} once`;
     flavor = flavor ? `${flavor} | ${note}` : note;
   }
   if (rollDisadvantage) {

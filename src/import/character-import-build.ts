@@ -44,6 +44,7 @@ import {
   ensureCharacterHasPerceptionSpec,
   findEchoImprint,
   isSkillField,
+  professionIdentityKey,
   specializationIdentityKey,
   type SkillField,
   type SpecializationRecord,
@@ -268,16 +269,22 @@ export function normalizeImportSpecializations(
   for (const entry of raw) {
     const name = String(entry?.name ?? '').trim();
     if (!name) continue;
-    const field: SkillField = isSkillField(String(entry?.field ?? ''))
-      ? (entry.field as SkillField)
-      : 'physical';
-    const id = specializationIdentityKey(name, field);
+    const fieldRaw = String(entry?.field ?? '').trim();
+    const field: SkillField | undefined = isSkillField(fieldRaw) ? (fieldRaw as SkillField) : undefined;
+    const origin = String(entry?.origin ?? '').trim();
+    const category = String(entry?.category ?? '').trim();
+    const id =
+      String(entry?.id ?? '').trim() ||
+      (field ? specializationIdentityKey(name, field) : professionIdentityKey(name));
     if (seen.has(id)) continue;
     seen.add(id);
     out.push({
       id,
       name,
-      field,
+      ...(field ? { field } : {}),
+      ...(origin ? { origin } : {}),
+      ...(category ? { category } : {}),
+      ...(entry?.startingSlot === true ? { startingSlot: true } : {}),
       scope: String(entry?.scope ?? '').trim(),
       rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(entry?.rank) || 0))),
     });

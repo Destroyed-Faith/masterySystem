@@ -108,7 +108,7 @@ export async function executeGroupAmbushStealthRoll(opts) {
         }
         const spent = await consumeSkillCritUse(opts.specialist, plan.skillCritTrackId, plan.skillRank);
         if (!spent)
-            return { ok: false, error: 'Failed to spend Skill Crit use.', plan };
+            return { ok: false, error: 'Failed to spend Training Crit use.', plan };
         skillCritActive = true;
     }
     const rollDisadvantage = plan.skillRank <= 0;

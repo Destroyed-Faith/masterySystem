@@ -1412,6 +1412,9 @@
                 <i class="fas fa-arrow-up"></i> {{this.nextRankXpCost}} XP
               </button>
               {{/if}}
+              {{#if this.canBetaRespec}}
+              <button type="button" class="spec-respec" data-spec-id="{{this.id}}" title="Beta Profession Respec — replace while keeping Rank and XP"><i class="fas fa-exchange-alt"></i></button>
+              {{/if}}
               <button type="button" class="spec-edit" data-spec-id="{{this.id}}" title="Edit Profession"><i class="fas fa-edit"></i></button>
               <button type="button" class="spec-delete" data-spec-id="{{this.id}}" title="Delete Profession"><i class="fas fa-trash"></i></button>
             </div>

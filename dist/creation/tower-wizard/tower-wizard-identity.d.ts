@@ -64,6 +64,7 @@ export declare function specRecordsFromDraft(rows: Array<{
     name?: string;
     origin?: string;
     scope?: string;
+    category?: string;
 }>): SpecializationRecord[];
 /** Read the actor's existing identity data so the dialog opens pre-filled. */
 export declare function readActorIdentityPrefill(system: any): Partial<TowerWizardSelection>;

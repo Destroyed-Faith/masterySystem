@@ -40,7 +40,7 @@ export interface SpecializationRollPlan {
     numDice: number;
     keepDice: number;
     rollDisadvantage: boolean;
-    skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5;
+    skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5 | 6;
     skillCritDailyAllowance: 0 | 1 | 2;
 }
 /** Validate Paid Raises BEFORE the roll and compute pool / TN. */
@@ -63,8 +63,10 @@ export interface SpecializationSheetRow {
     field?: SkillField;
     fieldLabel: string;
     origin: string;
+    category: string;
     scope: string;
     rank: number;
+    startingSlot: boolean;
     maxPaid: number;
     maxFree: number;
     maxTotal: number;
@@ -76,6 +78,8 @@ export interface SpecializationSheetRow {
     passiveBest: number;
     passiveBestAttribute: string;
     passiveHint: string;
+    /** Sheet-only: Beta Profession Respec is available for this row. */
+    canBetaRespec?: boolean;
 }
 /** Sheet-ready rows: Field label, Advantage/Crit, passive hint. */
 export declare function buildSpecializationSheetRows(specs: SpecializationRecord[], attributeValues: Partial<Record<string, number>>): SpecializationSheetRow[];

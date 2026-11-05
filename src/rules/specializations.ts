@@ -47,6 +47,13 @@ export interface SpecializationRecord {
   origin?: string;
   /** One-sentence agreed scope. */
   scope: string;
+  /** Optional catalogue category (Trades / Wilderness / Society / Conflict / Knowledge). */
+  category?: string;
+  /**
+   * True for one of the four free creation Professions.
+   * Used by Beta Profession Respec; omitted on later XP-learned rows.
+   */
+  startingSlot?: boolean;
   rank: number;
 }
 
@@ -145,6 +152,7 @@ export function ensureCharacterHasPerceptionSpec(system: any): {
     const field = isSkillField(s.field) ? s.field : undefined;
     const name = String(s.name).trim();
     const origin = String(s.origin ?? '').trim();
+    const category = String(s.category ?? '').trim();
     const rec: SpecializationRecord = {
       id: String(
         s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name)),
@@ -152,6 +160,8 @@ export function ensureCharacterHasPerceptionSpec(system: any): {
       name,
       ...(field ? { field } : {}),
       ...(origin ? { origin } : {}),
+      ...(category ? { category } : {}),
+      ...(s.startingSlot === true ? { startingSlot: true } : {}),
       scope: String(s.scope ?? ''),
       rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
     };
@@ -267,6 +277,7 @@ export function readActorSpecializations(system: any): Array<Partial<Specializat
       const field = isSkillField(s.field) ? s.field : undefined;
       const name = String(s.name);
       const origin = String(s.origin ?? '').trim();
+      const category = String(s.category ?? '').trim();
       return {
         id:
           String(s.id ?? '').trim() ||
@@ -274,6 +285,8 @@ export function readActorSpecializations(system: any): Array<Partial<Specializat
         name,
         ...(field ? { field } : {}),
         ...(origin ? { origin } : {}),
+        ...(category ? { category } : {}),
+        ...(s.startingSlot === true ? { startingSlot: true } : {}),
         scope: s.scope,
         rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
       };

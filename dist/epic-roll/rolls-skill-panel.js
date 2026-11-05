@@ -176,11 +176,12 @@ export function equipmentPenaltyBreakdown(participants) {
     }
     return { total, rows };
 }
-export function groupAmbushPoolPreview(specialist, participants, attributeKey) {
+export function groupAmbushPoolPreview(specialist, participants, attributeKey, professionId) {
     const plan = planGroupAmbushStealthPool({
         specialist,
         participants,
         attributeKey,
+        professionId,
     });
     return {
         ok: plan.ok,
@@ -197,8 +198,16 @@ export function groupAmbushPoolPreview(specialist, participants, attributeKey) {
         masteryRank: plan.masteryRank,
     };
 }
-/** Concealment is a chosen Profession, not a skill named Stealth. */
-export function resolveStealthRef(_actor) {
-    return { kind: 'untrained' };
+/**
+ * Concealment is a chosen Profession, not a skill named Stealth.
+ * Pass the specialist's Profession id; omit / empty = untrained.
+ * Unused by live Group Ambush paths (they call `planGroupAmbushStealthPool` directly)
+ * but kept correct for callers that still resolve a SkillCheckSkillRef.
+ */
+export function resolveStealthRef(_actor, professionId) {
+    const id = String(professionId || '').trim();
+    if (!id)
+        return { kind: 'untrained' };
+    return { kind: 'specialization', id };
 }
 //# sourceMappingURL=rolls-skill-panel.js.map

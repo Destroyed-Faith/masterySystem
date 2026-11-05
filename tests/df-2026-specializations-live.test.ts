@@ -52,7 +52,7 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
     expect(plan.finalTn).toBe(16);
     expect(plan.paidRaises).toBe(2);
     expect(plan.freeRaises).toBe(0);
-    expect(plan.skillAdvantageRerollMax).toBe(3);
+    expect(plan.skillAdvantageRerollMax).toBe(4);
   });
 
   it('trained pool: Attribute dice, Keep = MR, no Disadvantage', () => {
@@ -62,7 +62,7 @@ describe('DF 2026 Specializations — Acceptance B (Raises / TN)', () => {
     expect(plan.keepDice).toBe(3);
     expect(plan.rollDisadvantage).toBe(false);
     expect(plan.baseTn).toBe(12);
-    expect(plan.skillAdvantageRerollMax).toBe(1);
+    expect(plan.skillAdvantageRerollMax).toBe(2);
   });
 
   it('rejects Free Raises; allows uncapped Paid when trained', () => {
@@ -140,7 +140,7 @@ describe('DF 2026 Specializations — Acceptance C (Passive Value / sheet rows)'
     expect(rows).toHaveLength(1);
     expect(rows[0].fieldLabel).toBe('Finesse');
     expect(rows[0].maxFree).toBe(0);
-    expect(rows[0].skillAdvantageLabel).toMatch(/1–3|1-3/);
+    expect(rows[0].skillAdvantageLabel).toMatch(/1–4|1-4/);
     expect(rows[0].skillCritDailyAllowance).toBe(0);
     expect(rows[0].passiveBest).toBe(12);
     expect(rows[0].passiveBestAttribute).toBe('Agility');

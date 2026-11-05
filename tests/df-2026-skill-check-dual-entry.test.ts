@@ -134,7 +134,7 @@ describe('DF 2026 GM-defined check — Tracking / Wits / TN 12', () => {
     expect(plan.keepDice).toBe(3);
     expect(plan.showFreeBanner).toBe(false);
     expect(plan.freeRaisesOnSuccess).toBe(0);
-    expect(plan.skillAdvantageRerollMax).toBe(3);
+    expect(plan.skillAdvantageRerollMax).toBe(4);
   });
 
   it('Paid 0/1/2/3 → Final TN 12/16/20/24; success budget = Paid only', () => {

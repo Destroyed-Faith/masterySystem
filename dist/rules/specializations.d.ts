@@ -19,6 +19,13 @@ export interface SpecializationRecord {
     origin?: string;
     /** One-sentence agreed scope. */
     scope: string;
+    /** Optional catalogue category (Trades / Wilderness / Society / Conflict / Knowledge). */
+    category?: string;
+    /**
+     * True for one of the four free creation Professions.
+     * Used by Beta Profession Respec; omitted on later XP-learned rows.
+     */
+    startingSlot?: boolean;
     rank: number;
 }
 export declare function normalizeSpecializationName(name: string): string;

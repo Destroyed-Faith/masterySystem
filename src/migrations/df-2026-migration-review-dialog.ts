@@ -178,7 +178,7 @@ function planHtml(plan: Df2026ReviewPlan, attrValue: (attr: string) => number): 
         <p class="dfr-hint">${esc(
           masteryLocalize(
             'MASTERY.df2026.migrationReview.startingSpecsHint',
-            'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation). Perception is free for every character and does not use one of these five slots.',
+            'Choose exactly four free-named Professions. Each is Rank 2 — there is no Rank picker (same as character creation). Perception is free for every character and does not use one of these four slots.',
           ),
         )}</p>
         <div class="dfr-spec-rows">${starterSpecs.join('')}</div>
@@ -268,7 +268,7 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
         <p class="dfr-intro">${esc(
           masteryLocalize(
             'MASTERY.df2026.migrationReview.intro',
-            'Review characters migrated to DF 2026. Pick five Rank-2 Specializations (legacy Skills are listed for reference). Saving only changes Specializations and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.',
+            'Review characters migrated to DF 2026. Pick four Rank-2 Professions (legacy Skills are listed for reference). Saving only changes Professions and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.',
           ),
         )}</p>
         ${body}

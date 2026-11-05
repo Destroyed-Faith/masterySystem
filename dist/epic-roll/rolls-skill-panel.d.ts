@@ -92,7 +92,7 @@ export declare function equipmentPenaltyBreakdown(participants: any[]): {
         penalty: number;
     }>;
 };
-export declare function groupAmbushPoolPreview(specialist: any, participants: any[], attributeKey: string): {
+export declare function groupAmbushPoolPreview(specialist: any, participants: any[], attributeKey: string, professionId?: string | null): {
     ok: boolean;
     error: string | undefined;
     basePool: number;
@@ -104,12 +104,17 @@ export declare function groupAmbushPoolPreview(specialist: any, participants: an
         name: string;
         penalty: number;
     }[];
-    skillAdvantageRerollMax: 0 | 3 | 1 | 4 | 2 | 5;
+    skillAdvantageRerollMax: 0 | 3 | 6 | 1 | 4 | 2 | 5;
     skillRank: number;
     skillName: string;
     attributeKey: string;
     masteryRank: number;
 };
-/** Concealment is a chosen Profession, not a skill named Stealth. */
-export declare function resolveStealthRef(_actor: any): SkillCheckSkillRef;
+/**
+ * Concealment is a chosen Profession, not a skill named Stealth.
+ * Pass the specialist's Profession id; omit / empty = untrained.
+ * Unused by live Group Ambush paths (they call `planGroupAmbushStealthPool` directly)
+ * but kept correct for callers that still resolve a SkillCheckSkillRef.
+ */
+export declare function resolveStealthRef(_actor: any, professionId?: string | null): SkillCheckSkillRef;
 //# sourceMappingURL=rolls-skill-panel.d.ts.map

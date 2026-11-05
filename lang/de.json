@@ -50,16 +50,16 @@
       },
       "migrationReview": {
         "title": "DF-2026-Migrations-Review",
-        "intro": "Charaktere nach der DF-2026-Migration prüfen. Wähle fünf Spezialisierungen auf Rang 2 (alte Fertigkeiten nur zur Orientierung). Speichern ändert nur Spezialisierungen und Echo-Abdrücke — EP, Steine, Kräfte und Artefakte bleiben unberührt.",
+        "intro": "Charaktere nach der DF-2026-Migration prüfen. Wähle vier Berufe auf Rang 2 (alte Fertigkeiten nur zur Orientierung). Speichern ändert nur Berufe und Echo-Abdrücke — EP, Steine, Kräfte und Artefakte bleiben unberührt.",
         "legacySkills": "Alte Fertigkeiten",
-        "legacySkillsHint": "Das sind die Fertigkeiten, die dieser Charakter vor DF 2026 hatte. Werte dienen nur der Orientierung — sie werden nicht zu Spec-Rängen. Mit + einen Namen in die Rang-2-Liste übernehmen.",
+        "legacySkillsHint": "Das sind die Fertigkeiten, die dieser Charakter vor DF 2026 hatte. Werte dienen nur der Orientierung — sie werden nicht zu Berufs-Rängen. Mit + einen Namen in die Rang-2-Liste übernehmen.",
         "noLegacySkills": "Keine bewerteten alten Fertigkeiten für diesen Charakter gefunden.",
         "legacyName": "Fertigkeit",
         "legacyRating": "Wert",
-        "startingSpecs": "Start-Spezialisierungen",
-        "startingSpecsHint": "Wähle genau fünf frei benannte Spezialisierungen. Jede ist Rang 2 — es gibt keinen Rang-Wähler (wie bei der Charaktererschaffung).",
-        "maxSpecs": "Höchstens fünf Spezialisierungen (alle Rang 2).",
-        "suggestions": "Vorschläge für Spezialisierungen",
+        "startingSpecs": "Start-Berufe",
+        "startingSpecsHint": "Wähle genau vier frei benannte Berufe. Jeder ist Rang 2 — es gibt keinen Rang-Wähler (wie bei der Charaktererschaffung).",
+        "maxSpecs": "Höchstens vier Berufe (alle Rang 2).",
+        "suggestions": "Berufsvorschläge",
         "unmapped": "Nicht zugeordnete Minor Expressions",
         "trimWarning": "Echo-Abdruck-Kürzung",
         "save": "Speichern"
@@ -70,7 +70,7 @@
       },
       "archive": {
         "minorExpressionsRetired": "Minor Expressions wurden durch Echo-Abdrücke ersetzt.",
-        "skillSpendRetired": "Fertigkeitspunkte-Ausgabe entfällt (DF 2026). Steigere Spezialisierungen in der Progression."
+        "skillSpendRetired": "Fertigkeitspunkte-Ausgabe entfällt (DF 2026). Steigere Berufe in der Progression."
       }
     },
     "attributes": {

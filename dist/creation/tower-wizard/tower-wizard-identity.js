@@ -101,6 +101,7 @@ export function specRecordsFromDraft(rows) {
         const name = String(row.name ?? '').trim();
         const origin = String(row.origin ?? '').trim();
         const scope = String(row.scope ?? '').trim();
+        const category = String(row.category ?? '').trim();
         if (!name && !origin && !scope)
             continue;
         out.push({
@@ -109,6 +110,8 @@ export function specRecordsFromDraft(rows) {
             origin,
             scope,
             rank: 2,
+            startingSlot: true,
+            ...(category ? { category } : {}),
         });
     }
     return out;
@@ -173,6 +176,8 @@ export function buildIdentityUpdateData(selection) {
             origin: String(s.origin ?? '').trim(),
             scope: String(s.scope).trim(),
             rank: Math.floor(Number(s.rank) || 2),
+            startingSlot: true,
+            ...(s.category ? { category: String(s.category).trim() } : {}),
             ...(s.field ? { field: s.field } : {}),
         }));
     }

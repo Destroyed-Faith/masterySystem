@@ -30,7 +30,7 @@ export interface GroupAmbushPoolPlan {
   finalPool: number;
   keepDice: number;
   skillRank: number;
-  skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5;
+  skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   skillCritTrackId: string;
   skillName: string;
 }
@@ -177,7 +177,7 @@ export async function executeGroupAmbushStealthRoll(opts: {
       plan.skillCritTrackId,
       plan.skillRank,
     );
-    if (!spent) return { ok: false, error: 'Failed to spend Skill Crit use.', plan };
+    if (!spent) return { ok: false, error: 'Failed to spend Training Crit use.', plan };
     skillCritActive = true;
   }
 

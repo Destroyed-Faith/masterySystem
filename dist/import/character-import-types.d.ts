@@ -69,8 +69,14 @@ export interface CharacterImportDisadvantage {
 export interface CharacterImportSpecialization {
     id?: string;
     name: string;
-    /** One of the seven Fields, e.g. `physical`, `science-craft`. */
-    field: string;
+    /** Legacy Field, e.g. `physical`, `science-craft`. Optional for new Profession rows. */
+    field?: string;
+    /** How the character acquired this Profession. */
+    origin?: string;
+    /** Optional catalogue category. */
+    category?: string;
+    /** One of the four free creation Professions. */
+    startingSlot?: boolean;
     /** One-sentence scope. */
     scope: string;
     /** Rank 1–8. */

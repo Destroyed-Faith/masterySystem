@@ -3,7 +3,7 @@
  * Add / Edit / Delete a free-named Specialization and the pre-roll option picker.
  */
 import { PROFESSION_CATALOGUE, PROFESSION_CATALOGUE_CATEGORIES, } from '../rules/profession-catalogue.js';
-import { SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, professionIdentityKey, readSpecializations, removeSpecialization, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, isProfessionRespecEnabled, isRespecableProfession, planProfessionRespec, professionIdentityKey, readSpecializations, removeSpecialization, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 function escapeHtml(value) {
     return String(value ?? '')
@@ -33,8 +33,19 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     const specs = readSpecializations(actor?.system);
     const existing = opts.specId ? findSpecializationById(specs, opts.specId) : null;
     if (opts.specId && !existing) {
-        globalThis.ui?.notifications?.warn?.('Specialization not found.');
+        globalThis.ui?.notifications?.warn?.('Profession not found.');
         return false;
+    }
+    const betaRespec = !!opts.betaRespec;
+    if (betaRespec) {
+        if (!isProfessionRespecEnabled()) {
+            globalThis.ui?.notifications?.warn?.('Beta Profession Respec is disabled. Ask the GM to enable Allow Profession Respec (Beta).');
+            return false;
+        }
+        if (!existing || !isRespecableProfession(specs, existing.id)) {
+            globalThis.ui?.notifications?.warn?.('Beta Profession Respec only replaces one of the four free starting Professions.');
+            return false;
+        }
     }
     const fixedStartingRank = !!opts.fixedStartingRank;
     const paidSpecCount = specs.filter((s) => !isCharacterPerceptionSpec(s)).length;
@@ -42,25 +53,39 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         globalThis.ui?.notifications?.warn?.(masteryLocalize('MASTERY.df2026.creation.finalizeNeedSpecs', `Starting characters pick exactly ${STARTING_SPECIALIZATION_COUNT} Rank ${STARTING_SPECIALIZATION_RANK} Professions.`));
         return false;
     }
-    const learnWithXp = !!opts.learnWithXp && !existing;
-    const allowRankEdit = !fixedStartingRank && !learnWithXp && (opts.allowRankEdit !== false || !existing);
-    const startRank = fixedStartingRank
-        ? STARTING_SPECIALIZATION_RANK
-        : (existing?.rank ?? 1);
+    const learnWithXp = !!opts.learnWithXp && !existing && !betaRespec;
+    const allowRankEdit = !betaRespec &&
+        !fixedStartingRank &&
+        !learnWithXp &&
+        (opts.allowRankEdit !== false || !existing);
+    const startRank = betaRespec
+        ? (existing?.rank ?? 1)
+        : fixedStartingRank
+            ? STARTING_SPECIALIZATION_RANK
+            : (existing?.rank ?? 1);
     const exampleOptions = PROFESSION_CATALOGUE.map((ex) => `<option value="${escapeHtml(ex.name)}" data-name="${escapeHtml(ex.name)}" data-category="${escapeHtml(ex.category)}" data-scope="${escapeHtml(ex.scope_example)}">${escapeHtml(ex.category)} — ${escapeHtml(ex.name)}</option>`).join('');
     const categoryOptions = PROFESSION_CATALOGUE_CATEGORIES.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
-    const rankBlock = fixedStartingRank
+    const rankBlock = betaRespec
         ? `<div class="md-group">
+        <label class="md-label">${masteryLocalize('MASTERY.df2026.specializations.rank', 'Rank')}</label>
+        <p class="md-sublabel">Rank ${existing?.rank ?? startRank} kept — Beta Respec does not change Rank or XP.</p>
+        <input type="hidden" name="rank" value="${existing?.rank ?? startRank}" />
+      </div>`
+        : fixedStartingRank
+            ? `<div class="md-group">
         <label class="md-label">${masteryLocalize('MASTERY.df2026.specializations.rank', 'Rank')}</label>
         <p class="md-sublabel">Rank ${STARTING_SPECIALIZATION_RANK} — ${masteryLocalize('MASTERY.df2026.creation.specsHeaderTitle', 'four Rank 2 Professions (Perception is free)')}</p>
         <input type="hidden" name="rank" value="${STARTING_SPECIALIZATION_RANK}" />
       </div>`
-        : `<div class="md-group">
-        <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${allowRankEdit ? '' : '; raise via Progression for 4 XP per Rank'})</span></label>
+            : `<div class="md-group">
+        <label class="md-label">Rank <span class="md-sublabel">(1–${SPECIALIZATION_MAX_RANK}${allowRankEdit ? '' : '; raise via Progression for XP per Rank'})</span></label>
         <input type="number" name="rank" class="md-input" min="1" max="${SPECIALIZATION_MAX_RANK}" step="1" value="${startRank}" ${allowRankEdit ? '' : 'disabled'} />
       </div>`;
     const content = `
     <form class="mastery-dialog-form spec-edit-form">
+      ${betaRespec
+        ? `<p class="md-sublabel">Beta Profession Respec replaces this starting Profession in place. Rank and invested XP stay. Perception is never changed.</p>`
+        : ''}
       <div class="md-group">
         <label class="md-label">Suggestions <span class="md-sublabel">(${PROFESSION_CATALOGUE.length} examples in ${PROFESSION_CATALOGUE_CATEGORIES.length} categories — optional, not a closed list)</span></label>
         <div class="spec-suggestion-filters">
@@ -81,6 +106,11 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         <input type="text" name="name" class="md-input" value="${escapeHtml(existing?.name ?? '')}" maxlength="60" />
       </div>
       <div class="md-group">
+        <label class="md-label">Category <span class="md-sublabel">(optional; filled from a suggestion)</span></label>
+        <input type="text" name="category" class="md-input" value="${escapeHtml(existing?.category ?? '')}" maxlength="40" list="ms-profession-categories" />
+        <datalist id="ms-profession-categories">${categoryOptions}</datalist>
+      </div>
+      <div class="md-group">
         <label class="md-label">Origin <span class="md-sublabel">(how this was learned)</span></label>
         <input type="text" name="origin" class="md-input" value="${escapeHtml(existing?.origin ?? '')}" maxlength="160" />
       </div>
@@ -99,23 +129,30 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
             resolve(v);
         };
         new Dialog({
-            title: existing
-                ? `${masteryLocalize('MASTERY.df2026.specializations.edit', 'Edit Specialization')} — ${existing.name}`
-                : masteryLocalize('MASTERY.df2026.specializations.add', 'Add Specialization'),
+            title: betaRespec
+                ? `Beta Profession Respec — ${existing?.name ?? ''}`
+                : existing
+                    ? `${masteryLocalize('MASTERY.df2026.specializations.edit', 'Edit Profession')} — ${existing.name}`
+                    : masteryLocalize('MASTERY.df2026.specializations.add', 'Add Profession'),
             content,
             buttons: {
                 save: {
-                    label: '<i class="fas fa-check"></i> Save',
+                    label: betaRespec
+                        ? '<i class="fas fa-exchange-alt"></i> Replace'
+                        : '<i class="fas fa-check"></i> Save',
                     callback: async (html) => {
                         const root = rootOf(html);
                         const name = readValue(root, 'name').trim();
                         const origin = readValue(root, 'origin').trim();
                         const scope = readValue(root, 'scope').trim();
-                        const rank = fixedStartingRank
-                            ? STARTING_SPECIALIZATION_RANK
-                            : allowRankEdit
-                                ? Math.floor(Number(readValue(root, 'rank')) || 0)
-                                : (existing?.rank ?? 1);
+                        const category = readValue(root, 'category').trim();
+                        const rank = betaRespec
+                            ? (existing?.rank ?? 1)
+                            : fixedStartingRank
+                                ? STARTING_SPECIALIZATION_RANK
+                                : allowRankEdit
+                                    ? Math.floor(Number(readValue(root, 'rank')) || 0)
+                                    : (existing?.rank ?? 1);
                         if (!name) {
                             globalThis.ui?.notifications?.warn?.('Name the Profession.');
                             return done(false);
@@ -128,18 +165,48 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             globalThis.ui?.notifications?.warn?.('Perception is free for every character — it is not one of the four Professions.');
                             return done(false);
                         }
+                        if (betaRespec && existing) {
+                            if (!isProfessionRespecEnabled()) {
+                                globalThis.ui?.notifications?.warn?.('Beta Profession Respec is disabled.');
+                                return done(false);
+                            }
+                            const plan = planProfessionRespec(specs, {
+                                replaceId: existing.id,
+                                name,
+                                origin,
+                                scope,
+                                category,
+                            });
+                            if (!plan.ok) {
+                                globalThis.ui?.notifications?.warn?.(plan.error ?? 'Respec failed.');
+                                return done(false);
+                            }
+                            await actor.update({ 'system.specializations': plan.specializations });
+                            globalThis.ui?.notifications?.info?.(`${plan.previousName} Rank ${plan.preservedRank} → ${plan.nextName} Rank ${plan.preservedRank} (Beta Respec).`);
+                            return done(true);
+                        }
+                        const nextId = professionIdentityKey(name);
+                        if (existing &&
+                            !fixedStartingRank &&
+                            nextId !== existing.id &&
+                            !isProfessionRespecEnabled()) {
+                            globalThis.ui?.notifications?.warn?.('Replacing a Profession identity requires Allow Profession Respec (Beta). Edit origin/scope, or ask the GM to enable Beta Respec.');
+                            return done(false);
+                        }
                         const record = {
                             id: existing?.id && existing.id.startsWith('profession:')
-                                ? professionIdentityKey(name)
-                                : existing?.id || professionIdentityKey(name),
+                                ? nextId
+                                : existing?.id || nextId,
                             name,
                             origin,
                             scope,
                             rank,
+                            ...(category ? { category } : {}),
                             ...(existing?.field ? { field: existing.field } : {}),
+                            ...(existing?.startingSlot || fixedStartingRank ? { startingSlot: true } : {}),
                         };
                         if (!existing)
-                            record.id = professionIdentityKey(name);
+                            record.id = nextId;
                         if (learnWithXp) {
                             const { applySpecializationLearn } = await import('../progression/progression-hub-actions.js');
                             const res = await applySpecializationLearn(actor, { name, origin, scope });
@@ -150,7 +217,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             return done(true);
                         }
                         const next = upsertSpecialization(specs, record, existing?.id);
-                        // Creation allows 1–4 Specs until finalize; full five×R2 is checked on finalize.
+                        // Creation allows 1–4 Specs until finalize; full four×R2 is checked on finalize.
                         const check = validateSpecializationList(next);
                         if (!check.ok) {
                             globalThis.ui?.notifications?.warn?.(check.errors.join(' '));
@@ -197,14 +264,18 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                     }
                     const name = String(opt.dataset.name || '').trim();
                     const scope = String(opt.dataset.scope || '').trim();
+                    const category = String(opt.dataset.category || '').trim();
                     if (preview)
                         preview.textContent = scope ? `${name}: ${scope}` : name;
                     const nameEl = root?.querySelector('[name="name"]');
                     const scopeEl = root?.querySelector('[name="scope"]');
+                    const categoryEl = root?.querySelector('[name="category"]');
                     if (name && nameEl)
                         nameEl.value = name;
-                    if (scope && scopeEl && !scopeEl.value.trim())
+                    if (scope && scopeEl && (!scopeEl.value.trim() || betaRespec))
                         scopeEl.value = scope;
+                    if (category && categoryEl)
+                        categoryEl.value = category;
                 });
             },
             close: () => done(false),

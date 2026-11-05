@@ -47,8 +47,9 @@ function rollFlatD8() {
 }
 function resolveAdvantageRerollMax(options) {
     const explicit = Math.max(0, Math.floor(Number(options?.skillAdvantageRerollMax) || 0));
+    // Training Advantage Rank 6–8 rerolls initial faces 1–6.
     if (explicit > 0)
-        return Math.min(5, explicit);
+        return Math.min(6, explicit);
     return options?.rollAdvantage ? 1 : 0;
 }
 function applyAdvantageReroll(face, rerollMax) {
@@ -411,12 +412,12 @@ export async function masteryRoll(options) {
     }
     const rollAdvantage = !!options.rollAdvantage;
     const rollDisadvantage = !!options.rollDisadvantage;
-    const skillAdvMax = Math.max(0, Math.min(5, Math.floor(Number(options.skillAdvantageRerollMax) || 0)));
+    const skillAdvMax = Math.max(0, Math.min(6, Math.floor(Number(options.skillAdvantageRerollMax) || 0)));
     const effectiveAdvMax = skillAdvMax > 0 ? skillAdvMax : rollAdvantage ? 1 : 0;
     if (effectiveAdvMax > 0) {
         const note = effectiveAdvMax === 1
-            ? 'Advantage: reroll any face of 1 once'
-            : `Skill Advantage: reroll initial faces 1–${effectiveAdvMax} once`;
+            ? 'Training Advantage: reroll any face of 1 once'
+            : `Training Advantage: reroll initial faces 1–${effectiveAdvMax} once`;
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
     if (rollDisadvantage) {

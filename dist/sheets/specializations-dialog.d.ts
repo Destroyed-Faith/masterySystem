@@ -14,6 +14,11 @@ export declare function showSpecializationEditDialog(actor: any, opts?: {
      * Adding is capped at four Professions.
      */
     fixedStartingRank?: boolean;
+    /**
+     * Beta Profession Respec: replace a starting Profession in place, keeping Rank / XP.
+     * Requires the world setting `allowProfessionRespecBeta`.
+     */
+    betaRespec?: boolean;
 }): Promise<boolean>;
 export declare function deleteSpecializationWithConfirm(actor: any, specId: string): Promise<boolean>;
 export interface SpecializationRollChoice {

@@ -33,22 +33,24 @@ import {
 describe('Skill Advantage thresholds', () => {
   it('maps Rank 0–8 to Advantage reroll max / Crit allowance', () => {
     expect(skillAdvantageRerollMax(0)).toBe(0);
-    expect(skillAdvantageRerollMax(1)).toBe(0);
-    expect(skillAdvantageRerollMax(2)).toBe(1);
-    expect(skillAdvantageRerollMax(3)).toBe(2);
-    expect(skillAdvantageRerollMax(4)).toBe(3);
-    expect(skillAdvantageRerollMax(5)).toBe(3);
-    expect(skillAdvantageRerollMax(6)).toBe(4);
-    expect(skillAdvantageRerollMax(7)).toBe(5);
-    expect(skillAdvantageRerollMax(8)).toBe(5);
+    expect(skillAdvantageRerollMax(1)).toBe(1);
+    expect(skillAdvantageRerollMax(2)).toBe(2);
+    expect(skillAdvantageRerollMax(3)).toBe(3);
+    expect(skillAdvantageRerollMax(4)).toBe(4);
+    expect(skillAdvantageRerollMax(5)).toBe(5);
+    expect(skillAdvantageRerollMax(6)).toBe(6);
+    expect(skillAdvantageRerollMax(7)).toBe(6);
+    expect(skillAdvantageRerollMax(8)).toBe(6);
 
     expect(skillCritDailyAllowance(4)).toBe(0);
-    expect(skillCritDailyAllowance(5)).toBe(1);
+    expect(skillCritDailyAllowance(5)).toBe(0);
+    expect(skillCritDailyAllowance(6)).toBe(0);
     expect(skillCritDailyAllowance(7)).toBe(1);
     expect(skillCritDailyAllowance(8)).toBe(2);
 
     expect(skillAdvantageLabel(0)).toMatch(/Untrained/i);
-    expect(skillAdvantageLabel(2)).toMatch(/showing 1$/);
+    expect(skillAdvantageLabel(1)).toMatch(/showing 1$/);
+    expect(skillAdvantageLabel(2)).toMatch(/1–2/);
   });
 });
 
@@ -79,20 +81,21 @@ describe('Skill Crit charges (flags only)', () => {
   }
 
   it('tracks uses per Skill id without mutating Specs or XP', async () => {
-    const actor = mockActor([{ id: 'physical:stealth', rank: 5 }], 40);
+    const actor = mockActor([{ id: 'physical:stealth', rank: 7 }], 40);
     const beforeSpecs = snapshotSpecializationIdentity(actor.system);
     const beforeXp = actor.system.points.xp;
 
-    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 5)).toBe(1);
-    expect(await consumeSkillCritUse(actor, 'physical:stealth', 5)).toBe(true);
     expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 5)).toBe(0);
-    expect(await consumeSkillCritUse(actor, 'physical:stealth', 5)).toBe(false);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(1);
+    expect(await consumeSkillCritUse(actor, 'physical:stealth', 7)).toBe(true);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(0);
+    expect(await consumeSkillCritUse(actor, 'physical:stealth', 7)).toBe(false);
 
     expect(snapshotSpecializationIdentity(actor.system)).toEqual(beforeSpecs);
     expect(actor.system.points.xp).toBe(beforeXp);
 
     await resetSkillCritUses(actor);
-    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 5)).toBe(1);
+    expect(getSkillCritUsesRemaining(actor, 'physical:stealth', 7)).toBe(1);
   });
 
   it('Safe Haven rest updates clear Skill Crit uses flag', () => {
@@ -154,7 +157,7 @@ describe('Paid Raises uncapped; Free Raises retired', () => {
     expect(plan.finalTn).toBe(32);
     expect(plan.freeRaisesOnSuccess).toBe(0);
     expect(plan.showFreeBanner).toBe(false);
-    expect(plan.skillAdvantageRerollMax).toBe(3);
+    expect(plan.skillAdvantageRerollMax).toBe(4);
     expect(plan.numDice).toBe(10);
     expect(plan.keepDice).toBe(3);
   });

@@ -173,7 +173,7 @@ export interface SkillCheckPlan {
   numDice: number;
   keepDice: number;
   rollDisadvantage: boolean;
-  skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5;
+  skillAdvantageRerollMax: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   skillCritDailyAllowance: 0 | 1 | 2;
   /** Skill id for Crit charge tracking (Spec id / situational id / ''). */
   skillCritTrackId: string;

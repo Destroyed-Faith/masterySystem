@@ -182,13 +182,14 @@ export function buildWizardSpecRows(selection: Partial<TowerWizardSelection>): W
 
 /** Normalize draft rows into Rank-2 Profession records; drops fully blank rows. */
 export function specRecordsFromDraft(
-    rows: Array<{ name?: string; origin?: string; scope?: string }>,
+    rows: Array<{ name?: string; origin?: string; scope?: string; category?: string }>,
 ): SpecializationRecord[] {
     const out: SpecializationRecord[] = [];
     for (const row of rows) {
         const name = String(row.name ?? '').trim();
         const origin = String(row.origin ?? '').trim();
         const scope = String(row.scope ?? '').trim();
+        const category = String(row.category ?? '').trim();
         if (!name && !origin && !scope) continue;
         out.push({
             id: professionIdentityKey(name || 'profession'),
@@ -196,6 +197,8 @@ export function specRecordsFromDraft(
             origin,
             scope,
             rank: 2,
+            startingSlot: true,
+            ...(category ? { category } : {}),
         });
     }
     return out;
@@ -260,6 +263,8 @@ export function buildIdentityUpdateData(selection: Partial<TowerWizardSelection>
             origin: String(s.origin ?? '').trim(),
             scope: String(s.scope).trim(),
             rank: Math.floor(Number(s.rank) || 2),
+            startingSlot: true,
+            ...(s.category ? { category: String(s.category).trim() } : {}),
             ...(s.field ? { field: s.field } : {}),
         }));
     }

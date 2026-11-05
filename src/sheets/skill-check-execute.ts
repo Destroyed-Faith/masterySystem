@@ -140,7 +140,7 @@ export async function executeSkillCheck(
     }
     const spent = await consumeSkillCritUse(actor, plan.skillCritTrackId, plan.rank);
     if (!spent) {
-      return { ok: false, error: 'Failed to spend Skill Crit use.' };
+      return { ok: false, error: 'Failed to spend Training Crit use.' };
     }
     skillCritActive = true;
   }

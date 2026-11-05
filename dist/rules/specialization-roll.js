@@ -69,11 +69,14 @@ export function readSpecializations(system) {
         const field = isSkillField(s.field) ? s.field : undefined;
         const name = String(s.name).trim();
         const origin = String(s.origin ?? '').trim();
+        const category = String(s.category ?? '').trim();
         out.push({
             id: String(s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name))),
             name,
             ...(field ? { field } : {}),
             ...(origin ? { origin } : {}),
+            ...(category ? { category } : {}),
+            ...(s.startingSlot === true ? { startingSlot: true } : {}),
             scope: String(s.scope ?? ''),
             rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(s.rank) || 0))),
         });
@@ -143,10 +146,12 @@ export function buildSpecializationSheetRows(specs, attributeValues) {
             id: s.id,
             name: s.name,
             ...(s.field ? { field: s.field } : {}),
-            fieldLabel: origin || legacyField,
+            fieldLabel: origin || String(s.category || '').trim() || legacyField,
             origin,
+            category: String(s.category || '').trim(),
             scope: s.scope,
             rank: s.rank,
+            startingSlot: s.startingSlot === true,
             maxPaid: Number.isFinite(a.maxPaid) ? a.maxPaid : SKILL_PAID_RAISE_UI_HINT,
             maxFree: 0,
             maxTotal: Number.isFinite(a.maxTotal) ? a.maxTotal : SKILL_PAID_RAISE_UI_HINT,

@@ -16,7 +16,7 @@ import { calculateDisadvantagePoints, getDisadvantageDefinition, } from '../syst
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { SKILLS } from '../utils/skills.js';
 import { MAX_ATTRIBUTE } from '../utils/constants.js';
-import { DF_2026_RULES_SCHEMA_VERSION, SPECIALIZATION_MAX_RANK, ensureCharacterHasPerceptionSpec, findEchoImprint, isSkillField, specializationIdentityKey, } from '../rules/index.js';
+import { DF_2026_RULES_SCHEMA_VERSION, SPECIALIZATION_MAX_RANK, ensureCharacterHasPerceptionSpec, findEchoImprint, isSkillField, professionIdentityKey, specializationIdentityKey, } from '../rules/index.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS } from './character-import-types.js';
 export function normalizeImportAttributes(raw) {
     const out = {};
@@ -214,17 +214,22 @@ export function normalizeImportSpecializations(raw) {
         const name = String(entry?.name ?? '').trim();
         if (!name)
             continue;
-        const field = isSkillField(String(entry?.field ?? ''))
-            ? entry.field
-            : 'physical';
-        const id = specializationIdentityKey(name, field);
+        const fieldRaw = String(entry?.field ?? '').trim();
+        const field = isSkillField(fieldRaw) ? fieldRaw : undefined;
+        const origin = String(entry?.origin ?? '').trim();
+        const category = String(entry?.category ?? '').trim();
+        const id = String(entry?.id ?? '').trim() ||
+            (field ? specializationIdentityKey(name, field) : professionIdentityKey(name));
         if (seen.has(id))
             continue;
         seen.add(id);
         out.push({
             id,
             name,
-            field,
+            ...(field ? { field } : {}),
+            ...(origin ? { origin } : {}),
+            ...(category ? { category } : {}),
+            ...(entry?.startingSlot === true ? { startingSlot: true } : {}),
             scope: String(entry?.scope ?? '').trim(),
             rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(entry?.rank) || 0))),
         });

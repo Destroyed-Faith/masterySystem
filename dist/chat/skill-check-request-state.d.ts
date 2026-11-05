@@ -24,6 +24,10 @@ export interface SkillCheckComparativeMeta {
     groupAmbush?: boolean;
     ambushParticipantIds?: string[];
     stealthSpecialistId?: string;
+    /** Chosen concealment Profession on the specialist. Empty / omitted = untrained. */
+    ambushProfessionId?: string;
+    /** Declared Training Crit for the Group Ambush concealment roll. */
+    declareSkillCrit?: boolean;
 }
 export interface SkillCheckParticipant {
     actorId: string;

@@ -364,8 +364,8 @@ describe('character print table sheet', () => {
     expect(ctx.perceptionSpecialization).toBeTruthy();
     expect(ctx.perceptionSpecialization.name).toBe('Perception');
     expect(ctx.perceptionSpecialization.rank).toBe(2);
-    // Rank 2 Skill Advantage (Free Raises / "N paid" retired).
-    expect(ctx.perceptionSpecialization.raises).toBe('Reroll initial dice showing 1');
+    // Rank 2 Training Advantage (Free Raises / "N paid" retired).
+    expect(ctx.perceptionSpecialization.raises).toBe('Reroll initial dice showing 1–2');
     expect(ctx.perceptionSpecialization.pips.filter((p: any) => p.filled)).toHaveLength(2);
     const all = (ctx.specializationGroups ?? []).flatMap((g: any) => g.specs);
     expect(all.find((s: any) => s.name === 'Perception')).toBeUndefined();

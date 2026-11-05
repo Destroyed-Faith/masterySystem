@@ -59,7 +59,7 @@ export async function openGroupAmbushDialog(): Promise<void> {
         <div class="ms-group-ambush-parts">${checks}</div>
       </div>
       <div class="md-group">
-        <label class="md-label"><input type="checkbox" name="skillCrit" /> Declare Skill Crit</label>
+        <label class="md-label"><input type="checkbox" name="skillCrit" /> Declare Training Crit</label>
       </div>
       <div class="md-group">
         <label class="md-label">Observer Perception totals (optional, one per line: ActorName=Total)</label>

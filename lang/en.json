@@ -50,16 +50,16 @@
       },
       "migrationReview": {
         "title": "DF 2026 Migration Review",
-        "intro": "Review characters migrated to DF 2026. Pick five Rank-2 Specializations (legacy Skills are listed for reference). Saving only changes Specializations and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.",
+        "intro": "Review characters migrated to DF 2026. Pick four Rank-2 Professions (legacy Skills are listed for reference). Saving only changes Professions and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.",
         "legacySkills": "Legacy Skills",
-        "legacySkillsHint": "These are the Skills this character had before DF 2026. Ratings are for reference only — they do not become Spec Ranks. Use + to copy a name into the Rank-2 list below.",
+        "legacySkillsHint": "These are the Skills this character had before DF 2026. Ratings are for reference only — they do not become Profession Ranks. Use + to copy a name into the Rank-2 list below.",
         "noLegacySkills": "No rated legacy Skills were found on this character.",
         "legacyName": "Skill",
         "legacyRating": "Rating",
-        "startingSpecs": "Starting Specializations",
-        "startingSpecsHint": "Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation).",
-        "maxSpecs": "Choose at most five Specializations (all Rank 2).",
-        "suggestions": "Specialization suggestions",
+        "startingSpecs": "Starting Professions",
+        "startingSpecsHint": "Choose exactly four free-named Professions. Each is Rank 2 — there is no Rank picker (same as character creation).",
+        "maxSpecs": "Choose at most four Professions (all Rank 2).",
+        "suggestions": "Profession suggestions",
         "unmapped": "Unmapped Minor Expressions",
         "trimWarning": "Echo Imprint trim",
         "save": "Save"
@@ -70,7 +70,7 @@
       },
       "archive": {
         "minorExpressionsRetired": "Minor Expressions were replaced by Echo Imprints.",
-        "skillSpendRetired": "Skill Spend is retired (DF 2026). Raise Specializations in Progression."
+        "skillSpendRetired": "Skill Spend is retired (DF 2026). Raise Professions in Progression."
       }
     },
     "attributes": {

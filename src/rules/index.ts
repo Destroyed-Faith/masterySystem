@@ -13,6 +13,8 @@ export * from './echo-imprints.js';
 export * from './core-rituals.js';
 export * from './specializations.js';
 export * from './specialization-roll.js';
+export * from './profession-catalogue.js';
+export * from './profession-respec.js';
 export * from './npc-situational-skills.js';
 export * from './fear-health.js';
 

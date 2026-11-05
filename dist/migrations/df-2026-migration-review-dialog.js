@@ -122,7 +122,7 @@ function planHtml(plan, attrValue) {
         <h4>${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecs', 'Starting Specializations'))}
           <small>(<span class="dfr-spec-count">${count}</span> / ${STARTING_SPECIALIZATION_COUNT} × Rank ${STARTING_SPECIALIZATION_RANK})</small>
         </h4>
-        <p class="dfr-hint">${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecsHint', 'Choose exactly five free-named Specializations. Each is Rank 2 — there is no Rank picker (same as character creation). Perception is free for every character and does not use one of these five slots.'))}</p>
+        <p class="dfr-hint">${esc(masteryLocalize('MASTERY.df2026.migrationReview.startingSpecsHint', 'Choose exactly four free-named Professions. Each is Rank 2 — there is no Rank picker (same as character creation). Perception is free for every character and does not use one of these four slots.'))}</p>
         <div class="dfr-spec-rows">${starterSpecs.join('')}</div>
         <button type="button" data-action="add-spec" ${count >= STARTING_SPECIALIZATION_COUNT ? 'disabled' : ''}><i class="fas fa-plus"></i> ${esc(masteryLocalize('MASTERY.df2026.specializations.add', 'Add Specialization'))}</button>
       </section>
@@ -196,7 +196,7 @@ export class Df2026MigrationReviewDialog extends ApplicationV2 {
             .join('');
         return `
       <div class="dfr-root">
-        <p class="dfr-intro">${esc(masteryLocalize('MASTERY.df2026.migrationReview.intro', 'Review characters migrated to DF 2026. Pick five Rank-2 Specializations (legacy Skills are listed for reference). Saving only changes Specializations and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.'))}</p>
+        <p class="dfr-intro">${esc(masteryLocalize('MASTERY.df2026.migrationReview.intro', 'Review characters migrated to DF 2026. Pick four Rank-2 Professions (legacy Skills are listed for reference). Saving only changes Professions and Echo Imprints — XP, Stones, Powers and Artifacts stay untouched.'))}</p>
         ${body}
         <style>
           .dfr-root { padding: 8px; overflow-y: auto; max-height: 100%; }

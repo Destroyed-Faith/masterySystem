@@ -1,9 +1,9 @@
 /**
- * Skill Advantage + Skill Crit (Destroyed Faith Skill System).
+ * Training Advantage + Training Crit (Destroyed Faith Profession / Perception system).
  *
- * Skill Rank controls dice quality, never pool size:
- *   - Advantage: reroll initial faces ≤ N once (keep new face, then explode).
- *   - Crit: declare before roll → natural 7–8 explode; daily uses per Skill.
+ * Profession Rank controls dice quality, never pool size:
+ *   - Training Advantage: reroll initial faces ≤ N once (keep new face, then explode).
+ *   - Training Crit: declare before roll → natural 7–8 explode; daily uses per Profession.
  *
  * Crit charges live only under actor flags keyed by existing Spec / situational
  * Skill ids — never rewrite `system.specializations` or XP for charge tracking.
@@ -11,35 +11,36 @@
 
 export const SKILL_CRIT_USES_FLAG = 'skillCritUses' as const;
 
-/** Max initial face that Skill Advantage may reroll once (0 = no Advantage). */
-export function skillAdvantageRerollMax(rank: number): 0 | 1 | 2 | 3 | 4 | 5 {
+/** Max initial face that Training Advantage may reroll once (0 = no Advantage). */
+export function skillAdvantageRerollMax(rank: number): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
   const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
   switch (r) {
     case 0:
-    case 1:
       return 0;
-    case 2:
+    case 1:
       return 1;
-    case 3:
+    case 2:
       return 2;
-    case 4:
-    case 5:
+    case 3:
       return 3;
-    case 6:
+    case 4:
       return 4;
+    case 5:
+      return 5;
+    case 6:
     case 7:
     case 8:
-      return 5;
+      return 6;
     default:
       return 0;
   }
 }
 
-/** Daily Skill Crit uses unlocked by Rank (0 below Rank 5). */
+/** Daily Training Crit uses unlocked by Rank (0 below Rank 7). */
 export function skillCritDailyAllowance(rank: number): 0 | 1 | 2 {
   const r = Math.max(0, Math.min(8, Math.floor(Number(rank) || 0)));
   if (r >= 8) return 2;
-  if (r >= 5) return 1;
+  if (r >= 7) return 1;
   return 0;
 }
 
@@ -68,7 +69,7 @@ function readUsesMap(actor: any): Record<string, number> {
   return {};
 }
 
-/** Uses already spent today for this Skill id (Spec id or NPC situational id). */
+/** Uses already spent today for this Profession / Perception id. */
 export function getSkillCritUsesSpent(actor: any, skillId: string): number {
   const id = String(skillId || '').trim();
   if (!id) return 0;
@@ -82,7 +83,7 @@ export function getSkillCritUsesRemaining(actor: any, skillId: string, rank: num
 }
 
 /**
- * Spend one Skill Crit charge for `skillId`. Returns false if none remain.
+ * Spend one Training Crit charge for `skillId`. Returns false if none remain.
  * Does not mutate specializations or XP — only the Crit uses flag.
  */
 export async function consumeSkillCritUse(actor: any, skillId: string, rank: number): Promise<boolean> {
@@ -101,7 +102,7 @@ export async function consumeSkillCritUse(actor: any, skillId: string, rank: num
   return true;
 }
 
-/** Clear all Skill Crit daily spends (Safe Haven / Day of Rest). */
+/** Clear all Training Crit daily spends (Safe Haven / Day of Rest). */
 export function skillCritUsesResetFlagUpdate(): Record<string, unknown> {
   return { [`flags.mastery-system.${SKILL_CRIT_USES_FLAG}`]: {} };
 }

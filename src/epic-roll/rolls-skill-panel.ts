@@ -273,11 +273,13 @@ export function groupAmbushPoolPreview(
   specialist: any,
   participants: any[],
   attributeKey: string,
+  professionId?: string | null,
 ) {
   const plan = planGroupAmbushStealthPool({
     specialist,
     participants,
     attributeKey,
+    professionId,
   });
   return {
     ok: plan.ok,
@@ -295,7 +297,17 @@ export function groupAmbushPoolPreview(
   };
 }
 
-/** Concealment is a chosen Profession, not a skill named Stealth. */
-export function resolveStealthRef(_actor: any): SkillCheckSkillRef {
-  return { kind: 'untrained' };
+/**
+ * Concealment is a chosen Profession, not a skill named Stealth.
+ * Pass the specialist's Profession id; omit / empty = untrained.
+ * Unused by live Group Ambush paths (they call `planGroupAmbushStealthPool` directly)
+ * but kept correct for callers that still resolve a SkillCheckSkillRef.
+ */
+export function resolveStealthRef(
+  _actor: any,
+  professionId?: string | null,
+): SkillCheckSkillRef {
+  const id = String(professionId || '').trim();
+  if (!id) return { kind: 'untrained' };
+  return { kind: 'specialization', id };
 }

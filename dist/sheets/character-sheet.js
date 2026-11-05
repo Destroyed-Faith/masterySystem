@@ -3,7 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, findSpecializationById, isCharacterPerceptionSpec, isLegacyFieldSpecialization, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
+import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, ensureStartingProfessionSlots, findSpecializationById, isCharacterPerceptionSpec, isLegacyFieldSpecialization, isProfessionRespecEnabled, isRespecableProfession, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
@@ -966,7 +966,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const used = assignedValues.filter((v) => v === cur).length;
             attrCreationOk[ex] = max > 0 && used <= max;
         }
-        // DF 2026: starting budget = five Rank-2 Specializations (20 Creation Points).
+        // DF 2026 / K8: starting budget = four Rank-2 Professions (Perception free).
         // Free Perception Spec is ensured on every character and does not consume a slot.
         const creationEnsured = ensureCharacterHasPerceptionSpec(context.system);
         if (creationEnsured.changed) {
@@ -2587,6 +2587,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.spec-roll', this.#onSpecializationRoll.bind(this));
         bindReliableControlClick(html, '.spec-add', this.#onSpecializationAdd.bind(this));
         bindReliableControlClick(html, '.spec-edit', this.#onSpecializationEdit.bind(this));
+        bindReliableControlClick(html, '.spec-respec', this.#onSpecializationRespec.bind(this));
         bindReliableControlClick(html, '.spec-delete', this.#onSpecializationDelete.bind(this));
         bindReliableControlClick(html, '.spec-rank-up', this.#onSpecializationRankUp.bind(this));
         bindReliableControlClick(html, '.spec-map-professions', this.#onProfessionMapping.bind(this));
@@ -5766,11 +5767,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         for (const [key, data] of Object.entries(system.attributes ?? {})) {
             attrValues[key] = Number(data?.value) || 0;
         }
-        context.specializations = buildSpecializationSheetRows(specs, attrValues);
+        const rows = buildSpecializationSheetRows(specs, attrValues);
+        const isOwner = !!this.actor.isOwner || !!context.isGM;
+        const betaRespecOn = isProfessionRespecEnabled();
+        const withSlots = betaRespecOn ? ensureStartingProfessionSlots(specs) : specs;
+        context.specializations = rows.map((row) => ({
+            ...row,
+            canBetaRespec: betaRespecOn &&
+                isOwner &&
+                context.creationComplete !== false &&
+                isRespecableProfession(withSlots, row.id),
+        }));
         context.hasSpecializations = specs.length > 0;
         // Paid Specs only — free Perception does not consume a starting slot.
         context.specializationCount = specs.filter((s) => !isCharacterPerceptionSpec(s)).length;
-        const isOwner = !!this.actor.isOwner || !!context.isGM;
         context.canEditSpecializations = isOwner;
         // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
         context.canEditSpecializationRank = !!context.isGM || context.creationComplete === false;
@@ -5822,6 +5832,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             specId,
             allowRankEdit: !creation && !!game.user?.isGM,
             fixedStartingRank: creation,
+        });
+        if (saved)
+            this.render(false);
+    }
+    async #onSpecializationRespec(event) {
+        event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
+        if (!this.actor.isOwner && !game.user?.isGM)
+            return;
+        const specId = String(event.currentTarget.dataset.specId || '');
+        if (!specId)
+            return;
+        const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
+        const saved = await showSpecializationEditDialog(this.actor, {
+            specId,
+            betaRespec: true,
         });
         if (saved)
             this.render(false);
@@ -7248,14 +7276,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onCreationSkillIncrease(event) {
         event.preventDefault();
-        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacySkillsRetired', 'Legacy skill allocation is retired. Use Specializations (five Rank 2 at creation).'));
+        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacySkillsRetired', 'Legacy skill allocation is retired. Use Professions (four at Rank 2 at creation).'));
     }
     /**
      * Character Creation / Redistribute: clear skill chunk back to 0.
      */
     async #onCreationSkillDecrease(event) {
         event.preventDefault();
-        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacySkillsRetired', 'Legacy skill allocation is retired. Use Specializations (five Rank 2 at creation).'));
+        ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacySkillsRetired', 'Legacy skill allocation is retired. Use Professions (four at Rank 2 at creation).'));
     }
     async #onStartSkillsRedistribute() {
         ui.notifications?.info(masteryLocalize('MASTERY.df2026.creation.legacyRedistributeRetired', 'Legacy skill redistribute is retired. Raise Specializations with XP (4 XP per Rank).'));

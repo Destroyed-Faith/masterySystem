@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.836] - 2026-11-05
+
+### Fixed
+
+- **Training Advantage / Training Crit (K8 final table):** Rank 0 Disadvantage; Ranks 1–6 reroll initial faces 1…1–6 once; Rank 7 adds one Training Crit per Tyhran Day, Rank 8 two. Dice engine cap raised from 5 to 6; Crit no longer available below Rank 7. Players Handbook, players guide, Cheat Sheet, worked examples and rules journals reconciled to the same table.
+- **Group Ambush (chat path):** GM chat card now offers the specialist's Profession and a Training Crit toggle, matching the Group Ambush dialog; `resolveStealthRef` resolves the chosen Profession instead of always rolling untrained.
+- **Profession category persistence:** optional `category` (and `startingSlot`) survive sheet edit, Guided Builder, import/export and reload.
+- **Legacy strings:** remaining "five Specializations" / "Skill Advantage" / "Skill Crit" texts in en/de migration review, roll dialogs and sheet fallbacks replaced with the Profession wording.
+
+### Added
+
+- **Allow Profession Respec (Beta)** world setting (GM, default off): owners may replace one of the four starting Professions (catalogue or custom, editable name/category/origin/scope) while keeping its Rank and XP, e.g. Burglar 5 → Blacksmith 5. Perception is never replaceable; duplicates are refused; with the setting off, free replacement is blocked and normal advancement is unchanged.
+- **Approved Profession Examples** (all 90 catalogue entries with full descriptions) and a **Beta Profession Respec** section in the Players Handbook and rules journals.
+
 ## [0.9.835] - 2026-11-05
 
 ### Changed

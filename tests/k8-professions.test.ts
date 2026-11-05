@@ -51,8 +51,8 @@ describe('K8 Professions', () => {
     ], { requireStartingBudget: true }).ok).toBe(true);
   });
 
-  it('Rank 2 rerolls initial 1s and does not add Pool or Keep', () => {
-    expect(skillAdvantageRerollMax(2)).toBe(1);
+  it('Rank 2 rerolls initial 1s–2s and does not add Pool or Keep', () => {
+    expect(skillAdvantageRerollMax(2)).toBe(2);
     const plan = planSpecializationRoll({
       rank: 2,
       attributeValue: 4,
@@ -63,7 +63,7 @@ describe('K8 Professions', () => {
     expect(plan.numDice).toBe(4);
     expect(plan.keepDice).toBe(2);
     expect(plan.rollDisadvantage).toBe(false);
-    expect(plan.skillAdvantageRerollMax).toBe(1);
+    expect(plan.skillAdvantageRerollMax).toBe(2);
   });
 
   it('untrained work uses Attribute k MR, Disadvantage, and no Raises', () => {
@@ -124,7 +124,7 @@ describe('K8 Professions', () => {
   it('a Ritual without a fitting Profession is not an untrained Disadvantage roll', () => {
     expect(ritualTrainingModifiers(0)).toEqual({ rollDisadvantage: false, skillAdvantageRerollMax: 0 });
     expect(ritualTrainingModifiers(4).rollDisadvantage).toBe(false);
-    expect(ritualTrainingModifiers(4).skillAdvantageRerollMax).toBe(3);
+    expect(ritualTrainingModifiers(4).skillAdvantageRerollMax).toBe(4);
   });
 
   it('does not invent Burglar from a stored Stealth rank', () => {

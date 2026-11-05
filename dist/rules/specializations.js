@@ -95,11 +95,14 @@ export function ensureCharacterHasPerceptionSpec(system) {
         const field = isSkillField(s.field) ? s.field : undefined;
         const name = String(s.name).trim();
         const origin = String(s.origin ?? '').trim();
+        const category = String(s.category ?? '').trim();
         const rec = {
             id: String(s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name))).trim(),
             name,
             ...(field ? { field } : {}),
             ...(origin ? { origin } : {}),
+            ...(category ? { category } : {}),
+            ...(s.startingSlot === true ? { startingSlot: true } : {}),
             scope: String(s.scope ?? ''),
             rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
         };
@@ -203,12 +206,15 @@ export function readActorSpecializations(system) {
         const field = isSkillField(s.field) ? s.field : undefined;
         const name = String(s.name);
         const origin = String(s.origin ?? '').trim();
+        const category = String(s.category ?? '').trim();
         return {
             id: String(s.id ?? '').trim() ||
                 (field ? specializationIdentityKey(name, field) : professionIdentityKey(name)),
             name,
             ...(field ? { field } : {}),
             ...(origin ? { origin } : {}),
+            ...(category ? { category } : {}),
+            ...(s.startingSlot === true ? { startingSlot: true } : {}),
             scope: s.scope,
             rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
         };

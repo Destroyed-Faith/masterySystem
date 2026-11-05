@@ -6,7 +6,7 @@
  * Approved players roll with compact controls (no second full Skill dialog).
  * Results update the same card automatically; GM may Close Check.
  */
-import { SPEC_ATTRIBUTE_KEYS, findSpecializationById, isSpecAttributeKey, readSpecializations, resolveComparativeSkillCheck, skillAdvantageRerollMax, } from '../rules/index.js';
+import { SPEC_ATTRIBUTE_KEYS, findSpecializationById, isCharacterPerceptionSpec, isSpecAttributeKey, readSpecializations, resolveComparativeSkillCheck, skillAdvantageRerollMax, } from '../rules/index.js';
 import { executeSkillCheck } from '../sheets/skill-check-execute.js';
 import { canonicalChatControls, syncChatRollChrome } from '../ui/quick-d8-bar.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -155,7 +155,7 @@ function renderInlineRollControls(payload, p, actor) {
     const critBlock = showCrit
         ? `<label class="ms-scr-crit-inline">
         <input type="checkbox" class="ms-scr-crit-check" data-actor-id="${escapeHtml(p.actorId)}"  name="ms-ms-scr-crit-check" form="ms-ui-only"/>
-        Skill Crit (${preview.critRemaining}/${preview.critAllowance} left)
+        Training Crit (${preview.critRemaining}/${preview.critAllowance} left)
       </label>`
         : '';
     return `<div class="ms-scr-roll-panel" data-actor-id="${escapeHtml(p.actorId)}">
@@ -272,10 +272,33 @@ function renderRequestCardHtml(payload) {
             return `<option value="${escapeHtml(p.actorId)}" ${sel}>${escapeHtml(a?.name ?? p.actorId)}</option>`;
         })
             .join('');
+        const specialistId = payload.comparative?.stealthSpecialistId || '';
+        const specialist = specialistId
+            ? globalThis.game?.actors?.get?.(specialistId)
+            : null;
+        const specs = specialist
+            ? readSpecializations(specialist.system).filter((s) => !isCharacterPerceptionSpec(s))
+            : [];
+        const specialistParticipant = payload.participants[specialistId];
+        const approvedSkill = specialistParticipant?.skill || specialistParticipant?.proposedSkill;
+        const professionFromSkill = approvedSkill?.kind === 'specialization' ? String(approvedSkill.id || '') : '';
+        const selectedProfessionId = String(payload.comparative?.ambushProfessionId || professionFromSkill || '');
+        const professionOpts = `<option value="">Untrained</option>` +
+            specs
+                .map((s) => {
+                const sel = selectedProfessionId === s.id ? 'selected' : '';
+                return `<option value="${escapeHtml(s.id)}" ${sel}>${escapeHtml(s.name)} (Rank ${s.rank})</option>`;
+            })
+                .join('');
+        const critChecked = payload.comparative?.declareSkillCrit ? 'checked' : '';
         ambushGm = `<div class="ms-scr-ambush-gm">
-      <label>Stealth specialist
+      <label>Concealment specialist
         <select class="ms-scr-ambush-specialist" name="ms-ms-scr-ambush-specialist" form="ms-ui-only">${opts || '<option value="">— join first —</option>'}</select>
       </label>
+      <label>Concealment Profession
+        <select class="ms-scr-ambush-profession" name="ms-ms-scr-ambush-profession" form="ms-ui-only">${professionOpts}</select>
+      </label>
+      <label class="ms-scr-ambush-crit"><input type="checkbox" class="ms-scr-ambush-crit-toggle" ${critChecked} /> Declare Training Crit</label>
       <button type="button" class="ms-scr-btn ms-scr-ambush-roll">Resolve Group Ambush</button>
     </div>`;
     }
@@ -847,7 +870,7 @@ export async function openSkillCheckForRequest(actor, payload, messageId) {
         </div>
       </div>`;
     const critBlock = showCrit
-        ? `<label class="ms-scr-crit-inline"><input type="checkbox" name="crit" /> Skill Crit (${preview.critRemaining}/${preview.critAllowance} left)</label>`
+        ? `<label class="ms-scr-crit-inline"><input type="checkbox" name="crit" /> Training Crit (${preview.critRemaining}/${preview.critAllowance} left)</label>`
         : '';
     const choice = await new Promise((resolve) => {
         let settled = false;
@@ -1085,6 +1108,10 @@ async function resolveGroupAmbushFromChat(messageId, payload) {
         .filter(Boolean);
     const approved = payload.participants[specialistId];
     const attributeKey = approved?.attributeKey || approved?.proposedAttributeKey || 'agility';
+    const approvedSkill = approved?.skill || approved?.proposedSkill;
+    const professionFromSkill = approvedSkill?.kind === 'specialization' ? String(approvedSkill.id || '') : '';
+    const professionId = String(cfg.ambushProfessionId || professionFromSkill || '');
+    const declareSkillCrit = !!cfg.declareSkillCrit;
     let withOpp = await ensureOppositionRolled({
         ...payload,
         comparative: { ...cfg, groupAmbush: false },
@@ -1092,14 +1119,21 @@ async function resolveGroupAmbushFromChat(messageId, payload) {
     });
     withOpp = {
         ...withOpp,
-        comparative: { ...cfg, ambushParticipantIds: ambushIds, stealthSpecialistId: specialistId },
+        comparative: {
+            ...cfg,
+            ambushParticipantIds: ambushIds,
+            stealthSpecialistId: specialistId,
+            ambushProfessionId: professionId,
+            declareSkillCrit,
+        },
     };
     const { executeGroupAmbushStealthRoll } = await import('../combat/group-ambush.js');
     const ambush = await executeGroupAmbushStealthRoll({
         specialist,
         participants,
         attributeKey,
-        declareSkillCrit: false,
+        professionId,
+        declareSkillCrit,
         observerPerceptionTotals: [
             {
                 observer: { id: 'opp', name: withOpp.opposition?.label || 'Opposition' },
@@ -1340,23 +1374,37 @@ function onChatClick(event) {
 }
 function onChatChange(event) {
     const target = event.target;
-    const sel = target?.closest?.('.ms-scr-ambush-specialist');
-    if (!sel || !isGm())
+    if (!target || !isGm())
         return;
-    const messageEl = sel.closest('.chat-message');
+    const specialistSel = target.closest?.('.ms-scr-ambush-specialist');
+    const professionSel = target.closest?.('.ms-scr-ambush-profession');
+    const critToggle = target.closest?.('.ms-scr-ambush-crit-toggle');
+    if (!specialistSel && !professionSel && !critToggle)
+        return;
+    const control = specialistSel || professionSel || critToggle;
+    const messageEl = control?.closest('.chat-message');
     if (!messageEl)
         return;
-    const requestRoot = sel.closest('.ms-skill-check-request');
+    const requestRoot = control?.closest('.ms-skill-check-request');
     const requestId = String(requestRoot?.dataset.requestId || '');
     const messageId = String(messageEl.dataset?.messageId || messageEl.getAttribute?.('data-message-id') || '');
     const msg = findMessageForRequest(requestId, messageId);
     if (!msg)
         return;
+    const root = requestRoot;
+    const nextSpecialist = specialistSel?.value ||
+        String(root?.querySelector('.ms-scr-ambush-specialist')?.value || '');
+    const nextProfession = professionSel?.value ??
+        String(root?.querySelector('.ms-scr-ambush-profession')?.value || '');
+    const nextCrit = critToggle?.checked ??
+        !!root?.querySelector('.ms-scr-ambush-crit-toggle')?.checked;
     void updatePayloadOnGm(String(msg.id), (p) => ({
         ...p,
         comparative: {
             ...(p.comparative || { source: 'virtual' }),
-            stealthSpecialistId: sel.value,
+            stealthSpecialistId: nextSpecialist,
+            ambushProfessionId: nextProfession,
+            declareSkillCrit: nextCrit,
             groupAmbush: true,
         },
     }));

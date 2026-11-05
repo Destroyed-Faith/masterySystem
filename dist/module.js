@@ -1790,6 +1790,14 @@ function registerSystemSettings() {
         type: Boolean,
         default: true
     });
+    game.settings.register('mastery-system', 'allowProfessionRespecBeta', {
+        name: 'Allow Profession Respec (Beta)',
+        hint: 'When enabled, players may freely replace one of their four free starting Professions (catalogue or custom) while keeping Rank and invested XP. Perception is never changed. Disable to block free replacement; normal XP advancement still works.',
+        scope: 'world',
+        config: true,
+        type: Boolean,
+        default: false,
+    });
     // Safety gate (K0–K9 audit P1): when held, GM-ready will not refresh stale
     // seedVersion trees or push system overwrites to actor-owned artifacts.
     // Manual "Refresh Artifact Library" still works (force: true). Default ON.
