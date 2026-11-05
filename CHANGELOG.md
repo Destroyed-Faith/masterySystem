@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.832] - 2026-11-05
+
+### Added
+
+- **Artifact Sheet V2:** actor-owned items get **Move to backpack** (unequip into inventory) and **Delete** (with confirm; Echo items use force-delete). Stowed Echo copies can appear in the backpack grid.
+
 ## [0.9.831] - 2026-11-05
 
 ### Fixed

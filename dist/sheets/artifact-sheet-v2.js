@@ -124,6 +124,10 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
             path: loc('MASTERY.artifact.sheet.path', 'Path'),
             unwired: loc('MASTERY.artifact.sheet.unwired', 'This artifact is not linked to its evolution tree yet.'),
             wire: loc('MASTERY.artifact.sheet.wire', 'Link to world tree'),
+            stow: loc('MASTERY.artifact.sheet.stow', 'Move to backpack'),
+            stowHint: loc('MASTERY.artifact.sheet.stowHint', 'Unequip and place this artifact in the inventory backpack.'),
+            delete: loc('MASTERY.artifact.sheet.delete', 'Delete'),
+            deleteHint: loc('MASTERY.artifact.sheet.deleteHint', 'Permanently remove this artifact from the character.'),
         };
         context.imgAlt = String(system.imgAlt || '').trim();
         context.summary = {
@@ -143,6 +147,9 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         }));
         context.hasNextPreview = nextPreviews.length > 0;
         context.hasActivationPreview = !mechanicallyActive && (activation.hasBaseValues || activation.hasAbilities);
+        const equipSlot = String(item.getFlag?.('mastery-system', 'equipment')?.slot || '').trim();
+        const isEquippedLike = equipSlot.length > 0 || system?.equipped === true;
+        const canManage = !!parentActor?.isOwner || !!game.user?.isGM;
         context.actorActions = parentActor
             ? {
                 show: true,
@@ -163,6 +170,8 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
                 usesStonePools: usesPools,
                 stonePools: usesPools ? listArtifactSpendableStonePools(parentActor) : [],
                 nextGmUpgrade: !!card?.nextGmUpgrade,
+                canStow: canManage && isEquippedLike,
+                canDelete: canManage,
             }
             : { show: false };
         return context;
@@ -269,6 +278,48 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         root.querySelector('[data-action="export-full-item"]')?.addEventListener('click', (ev) => {
             ev.preventDefault();
             void exportFullItemFromSheet(item);
+        });
+        root.querySelector('[data-action="sheet-stow"]')?.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+            if (!parentActor)
+                return;
+            if (!parentActor.isOwner && !game.user?.isGM)
+                return;
+            const { stowArtifactToBackpack } = await import('../utils/echo-artifact-equip.js');
+            const ok = await stowArtifactToBackpack(parentActor, item);
+            if (ok) {
+                ui.notifications?.info(`${item.name} moved to backpack.`);
+                await this.close();
+                parentActor.sheet?.render?.(false);
+            }
+        });
+        root.querySelector('[data-action="sheet-delete"]')?.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+            if (!parentActor)
+                return;
+            if (!parentActor.isOwner && !game.user?.isGM)
+                return;
+            const confirmed = await Dialog.confirm({
+                title: 'Delete artifact',
+                content: `<p>Permanently delete <strong>${item.name}</strong> from <strong>${parentActor.name}</strong>?</p>`,
+                yes: () => true,
+                no: () => false,
+                defaultYes: false,
+            });
+            if (!confirmed)
+                return;
+            try {
+                await parentActor.deleteEmbeddedDocuments('Item', [item.id], {
+                    masterySystemForceDelete: true,
+                });
+                ui.notifications?.info(`Deleted ${item.name}.`);
+                await this.close();
+                parentActor.sheet?.render?.(false);
+            }
+            catch (err) {
+                console.error('Mastery System | Artifact sheet delete failed', err);
+                ui.notifications?.error('Could not delete artifact — see console.');
+            }
         });
         if (!game.user?.isGM)
             return;

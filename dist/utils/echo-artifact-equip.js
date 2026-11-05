@@ -131,8 +131,82 @@ export async function dedupeEchoArtifactsOnActor(actor) {
     }
     return removed;
 }
-/** True when this Echo item should never appear in the carry inventory grid. */
+/**
+ * True when this Echo item should stay off the carry inventory grid.
+ * Equipped / slotted Echo artifacts stay paperdoll-only. Explicitly stowed
+ * copies (no equipment slot, not equipped) appear in the backpack so GMs can
+ * park orphan / migration leftovers without deleting them.
+ */
 export function isEchoArtifactInventoryHidden(item) {
-    return isEchoBoundArtifact(item);
+    if (!isEchoBoundArtifact(item))
+        return false;
+    const slot = normalizeSlotKey(item.getFlag?.('mastery-system', 'equipment')?.slot);
+    if (slot)
+        return true;
+    if (item.system?.equipped === true)
+        return true;
+    return false;
+}
+/**
+ * Move an actor-owned artifact off the paperdoll into the backpack inventory
+ * band (`not`). Clears equipment slot / echo lock so the item is visible in
+ * the inventory grid. Does not delete the item.
+ */
+export async function stowArtifactToBackpack(actor, item) {
+    if (!actor || !item || item.type !== 'artifact')
+        return false;
+    if (item.parent !== actor && item.parent?.id !== actor.id)
+        return false;
+    const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
+    const occupied = [];
+    try {
+        const { itemInventorySize, parseInventorySize } = await import('./inventory-grid.js');
+        const size = itemInventorySize(item);
+        const w = Math.min(10, size.w || 1);
+        const h = Math.min(9, size.h || 1);
+        for (const it of Array.from(actor.items ?? [])) {
+            if (!it || it.id === item.id)
+                continue;
+            const f = it.getFlag?.('mastery-system', 'equipment') || {};
+            if (f.container === 'inventory' && (f.band ?? 'not') === 'not' && f.grid) {
+                const s = parseInventorySize(it.system?.inventorySize) || { w: 1, h: 1 };
+                occupied.push({
+                    x: Number(f.grid.x) || 1,
+                    y: Number(f.grid.y) || 1,
+                    w: s.w || 1,
+                    h: s.h || 1,
+                });
+            }
+        }
+        const { findFirstFit } = await import('./inventory-grid.js');
+        const fit = findFirstFit(occupied, w, h, 10, 9) || { x: 1, y: 1 };
+        await item.update({
+            'system.equipped': false,
+            'flags.mastery-system.echoLocked': false,
+            'flags.mastery-system.artifactActivated': false,
+            'flags.mastery-system.equipment': {
+                ...currentFlags,
+                container: 'inventory',
+                band: 'not',
+                slot: null,
+                grid: fit,
+            },
+        });
+    }
+    catch (err) {
+        console.warn('Mastery System | stowArtifactToBackpack failed', err);
+        await item.update({
+            'system.equipped': false,
+            'flags.mastery-system.echoLocked': false,
+            'flags.mastery-system.artifactActivated': false,
+            'flags.mastery-system.equipment': {
+                ...currentFlags,
+                container: 'inventory',
+                band: 'not',
+                slot: null,
+            },
+        });
+    }
+    return true;
 }
 //# sourceMappingURL=echo-artifact-equip.js.map

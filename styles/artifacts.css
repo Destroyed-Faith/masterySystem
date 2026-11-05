@@ -2048,4 +2048,12 @@ div.artifact-sheet-v2 .artifact-ability-special {
   border-color: rgba(255, 204, 128, 0.55);
   background: rgba(255, 204, 128, 0.14);
 }
+.artifact-card-danger {
+  border-color: rgba(220, 80, 80, 0.55);
+  background: rgba(220, 80, 80, 0.14);
+  color: #ffcdd2;
+}
+.artifact-card-danger:hover {
+  background: rgba(220, 80, 80, 0.28);
+}
 

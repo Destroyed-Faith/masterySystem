@@ -179,6 +179,16 @@
     <button type="button" class="artifact-card-edit" data-action="export-full-item" title="Download exact Item JSON + readable Markdown (read-only).">
       <i class="fas fa-file-export"></i> Export Full Item
     </button>
+    {{#if actorActions.canStow}}
+    <button type="button" class="artifact-card-edit" data-action="sheet-stow" title="{{labels.stowHint}}">
+      <i class="fas fa-suitcase"></i> {{labels.stow}}
+    </button>
+    {{/if}}
+    {{#if actorActions.canDelete}}
+    <button type="button" class="artifact-card-edit artifact-card-danger" data-action="sheet-delete" title="{{labels.deleteHint}}">
+      <i class="fas fa-trash"></i> {{labels.delete}}
+    </button>
+    {{/if}}
     {{#if isGM}}
     <button type="button" class="artifact-card-edit" data-action="open-node-editor" title="Edit this artifact in the Node Editor (GM only).">
       <i class="fas fa-pen"></i> Edit in Node Editor

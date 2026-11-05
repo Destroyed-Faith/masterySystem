@@ -19,6 +19,17 @@ export declare function ensureEchoArtifactEquipped(actor: Actor, item: any): Pro
  * catalog key (wired tree + slotted wins). Returns the number of items removed.
  */
 export declare function dedupeEchoArtifactsOnActor(actor: Actor): Promise<number>;
-/** True when this Echo item should never appear in the carry inventory grid. */
+/**
+ * True when this Echo item should stay off the carry inventory grid.
+ * Equipped / slotted Echo artifacts stay paperdoll-only. Explicitly stowed
+ * copies (no equipment slot, not equipped) appear in the backpack so GMs can
+ * park orphan / migration leftovers without deleting them.
+ */
 export declare function isEchoArtifactInventoryHidden(item: any): boolean;
+/**
+ * Move an actor-owned artifact off the paperdoll into the backpack inventory
+ * band (`not`). Clears equipment slot / echo lock so the item is visible in
+ * the inventory grid. Does not delete the item.
+ */
+export declare function stowArtifactToBackpack(actor: Actor, item: any): Promise<boolean>;
 //# sourceMappingURL=echo-artifact-equip.d.ts.map
