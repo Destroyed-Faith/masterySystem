@@ -2290,19 +2290,20 @@
             <i class="fas fa-plus"></i> New Summon Bond
           </button>
         </div>
-        <p class="summons-tab-hint">Bind Attribute Stones to create a Summon Bond (8 Tokens per Bound Stone). Spend Tokens in the Bond Ritual on Movement, Attack/Damage, Bodies, Skills, Specials, and Powers.</p>
+        <p class="summons-tab-hint">Bind Attribute Stones to create a Summon Bond (8 Tokens per Bound Stone). Spend Tokens in the Bond Ritual on Movement, Attack/Damage, Bodies, Shared Senses, Specials, and Powers. Natural noncombat tasks use the owner's Profession or Perception — not Summon Skill Dice.</p>
         {{#if summonBondsView.length}}
         <ul class="summons-bond-list">
           {{#each summonBondsView}}
           <li class="summons-bond-card" data-bond-id="{{this.id}}">
             <div class="summons-bond-main">
               <strong>{{this.name}}</strong>
-              <span class="summons-bond-meta">{{this.movementMode}} {{this.movementM}} m · {{this.boundStoneCount}} stones · {{this.tokensAvailable}} Tokens ({{this.tokensRemaining}} left) · {{this.bodyCount}} bodies</span>
+              <span class="summons-bond-meta">{{this.movementMode}} {{this.movementM}} m · {{this.boundStoneCount}} stones · {{this.tokensAvailable}} Tokens ({{this.tokensRemaining}} left){{#if this.skillDiceTokenCredit}} · +{{this.skillDiceTokenCredit}} Skill Dice credit{{/if}} · {{this.bodyCount}} bodies</span>
               {{#if this.needsRedistribution}}<span class="summons-bond-badge">Needs redistrib</span>{{/if}}
               {{#if this.hasActor}}<span class="summons-bond-badge">Actor ready</span>{{/if}}
             </div>
             <div class="summons-bond-actions">
               <button type="button" class="js-sheet-summon-bond-ritual dialog-btn dialog-btn-primary" data-bond-id="{{this.id}}">Bond Ritual</button>
+              <button type="button" class="js-sheet-summon-natural-task dialog-btn dialog-btn-secondary" data-bond-id="{{this.id}}">Natural Task</button>
               <button type="button" class="js-sheet-summon-bond-dissolve dialog-btn dialog-btn-secondary" data-bond-id="{{this.id}}">Dissolve</button>
             </div>
           </li>

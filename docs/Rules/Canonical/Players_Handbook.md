@@ -2083,7 +2083,7 @@ A group may attempt **one coordinated Comparative concealment Check** to approac
 
 **Limits:** Only characters actually following the same feasible coordinated plan are covered. Characters taking an independent route or revealing themselves require separate resolution. A group ambush roll covers the agreed approach and coherent, careful movement along that plan. **There is no fixed distance limit on Stealth.** Overt hostile actions or abandoning the agreed concealment can end ordinary Stealth; a material change of circumstances may require a new attempt. Do not demand repeated rolls merely for continued movement or against unchanged opposition.
 
-**Related systems:** Ordinary concealment attempts and Invisibility remain separate. Invisibility retains its own sense-specific TN. Opposed Attribute Contests are Attribute-only and use no Profession training. Summon Skill Dice and Ritual effect tiers keep their printed exceptions.
+**Related systems:** Ordinary concealment attempts and Invisibility remain separate. Invisibility retains its own sense-specific TN. Opposed Attribute Contests are Attribute-only and use no Profession training. Summons use eligible natural abilities with the owner's Profession Training Rolls; Rituals retain their distinct Sealed-Stone costs and effect tiers.
 
 }}
 \page
@@ -8047,13 +8047,13 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 {{wide
 ## Rituals
 
-Rituals are deliberate supernatural workings outside ordinary combat: interpretation, binding, cleansing, distant sight, memory, sealing, and spiritual transformation. They are **normal Training Checks with a prescribed supernatural effect and a Sealed-Stone cost**, not another dice engine.
+Rituals are deliberate supernatural workings outside ordinary combat: interpretation, binding, cleansing, distant sight, memory, sealing, and spiritual transformation. They are **normal Training Checks with a prescribed supernatural effect and a Sealed-Stone cost**, not another dice engine. **The required Stones are the only character-resource prerequisite:** no Profession, minimum Profession Rank, or named occupational background is required. Printed targets, materials, time, and effect restrictions still apply.
 
 ### Rituals Use the Training Check Engine
 
 **Every character knows all sixteen Core Rituals from creation onward.** To perform one, describe the method—song, forged sigil, herbal arrangement, prayer, dance, diagram or remembered gesture—provide the printed targets and materials, spend **one Tyhran Hour** and Seal the required Stones. Choose the **Attribute that genuinely powers the approach** and roll **Relevant Attribute k Mastery Rank**. The Ritual's Task Level follows the supernatural task or source, independently of the caster. Rituals are available to every character; the method defines how each character expresses the same magic.
 
-A genuinely applicable **learned Profession** grants its ordinary **Training Advantage and optional daily Training Crit** on the Ritual's Training Roll. It grants **no Free Raises**: every declared Ritual Raise increases the final TN by **+4**. A character with no applicable learned Profession can still perform the Ritual without mundane Untrained Disadvantage, but gains no Training Advantage or Training Crit. A superficial explanation for an unrelated high-Rank Profession does not qualify.
+**Explain the Profession, not a prerequisite:** The player may name **one learned Profession** and explain how that character's experience shapes the actual Ritual method. If the GM agrees that the connection is credible, that Profession grants its normal **Training Advantage and any available Training Crit** on the Ritual's Training Roll. It grants **no Free Raises**: every declared Ritual Raise adds **+4 TN**. **No fitting Profession? The Ritual is still available:** roll the full relevant **Attribute k MR** without the ordinary untrained Disadvantage, but without Training Advantage or Training Crit. The Ritual's Stone cost, Task TN, and effects do not change because of the chosen approach. An unrelated high-Rank Profession cannot be used merely to obtain rerolls.
 
 **Rituals use the same Training Roll, including eligible Training Advantage and Training Crit. Rituals are an exception in how Raise effects work: named tiers and generic Raise effects are all declared BEFORE rolling.**
 
@@ -8089,19 +8089,19 @@ Rituals are used when the effect is supernatural, long-lasting, hidden, spiritua
 {{wide
 ### Approaches, Not Profession Prerequisites
 
-Thematic approaches are **examples of how** a Ritual may be performed, never eligibility lists. A player may draw upon **any** suitable Profession and use any Attribute justified by the described method:
+A Ritual has **no required Profession**. The examples below show how a character might explain the use of **one** Profession from their own history. They are not fixed Ritual-Skill pairings or mandatory choices.
 
-| Field | A possible Ritual approach |
+| Example Profession | How it might support a Ritual |
 |---|---|
-| **Physical** | Measured strength, breath, rhythm, or the placement of heavy stones |
-| **Finesse** | Precise knots, hand gestures, engraving, or delicate components |
-| **Survival** | Herbs, animal signs, roots, constellations, or the cycles of a place |
-| **Science & Craft** | Forged seals, alchemical vessels, instruments, or geometric designs |
-| **Occult** | Prayers, spirit names, sacred words, wards, or rites |
-| **Social** | Song, communal witness, vows, storytelling, or guided remembrance |
-| **Investigation** | Reconstructing the history and traces of an object or location |
+| **Mason** | Lay a stable stone circle or recognize how an old seal was built into masonry. |
+| **Locksmith** | Set delicate locking parts or trace a complex physical sealing mechanism. |
+| **Herbalist** | Arrange familiar plants and seasonal signs into a meaningful working. |
+| **Blacksmith** | Forge a sigil or prepare a marked iron vessel with practiced tools. |
+| **Theologian** | Recite and structure a rite according to a tradition the character actually knows. |
+| **Herald** | Lead the formal public declaration or witnessed oath of a binding. |
+| **Archivist** | Reconstruct inscriptions or the documented history of an object or place. |
 
-These are **inspiration**, not a mandatory catalogue. The GM asks: *What exactly do you do? Why would this method work? Which Attribute expresses it?* A fitting learned Profession supplies Training Advantage and optional Training Crit; the same Ritual remains available without that Profession.
+**Explain what the character does and why that background helps.** The GM selects a fitting Attribute and approves a credible Profession, if one applies. No Profession changes the Ritual's base TN merely by its name; without a fitting Profession, the full-Attribute Ritual roll remains available. The printed Stone cost is mandatory in every case.
 
 ---
 
@@ -8109,7 +8109,7 @@ These are **inspiration**, not a mandatory catalogue. The GM asks: *What exactly
 
 1. Choose **any of the sixteen universally available Rituals**. Describe **what the character physically or spiritually does** and why it suits their background. The entry's **Example Approaches** are illustrations, never restrictions.
 2. Choose the **Attribute** that best represents that working. A Blacksmith may forge a binding mark with Might; a singer may use Influence; a priest may pray with Resolve; a herbalist may use Vitality; a scholar may build an Intellect diagram. The GM approves a credible match.
-3. If a **learned Profession actually contributes**, name it and use its Training Advantage and optional Training Crit. No relevant Profession? The Ritual remains available without that benefit and without mundane Untrained Disadvantage.
+3. **Optional Profession:** Name one learned Profession and explain its concrete contribution to this particular method; the GM approves its scope. If it fits, apply its Training Advantage and available Training Crit. Otherwise the Ritual remains available with the full relevant Attribute Pool and **no** ordinary Untrained Disadvantage or Profession benefits. No Profession is required.
 4. Set **Task Level 3 (TN 12) as the minimum**, or use the higher genuinely relevant source/task level; select a named effect tier and optional generic Raise effects (up to **8 total Raises**) **before** rolling. Every Raise adds +4 TN.
 5. Pay and Seal Stones, finish the Ritual's required time, and resolve **one final Attribute k MR check**, unless Passive Success applies.
 
@@ -8235,8 +8235,8 @@ Failure should create pressure, not shut down the story.
 {{wide
 ### Ritual Summary — One Roll, Any Credible Method
 
-1. Choose **any of the 16 Core Rituals** (all are available to every character for free from the start). Describe **how you perform it**; There are **no required Profession categories or named ritual occupations**.
-2. Choose a fitting **Attribute** for that method. A genuinely relevant learned Profession provides **Training Advantage and optional Training Crit**. No specific Profession is required, and lacking one does not impose mundane Untrained Disadvantage.
+1. Choose **any of the 16 Core Rituals** (all are available from creation). Explain **how you perform it**. **Stones, not Professions, are the required resource**; the Ritual's printed time, target, materials, and limits still apply.
+2. Choose a fitting **Attribute**. You may explain how **one** learned Profession supports your method; if the GM agrees, use its Training Advantage and available Training Crit. Without one, roll the full relevant Attribute Pool without the mundane Untrained Disadvantage.
 3. Start with **Task Level 3 (Base TN 12)**, then use a higher Task Level when the actual work or source requires it, never based on the caster's MR. **Base TN = 4 x max(3, relevant Task Level)**.
 4. Declare a named effect tier **0-4** and suitable generic Raise effects, **maximum 8 Raises total**, before rolling.
 5. **Final TN = Base TN + 4 x declared Raises**. Pay and **Seal** Stones: 1 Stone for 0-1 Raises, 2 for 2-3, 3 for 4-8.
@@ -8762,7 +8762,7 @@ Whispers of Lost Tongues reads **the general meaning of a present language sampl
 {{wide
 ## Summons
 
-Summons are creatures created through **Bound Stones** and improved with **Summon Tokens**. Every Summon uses the same mechanical foundation. There are no separate Familiar, Companion, or Host classes. A Summon may be expressed as a beast, spirit, demon, construct, undead, elemental, shadow, echo, weapon-shard, swarm, plant-creature, memory, or any other fitting form. The mechanics define what the Summon can do. The player defines what the Summon is.
+Summons are creatures created through **Bound Stones** and improved with **Summon Tokens**. Every Summon uses the same mechanical foundation. There are no separate Familiar, Companion, or Host classes. A Summon may be expressed as a beast, spirit, demon, construct, undead, elemental, shadow, echo, weapon-shard, swarm, plant-creature, memory, or any other fitting form. The mechanics define what the Summon can do. The player defines what the Summon is. **Natural noncombat tasks use an appropriate Profession of the owner, not a separate Summon Skill list or purchased Skill Dice.** The owner explains why the creature's actual form can perform the task; the GM judges plausibility.
 
 ---
 
@@ -8830,7 +8830,7 @@ All Bodies belonging to that Summon Bond use the chosen Movement Mode. The selec
 {{wide
 ### Summon Token Costs
 
-Summon Tokens may buy improvements to the Bond, to an individual Body, or to the Bond's selected **Summon Skill Dice**. These are not player Profession resources.
+Summon Tokens improve the Bond or an individual Body and purchase eligible Powers. **There are no selectable Summon Skills and no Summon Skill Dice purchases.** Suitable natural Profession Checks use the owner's training without a separate Token cost.
 
 | **Upgrade** | **Scope** | **Starting Value** | **Cost** | **Gain** |
 |---|---|:--:|:--:|---|
@@ -8842,7 +8842,6 @@ Summon Tokens may buy improvements to the Bond, to an individual Body, or to the
 | Movement | Bond | 8 m | 1 Token | +2 m in the chosen Movement Mode |
 | Additional Body | Body | 1 Body | 2 Tokens | +1 Summon Body |
 | Shared Sense | Body | None | 2 Tokens | +1 Shared Sense Group |
-| Summon Skill Dice | Bond | None | 1 Token | +2 Skill Dice to distribute |
 | Extra Attack | Bond | 1 Attack | 8 Tokens | +1 Summon Attack |
 | Special Access | Bond | None | 4 Tokens | Unlock 1 eligible Special at Special(1) |
 | Special Value | Bond | Special(1) | 2 Tokens | Increase the chosen Special by +1 |
@@ -8852,7 +8851,7 @@ Summon Tokens may buy improvements to the Bond, to an individual Body, or to the
 
 ### Upgrade Scope
 
-**Bond Upgrades** apply once to the entire Summon Bond. All Bodies use the Bond's Attack, Damage, Movement, available Summon Attacks, selected Special, and purchased Summon Skill Dice. **Body Upgrades** are assigned to one specific Summon Body. HP, Armor, Evade, Shared Senses, and purchased Powers do not automatically transfer to another Body.
+**Bond Upgrades** apply once to the entire Summon Bond. All Bodies use the Bond's Attack, Damage, Movement, available Summon Attacks, and selected Special. **Body Upgrades** are assigned to one specific Summon Body. HP, Armor, Evade, Shared Senses, and purchased Powers do not automatically transfer to another Body. A creature's eligible natural Profession Checks instead draw directly on the current owner's relevant training; they are not purchased Bond Upgrades.
 
 An Additional Body begins with the Universal Base Summon's Body values:
 
@@ -8860,7 +8859,7 @@ An Additional Body begins with the Universal Base Summon's Body values:
 - 0 Armor
 - 4 Evade
 
-It then uses the Bond's Attack, Damage, Movement, Summon Attacks, Special, and purchased Summon Skill Dice.
+It then uses the Bond's Attack, Damage, Movement, Summon Attacks, and Special. It may attempt plausible natural tasks with the owner's eligible Profession or Perception, like any other Body in the Bond.
 
 ---
 
@@ -8872,7 +8871,6 @@ It then uses the Bond's Attack, Damage, Movement, Summon Attacks, Special, and p
 | Extra Attack | Maximum 3 Summon Attacks per Bond per Round. |
 | Special Access | Maximum 1 Special per Bond. |
 | Special Value | Maximum Special(4). |
-| Summon Professions | Two to four selected Summon Professions, based on Bound Stones. |
 | Canonical Powers | Maximum Power Level is set by the owner's Mastery Rank. |
 
 HP, Armor, Evade, Attack, and Damage have no separate Summon maximum. Their practical limit is the available Token investment.
@@ -8896,7 +8894,7 @@ The Keep value can never exceed the number of Bond Attack Dice actually rolled. 
 
 If the Bond has a Special, that Special may apply only **once per Round**, regardless of how many Bodies or Summon Attacks the Bond has. Multiple Bodies do not receive repeated attempts at the same non-combat task.
 
-> **One task allows one Summon Skill Check per Bond.**
+> **One independent noncombat task allows one owner-based Profession or Perception Check per Bond.**
 
 ---
 
@@ -8917,64 +8915,35 @@ Summons cannot delay, ready, or select a separate Initiative count. Summons cann
 \page
 {{pageNumber,auto}}
 {{wide
-### Summon Skills
+### Owner Professions for Summons
 
-A Summon does not receive Attributes or a character's Professions. Instead, the Bond chooses a limited number of **Summon task skills from the closed list below**. This is a dedicated Summon technical subsystem, not a fixed player Profession list. Player Professions remain freely named and scoped.
+**There is no fixed Summon Skill list, no number of selected Skills, and no separate Summon Skill Dice Pool.** A Summon Bond's Bound Stones allow the creature to exist; **natural noncombat tasks** use the current owner's learned Professions or free Perception, where the task credibly fits the creature's actual form and capabilities. No extra Tokens, Rank-based dice caps, transfer penalties, or separate training purchases apply.
 
-| **Bound Stones** | **Selected Summon Skills** |
-|:--:|:--:|
-| 1 | 2 Skills |
-| 2 | 3 Skills |
-| 3 or more | 4 Skills |
+**Explain the transfer:** Before the task, the player names **one** of the owner's Professions, describes the creature's specific behavior, and explains why that learned experience applies to an innate or plausible ability of the creature. The GM approves the link. For example:
 
-Bonus Summon Tokens do not increase the number of selected Skills. The **only permitted independent Summon Skill selections** are these ten simple observation, movement, hiding, and fieldcraft tasks:
+- **Tracker:** A hound follows a scent trail or a panther reads signs left by prey.
+- **Wilderness Scout:** An owl approaches quietly, watches a camp, or finds a concealed route through woodland.
+- **Hunter:** A wolf stalks game and uses wind direction and terrain for a careful approach.
+- **Pathfinder:** A sure-footed mountain beast selects a passable trail in rough country.
 
-- Perception (universal; the owner receives Perception Rank 2 for free)
-- Tracking, Navigation, Weather Sense
-- Stealth, Concealment
-- Athletics, Acrobatics
-- Search (basic physical searching), Survival (outdoor fieldcraft)
+These are illustrations, not a new restricted task list. **Use the Profession's actual agreed scope**, not its title alone. A Spirit or Construct may use a natural task only if its established form and capabilities can reasonably perform that task.
 
-This is a **closed Summon-only task list**, never a required player Profession list. Summons cannot independently purchase negotiation, academic lore, medicine, smithing, alchemy, engineering, or other full professional tasks. For each selected Summon task except Perception, the owner must have **one learned Profession with a credible matching scope**.
+**What a Summon cannot do:** It cannot borrow the owner's social, political, academic, linguistic, medical, ritual, or craft expertise to negotiate, deceive through speech, read books, forge iron, brew potions, perform surgery, write documents, or carry out other humanoid professional work. It cannot use a Profession to gain a missing sense, body part, Movement Mode, Power, Stone Ability, or other capability. **If an action requires a specific purchased Power, the Body must actually possess that Power, and the Power's own rules apply.** A Profession never substitutes for a Power or an Attack/Casting Roll.
 
----
-
-### Buying and Distributing Skill Dice
-
-**Match meaning, not spelling:** The owner's **Wilderness Scout 3** may qualify a Summon for **Stealth** in woodlands if the agreed scope includes that approach. It does not automatically qualify for urban Stealth, Navigation, or Tracking. The GM records any terrain or method restriction on each Summon task. This mapping gives no additional owner dice, Rank, Training Advantage, Training Crit, Raises, or professional competence.
-
-Each **Summon Skill Dice** purchase costs **1 Token** and grants **2 Skill Dice**. These dice may be divided freely among the Bond's selected Summon Skills, including one die at a time. For any selected Summon task except Perception, assigned Skill Dice cannot exceed **twice the Rank of one matching, learned owner Profession** with the agreed scope. Never add multiple Profession Ranks together. A Summon cannot select that task without a matching learned Profession. For the universal **Summon Perception** task, the cap remains **twice the owner's Mastery Rank**, independent of the owner's free Perception Rank.
-
-These caps limit **Summon Token purchases only**. Player characters never add these dice to their Attribute Pools.
-
-#### Example
-
-The owner has:
-
-- Mastery Rank 2 (Summon Perception Dice cap 4)
-- Wilderness Scout Rank 2 (agreed scope qualifies Summon Stealth; cap 4)
-- Tracker Rank 1 (agreed scope qualifies Summon Tracking; cap 2)
-
-The Bond has bought 4 Skill Dice. It may distribute them as:
-
-- Perception 2d8
-- Stealth 1d8
-- Tracking 1d8
-
-It could assign all 4 dice to Perception or Stealth, but not to Tracking: the owner's fitting Tracker Rank 1 allows at most 2 Tracking dice.
+**Perception:** For an independently observing creature, use the owner's ordinary **Perception Rank** with the owner's appropriate Attribute Pool and MR, but only through senses that creature actually possesses. This does not grant a Special Combat Sense or allow the owner to see through the creature without a purchased Shared Sense. When the owner actively looks through a purchased Shared Sense, use the same owner Perception rules below.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Summon Skill Checks
+### Summon Profession Checks
 
-When a Summon independently performs a selected Skill task, roll its assigned Skill Dice and keep dice equal to the owner's Mastery Rank.
+For one plausible independent natural task, roll **the owner's relevant Attribute Pool, keeping the owner's Mastery Rank**. Apply **one** fitting owner Profession's current Training Rank, Training Advantage, and available Training Crit exactly as on the owner's own Training Roll. The same character-level Training Crit use is spent if declared; it is not duplicated for each Body.
 
-> **Summon Skill Check = assigned Skill Dice k owner's Mastery Rank**
+> **Summon Natural Training Roll = owner's relevant Attribute k owner's MR, using one eligible owner Profession.**
 
-The number of kept dice can never exceed the number of dice rolled. Summon Skill Dice are a **separate Summon Bond purchase**, not consumable player Profession points. They are the complete dice pool used for the Summon's independent check. Summons do not gain character Training Ranks, Training Advantage, Training Crit, or ordinary Training Raises, and cannot perform complex professional tasks merely by rolling well. All Bodies share the same selected Skills and Skill Dice. Body count never grants repeated rolls for one task.
+**No Summon-specific reduction, penalty, dice cap, extra purchase, or additional bonus applies.** The owner and Summon do not roll twice for the same task. Use the ordinary Standard or Comparative Training Check rules and their normal Raises limitations, subject to physical plausibility; noncombat Raises never grant a creature a Power or impossible capability. All Bodies share the owner's current Professions rather than receiving separate Summon ranks. **One task allows one check for the entire Bond**, irrespective of how many Bodies cooperate.
 
 ---
 
@@ -8989,7 +8958,7 @@ A Shared Sense is assigned to one Body.
 | Taste / Smell | 2 Tokens |
 | Touch / Pressure | 2 Tokens |
 
-When the owner actively perceives through a Body's Shared Sense, the owner makes an ordinary universal Perception check with **their own relevant Attribute and Mastery Rank**, from the Body's position and through that Sense Group. The owner uses their **Perception Rank** (starting at 2) for **Training Advantage and optional Training Crit**; Perception adds no dice to the Attribute Pool. Comparative perception grants no Raises. When the Summon observes independently, it uses the Bond's purchased Summon Perception Dice instead. Switching between the owner's senses and a Summon's Shared Senses costs **1 Movement** during combat. Outside combat, switching senses requires no action. Shared Senses grant sensory access only. They do not grant automatic success, knowledge, analysis, or additional Training Checks.
+When the owner actively perceives through a Body's purchased Shared Sense, the owner makes an ordinary universal Perception Check with **their own relevant Attribute Pool, Mastery Rank, and Perception Rank** from the Body's position, limited to that Sense Group. Training Advantage and any available Training Crit apply normally; Comparative Perception has no Raises. **When a Summon observes independently, it also uses the owner's Perception Training Roll**, limited to the creature's actual senses, rather than any separate Summon Perception Dice. Switching between the owner's senses and a Summon's Shared Senses costs **1 Movement** during combat; outside combat it requires no action. Shared Senses grant the owner remote sensory access only. They grant no automatic detection, extra checks, or Special Combat Senses.
 
 ---
 }}
@@ -9061,7 +9030,7 @@ During a Bond Ritual, the owner may:
 - change the Bond's Expression,
 - change its one selected Movement Mode,
 - redistribute Summon Tokens,
-- change selected Summon Skills and Skill Dice,
+- review which of the owner's current Professions credibly match the Summon's new Expression (no Skill selection or dice reallocation is required),
 - assign Body Upgrades and Powers,
 - or restore destroyed Summon Bodies.
 
@@ -9086,17 +9055,17 @@ The following examples are not separate Summon classes. Every example uses the s
 
 **Concept:** A simple flying Familiar used for reconnaissance.
 
-**Available:** 8 Summon Tokens **Selected Movement Mode:** Flying **Selected Summon Skills:** Perception, Stealth
+**Available:** 8 Summon Tokens **Selected Movement Mode:** Flying
 
 | **Purchase** | **Cost** |
 |---|:--:|
 | Shared Sight | 2 Tokens |
 | Shared Hearing | 2 Tokens |
-| 4 Summon Skill Dice | 2 Tokens |
 | +4 m Movement | 2 Tokens |
-| **Total** | **8 Tokens** |
+| **Spent** | **6 Tokens** |
+| **Unspent** | **2 Tokens** |
 
-Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assuming the owner has **MR 1+** and **one suitable Profession at Rank 1+** that covers the intended concealment.
+The Owl needs no purchased Skill Dice. It can make plausible **Perception** or concealment checks with the owner's relevant Attribute Pool and MR, using the owner's Perception Rank or a fitting learned Profession (such as Wilderness Scout), if the GM approves the creature's natural method.
 
 **Finished Owl:**
 
@@ -9105,8 +9074,8 @@ Distribute the four Skill Dice as **Perception 2d8** and **Stealth 2d8**, assumi
 - Evade 4
 - 12 m Flying Movement
 - Shared Sight and Hearing
-- Perception 2kMR
-- Stealth 2kMR
+- Perception using the owner's normal Perception Training Roll
+- Quiet scouting using a fitting owner Profession's normal Training Roll
 - 1 weak Summon Attack at 2d8 Attack and 1d8 Damage
 
 The Owl is a complete scout with one Stone. It can observe independently or act as a remote sensory position for its owner.
@@ -9184,7 +9153,7 @@ The seven Skeletons occupy separate spaces and may move independently during the
 
 **Concept:** A fast, elusive predator inspired by an elite magical panther companion.
 
-**Available:** 16 Summon Tokens **Selected Movement Mode:** Walking **Selected Summon Skills:** Perception, Stealth, Tracking
+**Available:** 16 Summon Tokens **Selected Movement Mode:** Walking
 
 | **Purchase** | **Cost** |
 |---|:--:|
@@ -9194,10 +9163,10 @@ The seven Skeletons occupy separate spaces and may move independently during the
 | +1d8 Damage | 2 Tokens |
 | +4 m Movement | 2 Tokens |
 | Passive: Damage, Power Level 2 | 4 Tokens |
-| 4 Summon Skill Dice | 2 Tokens |
-| **Total** | **16 Tokens** |
+| **Spent** | **14 Tokens** |
+| **Unspent** | **2 Tokens** |
 
-Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has **one Profession at Rank 2+** that credibly covers that Summon Stealth task.
+The Panther does not purchase Skill Dice. It may track, stalk, or move quietly with the owner's relevant Attribute Pool, MR, and a single fitting learned Profession (such as Tracker, Hunter, or Wilderness Scout), provided the player explains how the Panther performs the task naturally.
 
 **Finished Panther:**
 
@@ -9207,7 +9176,7 @@ Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has **one Prof
 - Attack 4d8
 - 2d8 base Damage, plus 1d8 from Passive: Damage (3d8 total for eligible damage rolls)
 - 12 m Walking Movement
-- Stealth 4kMR
+- Natural concealment/tracking using the owner's eligible Profession Training Roll
 - Passive: Damage at Power Level 2
 
 Passive: Damage (PL 2) adds **+1d8 Damage** to the Panther’s attacks without a movement condition. Its Bond Damage remains 2d8, so its normal total is **3d8**, provided both sources are eligible for that attack. The Passive is a complete current catalogue entry, not a custom Summon-only effect.
@@ -9427,7 +9396,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 **Combat:** **Before** an Attack or Casting Roll, declare the number of Paid Raises and commit the number of eligible Intellect Free Raises. **Paid +4 TN; Free +0. After** the roll and hit checks, choose the Damage/Special allocation for those Raises; never add more Raises after the roll. A successful Damage Raise grants **+MR d8** (AoE: **+ceil(MR/2) d8**); a Special Raise adds **+MR** to an existing numeric Special. **Special-only Attacks (Single Target or AoE)** may use only Special Raises, never Damage Raises. AoE, Split Attack and Autofire choose one **shared after-roll allocation** per Power use. **Persistent Special Zones and Special Auras cannot use Raises** because they make no Attack or Casting Roll. Spells use **Base TN = cast PL × 4**; direct Spells add effective Spell Resistance and Paid Raises to the target's TN. Other placed Spells use their normal Creation TN.
 
-**Rituals:** Every character knows all **16 Core Rituals**. Choose a fitting approach and Attribute; spend **1 Tyhran Hour** and Seal Stones. **Base TN = 4 x max(3, Task Level)**; **8 Raises maximum** across named tier 0-4 and compatible generic effects. Every declared Ritual Raise adds **+4 TN**; Training Rank grants **no Free Raises**. A genuinely relevant Profession supplies **Training Advantage and optional Training Crit** on the Ritual roll. Seal **1 Stone for 0-1 Raises; 2 for 2-3; 3 for 4-8**. Success grants exactly the declared effects; failure leaves Stones Sealed.
+**Rituals:** Every character knows all **16 Core Rituals**. **Stones are mandatory; no Profession is required.** Explain the method and choose a fitting Attribute; spend **1 Tyhran Hour** and Seal Stones. A learned Profession helps only when the player explains a credible connection and the GM approves it; then apply its Training Advantage and available Training Crit. Without one, use the full Attribute Pool with no mundane Untrained Disadvantage. **Base TN = 4 x max(3, Task Level)**; **8 Raises maximum** across named tier 0-4 and compatible generic effects. Each Raise adds **+4 TN**, with no Free Raises from training. Seal **1 Stone for 0-1 Raises; 2 for 2-3; 3 for 4-8**. Failure leaves Stones Sealed.
 
 </div>
 <div style="flex: 1;">

@@ -5,6 +5,7 @@
 import { performRitualRoll } from '../combat/ritual-roll-handler.js';
 import { CORE_RITUALS, coreRitualTierText, getCoreRitualById, isSealPassage, stripRitualMarkdown, } from '../rules/core-rituals.js';
 import { RITUAL_MAX_NAMED_TIER, RITUAL_MAX_TOTAL_RAISES, planRitualRaises, ritualFreeRaisesFromSpecialization, ritualSealedStoneCost, } from '../rules/ritual-tn.js';
+import { getSkillCritUsesRemaining, skillCritDailyAllowance, } from '../rules/skill-advantage.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
@@ -61,6 +62,8 @@ export class RitualWorkshopController {
     attributeKey = POOL_ATTRS[0];
     /** Selected Profession key ('' = none). No Profession does not impose untrained Disadvantage. */
     specKey = '';
+    /** Player explanation of how the Profession supports this Ritual method (GM adjudicates). */
+    professionWhy = '';
     declareTrainingCrit = false;
     placed = [];
     uiScrollTop = 0;
@@ -235,6 +238,10 @@ export class RitualWorkshopController {
                 }
                 : null,
             approach: this.approach,
+            professionWhy: this.professionWhy,
+            canDeclareTrainingCrit: !!this.#selectedSpec() &&
+                skillCritDailyAllowance(this.#selectedSpec().rank) > 0 &&
+                getSkillCritUsesRemaining(this.actor, String(this.#selectedSpec().id || ''), this.#selectedSpec().rank) > 0,
             approachChips,
             declareTrainingCrit: this.declareTrainingCrit,
             taskLevel: this.taskLevel,
@@ -260,8 +267,8 @@ export class RitualWorkshopController {
             canRoll: this.#canRoll(plan),
             ruleTips: [
                 {
-                    label: 'Skill Check',
-                    text: 'Rituals are Skill Checks. Describe your Approach (free text or an example), pick any Attribute pool, and optionally a relevant Specialization. The GM has final approval.',
+                    label: 'Training Check',
+                    text: 'Stones are the required resource — no Profession is mandatory. Describe your method, pick a fitting Attribute, and optionally name one learned Profession that genuinely supports that method. The GM approves relevance before Training Advantage / Crit apply.',
                 },
                 {
                     label: 'TN',
@@ -269,11 +276,11 @@ export class RitualWorkshopController {
                 },
                 {
                     label: 'Raises',
-                    text: `Named Tier (0–4) plus generic Raises, max ${RITUAL_MAX_TOTAL_RAISES} total. A relevant Specialization at Rank 4 / 6 / 8 makes 1 / 2 / 3 Raises Free (+0 TN).`,
+                    text: `Named Tier (0–4) plus generic Raises, max ${RITUAL_MAX_TOTAL_RAISES} total. Every declared Raise adds +4 TN — Profession Rank grants no Free Raises.`,
                 },
                 {
                     label: 'Stones',
-                    text: 'Sealed Stones by total Raises (Paid + Free): 0–1 = 1, 2–3 = 2, 4+ = 3. Any color. They stay Sealed on the attempt, even on failure, until a Safe Haven Rest.',
+                    text: 'Sealed Stones by total Raises: 0–1 = 1, 2–3 = 2, 4–8 = 3. Any color. They stay Sealed on the attempt, even on failure, until a Safe Haven Rest.',
                 },
                 {
                     label: 'Time',
@@ -343,10 +350,18 @@ export class RitualWorkshopController {
         });
         root.querySelector('.js-rw-spec')?.addEventListener('change', (ev) => {
             this.specKey = ev.target.value;
-            if (!this.specKey)
+            if (!this.specKey) {
                 this.declareTrainingCrit = false;
+                this.professionWhy = '';
+            }
             this.#trimPlacedToCost();
             refresh();
+        });
+        root.querySelector('.js-rw-profession-why')?.addEventListener('input', (ev) => {
+            this.professionWhy = String(ev.target.value ?? '');
+        });
+        root.querySelector('.js-rw-profession-why')?.addEventListener('change', (ev) => {
+            this.professionWhy = String(ev.target.value ?? '');
         });
         root.querySelector('.js-rw-training-crit')?.addEventListener('change', (ev) => {
             this.declareTrainingCrit = !!ev.target.checked;
@@ -399,10 +414,14 @@ export class RitualWorkshopController {
         if (!this.#canRoll(plan))
             return;
         const spec = this.#selectedSpec();
+        const why = String(this.professionWhy || '').trim();
+        const approachWithWhy = spec && why
+            ? `${String(this.approach || '').trim()}${this.approach ? ' ' : ''}(Profession link: ${why})`
+            : this.approach;
         await performRitualRoll(this.actor, ritual, {
             attributeKey: this.attributeKey,
             taskLevel: this.taskLevel,
-            approach: this.approach,
+            approach: approachWithWhy,
             specialization: spec
                 ? { id: spec.id, name: spec.name, field: spec.field, rank: spec.rank }
                 : null,

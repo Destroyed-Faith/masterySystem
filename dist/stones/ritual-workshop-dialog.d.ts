@@ -20,6 +20,8 @@ export declare class RitualWorkshopController {
     attributeKey: PoolAttr;
     /** Selected Profession key ('' = none). No Profession does not impose untrained Disadvantage. */
     specKey: string;
+    /** Player explanation of how the Profession supports this Ritual method (GM adjudicates). */
+    professionWhy: string;
     declareTrainingCrit: boolean;
     placed: string[];
     uiScrollTop: number;

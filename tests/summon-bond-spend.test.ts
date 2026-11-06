@@ -121,16 +121,14 @@ describe('Bond upgrade steppers', () => {
     }
   });
 
-  it('caps Skill Dice by remaining tokens and selected skill capacity', () => {
+  it('refuses new Skill Dice purchases (retired)', () => {
     const spend = emptyBondSpend(1);
     const limited = ctx({
       boundStoneCount: 2,
       selectedSkills: ['perception'],
       ownerSkillRatings: { perception: 2 },
     });
-    const one = applyBondFieldDelta(spend, 'skillDicePurchases', 1, limited);
-    expect(one?.skillDicePurchases).toBe(1);
-    expect(applyBondFieldDelta(one!, 'skillDicePurchases', 1, limited)).toBeNull();
+    expect(applyBondFieldDelta(spend, 'skillDicePurchases', 1, limited)).toBeNull();
   });
 
   it('clamps skill allocation to owner rating and purchased dice', () => {
@@ -240,22 +238,9 @@ describe('Summon Skill eligibility', () => {
     expect(isSummonSkillEligible(4, 3)).toBe(true);
   });
 
-  it('cannot buy Skill Dice without an eligible selected skill', () => {
+  it('cannot buy Skill Dice even with an eligible selected skill (retired)', () => {
     const spend = emptyBondSpend(1);
     expect(applyBondFieldDelta(spend, 'skillDicePurchases', 1, ctx({ boundStoneCount: 2 }))).toBeNull();
-    expect(
-      applyBondFieldDelta(
-        spend,
-        'skillDicePurchases',
-        1,
-        ctx({
-          boundStoneCount: 2,
-          selectedSkills: ['perception'],
-          ownerSkillRatings: { perception: 0 },
-          ownerMasteryRank: 2,
-        }),
-      ),
-    ).toBeNull();
     expect(
       applyBondFieldDelta(
         spend,
@@ -267,8 +252,8 @@ describe('Summon Skill eligibility', () => {
           ownerSkillRatings: { perception: 4 },
           ownerMasteryRank: 2,
         }),
-      )?.skillDicePurchases,
-    ).toBe(1);
+      ),
+    ).toBeNull();
   });
 
   it('blocks Apply when the owner has Rating 0 in a selected skill', () => {

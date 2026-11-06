@@ -29,6 +29,7 @@ import { getFilePickerClass } from '../utils/foundry-v14.js';
 import { artworkUpdateForPortrait, artworkUpdateForToken, placedTokenIdsToRetarget, visibleTokenSrc, } from '../utils/actor-artwork.js';
 import { copyDocumentImageLink, openImageViewer, } from '../ui/image-url-share.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
+import { SummonNaturalTaskDialog } from '../stones/summon-natural-task-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
 import { canGiveBackMinorMagic, dismissMinorMagicByLedgerKey, dismissMinorMagicItem, giveMinorMagicItemToActor, listMinorMagicGiveTargets, minorMagicSheetView, readMinorMagicFlag, returnMinorMagicItemToCreator, useMinorMagicItem, } from '../utils/minor-magic-items.js';
@@ -1273,6 +1274,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 boundStoneCount: b.boundStoneCount,
                 tokensAvailable: tok.available,
                 tokensRemaining: tok.remaining,
+                skillDiceTokenCredit: tok.skillDiceTokenCredit,
                 bodyCount: b.bodies?.length ?? 1,
                 needsRedistribution: !!b.needsRedistribution,
                 hasActor: (b.bodies || []).some((body) => !!body.summonActorId),
@@ -2867,6 +2869,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!id)
                 return;
             await SummonBondDialog.showRitual(this.actor, id);
+            this.render(false);
+        });
+        html.on('click.summonBonds', '.js-sheet-summon-natural-task', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.bondId;
+            if (!id)
+                return;
+            await SummonNaturalTaskDialog.show(this.actor, id);
             this.render(false);
         });
         const ritualRoot = html.find('.tab.rituals .rw-root').get(0);

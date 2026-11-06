@@ -106,7 +106,8 @@ describe('K8 Professions', () => {
     expect(safeHavenScarBarsRecovered(8)).toBe(3);
   });
 
-  it('caps Summon Skill Dice at 2 × one covering Profession rank', () => {
+  it('legacy summonSkillDiceCap helper remains deterministic (retired purchases)', () => {
+    // Purchases are retired; helper kept for migration/compat math only.
     expect(summonSkillDiceCap({
       task: 'stealth',
       ownerMasteryRank: 2,

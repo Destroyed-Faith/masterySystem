@@ -107,12 +107,21 @@ export type SummonBondRecord = {
   summonAttacks: number;
   specialKey?: string | null;
   specialValue: number;
+  /** @deprecated Retired — cleared by Skill Dice Token credit migration. */
   selectedSkills: SummonSkillId[];
+  /** @deprecated Retired — cleared by Skill Dice Token credit migration. */
   skillDiceAlloc: Partial<Record<SummonSkillId, number>>;
   /**
-   * DF 2026: SUMMON_TASKS mapped to owner Specialization ids (slots =
-   * `summonTaskSlotCount(boundStoneCount)`). Dice caps via `summonSkillDiceCap`.
-   * Summons never receive Free Raises.
+   * Unspent Tokens credited when Skill Dice purchases were retired.
+   * Added to available budget; not Artifact bonus.
+   */
+  skillDiceTokenCredit?: number;
+  /** Idempotent migration stamp for Skill Dice retirement. */
+  skillDiceRefundStamp?: { tokens: number; at: string; purchases?: number };
+  /** Task keys already resolved for this Bond (one check per task). */
+  naturalTaskResolvedKeys?: string[];
+  /**
+   * @deprecated Retired with Summon Skill Dice. Natural tasks use owner Professions.
    */
   taskSpecMap?: SummonTaskSpecMap;
   spend: SummonBondUpgradeSpend;
@@ -242,6 +251,7 @@ export function recomputeBondDerived(bond: SummonBondRecord): SummonBondRecord {
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
+    skillDiceTokenCredit: bond.skillDiceTokenCredit,
     movementMode: bond.movementMode,
     spend: bond.spend,
   });
@@ -271,44 +281,17 @@ export function recomputeBondDerived(bond: SummonBondRecord): SummonBondRecord {
   };
 }
 
+/**
+ * Summon Skill Dice / selected-skill slots are retired.
+ * Pre-migration Bonds may still carry legacy fields; those are cleared by
+ * `summon-skill-dice-refund-migration` rather than hard-failing Bond Rituals.
+ */
 export function validateBondSkillAlloc(
-  bond: SummonBondRecord,
-  ownerSkillRatings: Record<string, number>,
-  ownerMasteryRank = 1,
+  _bond: SummonBondRecord,
+  _ownerSkillRatings: Record<string, number>,
+  _ownerMasteryRank = 1,
 ): string[] {
-  const errors: string[] = [];
-  const slots = summonSkillSlots(bond.boundStoneCount);
-  if (bond.selectedSkills.length > slots) {
-    errors.push(`Selected ${bond.selectedSkills.length} skills but only ${slots} slots (from Bound Stones).`);
-  }
-  const minRating = summonSkillMinRating(ownerMasteryRank);
-  for (const skill of bond.selectedSkills || []) {
-    const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
-    if (!isSummonSkillEligible(rating, ownerMasteryRank)) {
-      errors.push(`${skill}: Owner has Rating 0 — the Bond cannot select this Skill.`);
-    }
-  }
-  let diceSum = 0;
-  for (const [skill, dice] of Object.entries(bond.skillDiceAlloc || {})) {
-    const d = Math.max(0, Math.floor(Number(dice) || 0));
-    diceSum += d;
-    const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
-    if (d > 0 && rating <= 0) {
-      errors.push(`Cannot assign dice to ${skill}: owner Rating is 0.`);
-    } else if (d > rating) {
-      errors.push(`${skill}: ${d} dice exceed owner Rating ${rating}.`);
-    }
-  }
-  const computed = computeSummonBond({
-    boundStoneCount: bond.boundStoneCount,
-    bonusTokens: bond.bonusTokens,
-    movementMode: bond.movementMode,
-    spend: bond.spend,
-  });
-  if (diceSum > computed.skillDiceTotal) {
-    errors.push(`Allocated ${diceSum} skill dice but only ${computed.skillDiceTotal} purchased.`);
-  }
-  return errors;
+  return [];
 }
 
 export async function persistSummonBonds(actor: any, bonds: SummonBondRecord[]): Promise<void> {
@@ -340,15 +323,19 @@ export function tokensSummary(bond: SummonBondRecord): {
   skillsSpent: number;
   specialSpent: number;
   bodySpent: number[];
+  /** Retired Skill Dice Token credit included in `available`. */
+  skillDiceTokenCredit: number;
 } {
+  const credit = Math.max(0, Math.floor(Number(bond.skillDiceTokenCredit) || 0));
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
+    skillDiceTokenCredit: credit,
     movementMode: bond.movementMode,
     spend: bond.spend,
   });
   return {
-    available: summonTokensFromStones(bond.boundStoneCount, bond.bonusTokens),
+    available: computed.tokensAvailable,
     spent: computed.tokensSpent,
     remaining: computed.tokensRemaining,
     skillSlots: summonSkillSlots(bond.boundStoneCount),
@@ -356,6 +343,7 @@ export function tokensSummary(bond: SummonBondRecord): {
     skillsSpent: computed.skillTokens,
     specialSpent: computed.specialTokens,
     bodySpent: computed.bodyTokens,
+    skillDiceTokenCredit: credit,
   };
 }
 
@@ -372,6 +360,7 @@ export function syncBodiesFromSpend(bond: SummonBondRecord): SummonBondRecord {
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
+    skillDiceTokenCredit: bond.skillDiceTokenCredit,
     movementMode: bond.movementMode,
     spend: bond.spend,
   });
@@ -479,6 +468,7 @@ export function validateBondRitual(
   const inspect = inspectBondSpend(bond.spend, {
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
+    skillDiceTokenCredit: bond.skillDiceTokenCredit,
     movementMode: bond.movementMode,
     selectedSkills: bond.selectedSkills,
     ownerSkillRatings,
@@ -493,6 +483,7 @@ export function validateBondRitual(
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: sanitizeBonusTokens(bond.bonusTokens, maxBonus),
+    skillDiceTokenCredit: bond.skillDiceTokenCredit,
     movementMode: bond.movementMode,
     spend: sanitizeSpendNumbers(bond.spend),
   });
@@ -658,6 +649,7 @@ export async function applyBondRitual(
   const inspect = inspectBondSpend(draft.spend, {
     boundStoneCount: draft.boundStoneCount,
     bonusTokens: draft.bonusTokens,
+    skillDiceTokenCredit: draft.skillDiceTokenCredit,
     movementMode: draft.movementMode,
     selectedSkills: draft.selectedSkills,
     ownerSkillRatings,
@@ -677,6 +669,7 @@ export async function applyBondRitual(
   const computed = computeSummonBond({
     boundStoneCount: bond.boundStoneCount,
     bonusTokens: bond.bonusTokens,
+    skillDiceTokenCredit: bond.skillDiceTokenCredit,
     movementMode: bond.movementMode,
     spend: bond.spend,
   });

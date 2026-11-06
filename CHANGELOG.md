@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.838] - 2026-11-06
+
+### Changed
+
+- **Rituals:** no required Profession for casting; Stones remain the only character-resource prerequisite. Optional Profession + GM approval can still grant Training Advantage / Training Crit; untrained Rituals use full Attribute × MR with no Disadvantage.
+- **Summons:** retire Summon Skill Dice purchases. Natural noncombat tasks use the owner's Profession or Perception (Attribute Pool, MR Keep, Training Advantage / Crit). Animal capability restrictions and GM approval for Profession transfers remain.
+
+### Added
+
+- **Summon Natural Task** action on the Bond sheet: select Profession/Perception, describe the creature's action, roll via `planSummonNaturalTask` / `executeSummonNaturalTask`, stamp one-check-per-Bond task keys, chat via existing Training Roll presentation.
+- **Skill Dice Token credit migration:** refunded legacy Skill Dice Tokens become `skillDiceTokenCredit` unspent Bond upgrade budget (not Artifact bonus); Scout Owl / Shadow Panther examples preserve 2 unspent Tokens.
+
 ## [0.9.837] - 2026-11-06
 
 ### Fixed

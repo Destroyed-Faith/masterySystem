@@ -159,6 +159,11 @@ export declare const MAX_ARTIFACT_BONUS_TOKENS = 64;
 export declare function computeSummonBond(opts: {
     boundStoneCount: number;
     bonusTokens?: number;
+    /**
+     * Unspent Token credit from retired Summon Skill Dice purchases.
+     * Not Artifact bonus — not subject to the ×4 Artifact Summon Stone step.
+     */
+    skillDiceTokenCredit?: number;
     movementMode: SummonMovementMode;
     spend: SummonBondUpgradeSpend;
 }): ComputedSummonBond;

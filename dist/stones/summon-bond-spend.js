@@ -158,6 +158,7 @@ function tokensRemainingFor(spend, ctx) {
     return computeSummonBond({
         boundStoneCount: ctx.boundStoneCount,
         bonusTokens: sanitizeBonusTokens(ctx.bonusTokens, ctx.maxBonusTokens ?? MAX_ARTIFACT_BONUS_TOKENS),
+        skillDiceTokenCredit: Math.max(0, Math.floor(Number(ctx.skillDiceTokenCredit) || 0)),
         movementMode: normalizeMovementMode(ctx.movementMode),
         spend: sanitizeSpendNumbers(spend),
     }).tokensRemaining;
@@ -175,13 +176,9 @@ export function applyBondFieldDelta(spend, field, delta, ctx) {
     const ruleMax = ruleMaxForBondField(field, ctx);
     if (nextVal > ruleMax)
         return null;
-    if (field === 'skillDicePurchases' && delta > 0) {
-        const without = { ...next, skillDicePurchases: 0 };
-        const remainingIfZero = tokensRemainingFor(without, ctx);
-        const cap = skillDicePurchaseCap(ctx.selectedSkills ?? [], ctx.ownerSkillRatings, remainingIfZero, ctx.ownerMasteryRank ?? 1);
-        if (nextVal > cap)
-            return null;
-    }
+    // Summon Skill Dice purchases are retired — never allow new buys.
+    if (field === 'skillDicePurchases' && delta > 0)
+        return null;
     next[field] = nextVal;
     if (field === 'additionalBodies') {
         const bodyCount = 1 + nextVal;
@@ -322,6 +319,7 @@ export function inspectBondSpend(spend, ctx) {
     const computed = computeSummonBond({
         boundStoneCount: ctx.boundStoneCount,
         bonusTokens: sanitizeBonusTokens(ctx.bonusTokens, bonusMax),
+        skillDiceTokenCredit: Math.max(0, Math.floor(Number(ctx.skillDiceTokenCredit) || 0)),
         movementMode: mode,
         spend: sanitized,
     });

@@ -1,0 +1,46 @@
+.summon-natural-task-dialog {
+  color: #1c1814;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 0.35rem 0.6rem 0.85rem;
+}
+
+.snt-header { margin-bottom: 0.75rem; }
+.snt-title { margin: 0 0 0.25rem; font-size: 1.1rem; }
+.snt-subtitle { margin: 0; color: #6a5f52; font-size: 0.9em; }
+
+.snt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.55rem;
+}
+.snt-field select,
+.snt-field textarea,
+.snt-field input[type="text"] {
+  width: 100%;
+}
+
+.snt-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.55rem;
+}
+
+.snt-error {
+  margin: 0.35rem 0;
+  color: #7f1d1d;
+  font-weight: 600;
+}
+.snt-preview {
+  margin: 0.35rem 0;
+  color: #3f6212;
+}
+
+.snt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}

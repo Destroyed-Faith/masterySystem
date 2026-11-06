@@ -8,6 +8,8 @@ export type BodySpendField = 'hpPurchases' | 'armorPurchases' | 'evadePurchases'
 export type SpendClampContext = {
     boundStoneCount: number;
     bonusTokens: number;
+    /** Retired Skill Dice Token credit — counts toward remaining upgrade budget. */
+    skillDiceTokenCredit?: number;
     movementMode: SummonMovementMode | string;
     selectedSkills?: string[];
     ownerSkillRatings?: Record<string, number>;

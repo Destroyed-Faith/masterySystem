@@ -320,6 +320,11 @@ function sanitizeBonusForCompute(raw: unknown): { bonus: number; illegal: boolea
 export function computeSummonBond(opts: {
   boundStoneCount: number;
   bonusTokens?: number;
+  /**
+   * Unspent Token credit from retired Summon Skill Dice purchases.
+   * Not Artifact bonus — not subject to the ×4 Artifact Summon Stone step.
+   */
+  skillDiceTokenCredit?: number;
   movementMode: SummonMovementMode;
   spend: SummonBondUpgradeSpend;
 }): ComputedSummonBond {
@@ -333,7 +338,9 @@ export function computeSummonBond(opts: {
   if (bonusInfo.bonus > 0 && stones < 1) {
     errors.push('Artifact bonus Tokens cannot create a Bond. Bind at least one Bound Stone.');
   }
-  const available = summonTokensFromStones(stones, stones < 1 ? 0 : bonusInfo.bonus);
+  const credit = Math.max(0, Math.floor(Number(opts.skillDiceTokenCredit) || 0));
+  const available =
+    summonTokensFromStones(stones, stones < 1 ? 0 : bonusInfo.bonus) + credit;
   const spend = opts.spend;
 
   let tokensSpent = 0;
@@ -346,6 +353,8 @@ export function computeSummonBond(opts: {
   const movementPurchases = floorPurchase(spend.movementPurchases);
   const extraAttackPurchases = floorPurchase(spend.extraAttackPurchases);
   const specialValuePurchases = floorPurchase(spend.specialValuePurchases);
+  // Skill Dice purchases are retired. Still counted until migration credits them,
+  // so pre-migration Bonds do not silently free Tokens mid-compute.
   const skillDicePurchases = floorPurchase(spend.skillDicePurchases);
   const additionalBodies = floorPurchase(spend.additionalBodies);
 
@@ -363,6 +372,11 @@ export function computeSummonBond(opts: {
   add(specialTokens);
   add(skillTokens);
   add(extraBodyTokens);
+  if (skillDicePurchases > 0) {
+    warnings.push(
+      'Summon Skill Dice purchases are retired. Run the Skill Dice Token credit migration to free those Tokens as unspent credit.',
+    );
+  }
 
   const bodyCount = 1 + additionalBodies;
   const bodySpends: SummonBodyUpgradeSpend[] = [];

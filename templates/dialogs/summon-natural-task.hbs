@@ -1,0 +1,69 @@
+<div class="summon-natural-task-dialog">
+  <header class="snt-header">
+    <h3 class="snt-title">Natural Task — {{bondName}}</h3>
+    <p class="snt-subtitle">Owner Attribute k MR with one Profession or Perception. No Summon Skill Dice. GM must approve Profession transfers.</p>
+  </header>
+
+  <label class="snt-field">Owner Attribute
+    <select class="js-snt-attr" name="ms-js-snt-attr" form="ms-ui-only">
+      {{#each attrOptions}}
+      <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}} ({{this.pool}})</option>
+      {{/each}}
+    </select>
+  </label>
+
+  <label class="snt-field">Profession or Perception
+    <select class="js-snt-profession" name="ms-js-snt-profession" form="ms-ui-only">
+      {{#each professionOptions}}
+      <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+  </label>
+
+  <label class="snt-field">Creature's intended action
+    <textarea class="js-snt-task" rows="3" maxlength="400" placeholder="e.g. The hound follows a scent trail through the brush." name="ms-js-snt-task" form="ms-ui-only">{{taskDescription}}</textarea>
+  </label>
+
+  {{#unless usesPerception}}
+  <label class="snt-field">Why this Profession applies to the creature
+    <input type="text" class="js-snt-why" maxlength="200" value="{{transferExplanation}}" placeholder="Explain the natural transfer" name="ms-js-snt-why" form="ms-ui-only" />
+  </label>
+  <label class="snt-check">
+    <input type="checkbox" class="js-snt-gm-approved" {{#if gmApproved}}checked{{/if}} name="ms-js-snt-gm-approved" form="ms-ui-only" />
+    GM approves this Profession transfer
+  </label>
+  {{/unless}}
+
+  {{#if usesPerception}}
+  <label class="snt-check">
+    <input type="checkbox" class="js-snt-shared-sense" {{#if sharedSenseActive}}checked{{/if}} name="ms-js-snt-shared-sense" form="ms-ui-only" />
+    Owner views through a purchased Shared Sense
+  </label>
+  {{#if sharedSenseActive}}
+  <label class="snt-field">Body with Shared Sense
+    <select class="js-snt-body" name="ms-js-snt-body" form="ms-ui-only">
+      {{#each bodyOptions}}
+      <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+  </label>
+  {{/if}}
+  {{/if}}
+
+  <label class="snt-check">
+    <input type="checkbox" class="js-snt-crit" {{#if declareTrainingCrit}}checked{{/if}} {{#unless canDeclareTrainingCrit}}disabled{{/unless}} name="ms-js-snt-crit" form="ms-ui-only" />
+    Declare Training Crit {{#if canDeclareTrainingCrit}}({{critRemaining}} left){{else}}(unavailable){{/if}}
+  </label>
+
+  {{#if planError}}
+  <p class="snt-error">{{planError}}</p>
+  {{/if}}
+  {{#if planPreview}}
+  <p class="snt-preview">{{planPreview}}</p>
+  {{/if}}
+
+  <div class="snt-actions">
+    <button type="button" class="js-snt-roll dialog-btn dialog-btn-primary" {{#unless canRoll}}disabled{{/unless}}>Roll Natural Task</button>
+    <button type="button" class="js-snt-cancel dialog-btn dialog-btn-secondary">Cancel</button>
+  </div>
+</div>

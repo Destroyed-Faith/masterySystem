@@ -83,6 +83,9 @@
         <div class="sb-budget-breakdown">
           <div>Bound Stones {{draft.boundStoneCount}} × 8 = <strong>{{tokens.boundTotal}}</strong></div>
           <div>Artifact bonus = <strong>+{{tokens.artifactBonus}}</strong></div>
+          {{#if tokens.skillDiceTokenCredit}}
+          <div>Skill Dice credit = <strong>+{{tokens.skillDiceTokenCredit}}</strong> (unspent Bond upgrade budget)</div>
+          {{/if}}
           <div>Spent {{tokens.spent}} · Bond {{tokens.bondSpent}} · Skills {{tokens.skillsSpent}}{{#each tokens.bodySpentViews}} · Body {{this.label}} {{this.spent}}{{/each}}</div>
           <div class="sb-status sb-status-{{bondStatus}}">Status: <strong>{{bondStatusLabel}}</strong> · Skill slots: {{tokens.skillSlots}}</div>
         </div>
@@ -398,76 +401,9 @@
   </details>
 
   <details class="sb-fold sb-fold-card" data-fold="skills" {{#if skillsOpen}}open{{/if}}>
-    <summary>Summon Skills <span class="sb-meta">{{tokens.skillSlots}} slots · MR × 2 ({{skillMinRating}})</span></summary>
-    <p class="sb-hint">Only skills you have trained to at least <strong>MR × 2</strong> ({{skillMinRating}}) can be given to the Bond. Tick up to {{tokens.skillSlots}}. Buy Skill Dice here (1 Token → 2 dice), then assign those dice to the ticked skills (max = your Rating). That is the summon’s skill pool.</p>
-    <div class="sb-stepper sb-stepper-skill-dice {{#unless hasEligibleSelected}}is-locked{{/unless}}">
-      <div class="sb-stepper-name">Skill Dice</div>
-      <div class="sb-stepper-row">
-        <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="-1" {{#unless steppers.skillDice.canMinus}}disabled{{/unless}} aria-label="Decrease Skill Dice">−</button>
-        <span class="sb-stepper-count" aria-live="polite">{{steppers.skillDice.value}}</span>
-        <button type="button" class="js-sb-step sb-step-btn" data-field="skillDicePurchases" data-delta="1" {{#unless steppers.skillDice.canPlus}}disabled{{/unless}} aria-label="Increase Skill Dice">+</button>
-      </div>
-      <div class="sb-stepper-meta">{{steppers.skillDice.cost}} tok · {{steppers.skillDice.effect}}</div>
-    </div>
-    {{#if computed.skillDiceTotal}}
-    <p class="sb-preview-line">Purchased Skill Dice: {{computed.skillDiceTotal}} · Assigned: {{skillDiceAssigned}} · Still to assign: {{skillDiceUnassigned}}</p>
-    {{else}}
-    <p class="sb-meta">{{#if hasEligibleSelected}}Buy Skill Dice above, then assign them to a ticked skill.{{else}}Select an eligible skill first, then Skill Dice can be bought.{{/if}}</p>
-    {{/if}}
-    {{#if skillOptions.length}}
-    <div class="sb-skill-list">
-      {{#each skillOptions}}
-      <div class="sb-skill-row">
-        <label class="sb-check">
-          <input type="checkbox" class="js-sb-skill-select" data-skill="{{this.id}}" {{#if this.selected}}checked{{/if}} {{#unless this.canSelect}}disabled{{/unless}}  name="ms-js-sb-skill-select" form="ms-ui-only"/>
-          {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
-        </label>
-        {{#if this.selected}}
-        <div class="sb-stepper-row sb-stepper-row-inline">
-          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="-1" {{#unless this.canMinusDice}}disabled{{/unless}} aria-label="Decrease {{this.label}} dice">−</button>
-          <span class="sb-stepper-count" aria-live="polite">{{this.dice}}</span>
-          <button type="button" class="js-sb-step sb-step-btn" data-field="skillDice" data-skill="{{this.id}}" data-delta="1" {{#unless this.canPlusDice}}disabled{{/unless}} aria-label="Increase {{this.label}} dice">+</button>
-        </div>
-        {{/if}}
-      </div>
-      {{/each}}
-    </div>
-    {{else}}
-    <p class="sb-warn">No eligible skills. Raise an owner skill to at least MR × 2 to make it available to this Summon.</p>
-    {{/if}}
-    {{#if invalidSkillOptions.length}}
-    <div class="sb-invalid-skills">
-      <h5>Invalid Selected Skills</h5>
-      {{#each invalidSkillOptions}}
-      <div class="sb-skill-row is-invalid">
-        <label class="sb-check">
-          <input type="checkbox" class="js-sb-skill-select" data-skill="{{this.id}}" checked  name="ms-js-sb-skill-select" form="ms-ui-only"/>
-          {{this.label}} <span class="sb-meta">(owner {{this.ownerRating}})</span>
-        </label>
-        <span class="sb-warn">Owner skill too low. Needs MR × 2.</span>
-      </div>
-      {{/each}}
-    </div>
-    {{/if}}
-  </details>
-
-  <details class="sb-fold sb-fold-card" data-fold="taskspecs" {{#if taskSpecsOpen}}open{{/if}}>
-    <summary>Summon Tasks → Owner Specializations <span class="sb-meta">{{taskMapped}} / {{taskSlots}} slots</span></summary>
-    <p class="sb-hint">Map up to {{taskSlots}} task(s) (1 Bound Stone → 2, 2 → 3, 3+ → 4) to one of your Specializations. A task's dice cap is 2 × the mapped Spec Rank; Perception uses 2 × your Mastery Rank. Summons never receive Free Raises.</p>
-    <div class="sb-skill-list">
-      {{#each taskRows}}
-      <div class="sb-skill-row">
-        <label class="sb-field">{{this.label}}
-          <select class="js-sb-task-spec" data-task="{{this.task}}" {{#if this.locked}}disabled title="No free task slots"{{/if}} name="ms-js-sb-task-spec" form="ms-ui-only">
-            {{#each this.options}}
-            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
-            {{/each}}
-          </select>
-        </label>
-        {{#if this.mapped}}<span class="sb-meta">Dice cap {{this.cap}}</span>{{/if}}
-      </div>
-      {{/each}}
-    </div>
+    <summary>Natural tasks <span class="sb-meta">owner Profession / Perception</span></summary>
+    <p class="sb-hint"><strong>Summon Skill Dice are retired.</strong> Plausible animal-like noncombat tasks use the owner's Attribute Pool, Mastery Rank, and one fitting Profession (or Perception), with normal Training Advantage / Crit. The GM approves the transfer. Social, craft, scholarship, medical, ritual, and other humanoid professional work cannot be imported. One check per task for the whole Bond.</p>
+    <p class="sb-meta">Legacy Skill Dice purchases are credited as unspent Tokens by the Skill Dice refund migration — they are not bought or assigned here. Shared Senses still cost Tokens and are required for owner remote viewing.</p>
   </details>
 
   {{#if ritualErrors.length}}

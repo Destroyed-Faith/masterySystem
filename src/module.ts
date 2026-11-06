@@ -171,6 +171,7 @@ import {
   registerSummonV2MigrationSetting,
   runSummonV2Migration,
 } from './migrations/summon-v2-migration.js';
+import { runSummonSkillDiceRefundMigration } from './migrations/summon-skill-dice-refund-migration.js';
 import {
   registerPaperdollSlotCanonicalSetting,
   runPaperdollSlotCanonical,
@@ -2707,6 +2708,8 @@ async function preloadTemplates() {
     'systems/mastery-system/templates/dialogs/ritual-workshop.hbs',
     'systems/mastery-system/templates/dialogs/minor-magic.hbs',
     'systems/mastery-system/templates/dialogs/stone-audit.hbs',
+    'systems/mastery-system/templates/dialogs/summon-natural-task.hbs',
+    'systems/mastery-system/templates/dialogs/summon-bond.hbs',
     'systems/mastery-system/templates/ui/unluck-gm-dialog.hbs',
     'systems/mastery-system/templates/ui/known-npcs-bar.hbs',
     'systems/mastery-system/templates/ui/known-npcs-gm-dialog.hbs',
@@ -3838,6 +3841,19 @@ Hooks.once('ready', async function() {
     await runSummonV2Migration(migrationActors);
   } catch (error) {
     console.warn('Mastery System | summon-v2 migration failed', error);
+  }
+
+  // Migration: retire Summon Skill Dice → unspent Token credit (idempotent).
+  try {
+    const skillDiceRefund = await runSummonSkillDiceRefundMigration(migrationActors);
+    if (skillDiceRefund.credited > 0 || skillDiceRefund.review.length) {
+      console.info(
+        `Mastery System | Summon Skill Dice refund: credited ${skillDiceRefund.credited} Token(s) across ${skillDiceRefund.scanned} actor(s)`,
+        skillDiceRefund.review,
+      );
+    }
+  } catch (error) {
+    console.warn('Mastery System | Summon Skill Dice refund migration failed', error);
   }
 
   // Migration: Backfill inventory sizes for existing items (GM only)

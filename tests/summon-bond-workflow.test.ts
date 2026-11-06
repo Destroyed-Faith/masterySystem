@@ -171,19 +171,18 @@ describe('Summon Bond Ritual validation', () => {
     expect(bodyHasPurchasedPower(synced, 'b1', 'ab-armor')).toBe(false);
   });
 
-  it('validates skill dice against owner ratings and purchased dice', () => {
+  it('does not hard-fail Bond Rituals on retired Skill Dice fields', () => {
     const bond = createEmptyBond({
       name: 'Owl',
       ownerActorId: 'Actor.1',
       movementMode: 'flying',
       stoneAttributes: ['wits'],
     });
-    bond.spend.skillDicePurchases = 2; // 4 dice
+    bond.spend.skillDicePurchases = 2; // legacy pre-migration
     bond.selectedSkills = ['perception', 'stealth'];
     bond.skillDiceAlloc = { perception: 3, stealth: 2 };
-    const errors = validateBondSkillAlloc(bond, { perception: 2, stealth: 4 });
-    expect(errors.some((e) => /perception/.test(e))).toBe(true);
-    expect(errors.some((e) => /Allocated 5/.test(e))).toBe(true);
+    // Skill Dice validation is retired; migration credits Tokens instead.
+    expect(validateBondSkillAlloc(bond, { perception: 2, stealth: 4 })).toEqual([]);
   });
 
   it('tracks stone attribute assignments for dissolve credit', () => {

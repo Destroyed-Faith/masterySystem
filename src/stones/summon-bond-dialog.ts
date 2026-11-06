@@ -350,6 +350,7 @@ export class SummonBondDialog extends BaseDialog {
     const spendCtx: SpendClampContext = {
       boundStoneCount: this.draft.boundStoneCount,
       bonusTokens: this.draft.bonusTokens,
+      skillDiceTokenCredit: Math.max(0, Math.floor(Number(this.draft.skillDiceTokenCredit) || 0)),
       movementMode: this.draft.movementMode,
       selectedSkills: this.draft.selectedSkills,
       ownerSkillRatings: ratings,
@@ -361,6 +362,10 @@ export class SummonBondDialog extends BaseDialog {
     const computed = computeSummonBond({
       boundStoneCount: this.draft.boundStoneCount,
       bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, maxBonusTokens),
+      skillDiceTokenCredit: Math.max(
+        0,
+        Math.floor(Number((this.draft as any).skillDiceTokenCredit) || 0),
+      ),
       movementMode: this.draft.movementMode,
       spend: sanitizeSpendNumbers(this.draft.spend),
     });
@@ -623,6 +628,7 @@ export class SummonBondDialog extends BaseDialog {
     return {
       boundStoneCount: this.draft.boundStoneCount,
       bonusTokens: this.draft.bonusTokens,
+      skillDiceTokenCredit: Math.max(0, Math.floor(Number(this.draft.skillDiceTokenCredit) || 0)),
       movementMode: this.draft.movementMode,
       selectedSkills: this.draft.selectedSkills,
       ownerSkillRatings: ownerSkillRatingsFromActor(this.actor),
@@ -641,6 +647,7 @@ export class SummonBondDialog extends BaseDialog {
     return computeSummonBond({
       boundStoneCount: this.draft.boundStoneCount,
       bonusTokens: sanitizeBonusTokens(this.draft.bonusTokens, ctx.maxBonusTokens),
+      skillDiceTokenCredit: ctx.skillDiceTokenCredit,
       movementMode: this.draft.movementMode,
       spend: sanitizeSpendNumbers(this.draft.spend),
     }).tokensRemaining;

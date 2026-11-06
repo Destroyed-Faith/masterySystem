@@ -47,12 +47,25 @@ export type SummonBondRecord = {
     summonAttacks: number;
     specialKey?: string | null;
     specialValue: number;
+    /** @deprecated Retired — cleared by Skill Dice Token credit migration. */
     selectedSkills: SummonSkillId[];
+    /** @deprecated Retired — cleared by Skill Dice Token credit migration. */
     skillDiceAlloc: Partial<Record<SummonSkillId, number>>;
     /**
-     * DF 2026: SUMMON_TASKS mapped to owner Specialization ids (slots =
-     * `summonTaskSlotCount(boundStoneCount)`). Dice caps via `summonSkillDiceCap`.
-     * Summons never receive Free Raises.
+     * Unspent Tokens credited when Skill Dice purchases were retired.
+     * Added to available budget; not Artifact bonus.
+     */
+    skillDiceTokenCredit?: number;
+    /** Idempotent migration stamp for Skill Dice retirement. */
+    skillDiceRefundStamp?: {
+        tokens: number;
+        at: string;
+        purchases?: number;
+    };
+    /** Task keys already resolved for this Bond (one check per task). */
+    naturalTaskResolvedKeys?: string[];
+    /**
+     * @deprecated Retired with Summon Skill Dice. Natural tasks use owner Professions.
      */
     taskSpecMap?: SummonTaskSpecMap;
     spend: SummonBondUpgradeSpend;
@@ -76,7 +89,12 @@ export declare function createEmptyBond(opts: {
 /** Migrate a V1 familiar record into a V2 bond stub (tokens unspent for redistribution). */
 export declare function migrateFamiliarToBond(familiar: BoundFamiliarRecord, ownerActorId: string): SummonBondRecord;
 export declare function recomputeBondDerived(bond: SummonBondRecord): SummonBondRecord;
-export declare function validateBondSkillAlloc(bond: SummonBondRecord, ownerSkillRatings: Record<string, number>, ownerMasteryRank?: number): string[];
+/**
+ * Summon Skill Dice / selected-skill slots are retired.
+ * Pre-migration Bonds may still carry legacy fields; those are cleared by
+ * `summon-skill-dice-refund-migration` rather than hard-failing Bond Rituals.
+ */
+export declare function validateBondSkillAlloc(_bond: SummonBondRecord, _ownerSkillRatings: Record<string, number>, _ownerMasteryRank?: number): string[];
 export declare function persistSummonBonds(actor: any, bonds: SummonBondRecord[]): Promise<void>;
 export declare function bindSummonBond(actor: any, bond: SummonBondRecord): Promise<SummonBondRecord | null>;
 export declare function releaseSummonBond(actor: any, bondId: string): Promise<SummonBondRecord | null>;
@@ -89,6 +107,8 @@ export declare function tokensSummary(bond: SummonBondRecord): {
     skillsSpent: number;
     specialSpent: number;
     bodySpent: number[];
+    /** Retired Skill Dice Token credit included in `available`. */
+    skillDiceTokenCredit: number;
 };
 export declare function bondStoneAssignments(bond: SummonBondRecord): Record<string, number>;
 export declare function syncBodiesFromSpend(bond: SummonBondRecord): SummonBondRecord;

@@ -4,7 +4,7 @@
  */
 import { normalizeCreatureTypeValue } from '../utils/creature-type.js';
 import { applySustainedDelta, getActorPoolSpendable, } from './familiar-bind.js';
-import { BASE_SUMMON, BOND_STATUS_LABEL, MAX_ARTIFACT_BONUS_TOKENS, classifyBondStatus, computeSummonBond, emptyBondSpend, isSummonSkillEligible, legacyMovementTypeToMode, normalizeMovementMode, summonSkillMinRating, summonSkillSlots, summonTokensFromStones, } from './summon-bond-rules.js';
+import { BASE_SUMMON, BOND_STATUS_LABEL, MAX_ARTIFACT_BONUS_TOKENS, classifyBondStatus, computeSummonBond, emptyBondSpend, legacyMovementTypeToMode, normalizeMovementMode, summonSkillSlots, } from './summon-bond-rules.js';
 import { inspectBondSpend, isIllegalBonusTokens, maxAssignableArtifactBonusTokens, safePurchaseInt, sanitizeBonusTokens, sanitizeSpendNumbers, } from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
 import { normalizeSummonTaskSpecMap, readActorSpecializations, validateSummonTaskSpecMap, } from '../rules/specializations.js';
@@ -126,6 +126,7 @@ export function recomputeBondDerived(bond) {
     const computed = computeSummonBond({
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: bond.bonusTokens,
+        skillDiceTokenCredit: bond.skillDiceTokenCredit,
         movementMode: bond.movementMode,
         spend: bond.spend,
     });
@@ -155,41 +156,13 @@ export function recomputeBondDerived(bond) {
         bodies: bodies.slice(0, Math.max(computed.bodyCount, bodies.length)),
     };
 }
-export function validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank = 1) {
-    const errors = [];
-    const slots = summonSkillSlots(bond.boundStoneCount);
-    if (bond.selectedSkills.length > slots) {
-        errors.push(`Selected ${bond.selectedSkills.length} skills but only ${slots} slots (from Bound Stones).`);
-    }
-    const minRating = summonSkillMinRating(ownerMasteryRank);
-    for (const skill of bond.selectedSkills || []) {
-        const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
-        if (!isSummonSkillEligible(rating, ownerMasteryRank)) {
-            errors.push(`${skill}: Owner has Rating 0 — the Bond cannot select this Skill.`);
-        }
-    }
-    let diceSum = 0;
-    for (const [skill, dice] of Object.entries(bond.skillDiceAlloc || {})) {
-        const d = Math.max(0, Math.floor(Number(dice) || 0));
-        diceSum += d;
-        const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
-        if (d > 0 && rating <= 0) {
-            errors.push(`Cannot assign dice to ${skill}: owner Rating is 0.`);
-        }
-        else if (d > rating) {
-            errors.push(`${skill}: ${d} dice exceed owner Rating ${rating}.`);
-        }
-    }
-    const computed = computeSummonBond({
-        boundStoneCount: bond.boundStoneCount,
-        bonusTokens: bond.bonusTokens,
-        movementMode: bond.movementMode,
-        spend: bond.spend,
-    });
-    if (diceSum > computed.skillDiceTotal) {
-        errors.push(`Allocated ${diceSum} skill dice but only ${computed.skillDiceTotal} purchased.`);
-    }
-    return errors;
+/**
+ * Summon Skill Dice / selected-skill slots are retired.
+ * Pre-migration Bonds may still carry legacy fields; those are cleared by
+ * `summon-skill-dice-refund-migration` rather than hard-failing Bond Rituals.
+ */
+export function validateBondSkillAlloc(_bond, _ownerSkillRatings, _ownerMasteryRank = 1) {
+    return [];
 }
 export async function persistSummonBonds(actor, bonds) {
     await actor.update({ 'system.summonBonds': bonds });
@@ -210,14 +183,16 @@ export async function releaseSummonBond(actor, bondId) {
     return removed;
 }
 export function tokensSummary(bond) {
+    const credit = Math.max(0, Math.floor(Number(bond.skillDiceTokenCredit) || 0));
     const computed = computeSummonBond({
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: bond.bonusTokens,
+        skillDiceTokenCredit: credit,
         movementMode: bond.movementMode,
         spend: bond.spend,
     });
     return {
-        available: summonTokensFromStones(bond.boundStoneCount, bond.bonusTokens),
+        available: computed.tokensAvailable,
         spent: computed.tokensSpent,
         remaining: computed.tokensRemaining,
         skillSlots: summonSkillSlots(bond.boundStoneCount),
@@ -225,6 +200,7 @@ export function tokensSummary(bond) {
         skillsSpent: computed.skillTokens,
         specialSpent: computed.specialTokens,
         bodySpent: computed.bodyTokens,
+        skillDiceTokenCredit: credit,
     };
 }
 export function bondStoneAssignments(bond) {
@@ -240,6 +216,7 @@ export function syncBodiesFromSpend(bond) {
     const computed = computeSummonBond({
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: bond.bonusTokens,
+        skillDiceTokenCredit: bond.skillDiceTokenCredit,
         movementMode: bond.movementMode,
         spend: bond.spend,
     });
@@ -320,6 +297,7 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
     const inspect = inspectBondSpend(bond.spend, {
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: bond.bonusTokens,
+        skillDiceTokenCredit: bond.skillDiceTokenCredit,
         movementMode: bond.movementMode,
         selectedSkills: bond.selectedSkills,
         ownerSkillRatings,
@@ -333,6 +311,7 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
     const computed = computeSummonBond({
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: sanitizeBonusTokens(bond.bonusTokens, maxBonus),
+        skillDiceTokenCredit: bond.skillDiceTokenCredit,
         movementMode: bond.movementMode,
         spend: sanitizeSpendNumbers(bond.spend),
     });
@@ -474,6 +453,7 @@ export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) 
     const inspect = inspectBondSpend(draft.spend, {
         boundStoneCount: draft.boundStoneCount,
         bonusTokens: draft.bonusTokens,
+        skillDiceTokenCredit: draft.skillDiceTokenCredit,
         movementMode: draft.movementMode,
         selectedSkills: draft.selectedSkills,
         ownerSkillRatings,
@@ -492,6 +472,7 @@ export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) 
     const computed = computeSummonBond({
         boundStoneCount: bond.boundStoneCount,
         bonusTokens: bond.bonusTokens,
+        skillDiceTokenCredit: bond.skillDiceTokenCredit,
         movementMode: bond.movementMode,
         spend: bond.spend,
     });
