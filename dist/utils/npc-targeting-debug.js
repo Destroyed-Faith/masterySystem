@@ -1,9 +1,19 @@
 /**
  * Verbose NPC attack targeting diagnostics.
+ * Off by default. Enable with: game.masteryNpcTargetingDebug(true)
  * Filter browser console with:  MS NPC Targeting
  */
 import { coerceNpcPhasesArray, resolveNpcAttackList, resolveNpcAttackTargeting, } from './npc-attack-model.js';
 const PREFIX = '[MS NPC Targeting]';
+/** Verbose targeting traces — quiet in normal play. */
+export let NPC_TARGETING_DEBUG = false;
+export function setNpcTargetingDebug(on) {
+    NPC_TARGETING_DEBUG = !!on;
+    console.log(`${PREFIX} debug ${NPC_TARGETING_DEBUG ? 'ON' : 'OFF'}`);
+}
+export function isNpcTargetingDebug() {
+    return NPC_TARGETING_DEBUG;
+}
 export function npcTargetingSnap(row) {
     const t = resolveNpcAttackTargeting(row);
     return {
@@ -23,16 +33,22 @@ export function npcTargetingLine(label, row) {
     return `${PREFIX} ${label} → name="${s.name}" kind=${s.kind} short=${s.short} long=${s.long} aoe=${s.aoe} shape=${s.shape} burst=${s.burst} ranged=${s.ranged}`;
 }
 export function logNpcTargeting(label, detail) {
+    if (!NPC_TARGETING_DEBUG)
+        return;
     if (detail)
         console.log(`${PREFIX} ${label}`, detail);
     else
         console.log(`${PREFIX} ${label}`);
 }
 export function logNpcTargetingRow(label, row, extra) {
+    if (!NPC_TARGETING_DEBUG)
+        return;
     console.log(npcTargetingLine(label, row), extra ?? '');
 }
 /** Dump every attack combat will see from this system blob. */
 export function logNpcAttackListDump(label, system, actorMeta) {
+    if (!NPC_TARGETING_DEBUG)
+        return;
     const phasesRaw = system?.phases;
     const phases = coerceNpcPhasesArray(phasesRaw);
     const { attacks, phaseIndex } = resolveNpcAttackList(system || {});
@@ -58,6 +74,8 @@ export function logNpcAttackListDump(label, system, actorMeta) {
 }
 /** Compare sheet/world/token actor attack lists side by side. */
 export function logNpcActorTargetingCompare(label, tokenActor, worldActor) {
+    if (!NPC_TARGETING_DEBUG)
+        return;
     logNpcAttackListDump(`${label} / token.actor`, tokenActor?.system, {
         actorId: tokenActor?.id,
         actorName: tokenActor?.name,
@@ -93,6 +111,8 @@ export function logNpcActorTargetingCompare(label, tokenActor, worldActor) {
     }
 }
 export function logNpcOptionBranch(label, option, targeting) {
+    if (!NPC_TARGETING_DEBUG)
+        return;
     const source = option?.source;
     const burst = !!option?.burstMeleeAoE;
     const tags = option?.tags || [];

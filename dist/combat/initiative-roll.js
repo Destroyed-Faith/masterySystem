@@ -1,9 +1,11 @@
 /**
  * Initiative Rolling System
- * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) plus the flat
- * Initiative modifiers (equipment, Passives, Wits scaling, Stone Boost, manual).
- * The score persists until spent (Initiative Exchange → Colorless Stones) or
- * another rule changes it.
+ * Determined ONCE at combat start:
+ * - Risky (default): Mastery Rank d8 (keep all, 8s explode)
+ * - Controlled: fixed max(Agility Pool, Wits Pool), no MR multiplier
+ * Then apply flat Initiative modifiers once (equipment, Passives, Wits scaling,
+ * Stone Boost, manual). Score persists until spent (Initiative Exchange →
+ * Colorless Stones) or another rule changes it.
  */
 import { attributeScalingEnabled } from '../utils/calculations.js';
 import { masteryRoll } from '../dice/roll-handler.js';
@@ -17,6 +19,15 @@ import { compareByDeferOrder } from './turn-defer.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 function getMasteryRank(actor) {
     return getRulesMasteryRank(actor);
+}
+/** Controlled base: higher of Agility Pool and Wits Pool (no MR multiplier). */
+export function controlledInitiativeBase(actor) {
+    const agi = Math.max(0, Math.floor(Number(actor?.system?.attributes?.agility?.value) || 0));
+    const wits = Math.max(0, Math.floor(Number(actor?.system?.attributes?.wits?.value) || 0));
+    return Math.max(agi, wits);
+}
+export function normalizeInitiativeMethod(raw) {
+    return String(raw || '').toLowerCase() === 'controlled' ? 'controlled' : 'risky';
 }
 export const INITIATIVE_ROLLED_FLAG = 'initiativeRolledFor';
 const initiativeRollInFlight = new Set();
@@ -57,8 +68,11 @@ export function formatSignedInitiativeModifier(n) {
     const v = Math.floor(Number(n) || 0);
     return v > 0 ? `+${v}` : String(v);
 }
-export function formatInitiativeDiceRollLine(diceTotal) {
-    return `Initiative Dice Roll was ${Math.floor(Number(diceTotal) || 0)}.`;
+export function formatInitiativeDiceRollLine(diceTotal, method = 'risky') {
+    const n = Math.floor(Number(diceTotal) || 0);
+    if (method === 'controlled')
+        return `Controlled Initiative base was ${n}.`;
+    return `Initiative Dice Roll was ${n}.`;
 }
 export function formatInitiativeArmorPenaltyLine(equipmentModifier) {
     return `Armor Penalty ${formatSignedInitiativeModifier(equipmentModifier)}.`;
@@ -127,10 +141,11 @@ async function writeCombatantInitiative(combatant, initiative, flags) {
     await requestSetCombatantInitiative(combatant, initiative, flags);
 }
 /**
- * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
- * The roll stands as rolled; no Skill Points are spent on it.
+ * Determine initiative for one combatant (Risky roll or Controlled fixed base)
+ * plus flat modifiers. No Skill Points are spent.
  */
-export async function rollInitiativeForCombatant(combatant) {
+export async function rollInitiativeForCombatant(combatant, opts) {
+    const method = normalizeInitiativeMethod(opts?.method);
     const actor = combatant.actor;
     if (!actor) {
         console.error('Mastery System | Cannot roll initiative: combatant has no actor');
@@ -139,6 +154,7 @@ export async function rollInitiativeForCombatant(combatant) {
             totalInitiative: 0,
             equipmentInitiativeModifier: 0,
             masteryRank: 2,
+            method,
             rollResult: null
         };
     }
@@ -158,6 +174,7 @@ export async function rollInitiativeForCombatant(combatant) {
             totalInitiative: Number.isFinite(kept) ? kept : 0,
             equipmentInitiativeModifier: 0,
             masteryRank: Number(prior?.masteryRank) || getMasteryRank(actor),
+            method: normalizeInitiativeMethod(prior?.method),
             rollResult: null,
         };
     }
@@ -167,6 +184,7 @@ export async function rollInitiativeForCombatant(combatant) {
             totalInitiative: 0,
             equipmentInitiativeModifier: 0,
             masteryRank: getMasteryRank(actor),
+            method,
             rollResult: null,
         };
     }
@@ -178,7 +196,7 @@ export async function rollInitiativeForCombatant(combatant) {
         const equipFlavor = equipmentInitiativeModifier !== 0
             ? ` · Equipment ${equipmentInitiativeModifier >= 0 ? '+' : ''}${equipmentInitiativeModifier} (armor/shield/weapon)`
             : '';
-        // NPC / Summon sheet Ini (−10…+10) — flat on the Mastery Rank d8 total.
+        // NPC / Summon sheet Ini (−10…+10) — flat on the Initiative base.
         const isNpcLike = actor.type === 'npc' || actor.type === 'summon';
         const npcInitiativeModifier = isNpcLike ? getNpcInitiativeModifier(actor) : 0;
         const npcIniFlavor = npcInitiativeModifier !== 0
@@ -192,8 +210,7 @@ export async function rollInitiativeForCombatant(combatant) {
             : 0;
         const witsFlavor = witsInitBonus > 0 ? ` · Wits scaling +${witsInitBonus}` : '';
         // Manual Adjustments — character-sheet-authored flat + bonus d8 applied on
-        // top of Mastery-Rank d8. Initiative is not a "typed roll kind" in the
-        // `masteryRoll` pipeline, so we apply the bonus directly here.
+        // top of the Initiative base. Controlled ignores bonus dice (no roll).
         const manualAdj = actor.type === 'character' ? readManualAdjustments(actor) : null;
         const manualInitiativeFlat = manualAdj?.combat.initiative ?? 0;
         const passiveInitiativeBonus = Math.max(0, Math.floor(Number(actor.system?.combat?.initiativeFromMechanics ?? 0) || 0));
@@ -201,21 +218,40 @@ export async function rollInitiativeForCombatant(combatant) {
         const manualInitiativeDice = Math.max(0, manualAdj?.rolls?.any?.dice ?? 0);
         const initiativeNumDice = Math.max(1, masteryRank + manualInitiativeDice);
         const manualFlavorParts = [];
-        if (manualInitiativeDice > 0)
+        if (method === 'risky' && manualInitiativeDice > 0) {
             manualFlavorParts.push(`+${manualInitiativeDice}d8 Manual Bonus`);
+        }
         if (manualInitiativeFlat !== 0) {
             manualFlavorParts.push(`${manualInitiativeFlat > 0 ? '+' : ''}${manualInitiativeFlat} Manual Bonus (init)`);
         }
         const manualFlavor = manualFlavorParts.length ? ` · ${manualFlavorParts.join(' · ')}` : '';
-        const rollResult = await masteryRoll({
-            numDice: initiativeNumDice,
-            keepDice: initiativeNumDice,
-            skill: 0,
-            label: 'Initiative Roll',
-            flavor: `${actor.name}${equipFlavor}${witsFlavor}${passiveInitFlavor}${manualFlavor}${npcIniFlavor}`,
-            actorId: actor.id
-        });
-        const diceTotal = rollResult.total;
+        let diceTotal = 0;
+        let rollResult = null;
+        if (method === 'controlled') {
+            diceTotal = controlledInitiativeBase(actor);
+            const controlledFlavor = `Controlled Initiative (max Agility/Wits = ${diceTotal})${equipFlavor}${witsFlavor}${passiveInitFlavor}${manualFlavor}${npcIniFlavor}`;
+            try {
+                await ChatMessage.create({
+                    speaker: ChatMessage.getSpeaker({ actor }),
+                    content: `<div class="mastery-initiative-controlled"><strong>${actor.name}</strong>: ${controlledFlavor}</div>`,
+                    whisper: [],
+                });
+            }
+            catch {
+                /* chat is best-effort */
+            }
+        }
+        else {
+            rollResult = await masteryRoll({
+                numDice: initiativeNumDice,
+                keepDice: initiativeNumDice,
+                skill: 0,
+                label: 'Initiative Roll',
+                flavor: `${actor.name} · Risky${equipFlavor}${witsFlavor}${passiveInitFlavor}${manualFlavor}${npcIniFlavor}`,
+                actorId: actor.id
+            });
+            diceTotal = rollResult.total;
+        }
         const isPc = actor.type === 'character';
         // Wits "Initiative Boost" stone power chosen BEFORE this roll (stone phase
         // precedes the initiative phase): fold it into the score here. The boost is
@@ -239,12 +275,14 @@ export async function rollInitiativeForCombatant(combatant) {
         const initiativeFlags = {
             msInitiativeValue: totalInitiative,
             msInitiativeBoostThisRound: stoneInitiativeBonus,
+            msInitiativeMethod: method,
             pendingInitiativeShop: isPc
                 ? {
                     diceTotal,
                     totalInitiative,
                     equipmentInitiativeModifier,
                     masteryRank,
+                    method,
                 }
                 : null,
         };
@@ -258,6 +296,7 @@ export async function rollInitiativeForCombatant(combatant) {
                 total: totalInitiative,
                 diceTotal,
                 masteryRank,
+                method,
             });
         }
         catch {
@@ -268,6 +307,7 @@ export async function rollInitiativeForCombatant(combatant) {
             totalInitiative,
             equipmentInitiativeModifier,
             masteryRank,
+            method,
             rollResult
         };
     }

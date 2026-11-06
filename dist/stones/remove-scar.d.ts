@@ -29,6 +29,14 @@ export declare function clearRemoveScarResolvedTiers(actor: any): Promise<void>;
 export declare function computeRemoveScarPayment(resolvedMax: number, targetTier: number, supportPrefillTier?: number): RemoveScarPayment;
 /** Next activation target: Support pulls in all lower unpaid Tiers; otherwise the next unresolved Tier. */
 export declare function inferRemoveScarTargetTier(resolvedMax: number, supportPrefillTier?: number): number;
+/**
+ * Cap the activation target so newly recovered bars never exceed current Scarred
+ * Health Bars. With 0 scars the target stays at `resolvedMax` (nothing to heal).
+ * Example: Support wants T4 (4 bars) but the actor has 1 Scar → clamp to T1.
+ */
+export declare function clampRemoveScarTargetToAvailableScars(resolvedMax: number, desiredTarget: number, supportPrefillTier: number, scarredBars: number): number;
+/** True when this payment would restore at least one Scarred Bar the target actually has. */
+export declare function removeScarPaymentFitsScarredBars(scarredBars: number, payment: Pick<RemoveScarPayment, 'barsRecovered'>): boolean;
 export declare function countScarredHealthBars(actor: any): number;
 /** Restore up to `count` most-recent Scarred bars. Returns the actor update payload. */
 export declare function buildRecoverScarredBarUpdates(actor: any, count: number): Record<string, unknown>;

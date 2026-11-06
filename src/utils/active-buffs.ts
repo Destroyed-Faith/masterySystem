@@ -10,10 +10,9 @@ import { getRoundState, setRoundState } from '../combat/action-economy.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
 /**
- * Consume pending Resolve Active Buff Empowerment (PL + complete Rounds).
- * Applies only when activating/replacing a Buff in Preparation — not when
- * merely maintaining. Clears the pending marker so one activation benefits.
- * Once-per-combat spend is tracked on the stone power flag separately.
+ * Consume leftover parked Empowerment rounds (legacy roundState).
+ * Resolve Active Buff Empowerment now extends a maintained Buff immediately and
+ * no longer grants Power Level — discard any leftover PL marker.
  */
 async function consumePendingBuffExtension(actor: Actor): Promise<{ rounds: number; powerLevels: number }> {
   try {
@@ -21,16 +20,68 @@ async function consumePendingBuffExtension(actor: Actor): Promise<{ rounds: numb
     const roundState = getRoundState(actor, combat);
     const sb: any = roundState?.stoneBonuses;
     const pending = Math.max(0, Math.floor(Number(sb?.extendActiveBuffRounds ?? 0) || 0));
-    const pl = Math.max(0, Math.floor(Number(sb?.activeBuffPlBonus ?? 0) || 0));
-    if (pending <= 0 && pl <= 0) return { rounds: 0, powerLevels: 0 };
+    const hadPl = Math.max(0, Math.floor(Number(sb?.activeBuffPlBonus ?? 0) || 0)) > 0;
+    if (pending <= 0 && !hadPl) return { rounds: 0, powerLevels: 0 };
     sb.extendActiveBuffRounds = 0;
     sb.activeBuffPlBonus = 0;
     await setRoundState(actor, roundState);
-    return { rounds: pending, powerLevels: pl };
+    return { rounds: pending, powerLevels: 0 };
   } catch (err) {
     console.warn('Mastery System | Active Buff Empowerment lookup failed', err);
     return { rounds: 0, powerLevels: 0 };
   }
+}
+
+/**
+ * Extend the currently maintained true Active Buff by complete Rounds.
+ * Used by Resolve Stone Ability: Active Buff Empowerment (immediate apply).
+ */
+export async function extendMaintainedActiveBuffRounds(
+  actor: Actor,
+  extraRounds: number,
+): Promise<{ ok: boolean; name?: string; lastActiveRound?: number; addedRounds?: number }> {
+  const n = Math.max(0, Math.floor(Number(extraRounds) || 0));
+  if (n <= 0) return { ok: false };
+  const maintained = getTrueActiveBuffs(actor);
+  const effect = maintained[0];
+  if (!effect) return { ok: false };
+
+  const { readBuffLifecycleFlags } = await import('../combat/active-buff-lifecycle.js');
+  const life = readBuffLifecycleFlags(effect);
+  if (!life) return { ok: false };
+
+  const flags = effect.flags?.['mastery-system'] ?? {};
+  const priorExtended = Math.max(0, Math.floor(Number(flags.extendedRounds) || 0));
+  const newDuration = life.effectiveDuration + n;
+  const newLast = life.lastActiveRound + n;
+
+  const patch: Record<string, unknown> = {
+    'flags.mastery-system.effectiveDuration': newDuration,
+    'flags.mastery-system.durationRounds': newDuration,
+    'flags.mastery-system.lastActiveRound': newLast,
+    'flags.mastery-system.extendedRounds': priorExtended + n,
+  };
+  // Keep Foundry's native countdown from cutting the Buff early.
+  const currentNative = Math.max(0, Math.floor(Number(effect.duration?.rounds) || 0));
+  if (currentNative > 0) {
+    patch['duration.rounds'] = currentNative + n;
+  }
+
+  if (typeof effect.update === 'function') {
+    await effect.update(patch);
+  } else if (effect.flags?.['mastery-system']) {
+    effect.flags['mastery-system'].effectiveDuration = newDuration;
+    effect.flags['mastery-system'].durationRounds = newDuration;
+    effect.flags['mastery-system'].lastActiveRound = newLast;
+    effect.flags['mastery-system'].extendedRounds = priorExtended + n;
+  }
+
+  return {
+    ok: true,
+    name: String(effect.name || 'Active Buff'),
+    lastActiveRound: newLast,
+    addedRounds: n,
+  };
 }
 
 function paysActionCost(power: any): boolean {
@@ -530,8 +581,10 @@ export async function activateActiveBuff(
       const lines: string[] = [
         `<p><strong>${esc(String(power.name))}</strong> — active through <strong>Round ${lastActiveRound}</strong> (expires at Round End; Prep activation).</p>`,
       ];
-      if (empower.rounds > 0 || empower.powerLevels > 0) {
-        lines.push(`<p>Active Buff Empowerment: <strong>+${empower.powerLevels}</strong> Power Level, <strong>+${empower.rounds}</strong> round${empower.rounds === 1 ? '' : 's'}.</p>`);
+      if (empower.rounds > 0) {
+        lines.push(
+          `<p>Active Buff Empowerment: <strong>+${empower.rounds}</strong> round${empower.rounds === 1 ? '' : 's'}.</p>`,
+        );
       }
       const rm: any = rankMechanics ?? {};
       if (typeof rm.damageReductionPct === 'number' && rm.damageReductionPct > 0) {

@@ -19,18 +19,18 @@ export { actorMatchesCombatant, actorTokenId } from './combat-carousel-helpers.j
 const LOG = 'Mastery System | [CAROUSEL-RENAME]';
 
 /**
- * Debug defaults ON while rename sync is being verified.
- * Silence with: game.masteryCarouselRenameDebug(false)
+ * Off by default — enable with: game.masteryCarouselRenameDebug(true)
  */
-export let CAROUSEL_RENAME_DEBUG = true;
+export let CAROUSEL_RENAME_DEBUG = false;
 
 export function setCarouselRenameDebug(on: boolean): void {
   CAROUSEL_RENAME_DEBUG = !!on;
   console.log(LOG, `debug ${CAROUSEL_RENAME_DEBUG ? 'ON' : 'OFF'}`);
 }
 
-/** Always-on one-liner (readable without expanding Objects). */
+/** Debug one-liner (readable without expanding Objects). */
 function note(msg: string, parts: Record<string, unknown> = {}): void {
+  if (!CAROUSEL_RENAME_DEBUG) return;
   const flat = Object.entries(parts)
     .map(([k, v]) => `${k}=${v === undefined || v === null ? '∅' : String(v)}`)
     .join(' ');

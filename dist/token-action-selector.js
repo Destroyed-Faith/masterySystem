@@ -7,6 +7,7 @@
  */
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
 import { getSegmentIdForOption } from './radial-menu/options.js';
+import { isNpcTargetingDebug } from './utils/npc-targeting-debug.js';
 import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
@@ -243,15 +244,17 @@ export function initializeTokenActionSelector() {
                 if (!ok)
                     return;
             }
-            console.log("[MS NPC Targeting] rangedTargetSelected â†’ createRangedAttackCard", {
-                attacker: attackerToken.name,
-                target: targetToken.name,
-                option: option?.name,
-                range: option?.range,
-                rangeMinMeters: option?.rangeMinMeters,
-            });
+            if (isNpcTargetingDebug())
+                console.log("[MS NPC Targeting] rangedTargetSelected â†’ createRangedAttackCard", {
+                    attacker: attackerToken.name,
+                    target: targetToken.name,
+                    option: option?.name,
+                    range: option?.range,
+                    rangeMinMeters: option?.rangeMinMeters,
+                });
             await createRangedAttackCard(attackerToken, targetToken, option);
-            console.log("[MS NPC Targeting] rangedTargetSelected â†’ attack card created");
+            if (isNpcTargetingDebug())
+                console.log("[MS NPC Targeting] rangedTargetSelected â†’ attack card created");
         }
         catch (e) {
             console.error("Mastery System | [TOKEN ACTION SELECTOR] rangedTargetSelected hook failed", e);
@@ -802,11 +805,15 @@ export function endGuidedMovement(success) {
     state.token.alpha = state.originalAlpha;
     if (success) {
         const opt = state.option;
-        if (opt.source === 'power' && opt.item?.id) {
+        if (opt.source === 'power' && (opt.id || opt.item?.id)) {
             const combat = game.combat;
             const act = state.token?.actor;
             if (combat && act) {
-                void markPowerUsedThisRound(act, combat, opt.item.id);
+                const usageId = String(opt.id || '').startsWith('artifact:') ||
+                    String(opt.id || '').startsWith('artifact-weapon:')
+                    ? String(opt.id)
+                    : String(opt.item?.id || opt.id);
+                void markPowerUsedThisRound(act, combat, usageId);
             }
         }
     }
@@ -868,14 +875,14 @@ export async function handleChosenCombatOption(token, option) {
         ui.notifications?.warn(game?.i18n?.localize('MASTERY.consumable.noAttackAction') ?? 'No Attack Actions remaining.');
         return;
     }
-    if (option.source === 'power' &&
-        option.item?.id &&
-        !option.consumableItemId &&
-        !(option.tags || []).includes('consumable') &&
-        hasPowerBeenUsedThisRound(actor, combat, option.item.id)) {
-        ui.notifications?.warn(game?.i18n?.localize('MASTERY.combat.powerAlreadyUsedThisRound') ??
-            'This power has already been used this round.');
-        return;
+    if (option.source === 'power' && !option.consumableItemId && !(option.tags || []).includes('consumable')) {
+        const { powerUseInstanceIdFromOption } = await import('./combat/action-economy.js');
+        const usageId = powerUseInstanceIdFromOption(option);
+        if (usageId && hasPowerBeenUsedThisRound(actor, combat, usageId)) {
+            ui.notifications?.warn(game?.i18n?.localize('MASTERY.combat.powerAlreadyUsedThisRound') ??
+                'This power has already been used this round.');
+            return;
+        }
     }
     const reactionPower = option.source === 'power' &&
         ((option.powerType === 'reaction') ||
@@ -1065,17 +1072,18 @@ export async function handleChosenCombatOption(token, option) {
         logNpcOptionBranch('SELECT planned branch', option, after);
     }
     else if (option.source === 'power') {
-        console.log('[MS NPC Targeting] SELECT power item (NOT npc-attack sheet row)', {
-            name: option.name,
-            itemId: option.item?.id,
-            itemName: option.item?.name,
-            burstMeleeAoE: option.burstMeleeAoE,
-            aoeShape: option.aoeShape,
-            range: option.range,
-            powerType: option.item?.system?.powerType,
-            itemAoe: option.item?.system?.aoe,
-            itemRange: option.item?.system?.range,
-        });
+        if (isNpcTargetingDebug())
+            console.log('[MS NPC Targeting] SELECT power item (NOT npc-attack sheet row)', {
+                name: option.name,
+                itemId: option.item?.id,
+                itemName: option.item?.name,
+                burstMeleeAoE: option.burstMeleeAoE,
+                aoeShape: option.aoeShape,
+                range: option.range,
+                powerType: option.item?.system?.powerType,
+                itemAoe: option.item?.system?.aoe,
+                itemRange: option.item?.system?.range,
+            });
     }
     // Reload (PG "Load"): 1 Attack Action clears the Unloaded state.
     if (option.source === 'maneuver' && option.maneuver?.id === 'reload') {
@@ -1238,16 +1246,17 @@ export async function handleChosenCombatOption(token, option) {
     const isMeleeAttack = option.slot === 'attack' &&
         (isNpcMelee ||
             (option.source !== 'npc-attack' && (option.range === undefined || option.range <= 4)));
-    console.log('[MS NPC Targeting] SELECT route flags', {
-        name: option.name,
-        source: option.source,
-        isNpcMelee,
-        isMeleeAttack,
-        burstMeleeAoE: option.burstMeleeAoE,
-        tags: option.tags,
-        range: option.range,
-        segmentId,
-    });
+    if (isNpcTargetingDebug())
+        console.log('[MS NPC Targeting] SELECT route flags', {
+            name: option.name,
+            source: option.source,
+            isNpcMelee,
+            isMeleeAttack,
+            burstMeleeAoE: option.burstMeleeAoE,
+            tags: option.tags,
+            range: option.range,
+            segmentId,
+        });
     if (isMeleeAttack) {
         if (option.costsAction) {
             const atkAvail = getAvailableAttackActions(actor, combat);
@@ -1281,13 +1290,14 @@ export async function handleChosenCombatOption(token, option) {
         if (option.burstMeleeAoE) {
             // Self-centered Instant Melee AoE: auto-acquire hostiles in radius → Attack Card.
             // No target-selection / Confirm AoE panel. Allies always excluded. No Primary Target.
-            console.log('[MS NPC Targeting] SELECT entering MELEE_AOE_AUTO', {
-                name: option.name,
-                source: option.source,
-                burstMeleeRadiusMeters: option.burstMeleeRadiusMeters,
-                aoeRadiusMeters: option.aoeRadiusMeters,
-                tags: option.tags,
-            });
+            if (isNpcTargetingDebug())
+                console.log('[MS NPC Targeting] SELECT entering MELEE_AOE_AUTO', {
+                    name: option.name,
+                    source: option.source,
+                    burstMeleeRadiusMeters: option.burstMeleeRadiusMeters,
+                    aoeRadiusMeters: option.aoeRadiusMeters,
+                    tags: option.tags,
+                });
             const collectedBurstIds = collectMeleeBurstHostileTokenIds(token, option);
             const effectiveBurstIds = excludeAlliesFromAoePool(token, collectedBurstIds);
             if (!effectiveBurstIds.length) {

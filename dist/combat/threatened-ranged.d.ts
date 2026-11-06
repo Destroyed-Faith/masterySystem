@@ -11,6 +11,9 @@
  * Console filter: `[MS Threatened Ranged]`
  */
 import type { RadialCombatOption } from "../token-radial-menu";
+/** Off by default. Enable with: game.masteryThreatenedRangedDebug(true) */
+export declare let THREATENED_RANGED_DEBUG: boolean;
+export declare function setThreatenedRangedDebug(on: boolean): void;
 /** Distance between token centers in meters (grid-aware when possible). */
 export declare function distanceBetweenTokensMeters(a: any, b: any): number;
 /**

@@ -4,6 +4,7 @@
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { writeActorStatusList } from '../system/assign-status.js';
+import { isNpcTargetingDebug } from '../utils/npc-targeting-debug.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, NPC_REACTIONS_UPDATE, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
@@ -847,9 +848,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     _prepareSubmitData(event, form, formData, updateData) {
         const data = super._prepareSubmitData(event, form, formData, updateData);
         if (!data?.system) {
-            console.log('[MS NPC Targeting] FORM SUBMIT — no system in submit data', {
-                keys: data ? Object.keys(data) : null,
-            });
+            if (isNpcTargetingDebug())
+                console.log('[MS NPC Targeting] FORM SUBMIT — no system in submit data', {
+                    keys: data ? Object.keys(data) : null,
+                });
             return data;
         }
         const beforeRoot = data.system.npcBaseAttack
@@ -969,26 +971,27 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             data.system.attributes = attrs;
         }
         data.system = sanitizeNpcSystemAttackTargeting(data.system);
-        console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
-            actorId: this.actor?.id,
-            hasPhases: !!data.system.phases,
-            phasesIsArray: Array.isArray(data.system.phases),
-            beforeRoot,
-            afterRoot: data.system.npcBaseAttack
-                ? {
-                    kind: data.system.npcBaseAttack.npcRangeKind,
-                    aoe: data.system.npcBaseAttack.npcAoeRadiusM,
-                    shape: data.system.npcBaseAttack.npcAoeShape,
-                }
-                : null,
-            afterPhase0: Array.isArray(data.system.phases)
-                ? {
-                    kind: data.system.phases[0]?.npcBaseAttack?.npcRangeKind,
-                    aoe: data.system.phases[0]?.npcBaseAttack?.npcAoeRadiusM,
-                    shape: data.system.phases[0]?.npcBaseAttack?.npcAoeShape,
-                }
-                : null,
-        });
+        if (isNpcTargetingDebug())
+            console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
+                actorId: this.actor?.id,
+                hasPhases: !!data.system.phases,
+                phasesIsArray: Array.isArray(data.system.phases),
+                beforeRoot,
+                afterRoot: data.system.npcBaseAttack
+                    ? {
+                        kind: data.system.npcBaseAttack.npcRangeKind,
+                        aoe: data.system.npcBaseAttack.npcAoeRadiusM,
+                        shape: data.system.npcBaseAttack.npcAoeShape,
+                    }
+                    : null,
+                afterPhase0: Array.isArray(data.system.phases)
+                    ? {
+                        kind: data.system.phases[0]?.npcBaseAttack?.npcRangeKind,
+                        aoe: data.system.phases[0]?.npcBaseAttack?.npcAoeRadiusM,
+                        shape: data.system.phases[0]?.npcBaseAttack?.npcAoeShape,
+                    }
+                    : null,
+            });
         return data;
     }
     /** Sync Ini malus/bonus selects → hidden net field + summary (MR d8 ± N). */

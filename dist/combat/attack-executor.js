@@ -713,7 +713,13 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     // or Final Spell TN (spell). The card's display TN is the primary/anchor
     // target; secondaries are checked independently after the roll.
     if (option.source === 'power' && option.item) {
-        selectedPowerId = option.item.id;
+        // Prefer stable Power-instance keys (artifact:…:slot:N) over the whole
+        // artifact item id so sibling grants stay independently usable.
+        const optId = String(option.id || '').trim();
+        selectedPowerId =
+            optId.startsWith('artifact:') || optId.startsWith('artifact-weapon:')
+                ? optId
+                : option.item.id;
         const powerSystem = option.item.system || {};
         const artifactIsSpell = option.artifactIsSpell === true;
         selectedPowerLevel = option.artifactPowerTemplateId

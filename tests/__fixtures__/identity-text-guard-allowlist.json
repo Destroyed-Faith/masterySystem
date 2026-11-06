@@ -248,138 +248,6 @@
       "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 41,
-      "match": "isBreathWeaponName",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 59,
-      "match": "classifyArtifactRowType",
-      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 238,
-      "match": "/\\bheal",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 242,
-      "match": "/\\bcleanse",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 246,
-      "match": "/\\bheal",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 247,
-      "match": "/\\bheal",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 248,
-      "match": "/\\bheal",
-      "reason": "K8.e — restoration infer (missing-ID bridge)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 332,
-      "match": "isBreathWeaponName",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 483,
-      "match": "/\\blimited",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 484,
-      "match": "/moonlight",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 485,
-      "match": "/undead",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 551,
-      "match": "isBreathWeaponName",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 554,
-      "match": "isBreathWeaponName",
-      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
-    },
-    {
-      "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 561,
-      "match": "const stageSuffix",
-      "reason": "display"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 139,
-      "match": "toLowerCase().includes(",
-      "reason": "display"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 571,
-      "match": "name.includes(",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 582,
-      "match": "name.includes(",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 660,
-      "match": "tags.includes(",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 678,
-      "match": "textSuggestsActiveBuff",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 687,
-      "match": "tags.includes(",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 690,
-      "match": "textSuggestsActiveBuff",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\radial-menu\\options.ts",
-      "line": 919,
-      "match": "tags.includes(",
-      "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
       "file": "src\\radial-menu\\power-radial-label.ts",
       "line": 25,
       "match": "/\\bspell",
@@ -462,6 +330,174 @@
       "line": 92,
       "match": "isUltimateProgressionRow",
       "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 21,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1077,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1080,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1081,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 35,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 45,
+      "match": "isBreathWeaponName",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 63,
+      "match": "classifyArtifactRowType",
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 242,
+      "match": "/\\bheal",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 246,
+      "match": "/\\bcleanse",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 250,
+      "match": "/\\bcleanse",
+      "reason": "K8.e — restoration infer (missing-ID bridge)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 251,
+      "match": "/\\bheal",
+      "reason": "K8.e — restoration infer (missing-ID bridge)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 252,
+      "match": "/\\bheal",
+      "reason": "K8.e — restoration infer (missing-ID bridge)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 336,
+      "match": "isBreathWeaponName",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 348,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8.c — pre-K9 missing-ID / W1 holdout bridge"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 497,
+      "match": "/\\blimited",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 498,
+      "match": "/moonlight",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 499,
+      "match": "/undead",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 565,
+      "match": "isBreathWeaponName",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 568,
+      "match": "isBreathWeaponName",
+      "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
+    },
+    {
+      "file": "src\\radial-menu\\artifact-options.ts",
+      "line": 575,
+      "match": "const stageSuffix",
+      "reason": "display"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 144,
+      "match": "includes('artifact only')",
+      "reason": "display"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 575,
+      "match": "name.includes('bless')",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 586,
+      "match": "name.includes('feather fall')",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 664,
+      "match": "tags.includes",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 682,
+      "match": "textSuggestsActiveBuff",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 691,
+      "match": "tags.includes",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 694,
+      "match": "textSuggestsActiveBuff",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
+    },
+    {
+      "file": "src\\radial-menu\\options.ts",
+      "line": 923,
+      "match": "tags.includes",
+      "reason": "K8.a/c — missing-ID segment/row text bridge"
     }
   ]
 }

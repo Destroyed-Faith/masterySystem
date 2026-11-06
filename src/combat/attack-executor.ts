@@ -933,7 +933,13 @@ export async function createAttackCard(
   // target; secondaries are checked independently after the roll.
 
   if (option.source === 'power' && option.item) {
-    selectedPowerId = option.item.id;
+    // Prefer stable Power-instance keys (artifact:…:slot:N) over the whole
+    // artifact item id so sibling grants stay independently usable.
+    const optId = String((option as any).id || '').trim();
+    selectedPowerId =
+      optId.startsWith('artifact:') || optId.startsWith('artifact-weapon:')
+        ? optId
+        : option.item.id;
     const powerSystem = (option.item.system as any) || {};
     const artifactIsSpell = option.artifactIsSpell === true;
     selectedPowerLevel = option.artifactPowerTemplateId

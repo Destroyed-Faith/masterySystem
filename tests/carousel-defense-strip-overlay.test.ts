@@ -64,6 +64,28 @@ describe('overlayCarouselDefenseStrip', () => {
     expect(out.evade).toBe(10); // 8 - 1 + 3
   });
 
+  it('adds live Active Buff Armor/Evade on top of sheet totals', () => {
+    const out = overlayCarouselDefenseStrip({
+      actorType: 'character',
+      armorTotal: 10,
+      evadeTotal: 8,
+      damageReductionPct: 0,
+      armorFromMechanics: 0,
+      evadeFromMechanics: 0,
+      damageReductionFromMechanics: 0,
+      peek: {
+        armorPassive: 0,
+        evadePassive: 0,
+        armorBuff: 6,
+        evadeBuff: 2,
+        damageReductionPct: 0,
+      },
+    });
+    expect(out.armor).toBe(16);
+    expect(out.evade).toBe(10);
+    expect(out.drPct).toBe(0);
+  });
+
   it('preserves Stone DR Boost when mechanics peek changes (character)', () => {
     const out = overlayCarouselDefenseStrip({
       actorType: 'character',

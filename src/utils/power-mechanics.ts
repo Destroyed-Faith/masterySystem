@@ -898,10 +898,15 @@ export function buildActorMechanicsBreakdowns(actor: any): {
  * Display-only defense peek for the combat carousel (A4).
  * Re-evaluates self-facing conditionExpr (adjacency / movement) without a full
  * `prepareDerivedData` pass. Callers overlay these onto stored combat totals.
+ * Active Buff Armor/Evade are returned separately — sheet `armorTotal`/`evadeTotal`
+ * intentionally omit them (hit-resolution path); the carousel adds them for
+ * current effective values.
  */
 export function peekSelfFacingDefenseMechanics(actor: any): {
   armorPassive: number;
   evadePassive: number;
+  armorBuff: number;
+  evadeBuff: number;
   damageReductionPct: number;
 } {
   const contributions = collectMechanicsContributions(actor);
@@ -909,10 +914,16 @@ export function peekSelfFacingDefenseMechanics(actor: any): {
     contributions.filter((c) => c.sourceKind === 'passive'),
     actor,
   );
+  const buffBd = aggregateMechanics(
+    contributions.filter((c) => c.sourceKind === 'buff'),
+    actor,
+  );
   const allBd = aggregateMechanics(contributions, actor);
   return {
     armorPassive: Math.max(0, Math.floor(Number(passiveBd.totals.armor) || 0)),
     evadePassive: Math.floor(Number(passiveBd.totals.evade) || 0),
+    armorBuff: Math.max(0, Math.floor(Number(buffBd.totals.armor) || 0)),
+    evadeBuff: Math.floor(Number(buffBd.totals.evade) || 0),
     damageReductionPct: Math.max(
       0,
       Math.min(100, Math.floor(Number(allBd.totals.damageReductionPct) || 0)),

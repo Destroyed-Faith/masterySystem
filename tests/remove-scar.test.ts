@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   applyRemoveScarEffect,
+  clampRemoveScarTargetToAvailableScars,
   clearRemoveScarResolvedTiers,
   computeRemoveScarPayment,
   getRemoveScarResolvedMaxTier,
   inferRemoveScarTargetTier,
   payAndApplyRemoveScar,
+  removeScarPaymentFitsScarredBars,
   titanScarsAllowsTouchRemoveScar,
   titanScarsArtifactLevel,
 } from '../src/stones/remove-scar';
@@ -134,6 +136,59 @@ describe('inferRemoveScarTargetTier', () => {
     expect(inferRemoveScarTargetTier(0, 4)).toBe(4);
     expect(inferRemoveScarTargetTier(1, 4)).toBe(4);
     expect(inferRemoveScarTargetTier(4, 4)).toBe(4);
+  });
+});
+
+describe('scar availability gates', () => {
+  it('clamps Support jumps to the number of Scarred Bars available', () => {
+    expect(clampRemoveScarTargetToAvailableScars(0, 4, 4, 0)).toBe(0);
+    expect(clampRemoveScarTargetToAvailableScars(0, 4, 4, 1)).toBe(1);
+    expect(clampRemoveScarTargetToAvailableScars(0, 4, 4, 2)).toBe(2);
+    expect(clampRemoveScarTargetToAvailableScars(0, 4, 4, 4)).toBe(4);
+    expect(clampRemoveScarTargetToAvailableScars(1, 4, 4, 1)).toBe(2);
+  });
+
+  it('fits payment only when scars cover newly recovered bars', () => {
+    expect(removeScarPaymentFitsScarredBars(0, { barsRecovered: 1 })).toBe(false);
+    expect(removeScarPaymentFitsScarredBars(1, { barsRecovered: 1 })).toBe(true);
+    expect(removeScarPaymentFitsScarredBars(1, { barsRecovered: 2 })).toBe(false);
+    expect(removeScarPaymentFitsScarredBars(2, { barsRecovered: 2 })).toBe(true);
+  });
+
+  it('refuses activation with no Scarred Health Bars', async () => {
+    const actor = makeActor({
+      bars: [
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+      ],
+    });
+    expect(await payAndApplyRemoveScar(actor, { targetTier: 1, skipTargetPrompt: true })).toBe(
+      false,
+    );
+    expect(actor.system.stonePools.vitality.sealed).toBe(0);
+    expect(getRemoveScarResolvedMaxTier(actor)).toBe(0);
+  });
+
+  it('cannot jump to T2 when only one Scar remains', async () => {
+    const actor = makeActor({
+      bars: [
+        { max: 20, current: 0 },
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+        { max: 20, current: 20 },
+      ],
+    });
+    // Explicit T2 would recover 2 bars; clamp to T1 and heal the single Scar.
+    expect(await payAndApplyRemoveScar(actor, { targetTier: 2, skipTargetPrompt: true })).toBe(
+      true,
+    );
+    expect(getRemoveScarResolvedMaxTier(actor)).toBe(1);
+    expect(actor.system.health.scarred).toBe(0);
+    expect(actor.system.stonePools.vitality.sealed).toBe(1);
   });
 });
 

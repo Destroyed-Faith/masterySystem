@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.839] - 2026-11-06
+
+### Changed
+
+- **Active Buff Empowerment:** once per Combat, only while a Buff is already maintained; extends that Buff by +1/+2/+3/+4 complete Rounds. No longer grants Power Level; cannot be paid without a maintained Buff (activate Buff first).
+- **Remove Scar:** activation gated on Scarred Health Bars; target Tier clamps to available Scars (no over-heal jump).
+
+### Fixed
+
+- **Maximization:** shared remaining-charge pool across token/world actor copies so one charge cannot be spent twice.
+- **Artifact radial:** hide already-used artifact options for the combat.
+- **Combat carousel strip:** hide 0% DR; show remaining Phasing charges; fold live Active Buff Armor/Evade into strip values.
+
+### Added
+
+- **K8 Initiative / power instances:** controlled Initiative handling and independent power-instance use limits.
+
 ## [0.9.838] - 2026-11-06
 
 ### Changed

@@ -1,24 +1,32 @@
 /**
  * Initiative Rolling System
- * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) plus the flat
- * Initiative modifiers (equipment, Passives, Wits scaling, Stone Boost, manual).
- * The score persists until spent (Initiative Exchange → Colorless Stones) or
- * another rule changes it.
+ * Determined ONCE at combat start:
+ * - Risky (default): Mastery Rank d8 (keep all, 8s explode)
+ * - Controlled: fixed max(Agility Pool, Wits Pool), no MR multiplier
+ * Then apply flat Initiative modifiers once (equipment, Passives, Wits scaling,
+ * Stone Boost, manual). Score persists until spent (Initiative Exchange →
+ * Colorless Stones) or another rule changes it.
  */
+export type InitiativeMethod = 'risky' | 'controlled';
 /**
  * Initiative roll breakdown (pre–Initiative Exchange).
  */
 export interface InitiativeRollBreakdown {
-    /** Sum of Mastery Rank d8 (exploding 8s). */
+    /** Risky: sum of Mastery Rank d8. Controlled: fixed Agility/Wits max (before mods). */
     diceTotal: number;
-    /** Dice + flat modifiers — the score Initiative Exchange converts from. */
+    /** Base + flat modifiers — the score Initiative Exchange converts from. */
     totalInitiative: number;
     /** Flat modifier from equipped armor, shield, and weapon (e.g. Heavy). */
     equipmentInitiativeModifier: number;
     masteryRank: number;
+    /** Method used for this determination. */
+    method: InitiativeMethod;
     /** Present after a local roll; omitted when the shop opens over the socket. */
     rollResult?: any;
 }
+/** Controlled base: higher of Agility Pool and Wits Pool (no MR multiplier). */
+export declare function controlledInitiativeBase(actor: any): number;
+export declare function normalizeInitiativeMethod(raw: unknown): InitiativeMethod;
 export declare const INITIATIVE_ROLLED_FLAG = "initiativeRolledFor";
 /** True when this combatant already kept an initiative total for this combat round. */
 export declare function initiativeRollAlreadyRecorded(flag: {
@@ -41,7 +49,7 @@ export declare function pcNeedsManualInitiativeRoll(input: {
     combatantHasRecordedValue?: boolean;
 }): boolean;
 export declare function formatSignedInitiativeModifier(n: number): string;
-export declare function formatInitiativeDiceRollLine(diceTotal: number): string;
+export declare function formatInitiativeDiceRollLine(diceTotal: number, method?: InitiativeMethod): string;
 export declare function formatInitiativeArmorPenaltyLine(equipmentModifier: number): string;
 /** English toast / fallback after the player has rolled. */
 export declare function formatInitiativeExchangeSummary(input: {
@@ -51,10 +59,12 @@ export declare function formatInitiativeExchangeSummary(input: {
 /** Drop the stored roll so the Initiative button shows again. Does not roll. */
 export declare function releasePcInitiativeRoll(actor: any, combatant: any): Promise<void>;
 /**
- * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
- * The roll stands as rolled; no Skill Points are spent on it.
+ * Determine initiative for one combatant (Risky roll or Controlled fixed base)
+ * plus flat modifiers. No Skill Points are spent.
  */
-export declare function rollInitiativeForCombatant(combatant: Combatant): Promise<InitiativeRollBreakdown>;
+export declare function rollInitiativeForCombatant(combatant: Combatant, opts?: {
+    method?: InitiativeMethod;
+}): Promise<InitiativeRollBreakdown>;
 /** True when an NPC still needs a real initiative roll (Foundry often seeds 0). */
 export declare function needsNpcInitiativeRoll(combatant: Combatant, force?: boolean): boolean;
 /** Roll initiative for NPCs / summons / divine only. PCs roll on their own client. */

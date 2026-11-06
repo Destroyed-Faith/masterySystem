@@ -18,6 +18,8 @@ import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
+  isUltimateProgressionRow,
+  progressionSlotIndex,
   resolveFullLevelProgression,
   visibleAbilityRows,
 } from '../utils/artifact-visible-abilities.js';
@@ -360,7 +362,10 @@ export interface RoundState {
     rangeBonusM?: number;
     meleeReachBonusM?: number;
     aoeRadiusBonusM?: number;
-    /** Resolve Active Buff Empowerment — extra Power Levels on one Active Buff this round. */
+    /**
+     * @deprecated Resolve Active Buff Empowerment no longer grants PL.
+     * Kept so legacy parked roundState clears cleanly.
+     */
     activeBuffPlBonus?: number;
     /** Influence Enemy Evade Reduction against this character's attacks. */
     enemyEvadeReduction?: number;
@@ -385,7 +390,10 @@ export interface RoundState {
     ignoreWoundPenalties?: number;
     /** Vitality.SecondChance — free boxes left in Wounded when downing-blow is converted (1..4). */
     secondChanceFreeBoxes?: number;
-    /** Vitality.ExtendActiveBuff — +rounds for the next Active Buff activated this turn (consumed on activation). */
+    /**
+     * Legacy parked +rounds for the next Active Buff activation.
+     * Current Resolve Empowerment extends a maintained Buff immediately instead.
+     */
     extendActiveBuffRounds?: number;
     /** Intellect.Raise Focus — bonus to meet Raise TN only (not the normal success TN). */
     spellRaiseTnBonus?: number;
@@ -870,25 +878,57 @@ export async function consumeFreeRaises(actor: Actor | null | undefined, request
 }
 
 /**
- * Whether this power item has already been used this round (combat powers only).
+ * Strip Dragon Breath mode suffixes (`:damage` / `:ruin`) so both modes share
+ * one once-per-Round instance key with the grant lineage.
  */
+export function canonicalPowerUseInstanceId(powerItemId: string): string {
+  return String(powerItemId || '')
+    .trim()
+    .replace(/:(?:damage|ruin)$/i, '');
+}
+
+function artifactItemIdFromInstanceKey(key: string): string | null {
+  const m = /^(?:artifact|artifact-weapon):([^:]+)/.exec(String(key || '').trim());
+  return m ? m[1] : null;
+}
+
 /**
- * Power Use Limit identity (PG "Power Use Limit"): a Power's identity is its
- * base **Technical Reference** (template + chosen Special), not the item id.
- * Two embedded duplicates of the same template therefore share one use per
- * round. Falls back to the raw item id for non-template items.
+ * Power Use Limit instance key (PG "Power Use Limit"): independently acquired
+ * or granted Power instances. Learned Powers use their embedded item id.
+ * Artifact grants use stable `artifact:<itemId>:slot:N` / ultimate keys.
+ * Technical Reference is NOT the once-per-Round key — a learned Hex and an
+ * Artifact Hex may each be used once. Legacy Technical Reference keys still
+ * match when present in older roundState arrays.
  */
-function powerUseIdentity(actor: Actor, powerItemId: string): string {
+export function powerUseIdentity(actor: Actor, powerItemId: string): string {
+  const raw = canonicalPowerUseInstanceId(powerItemId);
+  if (!raw) return '';
+  if (raw.startsWith('artifact:') || raw.startsWith('artifact-weapon:')) return raw;
   try {
-    const item = (actor as any).items?.get?.(powerItemId);
-    if (item) {
-      const key = powerIdentityKeyFromItem(item as any);
-      if (key) return key;
-    }
+    const item = (actor as any).items?.get?.(raw);
+    if (item?.type === 'power' && item.id) return String(item.id);
+    if (item?.id) return String(item.id);
   } catch {
     /* fall back to raw id */
   }
-  return powerItemId;
+  return raw;
+}
+
+/** Prefer a radial option's stable instance id when present. */
+export function powerUseInstanceIdFromOption(option: {
+  id?: string;
+  item?: { id?: string } | null;
+  consumableItemId?: string;
+  tags?: string[];
+} | null | undefined): string {
+  if (!option) return '';
+  const id = String(option.id || '').trim();
+  if (id.startsWith('artifact:') || id.startsWith('artifact-weapon:')) {
+    return canonicalPowerUseInstanceId(id);
+  }
+  if (option.consumableItemId) return String(option.consumableItemId);
+  if ((option.tags || []).includes('consumable') && id) return id;
+  return String(option.item?.id || id || '');
 }
 
 export function hasPowerBeenUsedThisRound(
@@ -898,8 +938,26 @@ export function hasPowerBeenUsedThisRound(
 ): boolean {
   const rs = getRoundState(actor, combat);
   const used = rs.usedPowerIdsThisRound ?? [];
-  // Raw ids from older round states still match directly.
-  return used.includes(powerUseIdentity(actor, powerItemId)) || used.includes(powerItemId);
+  if (!used.length) return false;
+  const raw = String(powerItemId || '').trim();
+  const identity = powerUseIdentity(actor, powerItemId);
+  const canon = canonicalPowerUseInstanceId(raw);
+  if (used.includes(identity) || used.includes(raw) || (canon && used.includes(canon))) {
+    return true;
+  }
+  // Breath mode variants stored before canonicalization, or checked as :damage/:ruin.
+  if (
+    used.some((u) => {
+      const cu = canonicalPowerUseInstanceId(u);
+      return (identity && cu === identity) || (canon && cu === canon);
+    })
+  ) {
+    return true;
+  }
+  // Legacy whole-artifact marks (pre–instance keys): hide every grant on that item.
+  const artItemId = artifactItemIdFromInstanceKey(identity) || artifactItemIdFromInstanceKey(canon);
+  if (artItemId && used.includes(artItemId)) return true;
+  return false;
 }
 
 /**
@@ -912,9 +970,10 @@ export async function markPowerUsedThisRound(
 ): Promise<void> {
   if (!powerItemId) return;
   const identity = powerUseIdentity(actor, powerItemId);
+  if (!identity) return;
+  if (hasPowerBeenUsedThisRound(actor, combat, identity)) return;
   const rs = getRoundState(actor, combat);
   const arr = rs.usedPowerIdsThisRound ?? [];
-  if (arr.includes(identity)) return;
   rs.usedPowerIdsThisRound = [...arr, identity];
   await setRoundState(actor, rs);
 }
@@ -929,10 +988,15 @@ export async function unmarkPowerUsedThisRound(
 ): Promise<void> {
   if (!powerItemId) return;
   const identity = powerUseIdentity(actor, powerItemId);
+  const canon = canonicalPowerUseInstanceId(powerItemId);
   const rs = getRoundState(actor, combat);
   const arr = rs.usedPowerIdsThisRound ?? [];
   if (!arr.length) return;
-  rs.usedPowerIdsThisRound = arr.filter((id) => id !== identity && id !== powerItemId);
+  rs.usedPowerIdsThisRound = arr.filter((id) => {
+    if (id === identity || id === powerItemId || id === canon) return false;
+    const cu = canonicalPowerUseInstanceId(id);
+    return cu !== identity && cu !== canon;
+  });
   await setRoundState(actor, rs);
 }
 
@@ -956,25 +1020,43 @@ function collectActorItems(actor: Actor | null | undefined): any[] {
 
 /**
  * Artifact radial usage keys look like:
- *   `artifact:<itemId>:<level>:<rowType>`
- *   `artifact:<itemId>:<level>:<rowType>:damage|ruin` (Dragon Breath modes)
+ *   `artifact:<itemId>:slot:<n>` (stable grant lineage)
+ *   `artifact:<itemId>:ultimate:<key>`
+ *   legacy `artifact:<itemId>:<level>:<rowType>` (+ optional :damage|:ruin)
  * Resolve to the player-facing Power name (+ artifact name), never the raw key.
  */
 function resolveArtifactUsageDisplayName(actor: Actor, key: string): string | null {
   if (!key.startsWith('artifact:')) return null;
-  const m = /^artifact:([^:]+):(\d+):(.+)$/.exec(key);
-  if (!m) return null;
-  const itemId = m[1];
-  const level = Number(m[2]) || 1;
-  let rest = m[3];
-  let mode: 'damage' | 'ruin' | null = null;
-  const modeMatch = /^(.*):(damage|ruin)$/i.exec(rest);
-  if (modeMatch) {
-    rest = modeMatch[1];
-    mode = modeMatch[2].toLowerCase() as 'damage' | 'ruin';
-  }
-  const rowType = String(rest || '').trim();
+  const slotM = /^artifact:([^:]+):slot:(\d+)$/.exec(key);
+  const ultM = /^artifact:([^:]+):ultimate:(.+)$/.exec(key);
+  const legacyM = /^artifact:([^:]+):(\d+):(.+)$/.exec(key);
 
+  let itemId = '';
+  let level = 1;
+  let slotIndex: number | null = null;
+  let rest = '';
+  let mode: 'damage' | 'ruin' | null = null;
+
+  if (slotM) {
+    itemId = slotM[1];
+    slotIndex = Number(slotM[2]) || 0;
+  } else if (ultM) {
+    itemId = ultM[1];
+    rest = ultM[2];
+  } else if (legacyM) {
+    itemId = legacyM[1];
+    level = Number(legacyM[2]) || 1;
+    rest = legacyM[3];
+    const modeMatch = /^(.*):(damage|ruin)$/i.exec(rest);
+    if (modeMatch) {
+      rest = modeMatch[1];
+      mode = modeMatch[2].toLowerCase() as 'damage' | 'ruin';
+    }
+  } else {
+    return null;
+  }
+
+  const rowType = String(rest || '').trim();
   const item =
     (actor as any).items?.get?.(itemId) ||
     collectActorItems(actor).find((it) => String(it?.id) === itemId);
@@ -989,17 +1071,26 @@ function resolveArtifactUsageDisplayName(actor: Actor, key: string): string | nu
 
   try {
     const sys = item?.system || {};
+    const currentLevel = Math.max(level, Number(sys.currentLevel) || level);
     const full = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks, {
       preferAuthored: sys.useAuthoredLevelProgression === true,
     });
-    const visible = visibleAbilityRows(full, Math.max(level, Number(sys.currentLevel) || level));
-    const row =
-      visible.find(
-        (r) => Number(r.level) === level && String(r.type || '').trim() === rowType,
-      ) ||
-      full.find((r) => Number(r.level) === level && String(r.type || '').trim() === rowType) ||
-      visible.find((r) => Number(r.level) === level) ||
-      full.find((r) => Number(r.level) === level);
+    const visible = visibleAbilityRows(full, currentLevel);
+    let row =
+      slotIndex != null
+        ? visible.find((r) => progressionSlotIndex(r) === slotIndex) ||
+          full
+            .filter((r) => !isUltimateProgressionRow(r) && progressionSlotIndex(r) === slotIndex)
+            .sort((a, b) => (Number(b.level) || 0) - (Number(a.level) || 0))[0]
+        : ultM
+          ? visible.find((r) => isUltimateProgressionRow(r)) ||
+            full.find((r) => isUltimateProgressionRow(r))
+          : visible.find(
+              (r) => Number(r.level) === level && String(r.type || '').trim() === rowType,
+            ) ||
+            full.find((r) => Number(r.level) === level && String(r.type || '').trim() === rowType) ||
+            visible.find((r) => Number(r.level) === level) ||
+            full.find((r) => Number(r.level) === level);
     const rowName = String(row?.name || '').trim();
     if (rowName && artifactName) return `${rowName} (${artifactName})`;
     if (rowName) return rowName;
@@ -1007,9 +1098,10 @@ function resolveArtifactUsageDisplayName(actor: Actor, key: string): string | nu
     /* fall through */
   }
 
-  if (artifactName && rowType) return `${rowType} — ${artifactName} (L${level})`;
-  if (artifactName) return `${artifactName} (L${level})`;
-  if (rowType) return `${rowType} (L${level})`;
+  if (artifactName && rowType) return `${rowType} — ${artifactName}`;
+  if (artifactName && slotIndex != null) return `${artifactName} (slot ${slotIndex + 1})`;
+  if (artifactName) return artifactName;
+  if (rowType) return rowType;
   return null;
 }
 

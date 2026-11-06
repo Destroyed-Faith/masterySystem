@@ -93,14 +93,17 @@ export function readNpcBlockDrPctFromCombat(combat) {
  * Overlay self-facing mechanics peek onto stored combat totals for the carousel
  * strip (A4). Replaces only the mechanics-derived portion of Armor / Evade / DR;
  * preserves NPC stat-block DR (max), manual DR, and Stone DR Boost.
+ * Active Buff Armor/Evade are added on top (sheet totals omit them by design).
  */
 export function overlayCarouselDefenseStrip(input) {
     const armor = Math.floor(Number(input.armorTotal) || 0) -
         Math.max(0, Math.floor(Number(input.armorFromMechanics) || 0)) +
-        Math.max(0, Math.floor(Number(input.peek.armorPassive) || 0));
+        Math.max(0, Math.floor(Number(input.peek.armorPassive) || 0)) +
+        Math.max(0, Math.floor(Number(input.peek.armorBuff) || 0));
     const evade = Math.floor(Number(input.evadeTotal) || 0) -
         Math.floor(Number(input.evadeFromMechanics) || 0) +
-        Math.floor(Number(input.peek.evadePassive) || 0);
+        Math.floor(Number(input.peek.evadePassive) || 0) +
+        Math.floor(Number(input.peek.evadeBuff) || 0);
     const peekDr = clampDrPct(input.peek.damageReductionPct);
     const storedMech = clampDrPct(input.damageReductionFromMechanics);
     const storedTotal = clampDrPct(input.damageReductionPct);

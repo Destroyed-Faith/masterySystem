@@ -6,8 +6,7 @@
  */
 export { actorMatchesCombatant, actorTokenId } from './combat-carousel-helpers.js';
 /**
- * Debug defaults ON while rename sync is being verified.
- * Silence with: game.masteryCarouselRenameDebug(false)
+ * Off by default — enable with: game.masteryCarouselRenameDebug(true)
  */
 export declare let CAROUSEL_RENAME_DEBUG: boolean;
 export declare function setCarouselRenameDebug(on: boolean): void;

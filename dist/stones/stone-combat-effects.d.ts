@@ -81,7 +81,12 @@ export declare function maximizationActorCandidates(actor: any): any[];
 /** The related actor that currently has the most Maximization charges. */
 export declare function resolveMaximizationActor(actor: any): any;
 export type MaximizationSource = 'stone' | 'passive' | 'activeBuff';
-/** Remaining stone Maximizations for the current combat. */
+/**
+ * Shared stone Maximization pool for this combat.
+ * Token + world actor can each hold a copy of the flag; treat them as one pool
+ * by taking the minimum remaining (a spent copy must not be ignored in favour
+ * of a stale sibling that still shows 1).
+ */
 export declare function remainingStoneMaximizations(actor: any): number;
 /**
  * Active Buff Maximization combat quota (Z01).
@@ -109,8 +114,14 @@ export declare function listAvailableMaximizationSources(actor: any): Array<{
     label: string;
 }>;
 /**
+ * Damage-card source picker: hide when empty, plain hint for one source,
+ * dropdown only when 2+ Maximization sources remain.
+ */
+export declare function maximizationSourcePickerMode(sourceCount: number): 'hidden' | 'hint' | 'select';
+/**
  * Spend one Maximization charge from exactly one source.
  * Prefer `preferred` when that source still has charges; else stone then Passive.
+ * Stone charges are a shared combat pool across token/world actor copies.
  */
 export declare function spendMaximization(actor: any, preferred?: MaximizationSource | null): Promise<boolean>;
 /**
@@ -120,11 +131,19 @@ export declare function spendMaximization(actor: any, preferred?: MaximizationSo
 export declare function offerMaximization(actor: any, kind?: 'damage' | 'healing'): Promise<boolean>;
 /** @deprecated Use spendMaximization — kept for callers / Hunter's Scourge. */
 export declare function offerDamageMaximization(actor: any): Promise<boolean>;
+/**
+ * True when `target` is a valid enemy for Stone powers (Reaction Denial,
+ * Movement Reduction). PC casters never see other PCs or PC summons; NPC
+ * casters still may target opposing PCs via normal hostility.
+ */
+export declare function isHostileNpcStoneTarget(caster: any, target: any, combatantToken?: any): boolean;
 export declare function chooseCombatantActors(opts: {
     title: string;
     hint: string;
     caster: any;
     max: number;
     maxRangeM?: number;
+    /** When true, only hostile NPCs (not PCs / PC summons). */
+    enemiesOnly?: boolean;
 }): Promise<any[]>;
 //# sourceMappingURL=stone-combat-effects.d.ts.map

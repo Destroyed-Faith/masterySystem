@@ -28,4 +28,13 @@ describe('stone power card color states', () => {
     expect(css).toMatch(/rgba\(102, 187, 106, 0\.95\)/);
     expect(css).toMatch(/\.is-pending \.ms-stone-drop-slot\.slot-filled/);
   });
+
+  it('shows Once per Combat as a banner above each once-limited power card', () => {
+    expect(hbs).toMatch(/power-once-banner/);
+    expect(hbs).toMatch(/Once per Combat/);
+    expect(hbs).toMatch(/is-once-per-combat/);
+    expect(hbs).not.toMatch(/once-combat-stamp/);
+    expect(hbs).not.toMatch(/Once a Combat/);
+    expect(css).toMatch(/\.power-once-banner/);
+  });
 });

@@ -16,6 +16,7 @@ import {
   getStoneAreaBonusMeters,
   getNpcAttackUsesThisRound,
   hasPowerBeenUsedThisRound,
+  powerUseInstanceIdFromOption,
 } from '../combat/action-economy.js';
 import {
   isLimitedAttackDeclaration,
@@ -34,7 +35,11 @@ import {
   resolveNpcAttackList,
   resolveNpcAttackTargeting,
 } from '../utils/npc-attack-model.js';
-import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-debug.js';
+import {
+  isNpcTargetingDebug,
+  logNpcAttackListDump,
+  logNpcTargeting,
+} from '../utils/npc-targeting-debug.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { resolvePowerIdentity, deriveActiveSegment } from '../utils/power-identity.js';
 import { compareIdentityDecision } from '../utils/identity-shadow.js';
@@ -197,9 +202,8 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
     if (remaining <= 0) return;
 
     const targeting = resolveNpcAttackTargeting(atk);
-    console.log(
-      `[MS NPC Targeting] RADIAL option #${index} → burst=${targeting.burstMeleeAoE} ranged=${targeting.isRanged} aoe=${targeting.aoeRad}`,
-      {
+    if (isNpcTargetingDebug()) {
+      logNpcTargeting(`RADIAL option #${index} → burst=${targeting.burstMeleeAoE} ranged=${targeting.isRanged} aoe=${targeting.aoeRad}`, {
         name: atk?.name,
         phaseIndex,
         usageKey,
@@ -211,8 +215,8 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
           npcAoeShape: atk?.npcAoeShape,
         },
         targeting,
-      },
-    );
+      });
+    }
     const baseName = (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`;
     const description = buildNpcAttackDescription(atk);
 
@@ -1373,10 +1377,24 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
 
   // --- ARTIFACT POWERS (Level Progression → Active / Movement / Support) ---
   // Active Buff rows are excluded — they activate during Preparation only.
+  // Spent instances are omitted entirely (same as learned Powers) so the radial
+  // never leaves a clickable row that only fails with "already used".
   try {
-    const artifactOptions = buildArtifactRadialOptions(actor).filter(
-      (opt) => getSegmentIdForOption(opt) !== 'active-buff',
-    );
+    const combatForArtifacts = (globalThis as any).game?.combat ?? null;
+    const artifactOptions = buildArtifactRadialOptions(actor).filter((opt) => {
+      if (getSegmentIdForOption(opt) === 'active-buff') return false;
+      if (!combatForArtifacts) return true;
+      const usageId = powerUseInstanceIdFromOption(opt);
+      if (usageId && hasPowerBeenUsedThisRound(actor as Actor, combatForArtifacts, usageId)) {
+        return false;
+      }
+      // Legacy whole-artifact marks / option.item.id fallback.
+      const itemId = String(opt.item?.id || '').trim();
+      if (itemId && hasPowerBeenUsedThisRound(actor as Actor, combatForArtifacts, itemId)) {
+        return false;
+      }
+      return true;
+    });
     if (artifactOptions.length > 0) {
       options.push(...artifactOptions);
     }

@@ -68,4 +68,20 @@ describe('buildCarouselTooltip', () => {
       }),
     ).toBeNull();
   });
+
+  it('omits DR from the vitals line when it is 0%', () => {
+    const tip = buildCarouselTooltip({
+      mode: 'full',
+      name: 'Oda',
+      initiative: 10,
+      statusTooltips: [],
+      hideVitals: false,
+      armor: 5,
+      evade: 12,
+      drPct: 0,
+    });
+    expect(tip?.lines.join(' ')).toContain('Armor 5 · Evade 12');
+    expect(tip?.lines.join(' ')).not.toContain('DR');
+  });
 });
+

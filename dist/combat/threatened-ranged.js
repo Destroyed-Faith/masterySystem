@@ -12,6 +12,17 @@
  */
 import { isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from "../utils/unarmed-fallback.js";
 const LOG = '[MS Threatened Ranged]';
+/** Off by default. Enable with: game.masteryThreatenedRangedDebug(true) */
+export let THREATENED_RANGED_DEBUG = false;
+export function setThreatenedRangedDebug(on) {
+    THREATENED_RANGED_DEBUG = !!on;
+    console.log(`${LOG} debug ${THREATENED_RANGED_DEBUG ? 'ON' : 'OFF'}`);
+}
+function trLog(...args) {
+    if (!THREATENED_RANGED_DEBUG)
+        return;
+    console.log(...args);
+}
 function distance(a, b) {
     const dx = a.x - b.x;
     const dy = a.y - b.y;
@@ -273,7 +284,7 @@ export function scanThreateningEnemies(shooterToken) {
     const shooterDisp = tokenDisposition(shooterToken);
     const shooterPC = isPlayerCombatantToken(shooterToken);
     const placeableCount = Array.isArray(tokens) ? tokens.length : 0;
-    console.log(`${LOG} scan start shooter="${shooterName}" id=${shooterToken?.id} disp=${shooterDisp} isPC=${shooterPC} placeables=${placeableCount}`);
+    trLog(`${LOG} scan start shooter="${shooterName}" id=${shooterToken?.id} disp=${shooterDisp} isPC=${shooterPC} placeables=${placeableCount}`);
     for (const t of tokens) {
         if (!t?.id || t.id === shooterToken.id)
             continue;
@@ -282,7 +293,7 @@ export function scanThreateningEnemies(shooterToken) {
         const isPC = isPlayerCombatantToken(t);
         if (!t.actor) {
             const line = `${LOG}   skip "${name}" (${t.id}): no-actor disp=${disposition}`;
-            console.log(line);
+            trLog(line);
             rows.push({
                 tokenId: t.id,
                 name,
@@ -329,12 +340,12 @@ export function scanThreateningEnemies(shooterToken) {
             skipReason,
         };
         rows.push(row);
-        console.log(`${LOG}   ${threatens ? 'THREAT' : 'skip '} "${name}" (${t.id}): ` +
+        trLog(`${LOG}   ${threatens ? 'THREAT' : 'skip '} "${name}" (${t.id}): ` +
             `hostile=${hostile} isPC=${isPC} disp=${disposition} ` +
             `edge=${row.edgeDistM} center=${row.centerDistM} reach=${enemyReachM} gridAdj=${gridAdjacent}` +
             (skipReason ? ` | ${skipReason}` : ''));
     }
-    console.log(`${LOG} scan done for "${shooterName}": threatening=[${rows
+    trLog(`${LOG} scan done for "${shooterName}": threatening=[${rows
         .filter((r) => r.threatens)
         .map((r) => r.name)
         .join(', ') || 'none'}]`);
@@ -354,7 +365,7 @@ export function evaluateThreatenedRanged(shooterToken, option) {
     const actor = shooterToken?.actor;
     const optionMeta = `${option?.name || '?'} source=${option?.source} tags=${JSON.stringify(option?.tags || [])} npcIsSpell=${!!option?.npcIsSpell}`;
     if (!actor) {
-        console.log(`${LOG} evaluate — no shooter actor | ${optionMeta}`);
+        trLog(`${LOG} evaluate — no shooter actor | ${optionMeta}`);
         return {
             appliesRule: false,
             threatened: false,
@@ -366,7 +377,7 @@ export function evaluateThreatenedRanged(shooterToken, option) {
     }
     const appliesRule = usesThreatenedRangedWeaponRules(actor, option);
     if (!appliesRule) {
-        console.log(`${LOG} evaluate — rule NOT applicable for "${actor.name}" | ${optionMeta}`);
+        trLog(`${LOG} evaluate — rule NOT applicable for "${actor.name}" | ${optionMeta}`);
         return {
             appliesRule: false,
             threatened: false,
@@ -389,7 +400,7 @@ export function evaluateThreatenedRanged(shooterToken, option) {
             ? `threatened-by:${names.join(',')}`
             : 'no-enemy-in-melee-reach',
     };
-    console.log(`${LOG} evaluate — "${actor.name}" appliesRule=true threatened=${threatened} ` +
+    trLog(`${LOG} evaluate — "${actor.name}" appliesRule=true threatened=${threatened} ` +
         `disadvantage=${result.rollDisadvantage} oa=[${names.join(', ') || 'none'}] ` +
         `reason=${result.debugReason} | ${optionMeta}`);
     return result;

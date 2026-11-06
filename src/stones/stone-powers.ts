@@ -877,51 +877,64 @@ const RESOLVE_POWERS_RAW: StonePowerDraft[] = [
     category: 'action',
     oncePerCombat: true,
     description:
-      'Once per Combat, during Preparation, when activating an Active Buff, empower it by +1/+2/+3/+4 Power Level and +1/+2/+3/+4 complete Rounds (PL still caps at 16). Cannot empower an already maintained Buff. The allowance does not refresh when the Buff expires, is replaced, or is reactivated. Multiple sources do not stack.',
+      'Once per Combat, during Preparation, while you already maintain an Active Buff, extend that Buff by +1/+2/+3/+4 complete Rounds. Requires a maintained Buff — activate it first, then spend Stones here. Does not change Power Level. The allowance does not refresh when the Buff expires, is replaced, or is reactivated.',
     tiers: [
       {
-        label: '+1 PL, +1 Round',
+        label: '+1 Round',
         description:
-          'Once per Combat: when activating an Active Buff in Preparation, it gains +1 Power Level and +1 complete Round (PL cap 16).',
+          'Once per Combat: extend your maintained Active Buff by +1 complete Round. Requires a Buff already active.',
         value: 1,
       },
       {
-        label: '+2 PL, +2 Rounds',
+        label: '+2 Rounds',
         description:
-          'Once per Combat: when activating an Active Buff in Preparation, it gains +2 Power Level and +2 complete Rounds (PL cap 16).',
+          'Once per Combat: extend your maintained Active Buff by +2 complete Rounds. Requires a Buff already active.',
         value: 2,
       },
       {
-        label: '+3 PL, +3 Rounds',
+        label: '+3 Rounds',
         description:
-          'Once per Combat: when activating an Active Buff in Preparation, it gains +3 Power Level and +3 complete Rounds (PL cap 16).',
+          'Once per Combat: extend your maintained Active Buff by +3 complete Rounds. Requires a Buff already active.',
         value: 3,
       },
       {
-        label: '+4 PL, +4 Rounds',
+        label: '+4 Rounds',
         description:
-          'Once per Combat: when activating an Active Buff in Preparation, it gains +4 Power Level and +4 complete Rounds (PL cap 16).',
+          'Once per Combat: extend your maintained Active Buff by +4 complete Rounds. Requires a Buff already active.',
         value: 4,
       },
     ],
     apply: async ({ actor, combatant, tier }) => {
-      const combat = (game as any).combat;
       const { isOncePerCombatPowerUsed } = await import('./colorless-stones.js');
       if (isOncePerCombatPowerUsed(combatant, 'resolve.activeBuffEmpowerment', actor)) {
         ui.notifications?.warn(
           `${(actor as any).name}: Active Buff Empowerment already used this combat.`,
         );
-        return;
+        throw new Error('Active Buff Empowerment already used this combat');
       }
       const bonus = scaleStoneTier([1, 2, 3, 4], tier);
-      if (bonus <= 0) return;
-      // Parks for the next Active Buff activation/replace this Preparation.
-      // Maintaining a Buff does not consume this — only activate/replace does.
-      const roundState = getRoundState(actor, combat);
-      const sb = ensureStoneBonuses(roundState);
-      sb.extendActiveBuffRounds = Math.max(sb.extendActiveBuffRounds ?? 0, bonus);
-      sb.activeBuffPlBonus = Math.max(sb.activeBuffPlBonus ?? 0, bonus);
-      await setRoundState(actor, roundState);
+      if (bonus <= 0) {
+        throw new Error('Active Buff Empowerment: invalid Rank');
+      }
+      const { extendMaintainedActiveBuffRounds, getTrueActiveBuffs } = await import(
+        '../utils/active-buffs.js'
+      );
+      if (getTrueActiveBuffs(actor).length <= 0) {
+        ui.notifications?.warn(
+          `${(actor as any).name}: Active Buff Empowerment needs a maintained Active Buff — activate one first.`,
+        );
+        throw new Error('Active Buff Empowerment requires a maintained Active Buff');
+      }
+      const result = await extendMaintainedActiveBuffRounds(actor, bonus);
+      if (!result.ok) {
+        ui.notifications?.warn(
+          `${(actor as any).name}: Active Buff Empowerment could not extend the maintained Buff.`,
+        );
+        throw new Error('Active Buff Empowerment failed to extend Buff');
+      }
+      ui.notifications?.info(
+        `${(actor as any).name}: ${result.name} extended by +${bonus} Round${bonus === 1 ? '' : 's'} (through Round ${result.lastActiveRound}).`,
+      );
     },
   },
   {
@@ -1204,9 +1217,10 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
       const { chooseCombatantActors, REACTION_DENIAL_FLAG } = await import('./stone-combat-effects.js');
       const [enemy] = await chooseCombatantActors({
         title: 'Reaction Denial',
-        hint: `Choose one enemy. Their next ${count} Reactions this Round are denied.`,
+        hint: `Choose one hostile enemy. Their next ${count} Reactions this Round are denied.`,
         caster: actor,
         max: 1,
+        enemiesOnly: true,
       });
       if (!enemy) {
         await (actor as any).setFlag?.('mastery-system', 'pendingReactionDenial', { count });
@@ -1240,9 +1254,10 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
       const { chooseCombatantActors, markMovementReductionTargets } = await import('./stone-combat-effects.js');
       const picked = await chooseCombatantActors({
         title: 'Movement Reduction',
-        hint: `Choose up to ${count} enemies. Each of their Movement Actions is halved this Round.`,
+        hint: `Choose up to ${count} hostile enemies. Each of their Movement Actions is halved this Round.`,
         caster: actor,
         max: count,
+        enemiesOnly: true,
       });
       if (!picked.length) {
         await (actor as any).setFlag?.('mastery-system', 'pendingMovementReduction', { count });

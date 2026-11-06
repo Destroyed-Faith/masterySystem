@@ -16,7 +16,7 @@ import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
-import { distanceBetweenTokensMeters } from './threatened-ranged.js';
+import { distanceBetweenTokensMeters, THREATENED_RANGED_DEBUG } from './threatened-ranged.js';
 import { buildBasicReactionItems, isBasicReactionItem } from './basic-combat.js';
 import {
   actorParticipatesInReactions,
@@ -538,12 +538,14 @@ export function collectReactionWindowEntries(params: {
   }
 
   const includedOpp = out.filter((e) => e.role === 'opportunity').map((e) => e.name);
-  console.log(
-    `[MS Threatened Ranged] Phase-2/others threatened-reactors ids=[${oppIds.join(', ') || 'none'}] ` +
-      `included=[${includedOpp.join(', ') || 'none'}]`,
-  );
-  for (const row of oppDebug) {
-    console.log(`[MS Threatened Ranged]   reactor row: ${JSON.stringify(row)}`);
+  if (THREATENED_RANGED_DEBUG) {
+    console.log(
+      `[MS Threatened Ranged] Phase-2/others threatened-reactors ids=[${oppIds.join(', ') || 'none'}] ` +
+        `included=[${includedOpp.join(', ') || 'none'}]`,
+    );
+    for (const row of oppDebug) {
+      console.log(`[MS Threatened Ranged]   reactor row: ${JSON.stringify(row)}`);
+    }
   }
 
   return out;

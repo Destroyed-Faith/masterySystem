@@ -25,6 +25,7 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
 import {
   listAvailableMaximizationSources,
+  maximizationSourcePickerMode,
   remainingMaximizations,
   resolveMaximizationActor,
   type MaximizationSource,
@@ -1551,14 +1552,18 @@ function createDamageCardContent(
           if (maxLeft <= 0) return '';
           const sources = listAvailableMaximizationSources(maxActor);
           const preferred = sources[0]?.source || 'stone';
-          const sourceSelect = sources.length
-            ? `<select class="max-source-select" title="Maximization" name="ms-max-source-select" form="ms-ui-only">${sources
-                .map(
-                  (s) =>
-                    `<option value="${s.source}"${s.source === preferred ? ' selected' : ''}>${damageCardHtmlEsc(s.label)}</option>`,
-                )
-                .join('')}</select>`
-            : '';
+          const pickerMode = maximizationSourcePickerMode(sources.length);
+          const sourceSelect =
+            pickerMode === 'select'
+              ? `<select class="max-source-select" title="Maximization" name="ms-max-source-select" form="ms-ui-only">${sources
+                  .map(
+                    (s) =>
+                      `<option value="${s.source}"${s.source === preferred ? ' selected' : ''}>${damageCardHtmlEsc(s.label)}</option>`,
+                  )
+                  .join('')}</select>`
+              : pickerMode === 'hint'
+                ? `<span class="max-source-hint">${damageCardHtmlEsc(sources[0]!.label)}</span>`
+                : '';
           const maxActorId = damageCardHtmlEsc(String((maxActor as any)?.id || (attacker as any).id || ''));
           return `<div class="damage-max-row">${sourceSelect}<button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}" data-maximize="1" data-max-source="${preferred}" data-max-actor-id="${maxActorId}" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8 (artificial, not natural).">
           <i class="fas fa-arrow-up"></i> Roll Maximum (${maxLeft})

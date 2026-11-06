@@ -31,7 +31,11 @@ import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-ac
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
-import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
+import {
+  isUltimateProgressionRow,
+  progressionSlotIndex,
+  visibleAbilityRows,
+} from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
 import {
   breathDamageConeMeters,
@@ -338,7 +342,17 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             // at all. None of them belong in the active radial.
             if (category === 'passive' || category === 'reaction' || category === 'support') continue;
 
-            const id = `artifact:${item.id}:${lvl}:${rowType}`;
+            // Stable per-grant instance id: upgrades of the same slot keep one
+            // once-per-Round instance (rename / downcast / delivery change do not
+            // mint a new key). Level is kept on artifactRowLevel for PL math.
+            const id = isUltimateProgressionRow(row)
+              ? `artifact:${item.id}:ultimate:${String(
+                  row.artifactFunctionId || row.powerTemplateId || name || 'capstone',
+                )
+                  .trim()
+                  .toLowerCase()
+                  .replace(/\s+/g, '-')}`
+              : `artifact:${item.id}:slot:${progressionSlotIndex(row)}`;
             const description = rowDescription(row);
             const typeTag = rowType.toLowerCase().replace(/\s+/g, '-') || 'active';
 

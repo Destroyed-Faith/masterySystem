@@ -68,6 +68,7 @@ import {
 } from '../combat/encounter-setup-status.js';
 import { readDeferredIds } from '../combat/turn-defer.js';
 import { peekSelfFacingDefenseMechanics } from '../utils/power-mechanics.js';
+import { getPhasingCharges } from '../combat/phasing.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -360,12 +361,15 @@ export class CombatCarouselApp extends BaseCarousel {
       // Use actor portrait, not token image
       const portraitImg = actor.img || (actor.prototypeToken as any)?.texture?.src || combatant.img;
 
-      // At-a-glance combat totals (same numbers as the character-sheet header strip).
+      // At-a-glance combat totals (current effective values, including Active Buffs).
       let combatStrip: {
         armor: number;
         evade: number;
         showDr: boolean;
         drPct: number;
+        showPhasing: boolean;
+        phasingCurrent: number;
+        phasingMax: number;
         stripTooltip?: string;
       } | null = null;
       try {
@@ -373,12 +377,17 @@ export class CombatCarouselApp extends BaseCarousel {
         // self-facing conditionExpr (adjacency / movement) via a lightweight
         // mechanics peek so the strip stays fresh after token moves.
         // Replace only the mechanics-derived DR portion; keep NPC block / manual / stone.
+        // Active Buff Armor/Evade come from the live peek (sheet totals omit them).
         const c: any = (actor.system as any)?.combat ?? {};
         let stripArmor = Math.floor(Number(c.armorTotal ?? 0) || 0);
         let stripEvade = Math.floor(Number(c.evadeTotal ?? 0) || 0);
         let drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
+        let armorBuff = Math.max(0, Math.floor(Number(c.armorFromActiveBuffs) || 0));
+        let evadeBuff = Math.floor(Number(c.evadeFromActiveBuffs) || 0);
         try {
           const peek = peekSelfFacingDefenseMechanics(actor);
+          armorBuff = peek.armorBuff;
+          evadeBuff = peek.evadeBuff;
           const storedMechDr = Math.max(
             0,
             Math.floor(
@@ -405,8 +414,13 @@ export class CombatCarouselApp extends BaseCarousel {
           stripEvade = overlaid.evade;
           drPct = overlaid.drPct;
         } catch {
-          /* keep stored combat totals */
+          // Peek failed — still fold stored Active Buff bonuses into the strip.
+          stripArmor += armorBuff;
+          stripEvade += evadeBuff;
         }
+        const economyForPhasing = (getActionEconomyActor(actor) ?? actor) as any;
+        const phasing = getPhasingCharges(economyForPhasing);
+        const showPhasing = phasing.max > 0 || phasing.current > 0;
         const stripTooltip = (() => {
           try {
             const i18n = (globalThis as any).game?.i18n;
@@ -425,28 +439,34 @@ export class CombatCarouselApp extends BaseCarousel {
                 .slice(0, max)
                 .map((r: any) => `${r.label}: ${r.display ?? r.value}`)
                 .join('\n');
-            const drLine = loc('MASTERY.combatStripDrSustained', 'DR {pct}%').replace(
-              '{pct}',
-              String(dr),
-            );
-            const reactionNote = loc(
-              'MASTERY.combatStripReactionDrNote',
-              'Per-hit reaction DR% is added in the damage dialog, not in this sustained value.',
-            );
-            return [
+            const parts: string[] = [
               `Armor ${a}`,
               line(ar, 8),
+              armorBuff > 0 ? `Active Buff Armor +${armorBuff}` : '',
               '',
               `Evade ${e}`,
               line(ev, 8),
+              evadeBuff !== 0 ? `Active Buff Evade ${evadeBuff > 0 ? '+' : ''}${evadeBuff}` : '',
               '',
-              drLine,
-              line(drR, 8),
-              '',
-              reactionNote,
-            ]
-              .filter(Boolean)
-              .join('\n');
+            ];
+            if (dr > 0) {
+              parts.push(
+                loc('MASTERY.combatStripDrSustained', 'DR {pct}%').replace('{pct}', String(dr)),
+                line(drR, 8),
+                '',
+                loc(
+                  'MASTERY.combatStripReactionDrNote',
+                  'Per-hit reaction DR% is added in the damage dialog, not in this sustained value.',
+                ),
+              );
+            }
+            if (showPhasing) {
+              parts.push(
+                '',
+                `Phasing ${phasing.current}/${phasing.max} remaining`,
+              );
+            }
+            return parts.filter((row, i, arr) => row !== '' || (i > 0 && arr[i - 1] !== '')).join('\n');
           } catch {
             return '';
           }
@@ -454,8 +474,11 @@ export class CombatCarouselApp extends BaseCarousel {
         combatStrip = {
           armor: stripArmor,
           evade: stripEvade,
-          showDr: true,
+          showDr: drPct > 0,
           drPct,
+          showPhasing,
+          phasingCurrent: phasing.current,
+          phasingMax: phasing.max,
           stripTooltip,
         };
       } catch {

@@ -17,6 +17,7 @@ import {
   pointerEventIsOnToken,
   type TokenPickDebug,
 } from "./utils/token-pick.js";
+import { logNpcTargeting } from "./utils/npc-targeting-debug.js";
 
 interface MeleeTargetingState {
   attackerToken: any;
@@ -338,7 +339,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
     },
     debug,
   );
-  console.log('[MS NPC Targeting] MELEE pointerdown', {
+  logNpcTargeting('MELEE pointerdown', {
     chosen: clicked ? `${clicked.name} (${clicked.id})` : null,
     pick: debug,
     validCount: state.validTargetIds.size,
@@ -369,7 +370,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   // Capture miss must not cancel when the click is on a token (overlays still fire).
   if (!clicked) {
     if (pointerEventIsOnToken(ev)) {
-      console.log('[MS NPC Targeting] MELEE pick miss on token — deferring to overlay');
+      logNpcTargeting('MELEE pick miss on token — deferring to overlay');
       return;
     }
     endMeleeTargeting(false);

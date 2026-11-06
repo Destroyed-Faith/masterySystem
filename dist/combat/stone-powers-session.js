@@ -68,18 +68,7 @@ export function dismissStonePowersPrompt(combat, actor, combatant) {
     autoOpenSuppressedRound = round;
     const combatId = String(combat?.id ?? game?.combat?.id ?? '');
     const actorId = String(actor?.id ?? '');
-    try {
-        console.log('Mastery Stones | dismiss', {
-            combatId: combatId || '(none)',
-            actorId: actorId || '(none)',
-            combatantId: combatant?.id ?? null,
-            round,
-            autoOpenSuppressed: true,
-        });
-    }
-    catch {
-        /* ignore */
-    }
+    // Quiet by default — enable via game.masteryStonesDebug?.(true) if needed.
     if (!combatId || !actorId)
         return;
     dismissedThisSession.add(stepKey(combatId, actorId, 'stones', round));
@@ -88,12 +77,7 @@ export function dismissStonePowersPrompt(combat, actor, combatant) {
         dismissedThisSession.add(stepKey(combatId, String(combatantId), 'stones', round));
     }
 }
-export function logStonePowersGate(reason, detail) {
-    try {
-        console.log('Mastery Stones | gate', reason, detail ?? {});
-    }
-    catch {
-        /* ignore */
-    }
+export function logStonePowersGate(_reason, _detail) {
+    // Intentionally quiet — was flooding the console on every stone gate check.
 }
 //# sourceMappingURL=stone-powers-session.js.map

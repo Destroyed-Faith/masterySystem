@@ -19,5 +19,5 @@ export declare function isStonePowersDismissed(combatId: string, actorId: string
  * encounter resume cannot reopen the dialog.
  */
 export declare function dismissStonePowersPrompt(combat: Combat | null | undefined, actor: Actor | null | undefined, combatant?: Combatant | null): void;
-export declare function logStonePowersGate(reason: string, detail?: Record<string, unknown>): void;
+export declare function logStonePowersGate(_reason: string, _detail?: Record<string, unknown>): void;
 //# sourceMappingURL=stone-powers-session.d.ts.map

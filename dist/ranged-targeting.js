@@ -16,6 +16,7 @@ import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighti
 import { gridStepsFromMeters, isWithinRangeMeters, measureSceneDistanceBetweenPoints, } from "./utils/grid-range.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 import { pickTokenFromPointerEvent, pointerEventIsOnToken, tokenFromEventTarget, } from "./utils/token-pick.js";
+import { isNpcTargetingDebug } from './utils/npc-targeting-debug.js';
 let active = null;
 let confirming = false;
 function getRangedMaxMeters(option) {
@@ -93,10 +94,11 @@ function createStageHitPad(token, targetId, onClick) {
             return;
         ev.stopPropagation();
         ev.stopImmediatePropagation?.();
-        console.log("[MS NPC Targeting] RANGED hit-pad pointerdown", {
-            targetId,
-            name: token.name,
-        });
+        if (isNpcTargetingDebug())
+            console.log("[MS NPC Targeting] RANGED hit-pad pointerdown", {
+                targetId,
+                name: token.name,
+            });
         onClick(targetId);
     });
     canvas.stage.addChild(pad);
@@ -195,12 +197,13 @@ function logNearbyTokenDistances(attackerToken, maxM, validIds) {
         });
     }
     rows.sort((a, b) => (a.distScene ?? 99) - (b.distScene ?? 99));
-    console.log("[MS NPC Targeting] RANGED nearby token distances", {
-        maxM,
-        note: "Flat maximum only — full pool inside Max, illegal beyond",
-        attacker: attackerToken.name,
-        tokens: rows,
-    });
+    if (isNpcTargetingDebug())
+        console.log("[MS NPC Targeting] RANGED nearby token distances", {
+            maxM,
+            note: "Flat maximum only — full pool inside Max, illegal beyond",
+            attacker: attackerToken.name,
+            tokens: rows,
+        });
 }
 function onKeyDown(ev) {
     if (ev.key === "Escape") {
@@ -213,19 +216,20 @@ function confirmRangedTarget(state, clicked, via) {
     confirming = true;
     try {
         const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
-        console.log("[MS NPC Targeting] RANGED target confirmed → creating attack card", {
-            via,
-            attacker: state.attackerToken.name,
-            target: clicked.name,
-            targetId: clicked.id,
-            option: state.option?.name,
-            distM,
-            maxM: state.rangeMeters,
-            validIds: [...state.validTargetIds].map((id) => {
-                const t = canvas.tokens?.get(id);
-                return t ? `${t.name}(${id})` : id;
-            }),
-        });
+        if (isNpcTargetingDebug())
+            console.log("[MS NPC Targeting] RANGED target confirmed → creating attack card", {
+                via,
+                attacker: state.attackerToken.name,
+                target: clicked.name,
+                targetId: clicked.id,
+                option: state.option?.name,
+                distM,
+                maxM: state.rangeMeters,
+                validIds: [...state.validTargetIds].map((id) => {
+                    const t = canvas.tokens?.get(id);
+                    return t ? `${t.name}(${id})` : id;
+                }),
+            });
         Hooks.call("masterySystem.rangedTargetSelected", {
             attackerTokenId: state.attackerToken.id,
             targetTokenId: clicked.id,
@@ -252,7 +256,8 @@ function onPointerDown(ev) {
     if (!state)
         return;
     if (ev.button !== 0) {
-        console.log("[MS NPC Targeting] RANGED pointer cancel (non-left button)", { button: ev.button });
+        if (isNpcTargetingDebug())
+            console.log("[MS NPC Targeting] RANGED pointer cancel (non-left button)", { button: ev.button });
         endRangedTargeting(false);
         return;
     }
@@ -261,7 +266,8 @@ function onPointerDown(ev) {
     // Hit-pad / overlay already handled this click.
     const padId = ev.target?.msTargetTokenId;
     if (padId) {
-        console.log("[MS NPC Targeting] RANGED stage capture sees hit-pad target — defer", { padId });
+        if (isNpcTargetingDebug())
+            console.log("[MS NPC Targeting] RANGED stage capture sees hit-pad target — defer", { padId });
         return;
     }
     const exclude = state.attackerToken?.id ? [state.attackerToken.id] : [];
@@ -278,15 +284,16 @@ function onPointerDown(ev) {
     };
     const clicked = pickTokenFromPointerEvent(ev, { excludeIds: exclude }, debug);
     const eventTok = tokenFromEventTarget(ev);
-    console.log("[MS NPC Targeting] RANGED stage pointerdown (no confirm from guess)", {
-        button: ev.button,
-        eventTargetType: ev.target?.constructor?.name ?? typeof ev.target,
-        eventToken: eventTok ? `${eventTok.name} (${eventTok.id})` : null,
-        pick: debug,
-        clicked: clicked ? `${clicked.name} (${clicked.id})` : null,
-        validCount: state.validTargetIds.size,
-        note: "Selection only via hit-pads; this handler cancels/warns only",
-    });
+    if (isNpcTargetingDebug())
+        console.log("[MS NPC Targeting] RANGED stage pointerdown (no confirm from guess)", {
+            button: ev.button,
+            eventTargetType: ev.target?.constructor?.name ?? typeof ev.target,
+            eventToken: eventTok ? `${eventTok.name} (${eventTok.id})` : null,
+            pick: debug,
+            clicked: clicked ? `${clicked.name} (${clicked.id})` : null,
+            validCount: state.validTargetIds.size,
+            note: "Selection only via hit-pads; this handler cancels/warns only",
+        });
     // If the click is on a token / our pad path, let that path finish.
     if (pointerEventIsOnToken(ev) || eventTok) {
         return;
@@ -305,7 +312,8 @@ function onPointerDown(ev) {
         return;
     }
     if (!clicked) {
-        console.log("[MS NPC Targeting] RANGED empty-canvas click → cancel");
+        if (isNpcTargetingDebug())
+            console.log("[MS NPC Targeting] RANGED empty-canvas click → cancel");
         endRangedTargeting(false);
     }
 }
@@ -332,25 +340,26 @@ export function startRangedTargeting(attackerToken, option) {
     state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
     markValidTargets(state);
     logNearbyTokenDistances(attackerToken, rangeMeters, state.validTargetIds);
-    console.log("[MS NPC Targeting] RANGED targeting started", {
-        attacker: attackerToken.name,
-        attackerId: attackerToken.id,
-        option: option.name,
-        rangeMeters,
-        validTargets: [...state.validTargetIds].map((id) => {
-            const t = canvas.tokens?.get(id);
-            return t
-                ? {
-                    id,
-                    name: t.name,
-                    center: t.center
-                        ? { x: Math.round(t.center.x), y: Math.round(t.center.y) }
-                        : null,
-                }
-                : { id, name: "?" };
-        }),
-        hitPadCount: state.hitPads.size,
-    });
+    if (isNpcTargetingDebug())
+        console.log("[MS NPC Targeting] RANGED targeting started", {
+            attacker: attackerToken.name,
+            attackerId: attackerToken.id,
+            option: option.name,
+            rangeMeters,
+            validTargets: [...state.validTargetIds].map((id) => {
+                const t = canvas.tokens?.get(id);
+                return t
+                    ? {
+                        id,
+                        name: t.name,
+                        center: t.center
+                            ? { x: Math.round(t.center.x), y: Math.round(t.center.y) }
+                            : null,
+                    }
+                    : { id, name: "?" };
+            }),
+            hitPadCount: state.hitPads.size,
+        });
     // Bubble phase (not capture): hit-pads receive the event first when on stage above.
     canvas.stage.on("pointerdown", state.onPointerDown);
     window.addEventListener("keydown", state.onKeyDown);

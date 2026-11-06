@@ -1,5 +1,6 @@
 /**
  * Verbose NPC attack targeting diagnostics.
+ * Off by default. Enable with: game.masteryNpcTargetingDebug(true)
  * Filter browser console with:  MS NPC Targeting
  */
 
@@ -11,6 +12,18 @@ import {
 } from './npc-attack-model.js';
 
 const PREFIX = '[MS NPC Targeting]';
+
+/** Verbose targeting traces — quiet in normal play. */
+export let NPC_TARGETING_DEBUG = false;
+
+export function setNpcTargetingDebug(on: boolean): void {
+  NPC_TARGETING_DEBUG = !!on;
+  console.log(`${PREFIX} debug ${NPC_TARGETING_DEBUG ? 'ON' : 'OFF'}`);
+}
+
+export function isNpcTargetingDebug(): boolean {
+  return NPC_TARGETING_DEBUG;
+}
 
 export function npcTargetingSnap(row: any): {
   name: string;
@@ -43,16 +56,19 @@ export function npcTargetingLine(label: string, row: any): string {
 }
 
 export function logNpcTargeting(label: string, detail?: Record<string, unknown>): void {
+  if (!NPC_TARGETING_DEBUG) return;
   if (detail) console.log(`${PREFIX} ${label}`, detail);
   else console.log(`${PREFIX} ${label}`);
 }
 
 export function logNpcTargetingRow(label: string, row: any, extra?: Record<string, unknown>): void {
+  if (!NPC_TARGETING_DEBUG) return;
   console.log(npcTargetingLine(label, row), extra ?? '');
 }
 
 /** Dump every attack combat will see from this system blob. */
 export function logNpcAttackListDump(label: string, system: any, actorMeta?: Record<string, unknown>): void {
+  if (!NPC_TARGETING_DEBUG) return;
   const phasesRaw = system?.phases;
   const phases = coerceNpcPhasesArray(phasesRaw);
   const { attacks, phaseIndex } = resolveNpcAttackList(system || {});
@@ -85,6 +101,7 @@ export function logNpcActorTargetingCompare(
   tokenActor: any,
   worldActor: any | null | undefined,
 ): void {
+  if (!NPC_TARGETING_DEBUG) return;
   logNpcAttackListDump(`${label} / token.actor`, tokenActor?.system, {
     actorId: tokenActor?.id,
     actorName: tokenActor?.name,
@@ -123,6 +140,7 @@ export function logNpcOptionBranch(
   option: any,
   targeting: NpcAttackTargeting | null,
 ): void {
+  if (!NPC_TARGETING_DEBUG) return;
   const source = option?.source;
   const burst = !!option?.burstMeleeAoE;
   const tags = option?.tags || [];

@@ -27,6 +27,7 @@ import {
   tokenFromEventTarget,
   type TokenPickDebug,
 } from "./utils/token-pick.js";
+import { isNpcTargetingDebug } from './utils/npc-targeting-debug.js';
 
 interface RangedTargetingState {
   attackerToken: any;
@@ -123,7 +124,7 @@ function createStageHitPad(token: any, targetId: string, onClick: (id: string) =
     if (ev.button !== 0) return;
     ev.stopPropagation();
     ev.stopImmediatePropagation?.();
-    console.log("[MS NPC Targeting] RANGED hit-pad pointerdown", {
+    if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED hit-pad pointerdown", {
       targetId,
       name: token.name,
     });
@@ -232,7 +233,7 @@ function logNearbyTokenDistances(attackerToken: any, maxM: number, validIds: Set
     });
   }
   rows.sort((a: any, b: any) => (a.distScene ?? 99) - (b.distScene ?? 99));
-  console.log("[MS NPC Targeting] RANGED nearby token distances", {
+  if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED nearby token distances", {
     maxM,
     note: "Flat maximum only — full pool inside Max, illegal beyond",
     attacker: attackerToken.name,
@@ -251,7 +252,7 @@ function confirmRangedTarget(state: RangedTargetingState, clicked: any, via: str
   confirming = true;
   try {
     const distM = measureMetersBetweenTokens(state.attackerToken, clicked);
-    console.log("[MS NPC Targeting] RANGED target confirmed → creating attack card", {
+    if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED target confirmed → creating attack card", {
       via,
       attacker: state.attackerToken.name,
       target: clicked.name,
@@ -289,7 +290,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   if (!state) return;
 
   if (ev.button !== 0) {
-    console.log("[MS NPC Targeting] RANGED pointer cancel (non-left button)", { button: ev.button });
+    if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED pointer cancel (non-left button)", { button: ev.button });
     endRangedTargeting(false);
     return;
   }
@@ -299,7 +300,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   // Hit-pad / overlay already handled this click.
   const padId = (ev.target as any)?.msTargetTokenId;
   if (padId) {
-    console.log("[MS NPC Targeting] RANGED stage capture sees hit-pad target — defer", { padId });
+    if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED stage capture sees hit-pad target — defer", { padId });
     return;
   }
 
@@ -318,7 +319,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   const clicked = pickTokenFromPointerEvent(ev, { excludeIds: exclude }, debug);
   const eventTok = tokenFromEventTarget(ev);
 
-  console.log("[MS NPC Targeting] RANGED stage pointerdown (no confirm from guess)", {
+  if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED stage pointerdown (no confirm from guess)", {
     button: ev.button,
     eventTargetType: (ev.target as any)?.constructor?.name ?? typeof ev.target,
     eventToken: eventTok ? `${eventTok.name} (${eventTok.id})` : null,
@@ -350,7 +351,7 @@ function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   }
 
   if (!clicked) {
-    console.log("[MS NPC Targeting] RANGED empty-canvas click → cancel");
+    if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED empty-canvas click → cancel");
     endRangedTargeting(false);
   }
 }
@@ -383,7 +384,7 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
   markValidTargets(state);
   logNearbyTokenDistances(attackerToken, rangeMeters, state.validTargetIds);
-  console.log("[MS NPC Targeting] RANGED targeting started", {
+  if (isNpcTargetingDebug()) console.log("[MS NPC Targeting] RANGED targeting started", {
     attacker: attackerToken.name,
     attackerId: attackerToken.id,
     option: option.name,

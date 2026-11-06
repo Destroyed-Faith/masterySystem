@@ -480,6 +480,19 @@ Hooks.once('init', async function () {
         }
     });
     registerCombatCarouselRenameHooks();
+    // Opt-in console diagnostics (quiet by default).
+    try {
+        const g = game;
+        void import('./utils/npc-targeting-debug.js').then((m) => {
+            g.masteryNpcTargetingDebug = m.setNpcTargetingDebug;
+        });
+        void import('./combat/threatened-ranged.js').then((m) => {
+            g.masteryThreatenedRangedDebug = m.setThreatenedRangedDebug;
+        });
+    }
+    catch {
+        /* ignore */
+    }
     function bindStartEncounterClick() {
         const w = window;
         if (w._msStartEncounterClickBound)

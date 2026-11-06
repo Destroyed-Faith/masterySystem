@@ -27,12 +27,17 @@ export declare function readNpcBlockDrPctFromCombat(combat: any): number;
 export type CarouselDefensePeek = {
     armorPassive: number;
     evadePassive: number;
+    /** Live Active Buff Armor (not in sheet armorTotal). */
+    armorBuff?: number;
+    /** Live Active Buff Evade (not in sheet evadeTotal). */
+    evadeBuff?: number;
     damageReductionPct: number;
 };
 /**
  * Overlay self-facing mechanics peek onto stored combat totals for the carousel
  * strip (A4). Replaces only the mechanics-derived portion of Armor / Evade / DR;
  * preserves NPC stat-block DR (max), manual DR, and Stone DR Boost.
+ * Active Buff Armor/Evade are added on top (sheet totals omit them by design).
  */
 export declare function overlayCarouselDefenseStrip(input: {
     actorType?: string;

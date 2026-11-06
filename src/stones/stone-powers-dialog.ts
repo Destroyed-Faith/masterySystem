@@ -115,12 +115,16 @@ import {
   type PreparationPhaseState,
 } from './preparation-phase.js';
 import {
+  clampRemoveScarTargetToAvailableScars,
   computeRemoveScarPayment,
+  countScarredHealthBars,
   getRemoveScarResolvedMaxTier,
   inferRemoveScarTargetTier,
   payAndApplyRemoveScar,
+  removeScarPaymentFitsScarredBars,
   REMOVE_SCAR_POWER_ID,
 } from './remove-scar.js';
+import { getTrueActiveBuffs } from '../utils/active-buffs.js';
 import {
   STONE_HELP_TRACKS,
   STONE_POWERS_HELP_COUNT,
@@ -161,7 +165,6 @@ import {
   passiveSlotsHaveOpenChoice,
 } from '../powers/passives.js';
 import {
-  debugPoolSpendableSnapshot,
   poolSpendableStones,
 } from '../utils/artifact-actor-rules.js';
 import {
@@ -1006,32 +1009,6 @@ export class StonePowersDialog extends BaseDialog {
       };
     });
 
-    if (!(this as any)._loggedAvailableSnapshot) {
-      (this as any)._loggedAvailableSnapshot = true;
-      try {
-        console.log('Mastery Stones | Available = live current ∩ Audit readyExpected', {
-          dialogActor: {
-            id: (this.actor as any)?.id,
-            name: (this.actor as any)?.name,
-            isToken: !!(this.actor as any)?.isToken,
-          },
-          poolOwner: {
-            id: (poolOwner as any)?.id,
-            name: (poolOwner as any)?.name,
-            isToken: !!(poolOwner as any)?.isToken,
-          },
-          lifetimeStoneMode,
-          views: readyViews,
-          reservedByAttr: Object.fromEntries(
-            readyViews.map((v) => [v.key, this.#reservedStonesInDialogForAttr(v.key)]),
-          ),
-          debug: POOL_DISPLAY_ATTRS.map((a) => debugPoolSpendableSnapshot(this.actor, a)),
-        });
-      } catch (err) {
-        console.warn('Mastery Stones | Available snapshot failed', err);
-      }
-    }
-
     // One combat Colorless Pool: item-granted pile + Initiative Colorless
     // (this combat) + Permanent Colorless. Gems show Ready stones; Exhausted
     // Permanent / Initiative Colorless come back through Stone Recovery.
@@ -1112,28 +1089,36 @@ export class StonePowersDialog extends BaseDialog {
     const preparePowerData = (power: any, attrKey: AttributeKey) => {
       /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
       const retired = isRetiredStonePower(power.id);
-    const isRemoveScar = power.id === REMOVE_SCAR_POWER_ID;
+      const isRemoveScar = power.id === REMOVE_SCAR_POWER_ID;
+      const isBuffEmpowerment = power.id === 'resolve.activeBuffEmpowerment';
       const liveUses = isRemoveScar
         ? getRemoveScarResolvedMaxTier(this.actor)
         : getStoneUsageCount(this.actor, attrKey, power.id, combat);
       const usesThisTurn = this._stoneReviewMode && liveUses > 0 ? liveUses - 1 : liveUses;
       const support = supportForPower(power.id, attrKey);
       const supportTier = support?.tier ?? 0;
+      const scarredBars = isRemoveScar ? countScarredHealthBars(this.actor) : 0;
+      const removeScarDesired = isRemoveScar
+        ? inferRemoveScarTargetTier(liveUses, supportTier)
+        : 0;
+      const removeScarTarget = isRemoveScar
+        ? clampRemoveScarTargetToAvailableScars(liveUses, removeScarDesired, supportTier, scarredBars)
+        : 0;
       const removeScarPayment = isRemoveScar
-        ? computeRemoveScarPayment(
-            liveUses,
-            inferRemoveScarTargetTier(liveUses, supportTier),
-            supportTier,
-          )
+        ? computeRemoveScarPayment(liveUses, removeScarTarget, supportTier)
         : null;
       const waveCost = nextStoneWaveCost(power.id, usesThisTurn, supportTier);
       const tierCapped = !removeScarPayment && usesThisTurn >= STONE_TIER_HARD_MAX;
       const nextCost = removeScarPayment ? removeScarPayment.sealCost : waveCost;
       const pool = getStonePool(this.actor, attrKey);
+      const removeScarHasScars =
+        !isRemoveScar || removeScarPaymentFitsScarredBars(scarredBars, removeScarPayment!);
       const removeScarOpen =
         !removeScarPayment ||
-        removeScarPayment.sealCost > 0 ||
-        removeScarPayment.barsRecovered > 0;
+        ((removeScarPayment.sealCost > 0 || removeScarPayment.barsRecovered > 0) &&
+          removeScarHasScars);
+      const empowermentHasBuff =
+        !isBuffEmpowerment || getTrueActiveBuffs(this.actor).length > 0;
       const oncePerCombatUsed =
         !!power.oncePerCombat &&
         isOncePerCombatPowerUsed(this.combatant, power.id, this.actor);
@@ -1141,7 +1126,12 @@ export class StonePowersDialog extends BaseDialog {
       const canAfford =
         !retired &&
         !barSpend &&
-        !tierCapped && !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
+        !tierCapped &&
+        !oncePerCombatUsed &&
+        pool.current >= nextCost &&
+        hasCombat &&
+        removeScarOpen &&
+        empowermentHasBuff;
       const gross = spendableForAttr(attrKey);
       const reserved = this.#reservedStonesInDialogForAttr(attrKey);
       const spendableNet = oncePerCombatUsed
@@ -1192,6 +1182,7 @@ export class StonePowersDialog extends BaseDialog {
         supportHint: support
           ? `Rank ${supportTier} is provided by ${support.source}. All lower Ranks are paid normally.`
           : '',
+        oncePerCombat: !!power.oncePerCombat,
         boostUsed: oncePerCombatUsed,
         hideLeadSegment: false,
         ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
@@ -1218,6 +1209,29 @@ export class StonePowersDialog extends BaseDialog {
               depositLocked: true,
             }
           : { depositLocked: false }),
+        ...(isRemoveScar && !removeScarHasScars
+          ? {
+              rankCaption:
+                scarredBars <= 0
+                  ? 'No Scarred Health Bar'
+                  : `Need ${removeScarPayment?.barsRecovered ?? 1} Scarred Bar(s)`,
+              pendingActivation: false,
+              pendingLabel: '',
+              waveReady: false,
+              canAfford: false,
+              depositLocked: true,
+            }
+          : {}),
+        ...(isBuffEmpowerment && !empowermentHasBuff
+          ? {
+              rankCaption: 'Needs Active Buff first',
+              pendingActivation: false,
+              pendingLabel: '',
+              waveReady: false,
+              canAfford: false,
+              depositLocked: true,
+            }
+          : {}),
         ...laneSegs
       };
     };
@@ -1303,6 +1317,10 @@ export class StonePowersDialog extends BaseDialog {
         supportHint: support
           ? `Rank ${supportTier} is provided by ${support.source}. All lower Ranks are paid normally.`
           : '',
+        oncePerCombat: !!power.oncePerCombat,
+        boostUsed:
+          !!power.oncePerCombat &&
+          isOncePerCombatPowerUsed(this.combatant, power.id, this.actor),
         hideLeadSegment: false,
         ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
         ...(rankFields.waveReady ? rankFields : { rankCaption: rankFields.rankCaption }),
@@ -1592,17 +1610,14 @@ export class StonePowersDialog extends BaseDialog {
     const windowOpen = combat ? isActiveBuffPreparationWindow(this.actor, combat) : false;
     // Stone confirmation must never lock Active Buff change/end.
     const selectionLocked = !windowOpen;
-    const pendingEmpowerPl = Math.max(
-      0,
-      Math.floor(Number(rs?.stoneBonuses?.activeBuffPlBonus ?? 0) || 0),
-    );
     const pendingEmpowerRounds = Math.max(
       0,
       Math.floor(Number(rs?.stoneBonuses?.extendActiveBuffRounds ?? 0) || 0),
     );
+    // Legacy parked rounds only — current Empowerment extends a maintained Buff immediately.
     const pendingEmpowerment =
-      pendingEmpowerPl > 0 || pendingEmpowerRounds > 0
-        ? `Empowerment ready: +${pendingEmpowerPl} PL, +${pendingEmpowerRounds} Round${pendingEmpowerRounds === 1 ? '' : 's'} on the next activate/replace (PL cap 16; Empowerment itself is once per Combat). Maintaining does not apply it.`
+      pendingEmpowerRounds > 0
+        ? `Legacy Empowerment parked: +${pendingEmpowerRounds} Round${pendingEmpowerRounds === 1 ? '' : 's'} still applies on the next activate/replace.`
         : '';
     const isGM = !!(globalThis as any).game?.user?.isGM;
     const canRetract = canRetractActiveBuffFromFlags({
@@ -2309,15 +2324,19 @@ export class StonePowersDialog extends BaseDialog {
   async #rollInitiativeFromDialog(button: HTMLButtonElement): Promise<void> {
     if (!this.combatant || button.disabled) return;
     button.disabled = true;
+    const method =
+      String(button.dataset.method || 'risky').toLowerCase() === 'controlled'
+        ? 'controlled'
+        : 'risky';
     try {
       const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
-      const breakdown = await rollInitiativeForCombatant(this.combatant);
+      const breakdown = await rollInitiativeForCombatant(this.combatant, { method });
       const rolled = Math.floor(Number(breakdown.diceTotal) || 0);
       const now = Math.floor(Number(breakdown.totalInitiative) || 0);
       ui.notifications?.info(
         rolled === now
-          ? `${(this.actor as any).name}: ${formatInitiativeDiceRollLine(rolled)}`
-          : `${(this.actor as any).name}: ${formatInitiativeDiceRollLine(rolled)} Initiative is now ${now}.`,
+          ? `${(this.actor as any).name}: ${formatInitiativeDiceRollLine(rolled, breakdown.method)}`
+          : `${(this.actor as any).name}: ${formatInitiativeDiceRollLine(rolled, breakdown.method)} Initiative is now ${now}.`,
       );
       this._colorlessConvertCount = null;
       await this.#renderKeepingScroll();
@@ -2459,13 +2478,13 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   #bindInitiativeExchangeControls(root: HTMLElement): void {
-    const rollBtn = root.querySelector('.js-roll-initiative') as HTMLButtonElement | null;
-    if (rollBtn) {
+    root.querySelectorAll('.js-roll-initiative').forEach((el) => {
+      const rollBtn = el as HTMLButtonElement;
       rollBtn.addEventListener('click', (ev) => {
         ev.preventDefault();
         void this.#rollInitiativeFromDialog(rollBtn);
       });
-    }
+    });
 
     const stepConvert = async (delta: number) => {
       const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
@@ -3214,7 +3233,12 @@ export class StonePowersDialog extends BaseDialog {
       powerId === REMOVE_SCAR_POWER_ID
         ? computeRemoveScarPayment(
             currentUses,
-            inferRemoveScarTargetTier(currentUses, removeScarSupport),
+            clampRemoveScarTargetToAvailableScars(
+              currentUses,
+              inferRemoveScarTargetTier(currentUses, removeScarSupport),
+              removeScarSupport,
+              countScarredHealthBars(this.actor),
+            ),
             removeScarSupport,
           ).sealCost
         : nextStoneWaveCost(powerId, usesInKey, settleSupport);
@@ -3458,6 +3482,19 @@ export class StonePowersDialog extends BaseDialog {
     const plan = owner.getFlag?.('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG) as
       | StonePowersRoundPlanStored
       | undefined;
+    // Undo applied effects first (Temp HP, once-per-combat gates, enemy flags),
+    // then refund stones — otherwise the buff remains while the stone returns.
+    try {
+      const { revertStoneAssignmentEffects } = await import('./stone-assignment-reset.js');
+      await revertStoneAssignmentEffects({
+        actor: owner,
+        combat,
+        combatant: this.combatant,
+        receipt: plan?.receipt ?? [],
+      });
+    } catch (err) {
+      console.warn('Mastery System | revertStoneAssignmentEffects failed', err);
+    }
     const refund: Record<string, number> = {};
     for (const row of plan?.receipt ?? []) {
       for (const [attr, n] of Object.entries(stonesPaidInLane(row.accKey, row.value))) {
@@ -3489,17 +3526,6 @@ export class StonePowersDialog extends BaseDialog {
     }
     try {
       await clearCombatStoneTurnBonusesForActor(owner, combat);
-    } catch {
-      /* best-effort */
-    }
-    try {
-      const roundState = getRoundState(owner, combat);
-      if (roundState.stoneBonuses) {
-        roundState.stoneBonuses.extraAttacks = 0;
-        roundState.stoneBonuses.extraReactions = 0;
-        roundState.stoneBonuses.extraMoveMeters = 0;
-        await setRoundState(owner, roundState);
-      }
     } catch {
       /* best-effort */
     }
@@ -3554,7 +3580,7 @@ export class StonePowersDialog extends BaseDialog {
       );
     } else {
       ui.notifications?.info(
-        `${String(owner.name || 'Character')}: Stone assignment reset. Paid stones are back in the pool.`,
+        `${String(owner.name || 'Character')}: Stone assignment reset. Paid stones and their effects are cleared.`,
       );
     }
     await this.#renderKeepingScroll();
@@ -3862,6 +3888,14 @@ export class StonePowersDialog extends BaseDialog {
       ui.notifications?.info('Initiative Boost is spent in the Initiative bar.');
       return;
     }
+    if (powerId === REMOVE_SCAR_POWER_ID && countScarredHealthBars(this.actor) <= 0) {
+      ui.notifications?.warn('Remove Scar needs at least one Scarred Health Bar.');
+      return;
+    }
+    if (powerId === 'resolve.activeBuffEmpowerment' && getTrueActiveBuffs(this.actor).length <= 0) {
+      ui.notifications?.warn('Active Buff Empowerment needs a maintained Active Buff — activate one first.');
+      return;
+    }
     const onceDef = STONE_POWERS[powerId];
     if (onceDef?.oncePerCombat && isOncePerCombatPowerUsed(this.combatant, powerId, this.actor)) {
       ui.notifications?.warn(`${onceDef.name} may be used only once per combat.`);
@@ -4041,15 +4075,7 @@ export class StonePowersDialog extends BaseDialog {
         const el = chips.pop();
         el?.remove();
       }
-      if (chips.length < want) {
-        console.log('Mastery Stones | pool chips short (no re-render)', {
-          attr,
-          chips: chips.length,
-          want,
-          spendable,
-          reserved,
-        });
-      }
+      // If chips are short, the next full render reconciles — no console spam.
     });
   }
 
@@ -4450,6 +4476,12 @@ export class StonePowersDialog extends BaseDialog {
         isOncePerCombatPowerUsed(this.combatant, powerId, this.actor)
       ) {
         ui.notifications?.warn(`${STONE_POWERS[powerId].name} may be used only once per combat.`);
+        return;
+      }
+      if (powerId === 'resolve.activeBuffEmpowerment' && getTrueActiveBuffs(this.actor).length <= 0) {
+        ui.notifications?.warn(
+          'Active Buff Empowerment needs a maintained Active Buff — activate one first.',
+        );
         return;
       }
       const isColorless = dragged === COLORLESS_STONE_ATTR;

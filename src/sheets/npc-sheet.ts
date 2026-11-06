@@ -5,6 +5,7 @@
 
 import { MasteryCharacterSheet } from './character-sheet';
 import { writeActorStatusList } from '../system/assign-status.js';
+import { isNpcTargetingDebug } from '../utils/npc-targeting-debug.js';
 import {
   ALL_SPECIAL_EFFECTS,
   getEffectBaseName,
@@ -978,7 +979,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any {
     const data = super._prepareSubmitData(event, form, formData, updateData);
     if (!data?.system) {
-      console.log('[MS NPC Targeting] FORM SUBMIT — no system in submit data', {
+      if (isNpcTargetingDebug()) console.log('[MS NPC Targeting] FORM SUBMIT — no system in submit data', {
         keys: data ? Object.keys(data) : null,
       });
       return data;
@@ -1119,7 +1120,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     }
 
     data.system = sanitizeNpcSystemAttackTargeting(data.system);
-    console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
+    if (isNpcTargetingDebug()) console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
       actorId: this.actor?.id,
       hasPhases: !!data.system.phases,
       phasesIsArray: Array.isArray(data.system.phases),

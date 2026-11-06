@@ -4,6 +4,7 @@
  */
 
 import { getActiveBuffMaximizationUses } from '../combat/offensive-active-buff-effects.js';
+import { isPlayerCombatantToken, tokenIsHostileTo } from '../combat/threatened-ranged.js';
 
 export const REACTION_DENIAL_FLAG = 'reactionDenial';
 export const MOVEMENT_REDUCTION_FLAG = 'movementReduction';
@@ -239,6 +240,16 @@ export function resolveMaximizationActor(actor: any): any {
     if (n > bestN) {
       bestN = n;
       best = candidate;
+      continue;
+    }
+    if (n === bestN && n > 0) {
+      // Prefer the document that actually stores the stone flag, then the world actor.
+      const candHasStone = !!readStoneMaximizationFlag(candidate);
+      const bestHasStone = !!readStoneMaximizationFlag(best);
+      if (candHasStone && !bestHasStone) best = candidate;
+      else if (candHasStone === bestHasStone && best?.isToken === true && candidate?.isToken !== true) {
+        best = candidate;
+      }
     }
   }
   return best ?? actor;
@@ -254,11 +265,63 @@ function liveMaximizationFlag(actor: any): { raw: any; remaining: number; uses: 
   return { raw, remaining, uses };
 }
 
+/** Any Maximization flag for this combat, including remaining 0 (for sync writes). */
+function readStoneMaximizationFlag(actor: any): { raw: any; remaining: number; uses: number } | null {
+  const raw = readActorFlag(actor, MAXIMIZATION_FLAG);
+  if (!raw || typeof raw !== 'object') return null;
+  const combat = liveCombat();
+  if (combat && raw.combatId && String(raw.combatId) !== String(combat.id)) return null;
+  const remaining = Math.max(0, Math.floor(Number(raw.remaining) || 0));
+  const uses = Math.max(remaining, Math.floor(Number(raw.uses) || 0));
+  return { raw, remaining, uses };
+}
+
 export type MaximizationSource = 'stone' | 'passive' | 'activeBuff';
 
-/** Remaining stone Maximizations for the current combat. */
+/**
+ * Shared stone Maximization pool for this combat.
+ * Token + world actor can each hold a copy of the flag; treat them as one pool
+ * by taking the minimum remaining (a spent copy must not be ignored in favour
+ * of a stale sibling that still shows 1).
+ */
 export function remainingStoneMaximizations(actor: any): number {
-  return liveMaximizationFlag(actor)?.remaining ?? 0;
+  let found = false;
+  let min = Infinity;
+  for (const candidate of maximizationActorCandidates(actor)) {
+    const live = readStoneMaximizationFlag(candidate);
+    if (!live) continue;
+    found = true;
+    min = Math.min(min, live.remaining);
+  }
+  return found ? min : 0;
+}
+
+/** Write the shared remaining value onto every candidate that carries the flag. */
+async function syncStoneMaximizationRemaining(actor: any, nextRemaining: number): Promise<boolean> {
+  const combat = liveCombat();
+  const combatId = combat?.id ? String(combat.id) : '';
+  const targets: Array<{ candidate: any; raw: any }> = [];
+  let template: any = null;
+  for (const candidate of maximizationActorCandidates(actor)) {
+    const live = readStoneMaximizationFlag(candidate);
+    if (!live) continue;
+    template = live.raw;
+    targets.push({ candidate, raw: live.raw });
+  }
+  if (!targets.length || !template) return false;
+  const payload = {
+    ...template,
+    remaining: Math.max(0, Math.floor(Number(nextRemaining) || 0)),
+    combatId: String(template.combatId || combatId || ''),
+    used: true,
+  };
+  for (const { candidate, raw } of targets) {
+    await candidate.setFlag?.('mastery-system', MAXIMIZATION_FLAG, {
+      ...raw,
+      ...payload,
+    });
+  }
+  return true;
 }
 
 function readPassiveMaximizationRemainingSync(actor: any): number {
@@ -360,15 +423,28 @@ export function listAvailableMaximizationSources(actor: any): Array<{
 }
 
 /**
+ * Damage-card source picker: hide when empty, plain hint for one source,
+ * dropdown only when 2+ Maximization sources remain.
+ */
+export function maximizationSourcePickerMode(
+  sourceCount: number,
+): 'hidden' | 'hint' | 'select' {
+  const n = Math.max(0, Math.floor(Number(sourceCount) || 0));
+  if (n <= 0) return 'hidden';
+  if (n === 1) return 'hint';
+  return 'select';
+}
+
+/**
  * Spend one Maximization charge from exactly one source.
  * Prefer `preferred` when that source still has charges; else stone then Passive.
+ * Stone charges are a shared combat pool across token/world actor copies.
  */
 export async function spendMaximization(
   actor: any,
   preferred?: MaximizationSource | null,
 ): Promise<boolean> {
-  const stoneLive = liveMaximizationFlag(actor);
-  const stoneLeft = stoneLive?.remaining ?? 0;
+  const stoneLeft = remainingStoneMaximizations(actor);
   let passiveLeft = 0;
   try {
     const { getPassiveMaximizationRemaining, grantPassiveCombatCharges } = await import(
@@ -392,12 +468,8 @@ export async function spendMaximization(
   else if (buffLeft > 0) pick = 'activeBuff';
   if (!pick) return false;
 
-  if (pick === 'stone' && stoneLive) {
-    await actor.setFlag?.('mastery-system', MAXIMIZATION_FLAG, {
-      ...stoneLive.raw,
-      remaining: Math.max(0, stoneLive.remaining - 1),
-    });
-    return true;
+  if (pick === 'stone') {
+    return syncStoneMaximizationRemaining(actor, stoneLeft - 1);
   }
   if (pick === 'passive') {
     const { spendPassiveMaximizationCharge } = await import('../combat/passive-combat-charges.js');
@@ -454,12 +526,56 @@ export async function offerDamageMaximization(actor: any): Promise<boolean> {
   return spendMaximization(actor);
 }
 
+function resolveTokenLike(actor: any, combatantToken?: any): any {
+  if (combatantToken && typeof combatantToken === 'object') {
+    return combatantToken.actor ? combatantToken : { actor, document: combatantToken, disposition: combatantToken.disposition };
+  }
+  const active =
+    actor?.getActiveTokens?.()?.[0]?.document ??
+    actor?.getActiveTokens?.()?.[0] ??
+    actor?.token ??
+    null;
+  if (active) {
+    return active.actor ? active : { actor, document: active, disposition: active.disposition };
+  }
+  return {
+    actor,
+    document: actor?.prototypeToken,
+    disposition: actor?.prototypeToken?.disposition,
+  };
+}
+
+/**
+ * True when `target` is a valid enemy for Stone powers (Reaction Denial,
+ * Movement Reduction). PC casters never see other PCs or PC summons; NPC
+ * casters still may target opposing PCs via normal hostility.
+ */
+export function isHostileNpcStoneTarget(caster: any, target: any, combatantToken?: any): boolean {
+  if (!target) return false;
+  if (String(target.id || '') === String(caster?.id || '')) return false;
+
+  const casterToken = resolveTokenLike(caster);
+  const targetToken = resolveTokenLike(target, combatantToken);
+
+  // Player-side casters only pick opposing NPCs — never ally PCs / summons.
+  if (isPlayerCombatantToken(casterToken)) {
+    if (isPlayerCombatantToken(targetToken)) return false;
+    if (target.hasPlayerOwner === true || targetToken?.document?.hasPlayerOwner === true) {
+      return false;
+    }
+  }
+
+  return tokenIsHostileTo(casterToken, targetToken);
+}
+
 export async function chooseCombatantActors(opts: {
   title: string;
   hint: string;
   caster: any;
   max: number;
   maxRangeM?: number;
+  /** When true, only hostile NPCs (not PCs / PC summons). */
+  enemiesOnly?: boolean;
 }): Promise<any[]> {
   const combat = (globalThis as any).game?.combat;
   const bag = combat?.combatants;
@@ -482,13 +598,16 @@ export async function chooseCombatantActors(opts: {
     }
   }
   const choices = rows
-    .map((c) => c?.actor)
-    .filter((actor) => {
+    .map((c) => ({ actor: c?.actor, token: c?.token }))
+    .filter(({ actor, token }) => {
       if (!actor || String(actor.id || '') === casterId) return false;
+      if (opts.enemiesOnly && !isHostileNpcStoneTarget(opts.caster, actor, token)) return false;
       if (!distanceBetween || maxRange <= 0) return true;
       const meters = distanceBetween(opts.caster, actor);
       return meters == null || meters <= maxRange + 0.05;
-    });
+    })
+    .map(({ actor }) => actor)
+    .filter(Boolean);
   if (!choices.length) return [];
   const DialogCtor = (globalThis as any).Dialog;
   if (typeof DialogCtor !== 'function') return [];

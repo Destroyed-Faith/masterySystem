@@ -224,23 +224,13 @@ export function registerSkillRaiseAllocationHandlers() {
     if (registered)
         return;
     registered = true;
-    Hooks.on('renderChatMessage', (message, html) => {
+    // Foundry v13+: renderChatMessage is deprecated — use HTMLElement hook only.
+    Hooks.on('renderChatMessageHTML', (message, html) => {
         const root = html instanceof HTMLElement ? html : html?.[0];
         if (!root)
             return;
         try {
             renderIntoHost(message, root);
-        }
-        catch (err) {
-            console.warn('Mastery System | skill raise allocation render failed', err);
-        }
-    });
-    // Foundry v13+ may use renderChatMessageHTML
-    Hooks.on('renderChatMessageHTML', (message, html) => {
-        if (!(html instanceof HTMLElement))
-            return;
-        try {
-            renderIntoHost(message, html);
         }
         catch (err) {
             console.warn('Mastery System | skill raise allocation render failed', err);

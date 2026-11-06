@@ -90,6 +90,38 @@ export function inferRemoveScarTargetTier(resolvedMax: number, supportPrefillTie
   return resolved + 1;
 }
 
+/**
+ * Cap the activation target so newly recovered bars never exceed current Scarred
+ * Health Bars. With 0 scars the target stays at `resolvedMax` (nothing to heal).
+ * Example: Support wants T4 (4 bars) but the actor has 1 Scar → clamp to T1.
+ */
+export function clampRemoveScarTargetToAvailableScars(
+  resolvedMax: number,
+  desiredTarget: number,
+  supportPrefillTier: number,
+  scarredBars: number,
+): number {
+  const resolved = clampTier(resolvedMax);
+  const desired = clampTier(desiredTarget);
+  const scars = Math.max(0, Math.floor(Number(scarredBars) || 0));
+  if (scars <= 0) return resolved;
+  for (let t = desired; t > resolved; t -= 1) {
+    const payment = computeRemoveScarPayment(resolved, t, supportPrefillTier);
+    if (payment.barsRecovered > 0 && payment.barsRecovered <= scars) return t;
+  }
+  return resolved;
+}
+
+/** True when this payment would restore at least one Scarred Bar the target actually has. */
+export function removeScarPaymentFitsScarredBars(
+  scarredBars: number,
+  payment: Pick<RemoveScarPayment, 'barsRecovered'>,
+): boolean {
+  const scars = Math.max(0, Math.floor(Number(scarredBars) || 0));
+  const bars = Math.max(0, Math.floor(Number(payment.barsRecovered) || 0));
+  return bars > 0 && scars >= bars;
+}
+
 export function countScarredHealthBars(actor: any): number {
   const raw = actor?.system?.health?.bars;
   let bars: any[] = [];
@@ -290,11 +322,30 @@ export async function payAndApplyRemoveScar(
   const owner = getActionEconomyActor(actor) ?? actor;
   const resolved = getRemoveScarResolvedMaxTier(owner);
   const support = clampTier(opts.supportPrefillTier);
-  const targetTier =
+  const healTarget =
+    opts.healTarget ??
+    (opts.skipTargetPrompt ? owner : await resolveRemoveScarHealTarget(owner));
+  const scarred = countScarredHealthBars(healTarget);
+  if (scarred <= 0) {
+    ui.notifications?.warn(
+      `${healTarget?.name ?? owner?.name ?? 'Actor'} has no Scarred Health Bar to recover.`,
+    );
+    return false;
+  }
+  const desired =
     opts.targetTier != null ? clampTier(opts.targetTier) : inferRemoveScarTargetTier(resolved, support);
+  const targetTier = clampRemoveScarTargetToAvailableScars(resolved, desired, support, scarred);
   const payment = computeRemoveScarPayment(resolved, targetTier, support);
-  if (payment.barsRecovered <= 0 && payment.sealCost <= 0) {
-    ui.notifications?.warn(`${owner?.name ?? 'Actor'}: Remove Scar has no unresolved Tiers since the last Daily Reset.`);
+  if (!removeScarPaymentFitsScarredBars(scarred, payment)) {
+    if (payment.barsRecovered <= 0 && payment.sealCost <= 0) {
+      ui.notifications?.warn(
+        `${owner?.name ?? 'Actor'}: Remove Scar has no unresolved Tiers since the last Daily Reset.`,
+      );
+    } else {
+      ui.notifications?.warn(
+        `${healTarget?.name ?? owner?.name ?? 'Actor'}: not enough Scarred Health Bars (need ${payment.barsRecovered}, have ${scarred}).`,
+      );
+    }
     return false;
   }
   const current = Math.max(0, Math.floor(Number(owner?.system?.stonePools?.vitality?.current) || 0));
@@ -304,14 +355,11 @@ export async function payAndApplyRemoveScar(
     );
     return false;
   }
-  const healTarget =
-    opts.healTarget ??
-    (opts.skipTargetPrompt ? owner : await resolveRemoveScarHealTarget(owner));
   if (!(await sealVitalityStones(owner, payment.sealCost))) {
     ui.notifications?.warn('Failed to Seal Vitality Stones for Remove Scar.');
     return false;
   }
-  const restored = payment.barsRecovered > 0 ? await recoverScarredBars(healTarget, payment.barsRecovered) : 0;
+  const restored = await recoverScarredBars(healTarget, payment.barsRecovered);
   if (payment.newResolvedMax > resolved) {
     await setRemoveScarResolvedMaxTier(owner, payment.newResolvedMax);
   }

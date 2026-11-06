@@ -122,10 +122,15 @@
           <div class="portrait-name js-open-stone-powers" title="{{localize 'MASTERY.encounterSetup.stones'}}">{{combatant.name}}</div>
 
           {{#if combatant.combatStrip}}
-          <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR%) — Hover für Herkunft{{/if}}">
-            <span class="ms-cs ms-cs-arm" title="Armor total">A <strong>{{combatant.combatStrip.armor}}</strong></span>
-            <span class="ms-cs ms-cs-ev" title="Evade total">E <strong>{{combatant.combatStrip.evade}}</strong></span>
+          <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR% / Phasing) — Hover für Herkunft{{/if}}">
+            <span class="ms-cs ms-cs-arm" title="Armor total (incl. Active Buffs)">A <strong>{{combatant.combatStrip.armor}}</strong></span>
+            <span class="ms-cs ms-cs-ev" title="Evade total (incl. Active Buffs)">E <strong>{{combatant.combatStrip.evade}}</strong></span>
+            {{#if combatant.combatStrip.showDr}}
             <span class="ms-cs ms-cs-dr" title="Damage reduction %">DR <strong>{{combatant.combatStrip.drPct}}%</strong></span>
+            {{/if}}
+            {{#if combatant.combatStrip.showPhasing}}
+            <span class="ms-cs ms-cs-ph" title="Phasing charges remaining">Ph <strong>{{combatant.combatStrip.phasingCurrent}}</strong>/{{combatant.combatStrip.phasingMax}}</span>
+            {{/if}}
           </div>
           {{/if}}
 

@@ -11,6 +11,7 @@ import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
 import { tokenIsExcludedAsTarget } from "./combat/defeated-token.js";
 import { pickTokenFromPointerEvent, pointerEventIsOnToken, } from "./utils/token-pick.js";
+import { logNpcTargeting } from "./utils/npc-targeting-debug.js";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
@@ -275,7 +276,7 @@ function onPointerDown(ev) {
         onlyIds: state.validTargetIds,
         centerPadPx: 15,
     }, debug);
-    console.log('[MS NPC Targeting] MELEE pointerdown', {
+    logNpcTargeting('MELEE pointerdown', {
         chosen: clicked ? `${clicked.name} (${clicked.id})` : null,
         pick: debug,
         validCount: state.validTargetIds.size,
@@ -305,7 +306,7 @@ function onPointerDown(ev) {
     // Capture miss must not cancel when the click is on a token (overlays still fire).
     if (!clicked) {
         if (pointerEventIsOnToken(ev)) {
-            console.log('[MS NPC Targeting] MELEE pick miss on token — deferring to overlay');
+            logNpcTargeting('MELEE pick miss on token — deferring to overlay');
             return;
         }
         endMeleeTargeting(false);

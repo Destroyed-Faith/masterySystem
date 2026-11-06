@@ -79,7 +79,10 @@ export function buildCarouselTooltip(input) {
         return { title: input.name, lines };
     }
     if (input.armor != null || input.evade != null || input.drPct != null) {
-        lines.push(`Armor ${input.armor ?? 0} · Evade ${input.evade ?? 0} · DR ${input.drPct ?? 0}%`);
+        const bits = [`Armor ${input.armor ?? 0}`, `Evade ${input.evade ?? 0}`];
+        if ((input.drPct ?? 0) > 0)
+            bits.push(`DR ${input.drPct}%`);
+        lines.push(bits.join(' · '));
     }
     if (input.attackTotal != null || input.movementTotal != null || input.reactionTotal != null) {
         lines.push(`A ${input.attackRemaining ?? 0}/${input.attackTotal ?? 0} · M ${input.movementRemaining ?? 0}/${input.movementTotal ?? 0} · R ${input.reactionRemaining ?? 0}/${input.reactionTotal ?? 0}`);

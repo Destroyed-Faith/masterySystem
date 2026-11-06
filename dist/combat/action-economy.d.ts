@@ -185,7 +185,10 @@ export interface RoundState {
         rangeBonusM?: number;
         meleeReachBonusM?: number;
         aoeRadiusBonusM?: number;
-        /** Resolve Active Buff Empowerment — extra Power Levels on one Active Buff this round. */
+        /**
+         * @deprecated Resolve Active Buff Empowerment no longer grants PL.
+         * Kept so legacy parked roundState clears cleanly.
+         */
         activeBuffPlBonus?: number;
         /** Influence Enemy Evade Reduction against this character's attacks. */
         enemyEvadeReduction?: number;
@@ -210,7 +213,10 @@ export interface RoundState {
         ignoreWoundPenalties?: number;
         /** Vitality.SecondChance — free boxes left in Wounded when downing-blow is converted (1..4). */
         secondChanceFreeBoxes?: number;
-        /** Vitality.ExtendActiveBuff — +rounds for the next Active Buff activated this turn (consumed on activation). */
+        /**
+         * Legacy parked +rounds for the next Active Buff activation.
+         * Current Resolve Empowerment extends a maintained Buff immediately instead.
+         */
         extendActiveBuffRounds?: number;
         /** Intellect.Raise Focus — bonus to meet Raise TN only (not the normal success TN). */
         spellRaiseTnBonus?: number;
@@ -306,6 +312,29 @@ export declare function setRoundState(actor: Actor, state: RoundState): Promise<
 export declare function freeRaisePool(actor: Actor | null | undefined): number;
 /** Spend declared Free Raises. They leave the pool whether the roll hits or misses. */
 export declare function consumeFreeRaises(actor: Actor | null | undefined, requested: number): Promise<number>;
+/**
+ * Strip Dragon Breath mode suffixes (`:damage` / `:ruin`) so both modes share
+ * one once-per-Round instance key with the grant lineage.
+ */
+export declare function canonicalPowerUseInstanceId(powerItemId: string): string;
+/**
+ * Power Use Limit instance key (PG "Power Use Limit"): independently acquired
+ * or granted Power instances. Learned Powers use their embedded item id.
+ * Artifact grants use stable `artifact:<itemId>:slot:N` / ultimate keys.
+ * Technical Reference is NOT the once-per-Round key — a learned Hex and an
+ * Artifact Hex may each be used once. Legacy Technical Reference keys still
+ * match when present in older roundState arrays.
+ */
+export declare function powerUseIdentity(actor: Actor, powerItemId: string): string;
+/** Prefer a radial option's stable instance id when present. */
+export declare function powerUseInstanceIdFromOption(option: {
+    id?: string;
+    item?: {
+        id?: string;
+    } | null;
+    consumableItemId?: string;
+    tags?: string[];
+} | null | undefined): string;
 export declare function hasPowerBeenUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): boolean;
 /**
  * Record a power as used this round. No-op if already recorded.

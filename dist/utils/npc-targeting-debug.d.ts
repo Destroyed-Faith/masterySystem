@@ -1,8 +1,13 @@
 /**
  * Verbose NPC attack targeting diagnostics.
+ * Off by default. Enable with: game.masteryNpcTargetingDebug(true)
  * Filter browser console with:  MS NPC Targeting
  */
 import { type NpcAttackTargeting } from './npc-attack-model.js';
+/** Verbose targeting traces — quiet in normal play. */
+export declare let NPC_TARGETING_DEBUG: boolean;
+export declare function setNpcTargetingDebug(on: boolean): void;
+export declare function isNpcTargetingDebug(): boolean;
 export declare function npcTargetingSnap(row: any): {
     name: string;
     kind: string;

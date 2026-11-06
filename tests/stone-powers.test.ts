@@ -56,6 +56,39 @@ interface MockCombatant {
   update: (data: Record<string, any>) => Promise<void>;
 }
 
+function attachMaintainedActiveBuff(actor: MockActor, opts: { lastActiveRound?: number; effectiveDuration?: number } = {}) {
+  const lastActiveRound = opts.lastActiveRound ?? 2;
+  const effectiveDuration = opts.effectiveDuration ?? 2;
+  const effect: any = {
+    name: 'Test Active Buff',
+    duration: { rounds: effectiveDuration + 1 },
+    flags: {
+      'mastery-system': {
+        activeBuff: true,
+        activationRound: 1,
+        effectiveDuration,
+        durationRounds: effectiveDuration,
+        lastActiveRound,
+        extendedRounds: 0,
+      },
+    },
+    async update(data: Record<string, unknown>) {
+      for (const [path, value] of Object.entries(data)) {
+        const segments = path.split('.');
+        let target: any = effect;
+        for (let i = 0; i < segments.length - 1; i++) {
+          const seg = segments[i];
+          if (target[seg] == null) target[seg] = {};
+          target = target[seg];
+        }
+        target[segments[segments.length - 1]] = value;
+      }
+    },
+  };
+  (actor as any).effects = [effect];
+  return effect;
+}
+
 function makeMockActor(): MockActor {
   const actor: MockActor = {
     name: 'Test Hero',
@@ -126,6 +159,7 @@ function makeMockActor(): MockActor {
   };
   // `type` is needed by isPC checks elsewhere.
   (actor as any).type = 'character';
+  (actor as any).effects = [];
   return actor;
 }
 
@@ -391,6 +425,9 @@ describe('apply() — runs cleanly across every power and Rank', () => {
       for (const tier of publishedTiers) {
         it(`rank ${tier} runs without throwing`, async () => {
           const actor = makeMockActor();
+          if (id === 'resolve.activeBuffEmpowerment') {
+            attachMaintainedActiveBuff(actor);
+          }
           const combatant = makeMockCombatant();
           const cost = stonePowerRankCost(id, tier);
           await expect(
@@ -412,6 +449,9 @@ describe('apply() — runs cleanly across every power and Rank', () => {
             !Array.isArray(actor.system.statusEffects) ||
             actor.system.statusEffects.length !== 1 ||
             (actor.system.statusEffects[0]?.value ?? 6) !== 6;
+          const buffExtended =
+            id === 'resolve.activeBuffEmpowerment' &&
+            Number((actor as any).effects?.[0]?.flags?.['mastery-system']?.extendedRounds || 0) > 0;
           const touched =
             sbTouched ||
             actionsTouched ||
@@ -419,7 +459,8 @@ describe('apply() — runs cleanly across every power and Rank', () => {
             removedScar ||
             grantedHp ||
             tempHpRaised ||
-            specialsTouched;
+            specialsTouched ||
+            buffExtended;
           if (isRetiredStonePower(id)) {
             expect(touched, `${id} T${tier} is parked and must not grant attacks`).toBe(false);
             expect(actor._roundState.attackActions.total).toBe(1);
@@ -616,26 +657,32 @@ describe('Vitality — Damage Negation (Premium, four Ranks)', () => {
   });
 });
 
-describe('Resolve — Active Buff Empowerment stores PL and rounds', () => {
-  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('T%i stores +%i', async (tier, expected) => {
+describe('Resolve — Active Buff Empowerment extends maintained Buff', () => {
+  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('T%i extends by +%i Round(s)', async (tier, expected) => {
     const actor = makeMockActor();
+    const effect = attachMaintainedActiveBuff(actor, { lastActiveRound: 2, effectiveDuration: 2 });
     await STONE_POWERS['resolve.activeBuffEmpowerment'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
       cost: 2 ** (tier - 1),
     });
-    expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(expected);
-    expect(actor._roundState.stoneBonuses.activeBuffPlBonus).toBe(expected);
+    expect(effect.flags['mastery-system'].lastActiveRound).toBe(2 + expected);
+    expect(effect.flags['mastery-system'].effectiveDuration).toBe(2 + expected);
+    expect(effect.flags['mastery-system'].extendedRounds).toBe(expected);
+    expect(actor._roundState.stoneBonuses.activeBuffPlBonus ?? 0).toBe(0);
   });
 
-  it('keeps the highest empowerment (no stacking)', async () => {
+  it('refuses without a maintained Active Buff', async () => {
     const actor = makeMockActor();
-    const power = STONE_POWERS['resolve.activeBuffEmpowerment'];
-    await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 3, cost: 4 });
-    await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
-    expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(3);
-    expect(actor._roundState.stoneBonuses.activeBuffPlBonus).toBe(3);
+    await expect(
+      STONE_POWERS['resolve.activeBuffEmpowerment'].apply({
+        actor: actor as any,
+        combatant: makeMockCombatant() as any,
+        tier: 1,
+        cost: 1,
+      }),
+    ).rejects.toThrow(/maintained Active Buff/);
   });
 
   it('is once-per-combat and maps a combat flag', async () => {
@@ -648,20 +695,28 @@ describe('Resolve — Active Buff Empowerment stores PL and rounds', () => {
 
   it('refuses apply when once-per-combat flag is already set', async () => {
     const actor = makeMockActor();
+    attachMaintainedActiveBuff(actor);
     (globalThis as any).game = { ...(globalThis as any).game, combat: { id: 'c1', round: 1 } };
     vi.stubGlobal('ui', { notifications: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } });
     await actor.setFlag('mastery-system', 'msActiveBuffEmpowermentUsed', {
       combatId: 'c1',
       used: true,
     });
-    await STONE_POWERS['resolve.activeBuffEmpowerment'].apply({
-      actor: actor as any,
-      combatant: makeMockCombatant() as any,
-      tier: 2,
-      cost: 2,
-    });
-    expect(actor._roundState.stoneBonuses.extendActiveBuffRounds ?? 0).toBe(0);
-    expect(actor._roundState.stoneBonuses.activeBuffPlBonus ?? 0).toBe(0);
+    await expect(
+      STONE_POWERS['resolve.activeBuffEmpowerment'].apply({
+        actor: actor as any,
+        combatant: makeMockCombatant() as any,
+        tier: 2,
+        cost: 2,
+      }),
+    ).rejects.toThrow(/already used/);
+    expect((actor as any).effects[0].flags['mastery-system'].extendedRounds).toBe(0);
+  });
+
+  it('tiers list rounds only (no PL)', () => {
+    const labels = STONE_POWERS['resolve.activeBuffEmpowerment'].tiers.map((t) => t.label);
+    expect(labels).toEqual(['+1 Round', '+2 Rounds', '+3 Rounds', '+4 Rounds']);
+    expect(STONE_POWERS['resolve.activeBuffEmpowerment'].description).not.toMatch(/\+1\/\+2\/\+3\/\+4 Power Level/);
   });
 });
 

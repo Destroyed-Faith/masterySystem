@@ -3,6 +3,16 @@
  * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
  */
 /**
+ * Extend the currently maintained true Active Buff by complete Rounds.
+ * Used by Resolve Stone Ability: Active Buff Empowerment (immediate apply).
+ */
+export declare function extendMaintainedActiveBuffRounds(actor: Actor, extraRounds: number): Promise<{
+    ok: boolean;
+    name?: string;
+    lastActiveRound?: number;
+    addedRounds?: number;
+}>;
+/**
  * Effect Power Level for an Active Buff snapshot.
  * Uses the power's purchased `rank` / `level` — never Mastery Rank (that only
  * sets duration). Missing rank previously fell back to MR and could snapshot

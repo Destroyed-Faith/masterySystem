@@ -158,8 +158,11 @@
       </div>
       <div class="initiative-exchange-actions">
         {{#if initiativeExchange.needsRoll}}
-        <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative is-glow" title="Roll Initiative first — stones wait until this is done.">
-          <i class="fas fa-dice"></i> Roll Initiative
+        <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative is-glow" data-method="risky" title="Risky: Mastery Rank exploding d8s. Stones wait until Initiative is set.">
+          <i class="fas fa-dice"></i> Risky Initiative
+        </button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative" data-method="controlled" title="Controlled: fixed max of Agility or Wits (no MR multiplier). Stones wait until Initiative is set.">
+          <i class="fas fa-balance-scale"></i> Controlled
         </button>
         {{else}}
         {{#if (eq initiativeExchange.mode "receipt")}}
@@ -349,7 +352,12 @@
       </summary>
       <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
-        <div class="power-card power-card-general{{#if power.activated}} is-activated{{/if}}{{#if power.pendingActivation}} is-pending{{/if}}{{#if power.retired}} is-retired{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.retired}}Parked — use Extra Attack. {{/if}}{{#if power.pendingLabel}}{{power.pendingLabel}} · {{/if}}Left-click: fill the next Rank block (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8 stones — based on pool availability) · Right-click: clear all · Drag: pull from the pool{{#if power.activated}} · Activated ({{power.activationCount}}×){{/if}}">
+        <div class="power-card power-card-general{{#if power.oncePerCombat}} is-once-per-combat{{/if}}{{#if power.activated}} is-activated{{/if}}{{#if power.pendingActivation}} is-pending{{/if}}{{#if power.boostUsed}} is-once-used{{/if}}{{#if power.retired}} is-retired{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.retired}}Parked — use Extra Attack. {{/if}}{{#if power.boostUsed}}Already used this combat. {{/if}}{{#if power.pendingLabel}}{{power.pendingLabel}} · {{/if}}Left-click: fill the next Rank block (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8 stones — based on pool availability) · Right-click: clear all · Drag: pull from the pool{{#if power.activated}} · Activated ({{power.activationCount}}×){{/if}}">
+          {{#if power.oncePerCombat}}
+          <div class="power-once-banner{{#if power.boostUsed}} is-used{{/if}}" title="{{#if power.boostUsed}}Already used this combat — cannot activate again.{{else}}This Stone Power may be used only once per combat.{{/if}}">
+            <span class="power-once-banner-label">Once per Combat{{#if power.boostUsed}} · Used{{/if}}</span>
+          </div>
+          {{/if}}
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}" data-acc-key="{{power.accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if power.hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -416,14 +424,16 @@
       <summary class="powers-attr-label js-stone-section-toggle" data-attribute="{{attrKey}}" data-section="{{attrKey}}">
         <i class="fas fa-chevron-right" aria-hidden="true"></i>
         <span>{{attrName}}</span>
-        {{#if hasOncePerCombat}}
-        <span class="once-combat-stamp" title="This attribute has Stone Powers that can be used only once per combat. Those sit on the right.">Once a Combat</span>
-        {{/if}}
       </summary>
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
-        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}{{#if boostUsed}} is-once-used{{/if}}{{#if retired}} is-retired{{/if}}{{#if depositLocked}} is-deposit-locked{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if depositLocked}}Spent in the Initiative bar. Stones cannot be placed here.{{else}}{{#if retired}}Parked — use Extra Attack. {{/if}}{{#if boostUsed}}Already used this combat. {{/if}}{{#if pendingLabel}}{{pendingLabel}} · {{/if}}Left-click: fill the next Rank block with {{attribute}} stones (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8) · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}{{/if}}">
+        <div class="power-card power-card-general{{#if oncePerCombat}} is-once-per-combat{{/if}}{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}{{#if boostUsed}} is-once-used{{/if}}{{#if retired}} is-retired{{/if}}{{#if depositLocked}} is-deposit-locked{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if depositLocked}}Spent in the Initiative bar. Stones cannot be placed here.{{else}}{{#if retired}}Parked — use Extra Attack. {{/if}}{{#if boostUsed}}Already used this combat. {{/if}}{{#if pendingLabel}}{{pendingLabel}} · {{/if}}Left-click: fill the next Rank block with {{attribute}} stones (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8) · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}{{/if}}">
+          {{#if oncePerCombat}}
+          <div class="power-once-banner{{#if boostUsed}} is-used{{/if}}" title="{{#if boostUsed}}Already used this combat — cannot activate again.{{else}}This Stone Power may be used only once per combat.{{/if}}">
+            <span class="power-once-banner-label">Once per Combat{{#if boostUsed}} · Used{{/if}}</span>
+          </div>
+          {{/if}}
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" data-acc-key="{{accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -477,7 +487,6 @@
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{effectLong}}">{{name}}</strong>
             {{#if rankCaption}}<span class="power-rank-caption">{{rankCaption}}</span>{{/if}}
-            {{#if boostUsed}}<span class="power-once-used-badge" title="This Stone Power may be used only once per combat.">Once this combat</span>{{/if}}
             {{#if supportTier}}<span class="power-support-badge{{#unless supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{supportSource}}): {{#if supportActive}}{{supportHint}}{{else}}Artifact Support already applied — Rank {{supportTier}} cost no Stones.{{/if}}"><i class="fas fa-gem"></i> R{{supportTier}}</span>{{/if}}
           </div>
         </div>

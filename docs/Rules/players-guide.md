@@ -4845,14 +4845,14 @@ For Healing, apply the current active-Bar HP cap. **Resolve: Healing** qualifies
 |:--|:--|:--|:--|:--|
 | **Damage Reduction** | **+10% DR** | **+20% DR** | **+30% DR** | **+40% DR** |
 | **Healing** | **4d8 HP**, within **2 m** | **8d8 HP**, within **4 m** | **12d8 HP**, within **8 m** | **16d8 HP**, within **16 m** |
-| **Active Buff Empowerment** | **+1 PL**, **+1 Round** | **+2 PL**, **+2 Rounds** | **+3 PL**, **+3 Rounds** | **+4 PL**, **+4 Rounds** |
+| **Active Buff Empowerment** | **+1 Round** | **+2 Rounds** | **+3 Rounds** | **+4 Rounds** |
 | **Special Negation** | **+2 Special Negation** | **+4 Special Negation** | **+8 Special Negation** | **+12 Special Negation** |
 
 **Damage Reduction / Special Negation:** Round-based defensive bonuses expire at Round End. Special Negation reduces incoming eligible hostile numeric **Special(X)**; if reduced to **0 or less**, it is not applied.
 
 **Healing:** During Preparation, pay the normal cumulative Stone cost for **one Healing application**. Trigger it later in the current Round at a legal action boundary, targeting **yourself or one ally** within the listed Range. You may also trigger it **before incoming HP damage**; heal first, then resolve the hit's damage. Triggering uses **no additional Stones, Attack Action, or Reaction**. Roll once, then expend the prepared application. Unused Healing expires at Round End; Stones remain spent. Apply the cap of the target's **currently available active Health Bar**. If every Bar is Scarred, HP Healing has no eligible Bar and **cannot end Incapacitated**, even when an ally prepared and triggered it. Only Scarred-Bar recovery, such as an eligible **Restoration Active**, can reopen a Bar. Eligible **Maximization** may enhance a legal HP Healing Roll.
 
-**Active Buff Empowerment:** Once per Combat, during the Preparation Phase, when activating an Active Buff, you may empower that Buff by the listed Power Levels and additional complete Rounds. The effective Power Level cannot exceed 16. Empowerment cannot be applied to an already maintained Buff. The allowance does not refresh when the Buff expires, is replaced, or is reactivated.
+**Active Buff Empowerment:** Once per Combat, during the Preparation Phase, while you are already maintaining an Active Buff, extend that Buff's duration by the listed complete Rounds. You cannot use Empowerment unless a Buff is currently maintained — activate the Buff first, then spend Stones on Empowerment. Empowerment does not change Power Level. The allowance does not refresh when the Buff expires, is replaced, or is reactivated.
 
 }}
 \page
@@ -5368,13 +5368,18 @@ At the end of your Turn, resolve effects that trigger at the end of your Turn.
 {{wide
 ## Initiative
 
-Initiative represents combat tempo, reaction speed, and the ability to seize openings. Initiative is rolled once at the **start of combat**. Roll a number of d8s equal to your **Mastery Rank**. Keep all dice and 8s explode.
+Initiative represents combat tempo, reaction speed, and the ability to seize openings. Initiative is determined once at the **start of combat**. Each creature chooses one method:
+
+- **Risky (default).** Roll a number of d8s equal to your **Mastery Rank**. Keep all dice and 8s explode.
+- **Controlled.** Take the **fixed maximum** of your **Agility Pool** or **Wits Pool** (whichever is higher). Do **not** multiply by Mastery Rank and do not roll dice for this base.
+
+Apply normal Initiative modifiers **once** to either method (equipment, Passives, Wits scaling, manual bonuses, sheet NPC Ini, and any legal Stone bonuses such as Initiative Boost). **Initiative Boost**, **Initiative Exchange**, **Surprise Priority**, and **Initiative Colorless Stones** are unchanged. Automated NPC / Summon flows use **Risky** unless a rule or GM choice says otherwise.
 
 Your Initiative Score is:
 
-`Initial Initiative Score = Initiative Roll + all Initiative modifiers`
+`Initial Initiative Score = Initiative Base (Risky roll or Controlled fixed value) + all Initiative modifiers`
 
-The Initial Initiative Score can never be lower than **0**. The resulting Initiative Score remains in play until it is spent or another rule changes it. It is not reset or rolled again at the start of each Round unless a rule explicitly says so.
+The Initial Initiative Score can never be lower than **0**. The resulting Initiative Score remains in play until it is spent or another rule changes it. It is not reset or determined again at the start of each Round unless a rule explicitly says so.
 
 ---
 
@@ -7261,7 +7266,9 @@ Each category has its own design rules, limits, timing, and pricing logic.
 
 ### Power Use Limit
 
-A specific Power can be used only **once per round**. After you use a Power, that Power is considered **spent** until the start of the next round. The Power's identity is its base **Technical Reference**, not its character-facing name, source, or current PL. Changing between Martial and Spell delivery does not create a second Power identity; delivery method is not a way to bypass duplicate rules or the once-per-Round Power Use Limit.
+A specific Power can be used only **once per Round**. After you use a Power, that **independently acquired or granted Power instance** is considered **spent** until the start of the next Round. Track usage by a stable **instance ID** for that grant (the learned Power item, or one Artifact grant lineage), **not** only by Technical Reference.
+
+A learned Power and an Artifact-granted Power with the same Technical Reference (for example a learned Ranged Hex and a staff-granted Ranged Hex) may **each** be used once per Round if you still have the Attack Actions (or other Actions) required. Renaming a Power, downcasting it, changing Martial/Spell delivery, or upgrading one grant does **not** create another instance. Global **Limited** charges, Stone Ability restrictions, the one maintained Active Buff rule, Action economy, and other shared resources still apply across instances.
 
 This applies to all Power Types:
 
@@ -7322,7 +7329,7 @@ Technical Power: **Mind Illusion** Character Power Name: **The Wall That Was Nev
 
 Technical Power: **Melee Push / Pull** Character Power Name: **Titanbreaker Blow**
 
-A character-facing Power name does not change the Power's mechanics. Power identity follows the technical name across every source, including purchases, Echo Artifacts, other Artifacts, Trees, and granted abilities. Two character-facing names with the same Technical Reference are the same Power for duplicate selection and the once-per-round Power Use Limit. Changing between Martial and Spell delivery does not create a new Power identity. If a player describes a Power in a way that sounds stronger than its rules text, use the rules text.
+A character-facing Power name does not change the Power's mechanics. Power identity follows the technical name across every source, including purchases, Echo Artifacts, other Artifacts, Trees, and granted abilities. Two character-facing names with the same Technical Reference are the same Power for **duplicate selection**. The once-per-Round **Power Use Limit** tracks independently acquired or granted **instances** (see Power Use Limit): a learned Power and an Artifact grant with the same Technical Reference remain separate uses. Changing between Martial and Spell delivery does not create a new Power identity or a new instance. If a player describes a Power in a way that sounds stronger than its rules text, use the rules text.
 
 If a player describes a Power in a way that sounds weaker, stranger, or more personal, the description is allowed as long as the mechanics remain clear.
 
@@ -9407,11 +9414,11 @@ Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 
 
 #### **5) Power Use Limit**
 
-A named Power may be used **once per Round**, identified by its **base Technical Reference** across sources, PLs and delivery styles. Extra actions permit different legal Powers or Basic Attacks, not a repeat use of the same Power. Reactions with explicit repeat permission follow their text. Competing additional Attack Action grants use the highest single grant unless expressly stackable.
+A Power may be used **once per Round** per **independently acquired or granted instance**. Learned Powers and Artifact grants are separate instances even when they share a Technical Reference. Extra actions permit different legal Powers, other instances, or Basic Attacks — not a second use of the same instance. Reactions with explicit repeat permission follow their text. Competing additional Attack Action grants use the highest single grant unless expressly stackable. Global Limited charges and other shared resources still bind across instances.
 
 #### **6) Initiative**
 
-At combat start, roll **MR d8, keep all**; 8s explode. Add Initiative modifiers. The resulting score persists across Rounds unless spent or changed by a rule.
+At combat start, each creature chooses **Risky** (MR exploding d8, keep all) or **Controlled** (fixed max of Agility or Wits, no MR multiplier). Apply Initiative modifiers once. The resulting score persists across Rounds unless spent or changed by a rule.
 
 #### **7) Initiative Exchange**
 

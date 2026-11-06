@@ -19,6 +19,19 @@ import {
 
 const LOG = '[MS Threatened Ranged]';
 
+/** Off by default. Enable with: game.masteryThreatenedRangedDebug(true) */
+export let THREATENED_RANGED_DEBUG = false;
+
+export function setThreatenedRangedDebug(on: boolean): void {
+  THREATENED_RANGED_DEBUG = !!on;
+  console.log(`${LOG} debug ${THREATENED_RANGED_DEBUG ? 'ON' : 'OFF'}`);
+}
+
+function trLog(...args: unknown[]): void {
+  if (!THREATENED_RANGED_DEBUG) return;
+  console.log(...args);
+}
+
 function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -288,7 +301,7 @@ export function scanThreateningEnemies(shooterToken: any): {
   const shooterPC = isPlayerCombatantToken(shooterToken);
   const placeableCount = Array.isArray(tokens) ? tokens.length : 0;
 
-  console.log(
+  trLog(
     `${LOG} scan start shooter="${shooterName}" id=${shooterToken?.id} disp=${shooterDisp} isPC=${shooterPC} placeables=${placeableCount}`,
   );
 
@@ -299,7 +312,7 @@ export function scanThreateningEnemies(shooterToken: any): {
     const isPC = isPlayerCombatantToken(t);
     if (!t.actor) {
       const line = `${LOG}   skip "${name}" (${t.id}): no-actor disp=${disposition}`;
-      console.log(line);
+      trLog(line);
       rows.push({
         tokenId: t.id,
         name,
@@ -347,7 +360,7 @@ export function scanThreateningEnemies(shooterToken: any): {
       skipReason,
     };
     rows.push(row);
-    console.log(
+    trLog(
       `${LOG}   ${threatens ? 'THREAT' : 'skip '} "${name}" (${t.id}): ` +
         `hostile=${hostile} isPC=${isPC} disp=${disposition} ` +
         `edge=${row.edgeDistM} center=${row.centerDistM} reach=${enemyReachM} gridAdj=${gridAdjacent}` +
@@ -355,7 +368,7 @@ export function scanThreateningEnemies(shooterToken: any): {
     );
   }
 
-  console.log(
+  trLog(
     `${LOG} scan done for "${shooterName}": threatening=[${rows
       .filter((r) => r.threatens)
       .map((r) => r.name)
@@ -395,7 +408,7 @@ export function evaluateThreatenedRanged(
   const optionMeta = `${option?.name || '?'} source=${option?.source} tags=${JSON.stringify(option?.tags || [])} npcIsSpell=${!!(option as any)?.npcIsSpell}`;
 
   if (!actor) {
-    console.log(`${LOG} evaluate — no shooter actor | ${optionMeta}`);
+    trLog(`${LOG} evaluate — no shooter actor | ${optionMeta}`);
     return {
       appliesRule: false,
       threatened: false,
@@ -408,7 +421,7 @@ export function evaluateThreatenedRanged(
 
   const appliesRule = usesThreatenedRangedWeaponRules(actor, option);
   if (!appliesRule) {
-    console.log(`${LOG} evaluate — rule NOT applicable for "${actor.name}" | ${optionMeta}`);
+    trLog(`${LOG} evaluate — rule NOT applicable for "${actor.name}" | ${optionMeta}`);
     return {
       appliesRule: false,
       threatened: false,
@@ -433,7 +446,7 @@ export function evaluateThreatenedRanged(
       : 'no-enemy-in-melee-reach',
   };
 
-  console.log(
+  trLog(
     `${LOG} evaluate — "${actor.name}" appliesRule=true threatened=${threatened} ` +
       `disadvantage=${result.rollDisadvantage} oa=[${names.join(', ') || 'none'}] ` +
       `reason=${result.debugReason} | ${optionMeta}`,
