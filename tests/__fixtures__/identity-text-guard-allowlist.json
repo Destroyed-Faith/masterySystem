@@ -339,21 +339,33 @@
     },
     {
       "file": "src\\combat\\action-economy.ts",
-      "line": 1077,
+      "line": 26,
+      "match": "isBreathWeaponName",
+      "reason": "K8 instance display — Breath grant refund label after :damage/:ruin strip"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1084,
       "match": "isUltimateProgressionRow",
       "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
     },
     {
       "file": "src\\combat\\action-economy.ts",
-      "line": 1080,
+      "line": 1087,
       "match": "isUltimateProgressionRow",
       "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
     },
     {
       "file": "src\\combat\\action-economy.ts",
-      "line": 1081,
+      "line": 1088,
       "match": "isUltimateProgressionRow",
       "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1097,
+      "match": "isBreathWeaponName",
+      "reason": "K8 instance display — Breath grant refund label after :damage/:ruin strip"
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",

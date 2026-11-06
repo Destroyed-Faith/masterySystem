@@ -12,6 +12,7 @@ import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { isUltimateProgressionRow, progressionSlotIndex, resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
+import { isBreathWeaponName } from '../utils/breath-weapon.js';
 import { combatReadyRemaining, minLivePoolCurrent, } from '../stones/stone-combat-ledger.js';
 import { seedNpcMaximizationRoundState } from './npc-maximization.js';
 /**
@@ -765,6 +766,11 @@ function resolveArtifactUsageDisplayName(actor, key) {
                     visible.find((r) => Number(r.level) === level) ||
                     full.find((r) => Number(r.level) === level);
         const rowName = String(row?.name || '').trim();
+        // Shared Breath instance keys strip :damage/:ruin; keep the radial label.
+        if (isBreathWeaponName(rowName)) {
+            const breathLabel = mode === 'ruin' ? 'Ruin Breath' : 'Damage Breath';
+            return artifactName ? `${breathLabel} (${artifactName})` : breathLabel;
+        }
         if (rowName && artifactName)
             return `${rowName} (${artifactName})`;
         if (rowName)

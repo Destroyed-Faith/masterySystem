@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.840] - 2026-11-06
+
+### Fixed
+
+- **CI:** identity text-guard allowlist line pins for Action Economy Artifact display helpers.
+- **GM refund list:** Breath Weapon grants still show as Damage Breath after shared-instance `:damage`/`:ruin` strip.
+
 ## [0.9.839] - 2026-11-06
 
 ### Changed
