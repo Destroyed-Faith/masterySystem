@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.841] - 2026-11-06
+
+### Changed
+
+- **Professions:** removed Origin from Add/Edit and Tower Wizard; Scope remains required.
+- **GM Profession grant:** after creation, GMs grant Professions for free (any Rank, no XP) via Grant Profession.
+
 ## [0.9.840] - 2026-11-06
 
 ### Fixed

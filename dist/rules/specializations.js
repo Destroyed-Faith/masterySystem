@@ -181,11 +181,6 @@ export function validateSpecializationList(specs, opts) {
         if (ranks.length === STARTING_SPECIALIZATION_COUNT && !ranks.every((r) => r === STARTING_SPECIALIZATION_RANK)) {
             errors.push(`Each starting Profession must be Rank ${STARTING_SPECIALIZATION_RANK}.`);
         }
-        for (const spec of paid) {
-            if (!isLegacyFieldSpecialization(spec) && !String(spec.origin || '').trim()) {
-                errors.push(`Origin required for "${String(spec.name || '').trim()}".`);
-            }
-        }
         const perception = specs.find((s) => isCharacterPerceptionSpec(s));
         if (perception) {
             const pRank = Math.floor(Number(perception.rank) || 0);

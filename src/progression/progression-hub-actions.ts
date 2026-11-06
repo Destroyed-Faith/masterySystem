@@ -634,13 +634,12 @@ export async function applySpecializationLearn(
   const origin = String(input.origin || '').trim();
   const scope = String(input.scope || '').trim();
   if (!name) return { ok: false, error: 'Name the Profession.' };
-  if (!origin) return { ok: false, error: 'Record how this Profession was learned.' };
   if (!scope) return { ok: false, error: 'Agree a one-sentence scope.' };
   const specs = readSpecializations((actor as any).system);
   const record: SpecializationRecord = {
     id: professionIdentityKey(name),
     name,
-    origin,
+    ...(origin ? { origin } : {}),
     scope,
     rank: 1,
   };

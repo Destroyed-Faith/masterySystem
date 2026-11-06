@@ -20,7 +20,8 @@ export declare function isRespecableProfession(specs: SpecializationRecord[], id
 export interface ProfessionRespecInput {
     replaceId: string;
     name: string;
-    origin: string;
+    /** Optional legacy fluff; no longer required. */
+    origin?: string;
     scope: string;
     category?: string;
 }

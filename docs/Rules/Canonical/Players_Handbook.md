@@ -1419,7 +1419,7 @@ Create your hero in a consistent order: decide what kind of Echo you are before 
 
 #### Step 4 - Choose Four Professions
 
-> Choose **exactly four distinct Professions**, each at **Rank 2**. A Profession is a concrete occupation, apprenticeship, or formative life path, not a narrow named skill. Give each one a name and a short description of how the character acquired it and what experience it covers; agree the scope with the GM. **Perception Rank 2 is granted to everyone for free** as a separate universal trained check, not as a fifth Profession slot. No separate creation-point pool is used. Additional Professions can be learned later through the existing XP advancement costs. See *Professions and Training*.
+> Choose **exactly four distinct Professions**, each at **Rank 2**. A Profession is a concrete occupation, apprenticeship, or formative life path, not a narrow named skill. Give each one a name and a short scope sentence; agree the scope with the GM. **Perception Rank 2 is granted to everyone for free** as a separate universal trained check, not as a fifth Profession slot. No separate creation-point pool is used. Additional Professions can be learned later through the existing XP advancement costs, or granted free by the GM. See *Professions and Training*.
 
 ---
 
@@ -2048,7 +2048,7 @@ Raises improve an outcome already possible with the character's method, tools, a
 | **Intellect** | Visible anomalies, spatial clues, and technical inconsistencies |
 | **Resolve** | Occult/spiritual pressure, if a valid active Sense supports it |
 
-**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases.
+**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases. The GM may grant a Profession (any Rank) without XP when the table warrants it.
 
 **Armor and Shields:** Printed Physical Training dice penalties instead apply to physical Profession attempts, and to other physically impeded trained tasks, whichever Attribute is chosen. These penalties do not change the normal Combat Pools.
 

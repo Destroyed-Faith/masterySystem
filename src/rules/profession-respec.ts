@@ -57,7 +57,8 @@ export function isRespecableProfession(
 export interface ProfessionRespecInput {
   replaceId: string;
   name: string;
-  origin: string;
+  /** Optional legacy fluff; no longer required. */
+  origin?: string;
   scope: string;
   category?: string;
 }
@@ -91,9 +92,6 @@ export function planProfessionRespec(
   }
   if (!name) {
     return { ok: false, error: 'Name the replacement Profession.', specializations: stamped, preservedRank: 0, previousName: '', nextName: '' };
-  }
-  if (!origin) {
-    return { ok: false, error: 'Record how this Profession was learned.', specializations: stamped, preservedRank: 0, previousName: '', nextName: name };
   }
   if (!scope) {
     return { ok: false, error: 'Agree a one-sentence scope.', specializations: stamped, preservedRank: 0, previousName: '', nextName: name };
@@ -154,7 +152,7 @@ export function planProfessionRespec(
   const replacement: SpecializationRecord = {
     id: nextId,
     name,
-    origin,
+    ...(origin ? { origin } : {}),
     scope,
     rank: current.rank,
     startingSlot: true,

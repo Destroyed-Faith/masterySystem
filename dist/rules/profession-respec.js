@@ -56,9 +56,6 @@ export function planProfessionRespec(specs, input) {
     if (!name) {
         return { ok: false, error: 'Name the replacement Profession.', specializations: stamped, preservedRank: 0, previousName: '', nextName: '' };
     }
-    if (!origin) {
-        return { ok: false, error: 'Record how this Profession was learned.', specializations: stamped, preservedRank: 0, previousName: '', nextName: name };
-    }
     if (!scope) {
         return { ok: false, error: 'Agree a one-sentence scope.', specializations: stamped, preservedRank: 0, previousName: '', nextName: name };
     }
@@ -112,7 +109,7 @@ export function planProfessionRespec(specs, input) {
     const replacement = {
         id: nextId,
         name,
-        origin,
+        ...(origin ? { origin } : {}),
         scope,
         rank: current.rank,
         startingSlot: true,

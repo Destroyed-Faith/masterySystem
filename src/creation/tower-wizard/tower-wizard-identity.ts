@@ -192,11 +192,11 @@ export function specRecordsFromDraft(
         const origin = String(row.origin ?? '').trim();
         const scope = String(row.scope ?? '').trim();
         const category = String(row.category ?? '').trim();
-        if (!name && !origin && !scope) continue;
+        if (!name && !scope) continue;
         out.push({
             id: professionIdentityKey(name || 'profession'),
             name,
-            origin,
+            ...(origin ? { origin } : {}),
             scope,
             rank: 2,
             startingSlot: true,

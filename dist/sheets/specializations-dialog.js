@@ -54,6 +54,11 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         return false;
     }
     const learnWithXp = !!opts.learnWithXp && !existing && !betaRespec;
+    const gmFreeGrant = !existing &&
+        !betaRespec &&
+        !fixedStartingRank &&
+        !learnWithXp &&
+        !!globalThis.game?.user?.isGM;
     const allowRankEdit = !betaRespec &&
         !fixedStartingRank &&
         !learnWithXp &&
@@ -85,7 +90,11 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     <form class="mastery-dialog-form spec-edit-form">
       ${betaRespec
         ? `<p class="md-sublabel">Beta Profession Respec replaces this starting Profession in place. Rank and invested XP stay. Perception is never changed.</p>`
-        : ''}
+        : gmFreeGrant
+            ? `<p class="md-sublabel">GM grant — no XP cost. Set Rank freely for this table grant.</p>`
+            : learnWithXp
+                ? `<p class="md-sublabel">Learns at Rank 1 for 4 XP.</p>`
+                : ''}
       <div class="md-group">
         <label class="md-label">Suggestions <span class="md-sublabel">(${PROFESSION_CATALOGUE.length} examples in ${PROFESSION_CATALOGUE_CATEGORIES.length} categories — optional, not a closed list)</span></label>
         <div class="spec-suggestion-filters">
@@ -111,10 +120,6 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
         <datalist id="ms-profession-categories">${categoryOptions}</datalist>
       </div>
       <div class="md-group">
-        <label class="md-label">Origin <span class="md-sublabel">(how this was learned)</span></label>
-        <input type="text" name="origin" class="md-input" value="${escapeHtml(existing?.origin ?? '')}" maxlength="160" />
-      </div>
-      <div class="md-group">
         <label class="md-label">Scope <span class="md-sublabel">(one sentence, agreed with the GM)</span></label>
         <input type="text" name="scope" class="md-input" value="${escapeHtml(existing?.scope ?? '')}" maxlength="200" />
       </div>
@@ -133,17 +138,21 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                 ? `Beta Profession Respec — ${existing?.name ?? ''}`
                 : existing
                     ? `${masteryLocalize('MASTERY.df2026.specializations.edit', 'Edit Profession')} — ${existing.name}`
-                    : masteryLocalize('MASTERY.df2026.specializations.add', 'Add Profession'),
+                    : gmFreeGrant
+                        ? 'Grant Profession (free)'
+                        : masteryLocalize('MASTERY.df2026.specializations.add', 'Add Profession'),
             content,
             buttons: {
                 save: {
                     label: betaRespec
                         ? '<i class="fas fa-exchange-alt"></i> Replace'
-                        : '<i class="fas fa-check"></i> Save',
+                        : gmFreeGrant
+                            ? '<i class="fas fa-gift"></i> Grant free'
+                            : '<i class="fas fa-check"></i> Save',
                     callback: async (html) => {
                         const root = rootOf(html);
                         const name = readValue(root, 'name').trim();
-                        const origin = readValue(root, 'origin').trim();
+                        const origin = String(existing?.origin || '').trim();
                         const scope = readValue(root, 'scope').trim();
                         const category = readValue(root, 'category').trim();
                         const rank = betaRespec
@@ -157,8 +166,8 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             globalThis.ui?.notifications?.warn?.('Name the Profession.');
                             return done(false);
                         }
-                        if (!origin) {
-                            globalThis.ui?.notifications?.warn?.('Record how this Profession was learned.');
+                        if (!scope) {
+                            globalThis.ui?.notifications?.warn?.('Agree a one-sentence scope.');
                             return done(false);
                         }
                         if (isCharacterPerceptionSpec({ name })) {
@@ -190,7 +199,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             !fixedStartingRank &&
                             nextId !== existing.id &&
                             !isProfessionRespecEnabled()) {
-                            globalThis.ui?.notifications?.warn?.('Replacing a Profession identity requires Allow Profession Respec (Beta). Edit origin/scope, or ask the GM to enable Beta Respec.');
+                            globalThis.ui?.notifications?.warn?.('Replacing a Profession identity requires Allow Profession Respec (Beta). Edit scope, or ask the GM to enable Beta Respec.');
                             return done(false);
                         }
                         const record = {
@@ -198,7 +207,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                                 ? nextId
                                 : existing?.id || nextId,
                             name,
-                            origin,
+                            ...(origin ? { origin } : {}),
                             scope,
                             rank,
                             ...(category ? { category } : {}),
@@ -209,7 +218,7 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             record.id = nextId;
                         if (learnWithXp) {
                             const { applySpecializationLearn } = await import('../progression/progression-hub-actions.js');
-                            const res = await applySpecializationLearn(actor, { name, origin, scope });
+                            const res = await applySpecializationLearn(actor, { name, scope, ...(origin ? { origin } : {}) });
                             if (!res.ok) {
                                 globalThis.ui?.notifications?.warn?.(res.error ?? 'Could not learn Profession.');
                                 return done(false);
@@ -224,6 +233,9 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             return done(false);
                         }
                         await actor.update({ 'system.specializations': next });
+                        if (gmFreeGrant) {
+                            globalThis.ui?.notifications?.info?.(`Granted ${name} Rank ${rank} (no XP).`);
+                        }
                         done(true);
                     },
                 },
