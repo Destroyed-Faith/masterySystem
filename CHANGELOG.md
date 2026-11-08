@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.846] - 2026-11-08
+
+### Fixed
+
+- **Release CI:** disable npm cache + retry `npm ci` so Create Release can publish the Forge ZIP after 0.9.844/0.9.845 install failures.
+
 ## [0.9.845] - 2026-11-08
 
 ### Fixed
