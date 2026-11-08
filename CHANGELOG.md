@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.843] - 2026-11-08
+
+### Fixed
+
+- **CI:** identity text-guard allowlist line pins for `artifact-options.ts` after Delivery Unification comment shift.
+
 ## [0.9.842] - 2026-11-08
 
 ### Changed
