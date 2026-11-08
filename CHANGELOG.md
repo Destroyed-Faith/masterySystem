@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.847] - 2026-11-08
+
+### Fixed
+
+- **Release CI:** pin `ubuntu-24.04` + Node 20, fall back to `npm install` if `npm ci` fails so the Forge ZIP can publish.
+
 ## [0.9.846] - 2026-11-08
 
 ### Fixed

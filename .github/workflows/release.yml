@@ -10,7 +10,8 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Pin 24.04 — ubuntu-latest is migrating and npm ci started failing mid-flight.
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout tagged commit
@@ -21,7 +22,7 @@ jobs:
         with:
           # No npm cache — corrupt cache restores have failed `npm ci` in ~20s
           # while a clean install succeeds (Forge republish blockers).
-          node-version: '22'
+          node-version: '20'
 
       - name: Get version from tag
         id: tag_version
@@ -38,17 +39,18 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm cache clean --force || true
+          npm -v
+          node -v
           for attempt in 1 2 3; do
             echo "npm ci attempt ${attempt}..."
             if npm ci --no-audit --no-fund; then
               exit 0
             fi
-            echo "npm ci attempt ${attempt} failed; retrying..."
+            echo "npm ci attempt ${attempt} failed"
             sleep $((attempt * 5))
           done
-          echo "npm ci failed after retries"
-          exit 1
+          echo "npm ci failed — falling back to npm install"
+          npm install --no-audit --no-fund
 
       - name: Production build
         run: npm run build
