@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.844] - 2026-11-08
+
+### Fixed
+
+- **Release republish:** fresh GitHub Release ZIP for Forge install after intermittent CDN 504s on v0.9.843.
+
 ## [0.9.843] - 2026-11-08
 
 ### Fixed
