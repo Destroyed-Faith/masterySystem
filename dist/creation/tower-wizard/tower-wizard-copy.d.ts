@@ -76,16 +76,16 @@ export declare const TOWER_WIZARD_COPY: {
             readonly body: "Body";
             readonly mind: "Mind";
             readonly spirit: "Spirit";
-            readonly unsure: "Not sure — pick for me";
+            readonly unsure: "Not sure: pick for me";
         };
     };
     readonly delivery: {
         readonly question: "Melee or Ranged?";
-        readonly melee: "Melee — close combat";
-        readonly ranged: "Ranged — at a distance";
+        readonly melee: "Melee: close combat";
+        readonly ranged: "Ranged: at a distance";
     };
     readonly echo: {
-        readonly missingBanner: "Select your Echo in the Echo dialog first. Your Echo Artifacts (shown on your character) determine which Active Buffs you already have — you only maintain one at a time.";
+        readonly missingBanner: "Select your Echo in the Echo dialog first. Your Echo Artifacts (shown on your character) determine which Active Buffs you already have: you only maintain one at a time.";
         readonly summaryHeading: "Your Echo";
         readonly artifactBuffsHeading: "Active Buffs from Echo Artifacts";
         readonly artifactBuffNote: "These use your single maintained Active Buff slot when activated. Do not pick the same defensive Active Buff again in this package.";
@@ -113,14 +113,14 @@ export declare const TOWER_WIZARD_COPY: {
         };
         readonly specializations: {
             readonly heading: "FOUR PROFESSIONS";
-            readonly body: "Name exactly four Professions at Rank 2. Each needs a name, how you learned it, and a one-sentence scope. Perception Rank 2 is free and is not one of the four. Suggestions are optional — a custom name is always allowed.";
+            readonly body: "Name exactly four Professions at Rank 2. Each needs a name, how you learned it, and a one-sentence scope. Perception Rank 2 is free and is not one of the four. Suggestions are optional: a custom name is always allowed.";
             readonly nameLabel: "Name";
             readonly originLabel: "Origin";
             readonly scopeLabel: "Scope (one sentence)";
             readonly rankLabel: "Rank";
             readonly suggestionLabel: "Suggestion (optional)";
         };
-        readonly reconcileHeading: "Powers already chosen — re-check later steps";
+        readonly reconcileHeading: "Powers already chosen: re-check later steps";
     };
     readonly review: {
         readonly heading: "Your Combat Package";

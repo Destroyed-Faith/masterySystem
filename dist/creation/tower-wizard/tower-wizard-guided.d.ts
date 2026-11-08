@@ -4,6 +4,8 @@
 import { type SecondPassiveBucket } from './tower-wizard-passive-categories.js';
 import type { DefensePackageId, DeliveryMode, GuidedAttackDelivery, GuidedBuildSummary, GuidedDeliveryOption, GuidedSpecialFocusGroup, OffenseActivePick, SecondPassiveIntentGroup, SecondPassiveOption, TowerWizardSelection } from './tower-wizard-types.js';
 import type { PackageReview } from './tower-wizard-packages.js';
+/** Player-facing wizard copy: no em/en Gedankenstriche as separators. */
+export declare function wizardPlayerText(raw: string): string;
 export declare const GUIDED_PASSIVE2_BUCKET_LABELS: Record<SecondPassiveBucket, {
     label: string;
     intentHint?: string;
@@ -42,4 +44,10 @@ export declare function getGuidedSpecialFocusGroups(deliveryMode: GuidedAttackDe
 export declare function getDefensiveActiveBuffChoiceBody(defenseId: DefensePackageId): string;
 export declare function buildGuidedBuildSummary(selection: TowerWizardSelection, review: PackageReview): GuidedBuildSummary;
 export declare function assembleGuidedOffensePicks(selection: Partial<TowerWizardSelection>): OffenseActivePick[] | undefined;
+/**
+ * Guided Core Attack is always slot 0 (Weapon / Spell Single).
+ * Repair swaps from the legacy offense picker or a bad restart so Special
+ * Focus never permanently occupies the locked Core slot.
+ */
+export declare function normalizeGuidedOffensePicks(selection: Partial<TowerWizardSelection>): OffenseActivePick[] | undefined;
 //# sourceMappingURL=tower-wizard-guided.d.ts.map

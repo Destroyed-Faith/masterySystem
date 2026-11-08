@@ -72,6 +72,12 @@ export declare function isIdentityWizardStep(step: TowerWizardStep): boolean;
 export declare const WIZARD_STEP_ORDER: TowerWizardStep[];
 export declare function packageNeedsReplacementBuffStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function getVisibleWizardSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[];
+/**
+ * Progress denominator for Guided mode. Always counts the optional Active Buff
+ * replacement step so "Step X of Y" does not jump from 5 to 6 after the buff choice.
+ * Navigation still skips that step when the mode stays defensive.
+ */
+export declare function getWizardProgressSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[];
 export declare const TOWER_WIZARD_OFFENSE_PACKAGES: TowerWizardOffensePackage[];
 export declare function getDefensePackage(id: DefensePackageId): TowerWizardDefensePackage | undefined;
 export declare function getOffensePackage(id: OffensePackageId): TowerWizardOffensePackage | undefined;
@@ -117,5 +123,5 @@ export declare function buildManualPackageReview(selection: Partial<TowerWizardS
 export declare function packageNeedsDeliveryStep(selection: Partial<TowerWizardSelection>): boolean;
 /** Saves removed in Rules v0.9.8 — never show Body/Mind/Spirit save step. */
 export declare function packageNeedsWeakenSaveStep(_selection: Partial<TowerWizardSelection>): boolean;
-export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
+export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, normalizeGuidedOffensePicks, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
 //# sourceMappingURL=tower-wizard-packages.d.ts.map

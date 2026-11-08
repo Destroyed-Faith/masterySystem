@@ -23,6 +23,15 @@ function secondPassiveCatalogName(templateId) {
     const entry = findCatalogEntry(templateId);
     return entry?.templateName ?? entry?.name ?? templateId;
 }
+/** Player-facing wizard copy: no em/en Gedankenstriche as separators. */
+export function wizardPlayerText(raw) {
+    return String(raw || '')
+        .replace(/\s*[\u2014]\s*/g, ': ')
+        .replace(/\u2013/g, '-')
+        .replace(/:\s*:/g, ':')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+}
 function catalogMechanicsText(entry, rank) {
     const levels = entry.raw?.levels;
     const row = levels?.[String(rank)];
@@ -52,9 +61,9 @@ function catalogMechanicsText(entry, rank) {
         .filter(Boolean)
         .join(', ');
     if (sp && !text.toLowerCase().includes(sp.toLowerCase())) {
-        text = text ? `${text} — ${sp}` : sp;
+        text = text ? `${text}; ${sp}` : sp;
     }
-    return text;
+    return wizardPlayerText(text);
 }
 /**
  * Passives never shown in Guided Passive 2.
@@ -91,12 +100,155 @@ const GUIDED_HIDDEN_PASSIVE2 = new Set([
     'extend-buff-evade',
     'extend-buff-mobility',
 ]);
+/**
+ * Short hover explanations for every canonical Combat Package Passive.
+ * Titles stay short on the tile; `explanation` is what players need on hover.
+ */
 const GUIDED_PASSIVE2_WRAPPERS = {
+    // Offensive
+    'passive-killing-intent': {
+        playerTitle: 'Damage',
+        powerName: 'Damage',
+        explanation: 'Adds bonus damage dice to your damaging Attack and Spell hits. Pure offense: it does not raise Armor, Evade, or HP.',
+    },
+    'passive-armor-reduction': {
+        playerTitle: 'Armor Reduction',
+        powerName: 'Armor Reduction',
+        explanation: 'On each eligible damaging Attack or Spell you make, ignore part of the target\'s Armor for that hit only. Listed Armor is unchanged; allies do not benefit. Stacks with legal Corrode, Might Stone Armor Reduction, and Weapon Penetration (effective Armor never below 0).',
+    },
+    'passive-critical': {
+        playerTitle: 'Critical',
+        powerName: 'Critical',
+        explanation: 'Each combat you get free Critical(1) charges. Spend one before an eligible Martial Attack or damaging Spell Casting Roll so 7s and 8s explode in that roll pool. Misses still spend the charge. Separate from Active Buff Critical and Agility Stone Crit.',
+    },
+    'passive-maximization': {
+        playerTitle: 'Maximization',
+        powerName: 'Maximization',
+        explanation: 'Each combat you get free Maximization uses for Damage or Healing Rolls. Spend one to treat dice as maximum before rolling. Separate from Vitality Stone Maximization.',
+    },
+    'passive-special-aura': {
+        playerTitle: 'Special Aura',
+        powerName: 'Special Aura',
+        explanation: 'While active, boosts one chosen eligible Special(X) by a fixed step for you (and scales aura radius with level). Offense through Specials, not raw damage dice.',
+    },
+    'passive-enemy-evade-reduction': {
+        playerTitle: 'Enemy Evade Reduction',
+        powerName: 'Enemy Evade Reduction',
+        explanation: 'Your Martial Attack Rolls treat each target\'s Evade as lower for the roll. Does not change stored Evade or Spell TN.',
+    },
+    'passive-spell-resistance-piercing': {
+        playerTitle: 'Spell Resistance Piercing',
+        powerName: 'Spell Resistance Piercing',
+        explanation: 'Your Spells ignore part of the target\'s Spell Resistance for that casting. Does not lower listed Spell Resistance permanently.',
+    },
+    'passive-special-amplification': {
+        playerTitle: 'Special Amplification',
+        powerName: 'Special Amplification',
+        explanation: 'Increases the numeric value of Specials you apply (for example Mark, Expose, Corrode). Does not add Attack or Damage dice by itself.',
+    },
+    // Defensive
     'passive-fortified-frame': {
         playerTitle: 'Armor',
         powerName: 'Armor',
-        explanation: 'Permanent Armor.',
+        explanation: 'Permanent Armor that reduces incoming damage after a hit. Core survivability.',
     },
+    'passive-evade': {
+        playerTitle: 'Evade',
+        powerName: 'Evade',
+        explanation: 'Permanent Evade. Attackers must beat a higher TN to hit you with Martial attacks.',
+    },
+    'passive-damage-reduction': {
+        playerTitle: 'Damage Reduction',
+        powerName: 'Damage Reduction',
+        explanation: 'Percentage reduction on incoming damage after Armor and similar steps.',
+    },
+    'passive-deep-vitality': {
+        playerTitle: 'Health',
+        powerName: 'Health',
+        explanation: 'Extra Health Bars (more total HP capacity). Does not enlarge each bar; see Fortitude for that.',
+    },
+    'passive-fortitude': {
+        playerTitle: 'Fortitude',
+        powerName: 'Fortitude',
+        explanation: 'Enlarges each normal Health Bar. Default size is Vitality ×4; Fortitude raises that to ×5 / ×6 / ×7 / ×8 at Power Levels 4 / 8 / 12 / 16. Does not add bars, heal HP, or reopen Scarred bars. Cannot be slotted with Passive: Health.',
+    },
+    'passive-regeneration': {
+        playerTitle: 'Regeneration',
+        powerName: 'Regeneration',
+        explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each). It does not heal ordinary HP mid-fight.',
+    },
+    'passive-ghostform': {
+        playerTitle: 'Phasing',
+        powerName: 'Phasing',
+        explanation: 'Ignore a limited number of hits each combat (charges refresh per combat, not each round).',
+    },
+    'passive-spell-resistance': {
+        playerTitle: 'Spell Resistance',
+        powerName: 'Spell Resistance',
+        explanation: 'Raises your Spell Resistance so hostile Spells are harder to land on you.',
+    },
+    'passive-ward': {
+        playerTitle: 'Special Negation',
+        powerName: 'Special Negation',
+        explanation: 'Reduces or negates numeric Specials applied to you (Ward-style). Distinct from Armor and Evade.',
+    },
+    'passive-invisibility': {
+        playerTitle: 'Invisibility',
+        powerName: 'Invisibility',
+        explanation: 'Always on: harder to locate and target (Perception TN + bonus), not higher Evade. Blocks Normal Awareness; higher ranks also block chosen Special Senses. AoE still hits.',
+    },
+    'passive-parry': {
+        playerTitle: 'Parry',
+        powerName: 'Parry',
+        explanation: 'Spend your base Attack Action to enter Parry, then spend a Parry pool to strip Attack or Casting Dice before they resolve.',
+    },
+    'passive-thornhide': {
+        playerTitle: 'Thorns',
+        powerName: 'Thorns',
+        explanation: 'When you take final HP damage, deal Thorns damage back to the source (capped by the loss). Green Warden Echo only.',
+    },
+    'passive-damage-negation': {
+        playerTitle: 'Damage Negation',
+        powerName: 'Damage Negation',
+        explanation: 'A combat reserve of Damage Dice you spend after a hit is locked but before damage is rolled, removing dice 1:1.',
+    },
+    'passive-temp-hp': {
+        playerTitle: 'Temporary HP',
+        powerName: 'Temporary HP',
+        explanation: 'Temporary HP at the start of combat, absorbed before real Health.',
+    },
+    'passive-self-cleanse': {
+        playerTitle: 'Self Cleanse',
+        powerName: 'Self Cleanse',
+        explanation: 'Lets you clear a negative effect from yourself (Cleanse on self).',
+    },
+    // Utility
+    'passive-telepathy-mind-link': {
+        playerTitle: 'Telepathy',
+        powerName: 'Telepathy',
+        explanation: 'Mind-link style communication and related utility; not a damage or Armor boost.',
+    },
+    'passive-initiative': {
+        playerTitle: 'Initiative',
+        powerName: 'Initiative',
+        explanation: 'Bonus to Initiative so you act earlier in the round order.',
+    },
+    'passive-bound-host': {
+        playerTitle: 'Summon Tokens',
+        powerName: 'Summon Tokens',
+        explanation: 'Grants Summon Tokens used to improve Bound Summons.',
+    },
+    'passive-absorption': {
+        playerTitle: 'Absorption',
+        powerName: 'Absorption',
+        explanation: 'When hostile damage Scars a Health Bar, you gain Temporary Colorless Stones (limited triggers per combat). No extra HP.',
+    },
+    'passive-speed': {
+        playerTitle: 'Speed',
+        powerName: 'Speed',
+        explanation: 'Increases your movement Speed in meters.',
+    },
+    // Legacy / conditional titles still referenced elsewhere
     'passive-armor-health': {
         playerTitle: 'Armor + Health',
         powerName: 'Armor + Health',
@@ -117,28 +269,10 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         powerName: 'Armor (Adjacent to 2+ Enemies)',
         explanation: 'Armor while at least two enemies are adjacent.',
     },
-    // R-05: ordinary HP regen is gone. Passive: Restoration restores Scarred Health Bars
-    // on yourself from a daily (Tyhran Day) pool. Blood Feast / Battle Trance /
-    // Stillness Recovery and every "+ Healing" combo are retired.
-    'passive-regeneration': {
-        playerTitle: 'Regeneration',
-        powerName: 'Regeneration',
-        explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each).',
-    },
-    'passive-killing-intent': {
-        playerTitle: 'Damage',
-        powerName: 'Damage',
-        explanation: 'Extra Damage on all damage rolls you make.',
-    },
     'passive-momentum': {
         playerTitle: 'Damage (Moved 8+ m This Turn)',
         powerName: 'Damage (Moved 8+ m This Turn)',
         explanation: 'Extra Damage after you move at least 8 m this turn.',
-    },
-    'passive-evade': {
-        playerTitle: 'Evade',
-        powerName: 'Evade',
-        explanation: 'Permanent Evade.',
     },
     'passive-flowing-step': {
         playerTitle: 'Evade (Moved 8+ m This Turn)',
@@ -154,41 +288,6 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         playerTitle: 'Evade + Temporary HP',
         powerName: 'Evade + Temporary HP',
         explanation: 'Permanent Evade plus Temporary HP at combat start.',
-    },
-    'passive-damage-reduction': {
-        playerTitle: 'Damage Reduction',
-        powerName: 'Damage Reduction',
-        explanation: 'Percentage reduction on incoming damage.',
-    },
-    'passive-ghostform': {
-        playerTitle: 'Phasing',
-        powerName: 'Phasing',
-        explanation: 'Ignore a limited number of hits each combat.',
-    },
-    'passive-parry': {
-        playerTitle: 'Parry',
-        powerName: 'Parry',
-        explanation: 'Spend a Parry pool to strip Attack Dice before they roll.',
-    },
-    'passive-damage-negation': {
-        playerTitle: 'Damage Negation',
-        powerName: 'Damage Negation',
-        explanation: 'Spend a combat reserve of Damage Dice before damage is rolled.',
-    },
-    'passive-invisibility': {
-        playerTitle: 'Invisibility',
-        powerName: 'Invisibility',
-        explanation: 'Always on: harder to locate/target (Perception TN + bonus), not higher Evade. Blocks Normal Awareness; higher ranks also block chosen Special Senses. AoE still hits.',
-    },
-    'passive-temp-hp': {
-        playerTitle: 'Temporary HP',
-        powerName: 'Temporary HP',
-        explanation: 'Temporary HP at the start of combat, before real Health.',
-    },
-    'passive-deep-vitality': {
-        playerTitle: 'Health',
-        powerName: 'Health',
-        explanation: 'Extra Health Bars.',
     },
     'passive-health-temp-hp': {
         playerTitle: 'Health + Temporary HP',
@@ -274,21 +373,21 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'mark',
-                playerTitle: 'Mark a Priority Target — Mark',
+                playerTitle: 'Mark a Priority Target (Mark)',
                 powerName: 'Mark',
                 explanation: 'Hitters can spend Mark on this target to raise the Damage Floor on that hit.',
                 whenToUse: '',
             },
             {
                 specialKey: 'expose',
-                playerTitle: 'Easier to Hit — Expose',
+                playerTitle: 'Easier to Hit (Expose)',
                 powerName: 'Expose',
                 explanation: 'Lowers the target\'s Evade so Martial attacks land more easily. Does not lower Spell Resistance.',
                 whenToUse: '',
             },
             {
                 specialKey: 'sundered',
-                playerTitle: 'More Martial Damage — Sundered',
+                playerTitle: 'More Martial Damage (Sundered)',
                 powerName: 'Sundered',
                 explanation: 'Non-Spell hits against this target deal bonus damage.',
                 whenToUse: '',
@@ -296,7 +395,7 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
             },
             {
                 specialKey: 'hex',
-                playerTitle: 'More Spell Damage — Hex',
+                playerTitle: 'More Spell Damage (Hex)',
                 powerName: 'Hex',
                 explanation: 'Spell hits against this target deal bonus damage.',
                 whenToUse: '',
@@ -311,7 +410,7 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'corrode',
-                playerTitle: 'Break Enemy Armor — Corrode',
+                playerTitle: 'Break Enemy Armor (Corrode)',
                 powerName: 'Corrode',
                 explanation: 'Reduces the target\'s Armor.',
                 whenToUse: '',
@@ -325,21 +424,21 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'slow',
-                playerTitle: 'Reduce Speed — Slow',
+                playerTitle: 'Reduce Speed (Slow)',
                 powerName: 'Slow',
                 explanation: 'Reduces the target\'s Speed.',
                 whenToUse: '',
             },
             {
                 specialKey: 'root',
-                playerTitle: 'Hold an Enemy in Place — Root',
+                playerTitle: 'Hold an Enemy in Place (Root)',
                 powerName: 'Root',
                 explanation: 'Speed becomes 0 m; the target cannot move voluntarily.',
                 whenToUse: '',
             },
             {
                 specialKey: 'lacerate',
-                playerTitle: 'Punish Movement — Lacerate',
+                playerTitle: 'Punish Movement (Lacerate)',
                 powerName: 'Lacerate',
                 explanation: 'The target takes damage when it chooses to move.',
                 whenToUse: '',
@@ -353,14 +452,14 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'ruin',
-                playerTitle: 'Ongoing Damage — Ruin',
+                playerTitle: 'Ongoing Damage (Ruin)',
                 powerName: 'Ruin',
                 explanation: 'The target takes damage at Tick. Ruin ignores Armor.',
                 whenToUse: '',
             },
             {
                 specialKey: 'blight',
-                playerTitle: 'Poison or Corrupt — Blight',
+                playerTitle: 'Poison or Corrupt (Blight)',
                 powerName: 'Blight',
                 explanation: 'Healing the target receives is reduced, and it takes Stress over time.',
                 whenToUse: '',
@@ -374,14 +473,14 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'weaken',
-                playerTitle: 'Reduce Enemy Strength — Weaken',
+                playerTitle: 'Reduce Enemy Strength (Weaken)',
                 powerName: 'Weaken',
                 explanation: 'The target loses dice from Might, Agility, and Intellect pools.',
                 whenToUse: '',
             },
             {
                 specialKey: 'challenge',
-                playerTitle: 'Force Them to Face You — Challenge',
+                playerTitle: 'Force Them to Face You (Challenge)',
                 powerName: 'Challenge',
                 explanation: 'Enemies lose Attack Dice unless they include you as a target.',
                 whenToUse: '',
@@ -395,14 +494,14 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'heal',
-                playerTitle: 'Reopen Scarred Health Bars — Restoration',
+                playerTitle: 'Reopen Scarred Health Bars (Restoration)',
                 powerName: 'Restoration',
                 explanation: 'Restore Scarred Health Bars on one creature (full HP each) from a pool that refreshes at Safe Haven Rest. It does not heal HP.',
                 whenToUse: '',
             },
             {
                 specialKey: 'cleanse',
-                playerTitle: 'Clear a Negative Effect — Cleanse',
+                playerTitle: 'Clear a Negative Effect (Cleanse)',
                 powerName: 'Cleanse',
                 explanation: 'Remove one negative effect from one creature.',
                 whenToUse: '',
@@ -417,14 +516,14 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'push',
-                playerTitle: 'Push Enemies Around — Push',
+                playerTitle: 'Push Enemies Around (Push)',
                 powerName: 'Push',
                 explanation: 'Force the target away from you.',
                 whenToUse: '',
             },
             {
                 specialKey: 'pull',
-                playerTitle: 'Pull Enemies Closer — Pull',
+                playerTitle: 'Pull Enemies Closer (Pull)',
                 powerName: 'Pull',
                 explanation: 'Pull the target toward you.',
                 whenToUse: '',
@@ -443,7 +542,7 @@ export const GUIDED_DELIVERY_OPTIONS = [
     {
         id: 'martial',
         label: 'Martial',
-        explanation: 'You fight with weapons, fists, claws, or other physical attacks — melee or ranged.',
+        explanation: 'You fight with weapons, fists, claws, or other physical attacks (melee or ranged).',
     },
     {
         id: 'spell',
@@ -488,15 +587,15 @@ export function wrapGuidedPassiveCard(templateId, opts) {
         return null;
     const wrapper = GUIDED_PASSIVE2_WRAPPERS[templateId];
     const canonicalName = String(entry.name || wrapper?.powerName || secondPassiveCatalogName(templateId)).trim();
-    const shortLabel = passiveWizardChoiceLabel(wrapper?.playerTitle || wrapper?.powerName || entry.templateName || canonicalName);
+    const shortLabel = wizardPlayerText(passiveWizardChoiceLabel(wrapper?.playerTitle || wrapper?.powerName || entry.templateName || canonicalName));
     const mechanicsPreview = catalogMechanicsText(entry, 4);
-    const hint = wrapper?.explanation || entry.description?.trim() || '';
+    const hint = wizardPlayerText(wrapper?.explanation || entry.description?.trim() || mechanicsPreview || canonicalName);
     return {
         id: templateId,
         label: shortLabel,
         hint,
-        powerName: canonicalName,
-        mechanicsPreview: mechanicsPreview ? `PL 4 — ${mechanicsPreview}` : '',
+        powerName: wizardPlayerText(canonicalName),
+        mechanicsPreview: mechanicsPreview ? `PL 4: ${mechanicsPreview}` : '',
         warning: secondPassiveCardWarning(templateId),
         recommended: opts?.recommended === true,
     };
@@ -651,11 +750,11 @@ export function getGuidedSpecialFocusGroups(deliveryMode, actorEchoKey, selected
                 pickId: pick.pickId,
                 templateId: pick.templateId,
                 special: pick.special ?? null,
-                playerTitle: spec.playerTitle,
-                explanation: spec.explanation,
-                whenToUse: spec.whenToUse,
-                powerName: spec.powerName,
-                // Step 4 shows plain-language Special purpose only — no "+Xd8" / "Hex(4)" clutter.
+                playerTitle: wizardPlayerText(spec.playerTitle),
+                explanation: wizardPlayerText(spec.explanation),
+                whenToUse: wizardPlayerText(spec.whenToUse),
+                powerName: wizardPlayerText(spec.powerName),
+                // Step 4 shows plain-language Special purpose only (no "+Xd8" / "Hex(4)" clutter).
                 mechanicsPreview: '',
                 isSelected: selectedPickId === pick.pickId,
             });
@@ -664,8 +763,8 @@ export function getGuidedSpecialFocusGroups(deliveryMode, actorEchoKey, selected
             continue;
         groups.push({
             purposeId: purpose.id,
-            label: purpose.label,
-            explanation: purpose.explanation,
+            label: wizardPlayerText(purpose.label),
+            explanation: wizardPlayerText(purpose.explanation),
             isAdvanced: purpose.isAdvanced,
             cards,
         });
@@ -726,7 +825,7 @@ export function buildGuidedBuildSummary(selection, review) {
         });
     }
     if (review.secondPassiveRow) {
-        const purpose = plainLanguagePassive2(selection.secondPassiveTemplateId);
+        const purpose = plainLanguagePassive2(selection.secondPassiveTemplateId).replace(/\.+$/, '');
         slots.push({
             role: 'Second Passive',
             text: `${review.secondPassiveRow.playerName} adds ${purpose}. This gives your build more staying power or pressure.`,
@@ -774,5 +873,38 @@ export function assembleGuidedOffensePicks(selection) {
     if (core && special)
         return [core, special];
     return selection.offenseActivePicks;
+}
+function pickMatchesGuidedCore(pick, core) {
+    return pick.templateId === core.templateId
+        && (pick.special ?? null) === (core.special ?? null);
+}
+/**
+ * Guided Core Attack is always slot 0 (Weapon / Spell Single).
+ * Repair swaps from the legacy offense picker or a bad restart so Special
+ * Focus never permanently occupies the locked Core slot.
+ */
+export function normalizeGuidedOffensePicks(selection) {
+    const picks = selection.offenseActivePicks;
+    const delivery = selection.guidedAttackDelivery;
+    if (!picks?.length || !delivery || isManualBuildMode(selection))
+        return picks;
+    const resolved = resolveGuidedCoreAttackPick(delivery);
+    if (!resolved)
+        return picks;
+    const corePick = resolved.pick;
+    if (picks.length === 1) {
+        return pickMatchesGuidedCore(picks[0], corePick) ? picks : [corePick];
+    }
+    if (pickMatchesGuidedCore(picks[0], corePick)) {
+        return [picks[0], picks[1]];
+    }
+    if (pickMatchesGuidedCore(picks[1], corePick)) {
+        return [picks[1], picks[0]];
+    }
+    const special = picks.find((p) => !pickMatchesGuidedCore(p, corePick)) ?? picks[1];
+    return [corePick, special];
+}
+function isManualBuildMode(selection) {
+    return selection.manualBuildMode === true;
 }
 //# sourceMappingURL=tower-wizard-guided.js.map

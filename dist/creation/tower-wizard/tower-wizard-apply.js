@@ -24,7 +24,7 @@ export async function applyTowerWizardPackage(actor, selection, options) {
         ? buildManualPackageReview(selection)
         : buildPackageReview(selection);
     if (!review.allOk) {
-        ui.notifications?.error('Cannot apply package — catalog entries missing.');
+        ui.notifications?.error('Cannot apply package: catalog entries missing.');
         return false;
     }
     const inCreation = isCreationMode(actor);
@@ -47,7 +47,7 @@ export async function applyTowerWizardPackage(actor, selection, options) {
         ? buildPackageGrantSpecsFromOverrides(selection)
         : buildPackageGrantSpecs(selection);
     if (!specs) {
-        ui.notifications?.error('Cannot apply package — incomplete selection.');
+        ui.notifications?.error('Cannot apply package: incomplete selection.');
         return false;
     }
     /* PG "Starting Powers": MR 1 campaigns start with 1 Passive instead of 2. */
@@ -86,7 +86,7 @@ export async function applyTowerWizardPackage(actor, selection, options) {
             kind: 'adjust',
             category: 'power',
             amount: refundXp,
-            note: 'Combat Package Wizard rebuild — Power upgrade refund',
+            note: 'Combat Package Wizard rebuild: Power upgrade refund',
             before: {
                 available: xpState.available,
                 totalEarned: xpState.totalEarned,
@@ -103,7 +103,7 @@ export async function applyTowerWizardPackage(actor, selection, options) {
     await actor.update(updateData);
     const granted = await grantPowerSpecs(actor, specs);
     if (granted !== expectedTotal) {
-        ui.notifications?.warn(`Applied ${granted} of ${expectedTotal} Powers — check the character sheet.`);
+        ui.notifications?.warn(`Applied ${granted} of ${expectedTotal} Powers: check the character sheet.`);
     }
     else if (refundXp > 0) {
         ui.notifications?.info(`Combat package applied. ${refundXp} XP refunded.`);

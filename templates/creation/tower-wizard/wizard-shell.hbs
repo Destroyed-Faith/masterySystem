@@ -29,7 +29,7 @@
       <h4 class="tower-wizard-passive-group-label">{{this.intentLabel}}</h4>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
         {{#each this.passives}}
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive1{{#if (eq ../../selection.passive1TemplateId this.id)}} is-selected{{/if}}{{#if this.recommended}} is-recommended{{/if}}" data-passive-id="{{this.id}}" title="{{this.powerName}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive1{{#if (eq ../../selection.passive1TemplateId this.id)}} is-selected{{/if}}{{#if this.recommended}} is-recommended{{/if}}" data-passive-id="{{this.id}}" title="{{this.hint}}" data-tooltip="{{this.hint}}">
           <span class="chip-label">{{this.label}}</span>
           {{#if this.recommended}}<span class="tower-wizard-chip tower-wizard-chip-compact">{{../../copy.defensePassiveVariant.recommended}}</span>{{/if}}
           <span class="tower-wizard-tile-tip">
@@ -66,7 +66,7 @@
       <h4 class="tower-wizard-passive-group-label">{{this.intentLabel}}</h4>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
         {{#each this.passives}}
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive2{{#if (eq ../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}" title="{{this.powerName}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive2{{#if (eq ../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}" title="{{this.hint}}" data-tooltip="{{this.hint}}">
           <span class="chip-label">{{this.label}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{this.hint}}</span>
@@ -86,29 +86,29 @@
       {{#if echoContext.artifactActiveBuffs.length}}
       <ul class="tower-wizard-warnings">
         {{#each echoContext.artifactActiveBuffs}}
-        <li>{{this.artifactName}} already grants <strong>{{this.displayName}}</strong> — only one maintained Active Buff at a time.</li>
+        <li>{{this.artifactName}} already grants <strong>{{this.displayName}}</strong>: only one maintained Active Buff at a time.</li>
         {{/each}}
       </ul>
       {{/if}}
       <h4 class="tower-wizard-passive-group-label">{{copy.activeBuffChoice.defaultHeading}}</h4>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'defensive')}} is-selected{{/if}}" data-buff-mode="defensive" title="{{copy.activeBuffChoice.defensiveTitle}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'defensive')}} is-selected{{/if}}" data-buff-mode="defensive" title="{{copy.activeBuffChoice.defensiveBody}}" data-tooltip="{{copy.activeBuffChoice.defensiveBody}}">
           <span class="chip-label">{{copy.activeBuffChoice.defensiveTitle}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{copy.activeBuffChoice.defensiveBody}}</span>
             {{#if defensiveActiveBuffChoiceBody}}<span class="tower-wizard-card-meta">{{defensiveActiveBuffChoiceBody}}</span>{{/if}}
             {{#if defaultActiveBuffPreview}}
-            <span class="tower-wizard-card-meta">{{defaultActiveBuffPreview.name}} — {{defaultActiveBuffPreview.rankPreview}}</span>
+            <span class="tower-wizard-card-meta">{{defaultActiveBuffPreview.name}}: {{defaultActiveBuffPreview.rankPreview}}</span>
             {{/if}}
           </span>
         </button>
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'offensive')}} is-selected{{/if}}" data-buff-mode="offensive" title="{{copy.activeBuffChoice.offensiveTitle}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'offensive')}} is-selected{{/if}}" data-buff-mode="offensive" title="{{copy.activeBuffChoice.offensiveBody}}" data-tooltip="{{copy.activeBuffChoice.offensiveBody}}">
           <span class="chip-label">{{copy.activeBuffChoice.offensiveTitle}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{copy.activeBuffChoice.offensiveBody}}</span>
           </span>
         </button>
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'support')}} is-selected{{/if}}" data-buff-mode="support" title="{{copy.activeBuffChoice.supportTitle}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-active-buff-mode{{#if (eq selection.activeBuffMode 'support')}} is-selected{{/if}}" data-buff-mode="support" title="{{copy.activeBuffChoice.supportBody}}" data-tooltip="{{copy.activeBuffChoice.supportBody}}">
           <span class="chip-label">{{copy.activeBuffChoice.supportTitle}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{copy.activeBuffChoice.supportBody}}</span>
@@ -130,7 +130,7 @@
       <h4 class="tower-wizard-passive-group-label">{{this.groupLabel}}</h4>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
         {{#each this.buffs}}
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-offensive-buff{{#if (eq ../../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}" title="{{this.label}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-offensive-buff{{#if (eq ../../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}" title="{{this.explanation}}" data-tooltip="{{this.explanation}}">
           <span class="chip-label">{{this.label}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{this.explanation}}</span>
@@ -146,7 +146,7 @@
       <h4 class="tower-wizard-passive-group-label">{{this.groupLabel}}</h4>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
         {{#each this.buffs}}
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-offensive-buff{{#if (eq ../../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}" title="{{this.label}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-offensive-buff{{#if (eq ../../selection.offensiveActiveBuffId this.id)}} is-selected{{/if}}" data-buff-id="{{this.id}}" title="{{this.explanation}}" data-tooltip="{{this.explanation}}">
           <span class="chip-label">{{this.label}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{this.explanation}}</span>
@@ -169,7 +169,7 @@
       <p class="tower-wizard-prose">{{copy.offenseDelivery.body}}</p>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
         {{#each guidedDeliveryOptions}}
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-delivery{{#if (eq ../selection.guidedAttackDelivery this.id)}} is-selected{{/if}}" data-delivery-mode="{{this.id}}" title="{{this.label}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-delivery{{#if (eq ../selection.guidedAttackDelivery this.id)}} is-selected{{/if}}" data-delivery-mode="{{this.id}}" title="{{this.explanation}}" data-tooltip="{{this.explanation}}">
           <span class="chip-label">{{this.label}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{this.explanation}}</span>
@@ -190,7 +190,7 @@
         <p class="tower-wizard-prose tower-wizard-intent-hint">{{this.explanation}}</p>
         <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
           {{#each this.cards}}
-          <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-special-focus{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.playerTitle}}">
+          <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-special-focus{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.explanation}}" data-tooltip="{{this.explanation}}">
             <span class="chip-label">{{this.playerTitle}}</span>
             <span class="tower-wizard-tile-tip">
               <span class="tower-wizard-tile-tip-body">{{this.explanation}}</span>
@@ -231,7 +231,7 @@
             </div>
             <div class="tower-wizard-offense-variants">
               {{#each this.variants}}
-              <button type="button" class="tower-wizard-offense-variant js-tw-select-offense-variant{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.deliveryLabel}} — {{../label}}">
+              <button type="button" class="tower-wizard-offense-variant js-tw-select-offense-variant{{#if this.isSelected}} is-selected{{/if}}" data-pick-id="{{this.pickId}}" data-template-id="{{this.templateId}}" data-special="{{this.special}}" title="{{this.deliveryLabel}}: {{../label}}">
                 {{this.deliveryLabel}}
               </button>
               {{/each}}
@@ -298,7 +298,7 @@
           <select class="js-tw-spec-suggestion" name="ms-tw-spec-suggestion-{{this.index}}" form="ms-ui-only">
             <option value="">Custom name</option>
             {{#each ../professionSuggestions}}
-            <option value="{{this.name}}" data-category="{{this.category}}" data-scope="{{this.scope}}">{{this.category}} — {{this.name}}</option>
+            <option value="{{this.name}}" data-category="{{this.category}}" data-scope="{{this.scope}}">{{this.category}}: {{this.name}}</option>
             {{/each}}
           </select>
         </label>
@@ -347,7 +347,7 @@
         <li>
           {{#if (eq this.kind 'passive1-variant')}}{{../copy.review.passive1VariantChanged}}{{/if}}
           {{#if (eq this.kind 'active-buff-replaced')}}{{../copy.review.activeBuffReplaced}}{{/if}}
-          — {{../copy.review.recommendedLabel}}: {{this.recommended}}; {{../copy.review.currentLabel}}: {{this.current}}
+          {{../copy.review.recommendedLabel}}: {{this.recommended}}; {{../copy.review.currentLabel}}: {{this.current}}
         </li>
         {{/each}}
       </ul>
@@ -501,7 +501,7 @@
       {{/if}}
 
       {{#unless review.allOk}}
-      <p class="tower-wizard-warn">Some catalog entries are missing — cannot apply yet.</p>
+      <p class="tower-wizard-warn">Some catalog entries are missing: cannot apply yet.</p>
       {{/unless}}
     </section>
     {{/if}}

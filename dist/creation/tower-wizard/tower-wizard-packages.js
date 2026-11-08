@@ -5,7 +5,7 @@ import { getEffectById } from '../../utils/special-effects.js';
 import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, echoRequirementMet, findCatalogEntry, getAllCatalogEntries, isSelectableActiveBuffTemplateId, isCanonicalPassiveTemplateId, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
 import { formatPassiveCategoryList, isAllowedFirstPassive, } from './tower-wizard-passive-categories.js';
 import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
-import { buildGuidedBuildSummary, getGuidedFirstPassiveIntentGroups, getGuidedPassiveSelectionGroups, getGuidedSecondPassiveIntentGroups, } from './tower-wizard-guided.js';
+import { buildGuidedBuildSummary, getGuidedFirstPassiveIntentGroups, getGuidedPassiveSelectionGroups, getGuidedSecondPassiveIntentGroups, wizardPlayerText, } from './tower-wizard-guided.js';
 export { getGuidedFirstPassiveIntentGroups, getGuidedPassiveSelectionGroups, getGuidedSecondPassiveIntentGroups, };
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
 const OFF_RANK = TOWER_WIZARD_OFFENSIVE_RANK;
@@ -354,10 +354,10 @@ function offensePatternLabel(entry) {
 }
 function offenseSpecialGroupTooltip(groupKey, specialKey) {
     if (groupKey === OFFENSE_GROUP_NORMAL) {
-        return 'Pure weapon attacks with no Special on hit — Single, Split, and AoE modes.';
+        return 'Pure weapon attacks with no Special on hit: Single, Split, and AoE modes.';
     }
     if (groupKey === OFFENSE_GROUP_CONTROL) {
-        return 'Positioning, disables, and hard control — push, pull, prone, disarm, stun, and similar effects.';
+        return 'Positioning, disables, and hard control: push, pull, prone, disarm, stun, and similar effects.';
     }
     if (groupKey === OFFENSE_GROUP_HEAL) {
         return 'Single Target Heal restores HP; Scarred Bar Restoration reopens Scarred bars; Cleanse removes afflictions.';
@@ -534,7 +534,7 @@ export function catalogMechanicsText(entry, rank) {
         .filter(Boolean)
         .join(', ');
     if (sp)
-        text = text ? `${text} — ${sp}` : sp;
+        text = text ? `${text}; ${sp}` : sp;
     return text;
 }
 /**
@@ -639,12 +639,12 @@ const OFFENSIVE_ACTIVE_BUFF_META = {
     'ab-damage': {
         groupLabel: 'Raw damage',
         label: 'Active Buff: Damage',
-        explanation: 'The simplest offensive buff — your weapon and power hits deal extra damage every time they land.',
+        explanation: 'The simplest offensive buff: your weapon and power hits deal extra damage every time they land.',
     },
     'ab-critical': {
         groupLabel: 'Critical hits',
         label: 'Active Buff: Critical',
-        explanation: 'Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.',
+        explanation: 'Your maintained offensive buff grants Critical(1-4) at milestone ranks. No bonus damage, penetration, or other filler: Critical only.',
     },
     'ab-maximization': {
         groupLabel: 'Critical hits',
@@ -664,7 +664,7 @@ const OFFENSIVE_ACTIVE_BUFF_META = {
     'ab-allied-damage-aura': {
         groupLabel: 'Auras',
         label: 'Active Buff: Allied Damage Aura',
-        explanation: 'Other allied non-Summons in your aura gain bonus damage dice on their attacks — not you or Summons.',
+        explanation: 'Other allied non-Summons in your aura gain bonus damage dice on their attacks (not you or Summons).',
     },
     'ab-armor-reduction-aura': {
         groupLabel: 'Auras',
@@ -684,7 +684,7 @@ const OFFENSIVE_ACTIVE_BUFF_META = {
     'ab-enemy-evade-reduction': {
         groupLabel: 'Defense piercing',
         label: 'Active Buff: Enemy Evade Reduction',
-        explanation: 'Your Martial Attack Rolls treat each target\'s Evade as lower — does not change stored Evade or Spell TN.',
+        explanation: 'Your Martial Attack Rolls treat each target\'s Evade as lower. Does not change stored Evade or Spell TN.',
     },
     'ab-spell-resistance-piercing': {
         groupLabel: 'Defense piercing',
@@ -758,10 +758,10 @@ export function getOffensiveActiveBuffOptions() {
         const meta = OFFENSIVE_ACTIVE_BUFF_META[id];
         return {
             id,
-            label: activeBuffWizardChoiceLabel(meta.label),
-            explanation: meta.explanation,
-            groupLabel: meta.groupLabel,
-            rankPreview: activeBuffEffectAtRank(id, DEF_RANK),
+            label: wizardPlayerText(activeBuffWizardChoiceLabel(meta.label)),
+            explanation: wizardPlayerText(meta.explanation),
+            groupLabel: wizardPlayerText(meta.groupLabel),
+            rankPreview: wizardPlayerText(activeBuffEffectAtRank(id, DEF_RANK)),
             durationNote: ACTIVE_BUFF_DURATION_NOTE,
         };
     });
@@ -842,17 +842,17 @@ const SUPPORT_BUFF_META = {
     'ab-intensified-absorption': {
         groupLabel: 'Specialty',
         label: 'Active Buff: Absorption Stone Increase',
-        explanation: 'Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.',
+        explanation: 'Requires Absorption Passive: extra Temporary Colorless Stones on the first trigger each Round.',
     },
     'ab-reinforced-parry': {
         groupLabel: 'Specialty',
         label: 'Active Buff: Parry Recovery',
-        explanation: 'Requires Parry Passive — regain spent Parry up to a per-round cap.',
+        explanation: 'Requires Parry Passive: regain spent Parry up to a per-round cap.',
     },
     'ab-reinforced-damage-negation': {
         groupLabel: 'Specialty',
         label: 'Active Buff: Damage Negation Pool',
-        explanation: 'Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.',
+        explanation: 'Requires slotted Damage Negation Passive: temporary DN pool refreshed each Preparation.',
     },
 };
 export function getSupportActiveBuffOptions(defenseId) {
@@ -866,10 +866,10 @@ export function getSupportActiveBuffOptions(defenseId) {
         const meta = SUPPORT_BUFF_META[id];
         return {
             id,
-            label: activeBuffWizardChoiceLabel(meta.label),
-            explanation: meta.explanation,
-            groupLabel: meta.groupLabel,
-            rankPreview: activeBuffEffectAtRank(id, DEF_RANK),
+            label: wizardPlayerText(activeBuffWizardChoiceLabel(meta.label)),
+            explanation: wizardPlayerText(meta.explanation),
+            groupLabel: wizardPlayerText(meta.groupLabel),
+            rankPreview: wizardPlayerText(activeBuffEffectAtRank(id, DEF_RANK)),
             durationNote: ACTIVE_BUFF_DURATION_NOTE,
         };
     });
@@ -1279,6 +1279,27 @@ export function getVisibleWizardSteps(selection) {
         return true;
     });
 }
+/**
+ * Progress denominator for Guided mode. Always counts the optional Active Buff
+ * replacement step so "Step X of Y" does not jump from 5 to 6 after the buff choice.
+ * Navigation still skips that step when the mode stays defensive.
+ */
+export function getWizardProgressSteps(selection) {
+    if (isManualBuildMode(selection)) {
+        return ['review'];
+    }
+    return WIZARD_STEP_ORDER.filter((step) => {
+        if (isIdentityWizardStep(step))
+            return false;
+        if (step === 'offense' && !isManualBuildMode(selection))
+            return false;
+        if (step === 'weakenSave' && !packageNeedsWeakenSaveStep(selection))
+            return false;
+        if (step === 'delivery' && !packageNeedsDeliveryStep(selection))
+            return false;
+        return true;
+    });
+}
 function offensePackages() {
     return [
         {
@@ -1340,7 +1361,7 @@ function offensePackages() {
             id: 'weaken-save',
             label: 'I want to cut enemy dice pools (Weaken).',
             explanation: 'Weaken removes dice from Might / Agility / Intellect pools. Pair it with follow-up attacks that use those Attributes.',
-            warning: 'Weaken does not reduce Attributes, Keep, or Damage Pools — only rolled pools.',
+            warning: 'Weaken does not reduce Attributes, Keep, or Damage Pools: only rolled pools.',
             catalogAvailable: false,
             resolveGrants: ({ delivery }) => [
                 dmg(delivery, 6, 'weaken'),
@@ -1895,5 +1916,5 @@ export function packageNeedsDeliveryStep(selection) {
 export function packageNeedsWeakenSaveStep(_selection) {
     return false;
 }
-export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
+export { GUIDED_DELIVERY_OPTIONS, getGuidedSpecialFocusGroups, normalizeGuidedOffensePicks, resolveGuidedCoreAttackPick, resolveGuidedSpecialPick, getDefensiveActiveBuffChoiceBody, buildGuidedBuildSummary, } from './tower-wizard-guided.js';
 //# sourceMappingURL=tower-wizard-packages.js.map

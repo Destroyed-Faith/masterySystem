@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.849] - 2026-11-08
+
+### Fixed
+
+- **Combat Package Wizard:** restore Passive tile hover tooltips (reparent to body); explain all Passives including Fortitude; strip Gedankenstriche from player-facing wizard copy.
+- **Combat Package Wizard:** Apply no longer hard-blocks without Echo (advisory warning only); repair swapped Core/Special picks; skip legacy free-pick offense step in guided flow; stable Step X of Y progress; restart returns to Passive 1.
+
 ## [0.9.848] - 2026-11-08
 
 ### Fixed

@@ -512,7 +512,7 @@
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
   background: var(--df-bg-primary, #1a1f22);
-  color: inherit;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 0.82rem;
   font-weight: 400;
   line-height: 1.45;
@@ -521,7 +521,7 @@
   pointer-events: auto;
 }
 
-/* Fixed placement (JS) escapes the scroll body's overflow clipping. */
+/* Shown only via JS (.is-open). Reparented to body + fixed so dialog overflow cannot clip. */
 .tower-wizard-tile-tip.is-open {
   display: flex;
   flex-direction: column;
@@ -529,13 +529,6 @@
   position: fixed;
   transform: none;
   z-index: 10000;
-}
-
-.tower-wizard-passive-tile:hover .tower-wizard-tile-tip,
-.tower-wizard-passive-tile:focus-visible .tower-wizard-tile-tip {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 .tower-wizard-card-power {

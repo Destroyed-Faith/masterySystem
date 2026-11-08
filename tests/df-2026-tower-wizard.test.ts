@@ -3,6 +3,8 @@ import {
     WIZARD_IDENTITY_STEPS,
     WIZARD_STEP_ORDER,
     getVisibleWizardSteps,
+    getWizardProgressSteps,
+    normalizeGuidedOffensePicks,
 } from '../src/creation/tower-wizard/tower-wizard-packages.js';
 import {
     TOWER_WIZARD_STARTING_STONES,
@@ -66,6 +68,34 @@ describe('DF 2026 Tower Wizard — step order', () => {
         expect(getVisibleWizardSteps({ activeBuffMode: 'defensive' })).not.toContain('offensiveBuff');
         expect(getVisibleWizardSteps({ activeBuffMode: 'offensive' })).toContain('offensiveBuff');
         expect(getVisibleWizardSteps({ activeBuffMode: 'support' })).toContain('offensiveBuff');
+    });
+
+    it('progress steps keep a stable total including the optional buff replacement slot', () => {
+        const defensive = getWizardProgressSteps({ activeBuffMode: 'defensive' });
+        const support = getWizardProgressSteps({ activeBuffMode: 'support' });
+        expect(defensive).toContain('offensiveBuff');
+        expect(defensive.length).toBe(support.length);
+        expect(defensive[0]).toBe('passive1');
+        expect(defensive[defensive.length - 1]).toBe('review');
+    });
+
+    it('repairs swapped guided Core / Special picks', () => {
+        const core = {
+            pickId: 'active:active-melee-weapon-single',
+            templateId: 'active-melee-weapon-single',
+            special: null as string | null,
+        };
+        const sundered = {
+            pickId: 'active:active-melee-damage-t4:sundered',
+            templateId: 'active-melee-damage-t4',
+            special: 'sundered',
+        };
+        const repaired = normalizeGuidedOffensePicks({
+            guidedAttackDelivery: 'martial',
+            offenseActivePicks: [sundered, core],
+        });
+        expect(repaired?.[0]?.templateId).toBe('active-melee-weapon-single');
+        expect(repaired?.[1]?.special).toBe('sundered');
     });
 });
 

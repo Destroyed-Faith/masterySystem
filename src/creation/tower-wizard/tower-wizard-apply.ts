@@ -39,7 +39,7 @@ export async function applyTowerWizardPackage(
         ? buildManualPackageReview(selection)
         : buildPackageReview(selection);
     if (!review.allOk) {
-        ui.notifications?.error('Cannot apply package — catalog entries missing.');
+        ui.notifications?.error('Cannot apply package: catalog entries missing.');
         return false;
     }
 
@@ -66,7 +66,7 @@ export async function applyTowerWizardPackage(
         ? buildPackageGrantSpecsFromOverrides(selection)
         : buildPackageGrantSpecs(selection);
     if (!specs) {
-        ui.notifications?.error('Cannot apply package — incomplete selection.');
+        ui.notifications?.error('Cannot apply package: incomplete selection.');
         return false;
     }
 
@@ -109,7 +109,7 @@ export async function applyTowerWizardPackage(
             kind: 'adjust',
             category: 'power',
             amount: refundXp,
-            note: 'Combat Package Wizard rebuild — Power upgrade refund',
+            note: 'Combat Package Wizard rebuild: Power upgrade refund',
             before: {
                 available: xpState.available,
                 totalEarned: xpState.totalEarned,
@@ -128,7 +128,7 @@ export async function applyTowerWizardPackage(
 
     const granted = await grantPowerSpecs(actor, specs);
     if (granted !== expectedTotal) {
-        ui.notifications?.warn(`Applied ${granted} of ${expectedTotal} Powers — check the character sheet.`);
+        ui.notifications?.warn(`Applied ${granted} of ${expectedTotal} Powers: check the character sheet.`);
     } else if (refundXp > 0) {
         ui.notifications?.info(`Combat package applied. ${refundXp} XP refunded.`);
     } else {

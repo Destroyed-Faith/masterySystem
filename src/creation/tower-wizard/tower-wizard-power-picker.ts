@@ -81,7 +81,7 @@ function renderActiveGroupsHtml(options: {
                         .map((v) => {
                             const sel = v.isSelected ? ' is-selected' : '';
                             const mech = v.mechanics ? `\n\n${v.mechanics}` : '';
-                            const title = `${v.deliveryLabel} — ${pattern.label}${mech}`;
+                            const title = `${v.deliveryLabel}: ${pattern.label}${mech}`;
                             return `<button type="button" class="tower-wizard-offense-variant js-tw-picker-variant${sel}" data-template-id="${escapeHtml(v.templateId)}" data-special="${dataSpecialAttr(v.special)}" title="${escapeHtml(title)}">${escapeHtml(v.deliveryLabel)}</button>`;
                         })
                         .join('');

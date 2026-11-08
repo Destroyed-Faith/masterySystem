@@ -4,7 +4,7 @@
 import { PROFESSION_CATALOGUE, PROFESSION_CATALOGUE_CATEGORIES } from '../../rules/profession-catalogue.js';
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY, localizedTowerWizardCopy } from './tower-wizard-copy.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, deriveDefenseIdFromPassive1, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getFirstPassiveIntentGroups, getSecondPassiveIntentGroups, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isIdentityWizardStep, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, deriveDefenseIdFromPassive1, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getFirstPassiveIntentGroups, getSecondPassiveIntentGroups, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, getWizardProgressSteps, initializeOffenseOverrides, isIdentityWizardStep, isManualBuildMode, normalizeGuidedOffensePicks, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
 import { isAllowedSecondPassive } from './tower-wizard-passive-categories.js';
 import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
 import { findCatalogEntry } from '../../utils/power-catalog.js';
@@ -65,6 +65,10 @@ export class TowerWizardDialog extends BaseDialog {
     static PARTS = {
         content: { template: 'systems/mastery-system/templates/creation/tower-wizard/wizard-shell.hbs' },
     };
+    async close(options = {}) {
+        document.querySelectorAll('body > .tower-wizard-tile-tip').forEach((el) => el.remove());
+        return super.close(options);
+    }
     constructor(actor, options = {}) {
         super(foundry.utils.mergeObject(TowerWizardDialog.DEFAULT_OPTIONS, options));
         this.actor = actor;
@@ -183,9 +187,11 @@ export class TowerWizardDialog extends BaseDialog {
     async _prepareContext(_options) {
         this.#syncEchoFromActor();
         const identityCtx = this.#identityCtx();
+        this.#normalizeGuidedOffenseSelection();
         const visibleSteps = getVisibleWizardSteps(this.selection);
+        const progressSteps = getWizardProgressSteps(this.selection);
         const firstStep = visibleSteps[0];
-        const stepIndex = Math.max(1, visibleSteps.indexOf(this.step) + 1);
+        const stepIndex = Math.max(1, progressSteps.indexOf(this.step) + 1);
         const copy = localizedTowerWizardCopy();
         const echoSys = this.actor.system;
         const echoKey = echoSys?.echo?.key ?? null;
@@ -238,7 +244,10 @@ export class TowerWizardDialog extends BaseDialog {
         const warnings = fullSelection
             ? collectRelevantWarnings(fullSelection, echoContext)
             : collectEchoAdvisorWarnings(this.selection, echoContext);
-        const echoRequiredError = validateEchoRequiredForTowerWizard(echoContext);
+        // Combat Package Wizard skips identity: Echo is advisory (banner/warnings), not an Apply gate.
+        const echoRequiredError = this.selection.skipIdentitySteps
+            ? null
+            : validateEchoRequiredForTowerWizard(echoContext);
         const validationError = echoRequiredError
             || (manualMode || fullSelection
                 ? validateTowerWizardSelection(this.selection, identityCtx)
@@ -263,7 +272,7 @@ export class TowerWizardDialog extends BaseDialog {
             ? computeBuildRoleRating(review.reviewPowerRows)
             : null;
         return {
-            progressLabel: copy.progress(stepIndex, visibleSteps.length),
+            progressLabel: copy.progress(stepIndex, progressSteps.length),
             copy,
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
@@ -296,9 +305,9 @@ export class TowerWizardDialog extends BaseDialog {
             isEchoImprints: this.step === 'echoImprints',
             isSpecializations: this.step === 'specializations',
             isIdentityStep: isIdentityWizardStep(this.step),
-            canApply: echoContext.hasEcho && (manualMode
+            canApply: manualMode
                 ? review.allOk && !validationError
-                : !!fullSelection && review.allOk && !validationError),
+                : !!fullSelection && review.allOk && !validationError,
             manualBuildMode: manualMode,
             echoContext,
             echoAdvisorSummary: buildEchoAdvisorSummary(echoContext),
@@ -331,7 +340,24 @@ export class TowerWizardDialog extends BaseDialog {
             canAdvance: this.#canAdvance(),
         };
     }
+    #normalizeGuidedOffenseSelection() {
+        if (isManualBuildMode(this.selection) || !this.selection.guidedAttackDelivery)
+            return;
+        const normalized = normalizeGuidedOffensePicks(this.selection);
+        if (!normalized)
+            return;
+        const prev = this.selection.offenseActivePicks ?? [];
+        const changed = prev.length !== normalized.length
+            || prev.some((p, i) => p.pickId !== normalized[i]?.pickId
+                || p.templateId !== normalized[i]?.templateId
+                || (p.special ?? null) !== (normalized[i]?.special ?? null));
+        if (changed) {
+            this.selection.offenseActivePicks = normalized;
+            this.#removePowerOverride('offense-0');
+        }
+    }
     #syncGuidedOffenseOverrides() {
+        this.#normalizeGuidedOffenseSelection();
         if (!this.selection.guidedAttackDelivery)
             return;
         const core = resolveGuidedCoreAttackPick(this.selection.guidedAttackDelivery);
@@ -397,31 +423,30 @@ export class TowerWizardDialog extends BaseDialog {
                 return false;
         }
     }
+    #shouldSkipStep(step) {
+        if (!step)
+            return false;
+        if (isIdentityWizardStep(step) && this.selection.skipIdentitySteps)
+            return true;
+        if (step === 'offensiveBuff' && !packageNeedsReplacementBuffStep(this.selection))
+            return true;
+        // Guided flow uses offenseSpecial only; never land on the legacy free-pick offense step.
+        if (step === 'offense' && !isManualBuildMode(this.selection))
+            return true;
+        if (step === 'weakenSave' && !packageNeedsWeakenSaveStep(this.selection))
+            return true;
+        if (step === 'delivery' && !packageNeedsDeliveryStep(this.selection))
+            return true;
+        return false;
+    }
     #nextStep(from) {
         if (isManualBuildMode(this.selection)) {
             const visible = getVisibleWizardSteps(this.selection);
             return visible[visible.indexOf(from) + 1] ?? 'review';
         }
-        const idx = STEP_ORDER.indexOf(from);
-        let next = STEP_ORDER[idx + 1];
-        while (next) {
-            if (isIdentityWizardStep(next) && this.selection.skipIdentitySteps) {
-                next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
-                continue;
-            }
-            if (next === 'offensiveBuff' && !packageNeedsReplacementBuffStep(this.selection)) {
-                next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
-                continue;
-            }
-            if (next === 'weakenSave' && !packageNeedsWeakenSaveStep(this.selection)) {
-                next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
-                continue;
-            }
-            if (next === 'delivery' && !packageNeedsDeliveryStep(this.selection)) {
-                next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
-                continue;
-            }
-            break;
+        let next = STEP_ORDER[STEP_ORDER.indexOf(from) + 1];
+        while (next && this.#shouldSkipStep(next)) {
+            next = STEP_ORDER[STEP_ORDER.indexOf(next) + 1];
         }
         return next ?? 'review';
     }
@@ -430,26 +455,9 @@ export class TowerWizardDialog extends BaseDialog {
             const visible = getVisibleWizardSteps(this.selection);
             return visible[Math.max(0, visible.indexOf(from) - 1)] ?? 'review';
         }
-        const idx = STEP_ORDER.indexOf(from);
-        let prev = STEP_ORDER[idx - 1];
-        while (prev) {
-            if (isIdentityWizardStep(prev) && this.selection.skipIdentitySteps) {
-                prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
-                continue;
-            }
-            if (prev === 'offensiveBuff' && !packageNeedsReplacementBuffStep(this.selection)) {
-                prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
-                continue;
-            }
-            if (prev === 'delivery' && !packageNeedsDeliveryStep(this.selection)) {
-                prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
-                continue;
-            }
-            if (prev === 'weakenSave' && !packageNeedsWeakenSaveStep(this.selection)) {
-                prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
-                continue;
-            }
-            break;
+        let prev = STEP_ORDER[STEP_ORDER.indexOf(from) - 1];
+        while (prev && this.#shouldSkipStep(prev)) {
+            prev = STEP_ORDER[STEP_ORDER.indexOf(prev) - 1];
         }
         return prev ?? getVisibleWizardSteps(this.selection)[0] ?? 'passive1';
     }
@@ -595,15 +603,26 @@ export class TowerWizardDialog extends BaseDialog {
     async _onRender(context, options) {
         await super._onRender(context, options);
         const root = $(this.element);
-        // Tile hover tips: fixed position so `.tower-wizard-body` overflow does not clip them.
+        // Tile hover tips: reparent to document.body + fixed position so Foundry/
+        // dialog overflow and transforms cannot clip them.
         let tipHideTimer = null;
+        const tipHomes = new WeakMap();
+        const activeTips = new Set();
         const placeTileTip = (tile) => {
-            const tip = tile.querySelector('.tower-wizard-tile-tip');
+            const tip = tile.querySelector('.tower-wizard-tile-tip')
+                ?? [...activeTips].find((t) => tipHomes.get(t) === tile)
+                ?? null;
             if (!tip)
                 return;
             if (tipHideTimer) {
                 clearTimeout(tipHideTimer);
                 tipHideTimer = null;
+            }
+            if (!tipHomes.has(tip))
+                tipHomes.set(tip, tile);
+            if (tip.parentElement !== document.body) {
+                document.body.appendChild(tip);
+                activeTips.add(tip);
             }
             tip.classList.add('is-open');
             const rect = tile.getBoundingClientRect();
@@ -621,20 +640,34 @@ export class TowerWizardDialog extends BaseDialog {
             tip.style.top = `${Math.max(8, top)}px`;
             tip.style.left = `${left}px`;
             tip.style.bottom = 'auto';
+            tip.style.right = 'auto';
+        };
+        const restoreTipHome = (tip) => {
+            tip.classList.remove('is-open');
+            tip.style.top = '';
+            tip.style.left = '';
+            tip.style.right = '';
+            tip.style.bottom = '';
+            tip.style.width = '';
+            tip.style.maxHeight = '';
+            const home = tipHomes.get(tip);
+            if (home && tip.parentElement === document.body) {
+                home.appendChild(tip);
+            }
+            activeTips.delete(tip);
         };
         const hideTileTip = (tile) => {
-            const tip = tile.querySelector('.tower-wizard-tile-tip');
+            const tip = tile.querySelector('.tower-wizard-tile-tip')
+                ?? [...activeTips].find((t) => tipHomes.get(t) === tile)
+                ?? null;
             if (!tip)
                 return;
-            tipHideTimer = setTimeout(() => {
-                tip.classList.remove('is-open');
-                tip.style.top = '';
-                tip.style.left = '';
-                tip.style.bottom = '';
-                tip.style.width = '';
-                tip.style.maxHeight = '';
-            }, 120);
+            tipHideTimer = setTimeout(() => restoreTipHome(tip), 120);
         };
+        // Drop orphaned tips from a previous render before this one attaches.
+        document.querySelectorAll('body > .tower-wizard-tile-tip.is-open').forEach((el) => {
+            el.remove();
+        });
         root.find('.tower-wizard-passive-tile').each((_i, el) => {
             const tile = el;
             tile.addEventListener('mouseenter', () => placeTileTip(tile));
@@ -1012,10 +1045,19 @@ export class TowerWizardDialog extends BaseDialog {
                 this.step = 'review';
             }
             else {
-                this.step = 'offense';
+                // Guided: never bounce onto the legacy free-pick offense step (that
+                // can put Special Focus into the locked Core Attack slot).
                 this.selection.offenseId = undefined;
                 this.selection.offenseActivePicks = undefined;
+                this.selection.guidedAttackDelivery = undefined;
                 this.selection.offenseActiveOverrides = undefined;
+                this.selection.passive1TemplateId = undefined;
+                this.selection.secondPassiveTemplateId = undefined;
+                this.selection.defenseId = undefined;
+                this.selection.activeBuffMode = 'defensive';
+                this.selection.offensiveActiveBuffId = undefined;
+                this.selection.customizedSlots = undefined;
+                this.step = 'passive1';
             }
             this.#clearPowerOverrides();
             this.render();

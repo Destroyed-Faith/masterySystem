@@ -204,7 +204,7 @@ export function buildEchoAdvisorSummary(ctx) {
         return null;
     if (ctx.artifactActiveBuffs.length === 0) {
         return ctx.artifactKeys.length > 0
-            ? `Echo: ${ctx.echoLabel}. Your Echo Artifacts do not grant a maintained Active Buff line — any defensive package works.`
+            ? `Echo: ${ctx.echoLabel}. Your Echo Artifacts do not grant a maintained Active Buff line: any defensive package works.`
             : `Echo: ${ctx.echoLabel}. No Echo Artifacts selected yet.`;
     }
     const buffList = ctx.artifactActiveBuffs

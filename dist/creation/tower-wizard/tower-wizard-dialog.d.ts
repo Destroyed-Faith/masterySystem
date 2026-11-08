@@ -28,6 +28,7 @@ export declare class TowerWizardDialog extends BaseDialog {
             template: string;
         };
     };
+    close(options?: Record<string, unknown>): Promise<this>;
     constructor(actor: Actor, options?: Record<string, unknown>);
     protected _prepareContext(_options: unknown): Promise<Record<string, unknown>>;
     static startManualBuild(actor: Actor): TowerWizardDialog;

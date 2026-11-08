@@ -208,26 +208,26 @@ export function buildReconciliationPreview(selection, changes, ctx = {}) {
     const echoKey = ctx.echoKey ?? selection.echoKey ?? null;
     const sub = ctx.subChoiceKey ?? selection.subChoiceKey ?? null;
     if (changed.has('echo')) {
-        lines.push('Echo changed — Echo-gated Powers and Echo Artifact Buffs may no longer apply.');
+        lines.push('Echo changed: Echo-gated Powers and Echo Artifact Buffs may no longer apply.');
         const p1 = resolvePassive1TemplateId(selection);
         if (p1 && !isValidWizardPassive1(p1, echoKey, sub)) {
-            lines.push('Your first Passive is no longer legal for this Echo — choose it again.');
+            lines.push('Your first Passive is no longer legal for this Echo: choose it again.');
         }
         else if (p1 && selection.secondPassiveTemplateId
             && !isAllowedSecondPassive(selection.secondPassiveTemplateId, p1, echoKey, sub)) {
-            lines.push('Your second Passive is no longer legal for this Echo — choose it again.');
+            lines.push('Your second Passive is no longer legal for this Echo: choose it again.');
         }
     }
     if (changed.has('attributes') || changed.has('stones')) {
-        lines.push('Attributes or Stones changed — re-check spell Casting Attributes and Stone-based Powers.');
+        lines.push('Attributes or Stones changed: re-check spell Casting Attributes and Stone-based Powers.');
     }
     if (changed.has('imprints')) {
-        lines.push('Echo Imprints changed — no Power depends on them, but review the summary.');
+        lines.push('Echo Imprints changed: no Power depends on them, but review the summary.');
     }
     if (changed.has('specializations')) {
-        lines.push('Specializations changed — Powers are unaffected; check Spec-gated tasks on your sheet.');
+        lines.push('Specializations changed: Powers are unaffected; check Spec-gated tasks on your sheet.');
     }
-    lines.push('Later steps were kept — step through them again to confirm before applying.');
+    lines.push('Later steps were kept: step through them again to confirm before applying.');
     return lines;
 }
 //# sourceMappingURL=tower-wizard-identity.js.map
