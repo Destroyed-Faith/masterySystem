@@ -18,7 +18,6 @@ import {
   planProfessionRespec,
   professionIdentityKey,
   readSpecializations,
-  removeSpecialization,
   upsertSpecialization,
   validateSpecializationList,
   type SpecializationRecord,
@@ -63,6 +62,8 @@ export async function showSpecializationEditDialog(
      * Requires the world setting `allowProfessionRespecBeta`.
      */
     betaRespec?: boolean;
+    /** GM post-creation grant: no XP, Rank editable, marked gmGranted. */
+    gmGrant?: boolean;
   } = {},
 ): Promise<boolean> {
   const Dialog: any = (globalThis as any).Dialog;
@@ -99,13 +100,15 @@ export async function showSpecializationEditDialog(
     );
     return false;
   }
-  const learnWithXp = !!opts.learnWithXp && !existing && !betaRespec;
+  const gmGrant = !!opts.gmGrant && !existing && !betaRespec && !!(globalThis as any).game?.user?.isGM;
+  const learnWithXp = !!opts.learnWithXp && !existing && !betaRespec && !gmGrant;
   const gmFreeGrant =
-    !existing &&
-    !betaRespec &&
-    !fixedStartingRank &&
-    !learnWithXp &&
-    !!(globalThis as any).game?.user?.isGM;
+    gmGrant ||
+    (!existing &&
+      !betaRespec &&
+      !fixedStartingRank &&
+      !learnWithXp &&
+      !!(globalThis as any).game?.user?.isGM);
   const allowRankEdit =
     !betaRespec &&
     !fixedStartingRank &&
@@ -206,7 +209,9 @@ export async function showSpecializationEditDialog(
             ? `${masteryLocalize('MASTERY.df2026.specializations.edit', 'Edit Profession')} — ${existing.name}`
             : gmFreeGrant
               ? 'Grant Profession (free)'
-              : masteryLocalize('MASTERY.df2026.specializations.add', 'Add Profession'),
+              : learnWithXp
+                ? 'Learn Profession (4 XP)'
+                : masteryLocalize('MASTERY.df2026.specializations.add', 'Add Profession'),
         content,
         buttons: {
           save: {
@@ -214,7 +219,9 @@ export async function showSpecializationEditDialog(
               ? '<i class="fas fa-exchange-alt"></i> Replace'
               : gmFreeGrant
                 ? '<i class="fas fa-gift"></i> Grant free'
-                : '<i class="fas fa-check"></i> Save',
+                : learnWithXp
+                  ? '<i class="fas fa-check"></i> Learn (4 XP)'
+                  : '<i class="fas fa-check"></i> Save',
             callback: async (html: any) => {
               const root = rootOf(html);
               const name = readValue(root, 'name').trim();
@@ -278,6 +285,7 @@ export async function showSpecializationEditDialog(
                 );
                 return done(false);
               }
+              const priorInvested = Math.max(0, Math.floor(Number(existing?.xpInvested) || 0));
               const record: SpecializationRecord = {
                 id:
                   existing?.id && existing.id.startsWith('profession:')
@@ -290,6 +298,9 @@ export async function showSpecializationEditDialog(
                 ...(category ? { category } : {}),
                 ...(existing?.field ? { field: existing.field } : {}),
                 ...(existing?.startingSlot || fixedStartingRank ? { startingSlot: true } : {}),
+                ...(gmFreeGrant && !existing ? { gmGranted: true, xpInvested: 0 } : {}),
+                ...(existing?.gmGranted && !gmFreeGrant ? { gmGranted: true } : {}),
+                ...(priorInvested > 0 ? { xpInvested: priorInvested } : {}),
               };
               if (!existing) record.id = nextId;
               if (learnWithXp) {
@@ -377,18 +388,36 @@ export async function deleteSpecializationWithConfirm(actor: any, specId: string
     );
     return false;
   }
+  const { inferProfessionXpInvested } = await import('../rules/index.js');
+  const refund = inferProfessionXpInvested(spec);
   const Dialog: any = (globalThis as any).Dialog;
   let confirmed = false;
   if (Dialog?.confirm) {
+    const refundLine =
+      refund > 0
+        ? `<p>Refunds <strong>${refund} XP</strong> invested in this Profession.</p>`
+        : `<p>No invested XP to refund (starting slot or GM grant).</p>`;
     confirmed = !!(await Dialog.confirm({
-      title: masteryLocalize('MASTERY.df2026.specializations.delete', 'Delete Specialization'),
-      content: `<p>Delete <strong>${escapeHtml(spec.name)}</strong> (Rank ${spec.rank})? Spent XP is not refunded.</p>`,
+      title: masteryLocalize('MASTERY.df2026.specializations.delete', 'Delete Profession'),
+      content: `<p>Delete <strong>${escapeHtml(spec.name)}</strong> (Rank ${spec.rank})?</p>${refundLine}`,
     }));
   } else {
     confirmed = true;
   }
   if (!confirmed) return false;
-  await actor.update({ 'system.specializations': removeSpecialization(specs, specId) });
+  const { applySpecializationDeleteWithRefund } = await import(
+    '../progression/progression-hub-actions.js'
+  );
+  const res = await applySpecializationDeleteWithRefund(actor, specId);
+  if (!res.ok) {
+    (globalThis as any).ui?.notifications?.warn?.(res.error ?? 'Could not delete Profession.');
+    return false;
+  }
+  if ((res.refunded ?? 0) > 0) {
+    (globalThis as any).ui?.notifications?.info?.(
+      `Removed ${res.name}; refunded ${res.refunded} XP.`,
+    );
+  }
   return true;
 }
 

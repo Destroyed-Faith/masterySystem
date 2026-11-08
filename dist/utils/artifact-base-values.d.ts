@@ -87,14 +87,14 @@ export type SpellFocusSource = {
     dice: number;
 };
 /**
- * Equipped Spell Focus sources with names — for chat cards so players see
- * which staff/wand contributed, not just a bare "+Nd8".
+ * Spell delivery damage sources for chat cards / damage pools.
+ * Artifacts contribute once via unified Delivery resolution (Spell Focus BV,
+ * or Weapon Damage fallback when the Artifact has no Focus BV). Mundane
+ * weapons with a printed `Spell Focus (+Xd8)` innate remain unchanged.
  */
 export declare function listActorSpellFocusSources(actor: any): SpellFocusSource[];
 /**
- * Total Spell Focus bonus dice (d8) added to Spell damage: equipped
- * weapon-slot artifacts PLUS mundane weapons with a printed
- * `Spell Focus (+Xd8)` innate (Wand / Runestaff, PG weapon table).
+ * Total Spell delivery bonus dice (d8) from Artifacts + mundane Focus weapons.
  */
 export declare function getActorSpellFocusBonusDice(actor: any): number;
 //# sourceMappingURL=artifact-base-values.d.ts.map

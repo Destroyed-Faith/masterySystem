@@ -29,6 +29,7 @@
  * `sense` and `minorFeature` Base Values are exposed as informational
  * `notes` rows on the breakdown but do not modify combat numbers.
  */
+import { listSpellDeliveryDamageSources } from '../combat/artifact-delivery-damage.js';
 import { getArtifactBindingKind } from './artifact-actor-rules.js';
 import { baseValueIsSpellFocus, parseSpellFocusDice } from './artifact-rules.js';
 import { resolveArtifactBodyArmor, } from './artifact-armor-weight.js';
@@ -277,42 +278,16 @@ export function buildArtifactBaseValueBreakdown(actor) {
     return out;
 }
 /**
- * Equipped Spell Focus sources with names — for chat cards so players see
- * which staff/wand contributed, not just a bare "+Nd8".
+ * Spell delivery damage sources for chat cards / damage pools.
+ * Artifacts contribute once via unified Delivery resolution (Spell Focus BV,
+ * or Weapon Damage fallback when the Artifact has no Focus BV). Mundane
+ * weapons with a printed `Spell Focus (+Xd8)` innate remain unchanged.
  */
 export function listActorSpellFocusSources(actor) {
-    const sources = [];
-    const breakdown = buildArtifactBaseValueBreakdown(actor);
-    for (const note of breakdown.rows.notes) {
-        if (note.type !== 'spellFocus')
-            continue;
-        const dice = Math.max(0, Math.floor(Number(note.value) || 0));
-        if (dice <= 0)
-            continue;
-        const name = String(note.source || 'Spell Focus').trim() || 'Spell Focus';
-        sources.push({ name, dice });
-    }
-    const items = actor?.items ? Array.from(actor.items) : [];
-    for (const it of items) {
-        if (it?.type !== 'weapon' || it?.system?.equipped !== true)
-            continue;
-        const innates = Array.isArray(it.system?.innateAbilities) ? it.system.innateAbilities : [];
-        let dice = 0;
-        for (const innate of innates) {
-            const m = String(innate ?? '').match(/spell\s*focus[^\d]*(\d+)\s*d8/i);
-            if (m)
-                dice += Math.max(0, Math.floor(Number(m[1]) || 0));
-        }
-        if (dice > 0) {
-            sources.push({ name: String(it.name || 'Weapon').trim() || 'Weapon', dice });
-        }
-    }
-    return sources;
+    return listSpellDeliveryDamageSources(actor);
 }
 /**
- * Total Spell Focus bonus dice (d8) added to Spell damage: equipped
- * weapon-slot artifacts PLUS mundane weapons with a printed
- * `Spell Focus (+Xd8)` innate (Wand / Runestaff, PG weapon table).
+ * Total Spell delivery bonus dice (d8) from Artifacts + mundane Focus weapons.
  */
 export function getActorSpellFocusBonusDice(actor) {
     return listActorSpellFocusSources(actor).reduce((sum, s) => sum + s.dice, 0);

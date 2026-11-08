@@ -15,19 +15,19 @@
     },
     {
       "file": "src\\combat\\attack-executor.ts",
-      "line": 630,
+      "line": 631,
       "match": "/moonlight",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
       "file": "src\\combat\\attack-executor.ts",
-      "line": 678,
+      "line": 679,
       "match": "/breath",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },
     {
       "file": "src\\combat\\attack-executor.ts",
-      "line": 710,
+      "line": 711,
       "match": "/breath",
       "reason": "K8.d — pre-K9 missing-ID bridge (Limited/Breath)"
     },

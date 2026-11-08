@@ -96,6 +96,7 @@ export function ensureCharacterHasPerceptionSpec(system) {
         const name = String(s.name).trim();
         const origin = String(s.origin ?? '').trim();
         const category = String(s.category ?? '').trim();
+        const xpInvestedRaw = Number(s.xpInvested);
         const rec = {
             id: String(s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name))).trim(),
             name,
@@ -103,6 +104,10 @@ export function ensureCharacterHasPerceptionSpec(system) {
             ...(origin ? { origin } : {}),
             ...(category ? { category } : {}),
             ...(s.startingSlot === true ? { startingSlot: true } : {}),
+            ...(s.gmGranted === true ? { gmGranted: true } : {}),
+            ...(Number.isFinite(xpInvestedRaw) && xpInvestedRaw >= 0
+                ? { xpInvested: Math.floor(xpInvestedRaw) }
+                : {}),
             scope: String(s.scope ?? ''),
             rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
         };
@@ -202,6 +207,7 @@ export function readActorSpecializations(system) {
         const name = String(s.name);
         const origin = String(s.origin ?? '').trim();
         const category = String(s.category ?? '').trim();
+        const xpInvestedRaw = Number(s.xpInvested);
         return {
             id: String(s.id ?? '').trim() ||
                 (field ? specializationIdentityKey(name, field) : professionIdentityKey(name)),
@@ -210,6 +216,10 @@ export function readActorSpecializations(system) {
             ...(origin ? { origin } : {}),
             ...(category ? { category } : {}),
             ...(s.startingSlot === true ? { startingSlot: true } : {}),
+            ...(s.gmGranted === true ? { gmGranted: true } : {}),
+            ...(Number.isFinite(xpInvestedRaw) && xpInvestedRaw >= 0
+                ? { xpInvested: Math.floor(xpInvestedRaw) }
+                : {}),
             scope: s.scope,
             rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
         };

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.842] - 2026-11-08
+
+### Changed
+
+- **Artifact Delivery Unification:** Artifacts may support any Delivery the wielder already has. Form, slot, weapon, and Spell Focus classification no longer gate Artifact Delivery. One unified delivery-damage contribution per Artifact (never Weapon + Focus double-count); Special-only Attacks still deal no direct Attack Damage.
+- **Professions:** player Learn (XP) vs GM Grant (free); invested XP tracked for refunds on delete.
+
+### Fixed
+
+- Spell Instant Damage AoE chat cards show Artifact delivery dice; Focus-only hand Artifacts can back Martial delivery when selected as the attack weapon.
+
 ## [0.9.841] - 2026-11-06
 
 ### Changed

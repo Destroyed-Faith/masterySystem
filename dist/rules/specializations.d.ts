@@ -26,6 +26,13 @@ export interface SpecializationRecord {
      * Used by Beta Profession Respec; omitted on later XP-learned rows.
      */
     startingSlot?: boolean;
+    /** True when the GM granted this Profession without XP. */
+    gmGranted?: boolean;
+    /**
+     * XP actually spent on this Profession (learn + rank-ups).
+     * Used for delete refunds and build-value. Missing → inferred from flags/rank.
+     */
+    xpInvested?: number;
     rank: number;
 }
 export declare function normalizeSpecializationName(name: string): string;

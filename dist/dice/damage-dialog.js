@@ -19,7 +19,7 @@ import { isForbiddenLimitedTemplateId, isLimitedPowerTemplateId, } from '../comb
 import { hitCountsAsSpell, vulnerabilityRiderForHit } from '../combat/vulnerability-riders.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
-import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
+import { resolveMartialArtifactWeaponFormula, } from '../combat/artifact-delivery-damage.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice, listActorSpellFocusSources } from '../utils/artifact-base-values.js';
 import { bindChosenSpecialIntoLevelData, buildAvailableRaiseOptions, declaredRaiseFromOptionId, isRaiseAllocationComplete, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from '../combat/raise-resolution.js';
@@ -302,10 +302,18 @@ function resolveWeaponBaseDamage(weapon) {
         return '1d8';
     }
     const weaponSystem = weapon.system;
-    // Pure Spell Focus gear (Staff of the Dark) adds dice to Spells only.
-    // Witch Staffs etc. keep Staff Damage AND Spell Focus — do not zero those.
-    if (weapon.type === 'artifact' && artifactIsSpellFocusOnly(weaponSystem)) {
-        return '0';
+    // Artifact Delivery Unification: one contribution for Martial (Weapon Damage,
+    // or Spell Focus dice when the Artifact has no Weapon Damage). Never invent
+    // damage for Artifacts that grant none; never zero Focus-only hand Artifacts.
+    if (weapon.type === 'artifact') {
+        const unified = resolveMartialArtifactWeaponFormula(weapon);
+        if (unified)
+            return unified;
+    }
+    else if (weaponSystem?.fromArtifact) {
+        const unified = resolveMartialArtifactWeaponFormula(weapon);
+        if (unified)
+            return unified;
     }
     // Artifact weapons (e.g. Dragon Claws) keep their dice on
     // `system.artifactWeapon.damage` (e.g. "4d8"), NOT on `system.damage`.
@@ -899,8 +907,10 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         : [];
     const { getActiveSpecialValue } = await import('../system/active-specials.js');
     const targetMarkValue = Math.max(0, getActiveSpecialValue(target, 'mark'));
-    // Spell Focus is a separate damage bucket (never merged into Power for rolling
-    // or chat labels). Instant AoE never adds Spell Focus.
+    // Spell delivery damage is a separate bucket (never merged into Power for
+    // rolling or chat labels). Instant Damage AoE Spells include it; Special-only
+    // Attacks never do. Artifact contributions are unified (Focus BV, or Weapon
+    // Damage fallback — never both from the same Artifact).
     let spellFocusBonusDice = 0;
     if (spellFocusDamageApplies({
         isSpell: attackIsSpell,
@@ -1166,7 +1176,7 @@ npcMaximizationUi = null) {
     }
     else if (hitSplit.castingNoWeapon || weaponValue === '0') {
         weaponLabelDetail = hitSplit.castingNoWeapon
-            ? '0 — Casting (kein Waffenschaden)'
+            ? '0 — Spell delivery'
             : '0';
     }
     const focusSources = Array.isArray(hitSplit.spellFocusSources) ? hitSplit.spellFocusSources : [];

@@ -44,6 +44,7 @@ import {
   isDamageTransferPower,
   isDamageTransferTemplateId,
   isSpecialOnlyTemplateId,
+  spellFocusDamageApplies,
 } from "./damage-transfer.js";
 
 export {
@@ -1592,9 +1593,20 @@ export async function createAttackCard(
         raiseContext.weaponName,
       )
     : '';
-  // Instant AoE (incl. Moonlight Judgment) never gains Spell Focus — hide it on the card.
+  // Spell delivery damage (unified Artifact contribution) — Instant Damage AoE
+  // Spells include it; Special-only Attacks never do.
   const spellFocusSources =
-    tnKind === 'casting' && !aoeMelee ? listActorSpellFocusSources(attacker) : [];
+    tnKind === 'casting' &&
+    spellFocusDamageApplies({
+      isSpell: true,
+      instantAoe: !!aoeMelee,
+      aoeMeleeWeapon: !!aoeMelee,
+      specialOnly: option.specialOnly === true,
+      templateId: option.artifactPowerTemplateId ?? (option as any).templateId,
+      selectedPowerTemplateId: option.artifactPowerTemplateId,
+    })
+      ? listActorSpellFocusSources(attacker)
+      : [];
   const spellFocusLine =
     spellFocusSources.length > 0
       ? spellFocusSources.map((s) => `+${s.dice}d8 ${s.name}`).join('; ')

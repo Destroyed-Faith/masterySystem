@@ -37,7 +37,7 @@ import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { listWeaponSetIndexes, peekWeaponSets } from '../utils/weapon-sets.js';
 import { parseMaxRangeM, DEFAULT_WEAPON_RANGE_M } from '../utils/range-bands.js';
-import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
+import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { calculateDisadvantagePoints, getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -844,19 +844,24 @@ export function buildCharacterPrintContext(actor, options = {}) {
     })
         .map((a) => {
         const prof = formatWeaponProfile(a.system.artifactWeapon, a.system?.baseProfile);
-        // Spell Focus weapons deal no normal weapon damage — their dice boost
-        // Spell damage instead. Show that clearly in the Damage column.
+        // Artifact Delivery Unification: show Weapon Damage and/or Spell Focus as
+        // authored. Focus-only Artifacts list Focus as their delivery contribution;
+        // hybrids keep both labels (combat still applies only one per Delivery).
         const focusDice = spellFocusDiceFromSystem(a.system);
-        const isSpellFocus = artifactSystemHasSpellFocus(a.system);
-        // Derive the base+level damage live so the printed value always reflects
-        // the current rule (2d8/4d8 base + 1d8/level) even when the item's baked
-        // `artifactWeapon.damage` predates the base-profile scaling fix.
         const artifactLevel = Math.max(1, Math.min(10, num(a.system?.currentLevel) || num(a.system?.level) || 1));
         const derivedDamage = deriveArtifactWeaponDamage(a.system?.baseProfile, artifactLevel);
+        const wd = derivedDamage ?? prof.damage;
+        let damage = wd;
+        if (focusDice > 0 && wd) {
+            damage = `${wd} · Spell Focus +${focusDice}d8`;
+        }
+        else if (focusDice > 0) {
+            damage = `Spell Focus +${focusDice}d8`;
+        }
         return {
             name: String(a?.name ?? ''),
             type: prof.type,
-            damage: isSpellFocus ? `Spell Focus +${focusDice}d8` : (derivedDamage ?? prof.damage),
+            damage,
             range: prof.range,
             tags: prof.tags,
         };
@@ -1543,10 +1548,16 @@ function formatCompactWeaponPiece(item) {
         const aw = sys.artifactWeapon ?? {};
         const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
         const focusDice = spellFocusDiceFromSystem(sys);
-        const isSpellFocus = artifactSystemHasSpellFocus(sys);
-        damage = isSpellFocus
-            ? `Spell Focus +${focusDice}d8`
-            : derived || String(aw.damage ?? '').trim() || String(sys.damage ?? '').trim();
+        const wd = derived || String(aw.damage ?? '').trim() || String(sys.damage ?? '').trim();
+        if (focusDice > 0 && wd) {
+            damage = `${wd} · Spell Focus +${focusDice}d8`;
+        }
+        else if (focusDice > 0) {
+            damage = `Spell Focus +${focusDice}d8`;
+        }
+        else {
+            damage = wd;
+        }
         const range = formatArtifactWeaponRangeDisplay(aw, sys.baseProfile);
         kindLabel = range.kind === 'ranged' ? `Ranged ${range.label}` : 'Melee';
         tags = [

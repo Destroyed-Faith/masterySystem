@@ -262,3 +262,35 @@ export function specializationXpCostFromTo(fromRank: number, toRank: number): nu
   }
   return total;
 }
+
+/**
+ * XP that should be refunded / counted as invested for a Profession row.
+ * Prefers stored `xpInvested`; otherwise infers from starting/GM/learned provenance.
+ */
+export function inferProfessionXpInvested(spec: {
+  rank?: number;
+  startingSlot?: boolean;
+  gmGranted?: boolean;
+  xpInvested?: number;
+  name?: string;
+  id?: string;
+}): number {
+  if (typeof spec.xpInvested === 'number' && Number.isFinite(spec.xpInvested)) {
+    return Math.max(0, Math.floor(spec.xpInvested));
+  }
+  if (spec.gmGranted) return 0;
+  const rank = Math.max(0, Math.min(8, Math.floor(Number(spec.rank) || 0)));
+  const name = String(spec.name || '').trim().toLowerCase();
+  const id = String(spec.id || '');
+  const isPerception =
+    id === 'profession:perception' || name === 'perception';
+  if (isPerception) {
+    // Free through Rank 2; ladder above that.
+    return specializationXpCostFromTo(2, rank);
+  }
+  if (spec.startingSlot) {
+    return specializationXpCostFromTo(2, rank);
+  }
+  // Post-creation learned Profession: full ladder from 0.
+  return specializationXpCostFromTo(0, rank);
+}

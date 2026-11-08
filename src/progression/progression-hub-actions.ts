@@ -21,6 +21,7 @@ import {
   SPECIALIZATION_MAX_RANK,
   professionIdentityKey,
   readSpecializations,
+  removeSpecialization,
   specializationRankUpCost,
   upsertSpecialization,
   validateSpecializationList,
@@ -558,6 +559,11 @@ async function spendSpecializationXp(
   let stepAfter = stepRule.readStep(actor);
   stepAfter = stepRule.recordBump(stepAfter, 'skill', specId);
   const acct = applyXpCost(xpState, cost);
+  const stamped = nextSpecs.map((s) => {
+    if (s.id !== specId) return s;
+    const prior = Math.max(0, Math.floor(Number(s.xpInvested) || 0));
+    return { ...s, xpInvested: prior + cost, gmGranted: false };
+  });
   const user = currentXpUser();
   const entry: XpHistoryEntry = {
     ts: Date.now(),
@@ -580,7 +586,7 @@ async function spendSpecializationXp(
     },
   };
   await actor.update({
-    'system.specializations': nextSpecs,
+    'system.specializations': stamped,
     'system.points.xp': acct.pointsXp,
     'system.points.xpFree': acct.pointsXpFree,
     'system.xp.totalSpent': acct.totalSpent,
@@ -592,6 +598,71 @@ async function spendSpecializationXp(
     'system.xp.history': appendXpHistory(actor, [entry]),
   });
   return { ok: true };
+}
+
+/** Remove a Profession and refund its invested XP (if any). */
+export async function applySpecializationDeleteWithRefund(
+  actor: Actor,
+  specId: string,
+): Promise<{ ok: boolean; error?: string; refunded?: number; name?: string }> {
+  if (!assertProgressionEditable(actor)) {
+    return { ok: false, error: 'Progression locked on unlinked token.' };
+  }
+  const { inferProfessionXpInvested, isCharacterPerceptionSpec } = await import(
+    '../rules/index.js'
+  );
+  const specs = readSpecializations((actor as any).system);
+  const spec = specs.find((s) => s.id === specId);
+  if (!spec) return { ok: false, error: 'Profession not found.' };
+  if (isCharacterPerceptionSpec(spec)) {
+    return { ok: false, error: 'Perception cannot be removed.' };
+  }
+  const refund = inferProfessionXpInvested(spec);
+  const next = removeSpecialization(specs, specId);
+  if (refund <= 0) {
+    await actor.update({ 'system.specializations': next });
+    return { ok: true, refunded: 0, name: spec.name };
+  }
+  const xpState = getXpState(actor);
+  const acct = applyXpCost(xpState, -refund);
+  const user = currentXpUser();
+  const entry: XpHistoryEntry = {
+    ts: Date.now(),
+    userId: user.userId,
+    userName: user.userName,
+    kind: 'adjust',
+    category: 'skill',
+    amount: refund,
+    note: `refund: ${spec.name} Profession removed (Rank ${spec.rank})`,
+    details: {
+      key: specId,
+      name: spec.name,
+      from: spec.rank,
+      to: 0,
+      cost: refund,
+      specialization: true,
+      refund: true,
+    },
+    before: {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+    },
+    after: {
+      available: acct.pointsXp + acct.pointsXpFree,
+      totalEarned: xpState.totalEarned,
+      totalSpent: acct.totalSpent,
+    },
+  };
+  await actor.update({
+    'system.specializations': next,
+    'system.points.xp': acct.pointsXp,
+    'system.points.xpFree': acct.pointsXpFree,
+    'system.xp.totalSpent': acct.totalSpent,
+    'system.xp.freeSpent': acct.freeSpent,
+    'system.xp.history': appendXpHistory(actor, [entry]),
+  });
+  return { ok: true, refunded: refund, name: spec.name };
 }
 
 /** Raise an existing Specialization by one Rank (ladder XP for next Rank). */

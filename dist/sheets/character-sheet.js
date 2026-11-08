@@ -2595,6 +2595,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.skill-roll, .skill-roll-compact', this.#onSkillRoll.bind(this));
         bindReliableControlClick(html, '.spec-roll', this.#onSpecializationRoll.bind(this));
         bindReliableControlClick(html, '.spec-add', this.#onSpecializationAdd.bind(this));
+        bindReliableControlClick(html, '.spec-add-learn', this.#onSpecializationLearn.bind(this));
+        bindReliableControlClick(html, '.spec-grant', this.#onSpecializationGrant.bind(this));
         bindReliableControlClick(html, '.spec-edit', this.#onSpecializationEdit.bind(this));
         bindReliableControlClick(html, '.spec-respec', this.#onSpecializationRespec.bind(this));
         bindReliableControlClick(html, '.spec-delete', this.#onSpecializationDelete.bind(this));
@@ -5801,7 +5803,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.canEditSpecializations = isOwner;
         // Rank is freely editable only during creation (or for the GM); afterwards Rank-up costs XP.
         context.canEditSpecializationRank = !!context.isGM || context.creationComplete === false;
-        context.specializationXpPerRank = null;
+        context.specializationXpPerRank = 4;
         context.specializationXpLadder = true;
         context.showSpecializationRankUp = isOwner && context.creationComplete !== false;
         context.needsProfessionMapping = specs.some((spec) => isLegacyFieldSpecialization(spec));
@@ -5825,10 +5827,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
         const creation = this.actor.system?.creation?.complete === false;
         const saved = await showSpecializationEditDialog(this.actor, {
-            // Creation: always Rank 2, no Rank picker. After creation GM may edit Ranks.
-            allowRankEdit: !creation && !!game.user?.isGM,
-            learnWithXp: !creation && !game.user?.isGM,
+            // Creation only — post-creation uses Learn / Grant buttons.
+            allowRankEdit: false,
+            learnWithXp: false,
             fixedStartingRank: creation,
+        });
+        if (saved)
+            this.render(false);
+    }
+    /** Post-creation: learn a Profession at Rank 1 for 4 XP (players and GM). */
+    async #onSpecializationLearn(event) {
+        event.preventDefault();
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner (or GM) can learn Professions.');
+            return;
+        }
+        const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
+        const saved = await showSpecializationEditDialog(this.actor, {
+            allowRankEdit: false,
+            learnWithXp: true,
+            fixedStartingRank: false,
+        });
+        if (saved)
+            this.render(false);
+    }
+    /** Post-creation GM grant: any Rank, no XP. */
+    async #onSpecializationGrant(event) {
+        event.preventDefault();
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only the GM can grant Professions for free.');
+            return;
+        }
+        const { assertProgressionEditable } = await import('./actor-sheet-identity.js');
+        if (!assertProgressionEditable(this.actor))
+            return;
+        const { showSpecializationEditDialog } = await import('./specializations-dialog.js');
+        const saved = await showSpecializationEditDialog(this.actor, {
+            allowRankEdit: true,
+            learnWithXp: false,
+            gmGrant: true,
+            fixedStartingRank: false,
         });
         if (saved)
             this.render(false);

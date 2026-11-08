@@ -106,4 +106,16 @@ export declare const SPECIALIZATION_XP_PER_RANK = 4;
 export declare function specializationXpCostToReach(nextRank: number): number;
 /** Total XP to go from `fromRank` (inclusive start after) to `toRank` inclusive. */
 export declare function specializationXpCostFromTo(fromRank: number, toRank: number): number;
+/**
+ * XP that should be refunded / counted as invested for a Profession row.
+ * Prefers stored `xpInvested`; otherwise infers from starting/GM/learned provenance.
+ */
+export declare function inferProfessionXpInvested(spec: {
+    rank?: number;
+    startingSlot?: boolean;
+    gmGranted?: boolean;
+    xpInvested?: number;
+    name?: string;
+    id?: string;
+}): number;
 //# sourceMappingURL=skill-raises.d.ts.map

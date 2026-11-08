@@ -4,8 +4,9 @@
  * When a character has no equipped weapon, melee attacks use these stats
  * automatically (Players Guide: unarmed = inherent, not an item).
  */
+import { resolveArtifactItemDeliveryContribution, resolveArtifactItemWeaponDamageFormula, } from '../combat/artifact-delivery-damage.js';
 import { deriveArtifactWeaponDamage } from './artifact-base-derive.js';
-import { resolveArtifactWeaponKind, weaponBasicsForProfile } from './artifact-rules.js';
+import { resolveArtifactWeaponKind, spellFocusDiceFromSystem, weaponBasicsForProfile, } from './artifact-rules.js';
 import { backfillArtifactWeaponSpecials } from './weapon-specials.js';
 import { peekWeaponSets } from './weapon-sets.js';
 export const VIRTUAL_UNARMED_WEAPON_ID = '__mastery_virtual_unarmed__';
@@ -143,11 +144,11 @@ function artifactLevel(sys) {
     return Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
 }
 /**
- * True when a wieldable artifact is an actual attack weapon.
- * Body armor (Serpent Scales, etc.) must never count — a stale empty
- * `artifactWeapon: {}` blob used to look "truthy" and fall back to 1d8.
- * Declared natural weapons (Dragon Head Bite on headArmor) do count when they
- * bake a damage string, even though the Base Profile is not a hand weapon.
+ * True when a wieldable artifact can contribute Martial delivery damage.
+ * Includes classic weapon profiles, natural weapons with baked damage, and
+ * Focus-only hand Artifacts whose Spell Focus dice fall back as Martial
+ * delivery damage (Artifact Delivery Unification). Body armor / shields with
+ * no delivery damage still never count.
  */
 export function artifactCarriesWeaponProfile(artifact) {
     const sys = artifact?.system || {};
@@ -159,28 +160,45 @@ export function artifactCarriesWeaponProfile(artifact) {
     const natural = !!sys.naturalWeapon || aw?.isNatural === true || aw?.naturalWeapon === true;
     if (natural && dmg.length > 0)
         return true;
+    if (resolveArtifactItemWeaponDamageFormula(artifact))
+        return true;
+    // Focus-only hand Artifacts: Spell Focus may back Martial delivery.
+    if (spellFocusDiceFromSystem(sys) > 0 && artifactIsHandDeliverySlot(sys))
+        return true;
     // Non-weapon profiles (bodyArmor, robe, …) never become attack weapons.
     if (!weaponBasicsForProfile(sys.baseProfile))
         return false;
     return dmg.length > 0;
 }
+/** Hand / both-hands / custom focus staff that can back delivery damage. */
+function artifactIsHandDeliverySlot(sys) {
+    const slot = String(sys.slot || '');
+    if (/hand/i.test(slot))
+        return true;
+    const paper = Array.isArray(sys.paperdollSlots) ? sys.paperdollSlots : [];
+    if (paper.some((s) => /hand/i.test(String(s))))
+        return true;
+    const kind = String(sys.artifactKind || '');
+    if (kind === 'weapon' || kind === 'gear')
+        return true;
+    return false;
+}
 /**
- * Convert an equipped artifact that carries weapon damage into a weapon-shaped
+ * Convert an equipped artifact that carries delivery damage into a weapon-shaped
  * object the attack/damage pipeline understands. Falls back to `baseProfile`
  * derivation when the baked `artifactWeapon` blob is absent (common on bound
- * general artifacts such as the Moonlight Greatsword).
+ * general artifacts such as the Moonlight Greatsword). Focus-only Artifacts
+ * use their Spell Focus dice as the Martial delivery formula.
  */
 export function artifactToVirtualWeapon(artifact) {
     if (!artifactCarriesWeaponProfile(artifact))
         return null;
     const sys = artifact?.system || {};
-    const level = artifactLevel(sys);
-    const w = sys.artifactWeapon;
-    const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
-    const baked = typeof w?.damage === 'string' && w.damage.trim().length > 0 ? w.damage.trim() : '';
-    const damage = derived ?? (baked || null);
+    const contribution = resolveArtifactItemDeliveryContribution(artifact, 'martial');
+    const damage = contribution?.formula || null;
     if (!damage)
         return null;
+    const w = sys.artifactWeapon;
     const weaponType = resolveArtifactWeaponKind(w, sys.baseProfile);
     const basics = weaponBasicsForProfile(sys.baseProfile);
     const specials = backfillArtifactWeaponSpecials(sys, Array.isArray(w?.specials) ? w.specials : []);
@@ -191,6 +209,12 @@ export function artifactToVirtualWeapon(artifact) {
     if (freeTrait && !innateAbilities.some((a) => a.trim() === freeTrait)) {
         innateAbilities.push(freeTrait);
     }
+    const paperHands = Array.isArray(sys.paperdollSlots)
+        ? sys.paperdollSlots.filter((s) => /hand/i.test(String(s))).length
+        : 0;
+    const hands = Number.isFinite(Number(w?.hands)) && Number(w.hands) > 0
+        ? Number(w.hands)
+        : (basics?.hands ?? (paperHands >= 2 ? 2 : paperHands === 1 ? 1 : 0));
     return {
         id: artifact.id,
         name: artifact.name,
@@ -201,7 +225,7 @@ export function artifactToVirtualWeapon(artifact) {
             range: String(w?.range || (weaponType === 'ranged' ? '12m' : '0m')),
             specials,
             equipped: true,
-            hands: Number.isFinite(Number(w?.hands)) ? Number(w.hands) : (basics?.hands ?? 0),
+            hands,
             innateAbilities,
             freeTrait,
             attackAttribute: String(sys.attackAttribute || '').trim(),

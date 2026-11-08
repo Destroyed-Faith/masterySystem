@@ -20,7 +20,7 @@ import { castingBaseTnForPowerLevel, mentalFinalTnSurchargeForTemplate } from ".
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
-import { isDamageTransferPower, isDamageTransferTemplateId, isSpecialOnlyTemplateId, } from "./damage-transfer.js";
+import { isDamageTransferPower, isDamageTransferTemplateId, isSpecialOnlyTemplateId, spellFocusDamageApplies, } from "./damage-transfer.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
@@ -1276,8 +1276,19 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const hitLine = raiseContext
         ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice, raiseContext.weaponName)
         : '';
-    // Instant AoE (incl. Moonlight Judgment) never gains Spell Focus — hide it on the card.
-    const spellFocusSources = tnKind === 'casting' && !aoeMelee ? listActorSpellFocusSources(attacker) : [];
+    // Spell delivery damage (unified Artifact contribution) — Instant Damage AoE
+    // Spells include it; Special-only Attacks never do.
+    const spellFocusSources = tnKind === 'casting' &&
+        spellFocusDamageApplies({
+            isSpell: true,
+            instantAoe: !!aoeMelee,
+            aoeMeleeWeapon: !!aoeMelee,
+            specialOnly: option.specialOnly === true,
+            templateId: option.artifactPowerTemplateId ?? option.templateId,
+            selectedPowerTemplateId: option.artifactPowerTemplateId,
+        })
+        ? listActorSpellFocusSources(attacker)
+        : [];
     const spellFocusLine = spellFocusSources.length > 0
         ? spellFocusSources.map((s) => `+${s.dice}d8 ${s.name}`).join('; ')
         : '';

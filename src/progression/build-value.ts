@@ -26,9 +26,9 @@ import {
 } from '../utils/power-catalog.js';
 import { readSkillPointPool } from './skill-point-pool.js';
 import {
+  inferProfessionXpInvested,
+  isCharacterPerceptionSpec,
   readSpecializations,
-  specializationXpCostFromTo,
-  STARTING_SPECIALIZATION_RANK,
 } from '../rules/index.js';
 
 export interface BuildValue {
@@ -87,18 +87,20 @@ function skillXp(system: any): { xp: number; basis: BuildValue['skillBasis']; no
   const specs = readSpecializations(system);
   if (specs.length > 0) {
     let xp = 0;
-    const startRank = STARTING_SPECIALIZATION_RANK;
     for (const spec of specs) {
-      const rank = Math.max(0, Math.floor(Number(spec.rank) || 0));
-      if (rank > startRank) {
-        // Valuation uses the new ladder from startRank → current (display only).
-        xp += specializationXpCostFromTo(startRank, rank);
-      }
+      // Perception / starting slots / GM grants / learned rows each use their own baseline.
+      xp += inferProfessionXpInvested(spec);
     }
+    const paidLearned = specs.filter(
+      (s) => !isCharacterPerceptionSpec(s) && !s.startingSlot && !s.gmGranted,
+    ).length;
     return {
       xp,
       basis: 'creation-cap',
-      note: `Specialization-Start: Rank ${startRank} free; ladder XP for Ranks above (3→8: 6/8/10/12/14/16).`,
+      note:
+        paidLearned > 0
+          ? 'Profession XP: starting slots free through Rank 2; learned rows count full ladder; GM grants count 0 until XP rank-ups.'
+          : 'Profession XP: starting slots free through Rank 2; ladder XP for Ranks above.',
     };
   }
 

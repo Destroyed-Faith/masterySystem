@@ -19,6 +19,8 @@ export declare function showSpecializationEditDialog(actor: any, opts?: {
      * Requires the world setting `allowProfessionRespecBeta`.
      */
     betaRespec?: boolean;
+    /** GM post-creation grant: no XP, Rank editable, marked gmGranted. */
+    gmGrant?: boolean;
 }): Promise<boolean>;
 export declare function deleteSpecializationWithConfirm(actor: any, specId: string): Promise<boolean>;
 export interface SpecializationRollChoice {

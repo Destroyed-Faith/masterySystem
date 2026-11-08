@@ -32,18 +32,19 @@ export declare function isVirtualUnarmedWeapon(item: any | null | undefined): bo
 /** True for embedded items named "Unarmed" that were auto-seeded (legacy). */
 export declare function isLegacyUnarmedItem(item: any): boolean;
 /**
- * True when a wieldable artifact is an actual attack weapon.
- * Body armor (Serpent Scales, etc.) must never count — a stale empty
- * `artifactWeapon: {}` blob used to look "truthy" and fall back to 1d8.
- * Declared natural weapons (Dragon Head Bite on headArmor) do count when they
- * bake a damage string, even though the Base Profile is not a hand weapon.
+ * True when a wieldable artifact can contribute Martial delivery damage.
+ * Includes classic weapon profiles, natural weapons with baked damage, and
+ * Focus-only hand Artifacts whose Spell Focus dice fall back as Martial
+ * delivery damage (Artifact Delivery Unification). Body armor / shields with
+ * no delivery damage still never count.
  */
 export declare function artifactCarriesWeaponProfile(artifact: any): boolean;
 /**
- * Convert an equipped artifact that carries weapon damage into a weapon-shaped
+ * Convert an equipped artifact that carries delivery damage into a weapon-shaped
  * object the attack/damage pipeline understands. Falls back to `baseProfile`
  * derivation when the baked `artifactWeapon` blob is absent (common on bound
- * general artifacts such as the Moonlight Greatsword).
+ * general artifacts such as the Moonlight Greatsword). Focus-only Artifacts
+ * use their Spell Focus dice as the Martial delivery formula.
  */
 export declare function artifactToVirtualWeapon(artifact: any): any | null;
 /**

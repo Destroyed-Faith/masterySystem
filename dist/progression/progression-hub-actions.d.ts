@@ -105,6 +105,13 @@ export declare function applySkillPendingChanges(actor: Actor, pendingMap: Recor
     ok: boolean;
     error?: string;
 }>;
+/** Remove a Profession and refund its invested XP (if any). */
+export declare function applySpecializationDeleteWithRefund(actor: Actor, specId: string): Promise<{
+    ok: boolean;
+    error?: string;
+    refunded?: number;
+    name?: string;
+}>;
 /** Raise an existing Specialization by one Rank (ladder XP for next Rank). */
 export declare function applySpecializationRankUp(actor: Actor, specId: string): Promise<{
     ok: boolean;

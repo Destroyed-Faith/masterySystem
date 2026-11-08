@@ -272,13 +272,15 @@ describe('buildPrintCombatPreview', () => {
     expect(preview?.damage).toBe('WD 6d8 + 6d8');
   });
 
-  it('excludes weapon damage for ranged spells', () => {
+  it('uses Artifact delivery contribution for ranged spells (not Martial WD label)', () => {
     const weapon = meleeArtifact(4);
     const actor = mockActor({ intellect: 18 }, [weapon]);
     const preview = buildPrintCombatPreview(actor, rangedSpellPower(), [weapon]);
     expect(preview?.attackLabel).toBe('Intellect');
-    expect(preview?.damage).toBe('8d8');
-    expect(preview?.damage).not.toContain('4d8');
+    // Artifact WD backs Spell delivery once when no Focus BV is printed.
+    expect(preview?.damage).toMatch(/14d8/);
+    expect(preview?.damage).toMatch(/Spell Focus/i);
+    expect(preview?.damage).not.toMatch(/\bWD\b/);
   });
 
   it('adds spell focus bonus to spell damage only', () => {

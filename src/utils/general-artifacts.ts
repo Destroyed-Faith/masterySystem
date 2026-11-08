@@ -282,16 +282,16 @@ const STAFF_OF_THE_DARK: GeneralArtifactDefinition = {
   key: 'staffOfTheDark',
   name: 'Staff of the Dark',
   echoKey: '',
-  // Not a melee weapon — a Spell Focus. `custom` keeps it out of the weapon
-  // kind so it never surfaces a weapon attack in the radial menu; it occupies
-  // one hand slot via `paperdollSlots`.
+  // Focus-chassis hand Artifact. `custom` avoids a baked melee weapon profile;
+  // under Artifact Delivery Unification its Spell Focus Bonus may back any
+  // Delivery the wielder already has (once per attack — never double-counted).
   slot: 'mainHand',
   baseProfile: 'custom',
   paperdollSlots: ['mainhand', 'offhand'],
   description:
-    'A bound arcane staff made from dark metallic wood, curved sharp edges, and an emerald-green core of living death. It is not a melee weapon — it is a Spell Focus. The Staff of the Dark may be used with Resolve or Influence and adds its Spell Focus Bonus to damage of Spells cast through it.',
+    'A bound arcane staff made from dark metallic wood, curved sharp edges, and an emerald-green core of living death. It is a hand Artifact whose printed Spell Focus Bonus is its delivery damage contribution. The Staff of the Dark may be used with Resolve or Influence.',
   restriction:
-    'The Staff of the Dark occupies one hand Slot (Main Hand or Off Hand). It cannot be used to make melee weapon attacks unless another rule explicitly allows it. The Spell Focus Bonus applies only to Spells cast through this Staff, never to weapon attacks.',
+    'The Staff of the Dark occupies one hand Slot (Main Hand or Off Hand). Its Spell Focus Bonus is the Artifact\'s delivery damage contribution and may support any Delivery the wielder already has; it never grants a new Delivery and is never double-counted as both Weapon Damage and Spell Focus on the same attack.',
   baseValues: [
     {
       slot: 'a',

@@ -1378,9 +1378,20 @@
               Map to Professions
             </button>
             {{/if}}
-            <button type="button" class="spec-add" title="{{#if creationComplete}}{{#if isGM}}Grant a Profession for free (any Rank){{else}}Learn a new Profession at Rank 1 ({{specializationXpPerRank}} XP){{/if}}{{else}}Add a Profession{{/if}}">
-              <i class="fas fa-plus"></i> {{#if creationComplete}}{{#if isGM}}Grant Profession{{else}}Add Profession ({{specializationXpPerRank}} XP){{/if}}{{else}}Add Profession{{/if}}
+            {{#if creationComplete}}
+            <button type="button" class="spec-add-learn" title="Learn a new Profession at Rank 1 for {{specializationXpPerRank}} XP">
+              <i class="fas fa-plus"></i> Learn Profession ({{specializationXpPerRank}} XP)
             </button>
+            {{#if isGM}}
+            <button type="button" class="spec-grant" title="GM: grant a Profession for free (any Rank, no XP)">
+              <i class="fas fa-gift"></i> Grant Profession
+            </button>
+            {{/if}}
+            {{else}}
+            <button type="button" class="spec-add" title="Add a Profession">
+              <i class="fas fa-plus"></i> Add Profession
+            </button>
+            {{/if}}
             {{/if}}
           </div>
         </header>

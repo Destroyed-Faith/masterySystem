@@ -54,6 +54,13 @@ export interface SpecializationRecord {
    * Used by Beta Profession Respec; omitted on later XP-learned rows.
    */
   startingSlot?: boolean;
+  /** True when the GM granted this Profession without XP. */
+  gmGranted?: boolean;
+  /**
+   * XP actually spent on this Profession (learn + rank-ups).
+   * Used for delete refunds and build-value. Missing → inferred from flags/rank.
+   */
+  xpInvested?: number;
   rank: number;
 }
 
@@ -153,6 +160,7 @@ export function ensureCharacterHasPerceptionSpec(system: any): {
     const name = String(s.name).trim();
     const origin = String(s.origin ?? '').trim();
     const category = String(s.category ?? '').trim();
+    const xpInvestedRaw = Number(s.xpInvested);
     const rec: SpecializationRecord = {
       id: String(
         s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name)),
@@ -162,6 +170,10 @@ export function ensureCharacterHasPerceptionSpec(system: any): {
       ...(origin ? { origin } : {}),
       ...(category ? { category } : {}),
       ...(s.startingSlot === true ? { startingSlot: true } : {}),
+      ...(s.gmGranted === true ? { gmGranted: true } : {}),
+      ...(Number.isFinite(xpInvestedRaw) && xpInvestedRaw >= 0
+        ? { xpInvested: Math.floor(xpInvestedRaw) }
+        : {}),
       scope: String(s.scope ?? ''),
       rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
     };
@@ -273,6 +285,7 @@ export function readActorSpecializations(system: any): Array<Partial<Specializat
       const name = String(s.name);
       const origin = String(s.origin ?? '').trim();
       const category = String(s.category ?? '').trim();
+      const xpInvestedRaw = Number(s.xpInvested);
       return {
         id:
           String(s.id ?? '').trim() ||
@@ -282,6 +295,10 @@ export function readActorSpecializations(system: any): Array<Partial<Specializat
         ...(origin ? { origin } : {}),
         ...(category ? { category } : {}),
         ...(s.startingSlot === true ? { startingSlot: true } : {}),
+        ...(s.gmGranted === true ? { gmGranted: true } : {}),
+        ...(Number.isFinite(xpInvestedRaw) && xpInvestedRaw >= 0
+          ? { xpInvested: Math.floor(xpInvestedRaw) }
+          : {}),
         scope: s.scope,
         rank: Math.max(0, Math.floor(Number(s.rank) || 0)),
       };

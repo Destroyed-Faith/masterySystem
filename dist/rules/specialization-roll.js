@@ -70,6 +70,7 @@ export function readSpecializations(system) {
         const name = String(s.name).trim();
         const origin = String(s.origin ?? '').trim();
         const category = String(s.category ?? '').trim();
+        const xpInvestedRaw = Number(s.xpInvested);
         out.push({
             id: String(s.id || (field ? specializationIdentityKey(name, field) : professionIdentityKey(name))),
             name,
@@ -77,6 +78,10 @@ export function readSpecializations(system) {
             ...(origin ? { origin } : {}),
             ...(category ? { category } : {}),
             ...(s.startingSlot === true ? { startingSlot: true } : {}),
+            ...(s.gmGranted === true ? { gmGranted: true } : {}),
+            ...(Number.isFinite(xpInvestedRaw) && xpInvestedRaw >= 0
+                ? { xpInvested: Math.floor(xpInvestedRaw) }
+                : {}),
             scope: String(s.scope ?? ''),
             rank: Math.max(0, Math.min(SPECIALIZATION_MAX_RANK, Math.floor(Number(s.rank) || 0))),
         });

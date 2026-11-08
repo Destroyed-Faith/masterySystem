@@ -286,9 +286,10 @@ export function spellFocusDiceFromSystem(system: any): number {
 }
 
 /**
- * True when an artifact is Spell Focus only (Staff of the Dark, etc.): it boosts
- * Spells but deals no normal weapon damage. Witch Staffs and similar items that
- * carry both Staff Damage and Spell Focus return false.
+ * True when an artifact authors Spell Focus and no Weapon Damage Base Value /
+ * baked weapon profile. Classification only — under Artifact Delivery
+ * Unification the Focus dice may still back Martial delivery. Witch Staffs
+ * and similar hybrids that carry both Staff Damage and Spell Focus return false.
  */
 export function artifactIsSpellFocusOnly(system: any): boolean {
   if (!artifactSystemHasSpellFocus(system)) return false;

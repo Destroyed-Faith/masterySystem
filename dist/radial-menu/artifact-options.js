@@ -181,7 +181,9 @@ function isDeclaredNaturalWeapon(sys) {
  * Standalone "swing this artifact" buttons are opt-in for weapon-kind artifacts
  * only when the actor has no own Active (no Single Attack). Declared natural
  * weapons (Bite) are a free weapon-source toggle, not an Attack Action.
- * Everything else (armor, shield, lantern, staff, feet, missing kind) stays out.
+ * Focus-only hand Artifacts do not get a separate swing button here — they
+ * still contribute delivery damage when selected as the attack weapon via the
+ * normal equipped-weapon / forced-weapon path (Artifact Delivery Unification).
  */
 function shouldEmitArtifactWeaponAttack(sys, actorHasActivePower) {
     const aw = sys?.artifactWeapon;

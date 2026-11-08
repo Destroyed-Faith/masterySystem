@@ -106,6 +106,7 @@ export function planProfessionRespec(specs, input) {
             nextName: name,
         };
     }
+    const priorInvested = Math.max(0, Math.floor(Number(current.xpInvested) || 0));
     const replacement = {
         id: nextId,
         name,
@@ -114,6 +115,8 @@ export function planProfessionRespec(specs, input) {
         rank: current.rank,
         startingSlot: true,
         ...(category ? { category } : {}),
+        ...(priorInvested > 0 ? { xpInvested: priorInvested } : {}),
+        ...(current.gmGranted ? { gmGranted: true } : {}),
     };
     const next = stamped.map((s) => (s.id === replaceId ? replacement : s));
     const check = validateSpecializationList(next);
