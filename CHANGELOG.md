@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.845] - 2026-11-08
+
+### Fixed
+
+- **Release republish:** retry Create Release after npm ci failure on v0.9.844; sync package-lock version.
+
 ## [0.9.844] - 2026-11-08
 
 ### Fixed
