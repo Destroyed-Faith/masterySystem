@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.848] - 2026-11-08
+
+### Fixed
+
+- **Release CI:** Forge ZIP still publishes when `npm ci` fails, using committed `dist/` from the tag (0.9.846/847 install blockers).
 ## [0.9.847] - 2026-11-08
 
 ### Fixed
