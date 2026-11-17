@@ -1,15 +1,11 @@
 import { LOG_PREFIX } from "./constants.mjs";
 
 /**
- * Top-down area fire for Arrangement: Field (Pixi only).
+ * Top-down area fire for Arrangement: Field.
  *
- * Foundry 14 exposes Pixi-8 signals (LegacyGraphics, Filter.defaultOptions) but often
- * does NOT put GlProgram on globalThis.PIXI. In that case Filter+GlProgram cannot be
- * built and we must not fall back to campfire sprites.
- *
- * Paths:
- *  1) Filter + GlProgram when available
- *  2) Mesh + Shader.from(vertex, fragment, uniforms) — works without GlProgram on PIXI
+ * Foundry 13/14 ship PixiJS 7 (PIXI.VERSION 7.x). `PIXI.LegacyGraphics` is a Foundry
+ * alias, not a Pixi 8 marker. The fire is one world-space Mesh quad with a generative
+ * fragment shader, so it needs no render texture, filterArea, or input sampler.
  */
 
 const FIRE_BODY = /* glsl */ `
@@ -42,9 +38,7 @@ float fbm(vec2 p) {
   return v;
 }
 
-vec4 sampleFire(vec2 uvCoord, float srcAlpha) {
-  if (srcAlpha < 0.01) return vec4(0.0);
-
+vec4 sampleFire(vec2 uvCoord) {
   float cell = max(uCellSize, 1.0);
   float scale = max(uNoiseScale, 0.25);
   vec2 world = uWorldMin + uvCoord * max(uWorldSize, vec2(1.0));
@@ -83,65 +77,13 @@ vec4 sampleFire(vec2 uvCoord, float srcAlpha) {
   col = mix(col, cCore, smoothstep(0.68, 0.94, heat));
 
   float alpha = burn * mix(0.22, 0.68, heat) * clamp(uOpacity, 0.0, 1.0);
-  alpha *= srcAlpha;
   if (alpha < 0.02) return vec4(0.0);
   return vec4(col * alpha, alpha);
 }
 `;
 
-/** Pixi v7 filter fragment (uSampler + gl_FragColor). */
-export const FIRE_SURFACE_FRAGMENT_V7 = /* glsl */ `
-varying vec2 vTextureCoord;
-uniform sampler2D uSampler;
-uniform float uTime;
-uniform float uOpacity;
-uniform vec2 uWorldMin;
-uniform vec2 uWorldSize;
-uniform float uCellSize;
-uniform float uNoiseScale;
-uniform float uCoverage;
-uniform float uSeed;
-${FIRE_BODY}
-void main() {
-  vec4 src = texture2D(uSampler, vTextureCoord);
-  gl_FragColor = sampleFire(vTextureCoord, src.a);
-}
-`;
-
-/** Pixi v8 ES300 filter fragment. */
-export const FIRE_SURFACE_FRAGMENT = /* glsl */ `#version 300 es
-precision mediump float;
-in vec2 vTextureCoord;
-out vec4 finalColor;
-uniform sampler2D uTexture;
-uniform float uTime;
-uniform float uOpacity;
-uniform vec2 uWorldMin;
-uniform vec2 uWorldSize;
-uniform float uCellSize;
-uniform float uNoiseScale;
-uniform float uCoverage;
-uniform float uSeed;
-${FIRE_BODY}
-void main() {
-  vec4 src = texture(uTexture, vTextureCoord);
-  finalColor = sampleFire(vTextureCoord, src.a);
-}
-`;
-
-export const DEFAULT_VERTEX_V7 = /* glsl */ `
-attribute vec2 aVertexPosition;
-attribute vec2 aTextureCoord;
-uniform mat3 projectionMatrix;
-varying vec2 vTextureCoord;
-void main(void) {
-  gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
-  vTextureCoord = aTextureCoord;
-}
-`;
-
-/** Mesh vertex: local quad transformed by Pixi mesh matrices. */
-export const MESH_VERTEX_V7 = /* glsl */ `
+export const MESH_VERTEX = /* glsl */ `
+precision highp float;
 attribute vec2 aVertexPosition;
 attribute vec2 aTextureCoord;
 uniform mat3 translationMatrix;
@@ -153,8 +95,8 @@ void main(void) {
 }
 `;
 
-/** Generative mesh fragment — no input texture required. */
-export const MESH_FRAGMENT_V7 = /* glsl */ `
+export const MESH_FRAGMENT = /* glsl */ `
+precision mediump float;
 varying vec2 vTextureCoord;
 uniform float uTime;
 uniform float uOpacity;
@@ -166,28 +108,7 @@ uniform float uCoverage;
 uniform float uSeed;
 ${FIRE_BODY}
 void main() {
-  gl_FragColor = sampleFire(vTextureCoord, 1.0);
-}
-`;
-
-export const DEFAULT_VERTEX = /* glsl */ `#version 300 es
-in vec2 aPosition;
-out vec2 vTextureCoord;
-uniform vec4 uInputSize;
-uniform vec4 uOutputFrame;
-uniform vec4 uOutputTexture;
-vec4 filterVertexPosition(void) {
-  vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-  position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-  position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-  return vec4(position, 0.0, 1.0);
-}
-vec2 filterTextureCoord(void) {
-  return aPosition * (uOutputFrame.zw * uInputSize.zw);
-}
-void main(void) {
-  gl_Position = filterVertexPosition();
-  vTextureCoord = filterTextureCoord();
+  gl_FragColor = sampleFire(vTextureCoord);
 }
 `;
 
@@ -195,8 +116,8 @@ function createUniformState() {
   return {
     uTime: 0,
     uOpacity: 0.9,
-    uWorldMin: [0, 0],
-    uWorldSize: [1, 1],
+    uWorldMin: new Float32Array([0, 0]),
+    uWorldSize: new Float32Array([1, 1]),
     uCellSize: 100,
     uNoiseScale: 1,
     uCoverage: 0.4,
@@ -204,242 +125,26 @@ function createUniformState() {
   };
 }
 
-function v8Resources() {
-  return {
-    fireUniforms: {
-      uTime: { value: 0, type: "f32" },
-      uOpacity: { value: 0.9, type: "f32" },
-      uWorldMin: { value: new Float32Array([0, 0]), type: "vec2<f32>" },
-      uWorldSize: { value: new Float32Array([1, 1]), type: "vec2<f32>" },
-      uCellSize: { value: 100, type: "f32" },
-      uNoiseScale: { value: 1, type: "f32" },
-      uCoverage: { value: 0.4, type: "f32" },
-      uSeed: { value: 0.5, type: "f32" },
-    },
-  };
-}
-
-function markApi(filter, api) {
-  if (filter) filter.dfFireApi = api;
-  return filter;
-}
-
-let loggedProbe = false;
-
-/**
- * Foundry 14 ships Pixi 8, but does not always hang `GlProgram` on `globalThis.PIXI`.
- * Signals: LegacyGraphics, Filter.defaultOptions, VERSION 8.x, or glProgram on built-ins.
- */
-export function probePixiFilterApi(PIXI = globalThis.PIXI) {
-  const probe = {
-    version: PIXI?.VERSION ?? null,
-    hasGlProgram: typeof PIXI?.GlProgram === "function",
-    hasLegacyGraphics: typeof PIXI?.LegacyGraphics === "function",
-    hasFilterDefaultOptions: Boolean(PIXI?.Filter?.defaultOptions),
-    blurHasGlProgram: false,
-    blurHasProgram: false,
-    resolvedGlProgram: false,
-  };
-  const GlProgram = resolveGlProgram(PIXI, probe);
-  probe.resolvedGlProgram = typeof GlProgram === "function";
-  return { probe, GlProgram };
-}
-
-function resolveGlProgram(PIXI, probe = null) {
-  if (typeof PIXI?.GlProgram === "function") return PIXI.GlProgram;
-
-  const candidates = [
-    PIXI?.filters?.BlurFilter,
-    PIXI?.BlurFilter,
-    PIXI?.filters?.ColorMatrixFilter,
-    PIXI?.ColorMatrixFilter,
-  ].filter((Ctor) => typeof Ctor === "function");
-
-  for (const Ctor of candidates) {
-    let sample = null;
-    try {
-      sample = new Ctor();
-      if (probe) {
-        probe.blurHasGlProgram = probe.blurHasGlProgram || Boolean(sample.glProgram);
-        probe.blurHasProgram = probe.blurHasProgram || Boolean(sample.program);
-      }
-      const fromInstance = sample?.glProgram?.constructor;
-      if (typeof fromInstance === "function" && fromInstance !== Object) {
-        return fromInstance;
-      }
-    } catch {
-      /* try next */
-    } finally {
-      try {
-        sample?.destroy?.(true);
-      } catch {
-        try {
-          sample?.destroy?.();
-        } catch {
-          /* ignore */
-        }
-      }
-    }
-  }
-  return null;
-}
-
-function shouldUsePixi8(PIXI, GlProgram) {
-  if (GlProgram) return true;
-  if (typeof PIXI?.LegacyGraphics === "function") return true;
-  if (PIXI?.Filter?.defaultOptions) return true;
-  return String(PIXI?.VERSION ?? "").startsWith("8.");
-}
-
-function isUsableV8Filter(filter) {
-  return Boolean(filter?.glProgram);
-}
-
-function isUsableV7Filter(filter) {
-  return Boolean(filter?.uniforms && Object.prototype.hasOwnProperty.call(filter.uniforms, "uTime"));
-}
-
-function createGlProgram(GlProgram, vertex, fragment) {
-  if (typeof GlProgram.from === "function") {
-    return GlProgram.from({ vertex, fragment });
-  }
-  return new GlProgram({ vertex, fragment });
+export function pixiMajorVersion(PIXI = globalThis.PIXI) {
+  const major = Number.parseInt(String(PIXI?.VERSION ?? ""), 10);
+  return Number.isFinite(major) ? major : null;
 }
 
 /**
- * @param {object} options
- * @param {number} [options.resolution]
- * @returns {object|null}
- */
-export function createFireSurfaceFilter(options = {}) {
-  const PIXI = globalThis.PIXI;
-  if (!PIXI?.Filter) {
-    console.warn(`${LOG_PREFIX} PIXI.Filter is unavailable. Field shader fire cannot run.`);
-    return null;
-  }
-
-  const resolution = Number(options.resolution);
-  const errors = [];
-  const { probe, GlProgram } = probePixiFilterApi(PIXI);
-  const pixi8 = shouldUsePixi8(PIXI, GlProgram);
-
-  if (!loggedProbe) {
-    loggedProbe = true;
-    console.info(`${LOG_PREFIX} Pixi filter probe`, probe);
-  }
-
-  // Pixi 8 Filter path only when GlProgram is actually available.
-  if (GlProgram) {
-    try {
-      const vertex = String(DEFAULT_VERTEX);
-      const fragment = String(FIRE_SURFACE_FRAGMENT);
-      const glProgram = createGlProgram(GlProgram, vertex, fragment);
-      const filterOptions = {
-        glProgram,
-        resources: v8Resources(),
-        padding: 0,
-        antialias: "off",
-      };
-      if (Number.isFinite(resolution) && resolution > 0) filterOptions.resolution = resolution;
-      const filter = new PIXI.Filter(filterOptions);
-      if (isUsableV8Filter(filter)) {
-        console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 8 GlProgram Filter).`);
-        return markApi(filter, "v8-filter");
-      }
-      destroyFireSurfaceFilter(filter);
-      errors.push(new Error("Pixi 8 Filter was created without glProgram."));
-    } catch (error) {
-      errors.push(error);
-    }
-  } else if (!pixi8) {
-    try {
-      const uniforms = createUniformState();
-      const filter = new PIXI.Filter(DEFAULT_VERTEX_V7, FIRE_SURFACE_FRAGMENT_V7, uniforms);
-      if (Number.isFinite(resolution) && resolution > 0) filter.resolution = resolution;
-      if (isUsableV7Filter(filter)) {
-        console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 7 Filter).`);
-        return markApi(filter, "v7-filter");
-      }
-      destroyFireSurfaceFilter(filter);
-      errors.push(new Error("Pixi 7 Filter was created without uTime uniform."));
-    } catch (error) {
-      errors.push(error);
-    }
-  } else {
-    errors.push(
-      new Error(
-        "Pixi 8 signals present but GlProgram missing on PIXI — Filter path skipped (use Mesh).",
-      ),
-    );
-  }
-
-  if (errors.length) {
-    console.warn(`${LOG_PREFIX} Field Filter path unavailable.`, errors[0]);
-  }
-  return null;
-}
-
-/**
- * Build a Mesh-compatible shader without needing PIXI.GlProgram.
- * Tries Program.from (Foundry/Pixi shared), then Shader.from string form.
- */
-function createMeshShader(PIXI, uniforms) {
-  const errors = [];
-
-  if (typeof PIXI.Program?.from === "function" && typeof PIXI.Shader === "function") {
-    try {
-      const program = PIXI.Program.from(MESH_VERTEX_V7, MESH_FRAGMENT_V7);
-      const shader = new PIXI.Shader(program, uniforms);
-      if (shader?.uniforms && "uTime" in shader.uniforms) {
-        return { shader, via: "Program.from" };
-      }
-    } catch (error) {
-      errors.push(error);
-    }
-  }
-
-  if (typeof PIXI.Shader?.from === "function") {
-    try {
-      const shader = PIXI.Shader.from(MESH_VERTEX_V7, MESH_FRAGMENT_V7, uniforms);
-      if (shader?.uniforms && "uTime" in shader.uniforms) {
-        return { shader, via: "Shader.from(strings)" };
-      }
-    } catch (error) {
-      errors.push(error);
-    }
-
-    // Pixi 8 object form (if present).
-    try {
-      const shader = PIXI.Shader.from({
-        gl: { vertex: MESH_VERTEX_V7, fragment: MESH_FRAGMENT_V7 },
-        resources: { fireUniforms: uniforms },
-      });
-      const u = shader?.resources?.fireUniforms?.uniforms ?? shader?.uniforms;
-      if (u && "uTime" in u) {
-        shader.uniforms = u;
-        return { shader, via: "Shader.from(gl)" };
-      }
-    } catch (error) {
-      errors.push(error);
-    }
-  }
-
-  if (errors.length) {
-    console.warn(`${LOG_PREFIX} Mesh shader construction failed.`, errors[0]);
-  }
-  return null;
-}
-
-/**
- * Generative fire quad via Mesh + Program/Shader (no GlProgram on global PIXI).
+ * One world-space quad with the generative fire shader (PixiJS 7 API).
  *
  * @param {object} PIXI
  * @param {{ x: number, y: number, width: number, height: number }} bounds
- * @returns {object|null} { api, display, uniforms, destroy }
+ * @returns {{ api: string, display: object, update(state: object): void, destroy(): void }|null}
  */
-export function createFireSurfaceMesh(PIXI, bounds) {
-  if (!PIXI?.Mesh) {
-    console.warn(`${LOG_PREFIX} PIXI.Mesh unavailable for Field mesh fire.`);
+export function createFireSurface(PIXI, bounds) {
+  const major = pixiMajorVersion(PIXI);
+  if (major !== 7) {
+    console.warn(`${LOG_PREFIX} Field fire shader supports PixiJS 7 only (found ${PIXI?.VERSION ?? "none"}).`);
+    return null;
+  }
+  if (!PIXI.Mesh || !PIXI.MeshGeometry || !PIXI.Shader?.from) {
+    console.warn(`${LOG_PREFIX} PIXI.Mesh/MeshGeometry/Shader.from unavailable for Field fire.`);
     return null;
   }
 
@@ -447,45 +152,19 @@ export function createFireSurfaceMesh(PIXI, bounds) {
   const height = Math.max(1, Number(bounds.height) || 1);
   const x = Number(bounds.x) || 0;
   const y = Number(bounds.y) || 0;
-  const uniforms = createUniformState();
-  uniforms.uWorldMin = [x, y];
-  uniforms.uWorldSize = [width, height];
 
-  const built = createMeshShader(PIXI, uniforms);
-  if (!built) return null;
-  const { shader, via } = built;
-  const uniformBag = shader.resources?.fireUniforms?.uniforms ?? shader.uniforms;
-  if (!uniformBag || !("uTime" in uniformBag)) {
-    console.warn(`${LOG_PREFIX} Field mesh shader missing uTime uniform.`);
-    return null;
-  }
-
-  const positions = new Float32Array([0, 0, width, 0, width, height, 0, height]);
-  const uvs = new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]);
-  const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
-
-  let geometry;
   let mesh;
   try {
-    if (typeof PIXI.MeshGeometry === "function") {
-      geometry = new PIXI.MeshGeometry({
-        positions,
-        uvs,
-        indices: new Uint32Array(indices),
-      });
-      mesh = new PIXI.Mesh({ geometry, shader });
-    } else if (typeof PIXI.Geometry === "function") {
-      geometry = new PIXI.Geometry()
-        .addAttribute("aVertexPosition", positions, 2)
-        .addAttribute("aTextureCoord", uvs, 2)
-        .addIndex(indices);
-      mesh = new PIXI.Mesh(geometry, shader);
-    } else {
-      console.warn(`${LOG_PREFIX} PIXI.Geometry/MeshGeometry unavailable for Field mesh fire.`);
-      return null;
-    }
+    const uniforms = createUniformState();
+    const shader = PIXI.Shader.from(MESH_VERTEX, MESH_FRAGMENT, uniforms);
+    const geometry = new PIXI.MeshGeometry(
+      new Float32Array([0, 0, width, 0, width, height, 0, height]),
+      new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),
+      new Uint16Array([0, 1, 2, 0, 2, 3]),
+    );
+    mesh = new PIXI.Mesh(geometry, shader);
   } catch (error) {
-    console.warn(`${LOG_PREFIX} Field mesh could not be created.`, error);
+    console.warn(`${LOG_PREFIX} Field fire mesh could not be created.`, error);
     return null;
   }
 
@@ -495,82 +174,22 @@ export function createFireSurfaceMesh(PIXI, bounds) {
     mesh.interactiveChildren = false;
   }
 
-  console.info(`${LOG_PREFIX} Field fire shader ready (Pixi Mesh via ${via}).`);
+  console.info(`${LOG_PREFIX} Field fire shader ready (PixiJS ${PIXI.VERSION} Mesh).`);
   return {
     api: "mesh",
     display: mesh,
-    uniforms: uniformBag,
-    shader,
-    geometry,
-    destroy() {
-      try {
-        mesh.destroy?.({ children: true, texture: false, textureSource: false });
-      } catch {
-        try {
-          mesh.destroy?.();
-        } catch {
-          /* ignore */
-        }
-      }
-    },
-  };
-}
-
-/**
- * Preferred Field surface factory: Filter when GlProgram exists, else Mesh shader.
- *
- * @param {object} PIXI
- * @param {{ x: number, y: number, width: number, height: number }} bounds
- * @param {{ resolution?: number }} [options]
- * @returns {object|null} { api, display, update(state), destroy() }
- */
-export function createFireSurface(PIXI, bounds, options = {}) {
-  const filter = createFireSurfaceFilter({ resolution: options.resolution });
-  if (filter) {
-    const plate = createFireSurfacePlate(PIXI, bounds);
-    if (!plate) {
-      destroyFireSurfaceFilter(filter);
-    } else {
-      plate.filters = [filter];
-      return {
-        api: filter.dfFireApi || "filter",
-        display: plate,
-        update(state) {
-          updateFireSurfaceUniforms(filter, state);
-        },
-        destroy() {
-          plate.filters = null;
-          destroyFireSurfaceFilter(filter);
-          try {
-            plate.destroy?.({ children: true, texture: false, textureSource: false });
-          } catch {
-            try {
-              plate.destroy?.();
-            } catch {
-              /* ignore */
-            }
-          }
-        },
-      };
-    }
-  }
-
-  const mesh = createFireSurfaceMesh(PIXI, bounds);
-  if (!mesh) return null;
-  return {
-    api: mesh.api,
-    display: mesh.display,
     update(state) {
-      updateFireSurfaceUniforms({ uniforms: mesh.uniforms }, state);
+      updateFireSurfaceUniforms(mesh.shader.uniforms, state);
     },
     destroy() {
-      mesh.destroy();
+      if (mesh.destroyed) return;
+      mesh.destroy({ children: true });
     },
   };
 }
 
 /**
- * @param {object|null|undefined} filter
+ * @param {object|null|undefined} uniforms
  * @param {{
  *   time: number,
  *   opacity: number,
@@ -584,92 +203,16 @@ export function createFireSurface(PIXI, bounds, options = {}) {
  *   seed: number,
  * }} state
  */
-export function updateFireSurfaceUniforms(filter, state) {
-  if (!filter) return;
-  const uniforms = filter.resources?.fireUniforms?.uniforms ?? filter.uniforms;
+export function updateFireSurfaceUniforms(uniforms, state) {
   if (!uniforms) return;
-
   uniforms.uTime = state.time;
   uniforms.uOpacity = state.opacity;
   uniforms.uCellSize = state.cellSize;
   uniforms.uNoiseScale = state.noiseScale;
   uniforms.uCoverage = state.coverage;
   uniforms.uSeed = state.seed;
-
-  writeVec2(uniforms, "uWorldMin", state.worldMinX, state.worldMinY);
-  writeVec2(uniforms, "uWorldSize", state.worldWidth, state.worldHeight);
-}
-
-function writeVec2(uniforms, key, x, y) {
-  const current = uniforms[key];
-  if (current && typeof current === "object" && "length" in current && current.length >= 2) {
-    current[0] = x;
-    current[1] = y;
-    // Pixi 7 sometimes needs reassignment to mark dirty.
-    uniforms[key] = current;
-    return;
-  }
-  uniforms[key] = current instanceof Float32Array ? new Float32Array([x, y]) : [x, y];
-}
-
-/**
- * Opaque plate covering region bounds. The filter paints fire; the region mask clips holes.
- * @param {object} PIXI
- * @param {{ x: number, y: number, width: number, height: number }} bounds
- * @returns {object|null}
- */
-export function createFireSurfacePlate(PIXI, bounds) {
-  const width = Math.max(1, Number(bounds.width) || 1);
-  const height = Math.max(1, Number(bounds.height) || 1);
-  const x = Number(bounds.x) || 0;
-  const y = Number(bounds.y) || 0;
-
-  if (PIXI.Texture?.WHITE && PIXI.Sprite) {
-    const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-    sprite.tint = 0xffffff;
-    sprite.alpha = 1;
-    sprite.position.set(x, y);
-    sprite.width = width;
-    sprite.height = height;
-    if ("eventMode" in sprite) {
-      sprite.eventMode = "none";
-      sprite.interactiveChildren = false;
-    }
-    if (PIXI.Rectangle) sprite.filterArea = new PIXI.Rectangle(x, y, width, height);
-    return sprite;
-  }
-
-  if (typeof PIXI.Graphics !== "function") return null;
-  const graphics = new PIXI.Graphics();
-  if (typeof graphics.rect === "function" && typeof graphics.fill === "function") {
-    graphics.rect(0, 0, width, height);
-    graphics.fill({ color: 0xffffff, alpha: 1 });
-  } else if (typeof graphics.beginFill === "function" && typeof graphics.drawRect === "function") {
-    graphics.beginFill(0xffffff, 1);
-    graphics.drawRect(0, 0, width, height);
-    graphics.endFill();
-  } else {
-    graphics.destroy?.();
-    return null;
-  }
-  graphics.position.set(x, y);
-  if ("eventMode" in graphics) {
-    graphics.eventMode = "none";
-    graphics.interactiveChildren = false;
-  }
-  if (PIXI.Rectangle) graphics.filterArea = new PIXI.Rectangle(x, y, width, height);
-  return graphics;
-}
-
-export function destroyFireSurfaceFilter(filter) {
-  if (!filter || filter.destroyed) return;
-  try {
-    filter.destroy?.(true);
-  } catch {
-    try {
-      filter.destroy?.();
-    } catch {
-      /* already gone */
-    }
-  }
+  uniforms.uWorldMin[0] = state.worldMinX;
+  uniforms.uWorldMin[1] = state.worldMinY;
+  uniforms.uWorldSize[0] = state.worldWidth;
+  uniforms.uWorldSize[1] = state.worldHeight;
 }

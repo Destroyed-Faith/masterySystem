@@ -94,9 +94,9 @@ export const FLAME_HEIGHT_IN_CELLS = {
 export const HEX_GRID_TYPES = new Set([2, 3, 4, 5]);
 
 export const QUALITY_LIMITS = {
-  low: { perRegionFlames: 36, perRegionEmbers: 24, sceneFlames: 70, sceneEmbers: 48, filterResolution: 0.5 },
-  medium: { perRegionFlames: 80, perRegionEmbers: 60, sceneFlames: 180, sceneEmbers: 140, filterResolution: 0.75 },
-  high: { perRegionFlames: 140, perRegionEmbers: 110, sceneFlames: 360, sceneEmbers: 280, filterResolution: 1 },
+  low: { perRegionFlames: 36, perRegionEmbers: 24, sceneFlames: 70, sceneEmbers: 48 },
+  medium: { perRegionFlames: 80, perRegionEmbers: 60, sceneFlames: 180, sceneEmbers: 140 },
+  high: { perRegionFlames: 140, perRegionEmbers: 110, sceneFlames: 360, sceneEmbers: 280 },
 };
 
 /**

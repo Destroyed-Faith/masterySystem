@@ -26,7 +26,6 @@ export class NaturalFireEffect {
    * @param {number} options.seed
    * @param {object|null} options.mask
    * @param {{ x: number, y: number, width: number, height: number }|null} [options.bounds]
-   * @param {number} [options.filterResolution]
    * @param {boolean} [options.useShaderField]
    */
   constructor(options) {
@@ -60,7 +59,7 @@ export class NaturalFireEffect {
     const rng = mulberry32(this.seed);
 
     if (this.useShaderField) {
-      const built = this.#buildShaderSurface(PIXI, options.filterResolution ?? 0.75);
+      const built = this.#buildShaderSurface(PIXI);
       if (!built) {
         this.destroy();
         throw new Error(`${LOG_PREFIX} Field fire shader surface could not be created.`);
@@ -139,9 +138,9 @@ export class NaturalFireEffect {
     this.embers.length = 0;
   }
 
-  #buildShaderSurface(PIXI, filterResolution) {
+  #buildShaderSurface(PIXI) {
     if (!this.bounds) return false;
-    const surface = createFireSurface(PIXI, this.bounds, { resolution: filterResolution });
+    const surface = createFireSurface(PIXI, this.bounds);
     if (!surface?.display) return false;
     this.content.addChild(surface.display);
     this.fireSurface = surface;

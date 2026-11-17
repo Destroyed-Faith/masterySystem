@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.855] - 2026-11-17
+
+### Fixed
+
+- **DF: Particle Effects:** Field fire crashed the canvas render loop (`Mesh.ts: Cannot read properties of undefined (reading '0')`). Foundry 14 runs **PixiJS 7.4.3**; `PIXI.LegacyGraphics` is a Foundry alias and was wrongly treated as a Pixi 8 marker, so the Mesh was built with Pixi 8 object constructors. Field fire is now a single PixiJS 7 world-space `Mesh` (`MeshGeometry(vertices, uvs, indices)` + `Shader.from`); the Filter/GlProgram paths are removed. Module `df-particle-effects` **1.1.5**.
+
 ## [0.9.854] - 2026-11-17
 
 ### Fixed

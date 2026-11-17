@@ -352,7 +352,6 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
       seed: entry.seed,
       mask,
       bounds: entry.bounds,
-      filterResolution: limits?.filterResolution ?? 0.75,
       useShaderField: shaderField,
     });
   } catch (error) {
@@ -392,7 +391,7 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
 /**
  * Opaque mask from the region polygon tree.
  * Foundry 14 replaces PIXI.Graphics with SmoothGraphics, which does not expose poly/cut.
- * The original PixiJS 8 class is PIXI.LegacyGraphics. Holes are cut() after fill().
+ * The original Pixi class is PIXI.LegacyGraphics. Holes are cut() after fill().
  */
 export function buildRegionMask(tree) {
   const painter = resolveMaskPainter(globalThis.PIXI);
