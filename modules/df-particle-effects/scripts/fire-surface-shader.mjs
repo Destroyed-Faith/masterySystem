@@ -38,47 +38,68 @@ float fbm(vec2 p) {
   return v;
 }
 
+// Ridged turbulence: thin bright creases instead of soft blobs.
+float turbulence(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  mat2 m = mat2(0.80, -0.60, 0.60, 0.80);
+  for (int i = 0; i < 4; i++) {
+    v += a * abs(valueNoise(p) * 2.0 - 1.0);
+    p = m * p * 2.03;
+    a *= 0.5;
+  }
+  return v;
+}
+
+vec3 fireRamp(float h) {
+  vec3 c = mix(vec3(0.20, 0.02, 0.00), vec3(0.85, 0.12, 0.02), smoothstep(0.00, 0.30, h));
+  c = mix(c, vec3(1.00, 0.45, 0.05), smoothstep(0.25, 0.55, h));
+  c = mix(c, vec3(1.00, 0.78, 0.25), smoothstep(0.50, 0.80, h));
+  return mix(c, vec3(1.00, 0.97, 0.80), smoothstep(0.80, 1.00, h));
+}
+
+/*
+ * Premultiplied output with rgb > alpha: alpha darkens the floor (scorch/smoke),
+ * the excess rgb adds light. That reads as glowing fire, not tinted liquid.
+ * Octaves move in opposing directions and cancel, so the field boils in place
+ * instead of flowing.
+ */
 vec4 sampleFire(vec2 uvCoord) {
   float cell = max(uCellSize, 1.0);
   float scale = max(uNoiseScale, 0.25);
   vec2 world = uWorldMin + uvCoord * max(uWorldSize, vec2(1.0));
-  vec2 uv = (world / cell) * (0.62 / scale) + vec2(uSeed * 19.7, uSeed * 11.3);
+  vec2 uv = (world / cell) * (0.75 / scale) + vec2(uSeed * 19.7, uSeed * 11.3);
 
   float t = uTime;
 
-  vec2 warp = vec2(
-    fbm(uv * 0.85 + vec2(t * 0.13, -t * 0.07)),
-    fbm(uv * 0.85 + vec2(4.2, 1.9) + vec2(-t * 0.09, t * 0.11))
+  vec2 q = vec2(
+    fbm(uv * 0.7 + vec2(0.0, t * 0.30)),
+    fbm(uv * 0.7 + vec2(5.2, 1.3) - vec2(0.0, t * 0.27))
   );
-  vec2 p = uv + warp * 0.48;
+  vec2 r = vec2(
+    fbm(uv * 1.3 + q * 1.7 + vec2(t * 0.55, 1.7)),
+    fbm(uv * 1.3 + q * 1.7 + vec2(8.3, 2.8) - vec2(t * 0.51, 0.0))
+  );
 
-  float patches = fbm(p * 1.05 + vec2(t * 0.04, t * 0.02));
-  float lobes = fbm(p * 2.35 - vec2(t * 0.16, -t * 0.12));
-  float detail = fbm(p * 5.8 + vec2(t * 0.38, -t * 0.31));
-  float ridge = 1.0 - abs(lobes * 2.0 - 1.0);
-  float field = patches * 0.52 + ridge * 0.33 + detail * 0.15;
+  float base = fbm(uv * 0.55 + r * 0.9);
+  float tA = turbulence(uv * 2.2 + r * 2.4 + vec2(t * 0.95, 0.0));
+  float tB = turbulence(uv * 2.5 + r * 2.0 + vec2(3.1, 7.4) - vec2(0.0, t * 0.90));
+  float tongues = 1.0 - 0.5 * (tA + tB);
+  float flick = valueNoise(uv * 7.0 + vec2(t * 3.3, -t * 2.9));
 
   float coverage = clamp(uCoverage, 0.0, 1.0);
-  float thresh = mix(0.58, 0.26, coverage);
-  float soft = mix(0.11, 0.06, coverage);
-  float burn = smoothstep(thresh - soft, thresh + soft * 0.35, field);
+  float thresh = mix(0.62, 0.34, coverage);
+  float zone = smoothstep(thresh - 0.10, thresh + 0.10, base);
 
-  float heat = clamp((field - (thresh - soft)) / max(0.001, 1.0 - (thresh - soft)), 0.0, 1.0);
-  heat = pow(heat, 0.70);
-  float flicker = 0.86 + 0.14 * sin(t * 8.5 + field * 17.0 + detail * 13.0);
-  heat *= flicker;
+  float heat = zone * (0.60 * tongues + 0.25 * base + 0.15 * flick);
+  heat = clamp((heat - 0.22) / 0.60, 0.0, 1.0);
+  heat = heat * heat * (3.0 - 2.0 * heat);
 
-  vec3 cEdge = vec3(0.32, 0.04, 0.01);
-  vec3 cBody = vec3(0.95, 0.30, 0.03);
-  vec3 cHot = vec3(1.0, 0.72, 0.22);
-  vec3 cCore = vec3(1.0, 0.93, 0.68);
-  vec3 col = mix(cEdge, cBody, smoothstep(0.0, 0.32, heat));
-  col = mix(col, cHot, smoothstep(0.32, 0.68, heat));
-  col = mix(col, cCore, smoothstep(0.68, 0.94, heat));
-
-  float alpha = burn * mix(0.22, 0.68, heat) * clamp(uOpacity, 0.0, 1.0);
-  if (alpha < 0.02) return vec4(0.0);
-  return vec4(col * alpha, alpha);
+  float opacity = clamp(uOpacity, 0.0, 1.0);
+  float glow = heat * 1.35 * opacity;
+  float scorch = zone * mix(0.18, 0.70, heat) * opacity;
+  if (glow < 0.01 && scorch < 0.01) return vec4(0.0);
+  return vec4(fireRamp(heat) * glow, scorch);
 }
 `;
 

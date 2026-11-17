@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.856] - 2026-11-17
+
+### Changed
+
+- **DF: Particle Effects:** Field fire shader reworked so it reads as fire instead of tinted liquid: emissive glow over a darkened scorch layer (no more uniform translucent tint), ridged turbulence for sharp flame tongues, counter-moving noise so the fire boils in place instead of flowing, real gaps between burning patches, and a red → orange → yellow → white-hot ramp. Module `df-particle-effects` **1.1.6**.
+
 ## [0.9.855] - 2026-11-17
 
 ### Fixed
