@@ -2,10 +2,9 @@ import { LOG_PREFIX } from "./constants.mjs";
 
 /**
  * Top-down area fire for Arrangement: Field.
- * World-anchored multi-scale noise with domain warp — one surface per region.
- *
- * Foundry 14 still exposes the Pixi v7 Filter(vertex, fragment, uniforms) path
- * (Program.vertexSrc.trim). Pixi v8 GlProgram is tried as a secondary path.
+ * Foundry 14 / Pixi 8: Filter MUST be constructed with { glProgram, resources }.
+ * Calling `new Filter(vertexString, fragmentString, uniforms)` does not throw on Pixi 8
+ * but yields a broken invisible filter — that was why Field showed nothing.
  */
 
 const FIRE_BODY = /* glsl */ `
@@ -61,8 +60,8 @@ vec4 sampleFire(vec2 uvCoord, float srcAlpha) {
   float field = patches * 0.52 + ridge * 0.33 + detail * 0.15;
 
   float coverage = clamp(uCoverage, 0.0, 1.0);
-  float thresh = mix(0.64, 0.30, coverage);
-  float soft = mix(0.10, 0.055, coverage);
+  float thresh = mix(0.58, 0.26, coverage);
+  float soft = mix(0.11, 0.06, coverage);
   float burn = smoothstep(thresh - soft, thresh + soft * 0.35, field);
 
   float heat = clamp((field - (thresh - soft)) / max(0.001, 1.0 - (thresh - soft)), 0.0, 1.0);
@@ -78,14 +77,14 @@ vec4 sampleFire(vec2 uvCoord, float srcAlpha) {
   col = mix(col, cHot, smoothstep(0.32, 0.68, heat));
   col = mix(col, cCore, smoothstep(0.68, 0.94, heat));
 
-  float alpha = burn * mix(0.18, 0.58, heat) * clamp(uOpacity, 0.0, 1.0);
+  float alpha = burn * mix(0.22, 0.68, heat) * clamp(uOpacity, 0.0, 1.0);
   alpha *= srcAlpha;
   if (alpha < 0.02) return vec4(0.0);
   return vec4(col * alpha, alpha);
 }
 `;
 
-/** Pixi v7 / Foundry classic filter fragment (uSampler + gl_FragColor). */
+/** Pixi v7 filter fragment (uSampler + gl_FragColor). */
 export const FIRE_SURFACE_FRAGMENT_V7 = /* glsl */ `
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
@@ -104,8 +103,9 @@ void main() {
 }
 `;
 
-/** Pixi v8 filter fragment (uTexture + out finalColor). */
-export const FIRE_SURFACE_FRAGMENT = /* glsl */ `
+/** Pixi v8 ES300 filter fragment. */
+export const FIRE_SURFACE_FRAGMENT = /* glsl */ `#version 300 es
+precision mediump float;
 in vec2 vTextureCoord;
 out vec4 finalColor;
 uniform sampler2D uTexture;
@@ -135,7 +135,7 @@ void main(void) {
 }
 `;
 
-export const DEFAULT_VERTEX = /* glsl */ `
+export const DEFAULT_VERTEX = /* glsl */ `#version 300 es
 in vec2 aPosition;
 out vec2 vTextureCoord;
 uniform vec4 uInputSize;
@@ -160,8 +160,8 @@ function createUniformState() {
   return {
     uTime: 0,
     uOpacity: 0.9,
-    uWorldMin: new Float32Array([0, 0]),
-    uWorldSize: new Float32Array([1, 1]),
+    uWorldMin: [0, 0],
+    uWorldSize: [1, 1],
     uCellSize: 100,
     uNoiseScale: 1,
     uCoverage: 0.4,
@@ -169,9 +169,38 @@ function createUniformState() {
   };
 }
 
+function v8Resources() {
+  return {
+    fireUniforms: {
+      uTime: { value: 0, type: "f32" },
+      uOpacity: { value: 0.9, type: "f32" },
+      uWorldMin: { value: new Float32Array([0, 0]), type: "vec2<f32>" },
+      uWorldSize: { value: new Float32Array([1, 1]), type: "vec2<f32>" },
+      uCellSize: { value: 100, type: "f32" },
+      uNoiseScale: { value: 1, type: "f32" },
+      uCoverage: { value: 0.4, type: "f32" },
+      uSeed: { value: 0.5, type: "f32" },
+    },
+  };
+}
+
 function markApi(filter, api) {
   if (filter) filter.dfFireApi = api;
   return filter;
+}
+
+function isPixi8(PIXI) {
+  if (PIXI.GlProgram) return true;
+  const version = String(PIXI.VERSION ?? "");
+  return version.startsWith("8.");
+}
+
+function isUsableV8Filter(filter) {
+  return Boolean(filter?.glProgram);
+}
+
+function isUsableV7Filter(filter) {
+  return Boolean(filter?.uniforms && Object.prototype.hasOwnProperty.call(filter.uniforms, "uTime"));
 }
 
 /**
@@ -188,75 +217,49 @@ export function createFireSurfaceFilter(options = {}) {
 
   const resolution = Number(options.resolution);
   const errors = [];
+  const pixi8 = isPixi8(PIXI);
 
-  // 1) Foundry / Pixi v7: Filter(vertex, fragment, uniforms) — matches Program.vertexSrc.trim
-  try {
-    const uniforms = createUniformState();
-    const filter = new PIXI.Filter(DEFAULT_VERTEX_V7, FIRE_SURFACE_FRAGMENT_V7, uniforms);
-    if (Number.isFinite(resolution) && resolution > 0) filter.resolution = resolution;
-    return markApi(filter, "v7");
-  } catch (error) {
-    errors.push(error);
-  }
-
-  // 2) Pixi v8: explicit GlProgram + Filter options object
-  try {
-    const GlProgram = PIXI.GlProgram;
-    if (GlProgram) {
+  // Pixi 8 / Foundry 14: options-object Filter with GlProgram only.
+  if (pixi8) {
+    try {
       const vertex = String(DEFAULT_VERTEX);
       const fragment = String(FIRE_SURFACE_FRAGMENT);
+      const GlProgram = PIXI.GlProgram;
       const glProgram = typeof GlProgram.from === "function"
         ? GlProgram.from({ vertex, fragment })
         : new GlProgram({ vertex, fragment });
       const filterOptions = {
         glProgram,
-        resources: {
-          fireUniforms: {
-            uTime: { value: 0, type: "f32" },
-            uOpacity: { value: 0.9, type: "f32" },
-            uWorldMin: { value: new Float32Array([0, 0]), type: "vec2<f32>" },
-            uWorldSize: { value: new Float32Array([1, 1]), type: "vec2<f32>" },
-            uCellSize: { value: 100, type: "f32" },
-            uNoiseScale: { value: 1, type: "f32" },
-            uCoverage: { value: 0.4, type: "f32" },
-            uSeed: { value: 0.5, type: "f32" },
-          },
-        },
+        resources: v8Resources(),
         padding: 0,
         antialias: "off",
       };
       if (Number.isFinite(resolution) && resolution > 0) filterOptions.resolution = resolution;
-      return markApi(new PIXI.Filter(filterOptions), "v8");
+      const filter = new PIXI.Filter(filterOptions);
+      if (isUsableV8Filter(filter)) {
+        console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 8 GlProgram).`);
+        return markApi(filter, "v8");
+      }
+      destroyFireSurfaceFilter(filter);
+      errors.push(new Error("Pixi 8 Filter was created without glProgram."));
+    } catch (error) {
+      errors.push(error);
     }
-  } catch (error) {
-    errors.push(error);
-  }
-
-  // 3) Pixi v8 Filter.from with fragment only (default vertex)
-  try {
-    if (typeof PIXI.Filter.from === "function") {
-      const filter = PIXI.Filter.from({
-        gl: { fragment: String(FIRE_SURFACE_FRAGMENT) },
-        resources: {
-          fireUniforms: {
-            uTime: { value: 0, type: "f32" },
-            uOpacity: { value: 0.9, type: "f32" },
-            uWorldMin: { value: new Float32Array([0, 0]), type: "vec2<f32>" },
-            uWorldSize: { value: new Float32Array([1, 1]), type: "vec2<f32>" },
-            uCellSize: { value: 100, type: "f32" },
-            uNoiseScale: { value: 1, type: "f32" },
-            uCoverage: { value: 0.4, type: "f32" },
-            uSeed: { value: 0.5, type: "f32" },
-          },
-        },
-        padding: 0,
-        antialias: "off",
-        ...(Number.isFinite(resolution) && resolution > 0 ? { resolution } : {}),
-      });
-      return markApi(filter, "v8-from");
+  } else {
+    // True Pixi v7 only — never use this constructor on Pixi 8 (silent invisible filter).
+    try {
+      const uniforms = createUniformState();
+      const filter = new PIXI.Filter(DEFAULT_VERTEX_V7, FIRE_SURFACE_FRAGMENT_V7, uniforms);
+      if (Number.isFinite(resolution) && resolution > 0) filter.resolution = resolution;
+      if (isUsableV7Filter(filter)) {
+        console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 7 Filter).`);
+        return markApi(filter, "v7");
+      }
+      destroyFireSurfaceFilter(filter);
+      errors.push(new Error("Pixi 7 Filter was created without uTime uniform."));
+    } catch (error) {
+      errors.push(error);
     }
-  } catch (error) {
-    errors.push(error);
   }
 
   console.warn(`${LOG_PREFIX} Field fire shader could not be created.`, errors[0] ?? errors);
@@ -299,11 +302,11 @@ function writeVec2(uniforms, key, x, y) {
   if (current && typeof current === "object" && "length" in current && current.length >= 2) {
     current[0] = x;
     current[1] = y;
+    // Pixi 7 sometimes needs reassignment to mark dirty.
+    uniforms[key] = current;
     return;
   }
-  uniforms[key] = current instanceof Float32Array
-    ? new Float32Array([x, y])
-    : [x, y];
+  uniforms[key] = current instanceof Float32Array ? new Float32Array([x, y]) : [x, y];
 }
 
 /**

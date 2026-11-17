@@ -33,7 +33,7 @@ test("filter factory returns null without PIXI and cleans up destroy safely", ()
   globalThis.PIXI = previous;
 });
 
-test("filter factory uses classic Filter(vertex, fragment, uniforms) when available", () => {
+test("filter factory uses classic Filter(vertex, fragment, uniforms) only without GlProgram", () => {
   const previous = globalThis.PIXI;
   class FakeFilter {
     constructor(vertex, fragment, uniforms) {
@@ -43,7 +43,7 @@ test("filter factory uses classic Filter(vertex, fragment, uniforms) when availa
       this.resolution = 1;
     }
   }
-  globalThis.PIXI = { Filter: FakeFilter };
+  globalThis.PIXI = { Filter: FakeFilter, VERSION: "7.4.2" };
   const filter = createFireSurfaceFilter({ resolution: 0.5 });
   assert.ok(filter);
   assert.equal(filter.dfFireApi, "v7");
@@ -51,6 +51,40 @@ test("filter factory uses classic Filter(vertex, fragment, uniforms) when availa
   assert.match(filter.fragment, /uSampler/);
   assert.equal(filter.resolution, 0.5);
   assert.equal(typeof filter.uniforms.uTime, "number");
+  globalThis.PIXI = previous;
+});
+
+test("filter factory uses GlProgram options on Pixi 8 and rejects string Filter args", () => {
+  const previous = globalThis.PIXI;
+  let stringCtorCalls = 0;
+  class FakeGlProgram {
+    constructor(options) {
+      this.vertex = options.vertex;
+      this.fragment = options.fragment;
+    }
+    static from(options) {
+      return new FakeGlProgram(options);
+    }
+  }
+  class FakeFilter {
+    constructor(options) {
+      if (typeof options === "string") {
+        stringCtorCalls += 1;
+        this.broken = true;
+        return;
+      }
+      this.glProgram = options.glProgram;
+      this.resources = options.resources;
+      this.resolution = options.resolution ?? 1;
+    }
+  }
+  globalThis.PIXI = { Filter: FakeFilter, GlProgram: FakeGlProgram, VERSION: "8.8.1" };
+  const filter = createFireSurfaceFilter({ resolution: 0.75 });
+  assert.ok(filter);
+  assert.equal(filter.dfFireApi, "v8");
+  assert.equal(stringCtorCalls, 0);
+  assert.ok(filter.glProgram);
+  assert.match(filter.glProgram.fragment, /#version 300 es/);
   globalThis.PIXI = previous;
 });
 

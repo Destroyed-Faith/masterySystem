@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.852] - 2026-11-17
+
+### Fixed
+
+- **DF: Particle Effects:** Field fire on Foundry 14 / Pixi 8 no longer builds a silent broken Filter (which rendered as empty). Uses `GlProgram` + options-object Filter; Arrangement **Field** should show the continuous fire surface again.
+
 ## [0.9.851] - 2026-11-17
 
 ### Fixed
