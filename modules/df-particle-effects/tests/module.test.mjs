@@ -40,6 +40,8 @@ test("the behavior form previews speed without rebuilding the layout", () => {
   const base = {
     enabled: true,
     effectType: "naturalFire",
+    arrangement: "field",
+    fieldRenderer: "shader",
     density: 80,
     flameScale: 1.5,
     emberAmount: 10,
@@ -51,6 +53,7 @@ test("the behavior form previews speed without rebuilding the layout", () => {
   const faster = { ...base, flameSpeed: 2, opacity: 0.4 };
   assert.equal(fireLayoutSignature(base), fireLayoutSignature(faster));
   assert.notEqual(fireLayoutSignature(base), fireLayoutSignature({ ...base, density: 10 }));
+  assert.notEqual(fireLayoutSignature(base), fireLayoutSignature({ ...base, fieldRenderer: "legacy" }));
 });
 
 function fakeForm(values, checks) {

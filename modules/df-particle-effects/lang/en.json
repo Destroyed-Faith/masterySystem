@@ -26,31 +26,31 @@
       },
       "arrangement": {
         "label": "Arrangement",
-        "hint": "Single flame stacks the sprites into one fire at the center of the region. Field scatters many flames. Density only affects Field."
+        "hint": "Single flame stacks sprites into one fire at the region center. Field draws one continuous top-down fire surface across the region (legacy sprite Field remains available in module settings)."
       },
       "density": {
         "label": "Density",
-        "hint": "How many flame sites to place for this region's area, counted in grid cells. 0 hides a field of flames. Single flame ignores density."
+        "hint": "For Field (shader): how much of the region burns versus floor gaps. For Field (legacy): how many flame sites per grid cells. 0 hides Field fire. Single flame ignores density."
       },
       "flameScale": {
         "label": "Flame Scale",
-        "hint": "Size of each flame relative to the scene grid. The flame base stays on the ground."
+        "hint": "For Field (shader): size of flame structures in the noise field. For Single / legacy Field: size of each flame sprite relative to the scene grid."
       },
       "flameSpeed": {
         "label": "Flame Speed",
-        "hint": "How fast flicker, sway, and rising embers move."
+        "hint": "How fast the fire surface, flicker, and rising embers move."
       },
       "opacity": {
         "label": "Opacity",
-        "hint": "Overall opacity of flames and embers."
+        "hint": "Overall opacity of the fire surface and embers. Keep this below 1 so the map stays visible."
       },
       "emberAmount": {
         "label": "Ember Amount",
-        "hint": "How many rising sparks to draw, relative to the number of flames. 0 disables sparks."
+        "hint": "Sparse rising sparks over the fire. For Field (shader) this scales with region size; for legacy Field it scales with flame sites. 0 disables sparks."
       },
       "edgeFade": {
         "label": "Edge Fade",
-        "hint": "0 keeps a hard edge. Higher values fade flames whose base sits near the boundary. Sprites are still masked to the region, including holes."
+        "hint": "0 keeps a hard edge. Higher values fade legacy flame bases and ember origins near the boundary. The region mask always clips the fire, including holes."
       },
       "randomSeed": {
         "label": "Random Seed",
@@ -60,10 +60,16 @@
     "SETTINGS": {
       "quality": {
         "name": "Fire quality",
-        "hint": "Caps flames and embers per region and per scene. Lower this if a very large fire region drops frames. The saved region settings do not change.",
+        "hint": "Caps legacy flames and embers per region and per scene, and lowers Field shader resolution on Low/Medium. The saved region settings do not change.",
         "low": "Low",
         "medium": "Medium",
         "high": "High"
+      },
+      "fieldRenderer": {
+        "name": "Field fire renderer",
+        "hint": "Shader draws one continuous top-down fire surface (recommended). Legacy keeps the old multi-campfire sprite Field for comparison. Arrangement Single is unchanged.",
+        "shader": "Shader surface",
+        "legacy": "Legacy sprites"
       }
     }
   }

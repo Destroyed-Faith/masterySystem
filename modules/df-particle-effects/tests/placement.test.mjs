@@ -1,8 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { evenOddContains, gridCellArea, pointInRing } from "../scripts/geometry.mjs";
-import { allocateBudget, desiredEmberCount, desiredFlameCount, planFlameSites, planSingleFlameSite, wantedEmberCount } from "../scripts/placement.mjs";
+import {
+  allocateBudget,
+  desiredEmberCount,
+  desiredFieldEmberCount,
+  desiredFlameCount,
+  planFlameSites,
+  planSingleFlameSite,
+  planSparseSites,
+  wantedEmberCount,
+  wantedFlameCount,
+} from "../scripts/placement.mjs";
 import { deriveSeed, mulberry32 } from "../scripts/random.mjs";
+import { usesShaderField } from "../scripts/fire-effect.mjs";
 
 const OUTER = [0, 0, 100, 0, 100, 100, 0, 100];
 const HOLE = [25, 25, 75, 25, 75, 75, 25, 75];
@@ -102,6 +113,44 @@ test("a single flame sits in the middle and steps out of a center hole", () => {
   assert.equal(holed[0].x > 4 && holed[0].x < 6 && holed[0].y > 4 && holed[0].y < 6, false);
   assert.equal(wantedEmberCount({ arrangement: "single", emberAmount: 0 }, 1), 0);
   assert.ok(wantedEmberCount({ arrangement: "single", emberAmount: 100 }, 1) > 1);
+});
+
+test("shader Field wants no flame sites and sparse area-based embers", () => {
+  const shader = { arrangement: "field", fieldRenderer: "shader", density: 40, emberAmount: 20 };
+  assert.equal(wantedFlameCount(shader, 100000, 10000), 0);
+  assert.equal(desiredFieldEmberCount(1_000_000, 10000, 0), 0);
+  const embers = desiredFieldEmberCount(1_000_000, 10000, 100);
+  assert.ok(embers >= 15);
+  assert.ok(embers < desiredEmberCount(desiredFlameCount(1_000_000, 10000, 100), 100));
+  assert.equal(wantedEmberCount(shader, 0, 1_000_000, 10000), desiredFieldEmberCount(1_000_000, 10000, 20));
+  assert.equal(usesShaderField(shader), true);
+  assert.equal(usesShaderField({ arrangement: "single", fieldRenderer: "shader" }), false);
+  assert.equal(usesShaderField({ arrangement: "field", fieldRenderer: "legacy" }), false);
+});
+
+test("sparse ember sites stay inside the region and honor the wanted count", () => {
+  const sites = planSparseSites({
+    bounds: { x: 0, y: 0, width: 100, height: 100 },
+    area: 7500,
+    wanted: 8,
+    seed: 99,
+    contains: (x, y) => evenOddContains(x, y, CONTOURS),
+  });
+  assert.ok(sites.length <= 8);
+  assert.ok(sites.length >= 4);
+  for (const site of sites) {
+    assert.equal(evenOddContains(site.x, site.y, CONTOURS), true);
+  }
+  assert.deepEqual(
+    planSparseSites({
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      area: 7500,
+      wanted: 8,
+      seed: 99,
+      contains: (x, y) => evenOddContains(x, y, CONTOURS),
+    }),
+    sites,
+  );
 });
 
 test("derived seeds are stable and mulberry32 stays in range", () => {

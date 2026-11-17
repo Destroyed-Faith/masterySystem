@@ -1,11 +1,24 @@
-import { EFFECT_NATURAL_FIRE, FLAME_HEIGHT_IN_CELLS, LOG_PREFIX, ARRANGEMENT_SINGLE } from "./constants.mjs";
+import {
+  ARRANGEMENT_SINGLE,
+  EFFECT_NATURAL_FIRE,
+  FIELD_RENDER_SHADER,
+  FLAME_HEIGHT_IN_CELLS,
+  LOG_PREFIX,
+} from "./constants.mjs";
+import {
+  createFireSurfaceFilter,
+  createFireSurfacePlate,
+  destroyFireSurfaceFilter,
+  updateFireSurfaceUniforms,
+} from "./fire-surface-shader.mjs";
 import { clamp } from "./geometry.mjs";
 import { deriveSeed, mulberry32 } from "./random.mjs";
 
 /**
- * One Natural Fire instance: layered still sprites plus rising embers.
- * Variants are chosen once from the seed. Motion is scale, opacity, skew, and a little rotation
- * around the base pivot. Textures are never swapped in the ticker.
+ * One Natural Fire instance.
+ * Field (shader): one world-anchored fire surface + sparse embers.
+ * Field (legacy): layered campfire stills + embers.
+ * Single: stacked stills at one site (unchanged).
  */
 export class NaturalFireEffect {
   /**
@@ -17,6 +30,9 @@ export class NaturalFireEffect {
    * @param {number} options.gridSize
    * @param {number} options.seed
    * @param {object|null} options.mask
+   * @param {{ x: number, y: number, width: number, height: number }|null} [options.bounds]
+   * @param {number} [options.filterResolution]
+   * @param {boolean} [options.useShaderField]
    */
   constructor(options) {
     const PIXI = globalThis.PIXI;
@@ -26,8 +42,13 @@ export class NaturalFireEffect {
 
     this.config = options.config;
     this.gridSize = Math.max(1, options.gridSize);
+    this.seed = options.seed >>> 0;
+    this.bounds = options.bounds ?? null;
     this.layers = [];
     this.embers = [];
+    this.fireFilter = null;
+    this.surface = null;
+    this.useShaderField = Boolean(options.useShaderField);
 
     this.root = new PIXI.Container();
     this.content = new PIXI.Container();
@@ -42,19 +63,44 @@ export class NaturalFireEffect {
       this.content.mask = this.mask;
     }
 
-    const rng = mulberry32(options.seed >>> 0);
-    this.#buildFlames(PIXI, options.assets, options.sites, rng);
-    this.#buildEmbers(PIXI, options.assets, options.sites, options.emberCount, rng);
-    if (!this.layers.length) {
-      this.destroy();
-      throw new Error(`${LOG_PREFIX} flame sprites could not be created.`);
+    const rng = mulberry32(this.seed);
+
+    if (this.useShaderField) {
+      const built = this.#buildShaderSurface(PIXI, options.filterResolution ?? 0.75);
+      if (!built) {
+        this.destroy();
+        throw new Error(`${LOG_PREFIX} Field fire shader surface could not be created.`);
+      }
+    } else {
+      this.#buildFlames(PIXI, options.assets, options.sites, rng);
+      if (!this.layers.length) {
+        this.destroy();
+        throw new Error(`${LOG_PREFIX} flame sprites could not be created.`);
+      }
     }
+
+    this.#buildEmbers(PIXI, options.assets, options.sites, options.emberCount, rng);
   }
 
   tick(time) {
     const speed = clamp(Number(this.config.flameSpeed) || 1, 0.1, 3);
     const opacity = clamp(Number(this.config.opacity) || 0, 0, 1);
     const t = time * speed;
+
+    if (this.fireFilter && this.bounds) {
+      updateFireSurfaceUniforms(this.fireFilter, {
+        time: t,
+        opacity,
+        worldMinX: this.bounds.x,
+        worldMinY: this.bounds.y,
+        worldWidth: this.bounds.width,
+        worldHeight: this.bounds.height,
+        cellSize: this.gridSize,
+        noiseScale: clamp(Number(this.config.flameScale) || 1, 0.25, 2),
+        coverage: clamp(Number(this.config.density) || 0, 0, 100) / 100,
+        seed: (this.seed % 10000) / 10000,
+      });
+    }
 
     for (const layer of this.layers) {
       const wave = Math.sin(t * layer.freq + layer.phase);
@@ -83,10 +129,44 @@ export class NaturalFireEffect {
   destroy() {
     if (!this.root || this.root.destroyed) return;
     this.content.mask = null;
+    if (this.surface) {
+      this.surface.filters = null;
+      this.surface = null;
+    }
+    destroyFireSurfaceFilter(this.fireFilter);
+    this.fireFilter = null;
     this.root.destroy({ children: true, texture: false, textureSource: false });
     this.root = null;
     this.layers.length = 0;
     this.embers.length = 0;
+  }
+
+  #buildShaderSurface(PIXI, filterResolution) {
+    if (!this.bounds) return false;
+    const filter = createFireSurfaceFilter({ resolution: filterResolution });
+    if (!filter) return false;
+    const plate = createFireSurfacePlate(PIXI, this.bounds);
+    if (!plate) {
+      destroyFireSurfaceFilter(filter);
+      return false;
+    }
+    plate.filters = [filter];
+    this.content.addChild(plate);
+    this.surface = plate;
+    this.fireFilter = filter;
+    updateFireSurfaceUniforms(filter, {
+      time: 0,
+      opacity: clamp(Number(this.config.opacity) || 0, 0, 1),
+      worldMinX: this.bounds.x,
+      worldMinY: this.bounds.y,
+      worldWidth: this.bounds.width,
+      worldHeight: this.bounds.height,
+      cellSize: this.gridSize,
+      noiseScale: clamp(Number(this.config.flameScale) || 1, 0.25, 2),
+      coverage: clamp(Number(this.config.density) || 0, 0, 100) / 100,
+      seed: (this.seed % 10000) / 10000,
+    });
+    return true;
   }
 
   #buildFlames(PIXI, assets, sites, rng) {
@@ -173,6 +253,9 @@ export class NaturalFireEffect {
     if (!emberCount || !assets.embers.length || !sites.length) return;
     const scale = clamp(Number(this.config.flameScale) || 1, 0.25, 2);
     const blend = PIXI.BLEND_MODES?.NORMAL ?? "normal";
+    // Shader Field: quieter, smaller sparks so they read as accents.
+    const peakScale = this.useShaderField ? 0.7 : 1;
+    const riseScale = this.useShaderField ? 0.85 : 1;
     for (let i = 0; i < emberCount; i += 1) {
       const site = sites[Math.floor(rng() * sites.length)];
       const entry = assets.embers[Math.floor(rng() * assets.embers.length)];
@@ -181,7 +264,7 @@ export class NaturalFireEffect {
       sprite.anchor.set(entry.pivot.x, entry.pivot.y);
       sprite.position.set(site.x, site.y);
       sprite.blendMode = blend;
-      const baseScale = ((this.gridSize * (0.12 + rng() * 0.1) * scale) / entry.size);
+      const baseScale = ((this.gridSize * (0.12 + rng() * 0.1) * scale * peakScale) / entry.size);
       sprite.scale.set(baseScale, baseScale);
       sprite.alpha = 0;
       this.content.addChild(sprite);
@@ -192,10 +275,10 @@ export class NaturalFireEffect {
         y: site.y - this.gridSize * 0.02,
         edge: site.edge > 0 ? site.edge : 0,
         baseScale,
-        peak: 0.55 + rng() * 0.4,
+        peak: (0.45 + rng() * 0.35) * (this.useShaderField ? 0.85 : 1),
         phase: rng() * 4,
         life: 1.35 + rng() * 1.5,
-        rise: this.gridSize * (0.45 + rng() * 0.85) * scale,
+        rise: this.gridSize * (0.45 + rng() * 0.85) * scale * riseScale,
         drift: direction * this.gridSize * (0.08 + rng() * 0.18) * scale,
         swayTurns: 0.5 + rng() * 0.7,
       });
@@ -205,6 +288,10 @@ export class NaturalFireEffect {
 
 export function assertNaturalFire(effectType) {
   return effectType === EFFECT_NATURAL_FIRE;
+}
+
+export function usesShaderField(config) {
+  return config?.arrangement !== ARRANGEMENT_SINGLE && config?.fieldRenderer === FIELD_RENDER_SHADER;
 }
 
 function pickGroup(rng, assets, avoid) {

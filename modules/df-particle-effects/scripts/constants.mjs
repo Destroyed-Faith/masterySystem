@@ -11,6 +11,10 @@ export const EFFECT_NATURAL_FIRE = "naturalFire";
 export const ARRANGEMENT_FIELD = "field";
 export const ARRANGEMENT_SINGLE = "single";
 
+/** Field visual backends. Shader is default; legacy keeps the old multi-sprite Field. */
+export const FIELD_RENDER_SHADER = "shader";
+export const FIELD_RENDER_LEGACY = "legacy";
+
 export const TYPE_LABEL_KEY = "TYPES.RegionBehavior.df-particle-effects.particleEffects";
 export const SYSTEM_TYPE_LABEL_KEY = "TYPES.RegionBehavior.particleEffects";
 
@@ -57,6 +61,10 @@ export function qualitySettingKey() {
   return hostedBySystem() ? "dfParticleFireQuality" : "quality";
 }
 
+export function fieldRendererSettingKey() {
+  return hostedBySystem() ? "dfParticleFieldRenderer" : "fieldRenderer";
+}
+
 /** Blank form values for the optional seed. Foundry otherwise rejects "". */
 export function blankSeedToNull(value) {
   if (value === "" || value === null || value === undefined) return null;
@@ -86,10 +94,16 @@ export const FLAME_HEIGHT_IN_CELLS = {
 export const HEX_GRID_TYPES = new Set([2, 3, 4, 5]);
 
 export const QUALITY_LIMITS = {
-  low: { perRegionFlames: 36, perRegionEmbers: 24, sceneFlames: 70, sceneEmbers: 48 },
-  medium: { perRegionFlames: 80, perRegionEmbers: 60, sceneFlames: 180, sceneEmbers: 140 },
-  high: { perRegionFlames: 140, perRegionEmbers: 110, sceneFlames: 360, sceneEmbers: 280 },
+  low: { perRegionFlames: 36, perRegionEmbers: 24, sceneFlames: 70, sceneEmbers: 48, filterResolution: 0.5 },
+  medium: { perRegionFlames: 80, perRegionEmbers: 60, sceneFlames: 180, sceneEmbers: 140, filterResolution: 0.75 },
+  high: { perRegionFlames: 140, perRegionEmbers: 110, sceneFlames: 360, sceneEmbers: 280, filterResolution: 1 },
 };
+
+/**
+ * Sparse rising sparks for shader Field. Counted from region cells, not campfire sites.
+ * Ember Amount 100 on a 10×10 cell region is about 20 sparks before the quality cap.
+ */
+export const FIELD_EMBERS_PER_CELL_AT_FULL = 0.2;
 
 /** Tiles sit above the scene background (0) and below tokens (700) in Foundry v14. */
 export const PRIMARY_TILE_SORT = 500;

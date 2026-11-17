@@ -1,4 +1,9 @@
-import { ARRANGEMENT_SINGLE, FLAMES_PER_CELL_AT_FULL_DENSITY } from "./constants.mjs";
+import {
+  ARRANGEMENT_SINGLE,
+  FIELD_EMBERS_PER_CELL_AT_FULL,
+  FIELD_RENDER_SHADER,
+  FLAMES_PER_CELL_AT_FULL_DENSITY,
+} from "./constants.mjs";
 import { clamp } from "./geometry.mjs";
 import { mulberry32 } from "./random.mjs";
 
@@ -14,16 +19,63 @@ export function desiredEmberCount(flameCount, emberAmount) {
   return Math.max(1, Math.round(flameCount * (clamp(emberAmount, 0, 100) / 100) * 1.75));
 }
 
+/** Sparse embers for shader Field — scales with region cells, not campfire sites. */
+export function desiredFieldEmberCount(area, cellArea, emberAmount) {
+  if (!(area > 0) || !(emberAmount > 0)) return 0;
+  const cells = area / Math.max(1, cellArea);
+  return Math.max(1, Math.round(cells * FIELD_EMBERS_PER_CELL_AT_FULL * (clamp(emberAmount, 0, 100) / 100)));
+}
+
 export function wantedFlameCount(config, area, cellArea) {
   if (config?.arrangement === ARRANGEMENT_SINGLE) return 1;
+  if (config?.fieldRenderer === FIELD_RENDER_SHADER) return 0;
   return desiredFlameCount(area, cellArea, config?.density ?? 0);
 }
 
-export function wantedEmberCount(config, flameCount) {
+export function wantedEmberCount(config, flameCount, area = 0, cellArea = 1) {
   const amount = clamp(config?.emberAmount ?? 0, 0, 100);
   if (!(amount > 0)) return 0;
   if (config?.arrangement === ARRANGEMENT_SINGLE) return Math.max(1, Math.round((amount / 100) * 12));
+  if (config?.fieldRenderer === FIELD_RENDER_SHADER) return desiredFieldEmberCount(area, cellArea, amount);
   return desiredEmberCount(flameCount, amount);
+}
+
+/**
+ * Irregular ember origins inside the region. Used by shader Field (no flame sites).
+ */
+export function planSparseSites(options) {
+  const bounds = options.bounds;
+  const wanted = Math.max(0, Math.floor(options.wanted ?? 0));
+  const contains = options.contains;
+  if (!bounds || !(bounds.width > 0) || !(bounds.height > 0) || wanted <= 0 || typeof contains !== "function") {
+    return [];
+  }
+
+  const area = Number(options.area) || bounds.width * bounds.height;
+  const spacing = Math.max(8, Math.sqrt(Math.max(area, 1) / wanted) * 0.72);
+  const rng = mulberry32(options.seed >>> 0);
+  const sites = poissonSites({ bounds, contains, spacing, wanted, rng, attempts: 18 });
+
+  if (sites.length < wanted) {
+    const relaxedSquared = (spacing * 0.5) * (spacing * 0.5);
+    let tries = 0;
+    const guard = wanted * 60;
+    while (sites.length < wanted && tries < guard) {
+      tries += 1;
+      const x = bounds.x + rng() * bounds.width;
+      const y = bounds.y + rng() * bounds.height;
+      if (!contains(x, y)) continue;
+      if (sites.some((site) => distanceSquared(site, x, y) < relaxedSquared)) continue;
+      sites.push({ x, y });
+    }
+  }
+
+  const edgeFactor = typeof options.edgeFactor === "function" ? options.edgeFactor : () => 1;
+  return sites.slice(0, wanted).map((site) => ({
+    x: site.x,
+    y: site.y,
+    edge: clamp(Number(edgeFactor(site.x, site.y)) || 0, 0, 1),
+  }));
 }
 
 /**

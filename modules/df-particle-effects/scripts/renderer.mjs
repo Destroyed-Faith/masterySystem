@@ -4,6 +4,9 @@ import {
   ARRANGEMENT_SINGLE,
   behaviorTypeId,
   EFFECT_NATURAL_FIRE,
+  FIELD_RENDER_LEGACY,
+  FIELD_RENDER_SHADER,
+  fieldRendererSettingKey,
   LOG_PREFIX,
   PRIMARY_TILE_SORT,
   QUALITY_LIMITS,
@@ -11,11 +14,12 @@ import {
   settingsNamespace,
 } from "./constants.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
-import { NaturalFireEffect } from "./fire-effect.mjs";
+import { NaturalFireEffect, usesShaderField } from "./fire-effect.mjs";
 import {
   allocateBudget,
   planFlameSites,
   planSingleFlameSite,
+  planSparseSites,
   wantedEmberCount,
   wantedFlameCount,
 } from "./placement.mjs";
@@ -117,7 +121,10 @@ export class ParticleRenderer {
     );
     const emberBudget = allocateBudget(
       active.map((entry, index) =>
-        Math.min(limits.perRegionEmbers, wantedEmberCount(entry.config, flameBudget[index])),
+        Math.min(
+          limits.perRegionEmbers,
+          wantedEmberCount(entry.config, flameBudget[index], entry.area, grid.cellArea),
+        ),
       ),
       limits.sceneEmbers,
     );
@@ -128,7 +135,7 @@ export class ParticleRenderer {
     active.forEach((entry, index) => {
       if (token !== this.#generation) return;
       try {
-        const effect = createEffect(entry, assets, grid, flameBudget[index], emberBudget[index]);
+        const effect = createEffect(entry, assets, grid, flameBudget[index], emberBudget[index], limits);
         if (!effect) return;
         if (!mountEffect(effect.root, entry.elevation)) {
           effect.destroy();
@@ -189,6 +196,20 @@ export function registerSettings(renderer) {
       high: "DF_PARTICLE_EFFECTS.SETTINGS.quality.high",
     },
     default: "medium",
+    onChange: () => renderer.syncScene(),
+  });
+
+  globalThis.game.settings.register(settingsNamespace(), fieldRendererSettingKey(), {
+    name: "DF_PARTICLE_EFFECTS.SETTINGS.fieldRenderer.name",
+    hint: "DF_PARTICLE_EFFECTS.SETTINGS.fieldRenderer.hint",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      [FIELD_RENDER_SHADER]: "DF_PARTICLE_EFFECTS.SETTINGS.fieldRenderer.shader",
+      [FIELD_RENDER_LEGACY]: "DF_PARTICLE_EFFECTS.SETTINGS.fieldRenderer.legacy",
+    },
+    default: FIELD_RENDER_SHADER,
     onChange: () => renderer.syncScene(),
   });
 }
@@ -254,12 +275,13 @@ function describeBehavior(scene, region, behavior, configOverride) {
   }
 }
 
-/** Fields that change sprite placement. Speed and opacity animate without a rebuild. */
+/** Fields that change placement or backend. Speed and opacity animate without a rebuild. */
 export function fireLayoutSignature(config) {
   return [
     config.enabled ? 1 : 0,
     config.effectType,
     config.arrangement,
+    config.fieldRenderer,
     config.density,
     config.flameScale,
     config.emberAmount,
@@ -272,7 +294,7 @@ function behaviorKey(behavior, region = behavior?.parent) {
   return behavior?.uuid || `${region?.id}:${behavior?.id}`;
 }
 
-function createEffect(entry, assets, grid, maxFlames, maxEmbers) {
+function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
   const siteOptions = {
     bounds: entry.bounds,
@@ -280,16 +302,36 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers) {
     seed: entry.seed,
     edgeFactor: (x, y) => edgeFactor(entry.tree, x, y, fadeRadius),
   };
-  const sites = entry.config.arrangement === ARRANGEMENT_SINGLE
-    ? planSingleFlameSite(siteOptions)
-    : planFlameSites({
+
+  const shaderField = usesShaderField(entry.config);
+  let sites;
+  if (entry.config.arrangement === ARRANGEMENT_SINGLE) {
+    sites = planSingleFlameSite(siteOptions);
+  } else if (shaderField) {
+    const emberWanted = Math.min(
+      maxEmbers,
+      wantedEmberCount(entry.config, 0, entry.area, grid.cellArea),
+    );
+    sites = emberWanted > 0
+      ? planSparseSites({
+        ...siteOptions,
+        area: entry.area,
+        cellArea: grid.cellArea,
+        wanted: emberWanted,
+      })
+      : [{ x: entry.bounds.x + entry.bounds.width / 2, y: entry.bounds.y + entry.bounds.height / 2, edge: 1 }];
+  } else {
+    sites = planFlameSites({
       ...siteOptions,
       area: entry.area,
       cellArea: grid.cellArea,
       density: entry.config.density,
       maxFlames,
     });
-  if (!sites.length) return null;
+  }
+
+  if (!sites.length && !shaderField) return null;
+  if (shaderField && entry.config.density <= 0) return null;
 
   const mask = buildRegionMask(entry.tree);
   if (!mask) {
@@ -297,15 +339,54 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers) {
     return null;
   }
 
-  return new NaturalFireEffect({
-    assets,
-    sites,
-    emberCount: Math.min(maxEmbers, wantedEmberCount(entry.config, sites.length)),
-    config: entry.config,
-    gridSize: grid.size,
-    seed: entry.seed,
-    mask,
-  });
+  try {
+    return new NaturalFireEffect({
+      assets,
+      sites,
+      emberCount: Math.min(
+        maxEmbers,
+        wantedEmberCount(entry.config, sites.length, entry.area, grid.cellArea),
+      ),
+      config: entry.config,
+      gridSize: grid.size,
+      seed: entry.seed,
+      mask,
+      bounds: entry.bounds,
+      filterResolution: limits?.filterResolution ?? 0.75,
+      useShaderField: shaderField,
+    });
+  } catch (error) {
+    if (!shaderField) throw error;
+    console.warn(`${LOG_PREFIX} Field shader failed; falling back to legacy sprites for this region.`, error);
+    // The failed effect destroys its mask; build a fresh one for legacy.
+    const legacyMask = buildRegionMask(entry.tree);
+    if (!legacyMask) return null;
+    const legacySites = planFlameSites({
+      ...siteOptions,
+      area: entry.area,
+      cellArea: grid.cellArea,
+      density: entry.config.density,
+      maxFlames: Math.max(1, maxFlames || limits?.perRegionFlames || 40),
+    });
+    if (!legacySites.length) {
+      legacyMask.destroy?.();
+      return null;
+    }
+    return new NaturalFireEffect({
+      assets,
+      sites: legacySites,
+      emberCount: Math.min(maxEmbers, wantedEmberCount({
+        ...entry.config,
+        fieldRenderer: FIELD_RENDER_LEGACY,
+      }, legacySites.length, entry.area, grid.cellArea)),
+      config: { ...entry.config, fieldRenderer: FIELD_RENDER_LEGACY },
+      gridSize: grid.size,
+      seed: entry.seed,
+      mask: legacyMask,
+      bounds: entry.bounds,
+      useShaderField: false,
+    });
+  }
 }
 
 /**
@@ -461,6 +542,7 @@ function readConfig(behavior) {
     enabled: system.enabled !== false && behavior.disabled !== true,
     effectType: system.effectType || EFFECT_NATURAL_FIRE,
     arrangement: system.arrangement === ARRANGEMENT_SINGLE ? ARRANGEMENT_SINGLE : ARRANGEMENT_FIELD,
+    fieldRenderer: readFieldRenderer(),
     density: clampNumber(system.density ?? 40, 0, 100),
     flameScale: clampNumber(system.flameScale ?? 1, 0.25, 2),
     flameSpeed: clampNumber(system.flameSpeed ?? 1, 0.1, 3),
@@ -469,6 +551,11 @@ function readConfig(behavior) {
     edgeFade: clampNumber(system.edgeFade ?? 5, 0, 100),
     randomSeed,
   };
+}
+
+function readFieldRenderer() {
+  const selected = globalThis.game?.settings?.get?.(settingsNamespace(), fieldRendererSettingKey());
+  return selected === FIELD_RENDER_LEGACY ? FIELD_RENDER_LEGACY : FIELD_RENDER_SHADER;
 }
 
 function layoutSeed(scene, region, behavior, randomSeed) {

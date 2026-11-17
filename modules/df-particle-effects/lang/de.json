@@ -26,31 +26,31 @@
       },
       "arrangement": {
         "label": "Anordnung",
-        "hint": "Eine Flamme stapelt die Bilder zu einem Feuer in der Mitte der Region. Feld verteilt viele Flammen. Die Dichte gilt nur für Feld."
+        "hint": "Eine Flamme stapelt Sprites zu einem Feuer in der Regionsmitte. Feld zeichnet eine zusammenhängende Feuerfläche von oben (der alte Sprite-Feldmodus bleibt in den Moduleinstellungen)."
       },
       "density": {
         "label": "Dichte",
-        "hint": "Anzahl der Feuerstellen relativ zur Regionsfläche, gezählt in Rasterzellen. 0 blendet ein Feld aus. Eine Flamme ignoriert die Dichte."
+        "hint": "Für Feld (Shader): wie stark die Region brennt gegenüber Bodensicht. Für Feld (Legacy): Anzahl der Feuerstellen pro Rasterzellen. 0 blendet Feldfeuer aus. Eine Flamme ignoriert die Dichte."
       },
       "flameScale": {
         "label": "Flammengröße",
-        "hint": "Größe jeder Flamme relativ zum Szenenraster. Die Flammenbasis bleibt am Boden."
+        "hint": "Für Feld (Shader): Größe der Flammenstrukturen im Rauschfeld. Für Eine Flamme / Legacy-Feld: Größe jedes Flammensprites relativ zum Szenenraster."
       },
       "flameSpeed": {
         "label": "Flammengeschwindigkeit",
-        "hint": "Tempo von Flackern, Wiegen und aufsteigenden Funken."
+        "hint": "Tempo von Feuerfläche, Flackern und aufsteigenden Funken."
       },
       "opacity": {
         "label": "Deckkraft",
-        "hint": "Gesamtdeckkraft von Flammen und Funken."
+        "hint": "Gesamtdeckkraft von Feuerfläche und Funken. Unter 1 halten, damit die Karte sichtbar bleibt."
       },
       "emberAmount": {
         "label": "Glutmenge",
-        "hint": "Wie viele aufsteigende Funken gezeichnet werden, relativ zur Anzahl der Flammen. 0 schaltet Funken ab."
+        "hint": "Sparsame aufsteigende Funken. Beim Feld-Shader skaliert das mit der Regionsgröße, beim Legacy-Feld mit den Feuerstellen. 0 schaltet Funken ab."
       },
       "edgeFade": {
         "label": "Randausblendung",
-        "hint": "0 lässt den Rand hart. Höhere Werte blenden Flammen aus, deren Basis nahe an der Grenze liegt. Sprites werden trotzdem auf die Region maskiert, inklusive Löcher."
+        "hint": "0 lässt den Rand hart. Höhere Werte blenden Legacy-Flammenbasen und Funkenursprünge nahe der Grenze aus. Die Regionsmaske schneidet das Feuer immer zu, inklusive Löcher."
       },
       "randomSeed": {
         "label": "Zufallsseed",
@@ -60,10 +60,16 @@
     "SETTINGS": {
       "quality": {
         "name": "Feuerqualität",
-        "hint": "Begrenzt Flammen und Funken pro Region und pro Szene. Senke den Wert, wenn eine sehr große Feuerregion die Bildrate drückt. Die gespeicherten Regionseinstellungen bleiben unverändert.",
+        "hint": "Begrenzt Legacy-Flammen und Funken pro Region und Szene und senkt auf Niedrig die Feld-Shader-Auflösung. Die gespeicherten Regionseinstellungen bleiben unverändert.",
         "low": "Niedrig",
         "medium": "Mittel",
         "high": "Hoch"
+      },
+      "fieldRenderer": {
+        "name": "Feld-Feuerdarstellung",
+        "hint": "Shader zeichnet eine zusammenhängende Feuerfläche von oben (empfohlen). Legacy behält die alten Campfire-Sprites zum Vergleich. Anordnung „Eine Flamme“ bleibt unverändert.",
+        "shader": "Shader-Fläche",
+        "legacy": "Legacy-Sprites"
       }
     }
   }

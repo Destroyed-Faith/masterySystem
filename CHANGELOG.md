@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.850] - 2026-11-17
+
+### Changed
+
+- **Regions / DF: Particle Effects:** Arrangement **Field** now defaults to one continuous top-down **shader fire surface** (world-anchored noise, region mask with holes, sparse embers). Campfire multi-sprite Field remains available via client setting **Field fire renderer → Legacy sprites**. Arrangement **Single** is unchanged. Module version `df-particle-effects` **1.1.0**.
+
 ## [0.9.849] - 2026-11-08
 
 ### Fixed
