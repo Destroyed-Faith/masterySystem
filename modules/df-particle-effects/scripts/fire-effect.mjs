@@ -5,12 +5,7 @@ import {
   FLAME_HEIGHT_IN_CELLS,
   LOG_PREFIX,
 } from "./constants.mjs";
-import {
-  createFireSurfaceFilter,
-  createFireSurfacePlate,
-  destroyFireSurfaceFilter,
-  updateFireSurfaceUniforms,
-} from "./fire-surface-shader.mjs";
+import { createFireSurface } from "./fire-surface-shader.mjs";
 import { clamp } from "./geometry.mjs";
 import { deriveSeed, mulberry32 } from "./random.mjs";
 
@@ -46,8 +41,7 @@ export class NaturalFireEffect {
     this.bounds = options.bounds ?? null;
     this.layers = [];
     this.embers = [];
-    this.fireFilter = null;
-    this.surface = null;
+    this.fireSurface = null;
     this.useShaderField = Boolean(options.useShaderField);
 
     this.root = new PIXI.Container();
@@ -87,8 +81,8 @@ export class NaturalFireEffect {
     const opacity = clamp(Number(this.config.opacity) || 0, 0, 1);
     const t = time * speed;
 
-    if (this.fireFilter && this.bounds) {
-      updateFireSurfaceUniforms(this.fireFilter, {
+    if (this.fireSurface && this.bounds) {
+      this.fireSurface.update({
         time: t,
         opacity,
         worldMinX: this.bounds.x,
@@ -129,12 +123,16 @@ export class NaturalFireEffect {
   destroy() {
     if (!this.root || this.root.destroyed) return;
     this.content.mask = null;
-    if (this.surface) {
-      this.surface.filters = null;
-      this.surface = null;
+    if (this.fireSurface) {
+      try {
+        const display = this.fireSurface.display;
+        if (display?.parent) display.parent.removeChild(display);
+        this.fireSurface.destroy();
+      } catch {
+        /* already gone */
+      }
+      this.fireSurface = null;
     }
-    destroyFireSurfaceFilter(this.fireFilter);
-    this.fireFilter = null;
     this.root.destroy({ children: true, texture: false, textureSource: false });
     this.root = null;
     this.layers.length = 0;
@@ -143,18 +141,11 @@ export class NaturalFireEffect {
 
   #buildShaderSurface(PIXI, filterResolution) {
     if (!this.bounds) return false;
-    const filter = createFireSurfaceFilter({ resolution: filterResolution });
-    if (!filter) return false;
-    const plate = createFireSurfacePlate(PIXI, this.bounds);
-    if (!plate) {
-      destroyFireSurfaceFilter(filter);
-      return false;
-    }
-    plate.filters = [filter];
-    this.content.addChild(plate);
-    this.surface = plate;
-    this.fireFilter = filter;
-    updateFireSurfaceUniforms(filter, {
+    const surface = createFireSurface(PIXI, this.bounds, { resolution: filterResolution });
+    if (!surface?.display) return false;
+    this.content.addChild(surface.display);
+    this.fireSurface = surface;
+    surface.update({
       time: 0,
       opacity: clamp(Number(this.config.opacity) || 0, 0, 1),
       worldMinX: this.bounds.x,

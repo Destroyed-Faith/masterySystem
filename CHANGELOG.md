@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.854] - 2026-11-17
+
+### Fixed
+
+- **DF: Particle Effects:** On Foundry 14, when Pixi-8 signals are present but `GlProgram` is missing on global `PIXI`, Field fire now uses a Pixi **Mesh + Program/Shader** generative surface instead of falling back to campfire sprites. Filter+GlProgram remains preferred when available. Module `df-particle-effects` **1.1.4**.
+
 ## [0.9.853] - 2026-11-17
 
 ### Fixed

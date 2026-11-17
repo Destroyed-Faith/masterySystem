@@ -1,10 +1,15 @@
 import { LOG_PREFIX } from "./constants.mjs";
 
 /**
- * Top-down area fire for Arrangement: Field.
- * Foundry 14 / Pixi 8: Filter MUST be constructed with { glProgram, resources }.
- * Calling `new Filter(vertexString, fragmentString, uniforms)` does not throw on Pixi 8
- * but yields a broken invisible filter — that was why Field showed nothing.
+ * Top-down area fire for Arrangement: Field (Pixi only).
+ *
+ * Foundry 14 exposes Pixi-8 signals (LegacyGraphics, Filter.defaultOptions) but often
+ * does NOT put GlProgram on globalThis.PIXI. In that case Filter+GlProgram cannot be
+ * built and we must not fall back to campfire sprites.
+ *
+ * Paths:
+ *  1) Filter + GlProgram when available
+ *  2) Mesh + Shader.from(vertex, fragment, uniforms) — works without GlProgram on PIXI
  */
 
 const FIRE_BODY = /* glsl */ `
@@ -132,6 +137,36 @@ varying vec2 vTextureCoord;
 void main(void) {
   gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
   vTextureCoord = aTextureCoord;
+}
+`;
+
+/** Mesh vertex: local quad transformed by Pixi mesh matrices. */
+export const MESH_VERTEX_V7 = /* glsl */ `
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+uniform mat3 translationMatrix;
+uniform mat3 projectionMatrix;
+varying vec2 vTextureCoord;
+void main(void) {
+  vTextureCoord = aTextureCoord;
+  gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+}
+`;
+
+/** Generative mesh fragment — no input texture required. */
+export const MESH_FRAGMENT_V7 = /* glsl */ `
+varying vec2 vTextureCoord;
+uniform float uTime;
+uniform float uOpacity;
+uniform vec2 uWorldMin;
+uniform vec2 uWorldSize;
+uniform float uCellSize;
+uniform float uNoiseScale;
+uniform float uCoverage;
+uniform float uSeed;
+${FIRE_BODY}
+void main() {
+  gl_FragColor = sampleFire(vTextureCoord, 1.0);
 }
 `;
 
@@ -293,56 +328,245 @@ export function createFireSurfaceFilter(options = {}) {
     console.info(`${LOG_PREFIX} Pixi filter probe`, probe);
   }
 
-  // Pixi 8 / Foundry 14: options-object Filter. Prefer a resolved GlProgram class.
-  if (pixi8) {
-    if (!GlProgram) {
-      errors.push(
-        new Error(
-          "Pixi 8 signals present (LegacyGraphics/defaultOptions/VERSION) but GlProgram could not be resolved from PIXI or built-in filters.",
-        ),
-      );
-    } else {
-      try {
-        const vertex = String(DEFAULT_VERTEX);
-        const fragment = String(FIRE_SURFACE_FRAGMENT);
-        const glProgram = createGlProgram(GlProgram, vertex, fragment);
-        const filterOptions = {
-          glProgram,
-          resources: v8Resources(),
-          padding: 0,
-          antialias: "off",
-        };
-        if (Number.isFinite(resolution) && resolution > 0) filterOptions.resolution = resolution;
-        const filter = new PIXI.Filter(filterOptions);
-        if (isUsableV8Filter(filter)) {
-          console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 8 GlProgram).`);
-          return markApi(filter, "v8");
-        }
-        destroyFireSurfaceFilter(filter);
-        errors.push(new Error("Pixi 8 Filter was created without glProgram."));
-      } catch (error) {
-        errors.push(error);
+  // Pixi 8 Filter path only when GlProgram is actually available.
+  if (GlProgram) {
+    try {
+      const vertex = String(DEFAULT_VERTEX);
+      const fragment = String(FIRE_SURFACE_FRAGMENT);
+      const glProgram = createGlProgram(GlProgram, vertex, fragment);
+      const filterOptions = {
+        glProgram,
+        resources: v8Resources(),
+        padding: 0,
+        antialias: "off",
+      };
+      if (Number.isFinite(resolution) && resolution > 0) filterOptions.resolution = resolution;
+      const filter = new PIXI.Filter(filterOptions);
+      if (isUsableV8Filter(filter)) {
+        console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 8 GlProgram Filter).`);
+        return markApi(filter, "v8-filter");
       }
+      destroyFireSurfaceFilter(filter);
+      errors.push(new Error("Pixi 8 Filter was created without glProgram."));
+    } catch (error) {
+      errors.push(error);
     }
-  } else {
-    // True Pixi v7 only — never use this constructor when Pixi 8 signals are present.
+  } else if (!pixi8) {
     try {
       const uniforms = createUniformState();
       const filter = new PIXI.Filter(DEFAULT_VERTEX_V7, FIRE_SURFACE_FRAGMENT_V7, uniforms);
       if (Number.isFinite(resolution) && resolution > 0) filter.resolution = resolution;
       if (isUsableV7Filter(filter)) {
         console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 7 Filter).`);
-        return markApi(filter, "v7");
+        return markApi(filter, "v7-filter");
       }
       destroyFireSurfaceFilter(filter);
       errors.push(new Error("Pixi 7 Filter was created without uTime uniform."));
     } catch (error) {
       errors.push(error);
     }
+  } else {
+    errors.push(
+      new Error(
+        "Pixi 8 signals present but GlProgram missing on PIXI — Filter path skipped (use Mesh).",
+      ),
+    );
   }
 
-  console.warn(`${LOG_PREFIX} Field fire shader could not be created.`, errors[0] ?? errors);
+  if (errors.length) {
+    console.warn(`${LOG_PREFIX} Field Filter path unavailable.`, errors[0]);
+  }
   return null;
+}
+
+/**
+ * Build a Mesh-compatible shader without needing PIXI.GlProgram.
+ * Tries Program.from (Foundry/Pixi shared), then Shader.from string form.
+ */
+function createMeshShader(PIXI, uniforms) {
+  const errors = [];
+
+  if (typeof PIXI.Program?.from === "function" && typeof PIXI.Shader === "function") {
+    try {
+      const program = PIXI.Program.from(MESH_VERTEX_V7, MESH_FRAGMENT_V7);
+      const shader = new PIXI.Shader(program, uniforms);
+      if (shader?.uniforms && "uTime" in shader.uniforms) {
+        return { shader, via: "Program.from" };
+      }
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+
+  if (typeof PIXI.Shader?.from === "function") {
+    try {
+      const shader = PIXI.Shader.from(MESH_VERTEX_V7, MESH_FRAGMENT_V7, uniforms);
+      if (shader?.uniforms && "uTime" in shader.uniforms) {
+        return { shader, via: "Shader.from(strings)" };
+      }
+    } catch (error) {
+      errors.push(error);
+    }
+
+    // Pixi 8 object form (if present).
+    try {
+      const shader = PIXI.Shader.from({
+        gl: { vertex: MESH_VERTEX_V7, fragment: MESH_FRAGMENT_V7 },
+        resources: { fireUniforms: uniforms },
+      });
+      const u = shader?.resources?.fireUniforms?.uniforms ?? shader?.uniforms;
+      if (u && "uTime" in u) {
+        shader.uniforms = u;
+        return { shader, via: "Shader.from(gl)" };
+      }
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+
+  if (errors.length) {
+    console.warn(`${LOG_PREFIX} Mesh shader construction failed.`, errors[0]);
+  }
+  return null;
+}
+
+/**
+ * Generative fire quad via Mesh + Program/Shader (no GlProgram on global PIXI).
+ *
+ * @param {object} PIXI
+ * @param {{ x: number, y: number, width: number, height: number }} bounds
+ * @returns {object|null} { api, display, uniforms, destroy }
+ */
+export function createFireSurfaceMesh(PIXI, bounds) {
+  if (!PIXI?.Mesh) {
+    console.warn(`${LOG_PREFIX} PIXI.Mesh unavailable for Field mesh fire.`);
+    return null;
+  }
+
+  const width = Math.max(1, Number(bounds.width) || 1);
+  const height = Math.max(1, Number(bounds.height) || 1);
+  const x = Number(bounds.x) || 0;
+  const y = Number(bounds.y) || 0;
+  const uniforms = createUniformState();
+  uniforms.uWorldMin = [x, y];
+  uniforms.uWorldSize = [width, height];
+
+  const built = createMeshShader(PIXI, uniforms);
+  if (!built) return null;
+  const { shader, via } = built;
+  const uniformBag = shader.resources?.fireUniforms?.uniforms ?? shader.uniforms;
+  if (!uniformBag || !("uTime" in uniformBag)) {
+    console.warn(`${LOG_PREFIX} Field mesh shader missing uTime uniform.`);
+    return null;
+  }
+
+  const positions = new Float32Array([0, 0, width, 0, width, height, 0, height]);
+  const uvs = new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]);
+  const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+
+  let geometry;
+  let mesh;
+  try {
+    if (typeof PIXI.MeshGeometry === "function") {
+      geometry = new PIXI.MeshGeometry({
+        positions,
+        uvs,
+        indices: new Uint32Array(indices),
+      });
+      mesh = new PIXI.Mesh({ geometry, shader });
+    } else if (typeof PIXI.Geometry === "function") {
+      geometry = new PIXI.Geometry()
+        .addAttribute("aVertexPosition", positions, 2)
+        .addAttribute("aTextureCoord", uvs, 2)
+        .addIndex(indices);
+      mesh = new PIXI.Mesh(geometry, shader);
+    } else {
+      console.warn(`${LOG_PREFIX} PIXI.Geometry/MeshGeometry unavailable for Field mesh fire.`);
+      return null;
+    }
+  } catch (error) {
+    console.warn(`${LOG_PREFIX} Field mesh could not be created.`, error);
+    return null;
+  }
+
+  mesh.position.set(x, y);
+  if ("eventMode" in mesh) {
+    mesh.eventMode = "none";
+    mesh.interactiveChildren = false;
+  }
+
+  console.info(`${LOG_PREFIX} Field fire shader ready (Pixi Mesh via ${via}).`);
+  return {
+    api: "mesh",
+    display: mesh,
+    uniforms: uniformBag,
+    shader,
+    geometry,
+    destroy() {
+      try {
+        mesh.destroy?.({ children: true, texture: false, textureSource: false });
+      } catch {
+        try {
+          mesh.destroy?.();
+        } catch {
+          /* ignore */
+        }
+      }
+    },
+  };
+}
+
+/**
+ * Preferred Field surface factory: Filter when GlProgram exists, else Mesh shader.
+ *
+ * @param {object} PIXI
+ * @param {{ x: number, y: number, width: number, height: number }} bounds
+ * @param {{ resolution?: number }} [options]
+ * @returns {object|null} { api, display, update(state), destroy() }
+ */
+export function createFireSurface(PIXI, bounds, options = {}) {
+  const filter = createFireSurfaceFilter({ resolution: options.resolution });
+  if (filter) {
+    const plate = createFireSurfacePlate(PIXI, bounds);
+    if (!plate) {
+      destroyFireSurfaceFilter(filter);
+    } else {
+      plate.filters = [filter];
+      return {
+        api: filter.dfFireApi || "filter",
+        display: plate,
+        update(state) {
+          updateFireSurfaceUniforms(filter, state);
+        },
+        destroy() {
+          plate.filters = null;
+          destroyFireSurfaceFilter(filter);
+          try {
+            plate.destroy?.({ children: true, texture: false, textureSource: false });
+          } catch {
+            try {
+              plate.destroy?.();
+            } catch {
+              /* ignore */
+            }
+          }
+        },
+      };
+    }
+  }
+
+  const mesh = createFireSurfaceMesh(PIXI, bounds);
+  if (!mesh) return null;
+  return {
+    api: mesh.api,
+    display: mesh.display,
+    update(state) {
+      updateFireSurfaceUniforms({ uniforms: mesh.uniforms }, state);
+    },
+    destroy() {
+      mesh.destroy();
+    },
+  };
 }
 
 /**
