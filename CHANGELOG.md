@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.853] - 2026-11-17
+
+### Fixed
+
+- **DF: Particle Effects:** Field fire no longer falls through to a silent Pixi-7 Filter on Foundry 14. `GlProgram` is resolved from `PIXI.GlProgram` or recovered from built-in filters when Foundry does not expose it on the global `PIXI` object; Pixi-8 signals (`LegacyGraphics`, `Filter.defaultOptions`) force the options-object Filter path. Console now logs a one-time Pixi filter probe.
+
 ## [0.9.852] - 2026-11-17
 
 ### Fixed

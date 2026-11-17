@@ -7,6 +7,7 @@ import {
   createFireSurfaceFilter,
   createFireSurfacePlate,
   destroyFireSurfaceFilter,
+  probePixiFilterApi,
   updateFireSurfaceUniforms,
 } from "../scripts/fire-surface-shader.mjs";
 
@@ -85,6 +86,45 @@ test("filter factory uses GlProgram options on Pixi 8 and rejects string Filter 
   assert.equal(stringCtorCalls, 0);
   assert.ok(filter.glProgram);
   assert.match(filter.glProgram.fragment, /#version 300 es/);
+  globalThis.PIXI = previous;
+});
+
+test("GlProgram can be recovered from a built-in filter when missing on PIXI", () => {
+  const previous = globalThis.PIXI;
+  class RecoveredGlProgram {
+    constructor(options) {
+      this.vertex = options.vertex;
+      this.fragment = options.fragment;
+    }
+    static from(options) {
+      return new RecoveredGlProgram(options);
+    }
+  }
+  class FakeBlurFilter {
+    constructor() {
+      this.glProgram = Object.create(RecoveredGlProgram.prototype);
+    }
+    destroy() {}
+  }
+  class FakeFilter {
+    constructor(options) {
+      this.glProgram = options.glProgram;
+      this.resources = options.resources;
+    }
+  }
+  globalThis.PIXI = {
+    Filter: FakeFilter,
+    LegacyGraphics: class {},
+    BlurFilter: FakeBlurFilter,
+    VERSION: "8.0.0",
+  };
+  const { probe, GlProgram } = probePixiFilterApi(globalThis.PIXI);
+  assert.equal(probe.hasGlProgram, false);
+  assert.equal(probe.hasLegacyGraphics, true);
+  assert.equal(GlProgram, RecoveredGlProgram);
+  const filter = createFireSurfaceFilter();
+  assert.ok(filter);
+  assert.equal(filter.dfFireApi, "v8");
   globalThis.PIXI = previous;
 });
 

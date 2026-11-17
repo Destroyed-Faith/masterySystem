@@ -189,10 +189,71 @@ function markApi(filter, api) {
   return filter;
 }
 
-function isPixi8(PIXI) {
-  if (PIXI.GlProgram) return true;
-  const version = String(PIXI.VERSION ?? "");
-  return version.startsWith("8.");
+let loggedProbe = false;
+
+/**
+ * Foundry 14 ships Pixi 8, but does not always hang `GlProgram` on `globalThis.PIXI`.
+ * Signals: LegacyGraphics, Filter.defaultOptions, VERSION 8.x, or glProgram on built-ins.
+ */
+export function probePixiFilterApi(PIXI = globalThis.PIXI) {
+  const probe = {
+    version: PIXI?.VERSION ?? null,
+    hasGlProgram: typeof PIXI?.GlProgram === "function",
+    hasLegacyGraphics: typeof PIXI?.LegacyGraphics === "function",
+    hasFilterDefaultOptions: Boolean(PIXI?.Filter?.defaultOptions),
+    blurHasGlProgram: false,
+    blurHasProgram: false,
+    resolvedGlProgram: false,
+  };
+  const GlProgram = resolveGlProgram(PIXI, probe);
+  probe.resolvedGlProgram = typeof GlProgram === "function";
+  return { probe, GlProgram };
+}
+
+function resolveGlProgram(PIXI, probe = null) {
+  if (typeof PIXI?.GlProgram === "function") return PIXI.GlProgram;
+
+  const candidates = [
+    PIXI?.filters?.BlurFilter,
+    PIXI?.BlurFilter,
+    PIXI?.filters?.ColorMatrixFilter,
+    PIXI?.ColorMatrixFilter,
+  ].filter((Ctor) => typeof Ctor === "function");
+
+  for (const Ctor of candidates) {
+    let sample = null;
+    try {
+      sample = new Ctor();
+      if (probe) {
+        probe.blurHasGlProgram = probe.blurHasGlProgram || Boolean(sample.glProgram);
+        probe.blurHasProgram = probe.blurHasProgram || Boolean(sample.program);
+      }
+      const fromInstance = sample?.glProgram?.constructor;
+      if (typeof fromInstance === "function" && fromInstance !== Object) {
+        return fromInstance;
+      }
+    } catch {
+      /* try next */
+    } finally {
+      try {
+        sample?.destroy?.(true);
+      } catch {
+        try {
+          sample?.destroy?.();
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function shouldUsePixi8(PIXI, GlProgram) {
+  if (GlProgram) return true;
+  if (typeof PIXI?.LegacyGraphics === "function") return true;
+  if (PIXI?.Filter?.defaultOptions) return true;
+  return String(PIXI?.VERSION ?? "").startsWith("8.");
 }
 
 function isUsableV8Filter(filter) {
@@ -201,6 +262,13 @@ function isUsableV8Filter(filter) {
 
 function isUsableV7Filter(filter) {
   return Boolean(filter?.uniforms && Object.prototype.hasOwnProperty.call(filter.uniforms, "uTime"));
+}
+
+function createGlProgram(GlProgram, vertex, fragment) {
+  if (typeof GlProgram.from === "function") {
+    return GlProgram.from({ vertex, fragment });
+  }
+  return new GlProgram({ vertex, fragment });
 }
 
 /**
@@ -217,36 +285,47 @@ export function createFireSurfaceFilter(options = {}) {
 
   const resolution = Number(options.resolution);
   const errors = [];
-  const pixi8 = isPixi8(PIXI);
+  const { probe, GlProgram } = probePixiFilterApi(PIXI);
+  const pixi8 = shouldUsePixi8(PIXI, GlProgram);
 
-  // Pixi 8 / Foundry 14: options-object Filter with GlProgram only.
+  if (!loggedProbe) {
+    loggedProbe = true;
+    console.info(`${LOG_PREFIX} Pixi filter probe`, probe);
+  }
+
+  // Pixi 8 / Foundry 14: options-object Filter. Prefer a resolved GlProgram class.
   if (pixi8) {
-    try {
-      const vertex = String(DEFAULT_VERTEX);
-      const fragment = String(FIRE_SURFACE_FRAGMENT);
-      const GlProgram = PIXI.GlProgram;
-      const glProgram = typeof GlProgram.from === "function"
-        ? GlProgram.from({ vertex, fragment })
-        : new GlProgram({ vertex, fragment });
-      const filterOptions = {
-        glProgram,
-        resources: v8Resources(),
-        padding: 0,
-        antialias: "off",
-      };
-      if (Number.isFinite(resolution) && resolution > 0) filterOptions.resolution = resolution;
-      const filter = new PIXI.Filter(filterOptions);
-      if (isUsableV8Filter(filter)) {
-        console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 8 GlProgram).`);
-        return markApi(filter, "v8");
+    if (!GlProgram) {
+      errors.push(
+        new Error(
+          "Pixi 8 signals present (LegacyGraphics/defaultOptions/VERSION) but GlProgram could not be resolved from PIXI or built-in filters.",
+        ),
+      );
+    } else {
+      try {
+        const vertex = String(DEFAULT_VERTEX);
+        const fragment = String(FIRE_SURFACE_FRAGMENT);
+        const glProgram = createGlProgram(GlProgram, vertex, fragment);
+        const filterOptions = {
+          glProgram,
+          resources: v8Resources(),
+          padding: 0,
+          antialias: "off",
+        };
+        if (Number.isFinite(resolution) && resolution > 0) filterOptions.resolution = resolution;
+        const filter = new PIXI.Filter(filterOptions);
+        if (isUsableV8Filter(filter)) {
+          console.info(`${LOG_PREFIX} Field fire shader ready (Pixi 8 GlProgram).`);
+          return markApi(filter, "v8");
+        }
+        destroyFireSurfaceFilter(filter);
+        errors.push(new Error("Pixi 8 Filter was created without glProgram."));
+      } catch (error) {
+        errors.push(error);
       }
-      destroyFireSurfaceFilter(filter);
-      errors.push(new Error("Pixi 8 Filter was created without glProgram."));
-    } catch (error) {
-      errors.push(error);
     }
   } else {
-    // True Pixi v7 only — never use this constructor on Pixi 8 (silent invisible filter).
+    // True Pixi v7 only — never use this constructor when Pixi 8 signals are present.
     try {
       const uniforms = createUniformState();
       const filter = new PIXI.Filter(DEFAULT_VERTEX_V7, FIRE_SURFACE_FRAGMENT_V7, uniforms);
