@@ -1,4 +1,13 @@
-import { behaviorTypeId, EFFECT_NATURAL_FIRE, ARRANGEMENT_FIELD, ARRANGEMENT_SINGLE, typeLabelKey } from "./constants.mjs";
+import {
+  behaviorTypeId,
+  EFFECT_NATURAL_FIRE,
+  EFFECT_NONE,
+  ARRANGEMENT_FIELD,
+  ARRANGEMENT_SINGLE,
+  FIRE_STYLE_AREA,
+  typeLabelKey,
+} from "./constants.mjs";
+import { fireStyleChoices } from "./styles.mjs";
 
 /**
  * Foundry v14 region behavior. Fields live on RegionBehavior.system and use the
@@ -22,10 +31,19 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
         blank: false,
         initial: EFFECT_NATURAL_FIRE,
         choices: {
-          naturalFire: "DF_PARTICLE_EFFECTS.EFFECTS.naturalFire",
+          [EFFECT_NONE]: "DF_PARTICLE_EFFECTS.EFFECTS.none",
+          [EFFECT_NATURAL_FIRE]: "DF_PARTICLE_EFFECTS.EFFECTS.naturalFire",
         },
         label: "DF_PARTICLE_EFFECTS.FIELDS.effectType.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.effectType.hint",
+      }),
+      fireStyle: new fields.StringField({
+        required: true,
+        blank: false,
+        initial: FIRE_STYLE_AREA,
+        choices: fireStyleChoices(),
+        label: "DF_PARTICLE_EFFECTS.FIELDS.fireStyle.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.fireStyle.hint",
       }),
       arrangement: new fields.StringField({
         required: true,

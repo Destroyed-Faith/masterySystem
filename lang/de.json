@@ -757,7 +757,27 @@
   "DF_PARTICLE_EFFECTS": {
     "TypeHint": "Visuelles natürliches Feuer, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
     "EFFECTS": {
-      "naturalFire": "Natürliches Feuer"
+      "none": "Keiner",
+      "naturalFire": "Feuer"
+    },
+    "FIRE_STYLE": {
+      "areaFire": {
+        "label": "Flächenfeuer",
+        "description": "Unregelmäßig brodelnder, brennender Boden über die ganze Region, mit Bodenlücken zwischen den Brandnestern.",
+        "limitations": "Die Shader-Fläche braucht PixiJS 7 (Foundry 13/14), sonst werden Legacy-Sprites genutzt. Eine Flamme und Legacy-Feld nutzen Sprite-Grafiken."
+      },
+      "ballOfFire": {
+        "label": "Feuerball (Shadertoy)",
+        "description": "Ein radialer Feuerball mit weißglühendem Kern und nach außen strömenden Flammen, nach der Shadertoy-Vorlage.",
+        "limitations": "Immer rund und in der Regionsmitte; die Regionsform schneidet ihn nur zu. Die Größe folgt der kürzeren Regionsseite und der Flammengröße. Ignoriert Anordnung, Dichte, Glutmenge und Randausblendung. Kein Sprite-Ersatz; braucht PixiJS 7 und hochpräzise Fragment-Shader."
+      }
+    },
+    "STYLE_INFO": {
+      "heading": "Stil-Details",
+      "source": "Original",
+      "license": "Lizenz",
+      "independent": "Es wird kein Shadertoy-Code mitgeliefert; dieser Shader ist eigenständig geschrieben und bildet den Look der Vorlage nach.",
+      "limitations": "Einschränkungen"
     },
     "ARRANGEMENT": {
       "field": "Feld",
@@ -770,7 +790,11 @@
       },
       "effectType": {
         "label": "Effekttyp",
-        "hint": "In dieser Version gibt es nur natürliches Feuer. Weitere Typen können später hier ergänzt werden, ohne einen neuen Behavior-Typ anzulegen."
+        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer ist der einzige umgesetzte Effekt; weitere Effekte kommen hier dazu, ohne einen neuen Behavior-Typ."
+      },
+      "fireStyle": {
+        "label": "Feuerstil",
+        "hint": "Flächenfeuer ist unregelmäßig brennender Boden über die ganze Region und nutzt Anordnung, Dichte, Glutmenge und Randausblendung. Feuerball ist ein radialer Feuerball in der Regionsmitte; er nutzt Flammengröße (Größe), Flammengeschwindigkeit und Deckkraft."
       },
       "arrangement": {
         "label": "Anordnung",
@@ -808,7 +832,7 @@
     "SETTINGS": {
       "quality": {
         "name": "Feuerqualität",
-        "hint": "Begrenzt Legacy-Flammen und Funken pro Region und Szene und senkt auf Niedrig/Mittel die Feld-Shader-Auflösung. Die gespeicherten Regionseinstellungen bleiben unverändert.",
+        "hint": "Begrenzt Legacy-Flammen und Funken pro Region und Szene. Shader-Flächen sind nicht betroffen. Die gespeicherten Regionseinstellungen bleiben unverändert.",
         "low": "Niedrig",
         "medium": "Mittel",
         "high": "Hoch"

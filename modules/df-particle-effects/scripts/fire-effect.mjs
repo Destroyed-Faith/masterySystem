@@ -2,6 +2,8 @@ import {
   ARRANGEMENT_SINGLE,
   EFFECT_NATURAL_FIRE,
   FIELD_RENDER_SHADER,
+  FIRE_STYLE_AREA,
+  FIRE_STYLE_BALL,
   FLAME_HEIGHT_IN_CELLS,
   LOG_PREFIX,
 } from "./constants.mjs";
@@ -11,9 +13,10 @@ import { deriveSeed, mulberry32 } from "./random.mjs";
 
 /**
  * One Natural Fire instance.
- * Field (shader): one world-anchored fire surface + sparse embers.
- * Field (legacy): layered campfire stills + embers.
- * Single: stacked stills at one site (unchanged).
+ * Area Fire, Field (shader): one world-anchored fire surface + sparse embers.
+ * Area Fire, Field (legacy): layered campfire stills + embers.
+ * Area Fire, Single: stacked stills at one site (unchanged).
+ * Ball Of Fire: one radial shader quad centered on the region, no sprites.
  */
 export class NaturalFireEffect {
   /**
@@ -27,6 +30,7 @@ export class NaturalFireEffect {
    * @param {object|null} options.mask
    * @param {{ x: number, y: number, width: number, height: number }|null} [options.bounds]
    * @param {boolean} [options.useShaderField]
+   * @param {string|null} [options.surfaceStyle] Shader style; defaults to Area Fire when useShaderField is set.
    */
   constructor(options) {
     const PIXI = globalThis.PIXI;
@@ -41,7 +45,8 @@ export class NaturalFireEffect {
     this.layers = [];
     this.embers = [];
     this.fireSurface = null;
-    this.useShaderField = Boolean(options.useShaderField);
+    this.surfaceStyle = options.surfaceStyle ?? (options.useShaderField ? FIRE_STYLE_AREA : null);
+    this.useShaderField = Boolean(this.surfaceStyle);
 
     this.root = new PIXI.Container();
     this.content = new PIXI.Container();
@@ -62,7 +67,7 @@ export class NaturalFireEffect {
       const built = this.#buildShaderSurface(PIXI);
       if (!built) {
         this.destroy();
-        throw new Error(`${LOG_PREFIX} Field fire shader surface could not be created.`);
+        throw new Error(`${LOG_PREFIX} ${this.surfaceStyle} fire shader surface could not be created.`);
       }
     } else {
       this.#buildFlames(PIXI, options.assets, options.sites, rng);
@@ -140,7 +145,10 @@ export class NaturalFireEffect {
 
   #buildShaderSurface(PIXI) {
     if (!this.bounds) return false;
-    const surface = createFireSurface(PIXI, this.bounds);
+    const surface = createFireSurface(PIXI, this.bounds, {
+      style: this.surfaceStyle,
+      scale: clamp(Number(this.config.flameScale) || 1, 0.25, 2),
+    });
     if (!surface?.display) return false;
     this.content.addChild(surface.display);
     this.fireSurface = surface;
@@ -282,6 +290,10 @@ export function assertNaturalFire(effectType) {
 
 export function usesShaderField(config) {
   return config?.arrangement !== ARRANGEMENT_SINGLE && config?.fieldRenderer === FIELD_RENDER_SHADER;
+}
+
+export function usesBallOfFire(config) {
+  return config?.fireStyle === FIRE_STYLE_BALL;
 }
 
 function pickGroup(rng, assets, avoid) {

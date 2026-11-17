@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.857] - 2026-11-17
+
+### Added
+
+- **DF: Particle Effects:** Selectable fire styles. New **Fire Style** field (Area Fire, Ball Of Fire) and an Effect Type **None**. The style panel in the behavior dialog shows name, description, a link to the Shadertoy reference, license and limitations. **Ball Of Fire** is an independently written radial fire shader inspired by [Ball Of Fire by Trisomie21](https://www.shadertoy.com/view/lsf3RH); no Shadertoy code is shipped because Shadertoy shaders default to CC BY-NC-SA 3.0. Area Fire and the legacy sprite path are unchanged. Unimplemented styles are not selectable. Module `df-particle-effects` **1.1.7**.
+
 ## [0.9.856] - 2026-11-17
 
 ### Changed

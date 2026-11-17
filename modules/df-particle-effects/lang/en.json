@@ -9,7 +9,27 @@
   "DF_PARTICLE_EFFECTS": {
     "TypeHint": "Visual natural fire clipped to this region. It does not deal damage or change tokens.",
     "EFFECTS": {
-      "naturalFire": "Natural Fire"
+      "none": "None",
+      "naturalFire": "Fire"
+    },
+    "FIRE_STYLE": {
+      "areaFire": {
+        "label": "Area Fire",
+        "description": "Irregular, boiling burning ground that fills the region, with floor gaps between burning patches.",
+        "limitations": "Needs PixiJS 7 (Foundry 13/14) for the shader surface; otherwise legacy sprites are used. Single flame and legacy Field use sprite art."
+      },
+      "ballOfFire": {
+        "label": "Ball Of Fire (Shadertoy)",
+        "description": "One radial fireball with a white-hot core and flames streaming outward, modeled on the Shadertoy reference.",
+        "limitations": "Always round and centered on the region; the region shape only clips it. Size follows the region's shorter side and Flame Scale. Ignores Arrangement, Density, Ember Amount and Edge Fade. No sprite fallback; needs PixiJS 7 and high-precision fragment shaders."
+      }
+    },
+    "STYLE_INFO": {
+      "heading": "Style Details",
+      "source": "Original",
+      "license": "License",
+      "independent": "No Shadertoy code is shipped; this shader is independently written to match the reference's look.",
+      "limitations": "Limitations"
     },
     "ARRANGEMENT": {
       "field": "Field",
@@ -22,7 +42,11 @@
       },
       "effectType": {
         "label": "Effect Type",
-        "hint": "Natural Fire is the only effect in this version. Later effects can be added here without a new behavior type."
+        "hint": "None keeps the settings but draws nothing. Fire is the only implemented effect; other effects will be added here without a new behavior type."
+      },
+      "fireStyle": {
+        "label": "Fire Style",
+        "hint": "Area Fire is irregular burning ground across the whole region and uses Arrangement, Density, Ember Amount and Edge Fade. Ball Of Fire is one radial fireball centered on the region; it uses Flame Scale (size), Flame Speed and Opacity."
       },
       "arrangement": {
         "label": "Arrangement",
@@ -60,7 +84,7 @@
     "SETTINGS": {
       "quality": {
         "name": "Fire quality",
-        "hint": "Caps legacy flames and embers per region and per scene, and lowers Field shader resolution on Low/Medium. The saved region settings do not change.",
+        "hint": "Caps legacy flames and embers per region and per scene. Shader surfaces are not affected. The saved region settings do not change.",
         "low": "Low",
         "medium": "Medium",
         "high": "High"

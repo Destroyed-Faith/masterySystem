@@ -1,4 +1,4 @@
-import { LOG_PREFIX } from "./constants.mjs";
+import { FIRE_STYLE_AREA, FIRE_STYLE_BALL, LOG_PREFIX } from "./constants.mjs";
 
 /**
  * Top-down area fire for Arrangement: Field.
@@ -133,6 +133,75 @@ void main() {
 }
 `;
 
+/**
+ * Ball Of Fire. Visual reference: "Ball Of Fire" by Trisomie21,
+ * https://www.shadertoy.com/view/lsf3RH (CC BY-NC-SA 3.0, no code copied).
+ * Independently written from the same idea, which goes back to Ken Perlin's
+ * noise talk: fBm sampled in polar coordinates with the radius compressed, so
+ * structures streak outward from a white-hot core; the radius coordinate scrolls
+ * so flames stream outward. The lattice wraps on every axis, which removes the
+ * angular seam and lets time loop every 100 units without a jump.
+ * hash13 is "Hash without Sine" by Dave Hoskins (MIT).
+ *
+ * Quad space: |p| = 0.5 is the edge of the core, the quad reaches |p| = 0.8.
+ */
+export const BALL_QUAD_EXTENT = 0.8;
+
+export const BALL_FRAGMENT = /* glsl */ `
+precision highp float;
+varying vec2 vTextureCoord;
+uniform float uTime;
+uniform float uOpacity;
+uniform float uSeed;
+
+const float TAU = 6.28318530718;
+
+float hash13(vec3 p) {
+  p = fract(p * 0.1031);
+  p += dot(p, p.zyx + 31.32);
+  return fract((p.x + p.y) * p.z);
+}
+
+float wrappedNoise(vec3 q, float period) {
+  vec3 i0 = floor(q);
+  vec3 f = fract(q);
+  vec3 u = f * f * (3.0 - 2.0 * f);
+  vec3 a = mod(i0, period);
+  vec3 b = mod(i0 + 1.0, period);
+  float x00 = mix(hash13(vec3(a.x, a.y, a.z)), hash13(vec3(b.x, a.y, a.z)), u.x);
+  float x10 = mix(hash13(vec3(a.x, b.y, a.z)), hash13(vec3(b.x, b.y, a.z)), u.x);
+  float x01 = mix(hash13(vec3(a.x, a.y, b.z)), hash13(vec3(b.x, a.y, b.z)), u.x);
+  float x11 = mix(hash13(vec3(a.x, b.y, b.z)), hash13(vec3(b.x, b.y, b.z)), u.x);
+  return mix(mix(x00, x10, u.y), mix(x01, x11, u.y), u.z) * 2.0 - 1.0;
+}
+
+void main() {
+  vec2 p = (vTextureCoord - 0.5) * (2.0 * ${BALL_QUAD_EXTENT.toFixed(2)});
+  float r = length(p);
+  float t = mod(uTime, 100.0);
+
+  vec3 polar = vec3(atan(p.x, p.y) / TAU + 0.5, r * 0.4, 0.5 + uSeed);
+  vec3 drift = vec3(0.0, -t * 0.05, t * 0.01);
+
+  float heat = 3.0 - 6.0 * r;
+  float amplitude = 0.75;
+  float period = 32.0;
+  for (int i = 0; i < 7; i++) {
+    heat += amplitude * wrappedNoise((polar + drift) * period, period);
+    amplitude *= 0.5;
+    period *= 2.0;
+  }
+  heat = max(heat, 0.0);
+
+  vec3 color = clamp(vec3(heat, 0.4 * heat * heat, 0.15 * heat * heat * heat), 0.0, 1.0);
+  float fade = smoothstep(${BALL_QUAD_EXTENT.toFixed(2)}, 0.62, r) * clamp(uOpacity, 0.0, 1.0);
+  gl_FragColor = vec4(color * fade, color.r * fade);
+}
+`;
+
+/** Core radius as a share of the region's inscribed radius at Flame Scale 1. */
+const BALL_CORE_SHARE = 0.62;
+
 function createUniformState() {
   return {
     uTime: 0,
@@ -146,19 +215,47 @@ function createUniformState() {
   };
 }
 
+/**
+ * Square quad centered on the region, so the ball stays round on any polygon.
+ * The region mask still clips it.
+ */
+export function ballQuad(bounds, scale = 1) {
+  const cx = bounds.x + bounds.width / 2;
+  const cy = bounds.y + bounds.height / 2;
+  const core = (Math.min(bounds.width, bounds.height) / 2) * BALL_CORE_SHARE * scale;
+  const half = Math.max(1, (core * BALL_QUAD_EXTENT) / 0.5);
+  return { x: cx - half, y: cy - half, width: half * 2, height: half * 2 };
+}
+
+const SURFACE_STYLES = {
+  [FIRE_STYLE_AREA]: {
+    fragment: MESH_FRAGMENT,
+    quad: (bounds) => bounds,
+    uniforms: createUniformState,
+    update: updateFireSurfaceUniforms,
+  },
+  [FIRE_STYLE_BALL]: {
+    fragment: BALL_FRAGMENT,
+    quad: ballQuad,
+    uniforms: () => ({ uTime: 0, uOpacity: 0.9, uSeed: 0.5 }),
+    update: updateBallUniforms,
+  },
+};
+
 export function pixiMajorVersion(PIXI = globalThis.PIXI) {
   const major = Number.parseInt(String(PIXI?.VERSION ?? ""), 10);
   return Number.isFinite(major) ? major : null;
 }
 
 /**
- * One world-space quad with the generative fire shader (PixiJS 7 API).
+ * One world-space quad with a generative fire shader (PixiJS 7 API).
  *
  * @param {object} PIXI
  * @param {{ x: number, y: number, width: number, height: number }} bounds
- * @returns {{ api: string, display: object, update(state: object): void, destroy(): void }|null}
+ * @param {{ style?: string, scale?: number }} [options]
+ * @returns {{ api: string, style: string, display: object, update(state: object): void, destroy(): void }|null}
  */
-export function createFireSurface(PIXI, bounds) {
+export function createFireSurface(PIXI, bounds, options = {}) {
   const major = pixiMajorVersion(PIXI);
   if (major !== 7) {
     console.warn(`${LOG_PREFIX} Field fire shader supports PixiJS 7 only (found ${PIXI?.VERSION ?? "none"}).`);
@@ -169,15 +266,17 @@ export function createFireSurface(PIXI, bounds) {
     return null;
   }
 
-  const width = Math.max(1, Number(bounds.width) || 1);
-  const height = Math.max(1, Number(bounds.height) || 1);
-  const x = Number(bounds.x) || 0;
-  const y = Number(bounds.y) || 0;
+  const style = SURFACE_STYLES[options.style] ? options.style : FIRE_STYLE_AREA;
+  const program = SURFACE_STYLES[style];
+  const rect = program.quad(bounds, Number(options.scale) || 1);
+  const width = Math.max(1, Number(rect.width) || 1);
+  const height = Math.max(1, Number(rect.height) || 1);
+  const x = Number(rect.x) || 0;
+  const y = Number(rect.y) || 0;
 
   let mesh;
   try {
-    const uniforms = createUniformState();
-    const shader = PIXI.Shader.from(MESH_VERTEX, MESH_FRAGMENT, uniforms);
+    const shader = PIXI.Shader.from(MESH_VERTEX, program.fragment, program.uniforms());
     const geometry = new PIXI.MeshGeometry(
       new Float32Array([0, 0, width, 0, width, height, 0, height]),
       new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),
@@ -185,7 +284,7 @@ export function createFireSurface(PIXI, bounds) {
     );
     mesh = new PIXI.Mesh(geometry, shader);
   } catch (error) {
-    console.warn(`${LOG_PREFIX} Field fire mesh could not be created.`, error);
+    console.warn(`${LOG_PREFIX} ${style} fire mesh could not be created.`, error);
     return null;
   }
 
@@ -195,18 +294,26 @@ export function createFireSurface(PIXI, bounds) {
     mesh.interactiveChildren = false;
   }
 
-  console.info(`${LOG_PREFIX} Field fire shader ready (PixiJS ${PIXI.VERSION} Mesh).`);
+  console.info(`${LOG_PREFIX} ${style} fire shader ready (PixiJS ${PIXI.VERSION} Mesh).`);
   return {
     api: "mesh",
+    style,
     display: mesh,
     update(state) {
-      updateFireSurfaceUniforms(mesh.shader.uniforms, state);
+      program.update(mesh.shader.uniforms, state);
     },
     destroy() {
       if (mesh.destroyed) return;
       mesh.destroy({ children: true });
     },
   };
+}
+
+export function updateBallUniforms(uniforms, state) {
+  if (!uniforms) return;
+  uniforms.uTime = state.time;
+  uniforms.uOpacity = state.opacity;
+  uniforms.uSeed = state.seed;
 }
 
 /**

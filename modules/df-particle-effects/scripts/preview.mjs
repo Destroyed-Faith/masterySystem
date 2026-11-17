@@ -1,4 +1,5 @@
-import { behaviorTypeId, EFFECT_NATURAL_FIRE } from "./constants.mjs";
+import { behaviorTypeId, EFFECT_NATURAL_FIRE, FIRE_STYLE_AREA } from "./constants.mjs";
+import { decorateStyleField } from "./style-info.mjs";
 
 /**
  * While the behavior sheet is open, mirror its fields onto the map.
@@ -13,6 +14,11 @@ export function registerPreview(renderer) {
     if (!isParticleBehavior(behavior)) return;
     const form = findForm(app);
     if (!form) return;
+    try {
+      decorateStyleField(form);
+    } catch (error) {
+      console.warn("df-particle-effects | style info panel failed.", error);
+    }
     const apply = () => renderer.setPreview(behavior, readDraft(form));
     if (form.dataset.dfFirePreview !== "1") {
       form.dataset.dfFirePreview = "1";
@@ -52,6 +58,7 @@ export function readDraft(form) {
     system: {
       enabled: checked(form, "system.enabled", true),
       effectType: text(form, "system.effectType") || EFFECT_NATURAL_FIRE,
+      fireStyle: text(form, "system.fireStyle") || FIRE_STYLE_AREA,
       arrangement: text(form, "system.arrangement") || "field",
       density: numberValue(form, "system.density", 40),
       flameScale: numberValue(form, "system.flameScale", 1),

@@ -4,6 +4,7 @@ import {
   ARRANGEMENT_SINGLE,
   behaviorTypeId,
   EFFECT_NATURAL_FIRE,
+  EFFECT_NONE,
   FIELD_RENDER_LEGACY,
   FIELD_RENDER_SHADER,
   fieldRendererSettingKey,
@@ -14,7 +15,8 @@ import {
   settingsNamespace,
 } from "./constants.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
-import { NaturalFireEffect, usesShaderField } from "./fire-effect.mjs";
+import { NaturalFireEffect, usesBallOfFire, usesShaderField } from "./fire-effect.mjs";
+import { resolveFireStyle } from "./styles.mjs";
 import {
   allocateBudget,
   planFlameSites,
@@ -240,7 +242,7 @@ function collectActiveBehaviors(scene, preview = null) {
 function describeBehavior(scene, region, behavior, configOverride) {
   try {
     const config = configOverride ?? readConfig(behavior);
-    if (!config.enabled) return null;
+    if (!config.enabled || config.effectType === EFFECT_NONE) return null;
     if (config.effectType !== EFFECT_NATURAL_FIRE) {
       if (!configOverride) {
         console.warn(
@@ -280,6 +282,7 @@ export function fireLayoutSignature(config) {
   return [
     config.enabled ? 1 : 0,
     config.effectType,
+    config.fireStyle,
     config.arrangement,
     config.fieldRenderer,
     config.density,
@@ -295,6 +298,8 @@ function behaviorKey(behavior, region = behavior?.parent) {
 }
 
 function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
+  if (usesBallOfFire(entry.config)) return createBallOfFire(entry, assets, grid);
+
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
   const siteOptions = {
     bounds: entry.bounds,
@@ -386,6 +391,29 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
       useShaderField: false,
     });
   }
+}
+
+/**
+ * Radial shader with no sprites. It has no sprite fallback: campfires are not the
+ * same look, so a failure skips this region (logged by the caller).
+ */
+function createBallOfFire(entry, assets, grid) {
+  const mask = buildRegionMask(entry.tree);
+  if (!mask) {
+    console.warn(`${LOG_PREFIX} region mask could not be built. Fire was skipped so it cannot spill outside.`);
+    return null;
+  }
+  return new NaturalFireEffect({
+    assets,
+    sites: [],
+    emberCount: 0,
+    config: entry.config,
+    gridSize: grid.size,
+    seed: entry.seed,
+    mask,
+    bounds: entry.bounds,
+    surfaceStyle: entry.config.fireStyle,
+  });
 }
 
 /**
@@ -530,7 +558,7 @@ function mountEffect(root, elevation) {
   return true;
 }
 
-function readConfig(behavior) {
+export function readConfig(behavior) {
   const system = behavior.system ?? {};
   const rawSeed = system.randomSeed;
   const randomSeed =
@@ -540,6 +568,7 @@ function readConfig(behavior) {
   return {
     enabled: system.enabled !== false && behavior.disabled !== true,
     effectType: system.effectType || EFFECT_NATURAL_FIRE,
+    fireStyle: resolveFireStyle(system.fireStyle),
     arrangement: system.arrangement === ARRANGEMENT_SINGLE ? ARRANGEMENT_SINGLE : ARRANGEMENT_FIELD,
     fieldRenderer: readFieldRenderer(),
     density: clampNumber(system.density ?? 40, 0, 100),

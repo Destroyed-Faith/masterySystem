@@ -6,7 +6,7 @@ Eigenständiges Foundry-VTT-Modul für **visuelles Feuer innerhalb von Szenenreg
 - Anzeigename: **Destroyed Faith – Particle Effects**
 - Behavior in der Regionenliste: **DF: Particle Effects**
 - Zielversion: **Foundry VTT 14** (`compatibility.minimum` und `verified` sind 14). V13 wurde nicht geprüft und wird nicht behauptet.
-- Einziger Effekt in dieser Version: **Natural Fire** / Natürliches Feuer
+- Einziger Effekt in dieser Version: **Fire** / Feuer, mit den Stilen **Area Fire** und **Ball Of Fire**
 
 Die Lizenz ist die Destroyed-Faith-Lizenz aus dem Repository (`LICENSE.md` im Projektroot). Die Flammenbilder sind projekteigene Standbilder, keine FXMaster+-Assets.
 
@@ -19,7 +19,7 @@ Es gibt **kein Symbol in der linken Toolbar**. Der Effekt hängt an der normalen
 3. Die Region doppelklicken.
 4. Reiter **Behaviors** öffnen und **Create / Add Behavior** wählen.
 5. In der Liste **DF: Particle Effects** wählen (Feuer-Icon).
-6. **Effect Type** auf **Natural Fire** lassen, Dichte und Größe nach Bedarf setzen, dann speichern.
+6. **Effect Type** auf **Fire** lassen, unter **Fire Style** den Stil wählen, Dichte und Größe nach Bedarf setzen, dann speichern.
 
 Das Feuer erscheint nur in dieser Region, auf der Karte und unter Token. Die Hintergrundkarte wird nicht abgedunkelt. Klicks auf Token und Regionen gehen durch den Effekt hindurch.
 
@@ -32,7 +32,8 @@ GM und Spieler sehen dieselben Flächen, weil Foundry die Behavior-Daten synchro
 | Feld | Standard | Bedeutung |
 | --- | --- | --- |
 | Enabled | an | Schaltet nur diesen Effekt aus. |
-| Effect Type | Natural Fire | Einziger Typ in V1. Das Feld ist für spätere Typen offen. |
+| Effect Type | Fire | None oder Fire. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
+| Fire Style | Area Fire | Area Fire füllt die Region mit Bodenfeuer. Ball Of Fire zeigt einen runden Feuerball in der Mitte der Region; Density und Ember Amount wirken dort nicht. |
 | Density | 40 | Feuerstellen relativ zur Regionsfläche in Rasterzellen, nicht zur Fenstergröße. 0 blendet Flammen aus. |
 | Flame Scale | 1 | Größe relativ zum Szenenraster. Die Basis bleibt am Boden. Bereich 0,25–2. |
 | Flame Speed | 1 | Tempo von Flackern, Wiegen und Funken. Bereich 0,1–3. |
@@ -44,6 +45,23 @@ GM und Spieler sehen dieselben Flächen, weil Foundry die Behavior-Daten synchro
 Unter **Configure Settings → Destroyed Faith – Particle Effects → Fire quality** gibt es Low / Medium / High. Das ist eine lokale Obergrenze und ändert die gespeicherte Region nicht. Standard ist Medium.
 
 Nicht enthalten: Rauch, Lichtquellen, Brandausbreitung, Schaden, Zustände, Hex-Automaten.
+
+### Shader-Stile und Referenzen
+
+Shadertoy-Shader stehen ohne eigene Angabe unter **CC BY-NC-SA 3.0**. Das verbietet kommerzielle Weitergabe und verlangt dieselbe Lizenz für Ableitungen. Keine der geprüften Seiten nennt eine freiere Lizenz. Deshalb liefert das Modul **keinen Shadertoy-Code** aus. Ball Of Fire ist eine selbst geschriebene Entsprechung, die sich am Aussehen der Referenz orientiert. Die einzige fremde Funktion ist `hash13` aus „Hash without Sine“ von Dave Hoskins (MIT).
+
+| Referenz | Autor | Ergebnis |
+| --- | --- | --- |
+| [Ball Of Fire (lsf3RH)](https://www.shadertoy.com/view/lsf3RH) | Trisomie21 | Umgesetzt als eigener Shader, Stil **Ball Of Fire** |
+| [MtcGD7](https://www.shadertoy.com/view/MtcGD7) (Great Fire) | – | Geprüft. Seitenansicht einer Feuerwand, passt nicht zur Draufsicht. Nicht umgesetzt. |
+| [ltlyz4](https://www.shadertoy.com/view/ltlyz4) (Eis) | – | Geprüft. 3D-Raymarching, nicht als Bodeneffekt nutzbar. |
+| [tfGSzz](https://www.shadertoy.com/view/tfGSzz) (Gas) | – | Geprüft. 3D-Raymarching, nicht als Bodeneffekt nutzbar. |
+| [tt2GRR](https://www.shadertoy.com/view/tt2GRR) (Holy) | – | Seite nicht erreichbar (404). |
+| [Smoke Screen (4t2SRz)](https://www.shadertoy.com/view/4t2SRz) (Gas) | jackdavenport | Geprüft. Einzelner Pass, als Vorlage für Gas geeignet. Noch nicht umgesetzt. |
+| [Light rays (lljGDt)](https://www.shadertoy.com/view/lljGDt) (Holy) | ElusivePete | Geprüft. Einzelner Pass, als Vorlage für Holy geeignet. Noch nicht umgesetzt. |
+| [Experiment: Frosted Glass (MtsSWs)](https://www.shadertoy.com/view/MtsSWs) (Frost) | jackdavenport | Geprüft. Ein Unschärfefilter über einem Video-Eingang, kein eigenes Frostbild. Braucht das Kartenbild unter der Region als Textur. Noch nicht umgesetzt. |
+
+Nicht umgesetzte Stile und Typen erscheinen nicht in der Auswahl.
 
 ## Installation in Foundry
 

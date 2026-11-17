@@ -7,7 +7,13 @@ export const BEHAVIOR_TYPE = `${MODULE_ID}.particleEffects`;
 /** System subtype. No package prefix. This is the entry inside Mastery System. */
 export const SYSTEM_BEHAVIOR_TYPE = "particleEffects";
 
+export const EFFECT_NONE = "none";
 export const EFFECT_NATURAL_FIRE = "naturalFire";
+
+/** Visual styles for Natural Fire. Only implemented styles may appear here. */
+export const FIRE_STYLE_AREA = "areaFire";
+export const FIRE_STYLE_BALL = "ballOfFire";
+
 export const ARRANGEMENT_FIELD = "field";
 export const ARRANGEMENT_SINGLE = "single";
 
