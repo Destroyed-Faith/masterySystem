@@ -138,10 +138,13 @@ test("system package urls are not treated as the standalone module", () => {
   );
 });
 
-test("both languages show the behavior as DF: Particle Effects", () => {
+test("both languages show the behavior as Destroyed Faith: Particle Effects", () => {
   for (const lang of ["en", "de"]) {
     const document = JSON.parse(fs.readFileSync(path.join(moduleRoot, "lang", `${lang}.json`), "utf8"));
-    assert.equal(document.TYPES.RegionBehavior["df-particle-effects"].particleEffects, "DF: Particle Effects");
+    assert.equal(
+      document.TYPES.RegionBehavior["df-particle-effects"].particleEffects,
+      "Destroyed Faith: Particle Effects",
+    );
   }
 });
 

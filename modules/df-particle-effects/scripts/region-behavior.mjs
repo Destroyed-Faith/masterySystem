@@ -120,7 +120,25 @@ export function registerBehaviorType() {
   const behaviorType = behaviorTypeId();
   config.dataModels[behaviorType] = ParticleEffectsBehavior;
   if (config.typeIcons) config.typeIcons[behaviorType] = "fa-solid fa-fire";
+  // Keep an i18n key (same pattern as Apply Specials). Foundry localizes it in the create dialog.
   if (config.typeLabels) config.typeLabels[behaviorType] = typeLabelKey();
   if (config.typeHints) config.typeHints[behaviorType] = "DF_PARTICLE_EFFECTS.TypeHint";
   return true;
+}
+
+/** Resolve the dropdown label after i18n is ready. Falls back to a plain string. */
+export function applyBehaviorLabels() {
+  const config = globalThis.CONFIG?.RegionBehavior;
+  if (!config) return;
+  const behaviorType = behaviorTypeId();
+  const labelKey = typeLabelKey();
+  const localized = globalThis.game?.i18n?.localize?.(labelKey);
+  const label =
+    localized && localized !== labelKey
+      ? localized
+      : "Destroyed Faith: Particle Effects";
+  if (config.typeLabels) config.typeLabels[behaviorType] = label;
+  const hintKey = "DF_PARTICLE_EFFECTS.TypeHint";
+  const hint = globalThis.game?.i18n?.localize?.(hintKey);
+  if (config.typeHints && hint && hint !== hintKey) config.typeHints[behaviorType] = hint;
 }

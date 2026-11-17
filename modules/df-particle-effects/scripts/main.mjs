@@ -1,5 +1,5 @@
-import { behaviorTypeId, hostedBySystem, SYSTEM_ID, typeLabelKey } from "./constants.mjs";
-import { registerBehaviorType } from "./region-behavior.mjs";
+import { behaviorTypeId, hostedBySystem, SYSTEM_ID } from "./constants.mjs";
+import { applyBehaviorLabels, registerBehaviorType } from "./region-behavior.mjs";
 import { ParticleRenderer, registerSettings } from "./renderer.mjs";
 import { registerPreview } from "./preview.mjs";
 
@@ -30,15 +30,8 @@ Hooks.once("init", () => {
 });
 
 Hooks.on("ready", () => {
-  const config = globalThis.CONFIG?.RegionBehavior;
-  if (!config) return;
   if (skipBecauseSystemProvidesIt()) return;
-  const labelKey = typeLabelKey();
-  const behaviorType = behaviorTypeId();
-  const label = globalThis.game?.i18n?.localize?.(labelKey);
-  if (config.typeLabels && label && label !== labelKey) config.typeLabels[behaviorType] = label;
-  const hint = globalThis.game?.i18n?.localize?.("DF_PARTICLE_EFFECTS.TypeHint");
-  if (config.typeHints && hint && hint !== "DF_PARTICLE_EFFECTS.TypeHint") config.typeHints[behaviorType] = hint;
+  applyBehaviorLabels();
 });
 
 function skipBecauseSystemProvidesIt() {

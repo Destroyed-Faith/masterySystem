@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.851] - 2026-11-17
+
+### Fixed
+
+- **DF: Particle Effects:** Field shader now uses Foundry's classic Pixi `Filter(vertex, fragment, uniforms)` path so the fire surface actually creates (no more `vertexSrc.trim` crash / silent legacy fallback).
+- **Regions:** Create Behavior lists **Destroyed Faith: Particle Effects** instead of the raw `particleEffects` id.
+
 ## [0.9.850] - 2026-11-17
 
 ### Changed
