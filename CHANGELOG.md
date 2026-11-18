@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.866] - 2026-11-18
+
+### Fixed
+
+- **Release:** `system.json` download URL points to this release again. 0.9.864 and 0.9.865 still pointed to 0.9.863, so their release workflow stopped at the version check and published no ZIP; `package-lock.json` now carries the release version too.
+
 ## [0.9.865] - 2026-11-18
 
 ### Fixed
