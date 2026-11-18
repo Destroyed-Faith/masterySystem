@@ -7,6 +7,7 @@ export declare function embeddedArtifactNeedsSync(emb: any): boolean;
 export declare function echoEmbeddedArtifactNeedsSync(emb: any): boolean;
 /**
  * Copy name/img/system from the matching world tree node onto the actor item.
+ * Normalizes `system.level` / `currentLevel` to the world node's level.
  * @returns true when an update was applied.
  */
 export declare function syncEmbeddedArtifactFromWorldNode(emb: any, actor: any): Promise<boolean>;

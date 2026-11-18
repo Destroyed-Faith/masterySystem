@@ -12,6 +12,9 @@
         {{#if summary.slotLabel}}<span class="artifact-chip">{{summary.slotLabel}}</span>{{/if}}
         {{#if summary.baseProfileLabel}}<span class="artifact-chip">{{summary.baseProfileLabel}}</span>{{/if}}
         <span class="artifact-chip">Level {{summary.currentLevel}}</span>
+        {{#if summary.levelDesync}}
+        <span class="artifact-chip artifact-chip-inactive" title="Embed level {{summary.embedLevel}} vs world level {{summary.currentLevel}}">{{labels.desync}}</span>
+        {{/if}}
       </div>
     </div>
   </header>
@@ -187,6 +190,17 @@
     {{#if actorActions.canDelete}}
     <button type="button" class="artifact-card-edit artifact-card-danger" data-action="sheet-delete" title="{{labels.deleteHint}}">
       <i class="fas fa-trash"></i> {{labels.delete}}
+    </button>
+    {{/if}}
+    {{#if actorActions.gmRepair}}
+    <button type="button" class="artifact-card-edit" data-action="sheet-diagnose" title="Show embed vs world evolution state.">
+      <i class="fas fa-stethoscope"></i> {{labels.diagnose}}
+    </button>
+    <button type="button" class="artifact-card-edit" data-action="sheet-sync-world" title="Copy name/img/system from the linked world node.">
+      <i class="fas fa-sync"></i> {{labels.syncWorld}}
+    </button>
+    <button type="button" class="artifact-card-edit" data-action="sheet-reset-l1" title="Refund invested XP and return to Level 1.">
+      <i class="fas fa-undo"></i> {{labels.resetL1}}
     </button>
     {{/if}}
     {{#if isGM}}

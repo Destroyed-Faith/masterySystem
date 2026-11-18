@@ -1888,6 +1888,15 @@ export class NodeEditor extends BaseDialog {
       baseProfile: specBaseProfile || undefined,
     });
 
+    const treeDepth = Math.max(1, Math.min(10, Number(lineage.depth) || 1));
+    const storedLevel = Math.max(1, Math.min(10, Number((this.item.system as any)?.level) || 1));
+    const clampedLevel = Math.max(storedLevel, treeDepth);
+    if (storedLevel < treeDepth) {
+      ui.notifications?.warn(
+        `Node system.level was ${storedLevel} but tree depth is ${treeDepth}; clamped to ${clampedLevel}.`,
+      );
+    }
+
     const updates: any = {
       'system.artifactKind': kind,
       'system.gearSlot': gearSlot,
@@ -1906,6 +1915,8 @@ export class NodeEditor extends BaseDialog {
       'system.stoneFunction': stoneFunction,
       'system.progressionPicks': progressionPicks,
       'system.levelProgression': levelProgression,
+      'system.level': clampedLevel,
+      'system.currentLevel': clampedLevel,
       'system.powers': [],
       'system.imgAlt': String(html.find('#node-img-alt').val() || '').trim(),
       'system.binding': specBinding,

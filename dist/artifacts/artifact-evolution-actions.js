@@ -439,7 +439,7 @@ export async function upgradeArtifactForActor(actor, rootWorldId, embeddedId, ta
             ui.notifications?.warn(`Not enough XP (need ${xpCost}).`);
             return false;
         }
-        const fromLevel = Number(emb.system?.level ?? currentWorld.system?.level ?? 1) || 1;
+        const fromLevel = Number(currentWorld.system?.level ?? emb.system?.level ?? 1) || 1;
         const user = currentXpUser();
         const history = appendXpHistory(actor, [
             {
@@ -473,7 +473,9 @@ export async function upgradeArtifactForActor(actor, rootWorldId, embeddedId, ta
     const fromLevelForLog = Number(emb.system?.level ?? currentWorld.system?.level ?? 1) || 1;
     const fromNameForLog = String(emb.name || tw.name);
     const equip = emb.getFlag('mastery-system', 'equipment');
-    const sys = foundry.utils.duplicate(targetWorld.system || {});
+    const { normalizeArtifactSystemLevel } = await import('../utils/artifact-evolution-repair.js');
+    const targetLevel = Number(targetWorld.system?.level ?? tl) || tl;
+    const sys = normalizeArtifactSystemLevel(foundry.utils.duplicate(targetWorld.system || {}), targetLevel);
     await emb.update({
         name: targetWorld.name,
         img: targetWorld.img,
@@ -630,7 +632,9 @@ export async function downgradeArtifactForActor(actor, embeddedId, targetLevel) 
         'system.xp.history': appendXpHistory(actor, historyEntries),
     });
     const equip = emb.getFlag('mastery-system', 'equipment');
-    const sys = foundry.utils.duplicate(last.toWorld.system || {});
+    const { normalizeArtifactSystemLevel } = await import('../utils/artifact-evolution-repair.js');
+    const toLevel = Number(last.toWorld.system?.level) || 1;
+    const sys = normalizeArtifactSystemLevel(foundry.utils.duplicate(last.toWorld.system || {}), toLevel);
     await emb.update({
         name: last.toWorld.name,
         img: last.toWorld.img,

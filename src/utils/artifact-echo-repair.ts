@@ -2,10 +2,6 @@
  * Repair / sync embedded artifacts against the world Builder-Tree.
  */
 
-import {
-  getWorldArtifactItemsInFolder,
-  resolveWorldItemByNodeId,
-} from './artifact-actor-tree.js';
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
 import { wireEmbeddedArtifactToWorldTree, inferArtifactKeyFromName } from './artifact-tree-grant.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
@@ -48,27 +44,14 @@ export function echoEmbeddedArtifactNeedsSync(emb: any): boolean {
 
 /**
  * Copy name/img/system from the matching world tree node onto the actor item.
+ * Normalizes `system.level` / `currentLevel` to the world node's level.
  * @returns true when an update was applied.
  */
 export async function syncEmbeddedArtifactFromWorldNode(emb: any, actor: any): Promise<boolean> {
-  const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId') as string | undefined;
-  const nodeId = emb.getFlag?.('mastery-system', 'evolutionNodeId') as string | undefined;
-  if (!rootWorldId || !nodeId || !actor?.id) return false;
-
-  const root = (game as any).items?.get(rootWorldId);
-  if (!root?.folder?.id) return false;
-
-  const folderItems = getWorldArtifactItemsInFolder(root.folder.id);
-  const worldNode = resolveWorldItemByNodeId(nodeId, folderItems);
-  if (!worldNode) return false;
-
-  const fi = worldNode as any;
-  await emb.update({
-    name: fi.name,
-    img: fi.img,
-    system: foundry.utils.duplicate((fi.system as any) || {}),
-  });
-  return true;
+  const { syncEmbeddedArtifactFromWorldNodeNormalized } = await import(
+    './artifact-evolution-repair.js'
+  );
+  return syncEmbeddedArtifactFromWorldNodeNormalized(emb, actor);
 }
 
 /**

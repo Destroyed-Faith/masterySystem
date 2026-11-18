@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.864] - 2026-11-18
+
+### Fixed
+
+- **Artifact evolution desync:** embed `system.level` is normalized to the world tree node on upgrade, downgrade, and resync. Sheet badge prefers world-node level and shows a Desync chip when they differ. Node Editor clamps `system.level` to tree depth.
+
+### Added
+
+- **GM artifact repair:** Diagnose Evolution, Sync from world tree, Reset to Level 1 + refund XP on the artifact sheet. Non-echo Delete refunds invested XP. XP History can refund orphan artifact spends when live level is already at/below the history `from` (no second tree walk).
+
 ## [0.9.863] - 2026-11-18
 
 ### Changed

@@ -29,6 +29,10 @@ import {
   resolveNextArtifactPreviews,
 } from '../utils/artifact-sheet-preview.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
+import {
+  diagnoseArtifactEvolution,
+  resolveEffectiveArtifactLevel,
+} from '../utils/artifact-evolution-repair.js';
 import { openFoundryImagePopout } from '../ui/image-url-share.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 
@@ -105,12 +109,13 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     // ---- Read-friendly summary (what the artifact is + what it does) ----
     const slotKey = String((system as any).slot || '');
     const profileKey = String((system as any).baseProfile || '');
-    const currentLevel = Math.max(
+    const parentActor = item.parent?.documentName === 'Actor' ? item.parent : null;
+    const embedLevel = Math.max(
       1,
       Math.min(10, Number((system as any).currentLevel) || Number(system.level) || 1),
     );
-
-    const parentActor = item.parent?.documentName === 'Actor' ? item.parent : null;
+    const currentLevel = parentActor ? resolveEffectiveArtifactLevel(item) : embedLevel;
+    const levelDesync = parentActor && currentLevel !== embedLevel;
     const mechanicallyActive = parentActor
       ? isArtifactLinkedOnActor(parentActor, item)
       : true;
@@ -172,14 +177,20 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
       delete: loc('MASTERY.artifact.sheet.delete', 'Delete'),
       deleteHint: loc(
         'MASTERY.artifact.sheet.deleteHint',
-        'Permanently remove this artifact from the character.',
+        'Permanently remove this artifact from the character. Invested artifact XP is refunded.',
       ),
+      diagnose: loc('MASTERY.artifact.sheet.diagnose', 'Diagnose Evolution'),
+      syncWorld: loc('MASTERY.artifact.sheet.syncWorld', 'Sync from world tree'),
+      resetL1: loc('MASTERY.artifact.sheet.resetL1', 'Reset to Level 1 + refund XP'),
+      desync: loc('MASTERY.artifact.sheet.desync', 'Desync'),
     };
     context.imgAlt = String((system as any).imgAlt || '').trim();
     context.summary = {
       slotLabel: (ARTIFACT_SLOT_LABELS as any)[slotKey] || '',
       baseProfileLabel: (BASE_PROFILE_LABELS as any)[profileKey] || '',
       currentLevel,
+      embedLevel,
+      levelDesync,
       baseValues: activation.baseValues,
       abilities: activation.abilities,
       hasAbilities: activation.hasAbilities,
@@ -219,6 +230,7 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
           nextGmUpgrade: !!card?.nextGmUpgrade,
           canStow: canManage && isEquippedLike,
           canDelete: canManage,
+          gmRepair: !!game.user?.isGM,
         }
       : { show: false };
 
@@ -361,17 +373,26 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
       if (!parentActor.isOwner && !game.user?.isGM) return;
       const confirmed = await (Dialog as any).confirm({
         title: 'Delete artifact',
-        content: `<p>Permanently delete <strong>${item.name}</strong> from <strong>${parentActor.name}</strong>?</p>`,
+        content:
+          `<p>Permanently delete <strong>${item.name}</strong> from <strong>${parentActor.name}</strong>?</p>` +
+          '<p>Invested artifact XP (and orphan history spends at Level 1) will be refunded. Echo-bound artifacts cannot be deleted.</p>',
         yes: () => true,
         no: () => false,
         defaultYes: false,
       });
       if (!confirmed) return;
       try {
-        await parentActor.deleteEmbeddedDocuments('Item', [item.id], {
-          masterySystemForceDelete: true,
-        } as any);
-        ui.notifications?.info(`Deleted ${item.name}.`);
+        const { deleteArtifactWithXpRefund } = await import('../utils/artifact-evolution-repair.js');
+        const res = await deleteArtifactWithXpRefund(parentActor, item);
+        if (!res.ok) {
+          ui.notifications?.warn(res.error || 'Could not delete artifact.');
+          return;
+        }
+        ui.notifications?.info(
+          res.refunded > 0
+            ? `Deleted ${item.name}. Refunded ${res.refunded} XP.`
+            : `Deleted ${item.name}.`,
+        );
         await this.close();
         parentActor.sheet?.render?.(false);
       } catch (err) {
@@ -381,6 +402,77 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     });
 
     if (!game.user?.isGM) return;
+
+    root.querySelector('[data-action="sheet-diagnose"]')?.addEventListener('click', (ev: Event) => {
+      ev.preventDefault();
+      if (!parentActor) return;
+      const d = diagnoseArtifactEvolution(parentActor, item);
+      const lines = [
+        d.summary,
+        d.upgradeBlockedReason ? `Upgrade block: ${d.upgradeBlockedReason}` : '',
+        ...d.notes,
+        `root=${d.evolutionRootItemId || '—'}`,
+        `node=${d.evolutionNodeId || '—'}`,
+        `binding=${d.bindingKind}`,
+      ].filter(Boolean);
+      console.info('Mastery System | Artifact evolution diagnose', d);
+      void (Dialog as any).prompt({
+        title: `Diagnose: ${d.name}`,
+        content: `<pre style="white-space:pre-wrap;font-size:12px;margin:0">${lines
+          .map((l) => String(l).replace(/</g, '&lt;'))
+          .join('\n')}</pre>`,
+        label: 'OK',
+        callback: () => undefined,
+      });
+      if (d.desync) {
+        ui.notifications?.warn(`Desync detected: embed L${d.embedLevel} vs world L${d.worldLevel}.`);
+      } else {
+        ui.notifications?.info(d.summary);
+      }
+    });
+
+    root.querySelector('[data-action="sheet-sync-world"]')?.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      if (!parentActor) return;
+      const { syncEmbeddedArtifactFromWorldNodeNormalized } = await import(
+        '../utils/artifact-evolution-repair.js'
+      );
+      const ok = await syncEmbeddedArtifactFromWorldNodeNormalized(item, parentActor);
+      if (ok) {
+        ui.notifications?.info(`Synced ${item.name} from world tree.`);
+        await refresh();
+      } else {
+        ui.notifications?.warn('Could not sync — missing evolution root/node or world item.');
+      }
+    });
+
+    root.querySelector('[data-action="sheet-reset-l1"]')?.addEventListener('click', async (ev: Event) => {
+      ev.preventDefault();
+      if (!parentActor) return;
+      const confirmed = await (Dialog as any).confirm({
+        title: 'Reset to Level 1 + refund XP',
+        content:
+          `<p>Reset <strong>${item.name}</strong> to Level 1 and refund invested artifact XP?</p>` +
+          '<p>If already at Level 1 but history still shows spends, orphan XP is refunded.</p>',
+        yes: () => true,
+        no: () => false,
+        defaultYes: false,
+      });
+      if (!confirmed) return;
+      const { resetArtifactToLevel1WithRefund } = await import('../utils/artifact-evolution-repair.js');
+      const res = await resetArtifactToLevel1WithRefund(parentActor, item);
+      if (!res.ok) {
+        ui.notifications?.warn(res.error || 'Reset failed.');
+        return;
+      }
+      ui.notifications?.info(
+        res.refunded > 0
+          ? `Reset to Level 1. Refunded ${res.refunded} XP.`
+          : 'Already at Level 1 — no XP to refund.',
+      );
+      await refresh();
+    });
+
     const btn = root.querySelector?.('[data-action="open-node-editor"]');
     if (!btn) return;
     btn.addEventListener('click', async (ev: Event) => {

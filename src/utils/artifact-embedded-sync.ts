@@ -5,6 +5,7 @@
 
 import { getWorldArtifactItemsInFolder, resolveWorldItemByNodeId } from './artifact-actor-tree.js';
 import { buildArtifactNodeIdMap, findRootItem } from './artifact-tree-lineage.js';
+import { normalizeArtifactSystemLevel } from './artifact-evolution-repair.js';
 
 /** World Actors plus unlinked Token Actors on scenes (Breath / seed push targets). */
 function collectActorsIncludingUnlinkedTokens(): any[] {
@@ -57,11 +58,15 @@ export async function pushWorldArtifactNodeToEmbeddedActors(worldItem: Item): Pr
       if (emb.getFlag?.('mastery-system', 'evolutionRootItemId') !== rootId) continue;
       if (emb.getFlag?.('mastery-system', 'evolutionNodeId') !== nodeId) continue;
       const fi = fresh as any;
+      const worldLevel = Math.max(1, Math.min(10, Number((fi.system as any)?.level) || 1));
       batch.push({
         _id: emb.id,
         name: fi.name,
         img: fi.img,
-        system: foundry.utils.duplicate((fi.system as any) || {})
+        system: normalizeArtifactSystemLevel(
+          foundry.utils.duplicate((fi.system as any) || {}),
+          worldLevel,
+        ),
       });
     }
     if (batch.length > 0) {
@@ -117,11 +122,15 @@ export async function resyncArtifactTreeToAllActors(
       const worldNode = resolveWorldItemByNodeId(nodeId, folderItems);
       if (!worldNode) continue;
       const fi = worldNode as any;
+      const worldLevel = Math.max(1, Math.min(10, Number((fi.system as any)?.level) || 1));
       batch.push({
         _id: emb.id,
         name: fi.name,
         img: fi.img,
-        system: foundry.utils.duplicate((fi.system as any) || {}),
+        system: normalizeArtifactSystemLevel(
+          foundry.utils.duplicate((fi.system as any) || {}),
+          worldLevel,
+        ),
       });
     }
     if (batch.length > 0) {
