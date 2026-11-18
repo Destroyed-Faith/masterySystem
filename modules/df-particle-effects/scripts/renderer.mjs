@@ -12,6 +12,7 @@ import {
   EFFECT_LIQUID,
   EFFECT_NATURAL_FIRE,
   EFFECT_NONE,
+  EFFECT_RESTRAINT,
   EFFECT_SMOKE,
   FIELD_RENDER_LEGACY,
   LIQUID_DEFAULT_COLOR,
@@ -27,8 +28,21 @@ import {
   PRIMARY_TILE_SORT,
   QUALITY_LIMITS,
   qualitySettingKey,
+  RESTRAINT_DEFAULT_COLOR,
+  RESTRAINT_WEB,
+  SERPENT_MOTION_COIL,
+  SERPENT_MOTION_SLITHER,
   settingsNamespace,
   SMOKE_DEFAULT_COLOR,
+  STRAND_LAYOUT_COILED,
+  STRAND_LAYOUT_CURVED,
+  STRAND_LAYOUT_RANDOM,
+  STRAND_LAYOUT_STRAIGHT,
+  STRAND_MOTION_EXTEND,
+  STRAND_MOTION_RETRACT,
+  STRAND_MOTION_STATIC,
+  STRAND_MOTION_TIGHTEN,
+  STRAND_MOTION_WRITHE,
 } from "./constants.mjs";
 import { CrackEffect } from "./crack-effect.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
@@ -37,6 +51,8 @@ import { computeEdgeDepth } from "./ice-depth.mjs";
 import { IceEffect, wallSeconds } from "./ice-effect.mjs";
 import { LiquidEffect } from "./liquid-effect.mjs";
 import { LIQUID_STYLES } from "./liquid-presets.mjs";
+import { RestraintEffect } from "./restraint-effect.mjs";
+import { RESTRAINT_STYLES, restraintLayoutSignature, restraintTimingSignature } from "./restraint-presets.mjs";
 import { crackTimingSignature, freezeTimingSignature } from "./timeline.mjs";
 import { resolveSceneBackground } from "./scene-background.mjs";
 import { SmokeEffect } from "./smoke-effect.mjs";
@@ -55,6 +71,7 @@ import { deriveSeed } from "./random.mjs";
 const TIMING_SIGNATURES = {
   [EFFECT_ICE]: freezeTimingSignature,
   [EFFECT_CRACKS]: crackTimingSignature,
+  [EFFECT_RESTRAINT]: restraintTimingSignature,
 };
 
 export class ParticleRenderer {
@@ -64,9 +81,9 @@ export class ParticleRenderer {
   #time = 0;
   /** @type {null | { key: string, behavior: object, config: object, layout: string }} */
   #preview = null;
-  /** Wall-clock second each timed surface (ice, cracks) started building; -Infinity = already built. */
+  /** Wall-clock second each timed effect (ice, cracks, strands) started building; -Infinity = already built. */
   #freezeStarts = new Map();
-  /** The first draw after a canvas load shows existing ice and cracks already built. */
+  /** The first draw after a canvas load shows existing ice, cracks and strands already built. */
   #sceneLoaded = false;
 
   syncScene() {
@@ -309,7 +326,7 @@ function describeBehavior(scene, region, behavior, configOverride) {
   try {
     const config = configOverride ?? readConfig(behavior);
     if (!config.enabled || config.effectType === EFFECT_NONE) return null;
-    if (![EFFECT_NATURAL_FIRE, EFFECT_ICE, EFFECT_SMOKE, EFFECT_CRACKS, EFFECT_LIQUID].includes(config.effectType)) {
+    if (![EFFECT_NATURAL_FIRE, EFFECT_ICE, EFFECT_SMOKE, EFFECT_CRACKS, EFFECT_LIQUID, EFFECT_RESTRAINT].includes(config.effectType)) {
       if (!configOverride) {
         console.warn(
           `${LOG_PREFIX} effect type "${config.effectType}" is not implemented. That behavior was skipped.`,
@@ -356,6 +373,7 @@ export function fireLayoutSignature(config) {
     config.emberAmount,
     config.edgeFade,
     config.randomSeed ?? "",
+    restraintLayoutSignature(config),
   ].join("|");
 }
 
@@ -368,6 +386,7 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
   if (entry.config.effectType === EFFECT_SMOKE) return createSmoke(entry, grid);
   if (entry.config.effectType === EFFECT_CRACKS) return createCracks(entry, grid);
   if (entry.config.effectType === EFFECT_LIQUID) return createLiquid(entry, grid);
+  if (entry.config.effectType === EFFECT_RESTRAINT) return createRestraint(entry, grid);
   if (usesBallOfFire(entry.config)) return createBallOfFire(entry, assets, grid);
 
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
@@ -581,6 +600,29 @@ function createLiquid(entry, grid) {
   }
 }
 
+/** Web shader or moving strands (vines, rope, chains, serpent). Draws no light. */
+function createRestraint(entry, grid) {
+  const mask = buildRegionMask(entry.tree);
+  if (!mask) {
+    console.warn(`${LOG_PREFIX} region mask could not be built. The restraint was skipped so it cannot spill outside.`);
+    return null;
+  }
+  try {
+    return new RestraintEffect({
+      config: entry.config,
+      bounds: entry.bounds,
+      mask,
+      gridSize: grid.size,
+      seed: entry.seed,
+      depth: computeEdgeDepth(entry.bounds, (x, y) => entry.tree.testPoint({ x, y })),
+      startedAt: entry.freezeStart,
+    });
+  } catch (error) {
+    if (!mask.destroyed) mask.destroy?.();
+    throw error;
+  }
+}
+
 /**
  * Opaque mask from the region polygon tree.
  * Foundry 14 replaces PIXI.Graphics with SmoothGraphics, which does not expose poly/cut.
@@ -775,6 +817,30 @@ export function readConfig(behavior) {
     liquidCrust: clampNumber(system.liquidCrust ?? 100, 0, 300),
     liquidCustomColor: system.liquidCustomColor === true,
     liquidColor: readColor(system.liquidColor, LIQUID_DEFAULT_COLOR),
+    restraintStyle: RESTRAINT_STYLES.includes(system.restraintStyle) ? system.restraintStyle : RESTRAINT_WEB,
+    restraintCustomColor: system.restraintCustomColor === true,
+    restraintColor: readColor(system.restraintColor, RESTRAINT_DEFAULT_COLOR),
+    restraintAnimation: clampNumber(system.restraintAnimation ?? 50, 0, 100),
+    restraintThickness: clampNumber(system.restraintThickness ?? 1, 0.25, 3),
+    restraintDensity: clampNumber(system.restraintDensity ?? 80, 0, 100),
+    webRadials: Math.round(clampNumber(system.webRadials ?? 16, 5, 36)),
+    webRings: Math.round(clampNumber(system.webRings ?? 12, 3, 40)),
+    vineVariation: clampNumber(system.vineVariation ?? 50, 0, 100),
+    vineTwist: clampNumber(system.vineTwist ?? 50, 0, 100),
+    vineThorns: clampNumber(system.vineThorns ?? 30, 0, 100),
+    strandCount: Math.round(clampNumber(system.strandCount ?? 3, 1, 5)),
+    strandLayout: oneOf(system.strandLayout, [STRAND_LAYOUT_CURVED, STRAND_LAYOUT_STRAIGHT, STRAND_LAYOUT_COILED, STRAND_LAYOUT_RANDOM]),
+    strandMotion: oneOf(system.strandMotion, [
+      STRAND_MOTION_WRITHE,
+      STRAND_MOTION_STATIC,
+      STRAND_MOTION_EXTEND,
+      STRAND_MOTION_RETRACT,
+      STRAND_MOTION_TIGHTEN,
+    ]),
+    chainWeight: clampNumber(system.chainWeight ?? 60, 0, 100),
+    serpentCount: Math.round(clampNumber(system.serpentCount ?? 1, 1, 5)),
+    serpentMotion: oneOf(system.serpentMotion, [SERPENT_MOTION_SLITHER, SERPENT_MOTION_COIL]),
+    serpentScales: clampNumber(system.serpentScales ?? 60, 0, 100),
     randomSeed,
   };
 }

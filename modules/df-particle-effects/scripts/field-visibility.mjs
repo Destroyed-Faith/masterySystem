@@ -7,6 +7,13 @@ import {
   FIRE_STYLE_BALL,
   FREEZE_INSTANT,
   FREEZE_LOOP,
+  EFFECT_RESTRAINT,
+  RESTRAINT_CHAINS,
+  RESTRAINT_ROPE,
+  RESTRAINT_SERPENT,
+  RESTRAINT_VINES,
+  RESTRAINT_WEB,
+  STRAND_MOTION_STATIC,
 } from "./constants.mjs";
 
 const FIRE_FIELDS = ["fireStyle", "arrangement", "density", "flameScale", "flameSpeed", "emberAmount", "edgeFade"];
@@ -37,6 +44,34 @@ const LIQUID_FIELDS = [
   "liquidCustomColor",
   "liquidColor",
 ];
+const RESTRAINT_FIELDS = [
+  "restraintStyle",
+  "restraintCustomColor",
+  "restraintColor",
+  "restraintAnimation",
+  "restraintThickness",
+  "restraintDensity",
+  "webRadials",
+  "webRings",
+  "vineVariation",
+  "vineTwist",
+  "vineThorns",
+  "strandCount",
+  "strandLayout",
+  "strandMotion",
+  "chainWeight",
+  "serpentCount",
+  "serpentMotion",
+  "serpentScales",
+];
+/** Restraint fields each style uses, besides style, color and thickness. */
+const RESTRAINT_STYLE_FIELDS = {
+  [RESTRAINT_WEB]: ["webRadials", "webRings", "restraintDensity", "restraintAnimation"],
+  [RESTRAINT_VINES]: ["restraintDensity", "vineVariation", "vineTwist", "vineThorns", "restraintAnimation"],
+  [RESTRAINT_ROPE]: ["strandCount", "strandLayout", "strandMotion", "restraintAnimation"],
+  [RESTRAINT_CHAINS]: ["strandCount", "strandLayout", "strandMotion", "chainWeight", "restraintAnimation"],
+  [RESTRAINT_SERPENT]: ["serpentCount", "serpentMotion", "serpentScales", "restraintAnimation"],
+};
 const SHARED_FIELDS = ["opacity", "randomSeed"];
 
 /**
@@ -66,6 +101,14 @@ export function visibleFields(values) {
     const unused = values.liquidCustomColor ? [] : ["liquidColor"];
     return [...LIQUID_FIELDS.filter((name) => !unused.includes(name)), ...SHARED_FIELDS];
   }
+  if (effectType === EFFECT_RESTRAINT) {
+    const style = RESTRAINT_STYLE_FIELDS[values.restraintStyle] ? values.restraintStyle : RESTRAINT_WEB;
+    const used = new Set(["restraintStyle", "restraintCustomColor", "restraintThickness", ...RESTRAINT_STYLE_FIELDS[style]]);
+    if (values.restraintCustomColor) used.add("restraintColor");
+    const strands = style === RESTRAINT_ROPE || style === RESTRAINT_CHAINS;
+    if (strands && values.strandMotion === STRAND_MOTION_STATIC) used.delete("restraintAnimation");
+    return [...RESTRAINT_FIELDS.filter((name) => used.has(name)), ...SHARED_FIELDS];
+  }
   return [];
 }
 
@@ -78,8 +121,12 @@ export function applyFieldVisibility(form) {
     freezeMode: value("freezeMode"),
     crackMode: value("crackMode"),
     liquidCustomColor: form.querySelector('[name="system.liquidCustomColor"]')?.checked === true,
+    restraintStyle: value("restraintStyle"),
+    restraintCustomColor: form.querySelector('[name="system.restraintCustomColor"]')?.checked === true,
+    strandMotion: value("strandMotion"),
   }));
-  for (const name of [...FIRE_FIELDS, ...ICE_FIELDS, ...SMOKE_FIELDS, ...CRACK_FIELDS, ...LIQUID_FIELDS, ...SHARED_FIELDS]) {
+  const all = [...FIRE_FIELDS, ...ICE_FIELDS, ...SMOKE_FIELDS, ...CRACK_FIELDS, ...LIQUID_FIELDS, ...RESTRAINT_FIELDS, ...SHARED_FIELDS];
+  for (const name of all) {
     const input = form.querySelector(`[name="system.${name}"]`);
     const row = input?.closest(".form-group");
     if (row) row.style.display = shown.has(name) ? "" : "none";

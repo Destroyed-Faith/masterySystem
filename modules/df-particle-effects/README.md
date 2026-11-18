@@ -1,12 +1,12 @@
 # Destroyed Faith – Particle Effects
 
-Eigenständiges Foundry-VTT-Modul für **visuelles Feuer, Eis, Rauch, Bodenrisse und zähe Flüssigkeiten innerhalb von Szenenregionen**. Es gehört zum Destroyed-Faith-Projekt, greift aber nicht in die Regeln des Mastery-Systems ein und kann allein installiert werden.
+Eigenständiges Foundry-VTT-Modul für **visuelles Feuer, Eis, Rauch, Bodenrisse, zähe Flüssigkeiten und Fesseln innerhalb von Szenenregionen**. Es gehört zum Destroyed-Faith-Projekt, greift aber nicht in die Regeln des Mastery-Systems ein und kann allein installiert werden.
 
 - Modul-ID: `df-particle-effects`
 - Anzeigename: **Destroyed Faith – Particle Effects**
 - Behavior in der Regionenliste: **DF: Particle Effects**
 - Zielversion: **Foundry VTT 14** (`compatibility.minimum` und `verified` sind 14). V13 wurde nicht geprüft und wird nicht behauptet.
-- Effekte: **Fire** / Feuer (Stile **Area Fire** und **Ball Of Fire**), **Ice** / Eis, **Smoke / Fog** / Rauch / Nebel, **Ground Cracks** / Bodenrisse und **Viscous Surface** / Zähe Flüssigkeit (Teer, Lava, Säure, Schleim, Arkaner Glibber)
+- Effekte: **Fire** / Feuer (Stile **Area Fire** und **Ball Of Fire**), **Ice** / Eis, **Smoke / Fog** / Rauch / Nebel, **Ground Cracks** / Bodenrisse, **Viscous Surface** / Zähe Flüssigkeit (Teer, Lava, Säure, Schleim, Arkaner Glibber) und **Restraint / Binding** / Fesselung (Spinnennetz, Ranken, Seil, Ketten, Schlange)
 
 Die Lizenz ist die Destroyed-Faith-Lizenz aus dem Repository (`LICENSE.md` im Projektroot). Die Flammenbilder sind projekteigene Standbilder, keine FXMaster+-Assets.
 
@@ -19,7 +19,7 @@ Es gibt **kein Symbol in der linken Toolbar**. Der Effekt hängt an der normalen
 3. Die Region doppelklicken.
 4. Reiter **Behaviors** öffnen und **Create / Add Behavior** wählen.
 5. In der Liste **DF: Particle Effects** wählen (Feuer-Icon).
-6. **Effect Type** wählen (**Fire**, **Ice**, **Smoke / Fog**, **Ground Cracks** oder **Viscous Surface**), die passenden Felder einstellen, dann speichern. Der Dialog zeigt nur die Felder, die der gewählte Effekt nutzt.
+6. **Effect Type** wählen (**Fire**, **Ice**, **Smoke / Fog**, **Ground Cracks**, **Viscous Surface** oder **Restraint / Binding**), die passenden Felder einstellen, dann speichern. Der Dialog zeigt nur die Felder, die der gewählte Effekt nutzt.
 
 Das Feuer erscheint nur in dieser Region, auf der Karte und unter Token. Die Hintergrundkarte wird nicht abgedunkelt. Klicks auf Token und Regionen gehen durch den Effekt hindurch.
 
@@ -32,7 +32,7 @@ GM und Spieler sehen dieselben Flächen, weil Foundry die Behavior-Daten synchro
 | Feld | Standard | Bedeutung |
 | --- | --- | --- |
 | Enabled | an | Schaltet nur diesen Effekt aus. |
-| Effect Type | Fire | None, Fire, Ice, Smoke / Fog, Ground Cracks oder Viscous Surface. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
+| Effect Type | Fire | None, Fire, Ice, Smoke / Fog, Ground Cracks, Viscous Surface oder Restraint / Binding. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
 | Fire Style | Area Fire | Area Fire füllt die Region mit Bodenfeuer. Ball Of Fire zeigt einen runden Feuerball in der Mitte der Region; Density und Ember Amount wirken dort nicht. |
 | Density | 40 | Feuerstellen relativ zur Regionsfläche in Rasterzellen, nicht zur Fenstergröße. 0 blendet Flammen aus. |
 | Flame Scale | 1 | Größe relativ zum Szenenraster. Die Basis bleibt am Boden. Bereich 0,25–2. |
@@ -124,6 +124,42 @@ Eine zähe Flüssigkeit von oben: langsam fließende Wellen mit Glanzlichtern, B
 | Opacity | 0,9 | Deckkraft. |
 
 Alle Regler sind relativ zum Stil: 100 % ist der Stil-Standard, ein Stilwechsel übernimmt automatisch dessen Werte. Grenzen wie beim Eis: Gebrochen wird nur das Szenen-Hintergrundbild; ohne Hintergrundbild wird die Flüssigkeit halbdeckend über die Karte gelegt.
+
+### Fesselung (Restraint / Binding)
+
+Eine Effektfamilie für fesselnde, umschlingende oder behindernde Flächen. Nach **Effect Type: Restraint / Binding** wählt **Style** einen der fünf Stile; der Dialog zeigt dann nur dessen Felder.
+
+| Stil | Darstellung |
+| --- | --- |
+| Web | Spinnennetz über der ganzen Region (Flächen-Shader): Speichen von der tiefsten Stelle der Region aus, eine Fangspirale aus leicht durchhängenden Sehnen, eine dichte Nabe und ein Rahmenfaden entlang der Regionsgrenze und um Löcher. Halbtransparente Seide mit dunklem Saum, damit sie auch auf hellem Boden lesbar bleibt. |
+| Vines | Mehrere ineinander verdrehte Rankenbündel, am Rand verwurzelt und quer durch die Region gewachsen, mit kurzen eingerollten Trieben. Rinde, optional Dornen, nur leichte Bewegung. |
+| Rope | 1–5 Seile mit drei verdrillten Litzen. Sie bewegen sich über eine Seilsimulation (Verlet), dehnen sich also nicht wie Gummi. |
+| Chains | 1–5 Ketten aus abwechselnd flach liegenden und hochkant stehenden Gliedern, mit Metallglanz. Gleiche Simulation, aber schwerer und träger als Seil. |
+| Serpent | Schlangenkörper in einer Farbe mit Schuppen und leichter Schattierung, ohne Augen oder Gesicht. Gleitet auf einer gewundenen Bahn durch die Region oder liegt eingerollt. |
+
+| Feld | Standard | Stile | Bedeutung |
+| --- | --- | --- | --- |
+| Style | Web | alle | Einer der fünf Stile oben. |
+| Custom Color | aus | alle | Aus: Farbe des Stils (Seidenweiß, grünbraune Ranken, Hanfseil, Eisen, Dunkelgrün). An: Farbe darunter. |
+| Color | #c9b48a | alle | Nur mit Custom Color. |
+| Thickness | 1 | alle | Faden- bzw. Strangdicke relativ zum Stil-Standard. 0,25–3. |
+| Animation Amount | 50 | alle | Bewegungsstärke. 0 hält alles still. Ranken bleiben auch bei 100 dezent. Bei Motion Static ausgeblendet. |
+| Coverage / Density | 80 | Web, Vines | Netz: wie vollständig es ist (weniger reißt Fäden heraus). Ranken: Zahl der Bündel. |
+| Radial Threads | 16 | Web | Speichen, 5–36. |
+| Circular Threads | 12 | Web | Windungen der Fangspirale zwischen Nabe und Rand, 3–40. |
+| Organic Variation | 50 | Vines | Wie stark die Ranken mäandern und wackeln. |
+| Twist Amount | 50 | Vines | Wie eng sich die Ranken eines Bündels umeinander winden. |
+| Thorniness | 30 | Vines | Anteil der Dornen; 0 ergibt glatte Wurzeln. |
+| Count | 3 | Rope, Chains | Zahl der Seile oder Ketten, 1–5. |
+| Layout | Curved | Rope, Chains | **Straight** und **Curved** laufen quer durch die Region, **Coiled** liegt aufgerollt mit Ende zum Rand, **Random** mäandert. |
+| Motion | Writhe | Rope, Chains | **Static** liegt still. **Writhe** windet sich von selbst. **Extend** schießt beim Anlegen oder Einschalten einmal vom Ende aus heraus; nach dem Neuladen liegt es schon da. **Retract** zieht sich zurück und kommt wieder. **Tighten** zieht sich straff, hält und lockert wieder (Spiralen ziehen sich zusammen). |
+| Heaviness | 60 | Chains | Schwerere Ketten reagieren langsamer und bedächtiger. |
+| Count | 1 | Serpent | Zahl der Schlangen, 1–5. |
+| Motion | Slither | Serpent | **Slither** gleitet, der Körper folgt genau der Bahn des Kopfes. **Coil** liegt eingerollt, dreht und atmet langsam. |
+| Scale Visibility | 60 | Serpent | Wie deutlich Schuppen und ihre Schattierung zu sehen sind. |
+| Opacity | 0,9 | alle | Deckkraft. |
+
+Technik: Web ist ein Fragment-Shader auf einem Mesh über der Region. Ranken, Seile, Ketten und Schlangen sind Dreiecksstreifen, deren Form sich bewegt: alle Stränge einer Region liegen in einem Mesh plus einer versetzten dunklen Kopie als Schatten; Litzen, Kettenglieder, Schuppen, Rinde und Dornen zeichnet ein eigener Shader. Es entstehen keine Lichtquellen. Die Seil- und Kettensimulation läuft auf jedem Client lokal, daher sind die Bewegungen nicht bildgenau gleich; Lage und Form kommen aus dem Seed und sind überall gleich. Die Schlange hängt nur an der Zeit und springt nach einem Neuaufbau nicht.
 
 ### Shader-Stile
 

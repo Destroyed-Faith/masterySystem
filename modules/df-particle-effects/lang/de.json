@@ -7,14 +7,15 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visuelles Feuer, Eis, Rauch, Bodenrisse oder zähe Flüssigkeit, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
+    "TypeHint": "Visuelles Feuer, Eis, Rauch, Bodenrisse, zähe Flüssigkeit oder Fesseln (Spinnennetz, Ranken, Seil, Ketten, Schlange), auf diese Region begrenzt. Es macht keinen Schaden und verändert keine Token.",
     "EFFECTS": {
       "none": "Keiner",
       "naturalFire": "Feuer",
       "ice": "Eis",
       "smoke": "Rauch / Nebel",
       "groundCracks": "Bodenrisse",
-      "viscous": "Zähe Flüssigkeit"
+      "viscous": "Zähe Flüssigkeit",
+      "restraint": "Fesselung / Bindung"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -57,6 +58,30 @@
       "slime": "Schleim / Glibber",
       "arcane": "Arkaner Glibber"
     },
+    "RESTRAINT_STYLE": {
+      "web": "Spinnennetz",
+      "vines": "Ranken",
+      "rope": "Seil",
+      "chains": "Ketten",
+      "serpent": "Schlange"
+    },
+    "STRAND_LAYOUT": {
+      "curved": "Gebogen",
+      "straight": "Gerade",
+      "coiled": "Aufgerollt",
+      "random": "Zufällig"
+    },
+    "STRAND_MOTION": {
+      "writhe": "Winden",
+      "static": "Still",
+      "extend": "Ausfahren (einmal)",
+      "retract": "Zurückziehen (wiederholt)",
+      "tighten": "Festziehen (wiederholt)"
+    },
+    "SERPENT_MOTION": {
+      "slither": "Schlängeln",
+      "coil": "Zusammengerollt"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Aktiv",
@@ -64,7 +89,7 @@
       },
       "effectType": {
         "label": "Effekttyp",
-        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer, Eis, Rauch / Nebel, Bodenrisse und Zähe Flüssigkeit zeigen nur die Felder, die sie nutzen."
+        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer, Eis, Rauch / Nebel, Bodenrisse, Zähe Flüssigkeit und Fesselung / Bindung zeigen nur die Felder, die sie nutzen."
       },
       "fireStyle": {
         "label": "Feuerstil",
@@ -229,6 +254,78 @@
       "liquidColor": {
         "label": "Farbe",
         "hint": "Farbe der Flüssigkeit, wenn Eigene Farbe an ist."
+      },
+      "restraintStyle": {
+        "label": "Stil",
+        "hint": "Spinnennetz liegt als Netz über der ganzen Region. Ranken, Seil, Ketten und Schlange sind Stränge, die in der Region liegen und sich bewegen."
+      },
+      "restraintCustomColor": {
+        "label": "Eigene Farbe",
+        "hint": "Aus nutzt die Farbe des Stils (Seidenweiß, grünbraune Ranken, Hanfseil, Eisenketten, dunkelgrüne Schlange). An nutzt die Farbe darunter."
+      },
+      "restraintColor": {
+        "label": "Farbe",
+        "hint": "Farbe von Netz, Ranken, Seil, Ketten oder Schlange, wenn Eigene Farbe an ist."
+      },
+      "restraintAnimation": {
+        "label": "Bewegungsstärke",
+        "hint": "Wie stark es sich bewegt. 0 hält es still. Ranken bleiben auch bei 100 dezent."
+      },
+      "restraintThickness": {
+        "label": "Dicke",
+        "hint": "Faden- bzw. Strangdicke. 1 ist der Standard des Stils."
+      },
+      "restraintDensity": {
+        "label": "Abdeckung / Dichte",
+        "hint": "Netz: wie vollständig das Netz ist (weniger reißt Fäden heraus). Ranken: wie viele Rankenbündel wachsen."
+      },
+      "webRadials": {
+        "label": "Speichenfäden",
+        "hint": "Anzahl der Fäden, die von der Mitte nach außen laufen."
+      },
+      "webRings": {
+        "label": "Ringfäden",
+        "hint": "Windungen der Fangspirale zwischen Mitte und Rand."
+      },
+      "vineVariation": {
+        "label": "Organische Variation",
+        "hint": "Wie stark die Ranken mäandern und wackeln."
+      },
+      "vineTwist": {
+        "label": "Verdrillung",
+        "hint": "Wie eng sich die Ranken eines Bündels umeinander winden."
+      },
+      "vineThorns": {
+        "label": "Dornen",
+        "hint": "Anteil der Dornen entlang der Ranken. 0 ergibt glatte Wurzeln."
+      },
+      "strandCount": {
+        "label": "Anzahl",
+        "hint": "Anzahl der Seile oder Ketten (1 bis 5)."
+      },
+      "strandLayout": {
+        "label": "Anordnung",
+        "hint": "Gerade und Gebogen laufen quer durch die Region, Aufgerollt liegt in Schlingen, Zufällig mäandert."
+      },
+      "strandMotion": {
+        "label": "Bewegung",
+        "hint": "Still liegt ruhig. Winden bewegt sich von selbst. Ausfahren schießt einmal heraus, wenn der Effekt erscheint. Zurückziehen zieht sich zurück und kommt wieder. Festziehen zieht straff zum Fesseln und lockert wieder."
+      },
+      "chainWeight": {
+        "label": "Schwere",
+        "hint": "Schwerere Ketten reagieren langsamer und bewegen sich bedächtiger."
+      },
+      "serpentCount": {
+        "label": "Anzahl",
+        "hint": "Anzahl der Schlangen (1 bis 5)."
+      },
+      "serpentMotion": {
+        "label": "Bewegung",
+        "hint": "Schlängeln gleitet auf einer gewundenen Bahn durch die Region. Zusammengerollt liegt eingerollt und atmet langsam."
+      },
+      "serpentScales": {
+        "label": "Schuppen",
+        "hint": "Wie deutlich Schuppen und ihre Schattierung zu sehen sind."
       },
       "randomSeed": {
         "label": "Zufallsseed",

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.867] - 2026-11-18
+
+### Added
+
+- **DF Particle Effects 1.1.12:** new effect type **Restraint / Binding** with the styles Web, Vines, Rope, Chains and Serpent. Web is a procedural spider web over the region (radial threads, capture spiral, coverage tears). Rope, Chains, Serpent and Vines are textured strands driven by Verlet physics, with layout (curved, straight, coiled, random), motion (writhe, static, extend, retract, tighten), chain weight, serpent count/motion/scales and vine variation/twist/thorns. Visual only; tokens stay interactive and no lighting is added.
+
 ## [0.9.866] - 2026-11-18
 
 ### Fixed

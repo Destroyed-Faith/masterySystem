@@ -23,6 +23,31 @@ export const LIQUID_SLIME = "slime";
 export const LIQUID_ARCANE = "arcane";
 export const LIQUID_DEFAULT_COLOR = "#3fbf4a";
 
+/** Restraint / Binding: one effect type, five styles (restraint-presets.mjs). */
+export const EFFECT_RESTRAINT = "restraint";
+export const RESTRAINT_WEB = "web";
+export const RESTRAINT_VINES = "vines";
+export const RESTRAINT_ROPE = "rope";
+export const RESTRAINT_CHAINS = "chains";
+export const RESTRAINT_SERPENT = "serpent";
+export const RESTRAINT_DEFAULT_COLOR = "#c9b48a";
+
+/** How ropes and chains lie in the region. */
+export const STRAND_LAYOUT_STRAIGHT = "straight";
+export const STRAND_LAYOUT_CURVED = "curved";
+export const STRAND_LAYOUT_COILED = "coiled";
+export const STRAND_LAYOUT_RANDOM = "random";
+
+/** How ropes and chains move. Extend plays once; retract and tighten repeat. */
+export const STRAND_MOTION_STATIC = "static";
+export const STRAND_MOTION_WRITHE = "writhe";
+export const STRAND_MOTION_EXTEND = "extend";
+export const STRAND_MOTION_RETRACT = "retract";
+export const STRAND_MOTION_TIGHTEN = "tighten";
+
+export const SERPENT_MOTION_SLITHER = "slither";
+export const SERPENT_MOTION_COIL = "coil";
+
 export const SMOKE_DEFAULT_COLOR = "#b8bcc2";
 export const CRACK_DEFAULT_GLOW = "#ff7a1f";
 

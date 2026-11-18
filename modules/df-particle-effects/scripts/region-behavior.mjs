@@ -20,10 +20,24 @@ import {
   LIQUID_DEFAULT_COLOR,
   LIQUID_LAVA,
   LOOP_RESET_THAW,
+  EFFECT_RESTRAINT,
+  RESTRAINT_DEFAULT_COLOR,
+  SERPENT_MOTION_COIL,
+  SERPENT_MOTION_SLITHER,
   SMOKE_DEFAULT_COLOR,
+  STRAND_LAYOUT_COILED,
+  STRAND_LAYOUT_CURVED,
+  STRAND_LAYOUT_RANDOM,
+  STRAND_LAYOUT_STRAIGHT,
+  STRAND_MOTION_EXTEND,
+  STRAND_MOTION_RETRACT,
+  STRAND_MOTION_STATIC,
+  STRAND_MOTION_TIGHTEN,
+  STRAND_MOTION_WRITHE,
   typeLabelKey,
 } from "./constants.mjs";
 import { LIQUID_STYLES } from "./liquid-presets.mjs";
+import { RESTRAINT_STYLES } from "./restraint-presets.mjs";
 import { fireStyleChoices } from "./styles.mjs";
 
 /**
@@ -54,6 +68,7 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
           [EFFECT_SMOKE]: "DF_PARTICLE_EFFECTS.EFFECTS.smoke",
           [EFFECT_CRACKS]: "DF_PARTICLE_EFFECTS.EFFECTS.groundCracks",
           [EFFECT_LIQUID]: "DF_PARTICLE_EFFECTS.EFFECTS.viscous",
+          [EFFECT_RESTRAINT]: "DF_PARTICLE_EFFECTS.EFFECTS.restraint",
         },
         label: "DF_PARTICLE_EFFECTS.FIELDS.effectType.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.effectType.hint",
@@ -392,6 +407,35 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
         label: "DF_PARTICLE_EFFECTS.FIELDS.liquidColor.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.liquidColor.hint",
       }),
+      restraintStyle: choiceField(fields, "restraintStyle", RESTRAINT_STYLES, "RESTRAINT_STYLE"),
+      restraintCustomColor: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.restraintCustomColor.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.restraintCustomColor.hint",
+      }),
+      restraintColor: new fields.ColorField({
+        required: true,
+        nullable: false,
+        initial: RESTRAINT_DEFAULT_COLOR,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.restraintColor.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.restraintColor.hint",
+      }),
+      restraintAnimation: rangeField(fields, "restraintAnimation", { initial: 50, min: 0, max: 100, step: 1 }),
+      restraintThickness: rangeField(fields, "restraintThickness", { initial: 1, min: 0.25, max: 3, step: 0.05 }),
+      restraintDensity: rangeField(fields, "restraintDensity", { initial: 80, min: 0, max: 100, step: 1 }),
+      webRadials: rangeField(fields, "webRadials", { initial: 16, min: 5, max: 36, step: 1 }),
+      webRings: rangeField(fields, "webRings", { initial: 12, min: 3, max: 40, step: 1 }),
+      vineVariation: rangeField(fields, "vineVariation", { initial: 50, min: 0, max: 100, step: 1 }),
+      vineTwist: rangeField(fields, "vineTwist", { initial: 50, min: 0, max: 100, step: 1 }),
+      vineThorns: rangeField(fields, "vineThorns", { initial: 30, min: 0, max: 100, step: 1 }),
+      strandCount: rangeField(fields, "strandCount", { initial: 3, min: 1, max: 5, step: 1 }),
+      strandLayout: choiceField(fields, "strandLayout", STRAND_LAYOUTS, "STRAND_LAYOUT"),
+      strandMotion: choiceField(fields, "strandMotion", STRAND_MOTIONS, "STRAND_MOTION"),
+      chainWeight: rangeField(fields, "chainWeight", { initial: 60, min: 0, max: 100, step: 1 }),
+      serpentCount: rangeField(fields, "serpentCount", { initial: 1, min: 1, max: 5, step: 1 }),
+      serpentMotion: choiceField(fields, "serpentMotion", [SERPENT_MOTION_SLITHER, SERPENT_MOTION_COIL], "SERPENT_MOTION"),
+      serpentScales: rangeField(fields, "serpentScales", { initial: 60, min: 0, max: 100, step: 1 }),
       randomSeed: new fields.StringField({
         required: false,
         nullable: true,
@@ -414,6 +458,40 @@ function percentField(fields, name) {
     min: 0,
     max: 300,
     step: 5,
+    label: `DF_PARTICLE_EFFECTS.FIELDS.${name}.label`,
+    hint: `DF_PARTICLE_EFFECTS.FIELDS.${name}.hint`,
+  });
+}
+
+const STRAND_LAYOUTS = [STRAND_LAYOUT_CURVED, STRAND_LAYOUT_STRAIGHT, STRAND_LAYOUT_COILED, STRAND_LAYOUT_RANDOM];
+const STRAND_MOTIONS = [
+  STRAND_MOTION_WRITHE,
+  STRAND_MOTION_STATIC,
+  STRAND_MOTION_EXTEND,
+  STRAND_MOTION_RETRACT,
+  STRAND_MOTION_TIGHTEN,
+];
+
+/** Dropdown whose first choice is the default; labels are `<group>.<choice>`. */
+function choiceField(fields, name, choices, group) {
+  return new fields.StringField({
+    required: true,
+    blank: false,
+    initial: choices[0],
+    choices: Object.fromEntries(choices.map((choice) => [choice, `DF_PARTICLE_EFFECTS.${group}.${choice}`])),
+    label: `DF_PARTICLE_EFFECTS.FIELDS.${name}.label`,
+    hint: `DF_PARTICLE_EFFECTS.FIELDS.${name}.hint`,
+  });
+}
+
+function rangeField(fields, name, { initial, min, max, step }) {
+  return new fields.NumberField({
+    required: true,
+    integer: Number.isInteger(step),
+    initial,
+    min,
+    max,
+    step,
     label: `DF_PARTICLE_EFFECTS.FIELDS.${name}.label`,
     hint: `DF_PARTICLE_EFFECTS.FIELDS.${name}.hint`,
   });

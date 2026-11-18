@@ -7,14 +7,15 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visual fire, ice, smoke, ground cracks or viscous liquid clipped to this region. It does not deal damage or change tokens.",
+    "TypeHint": "Visual fire, ice, smoke, ground cracks, viscous liquid or restraints (web, vines, rope, chains, serpent) clipped to this region. It does not deal damage or change tokens.",
     "EFFECTS": {
       "none": "None",
       "naturalFire": "Fire",
       "ice": "Ice",
       "smoke": "Smoke / Fog",
       "groundCracks": "Ground Cracks",
-      "viscous": "Viscous Surface"
+      "viscous": "Viscous Surface",
+      "restraint": "Restraint / Binding"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -57,6 +58,30 @@
       "slime": "Slime / Goo",
       "arcane": "Arcane Goo"
     },
+    "RESTRAINT_STYLE": {
+      "web": "Web",
+      "vines": "Vines",
+      "rope": "Rope",
+      "chains": "Chains",
+      "serpent": "Serpent"
+    },
+    "STRAND_LAYOUT": {
+      "curved": "Curved",
+      "straight": "Straight",
+      "coiled": "Coiled",
+      "random": "Random"
+    },
+    "STRAND_MOTION": {
+      "writhe": "Writhe",
+      "static": "Static",
+      "extend": "Extend (once)",
+      "retract": "Retract (repeats)",
+      "tighten": "Tighten (repeats)"
+    },
+    "SERPENT_MOTION": {
+      "slither": "Slither",
+      "coil": "Coil"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Enabled",
@@ -64,7 +89,7 @@
       },
       "effectType": {
         "label": "Effect Type",
-        "hint": "None keeps the settings but draws nothing. Fire, Ice, Smoke / Fog, Ground Cracks and Viscous Surface show only the fields they use."
+        "hint": "None keeps the settings but draws nothing. Fire, Ice, Smoke / Fog, Ground Cracks, Viscous Surface and Restraint / Binding show only the fields they use."
       },
       "fireStyle": {
         "label": "Fire Style",
@@ -229,6 +254,78 @@
       "liquidColor": {
         "label": "Color",
         "hint": "Color of the liquid when Custom Color is on."
+      },
+      "restraintStyle": {
+        "label": "Style",
+        "hint": "Web is a spider web over the whole region. Vines, Rope, Chains and Serpent are strands that lie in the region and move."
+      },
+      "restraintCustomColor": {
+        "label": "Custom Color",
+        "hint": "Off uses the style's own color (silk white, green-brown vines, hemp rope, iron chains, dark green serpent). On uses the color below."
+      },
+      "restraintColor": {
+        "label": "Color",
+        "hint": "Color of the web, vines, rope, chains or serpent when Custom Color is on."
+      },
+      "restraintAnimation": {
+        "label": "Animation Amount",
+        "hint": "How much it moves. 0 holds it still. Vines stay subtle even at 100."
+      },
+      "restraintThickness": {
+        "label": "Thickness",
+        "hint": "Thread or strand thickness. 1 is the style default."
+      },
+      "restraintDensity": {
+        "label": "Coverage / Density",
+        "hint": "Web: how complete the web is (lower tears out threads). Vines: how many vine bundles grow."
+      },
+      "webRadials": {
+        "label": "Radial Threads",
+        "hint": "Number of threads running out from the hub."
+      },
+      "webRings": {
+        "label": "Circular Threads",
+        "hint": "Turns of the capture spiral between the hub and the edge."
+      },
+      "vineVariation": {
+        "label": "Organic Variation",
+        "hint": "How much the vines wander and wobble."
+      },
+      "vineTwist": {
+        "label": "Twist Amount",
+        "hint": "How tightly the vines of a bundle wind around each other."
+      },
+      "vineThorns": {
+        "label": "Thorniness",
+        "hint": "Share of thorns along the vines. 0 gives smooth roots."
+      },
+      "strandCount": {
+        "label": "Count",
+        "hint": "Number of ropes or chains (1 to 5)."
+      },
+      "strandLayout": {
+        "label": "Layout",
+        "hint": "Straight and Curved run across the region, Coiled lies in loops, Random wanders."
+      },
+      "strandMotion": {
+        "label": "Motion",
+        "hint": "Static lies still. Writhe moves on its own. Extend shoots out once when the effect appears. Retract pulls back and comes out again. Tighten pulls taut to bind and slackens again."
+      },
+      "chainWeight": {
+        "label": "Heaviness",
+        "hint": "Heavier chains react slower and move more deliberately."
+      },
+      "serpentCount": {
+        "label": "Count",
+        "hint": "Number of serpents (1 to 5)."
+      },
+      "serpentMotion": {
+        "label": "Motion",
+        "hint": "Slither glides through the region along a winding track. Coil lies coiled and breathes slowly."
+      },
+      "serpentScales": {
+        "label": "Scale Visibility",
+        "hint": "How clearly the scales and their shading show."
       },
       "randomSeed": {
         "label": "Random Seed",
