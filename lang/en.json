@@ -287,7 +287,12 @@
       "dropBlocked": "That cell is blocked or the item does not fit there.",
       "slotFillTitle": "Place into {slot}",
       "slotFillEmpty": "No matching items in inventory",
-      "slotFillHint": "Right-click to choose an item from inventory"
+      "slotFillHint": "Right-click to choose an item from inventory",
+      "unequip": "Unequip",
+      "delete": "Delete",
+      "deleteTitle": "Delete Item",
+      "deleteConfirm": "Delete <strong>{name}</strong> permanently?",
+      "deleted": "Deleted {name}."
     },
     "echo": {
       "removeCard": "Remove Card",

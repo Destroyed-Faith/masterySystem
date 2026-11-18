@@ -287,7 +287,12 @@
       "dropBlocked": "Dieses Feld ist blockiert oder der Gegenstand passt dort nicht hin.",
       "slotFillTitle": "Einlegen in {slot}",
       "slotFillEmpty": "Keine passenden Gegenstände im Inventar",
-      "slotFillHint": "Rechtsklick, um einen Gegenstand aus dem Inventar zu wählen"
+      "slotFillHint": "Rechtsklick, um einen Gegenstand aus dem Inventar zu wählen",
+      "unequip": "Ablegen",
+      "delete": "Löschen",
+      "deleteTitle": "Gegenstand löschen",
+      "deleteConfirm": "<strong>{name}</strong> dauerhaft löschen?",
+      "deleted": "{name} gelöscht."
     },
     "echo": {
       "removeCard": "Karte entfernen",

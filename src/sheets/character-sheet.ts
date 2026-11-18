@@ -70,7 +70,7 @@ import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wiza
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize, occupiesInventoryGrid, parseInventorySize, readEquipmentFlags, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -3446,7 +3446,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
 
     const invEquipSelector =
-      '.tab.equipment .df-enc-band .df-draggable-item, .tab.equipment .df-consumable-slot .df-draggable-item';
+      '.tab.equipment .df-enc-band .df-draggable-item, .tab.equipment .df-consumable-slot .df-draggable-item, .tab.equipment .df-equip-slot .df-draggable-item';
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
     const rootEl = ((html as any)?.[0] ?? (this.element as any) ?? null) as HTMLElement | null;
     if (ContextMenuCls && rootEl) {
@@ -9285,6 +9285,121 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return item?.parent?.id === this.actor.id ? item : null;
   }
 
+  /** True when the item currently occupies a paperdoll or consumable slot. */
+  #isItemCurrentlyEquipped(item: any): boolean {
+    if (!item) return false;
+    if (readConsumableSlotIndex(item) != null) return true;
+    const slot = String(readEquipmentFlags(item).slot || '').trim();
+    return !!slot;
+  }
+
+  /**
+   * Unequip from paperdoll / consumable slot into the first free inventory cell.
+   */
+  async #unequipItemToInventory(item: any): Promise<boolean> {
+    if (!item) return false;
+    if (isEchoLockedItem(item)) {
+      ui.notifications?.warn(`${item.name} is Echo-bound and cannot be unequipped.`);
+      return false;
+    }
+
+    if (readConsumableSlotIndex(item) != null) {
+      const res = await unequipConsumable(this.actor, item);
+      if (!res.ok) {
+        ui.notifications?.warn(res.error);
+        return false;
+      }
+      return true;
+    }
+
+    const flags = readEquipmentFlags(item);
+    const slot = String(flags.slot || '').trim();
+    if (!slot) return false;
+
+    const BAND_COLS = ZONE_WIDTH_COLS;
+    const BAND_ROWS = 9;
+    const size = itemInventorySize(item);
+    const w = Math.min(BAND_COLS, size.w);
+    const h = Math.min(BAND_ROWS, size.h);
+    const preferred =
+      flags.band === 'not' || flags.band === 'enc' || flags.band === 'heavy' ? flags.band : 'not';
+    const bandOrder = [preferred, 'not', 'enc', 'heavy'].filter(
+      (band, index, all) => all.indexOf(band) === index,
+    );
+
+    let placed: { band: string; x: number; y: number } | null = null;
+    for (const band of bandOrder) {
+      const rects = this.#inventoryBandRects(band, item.id);
+      const pos = findFirstFit(rects, w, h, BAND_COLS, BAND_ROWS);
+      if (pos) {
+        placed = { band, x: pos.x, y: pos.y };
+        break;
+      }
+    }
+    if (!placed) {
+      ui.notifications?.warn(
+        localizeSheet(
+          'MASTERY.inventory.dropBlocked',
+          'That cell is blocked or the item does not fit there.',
+        ),
+      );
+      return false;
+    }
+
+    const newFlags: any = {
+      ...flags,
+      container: 'inventory',
+      band: placed.band,
+      slot: null,
+      grid: { x: placed.x, y: placed.y },
+    };
+    delete newFlags.twoHanded;
+    delete newFlags.weaponSetPrepared;
+    delete newFlags.keepInventoryGrid;
+
+    await item.update({
+      'flags.mastery-system.equipment': newFlags,
+      'system.equipped': false,
+    });
+    await syncActiveWeaponSetFromHands(this.actor);
+    return true;
+  }
+
+  /** Delete / throw away an equipment item (same rules as the trash dropzone). */
+  async #deleteEquipmentItem(item: any): Promise<boolean> {
+    if (!item) return false;
+    if (isEchoLockedItem(item)) {
+      ui.notifications?.warn(`${item.name} is Echo-bound and cannot be deleted.`);
+      return false;
+    }
+    if (isLegacyUnarmedItem(item)) {
+      await this.actor.deleteEmbeddedDocuments('Item', [item.id], {
+        masterySystemForceDelete: true,
+      } as any);
+      ui.notifications?.info('Removed legacy Unarmed item (melee uses virtual unarmed).');
+      return true;
+    }
+    const confirmed = await Dialog.confirm({
+      title: localizeSheet('MASTERY.inventory.deleteTitle', 'Delete Item'),
+      content: `<p>${localizeSheet(
+        'MASTERY.inventory.deleteConfirm',
+        'Delete <strong>{name}</strong> permanently?',
+        { name: String(item.name || 'Item') },
+      )}</p>`,
+      yes: () => true,
+      no: () => false,
+      defaultYes: false,
+    });
+    if (!confirmed) return false;
+    await item.delete();
+    ui.notifications?.info(
+      localizeSheet('MASTERY.inventory.deleted', 'Deleted {name}.', {
+        name: String(item.name || 'Item'),
+      }),
+    );
+    return true;
+  }
+
   /** Right-click equip: slots shown in equipment tab inventory / stash grids. */
   #inventoryEquipContextMenuEntries(): any[] {
     const slots: Array<{ key: string; label: string }> = [
@@ -9343,12 +9458,47 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         },
       },
       {
+        name: localizeSheet('MASTERY.inventory.unequip', 'Unequip'),
+        icon: '<i class="fas fa-inbox"></i>',
+        group: 'manage',
+        condition: (target: unknown) => {
+          if (!this.isEditable || !this.actor.isOwner) return false;
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          return !!item && this.#isItemCurrentlyEquipped(item) && !isEchoLockedItem(item);
+        },
+        callback: async (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return;
+          if (await this.#unequipItemToInventory(item)) {
+            await this.render(true, { focus: false });
+          }
+        },
+      },
+      {
+        name: localizeSheet('MASTERY.inventory.delete', 'Delete'),
+        icon: '<i class="fas fa-trash"></i>',
+        group: 'manage',
+        condition: (target: unknown) => {
+          if (!this.isEditable || !this.actor.isOwner) return false;
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          return !!item && !isEchoLockedItem(item);
+        },
+        callback: async (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return;
+          if (await this.#deleteEquipmentItem(item)) {
+            await this.render(true, { focus: false });
+          }
+        },
+      },
+      {
         name: 'Equip (main hand)',
         icon: '<i class="fas fa-hand-fist"></i>',
         group: 'quick',
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
-          return !!item && !!getNormalizedEquipSlots(item)?.includes('mainhand');
+          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
+          return !!getNormalizedEquipSlots(item)?.includes('mainhand');
         },
         callback: async (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
@@ -9364,7 +9514,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         group: 'quick',
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item || !getNormalizedEquipSlots(item)?.includes('offhand')) return false;
+          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
+          if (!getNormalizedEquipSlots(item)?.includes('offhand')) return false;
           if (item.type === 'weapon' && !requiresAmmunition(item)) {
             // Light weapons may be wielded in the off-hand (PG Weapon Properties).
             const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
@@ -9386,7 +9537,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         group: 'quick',
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
-          return !!item && !!getNormalizedEquipSlots(item)?.includes('body');
+          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
+          return !!getNormalizedEquipSlots(item)?.includes('body');
         },
         callback: async (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
@@ -9404,7 +9556,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         group: 'quick',
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item) return false;
+          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
           const size = parseInventorySize(item.system?.inventorySize);
           return size.w !== size.h;
         },
@@ -9423,7 +9575,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         group: 'slot',
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item || !getNormalizedEquipSlots(item)?.includes(key)) return false;
+          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
+          if (!getNormalizedEquipSlots(item)?.includes(key)) return false;
           // Light weapons may be wielded in the off-hand (PG Weapon Properties).
           if (key === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item)) {
             const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
@@ -9447,7 +9600,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       group: 'info',
       condition: (target: unknown) => {
         const item = this.#itemFromInventoryTileContextTarget(target);
-        return !!item && !getNormalizedEquipSlots(item);
+        return !!item && !this.#isItemCurrentlyEquipped(item) && !getNormalizedEquipSlots(item);
       },
       callback: () => {
         ui.notifications?.info(
@@ -9673,26 +9826,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (!slot) return;
       await this.#applyEquipToSlot(item, slot);
     } else if (dropType === 'equip-trash') {
-      if (isEchoLockedItem(item)) {
-        ui.notifications?.warn(`${item.name} is Echo-bound and cannot be deleted.`);
-        return;
-      }
-      if (isLegacyUnarmedItem(item)) {
-        await this.actor.deleteEmbeddedDocuments('Item', [item.id], { masterySystemForceDelete: true } as any);
-        ui.notifications?.info('Removed legacy Unarmed item (melee uses virtual unarmed).');
-        return;
-      }
-      const confirmed = await Dialog.confirm({
-        title: 'Delete Item',
-        content: `<p>Delete <strong>${item.name}</strong> permanently?</p>`,
-        yes: () => true,
-        no: () => false,
-        defaultYes: false,
-      });
-      if (confirmed) {
-        await item.delete();
-        ui.notifications?.info(`Deleted ${item.name}.`);
-      }
+      await this.#deleteEquipmentItem(item);
     }
   }
 }

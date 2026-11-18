@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.861] - 2026-11-18
+
+### Added
+
+- **Character Sheet / Equipment:** Right-click context menu on equipped paperdoll items with **Unequip** (auto-places into the first free inventory cell) and **Delete**. Inventory and consumable tiles get the same Delete action.
+
 ## [0.9.860] - 2026-11-18
 
 ### Added
