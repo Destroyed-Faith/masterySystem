@@ -3,7 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { buildSpecializationSheetRows, ensureCharacterHasPerceptionSpec, ensureStartingProfessionSlots, findSpecializationById, isCharacterPerceptionSpec, isLegacyFieldSpecialization, isProfessionRespecEnabled, isRespecableProfession, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
+import { buildSpecializationSheetRows, canShowProfessionDelete, canShowProfessionRespec, ensureCharacterHasPerceptionSpec, ensureStartingProfessionSlots, findSpecializationById, isCharacterPerceptionSpec, isLegacyFieldSpecialization, isProfessionRespecEnabled, readSpecializations, specializationRankUpCost, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, validateSpecializationList, } from '../rules/index.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildSkillRollPoolPreview, getSkillRollDicePool, isSkillFullPoolReady, reducedSkillAttributePool, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
 import { bindCheckContestMode, buildCheckContestSwitchHtml, buildContestSectionHtml, listContestOpponents, readCheckContestMode, readContestDialogChoice, runSheetAttributeContest, } from '../contests/contest-dialog-section.js';
@@ -1211,8 +1211,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.canStartSkillsRedistribute = false;
         context.canFinishSkillsRedistribute =
             skillsRedistributing && (!!this.actor.isOwner || context.isGM);
-        // Unspent Skill Points (refunds) — placed through the progression +/- buttons.
-        context.skillPointsUnspent = readSkillPointPool(context.system).unspent;
         // Add configuration data
         context.config = CONFIG.MASTERY;
         // Enrich biography info for display
@@ -5482,7 +5480,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const totalPendingChanges = Object.values(this._pendingSkillRankChanges).reduce((sum, v) => sum + Math.abs(v), 0);
         html.find('#pending-skill-changes-count').text(String(totalPendingChanges));
         html.find('#remaining-skill-xp').text(String(Math.max(0, remainingXP)));
-        html.find('#remaining-skill-points').text(String(Math.max(0, allocation.poolAfter)));
+        html.find('#remaining-skill-points').text('0');
         const netSummary = html.find('#pending-skill-xp-net');
         if (netSummary.length) {
             if (netPendingCost === 0) {
@@ -5525,9 +5523,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (this.#hasFreeXp()) {
                     plusBtn.attr('title', 'Free XP aktiv — frei verteilbar.');
                 }
-                else if (nextXpSteps === 0) {
-                    plusBtn.attr('title', 'Paid with an unspent Skill Point (no XP).');
-                }
                 plusBtn.prop('disabled', simulated.xpNet > availableXP);
             }
             const pendingLine = html.find(`.skill-pending-xp[data-skill="${skillKey}"]`);
@@ -5543,10 +5538,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     ? `+${pending} rank${pending === 1 ? '' : 's'}`
                     : `${pending} rank${pending === -1 ? '' : 's'}`;
                 const parts = [];
-                if (entry?.poolSteps)
-                    parts.push(`${entry.poolSteps} SP`);
-                if (entry?.poolReturned)
-                    parts.push(`+${entry.poolReturned} SP back`);
                 if (xpNet > 0) {
                     parts.push(`${xpNet} XP`);
                 }
@@ -5589,7 +5580,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const xpState = this.#getXpState(this.actor);
         const availableXP = xpState.available; // combined Free + regular
-        // Unspent Skill Points pay first; only the remainder costs XP.
+        // Legacy Skill ranks are XP-only (Skill Points retired).
         const allocation = allocateActorSkillPending(this.actor, this._pendingSkillRankChanges);
         const netCost = allocation.xpNet;
         if (netCost > availableXP) {
@@ -5779,23 +5770,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 .update({ 'system.specializations': ensured.specializations })
                 .catch((err) => console.warn('Mastery System | Character Perception Spec seed failed', err));
         }
-        const specs = ensured.specializations.length
+        const rawSpecs = ensured.specializations.length
             ? ensured.specializations
             : readSpecializations(system);
+        const withSlots = ensureStartingProfessionSlots(rawSpecs);
+        if (withSlots !== rawSpecs) {
+            system.specializations = withSlots;
+            void this.actor
+                .update({ 'system.specializations': withSlots })
+                .catch((err) => console.warn('Mastery System | Starting Profession slot stamp failed', err));
+        }
+        const specs = withSlots;
         const attrValues = {};
         for (const [key, data] of Object.entries(system.attributes ?? {})) {
             attrValues[key] = Number(data?.value) || 0;
         }
         const rows = buildSpecializationSheetRows(specs, attrValues);
         const isOwner = !!this.actor.isOwner || !!context.isGM;
-        const betaRespecOn = isProfessionRespecEnabled();
-        const withSlots = betaRespecOn ? ensureStartingProfessionSlots(specs) : specs;
+        const isGM = !!context.isGM;
+        const creationComplete = context.creationComplete !== false;
+        const lifecycleCtx = {
+            creationComplete,
+            isGM,
+            playerRespecEnabled: isProfessionRespecEnabled(),
+        };
         context.specializations = rows.map((row) => ({
             ...row,
-            canBetaRespec: betaRespecOn &&
-                isOwner &&
-                context.creationComplete !== false &&
-                isRespecableProfession(withSlots, row.id),
+            canBetaRespec: isOwner && canShowProfessionRespec(specs, row.id, lifecycleCtx),
+            canDeleteProfession: isOwner && canShowProfessionDelete(specs, row.id, lifecycleCtx),
         }));
         context.hasSpecializations = specs.length > 0;
         // Paid Specs only — free Perception does not consume a starting slot.
@@ -7782,7 +7784,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (perceptionEnsured.changed) {
             system.specializations = perceptionEnsured.specializations;
         }
-        const specAlloc = validateSpecializationList(perceptionEnsured.specializations, {
+        const stampedSpecs = ensureStartingProfessionSlots(perceptionEnsured.specializations);
+        system.specializations = stampedSpecs;
+        const specAlloc = validateSpecializationList(stampedSpecs, {
             requireStartingBudget: true,
         });
         if (!specAlloc.ok) {
@@ -7852,7 +7856,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'system.faithFractures.current': disadvantagePoints,
             'system.faithFractures.maximum': disadvantagePoints,
             'system.languages.known': langNorm.cleaned,
-            'system.specializations': perceptionEnsured.specializations,
+            'system.specializations': stampedSpecs,
         };
         // Always persist full per-rank schtick rows (merged 1..MR) so actor data matches the sheet after finalize
         updateData['system.schticks.ranks'] = schticksRows;

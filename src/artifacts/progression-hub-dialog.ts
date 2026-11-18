@@ -21,7 +21,6 @@ import {
   getAttributeXpBaseline,
   hasFreeXp,
 } from '../progression/progression-hub-actions.js';
-import { readSkillPointPool } from '../progression/skill-point-pool.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import {
   buildArtifactEvolutionCards,
@@ -96,9 +95,6 @@ export class ProgressionHubDialog extends BaseDialog {
       hasPendingPowers: Object.keys(this.pendingPowers).length > 0,
       attrNet,
       skillNet,
-      skillPointsUnspent: readSkillPointPool((this.actor as any).system).unspent,
-      skillPointsAfterPending: skillAllocation.poolAfter,
-      skillPointsPending: skillAllocation.poolSpent,
       powerNet,
       remainingAfterPending,
       hasFreeXpPhase: hasFreeXp(this.actor),

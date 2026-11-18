@@ -1,12 +1,13 @@
 /**
- * Beta Profession Respec — optional GM World Setting.
+ * Profession Respec — replace a free starting Profession in place.
  *
- * When enabled, a player may replace one of their original four starting
- * Professions (catalogue or custom) while keeping Rank and invested XP.
- * Perception is never touched. Disabling the setting blocks free replacement
- * but leaves normal XP advancement alone.
+ * GM may always replace an uninvested Rank-2 starting Profession (no XP change).
+ * Players may do the same only when World Setting `allowProfessionRespecBeta` is on.
+ * Once XP is invested (or Rank rises past 2), the starting Profession is locked.
+ * Perception is never touched.
  */
 
+import { inferProfessionXpInvested, STARTING_SPECIALIZATION_RANK } from './skill-raises.js';
 import {
   isCharacterPerceptionSpec,
   paidSpecializations,
@@ -30,18 +31,22 @@ export function isProfessionRespecEnabled(
 
 /**
  * Mark the first four paid Professions as starting slots when none are stamped yet.
- * Safe and repeatable for pre-update characters.
+ * Used for legacy / migrated characters. Does not convert later XP-learned rows when
+ * any startingSlot already exists (GM Grant restores missing slots explicitly).
  */
 export function ensureStartingProfessionSlots(
   specs: SpecializationRecord[],
 ): SpecializationRecord[] {
   if (specs.some((s) => s.startingSlot === true)) return specs;
   let remaining = 4;
-  return specs.map((s) => {
+  let changed = false;
+  const next = specs.map((s) => {
     if (isCharacterPerceptionSpec(s) || remaining <= 0) return s;
     remaining -= 1;
+    changed = true;
     return { ...s, startingSlot: true };
   });
+  return changed ? next : specs;
 }
 
 export function isRespecableProfession(
@@ -51,7 +56,10 @@ export function isRespecableProfession(
   const stamped = ensureStartingProfessionSlots(specs);
   const target = stamped.find((s) => s.id === id);
   if (!target || isCharacterPerceptionSpec(target)) return false;
-  return target.startingSlot === true;
+  if (target.startingSlot !== true) return false;
+  const rank = Math.max(0, Math.floor(Number(target.rank) || 0));
+  if (rank > STARTING_SPECIALIZATION_RANK) return false;
+  return inferProfessionXpInvested(target) <= 0;
 }
 
 export interface ProfessionRespecInput {
@@ -73,8 +81,8 @@ export interface ProfessionRespecPlan {
 }
 
 /**
- * Replace one starting Profession in place. Rank and startingSlot stay;
- * XP is never refunded or charged. Perception is refused.
+ * Replace one uninvested Rank-2 starting Profession in place.
+ * Rank and startingSlot stay; XP is never refunded or charged.
  */
 export function planProfessionRespec(
   specs: SpecializationRecord[],
@@ -114,7 +122,7 @@ export function planProfessionRespec(
   if (isCharacterPerceptionSpec(current)) {
     return {
       ok: false,
-      error: 'Perception cannot be replaced through Beta Profession Respec.',
+      error: 'Perception cannot be replaced through Profession respec.',
       specializations: stamped,
       preservedRank: current.rank,
       previousName: current.name,
@@ -124,7 +132,19 @@ export function planProfessionRespec(
   if (current.startingSlot !== true) {
     return {
       ok: false,
-      error: 'Beta Profession Respec only replaces the four free starting Professions.',
+      error: 'Profession respec only replaces the four free starting Professions.',
+      specializations: stamped,
+      preservedRank: current.rank,
+      previousName: current.name,
+      nextName: name,
+    };
+  }
+  const currentRank = Math.max(0, Math.floor(Number(current.rank) || 0));
+  if (currentRank > STARTING_SPECIALIZATION_RANK || inferProfessionXpInvested(current) > 0) {
+    return {
+      ok: false,
+      error:
+        'Profession respec is only allowed at Rank 2 with no invested XP. Once XP is spent, the Profession is locked.',
       specializations: stamped,
       preservedRank: current.rank,
       previousName: current.name,
@@ -198,7 +218,11 @@ export function countStartingProfessionSlots(specs: SpecializationRecord[]): num
 
 export function listRespecableProfessions(specs: SpecializationRecord[]): SpecializationRecord[] {
   return ensureStartingProfessionSlots(specs).filter(
-    (s) => s.startingSlot === true && !isCharacterPerceptionSpec(s),
+    (s) =>
+      s.startingSlot === true &&
+      !isCharacterPerceptionSpec(s) &&
+      Math.max(0, Math.floor(Number(s.rank) || 0)) <= STARTING_SPECIALIZATION_RANK &&
+      inferProfessionXpInvested(s) <= 0,
   );
 }
 

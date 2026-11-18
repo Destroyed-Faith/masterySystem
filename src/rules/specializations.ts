@@ -51,7 +51,7 @@ export interface SpecializationRecord {
   category?: string;
   /**
    * True for one of the four free creation Professions.
-   * Used by Beta Profession Respec; omitted on later XP-learned rows.
+   * Used by Rank-2 respec / GM clear; omitted on later XP-learned rows.
    */
   startingSlot?: boolean;
   /** True when the GM granted this Profession without XP. */

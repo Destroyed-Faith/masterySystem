@@ -1,17 +1,20 @@
 /**
- * Unspent Skill Points after character creation.
+ * Legacy Skill Point pool — retired.
  *
- * Refunds (for example when a Skill is removed from the rules) land in
- * `system.skillPoints.unspent`. One unspent Skill Point buys one Skill Rating
- * point in the normal Skill progression UI; ranks bought this way are recorded
- * per Skill in `system.skillPoints.placed` so that removing them gives the
- * Skill Point back instead of refunding XP. Skill Points never become XP.
+ * DF Professions replaced creation Skill Points. Remaining `system.skillPoints`
+ * data is cleared by `retireActorSkillPoints` (unspent ranks become Free XP).
+ * Allocation helpers always treat pending Skill changes as XP-only.
  */
 function toCount(value) {
     const n = Math.floor(Number(value) || 0);
     return n > 0 ? n : 0;
 }
-export function readSkillPointPool(system) {
+/** Always empty — Skill Points no longer exist as a spendable pool. */
+export function readSkillPointPool(_system) {
+    return { unspent: 0, placed: {} };
+}
+/** Raw leftover Skill Points still stored on an actor (pre-retirement). */
+export function readLegacySkillPointResidue(system) {
     const raw = system?.skillPoints;
     const placed = {};
     const rawPlaced = raw?.placed;
@@ -25,18 +28,35 @@ export function readSkillPointPool(system) {
     return { unspent: toCount(raw?.unspent), placed };
 }
 /**
- * Decide which pending Skill rank changes are paid with unspent Skill Points
- * and which cost XP.
- *
- * Positive steps consume the pool in the order the Skills were clicked
- * (`pendingMap` insertion order) until it is empty; the rest cost XP by the
- * banded Skill cost of the rank reached. Negative steps first give back ranks
- * that were placed from the pool on that Skill, then refund XP for the rest.
+ * Convert leftover unspent Skill Points to Free XP and clear the pool.
+ * Placed ranks stay on Skills; only the obsolete currency is removed.
+ */
+export function planSkillPointRetirement(system) {
+    const residue = readLegacySkillPointResidue(system);
+    const hasPlaced = Object.keys(residue.placed).length > 0;
+    if (residue.unspent <= 0 && !hasPlaced) {
+        return { needed: false, convertedXp: 0, updates: {} };
+    }
+    const freeNow = Math.max(0, Math.floor(Number(system?.points?.xpFree) || 0));
+    const freeEarned = Math.max(0, Math.floor(Number(system?.xp?.freeEarned) || 0));
+    return {
+        needed: true,
+        convertedXp: residue.unspent,
+        updates: {
+            'system.skillPoints': { unspent: 0, placed: {} },
+            ...(residue.unspent > 0
+                ? {
+                    'system.points.xpFree': freeNow + residue.unspent,
+                    'system.xp.freeEarned': freeEarned + residue.unspent,
+                }
+                : {}),
+        },
+    };
+}
+/**
+ * Pending Skill rank changes are XP-only (Skill Points retired).
  */
 export function allocateSkillPending(opts) {
-    let poolLeft = opts.pool.unspent;
-    let poolSpent = 0;
-    let poolReturned = 0;
     let xpNet = 0;
     const perSkill = {};
     for (const [key, rawPending] of Object.entries(opts.pendingMap || {})) {
@@ -54,22 +74,16 @@ export function allocateSkillPending(opts) {
             xpNet: 0,
         };
         if (pending > 0) {
-            entry.poolSteps = Math.min(pending, poolLeft);
-            poolLeft -= entry.poolSteps;
-            poolSpent += entry.poolSteps;
-            entry.xpSteps = pending - entry.poolSteps;
-            for (let i = entry.poolSteps + 1; i <= pending; i += 1) {
+            entry.xpSteps = pending;
+            for (let i = 1; i <= pending; i += 1) {
                 entry.xpNet += opts.skillBandCost(current + i);
             }
         }
         else {
             const steps = Math.min(Math.abs(pending), current);
-            const placedHere = toCount(opts.pool.placed[key]);
-            entry.poolReturned = Math.min(steps, placedHere);
-            poolReturned += entry.poolReturned;
-            entry.xpRefundSteps = steps - entry.poolReturned;
+            entry.xpRefundSteps = steps;
             for (let i = 0; i < entry.xpRefundSteps; i += 1) {
-                const refundRank = current - entry.poolReturned - i;
+                const refundRank = current - i;
                 if (refundRank <= 0)
                     break;
                 entry.xpNet -= opts.skillBandCost(refundRank);
@@ -79,28 +93,17 @@ export function allocateSkillPending(opts) {
         perSkill[key] = entry;
     }
     return {
-        poolSpent,
-        poolReturned,
-        poolAfter: opts.pool.unspent - poolSpent + poolReturned,
+        poolSpent: 0,
+        poolReturned: 0,
+        poolAfter: 0,
         xpNet,
         perSkill,
     };
 }
-/** Actor update keys for the pool after a confirmed batch. */
-export function skillPointPoolUpdate(pool, allocation) {
-    const updates = {
-        'system.skillPoints.unspent': Math.max(0, allocation.poolAfter),
+/** Clears any leftover Skill Point fields after a confirmed batch. */
+export function skillPointPoolUpdate(_pool, _allocation) {
+    return {
+        'system.skillPoints': { unspent: 0, placed: {} },
     };
-    for (const entry of Object.values(allocation.perSkill)) {
-        const delta = entry.poolSteps - entry.poolReturned;
-        if (!delta)
-            continue;
-        const next = Math.max(0, toCount(pool.placed[entry.key]) + delta);
-        if (next > 0)
-            updates[`system.skillPoints.placed.${entry.key}`] = next;
-        else
-            updates[`system.skillPoints.placed.-=${entry.key}`] = null;
-    }
-    return updates;
 }
 //# sourceMappingURL=skill-point-pool.js.map

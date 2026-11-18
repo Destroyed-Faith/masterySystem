@@ -13,7 +13,8 @@ export function getCreationSkillBudget(): { total: number; maxPerSkill: number; 
   const cfg = (CONFIG as any)?.MASTERY?.creation;
   const maxPerSkill = Math.max(1, Math.floor(Number(cfg?.maxSkillAtCreation) || 4));
   return {
-    total: Math.max(1, Math.floor(Number(cfg?.skillPoints) || 40)),
+    // Skill Points are retired; legacy redistribute (if ever re-opened) has no budget.
+    total: Math.max(0, Math.floor(Number(cfg?.skillPoints) || 0)),
     maxPerSkill,
     /** One click buys a full creation rank (4). No 1/2/3 leftover ranks. */
     step: maxPerSkill,

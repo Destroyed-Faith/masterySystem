@@ -104,26 +104,19 @@ export function calculateAttributePendingNetCost(actor, pendingMap) {
     }
     return net;
 }
-/**
- * Split pending Skill rank changes between unspent Skill Points and XP.
- * Skill Points pay first (one per rank, in click order); the rest costs XP.
- */
+/** Pending legacy Skill rank changes are XP-only (Skill Points retired). */
 export function allocateActorSkillPending(actor, pendingMap) {
     return allocateSkillPending({
         pendingMap,
         currentRank: (key) => Number(actor?.system?.skills?.[key] ?? 0) || 0,
-        pool: readSkillPointPool(actor?.system),
         skillBandCost,
     });
 }
-/** Net XP (positive = spend) for pending Skill changes after unspent Skill Points paid their share. */
+/** Net XP (positive = spend) for pending legacy Skill changes. */
 export function calculateSkillPendingNetCost(actor, pendingMap) {
     return allocateActorSkillPending(actor, pendingMap).xpNet;
 }
-/**
- * XP history rows for a confirmed Skill batch. Ranks paid with unspent Skill
- * Points are logged with 0 XP so the audit trail shows where they went.
- */
+/** XP history rows for a confirmed legacy Skill batch. */
 export function buildSkillStepHistoryEntries(opts) {
     const user = currentXpUser();
     const ts = Date.now();
@@ -135,8 +128,7 @@ export function buildSkillStepHistoryEntries(opts) {
             for (let i = 0; i < entry.pending; i += 1) {
                 const from = current + i;
                 const to = from + 1;
-                const fromPool = i < entry.poolSteps;
-                const cost = fromPool ? 0 : skillBandCost(to);
+                const cost = skillBandCost(to);
                 entries.push({
                     ts: ts + entries.length,
                     userId: user.userId,
@@ -144,20 +136,18 @@ export function buildSkillStepHistoryEntries(opts) {
                     kind: 'spend',
                     category: 'skill',
                     amount: cost,
-                    note: fromPool ? `${label} ${from} → ${to} (Skill Point)` : `${label} ${from} → ${to}`,
-                    details: { key: entry.key, name: label, from, to, cost, skillPoint: fromPool },
+                    note: `${label} ${from} → ${to}`,
+                    details: { key: entry.key, name: label, from, to, cost },
                     before: opts.before,
                     after: opts.after,
                 });
             }
         }
         else {
-            const steps = entry.poolReturned + entry.xpRefundSteps;
-            for (let i = 0; i < steps; i += 1) {
+            for (let i = 0; i < entry.xpRefundSteps; i += 1) {
                 const from = current - i;
                 const to = from - 1;
-                const toPool = i < entry.poolReturned;
-                const cost = toPool ? 0 : skillBandCost(from);
+                const cost = skillBandCost(from);
                 entries.push({
                     ts: ts + entries.length,
                     userId: user.userId,
@@ -165,10 +155,8 @@ export function buildSkillStepHistoryEntries(opts) {
                     kind: 'adjust',
                     category: 'skill',
                     amount: cost,
-                    note: toPool
-                        ? `refund: ${label} ${from} → ${to} (Skill Point returned)`
-                        : `refund: ${label} ${from} → ${to}`,
-                    details: { key: entry.key, name: label, from, to, cost, skillPoint: toPool },
+                    note: `refund: ${label} ${from} → ${to}`,
+                    details: { key: entry.key, name: label, from, to, cost },
                     before: opts.before,
                     after: opts.after,
                 });
@@ -478,24 +466,28 @@ async function spendSpecializationXp(actor, specId, nextSpecs, note, fromRank, t
     });
     return { ok: true };
 }
-/** Remove a Profession and refund its invested XP (if any). */
+/**
+ * Remove a Profession under lifecycle rules and refund only invested XP
+ * (never the free Rank-2 starting base).
+ */
 export async function applySpecializationDeleteWithRefund(actor, specId) {
     if (!assertProgressionEditable(actor)) {
         return { ok: false, error: 'Progression locked on unlinked token.' };
     }
-    const { inferProfessionXpInvested, isCharacterPerceptionSpec } = await import('../rules/index.js');
-    const specs = readSpecializations(actor.system);
-    const spec = specs.find((s) => s.id === specId);
-    if (!spec)
-        return { ok: false, error: 'Profession not found.' };
-    if (isCharacterPerceptionSpec(spec)) {
-        return { ok: false, error: 'Perception cannot be removed.' };
+    const { ensureStartingProfessionSlots, planProfessionDelete, } = await import('../rules/index.js');
+    const specs = ensureStartingProfessionSlots(readSpecializations(actor.system));
+    const creationComplete = actor.system?.creation?.complete !== false;
+    const isGM = !!globalThis.game?.user?.isGM;
+    const plan = planProfessionDelete(specs, specId, { creationComplete, isGM });
+    if (!plan.ok || !plan.spec) {
+        return { ok: false, error: plan.error ?? 'Could not delete Profession.' };
     }
-    const refund = inferProfessionXpInvested(spec);
+    const spec = plan.spec;
+    const refund = Math.max(0, Math.floor(Number(plan.refund) || 0));
     const next = removeSpecialization(specs, specId);
     if (refund <= 0) {
         await actor.update({ 'system.specializations': next });
-        return { ok: true, refunded: 0, name: spec.name };
+        return { ok: true, refunded: 0, name: spec.name, mode: plan.mode };
     }
     const xpState = getXpState(actor);
     const acct = applyXpCost(xpState, -refund);
@@ -516,6 +508,7 @@ export async function applySpecializationDeleteWithRefund(actor, specId) {
             cost: refund,
             specialization: true,
             refund: true,
+            mode: plan.mode,
         },
         before: {
             available: xpState.available,
@@ -536,7 +529,7 @@ export async function applySpecializationDeleteWithRefund(actor, specId) {
         'system.xp.freeSpent': acct.freeSpent,
         'system.xp.history': appendXpHistory(actor, [entry]),
     });
-    return { ok: true, refunded: refund, name: spec.name };
+    return { ok: true, refunded: refund, name: spec.name, mode: plan.mode };
 }
 /** Raise an existing Specialization by one Rank (ladder XP for next Rank). */
 export async function applySpecializationRankUp(actor, specId) {

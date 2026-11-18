@@ -61,7 +61,6 @@ describe('build value at current rules', () => {
           intellect: { value: 3 }, resolve: { value: 2 }, influence: { value: 2 }, wits: { value: 2 },
         },
         skills: { athletics: 8, lore: 4 },
-        skillPoints: { unspent: 4, placed: {} },
         points: { xp: 30, xpFree: 8 },
         xp: {
           postCreationProgress: {
@@ -80,7 +79,6 @@ describe('build value at current rules', () => {
     expect(value.net).toBe(4);
     expect(value.unspentXp).toBe(30);
     expect(value.unspentFreeXp).toBe(8);
-    expect(value.unspentSkillPoints).toBe(4);
     expect(value.skillBasis).toBe('creation-cap');
   });
 

@@ -37,18 +37,17 @@
       
       <div class="bulk-grant-section build-value-section">
         <h3>Build-Wert nach aktuellen Regeln</h3>
-        <p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige EP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe = Netto + übrige XP — dieselbe Zahl wie Lifetime XP / Stone-Milestones auf dem Charakterbogen.</p>
+        <p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: Attribut-Startpaket, vier freie Rank-2-Professions plus Perception, Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Profession-XP zählt nur investierte Ladder-Kosten. Artefakte aktivieren kostet nichts. Übrige EP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe = Netto + übrige XP — dieselbe Zahl wie Lifetime XP / Stone-Milestones auf dem Charakterbogen.</p>
         <table class="xp-table xp-table-compact">
           <thead>
             <tr>
               <th>Charakter</th>
               <th>Attribute</th>
-              <th>Skills</th>
+              <th>Professions</th>
               <th>Powers</th>
               <th>Artefakte</th>
               <th>Netto</th>
-              <th>Skill Points übrig</th>
-              <th>Skill-Basis</th>
+              <th>Basis</th>
               <th title="Noch nicht ausgegebene XP.">XP</th>
               <th title="Netto plus übrige XP (= Lifetime XP auf dem Bogen).">Nach Ausgabe</th>
               <th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">
@@ -67,7 +66,6 @@
               <td>{{this.powers}}</td>
               <td title="{{this.artifactNote}}">{{this.artifacts}}</td>
               <td><strong>{{this.net}}</strong></td>
-              <td>{{this.unspentSkillPoints}}</td>
               <td>{{this.skillBasisLabel}}</td>
               <td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP."><strong>{{this.unspentFreeXp}}</strong></td>
               <td class="xp-after-spend" title="Netto plus übrige XP. So steht der Bogen, wenn diese XP ausgegeben sind."><strong>{{this.afterSpend}}</strong></td>
@@ -97,7 +95,7 @@
               </td>
             </tr>
             {{else}}
-            <tr><td colspan="12">Keine Charaktere.</td></tr>
+            <tr><td colspan="11">Keine Charaktere.</td></tr>
             {{/each}}
           </tbody>
         </table>
@@ -105,4 +103,3 @@
     </div>
   </section>
 </div>
-

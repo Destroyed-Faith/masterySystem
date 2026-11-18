@@ -159,7 +159,7 @@ describe('no player-facing surface mentions the removed Skills', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('template.json ships the unspent Skill Point pool', () => {
+  it('template.json keeps a cleared Skill Point residue field (retired)', () => {
     const template = JSON.parse(read('template.json'));
     expect(template.Actor.character.skillPoints).toEqual({ unspent: 0, placed: {} });
   });

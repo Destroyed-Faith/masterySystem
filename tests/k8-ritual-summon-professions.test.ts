@@ -83,7 +83,7 @@ describe('K8 Rituals — optional Profession, Stones required', () => {
     );
     expect(guide).toContain('### Owner Professions for Summons');
     expect(guide).not.toContain('### Summon Skills');
-    expect(guide).toContain('### Beta Profession Respec');
+    expect(guide).toContain('### Profession Respec and Removal');
   });
 });
 

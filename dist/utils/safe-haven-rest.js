@@ -29,7 +29,7 @@ export function rerollPointsMaximumFromSystem(system) {
     const storedMax = Math.max(0, Number(system?.faithFractures?.maximum) || 0);
     return fromDisadvantages > 0 ? fromDisadvantages : storedMax;
 }
-export const SAFE_HAVEN_REST_INFO = 'Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Skill Points, Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.';
+export const SAFE_HAVEN_REST_INFO = 'Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.';
 /**
  * Health-bar updates for a rest (Players Guide "Rests"):
  *   - Night Rest / Safe Haven Rest: restore the current ACTIVE Health Bar to
@@ -320,7 +320,7 @@ export function listWorldCharacters() {
 }
 async function confirmPartySafeHaven(count) {
     const content = `Apply Safe Haven Rest to <strong>${count}</strong> character${count === 1 ? '' : 's'}? ` +
-        `This restores the active Health Bar + 1 Scarred Bar and refreshes Skill Points, Reroll Points, ` +
+        `This restores the active Health Bar + 1 Scarred Bar and refreshes Reroll Points, ` +
         `Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest.`;
     const DialogV2 = globalThis.foundry?.applications?.api?.DialogV2;
     if (typeof DialogV2?.confirm === 'function') {

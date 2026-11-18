@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.863] - 2026-11-18
+
+### Changed
+
+- **Professions lifecycle:** starting Professions can no longer be deleted for XP. Creation still allows free reselect (0 refund). After creation, only the GM may clear or replace an uninvested Rank 2 starting Profession; once XP is invested the starting choice is locked. Players may Rank-2 self-respec only with Allow Profession Respec (Beta). XP-learned Professions still refund invested XP only. Missing `startingSlot` flags are stamped on load, finalize, and DF 2026 migration; GM Rank 2 Grant restores a cleared free slot.
+- **Skill Points retired:** removed from XP Management / Build-Wert (no more “Skill Points übrig”), progression spend, and Safe Haven copy. Leftover unspent Skill Points convert to Free XP once on world load; `placed` tracking is cleared. Build-Wert now shows Profession XP.
+
 ## [0.9.862] - 2026-11-18
 
 ### Added

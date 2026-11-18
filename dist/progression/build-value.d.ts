@@ -10,12 +10,12 @@
  */
 export interface BuildValue {
     attributes: number;
+    /** Profession ladder XP (legacy Skill archive only when no Specs exist). */
     skills: number;
     powers: number;
     artifacts: number;
-    /** Attributes + Skills + Powers + Artifacts. Unspent XP is not included. */
+    /** Attributes + Professions + Powers + Artifacts. Unspent XP is not included. */
     net: number;
-    unspentSkillPoints: number;
     /** Regular XP still in the pool. Not part of `net`. */
     unspentXp: number;
     unspentFreeXp: number;

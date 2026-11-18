@@ -1611,9 +1611,13 @@ Choose **Standard** if no capable active opponent contests the task. Choose **Co
 
 **Untrained:** If no Profession or Perception applies, roll full **Attribute k MR** with **Disadvantage** (only one eligible die may explode), **no Training Advantage, no Training Crit, and no Raises**. Untrained attempts are not prohibited merely for lacking a named occupation.
 
-### Beta Profession Respec (Optional)
+### Profession Respec and Removal
 
-A GM may enable the World Setting **Allow Profession Respec (Beta)**. While it is on, a player may freely replace or edit one of their **four free starting Professions** — choosing another catalogue Profession or a custom Profession, and editing name, origin/background, description/scope, and category — while **keeping the existing Rank and invested XP**. Example: Burglar Rank 5 becomes Blacksmith Rank 5 at no XP cost. Perception is never changed. Disabling the setting blocks free replacement but does not block normal XP advancement. Existing characters and legacy migrations remain safe; the four starting slots are preserved without duplicating records.
+**During creation**, a player may clear and re-pick starting Professions. That never grants XP.
+
+**After creation**, the four free starting Professions cannot be deleted for XP. At **Rank 2 with no invested XP**, the GM may **replace** a starting Profession in place (same Rank, no XP change) or **clear** it and restore the free slot with a Rank 2 Grant. Players may self-respec those same uninvested Rank 2 starting slots only when the World Setting **Allow Profession Respec (Beta)** is enabled. Perception is never replaced or removed.
+
+**Once XP is invested** into a starting Profession (or its Rank rises past 2), that starting choice is **locked** — no respec and no clear of the free slot. XP-learned Professions (bought after creation) may still be removed; only invested XP is refunded. Pure GM grants refund nothing unless later Ranks were bought with XP.
 
 
 }}
@@ -2048,7 +2052,7 @@ Raises improve an outcome already possible with the character's method, tools, a
 | **Intellect** | Visible anomalies, spatial clues, and technical inconsistencies |
 | **Resolve** | Occult/spiritual pressure, if a valid active Sense supports it |
 
-**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases. The GM may grant a Profession (any Rank) without XP when the table warrants it. Removing a Profession refunds XP that was invested in it (starting Rank 2 slots and pure GM grants refund nothing unless later Ranks were bought with XP).
+**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases. The GM may grant a Profession (any Rank) without XP when the table warrants it. Starting Professions are never cashed out for XP. At Rank 2 with no invested XP, the GM may replace or clear a starting Profession; once XP is invested, that starting choice is locked. Removing an XP-learned Profession refunds only invested XP (pure GM grants refund nothing unless later Ranks were bought with XP).
 
 **Armor and Shields:** Printed Physical Training dice penalties instead apply to physical Profession attempts, and to other physically impeded trained tasks, whichever Attribute is chosen. These penalties do not change the normal Combat Pools.
 

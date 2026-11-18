@@ -12,7 +12,6 @@ import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE, deriveLifetimeXp, earnedAttribute
 import { actorHasPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { attributeBandCost, powerLevelCost, skillBandCost, totalArtifactXpToLevel } from '../utils/constants.js';
 import { CREATION_DEFENSIVE_RANK, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, resolvePowerCategoryFromItem, } from '../utils/power-catalog.js';
-import { readSkillPointPool } from './skill-point-pool.js';
 import { inferProfessionXpInvested, isCharacterPerceptionSpec, readSpecializations, } from '../rules/index.js';
 function n(value) {
     const v = Math.floor(Number(value) || 0);
@@ -70,8 +69,8 @@ function skillXp(system) {
         };
     }
     // Legacy archive fallback (pre-DF-2026 sheets without Specs).
+    // Skill Points are retired — ranks above the old free creation cap count as XP only.
     const skills = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-    const placed = readSkillPointPool(system).placed;
     const budget = { total: 40, maxPerSkill: 4 };
     let remaining = budget.total;
     let xp = 0;
@@ -79,14 +78,13 @@ function skillXp(system) {
         const current = n(skills[key]);
         const creation = Math.min(budget.maxPerSkill, current, remaining);
         remaining -= creation;
-        const from = creation + Math.min(n(placed[key]), Math.max(0, current - creation));
-        if (current > from)
-            xp += bandSum(from, current, skillBandCost);
+        if (current > creation)
+            xp += bandSum(creation, current, skillBandCost);
     }
     return {
         xp,
         basis: 'creation-cap',
-        note: `Legacy Skill-Start archive: ${budget.total} Punkte (pre-DF-2026).`,
+        note: `Legacy Skill archive (pre-Professions): ranks above the old free creation cap.`,
     };
 }
 function grantedForFree(item) {
@@ -162,7 +160,6 @@ export function appraiseBuild(actor) {
     if (artifacts.lines.length)
         notes.push(artifacts.lines.join('; '));
     notes.push('Artefakt aktivieren und Stufe 1 kosten 0.');
-    const unspentSkillPoints = readSkillPointPool(system).unspent;
     const unspentXp = n(system.points?.xp);
     const unspentFreeXp = n(system.points?.xpFree);
     return {
@@ -171,7 +168,6 @@ export function appraiseBuild(actor) {
         powers,
         artifacts: artifacts.xp,
         net: attr.xp + skills.xp + powers + artifacts.xp,
-        unspentSkillPoints,
         unspentXp,
         unspentFreeXp,
         skillBasis: skills.basis,
@@ -244,9 +240,9 @@ export function buildValueTableHtml(actors) {
             const title = esc(value.notes.join(' '));
             const unspent = value.unspentXp + value.unspentFreeXp;
             const afterSpend = nachAusgabeXp(actor);
-            return `<tr data-character-id="${esc(actor.id)}" data-after-spend="${afterSpend}"><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td>${value.unspentSkillPoints}</td><td title="${title}">Startregel</td><td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP (regulär + Bonus)."><strong>${unspent}</strong></td><td class="xp-after-spend" title="Netto plus übrige XP. Lifetime-Steine nutzen denselben Wert."><strong>${afterSpend}</strong></td><td class="xp-to-target" data-after-spend="${afterSpend}" title="XP, die noch fehlen, damit Nach Ausgabe das Ziel erreicht.">—</td>${bonusXpControls(actor)}</tr>`;
+            return `<tr data-character-id="${esc(actor.id)}" data-after-spend="${afterSpend}"><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td title="${title}">Startregel</td><td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP (regulär + Bonus)."><strong>${unspent}</strong></td><td class="xp-after-spend" title="Netto plus übrige XP. Lifetime-Steine nutzen denselben Wert."><strong>${afterSpend}</strong></td><td class="xp-to-target" data-after-spend="${afterSpend}" title="XP, die noch fehlen, damit Nach Ausgabe das Ziel erreicht.">—</td>${bonusXpControls(actor)}</tr>`;
         }).join('')
-        : '<tr><td colspan="12">Keine Charaktere.</td></tr>';
-    return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige XP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe ist Netto plus alle übrig XP — dieselbe Zahl wie Lifetime XP auf dem Charakterbogen / Stone-Milestones.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Skills</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Skill Points übrig</th><th>Skill-Basis</th><th title="Noch nicht ausgegebene XP.">XP</th><th title="Netto plus übrige XP (= Lifetime XP).">Nach Ausgabe</th><th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">Bis Ziel <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen."  name="ms-xp-target-input" form="ms-ui-only"/></th><th></th></tr></thead><tbody>${body}</tbody></table></div>`;
+        : '<tr><td colspan="11">Keine Charaktere.</td></tr>';
+    return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: Attribut-Startpaket, vier freie Rank-2-Professions plus Perception, Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Profession-XP zählt nur investierte Ladder-Kosten. Artefakte aktivieren kostet nichts. Übrige XP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe ist Netto plus alle übrig XP — dieselbe Zahl wie Lifetime XP auf dem Charakterbogen / Stone-Milestones.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Professions</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Basis</th><th title="Noch nicht ausgegebene XP.">XP</th><th title="Netto plus übrige XP (= Lifetime XP).">Nach Ausgabe</th><th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">Bis Ziel <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen."  name="ms-xp-target-input" form="ms-ui-only"/></th><th></th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 //# sourceMappingURL=build-value.js.map

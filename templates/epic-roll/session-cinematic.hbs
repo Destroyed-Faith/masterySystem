@@ -81,8 +81,8 @@
               </button>
               {{/each}}
             </div>
-            <button type="button" class="emr-add-skill-btn" data-action="emr-add-skill" data-actor-id="{{p.actorId}}" {{#unless p.canAddSkillPoints}}disabled{{/unless}}>
-              Add Skill Points
+            <button type="button" class="emr-add-skill-btn" data-action="emr-add-skill" data-actor-id="{{p.actorId}}" {{#unless p.canAddSkillPoints}}disabled{{/unless}} hidden>
+              Add Raises
             </button>
             {{/if}}
             {{#if p.showReroll}}

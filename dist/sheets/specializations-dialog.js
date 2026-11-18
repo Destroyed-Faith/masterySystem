@@ -3,7 +3,7 @@
  * Add / Edit / Delete a free-named Specialization and the pre-roll option picker.
  */
 import { PROFESSION_CATALOGUE, PROFESSION_CATALOGUE_CATEGORIES, } from '../rules/profession-catalogue.js';
-import { SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, findSpecializationById, isCharacterPerceptionSpec, isProfessionRespecEnabled, isRespecableProfession, planProfessionRespec, professionIdentityKey, readSpecializations, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
+import { SPECIALIZATION_MAX_RANK, STARTING_SPECIALIZATION_COUNT, STARTING_SPECIALIZATION_RANK, countStartingProfessionSlots, ensureStartingProfessionSlots, findSpecializationById, isCharacterPerceptionSpec, isProfessionRespecEnabled, isRespecableProfession, planProfessionDelete, planProfessionRespec, planProfessionRespecEligibility, professionIdentityKey, readSpecializations, upsertSpecialization, validateSpecializationList, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
 function escapeHtml(value) {
     return String(value ?? '')
@@ -38,12 +38,16 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     }
     const betaRespec = !!opts.betaRespec;
     if (betaRespec) {
-        if (!isProfessionRespecEnabled()) {
-            globalThis.ui?.notifications?.warn?.('Beta Profession Respec is disabled. Ask the GM to enable Allow Profession Respec (Beta).');
-            return false;
-        }
-        if (!existing || !isRespecableProfession(specs, existing.id)) {
-            globalThis.ui?.notifications?.warn?.('Beta Profession Respec only replaces one of the four free starting Professions.');
+        const isGM = !!globalThis.game?.user?.isGM;
+        const creationComplete = actor?.system?.creation?.complete !== false;
+        const eligibility = planProfessionRespecEligibility(specs, existing?.id ?? '', {
+            creationComplete,
+            isGM,
+            playerRespecEnabled: isProfessionRespecEnabled(),
+        });
+        if (!eligibility.ok || !existing || !isRespecableProfession(specs, existing.id)) {
+            globalThis.ui?.notifications?.warn?.(eligibility.error ??
+                'Profession respec only replaces an uninvested Rank 2 starting Profession (GM always; players need Allow Profession Respec).');
             return false;
         }
     }
@@ -201,14 +205,21 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             return done(true);
                         }
                         const nextId = professionIdentityKey(name);
-                        if (existing &&
-                            !fixedStartingRank &&
-                            nextId !== existing.id &&
-                            !isProfessionRespecEnabled()) {
-                            globalThis.ui?.notifications?.warn?.('Replacing a Profession identity requires Allow Profession Respec (Beta). Edit scope, or ask the GM to enable Beta Respec.');
-                            return done(false);
+                        if (existing && !fixedStartingRank && nextId !== existing.id && !betaRespec) {
+                            const isGMUser = !!globalThis.game?.user?.isGM;
+                            const canIdentitySwap = isRespecableProfession(specs, existing.id) &&
+                                (isGMUser || isProfessionRespecEnabled());
+                            if (!canIdentitySwap) {
+                                globalThis.ui?.notifications?.warn?.('Replacing a Profession identity requires an uninvested Rank 2 starting Profession (GM), or Allow Profession Respec (Beta) for players. Edit scope instead.');
+                                return done(false);
+                            }
                         }
                         const priorInvested = Math.max(0, Math.floor(Number(existing?.xpInvested) || 0));
+                        const stampedForSlots = ensureStartingProfessionSlots(specs);
+                        const missingStartingSlot = !existing &&
+                            gmFreeGrant &&
+                            rank === STARTING_SPECIALIZATION_RANK &&
+                            countStartingProfessionSlots(stampedForSlots) < STARTING_SPECIALIZATION_COUNT;
                         const record = {
                             id: existing?.id && existing.id.startsWith('profession:')
                                 ? nextId
@@ -219,8 +230,13 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
                             rank,
                             ...(category ? { category } : {}),
                             ...(existing?.field ? { field: existing.field } : {}),
-                            ...(existing?.startingSlot || fixedStartingRank ? { startingSlot: true } : {}),
-                            ...(gmFreeGrant && !existing ? { gmGranted: true, xpInvested: 0 } : {}),
+                            ...(existing?.startingSlot || fixedStartingRank || missingStartingSlot
+                                ? { startingSlot: true }
+                                : {}),
+                            ...(gmFreeGrant && !existing && !missingStartingSlot
+                                ? { gmGranted: true, xpInvested: 0 }
+                                : {}),
+                            ...(missingStartingSlot ? { xpInvested: 0 } : {}),
                             ...(existing?.gmGranted && !gmFreeGrant ? { gmGranted: true } : {}),
                             ...(priorInvested > 0 ? { xpInvested: priorInvested } : {}),
                         };
@@ -305,25 +321,37 @@ export async function showSpecializationEditDialog(actor, opts = {}) {
     });
 }
 export async function deleteSpecializationWithConfirm(actor, specId) {
-    const specs = readSpecializations(actor?.system);
-    const spec = findSpecializationById(specs, specId);
-    if (!spec)
-        return false;
-    if (isCharacterPerceptionSpec(spec)) {
-        globalThis.ui?.notifications?.warn?.('Perception is a free universal check and cannot be removed.');
+    const specs = ensureStartingProfessionSlots(readSpecializations(actor?.system));
+    const creationComplete = actor?.system?.creation?.complete !== false;
+    const isGM = !!globalThis.game?.user?.isGM;
+    const plan = planProfessionDelete(specs, specId, { creationComplete, isGM });
+    if (!plan.ok || !plan.spec) {
+        globalThis.ui?.notifications?.warn?.(plan.error ?? 'Could not delete Profession.');
         return false;
     }
-    const { inferProfessionXpInvested } = await import('../rules/index.js');
-    const refund = inferProfessionXpInvested(spec);
+    const spec = plan.spec;
+    const refund = Math.max(0, Math.floor(Number(plan.refund) || 0));
     const Dialog = globalThis.Dialog;
     let confirmed = false;
     if (Dialog?.confirm) {
-        const refundLine = refund > 0
-            ? `<p>Refunds <strong>${refund} XP</strong> invested in this Profession.</p>`
-            : `<p>No invested XP to refund (starting slot or GM grant).</p>`;
+        let detailLine = '';
+        if (plan.mode === 'creation-reselect') {
+            detailLine =
+                '<p>Clears this pick so you can choose another starting Profession. No XP is refunded.</p>';
+        }
+        else if (plan.mode === 'gm-rank2-clear') {
+            detailLine =
+                '<p>GM clear of an uninvested Rank 2 starting Profession. No XP is refunded. Use <strong>Grant Profession</strong> at Rank 2 (or Respec) to restore the free slot.</p>';
+        }
+        else if (refund > 0) {
+            detailLine = `<p>Refunds <strong>${refund} XP</strong> invested in this Profession.</p>`;
+        }
+        else {
+            detailLine = '<p>No invested XP to refund.</p>';
+        }
         confirmed = !!(await Dialog.confirm({
             title: masteryLocalize('MASTERY.df2026.specializations.delete', 'Delete Profession'),
-            content: `<p>Delete <strong>${escapeHtml(spec.name)}</strong> (Rank ${spec.rank})?</p>${refundLine}`,
+            content: `<p>Delete <strong>${escapeHtml(spec.name)}</strong> (Rank ${spec.rank})?</p>${detailLine}`,
         }));
     }
     else {
@@ -339,6 +367,9 @@ export async function deleteSpecializationWithConfirm(actor, specId) {
     }
     if ((res.refunded ?? 0) > 0) {
         globalThis.ui?.notifications?.info?.(`Removed ${res.name}; refunded ${res.refunded} XP.`);
+    }
+    else if (res.mode === 'gm-rank2-clear') {
+        globalThis.ui?.notifications?.info?.(`Cleared starting Profession ${res.name}. Grant or Respec a Rank 2 replacement for the free slot.`);
     }
     return true;
 }

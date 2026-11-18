@@ -323,9 +323,8 @@ export interface CharacterData {
   /** DF 2026 free-named Specializations (replaces fixed purchasable Skills). */
   specializations?: SpecializationRecord[];
   /**
-   * Unspent Skill Points after creation (e.g. refunded when Skills were removed
-   * from the rules). One point buys one Skill Rating point in the progression UI;
-   * `placed` records per Skill how many ranks were paid this way.
+   * @deprecated Skill Points are retired (Professions). Cleared on load; leftover
+   * unspent values convert to Free XP once via retirement migration.
    */
   skillPoints?: {
     unspent?: number;
@@ -372,7 +371,7 @@ export interface CharacterData {
       skills: Record<string, number>;
       skillsSpent: Record<string, number>;
       powerLevels: Record<string, number>;
-      /** Unspent Skill Points the GM progression reset restores. */
+      /** @deprecated Skill Points retired. */
       skillPointsUnspent?: number;
     };
     /**

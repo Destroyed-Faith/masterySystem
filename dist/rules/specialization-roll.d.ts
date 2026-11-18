@@ -78,8 +78,10 @@ export interface SpecializationSheetRow {
     passiveBest: number;
     passiveBestAttribute: string;
     passiveHint: string;
-    /** Sheet-only: Beta Profession Respec is available for this row. */
+    /** Sheet-only: Profession respec is available for this row. */
     canBetaRespec?: boolean;
+    /** Sheet-only: delete control is available for this row under lifecycle rules. */
+    canDeleteProfession?: boolean;
 }
 /** Sheet-ready rows: Field label, Advantage/Crit, passive hint. */
 export declare function buildSpecializationSheetRows(specs: SpecializationRecord[], attributeValues: Partial<Record<string, number>>): SpecializationSheetRow[];

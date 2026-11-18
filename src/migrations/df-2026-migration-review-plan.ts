@@ -340,6 +340,7 @@ export function normalizeReviewSpecialization(
     field,
     scope: String(raw?.scope ?? '').trim(),
     rank: STARTING_SPECIALIZATION_RANK,
+    startingSlot: true,
   };
 }
 

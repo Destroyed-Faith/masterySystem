@@ -196,7 +196,29 @@ describe('K8 Beta Profession Respec', () => {
     },
   ];
 
-  it('replaces Burglar 5 with Blacksmith 5 without changing Rank', () => {
+  it('replaces uninvested Rank 2 Tracker with Blacksmith 2 without changing Rank', () => {
+    const plan = planProfessionRespec(starting, {
+      replaceId: professionIdentityKey('Tracker'),
+      name: 'Blacksmith',
+      origin: 'Forge apprenticeship.',
+      scope: 'Tools, metal, and workshop marks.',
+      category: 'Trades',
+    });
+    expect(plan.ok).toBe(true);
+    expect(plan.preservedRank).toBe(2);
+    const blacksmith = plan.specializations.find((s) => s.name === 'Blacksmith');
+    expect(blacksmith).toMatchObject({
+      id: professionIdentityKey('Blacksmith'),
+      rank: 2,
+      category: 'Trades',
+      startingSlot: true,
+    });
+    expect(plan.specializations.some((s) => s.name === 'Tracker')).toBe(false);
+    expect(plan.specializations.filter((s) => s.startingSlot).length).toBe(4);
+    expect(plan.specializations.find((s) => s.name === 'Perception')?.rank).toBe(2);
+  });
+
+  it('locks starting Professions once Rank rises past 2', () => {
     const plan = planProfessionRespec(starting, {
       replaceId: professionIdentityKey('Burglar'),
       name: 'Blacksmith',
@@ -204,18 +226,8 @@ describe('K8 Beta Profession Respec', () => {
       scope: 'Tools, metal, and workshop marks.',
       category: 'Trades',
     });
-    expect(plan.ok).toBe(true);
-    expect(plan.preservedRank).toBe(5);
-    const blacksmith = plan.specializations.find((s) => s.name === 'Blacksmith');
-    expect(blacksmith).toMatchObject({
-      id: professionIdentityKey('Blacksmith'),
-      rank: 5,
-      category: 'Trades',
-      startingSlot: true,
-    });
-    expect(plan.specializations.some((s) => s.name === 'Burglar')).toBe(false);
-    expect(plan.specializations.filter((s) => s.startingSlot).length).toBe(4);
-    expect(plan.specializations.find((s) => s.name === 'Perception')?.rank).toBe(2);
+    expect(plan.ok).toBe(false);
+    expect(plan.error).toMatch(/locked|Rank 2/i);
   });
 
   it('refuses Perception and non-starting Professions', () => {
@@ -318,7 +330,7 @@ describe('K8 catalogue vs reconciled Player Guide', () => {
       resolve('docs/Rules/Canonical/Players_Handbook.md'),
       'utf8',
     );
-    expect(guide).toContain('Beta Profession Respec (Optional)');
+    expect(guide).toContain('Profession Respec and Removal');
     expect(guide).toMatch(/May reroll initial \*\*1s-6s\*\*/);
     expect(guide).toContain('At Rank 7 or higher');
     expect(guide).not.toContain('Five Professions start at Rank 2 using **20 Profession Creation Points**');

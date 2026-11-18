@@ -78,7 +78,11 @@ export class XpManagementSettings extends BaseApplication {
                 ...value,
                 unspentFreeXp: unspentTotal,
                 skillBasisLabel: value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel',
-                skillNote: value.notes.filter((note) => note.startsWith('Skill-Start')).join(' '),
+                skillNote: value.notes
+                    .filter((note) => note.startsWith('Profession') ||
+                    note.startsWith('Legacy Skill') ||
+                    note.startsWith('Skill-Start'))
+                    .join(' '),
                 artifactNote: value.notes.filter((note) => note.includes('L')).join(' ') || 'Stufe 1 und Aktivieren: 0',
             };
         });

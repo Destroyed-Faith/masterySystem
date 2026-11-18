@@ -4,7 +4,6 @@
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
 import { allocateActorSkillPending, applyAttributePendingChanges, applyPowerPendingChanges, applySpecializationRankUp, buildProgressionHubContext, calculateAttributePendingNetCost, calculatePowerPendingNetCost, getAttributeXpBaseline, hasFreeXp, } from '../progression/progression-hub-actions.js';
-import { readSkillPointPool } from '../progression/skill-point-pool.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 import { wireEmbeddedArtifactToWorldTree } from '../utils/artifact-tree-grant.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -64,9 +63,6 @@ export class ProgressionHubDialog extends BaseDialog {
             hasPendingPowers: Object.keys(this.pendingPowers).length > 0,
             attrNet,
             skillNet,
-            skillPointsUnspent: readSkillPointPool(this.actor.system).unspent,
-            skillPointsAfterPending: skillAllocation.poolAfter,
-            skillPointsPending: skillAllocation.poolSpent,
             powerNet,
             remainingAfterPending,
             hasFreeXpPhase: hasFreeXp(this.actor),

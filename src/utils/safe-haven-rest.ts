@@ -40,7 +40,7 @@ export function rerollPointsMaximumFromSystem(system: any): number {
 }
 
 export const SAFE_HAVEN_REST_INFO =
-  'Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Skill Points, Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.';
+  'Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.';
 
 interface HealthBarLike {
   current?: number;
@@ -382,7 +382,7 @@ export function listWorldCharacters(): any[] {
 async function confirmPartySafeHaven(count: number): Promise<boolean> {
   const content =
     `Apply Safe Haven Rest to <strong>${count}</strong> character${count === 1 ? '' : 's'}? ` +
-    `This restores the active Health Bar + 1 Scarred Bar and refreshes Skill Points, Reroll Points, ` +
+    `This restores the active Health Bar + 1 Scarred Bar and refreshes Reroll Points, ` +
     `Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest.`;
   const DialogV2 = (globalThis as any).foundry?.applications?.api?.DialogV2;
   if (typeof DialogV2?.confirm === 'function') {

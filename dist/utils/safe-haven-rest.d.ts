@@ -7,7 +7,7 @@ import { stonePoolReadyMax } from '../stones/stone-pool-sync.js';
 export declare const safeHavenPoolMax: typeof stonePoolReadyMax;
 /** Reroll Point pool size = Disadvantage points (fallback: stored faithFractures.maximum). */
 export declare function rerollPointsMaximumFromSystem(system: any): number;
-export declare const SAFE_HAVEN_REST_INFO = "Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Skill Points, Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.";
+export declare const SAFE_HAVEN_REST_INFO = "Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.";
 /**
  * Health-bar updates for a rest (Players Guide "Rests"):
  *   - Night Rest / Safe Haven Rest: restore the current ACTIVE Health Bar to

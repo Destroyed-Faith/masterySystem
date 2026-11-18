@@ -25,17 +25,11 @@ export declare function applyXpCost(xpState: Pick<XpState, 'regularAvailable' | 
 };
 export declare function getAttributeXpBaseline(actor: any, attributeKey: string): number;
 export declare function calculateAttributePendingNetCost(actor: any, pendingMap: Record<string, number>): number;
-/**
- * Split pending Skill rank changes between unspent Skill Points and XP.
- * Skill Points pay first (one per rank, in click order); the rest costs XP.
- */
+/** Pending legacy Skill rank changes are XP-only (Skill Points retired). */
 export declare function allocateActorSkillPending(actor: any, pendingMap: Record<string, number>): SkillPendingAllocation;
-/** Net XP (positive = spend) for pending Skill changes after unspent Skill Points paid their share. */
+/** Net XP (positive = spend) for pending legacy Skill changes. */
 export declare function calculateSkillPendingNetCost(actor: any, pendingMap: Record<string, number>): number;
-/**
- * XP history rows for a confirmed Skill batch. Ranks paid with unspent Skill
- * Points are logged with 0 XP so the audit trail shows where they went.
- */
+/** XP history rows for a confirmed legacy Skill batch. */
 export declare function buildSkillStepHistoryEntries(opts: {
     actor: any;
     allocation: SkillPendingAllocation;
@@ -105,12 +99,16 @@ export declare function applySkillPendingChanges(actor: Actor, pendingMap: Recor
     ok: boolean;
     error?: string;
 }>;
-/** Remove a Profession and refund its invested XP (if any). */
+/**
+ * Remove a Profession under lifecycle rules and refund only invested XP
+ * (never the free Rank-2 starting base).
+ */
 export declare function applySpecializationDeleteWithRefund(actor: Actor, specId: string): Promise<{
     ok: boolean;
     error?: string;
     refunded?: number;
     name?: string;
+    mode?: string;
 }>;
 /** Raise an existing Specialization by one Rank (ladder XP for next Rank). */
 export declare function applySpecializationRankUp(actor: Actor, specId: string): Promise<{

@@ -1806,7 +1806,7 @@ function registerSystemSettings() {
     });
     game.settings.register('mastery-system', 'allowProfessionRespecBeta', {
         name: 'Allow Profession Respec (Beta)',
-        hint: 'When enabled, players may freely replace one of their four free starting Professions (catalogue or custom) while keeping Rank and invested XP. Perception is never changed. Disable to block free replacement; normal XP advancement still works.',
+        hint: 'When enabled, players may replace an uninvested Rank 2 starting Profession in place (no XP). GMs can always do this. Starting Professions with invested XP stay locked. Perception is never changed.',
         scope: 'world',
         config: true,
         type: Boolean,
@@ -2519,8 +2519,6 @@ function registerConfigConstants() {
     CONFIG.MASTERY.creation = {
         schticksAllowed: 2,
         attributeDistribution: [4, 4, 3, 3, 2, 2, 2],
-        /** @deprecated K8 — creation no longer uses a skill-point pool. */
-        skillPoints: 0,
         maxAttributeAtCreation: 4,
         /** @deprecated Legacy fixed-skill creation cap. */
         maxSkillAtCreation: 4,
@@ -3544,15 +3542,39 @@ Hooks.once('ready', async function () {
     catch (error) {
         console.warn('Mastery System | DF 2026 rules migration failed', error);
     }
-    // Migration: removed combat Skills — refund invested Ratings as unspent Skill Points.
+    // Migration: removed combat Skills — historical refund path (then retired below).
     try {
         const refunded = await runMartialSkillsRefundMigration(migrationActors);
         if (refunded > 0) {
-            ui.notifications?.info(`Skill refund: ${refunded} character${refunded === 1 ? '' : 's'} — removed combat Skills returned starting points as Skill Points and XP purchases as Free XP.`);
+            ui.notifications?.info(`Skill refund: ${refunded} character${refunded === 1 ? '' : 's'} — removed combat Skills returned XP purchases as Free XP.`);
         }
     }
     catch (error) {
         console.warn('Mastery System | Skill refund migration failed', error);
+    }
+    // Retire leftover Skill Point pools: convert unspent to Free XP, clear placed tracking.
+    try {
+        const { planSkillPointRetirement } = await import('./progression/skill-point-pool.js');
+        let retired = 0;
+        let converted = 0;
+        for (const actor of migrationActors) {
+            if (actor?.type !== 'character')
+                continue;
+            const plan = planSkillPointRetirement(actor.system);
+            if (!plan.needed)
+                continue;
+            await actor.update(plan.updates);
+            retired += 1;
+            converted += plan.convertedXp;
+        }
+        if (retired > 0) {
+            ui.notifications?.info(converted > 0
+                ? `Skill Points retired on ${retired} character${retired === 1 ? '' : 's'} — ${converted} converted to Free XP.`
+                : `Skill Points retired on ${retired} character${retired === 1 ? '' : 's'}.`);
+        }
+    }
+    catch (error) {
+        console.warn('Mastery System | Skill Point retirement failed', error);
     }
     // Player prototype tokens: initialize missing Foundry vision (60 m / 360° / Basic);
     // deliberately customized sight stays. NPC tokens are never touched.

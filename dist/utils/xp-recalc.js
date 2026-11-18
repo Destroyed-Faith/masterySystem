@@ -15,7 +15,6 @@ import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
 import { attributeBandCost, skillBandCost } from './constants.js';
 import { calculatePowerDeletionRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot } from './xp-post-creation.js';
-import { readSkillPointPool } from '../progression/skill-point-pool.js';
 /** True when a power item was granted for free (artifact / echo) and never cost XP. */
 function powerGrantedForFree(item) {
     const flags = item?.flags?.['mastery-system'] ?? {};
@@ -87,11 +86,10 @@ export function computeGroundTruthXp(actor) {
     let skillSpent = 0;
     const curSkills = system.skills ?? {};
     const snapSkills = snap.skills ?? {};
-    // Ranks paid with unspent Skill Points are not XP; they raise the baseline.
-    const placedSkillPoints = readSkillPointPool(system).placed;
+    // Skill Points are retired — ranks above the post-creation snapshot count as XP.
     const skillKeys = new Set([...Object.keys(curSkills), ...Object.keys(snapSkills)]);
     for (const key of skillKeys) {
-        const baseVal = Number(snapSkills[key] ?? 0) + Number(placedSkillPoints[key] ?? 0);
+        const baseVal = Number(snapSkills[key] ?? 0);
         const curVal = Number(curSkills[key] ?? 0);
         if (curVal > baseVal)
             skillSpent += stepSum(baseVal, curVal, skillBandCost);
