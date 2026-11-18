@@ -960,8 +960,8 @@ describe("Lor-Keth's Staff", () => {
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'stoneFunction']);
     expect(picks[0]).toMatchObject({
-      powerTemplateId: 'active-melee-instant-special-t5',
-      chosenSpecial: { key: 'challenge' },
+      powerTemplateId: 'active-melee-instant-special-t6',
+      chosenSpecial: { key: 'expose' },
       displayName: 'Giant Shock Strike',
     });
     expect(picks[1]).toMatchObject({
@@ -973,7 +973,7 @@ describe("Lor-Keth's Staff", () => {
       displayName: 'Might Ignore Armor Support',
       stoneFunction: { kind: 'stonePowerSupport', stonePowerId: 'might.armorReduction' },
     });
-    // No authored slots — Node Editor can edit the Challenge / Armor lines.
+    // No authored slots — Node Editor can edit the Expose / Armor lines.
     expect(picks.every((p) => p.kind !== 'authored')).toBe(true);
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
@@ -982,8 +982,8 @@ describe("Lor-Keth's Staff", () => {
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Might Ignore Armor Support/);
     expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
-    expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-instant-special-t5');
-    expect((byLevel.get(1) as any).chosenSpecialKey).toBe('challenge');
+    expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-instant-special-t6');
+    expect((byLevel.get(1) as any).chosenSpecialKey).toBe('expose');
     expect((byLevel.get(2) as any).powerTemplateId).toBe('reaction-armor');
     expect((byLevel.get(1) as any).type).toMatch(/Melee/i);
     expect((byLevel.get(2) as any).type).toMatch(/Reaction|Armor/i);

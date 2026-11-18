@@ -615,11 +615,18 @@ function pickSignature(pick) {
         stoneFunction: pick.stoneFunction ?? null,
     });
 }
-/** Moonlight Mending as Healing support (v0.9.869 definition), replaced by Ranged Scarred Bar Restoration. */
-function isRetiredMoonlightSupportPick(artifactKey, pick) {
-    return (artifactKey === 'moonlightGreatsword' &&
-        pick?.kind === 'stoneFunction' &&
-        pick?.stoneFunction?.stonePowerId === 'resolve.healing');
+/**
+ * Superseded picks from earlier definitions: Moonlight Mending as Healing support
+ * (v0.9.869) and Lor-Keth's Staff L1 as Challenge (v0.9.869 / v0.9.870).
+ */
+function isSupersededDefinitionPick(artifactKey, pick) {
+    if (artifactKey === 'moonlightGreatsword') {
+        return pick?.kind === 'stoneFunction' && pick?.stoneFunction?.stonePowerId === 'resolve.healing';
+    }
+    if (artifactKey === 'lorKethsStaff') {
+        return Number(pick?.level) === 1 && pick?.kind === 'power' && pick?.chosenSpecial?.key === 'challenge';
+    }
+    return false;
 }
 function isLegacyPick(pick) {
     if (pick?.kind !== 'power')
@@ -677,7 +684,7 @@ export function planArtifactLegacyCleanup(item, owner) {
         const tid = String(pick?.powerTemplateId ?? '');
         const special = pick?.chosenSpecial?.key ? String(pick.chosenSpecial.key) : null;
         const staged = legacyStageTemplates(pick);
-        if (!isLegacyPick(pick) && !staged.length && !isRetiredMoonlightSupportPick(artifactKey, pick))
+        if (!isLegacyPick(pick) && !staged.length && !isSupersededDefinitionPick(artifactKey, pick))
             continue;
         const from = tid || staged.join(', ');
         const defPick = defPicks.find((p) => Number(p?.level) === level);

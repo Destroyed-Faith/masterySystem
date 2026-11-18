@@ -50,7 +50,7 @@ export const WEAPON_AOE_TEMPLATE_RE = /^active-(?:melee|ranged)-weapon-aoe$/;
  */
 export const LEGACY_CLEANUP_SPECIAL_REMAP = {
     'active-melee-weapon-aoe::lacerate': { templateId: 'active-melee-aoe-damage-t4', special: 'lacerate' },
-    'active-melee-damage-t5::challenge': { templateId: 'active-melee-instant-special-t5', special: 'challenge' },
+    'active-melee-damage-t5::challenge': { templateId: 'active-melee-instant-special-t6', special: 'expose' },
 };
 /**
  * Classify one owned power (or Artifact pick) by template + Special. `null`
@@ -88,7 +88,7 @@ export function classifyLegacyPower(templateId, special, artifactSourced) {
     }
     if (V0996_OWNED_TEMPLATE_RE.test(tid)) {
         if (artifactSourced && specialRemap) {
-            return { kind: 'remap', to: specialRemap, reason: "Lor-Keth's Staff L1 → Melee Single Target Special: Challenge (D2)." };
+            return { kind: 'remap', to: specialRemap, reason: "Lor-Keth's Staff L1 → Melee Single Target Special: Expose (D2)." };
         }
         return { kind: 'v0996', reason: `${tid} was removed with Actives v0.9.9.6 and is handled by that migration.` };
     }

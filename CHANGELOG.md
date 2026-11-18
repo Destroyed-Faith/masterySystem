@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.871] - 2026-11-18
+
+### Changed
+
+- Lor-Keth's Staff L1 (Giant Shock Strike) is now Melee Single Target Special: Expose at PL 4/10/16 (Expose 5/8/10) for Artifact Levels 1/4/7, replacing Challenge. The legacy cleanup migration realigns existing Challenge picks and artifact-granted powers to Expose.
+
 ## [0.9.870] - 2026-11-18
 
 ### Changed

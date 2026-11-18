@@ -503,11 +503,22 @@ describe('Artifact picks', () => {
     }
   });
 
-  it("Lor-Keth's Staff L1 → Melee Single Target Special: Challenge (D2); Dragon Claws → AoE Special: Lacerate", () => {
+  it("Lor-Keth's Staff L1 → Melee Single Target Special: Expose (D2); Dragon Claws → AoE Special: Lacerate", () => {
     const lk = defPicks('lorKethsStaff');
     lk[0] = { level: 1, kind: 'power', powerTemplateId: 'active-melee-damage-t5', chosenSpecial: { key: 'challenge', tier: 5 } };
     const lkPlan = planArtifactLegacyCleanup(artifact('lorKethsStaff', lk), null)!;
-    expect(lkPlan.picks[0]).toMatchObject({ level: 1, kind: 'realign', to: 'active-melee-instant-special-t5::challenge' });
+    expect(lkPlan.picks[0]).toMatchObject({ level: 1, kind: 'realign', to: 'active-melee-instant-special-t6::expose' });
+    const lkChallenge = defPicks('lorKethsStaff');
+    lkChallenge[0] = { level: 1, kind: 'power', powerTemplateId: 'active-melee-instant-special-t5', chosenSpecial: { key: 'challenge', tier: 5 } };
+    expect(planArtifactLegacyCleanup(artifact('lorKethsStaff', lkChallenge), null)!.picks[0]).toMatchObject({
+      level: 1,
+      kind: 'realign',
+      to: 'active-melee-instant-special-t6::expose',
+    });
+    const owned = removedPower('active-melee-damage-t5', 4, 'lk1', { artifactGranted: true });
+    owned.system.chosenSpecial = { key: 'challenge', tier: 5 };
+    const [ownedChange] = planPowerItemsLegacyCleanup([owned], { name: 'Lor', uuid: 'Actor.lk' });
+    expect(ownedChange).toMatchObject({ kind: 'remap', to: { templateId: 'active-melee-instant-special-t6', special: 'expose' } });
     const dc = defPicks('dragonClaws');
     dc[1] = { level: 2, kind: 'power', powerTemplateId: 'active-melee-weapon-aoe', chosenSpecial: { key: 'lacerate', tier: 4 } };
     const dcPlan = planArtifactLegacyCleanup(artifact('dragonClaws', dc), null)!;

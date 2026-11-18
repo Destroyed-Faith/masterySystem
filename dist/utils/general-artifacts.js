@@ -432,7 +432,7 @@ const LOR_KETHS_STAFF = {
         },
     ],
     progressionPickSpecs: {
-        1: { templateId: 'active-melee-instant-special-t5', special: 'challenge', name: 'Giant Shock Strike' },
+        1: { templateId: 'active-melee-instant-special-t6', special: 'expose', name: 'Giant Shock Strike' },
         2: { templateId: 'reaction-armor', name: 'Ancestral Guard' },
     },
     levelProgression: [artifactAwakeningRow("Lor-Keth's Staff")],
