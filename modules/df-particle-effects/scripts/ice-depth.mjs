@@ -10,7 +10,8 @@ const DIAGONAL = Math.SQRT2;
  * @param {{ x: number, y: number, width: number, height: number }} bounds
  * @param {(x: number, y: number) => boolean} contains
  * @param {number} [maxSize]
- * @returns {{ width: number, height: number, values: Float32Array }}
+ * @returns {{ width: number, height: number, values: Float32Array, maxDistance: number }}
+ *   maxDistance is the deepest point's distance from the edge in world pixels.
  */
 export function computeEdgeDepth(bounds, contains, maxSize = ICE_DEPTH_MAP_SIZE) {
   const longest = Math.max(bounds.width, bounds.height, 1);
@@ -62,7 +63,7 @@ export function computeEdgeDepth(bounds, contains, maxSize = ICE_DEPTH_MAP_SIZE)
   if (deepest > 0) {
     for (let i = 0; i < values.length; i += 1) values[i] /= deepest;
   }
-  return { width, height, values };
+  return { width, height, values, maxDistance: deepest * Math.min(stepX, stepY) };
 }
 
 /** RGBA bytes for a GPU texture; the depth sits in the red channel. */

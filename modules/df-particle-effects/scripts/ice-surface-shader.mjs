@@ -1,6 +1,5 @@
 import { LOG_PREFIX } from "./constants.mjs";
-import { MESH_VERTEX, pixiMajorVersion } from "./fire-surface-shader.mjs";
-import { edgeDepthToRgba } from "./ice-depth.mjs";
+import { createRegionMesh } from "./region-mesh.mjs";
 import { PLANE_NOISE } from "./shader-noise.mjs";
 
 /**
@@ -167,43 +166,9 @@ void main() {
  * @param {{ texture: object, rect: { x: number, y: number, width: number, height: number } }|null} background
  */
 export function createIceSurface(PIXI, bounds, depth, background = null) {
-  const major = pixiMajorVersion(PIXI);
-  if (major !== 7) {
-    console.warn(`${LOG_PREFIX} ice shader supports PixiJS 7 only (found ${PIXI?.VERSION ?? "none"}).`);
-    return null;
-  }
-  if (!PIXI.Mesh || !PIXI.MeshGeometry || !PIXI.Shader?.from || !PIXI.Texture?.fromBuffer) {
-    console.warn(`${LOG_PREFIX} PIXI.Mesh/MeshGeometry/Shader.from/Texture.fromBuffer unavailable for ice.`);
-    return null;
-  }
-
-  const width = Math.max(1, Number(bounds.width) || 1);
-  const height = Math.max(1, Number(bounds.height) || 1);
-  let depthTexture = null;
-  let mesh;
-  try {
-    depthTexture = PIXI.Texture.fromBuffer(edgeDepthToRgba(depth), depth.width, depth.height, {
-      scaleMode: PIXI.SCALE_MODES?.LINEAR,
-      mipmap: PIXI.MIPMAP_MODES?.OFF,
-    });
-    const shader = PIXI.Shader.from(MESH_VERTEX, ICE_FRAGMENT, iceUniforms(PIXI, depthTexture, background));
-    const geometry = new PIXI.MeshGeometry(
-      new Float32Array([0, 0, width, 0, width, height, 0, height]),
-      new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),
-      new Uint16Array([0, 1, 2, 0, 2, 3]),
-    );
-    mesh = new PIXI.Mesh(geometry, shader);
-  } catch (error) {
-    console.warn(`${LOG_PREFIX} ice mesh could not be created.`, error);
-    depthTexture?.destroy?.(true);
-    return null;
-  }
-
-  mesh.position.set(Number(bounds.x) || 0, Number(bounds.y) || 0);
-  if ("eventMode" in mesh) {
-    mesh.eventMode = "none";
-    mesh.interactiveChildren = false;
-  }
+  const built = createRegionMesh(PIXI, bounds, depth, ICE_FRAGMENT, iceUniforms(PIXI, background), "ice");
+  if (!built) return null;
+  const mesh = built.display;
   console.info(
     `${LOG_PREFIX} ice shader ready (PixiJS ${PIXI.VERSION} Mesh, ${background ? "floor refraction" : "tint only"}).`,
   );
@@ -214,15 +179,11 @@ export function createIceSurface(PIXI, bounds, depth, background = null) {
     update(state) {
       updateIceUniforms(mesh.shader.uniforms, state);
     },
-    destroy() {
-      if (!mesh.destroyed) mesh.destroy({ children: true });
-      depthTexture?.destroy?.(true);
-      depthTexture = null;
-    },
+    destroy: built.destroy,
   };
 }
 
-function iceUniforms(PIXI, depthTexture, background) {
+function iceUniforms(PIXI, background) {
   return {
     uTime: 0,
     uOpacity: 0.9,
@@ -235,7 +196,6 @@ function iceUniforms(PIXI, depthTexture, background) {
     uCellSize: 100,
     uWorldMin: new Float32Array([0, 0]),
     uWorldSize: new Float32Array([1, 1]),
-    uDepth: depthTexture,
     uBackground: background?.texture ?? PIXI.Texture.WHITE,
     uHasBackground: background ? 1 : 0,
     uBgRect: new Float32Array(background ? [background.rect.x, background.rect.y, background.rect.width, background.rect.height] : [0, 0, 1, 1]),

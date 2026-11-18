@@ -1,4 +1,4 @@
-import { behaviorTypeId, EFFECT_NATURAL_FIRE, FIRE_STYLE_AREA, FREEZE_ONCE, LOOP_RESET_THAW } from "./constants.mjs";
+import { behaviorTypeId, EFFECT_NATURAL_FIRE, FIRE_STYLE_AREA, FREEZE_ONCE, LOOP_RESET_THAW, SMOKE_DEFAULT_COLOR } from "./constants.mjs";
 import { applyFieldVisibility } from "./field-visibility.mjs";
 
 /**
@@ -79,6 +79,12 @@ export function readDraft(form) {
       edgeBias: numberValue(form, "system.edgeBias", 70),
       crystalSize: numberValue(form, "system.crystalSize", 1),
       refraction: numberValue(form, "system.refraction", 40),
+      smokeColor: text(form, "system.smokeColor") || SMOKE_DEFAULT_COLOR,
+      smokeDensity: numberValue(form, "system.smokeDensity", 60),
+      smokeScale: numberValue(form, "system.smokeScale", 1),
+      driftSpeed: numberValue(form, "system.driftSpeed", 0.5),
+      driftDirection: numberValue(form, "system.driftDirection", 90),
+      edgeSoftness: numberValue(form, "system.edgeSoftness", 1),
       randomSeed: text(form, "system.randomSeed"),
     },
   };

@@ -755,11 +755,12 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visuelles Feuer oder Eis, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
+    "TypeHint": "Visuelles Feuer, Eis oder Rauch, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
     "EFFECTS": {
       "none": "Keiner",
       "naturalFire": "Feuer",
-      "ice": "Eis"
+      "ice": "Eis",
+      "smoke": "Rauch / Nebel"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -789,7 +790,7 @@
       },
       "effectType": {
         "label": "Effekttyp",
-        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer und Eis zeigen nur die Felder, die sie nutzen."
+        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer, Eis und Rauch / Nebel zeigen nur die Felder, die sie nutzen."
       },
       "fireStyle": {
         "label": "Feuerstil",
@@ -850,6 +851,30 @@
       "refraction": {
         "label": "Lichtbrechung",
         "hint": "Wie stark das Szenen-Hintergrundbild unter dem Eis verzerrt und verwischt wird. Nur das Hintergrundbild wird gebrochen, keine Tiles oder Zeichnungen. Ohne Hintergrundbild ist das Eis ein durchscheinender Schleier."
+      },
+      "smokeColor": {
+        "label": "Rauchfarbe",
+        "hint": "Grau für Rauch, Weiß für Nebel, Grün für Giftgas, fast Schwarz für Ruß."
+      },
+      "smokeDensity": {
+        "label": "Rauchdichte",
+        "hint": "Niedrige Werte lassen lose Schwaden mit Lücken; hohe Werte schließen sich zu einer dichten Decke."
+      },
+      "smokeScale": {
+        "label": "Schwadengröße",
+        "hint": "Größe der Rauchschwaden relativ zum Szenenraster."
+      },
+      "driftSpeed": {
+        "label": "Driftgeschwindigkeit",
+        "hint": "Wie schnell der Rauch zieht und wabert. 0 lässt ihn fast stillstehen."
+      },
+      "driftDirection": {
+        "label": "Driftrichtung",
+        "hint": "Richtung, in die der Rauch zieht, in Grad: 0 hoch, 90 rechts, 180 runter, 270 links."
+      },
+      "edgeSoftness": {
+        "label": "Randweichheit",
+        "hint": "Rasterfelder, über die der Rauch zum Regionsrand hin ausdünnt. 0 lässt den Rand hart."
       },
       "randomSeed": {
         "label": "Zufallsseed",

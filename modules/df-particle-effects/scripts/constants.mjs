@@ -10,6 +10,9 @@ export const SYSTEM_BEHAVIOR_TYPE = "particleEffects";
 export const EFFECT_NONE = "none";
 export const EFFECT_NATURAL_FIRE = "naturalFire";
 export const EFFECT_ICE = "ice";
+export const EFFECT_SMOKE = "smoke";
+
+export const SMOKE_DEFAULT_COLOR = "#b8bcc2";
 
 /** How an ice surface freezes over. */
 export const FREEZE_INSTANT = "instant";

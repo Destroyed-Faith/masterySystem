@@ -7,11 +7,12 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visual fire or ice clipped to this region. It does not deal damage or change tokens.",
+    "TypeHint": "Visual fire, ice or smoke clipped to this region. It does not deal damage or change tokens.",
     "EFFECTS": {
       "none": "None",
       "naturalFire": "Fire",
-      "ice": "Ice"
+      "ice": "Ice",
+      "smoke": "Smoke / Fog"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -41,7 +42,7 @@
       },
       "effectType": {
         "label": "Effect Type",
-        "hint": "None keeps the settings but draws nothing. Fire and Ice show only the fields they use."
+        "hint": "None keeps the settings but draws nothing. Fire, Ice and Smoke / Fog show only the fields they use."
       },
       "fireStyle": {
         "label": "Fire Style",
@@ -102,6 +103,30 @@
       "refraction": {
         "label": "Refraction",
         "hint": "How much the scene background is distorted and blurred under the ice. Only the background image is refracted, not tiles or drawings. Without a background image the ice is a translucent tint."
+      },
+      "smokeColor": {
+        "label": "Smoke Color",
+        "hint": "Grey for smoke, white for fog, green for poison gas, near-black for soot."
+      },
+      "smokeDensity": {
+        "label": "Smoke Density",
+        "hint": "Low values leave loose patches with gaps; high values close into a solid blanket."
+      },
+      "smokeScale": {
+        "label": "Cloud Size",
+        "hint": "Size of the billows relative to the scene grid."
+      },
+      "driftSpeed": {
+        "label": "Drift Speed",
+        "hint": "How fast the smoke drifts and churns. 0 keeps it almost still."
+      },
+      "driftDirection": {
+        "label": "Drift Direction",
+        "hint": "Direction the smoke moves, in degrees: 0 up, 90 right, 180 down, 270 left."
+      },
+      "edgeSoftness": {
+        "label": "Edge Softness",
+        "hint": "Grid cells over which the smoke thins out toward the region edge. 0 keeps a hard edge."
       },
       "randomSeed": {
         "label": "Random Seed",

@@ -1,8 +1,9 @@
-import { EFFECT_ICE, EFFECT_NATURAL_FIRE, FIRE_STYLE_BALL, FREEZE_INSTANT, FREEZE_LOOP } from "./constants.mjs";
+import { EFFECT_ICE, EFFECT_NATURAL_FIRE, EFFECT_SMOKE, FIRE_STYLE_BALL, FREEZE_INSTANT, FREEZE_LOOP } from "./constants.mjs";
 
 const FIRE_FIELDS = ["fireStyle", "arrangement", "density", "flameScale", "flameSpeed", "emberAmount", "edgeFade"];
 const BALL_UNUSED = ["arrangement", "density", "emberAmount", "edgeFade"];
 const ICE_FIELDS = ["freezeMode", "freezeDuration", "holdTime", "loopReset", "edgeBias", "crystalSize", "refraction"];
+const SMOKE_FIELDS = ["smokeColor", "smokeDensity", "smokeScale", "driftSpeed", "driftDirection", "edgeSoftness"];
 const SHARED_FIELDS = ["opacity", "randomSeed"];
 
 /**
@@ -21,6 +22,7 @@ export function visibleFields(values) {
     if (values.freezeMode !== FREEZE_LOOP) unused.push("holdTime", "loopReset");
     return [...ICE_FIELDS.filter((name) => !unused.includes(name)), ...SHARED_FIELDS];
   }
+  if (effectType === EFFECT_SMOKE) return [...SMOKE_FIELDS, ...SHARED_FIELDS];
   return [];
 }
 
@@ -32,7 +34,7 @@ export function applyFieldVisibility(form) {
     fireStyle: value("fireStyle"),
     freezeMode: value("freezeMode"),
   }));
-  for (const name of [...FIRE_FIELDS, ...ICE_FIELDS, ...SHARED_FIELDS]) {
+  for (const name of [...FIRE_FIELDS, ...ICE_FIELDS, ...SMOKE_FIELDS, ...SHARED_FIELDS]) {
     const input = form.querySelector(`[name="system.${name}"]`);
     const row = input?.closest(".form-group");
     if (row) row.style.display = shown.has(name) ? "" : "none";

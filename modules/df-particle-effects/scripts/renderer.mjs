@@ -6,6 +6,7 @@ import {
   EFFECT_ICE,
   EFFECT_NATURAL_FIRE,
   EFFECT_NONE,
+  EFFECT_SMOKE,
   FIELD_RENDER_LEGACY,
   FREEZE_INSTANT,
   FREEZE_LOOP,
@@ -19,6 +20,7 @@ import {
   QUALITY_LIMITS,
   qualitySettingKey,
   settingsNamespace,
+  SMOKE_DEFAULT_COLOR,
 } from "./constants.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
 import { NaturalFireEffect, usesBallOfFire, usesShaderField } from "./fire-effect.mjs";
@@ -26,6 +28,7 @@ import { computeEdgeDepth } from "./ice-depth.mjs";
 import { IceEffect, wallSeconds } from "./ice-effect.mjs";
 import { freezeTimingSignature } from "./ice-timeline.mjs";
 import { resolveSceneBackground } from "./scene-background.mjs";
+import { SmokeEffect } from "./smoke-effect.mjs";
 import { resolveFireStyle } from "./styles.mjs";
 import {
   allocateBudget,
@@ -286,7 +289,7 @@ function describeBehavior(scene, region, behavior, configOverride) {
   try {
     const config = configOverride ?? readConfig(behavior);
     if (!config.enabled || config.effectType === EFFECT_NONE) return null;
-    if (config.effectType !== EFFECT_NATURAL_FIRE && config.effectType !== EFFECT_ICE) {
+    if (![EFFECT_NATURAL_FIRE, EFFECT_ICE, EFFECT_SMOKE].includes(config.effectType)) {
       if (!configOverride) {
         console.warn(
           `${LOG_PREFIX} effect type "${config.effectType}" is not implemented. That behavior was skipped.`,
@@ -342,6 +345,7 @@ function behaviorKey(behavior, region = behavior?.parent) {
 
 function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
   if (entry.config.effectType === EFFECT_ICE) return createIce(entry, grid);
+  if (entry.config.effectType === EFFECT_SMOKE) return createSmoke(entry, grid);
   if (usesBallOfFire(entry.config)) return createBallOfFire(entry, assets, grid);
 
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
@@ -479,6 +483,28 @@ function createIce(entry, grid) {
       depth,
       background,
       startedAt: entry.freezeStart,
+    });
+  } catch (error) {
+    if (!mask.destroyed) mask.destroy?.();
+    throw error;
+  }
+}
+
+/** Shader-only smoke or fog, faded toward the region edge. */
+function createSmoke(entry, grid) {
+  const mask = buildRegionMask(entry.tree);
+  if (!mask) {
+    console.warn(`${LOG_PREFIX} region mask could not be built. Smoke was skipped so it cannot spill outside.`);
+    return null;
+  }
+  try {
+    return new SmokeEffect({
+      config: entry.config,
+      bounds: entry.bounds,
+      mask,
+      gridSize: grid.size,
+      seed: entry.seed,
+      depth: computeEdgeDepth(entry.bounds, (x, y) => entry.tree.testPoint({ x, y })),
     });
   } catch (error) {
     if (!mask.destroyed) mask.destroy?.();
@@ -654,8 +680,25 @@ export function readConfig(behavior) {
     edgeBias: clampNumber(system.edgeBias ?? 70, 0, 100),
     crystalSize: clampNumber(system.crystalSize ?? 1, 0.25, 3),
     refraction: clampNumber(system.refraction ?? 40, 0, 100),
+    smokeColor: readColor(system.smokeColor, SMOKE_DEFAULT_COLOR),
+    smokeDensity: clampNumber(system.smokeDensity ?? 60, 0, 100),
+    smokeScale: clampNumber(system.smokeScale ?? 1, 0.25, 3),
+    driftSpeed: clampNumber(system.driftSpeed ?? 0.5, 0, 3),
+    driftDirection: clampNumber(system.driftDirection ?? 90, 0, 360),
+    edgeSoftness: clampNumber(system.edgeSoftness ?? 1, 0, 5),
     randomSeed,
   };
+}
+
+/** "#rrggbb" from a stored string or Foundry Color (a Number subclass). */
+function readColor(value, fallback) {
+  if (typeof value === "number" || value instanceof Number) {
+    const number = Number(value);
+    if (Number.isInteger(number) && number >= 0 && number <= 0xffffff) return `#${number.toString(16).padStart(6, "0")}`;
+    return fallback;
+  }
+  const text = String(value ?? "").trim();
+  return /^#[0-9a-f]{6}$/i.test(text) ? text.toLowerCase() : fallback;
 }
 
 /** The value if it is allowed, otherwise the first (default) choice. */

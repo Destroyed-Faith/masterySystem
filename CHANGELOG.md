@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.860] - 2026-11-18
+
+### Added
+
+- **DF: Particle Effects:** New Effect Type **Smoke / Fog**. Two domain-warped smoke layers drift at different speeds with light and shadow on the billows, and thin out softly and irregularly toward the region edge using the edge-distance map. Fields: Smoke Color, Smoke Density (loose patches to a closed blanket), Cloud Size, Drift Speed, Drift Direction (compass degrees) and Edge Softness (grid cells, capped at half the region depth). Module `df-particle-effects` **1.1.10**.
+
+### Changed
+
+- **DF: Particle Effects:** Ice and smoke share one region mesh builder and one shader-effect base class.
+
 ## [0.9.859] - 2026-11-18
 
 ### Added
