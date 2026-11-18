@@ -2,10 +2,12 @@
  * Special-first martial damage picks for the Artifact Node Editor.
  *
  * Delivery form + Special → tier (from Special eligibility) → existing tier template.
+ * Single Target picks resolve to `active-*-instant-special-t*` (Actives v0.9.9.6);
+ * stored legacy `active-*-damage-t*` picks still parse until the v0.9.9.6 migration.
  */
 import type { ActiveSpecialTier, ArtifactProgressionPick } from '../types/item.js';
 export type MartialDelivery = 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
-/** Matches `active-{melee|ranged}-{damage|aoe-damage}-t{3|4|5|6}`. */
+/** Matches `active-{melee|ranged}-{instant-special|aoe-damage|damage (legacy)}-t{3|4|5|6}`. */
 export declare const MARTIAL_DAMAGE_TEMPLATE_RE: RegExp;
 export declare const MARTIAL_DELIVERY_OPTIONS: {
     value: MartialDelivery;

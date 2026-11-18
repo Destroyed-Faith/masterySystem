@@ -2,17 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   computeSummonBond,
   emptyBondSpend,
-  isSummonSkillEligible,
   maxMovementPurchases,
   SUMMON_CAPS,
-  summonSkillMaxRating,
-  summonSkillMinRating,
 } from '../src/stones/summon-bond-rules';
 import {
   applyBondFieldDelta,
   applyBodyFieldDelta,
   applyBonusTokenDelta,
-  applySkillDiceAllocDelta,
   countArtifactSummonStones,
   inspectBondSpend,
   isAbsurdPurchaseRaw,
@@ -28,7 +24,6 @@ const ctx = (over: Partial<SpendClampContext> = {}): SpendClampContext => ({
   bonusTokens: 0,
   movementMode: 'walking',
   selectedSkills: [],
-  ownerSkillRatings: {},
   maxBonusTokens: 0,
   ...over,
 });
@@ -126,16 +121,8 @@ describe('Bond upgrade steppers', () => {
     const limited = ctx({
       boundStoneCount: 2,
       selectedSkills: ['perception'],
-      ownerSkillRatings: { perception: 2 },
     });
     expect(applyBondFieldDelta(spend, 'skillDicePurchases', 1, limited)).toBeNull();
-  });
-
-  it('clamps skill allocation to owner rating and purchased dice', () => {
-    expect(applySkillDiceAllocDelta({}, 'perception', 1, 4, 2)?.perception).toBe(1);
-    expect(applySkillDiceAllocDelta({ perception: 2 }, 'perception', 1, 4, 2)).toBeNull();
-    expect(applySkillDiceAllocDelta({ perception: 4 }, 'perception', 1, 4, 8)).toBeNull();
-    expect(applySkillDiceAllocDelta({ perception: 0 }, 'perception', -1, 4, 2)).toBeNull();
   });
 
   it('shrinks additional bodies without inventing spend rows', () => {
@@ -223,21 +210,12 @@ describe('legacy illegal purchases', () => {
       stoneAttributes: ['wits'],
     });
     bond.bonusTokens = 7;
-    const v = validateBondRitual(bond, {}, 1, { maxBonusTokens: 4 });
+    const v = validateBondRitual(bond, 1, { maxBonusTokens: 4 });
     expect(v.ok).toBe(false);
   });
 });
 
-describe('Summon Skill eligibility', () => {
-  it('requires owner Rating >= 1 (PG: Rating 0 cannot be assigned dice)', () => {
-    expect(summonSkillMinRating(2)).toBe(1);
-    expect(summonSkillMaxRating(2)).toBe(8);
-    expect(isSummonSkillEligible(0, 2)).toBe(false);
-    expect(isSummonSkillEligible(1, 2)).toBe(true);
-    expect(isSummonSkillEligible(3, 2)).toBe(true);
-    expect(isSummonSkillEligible(4, 3)).toBe(true);
-  });
-
+describe('Summon Skills are retired (PH: no selectable Summon Skills)', () => {
   it('cannot buy Skill Dice even with an eligible selected skill (retired)', () => {
     const spend = emptyBondSpend(1);
     expect(applyBondFieldDelta(spend, 'skillDicePurchases', 1, ctx({ boundStoneCount: 2 }))).toBeNull();
@@ -249,14 +227,13 @@ describe('Summon Skill eligibility', () => {
         ctx({
           boundStoneCount: 2,
           selectedSkills: ['perception'],
-          ownerSkillRatings: { perception: 4 },
           ownerMasteryRank: 2,
         }),
       ),
     ).toBeNull();
   });
 
-  it('blocks Apply when the owner has Rating 0 in a selected skill', () => {
+  it('blocks Apply while a Bond still carries retired selected Skills', () => {
     const bond = createEmptyBond({
       name: 'Owl',
       ownerActorId: 'A',
@@ -264,10 +241,11 @@ describe('Summon Skill eligibility', () => {
       stoneAttributes: ['wits'],
     });
     bond.selectedSkills = ['perception'];
-    expect(validateBondRitual(bond, { perception: 4 }, 3).ok).toBe(true);
-    const v = validateBondRitual(bond, { perception: 0 }, 3);
+    const v = validateBondRitual(bond, 3);
     expect(v.ok).toBe(false);
-    expect(v.errors.some((e) => /Rating 0/.test(e))).toBe(true);
+    expect(v.errors.some((e) => /Summon Skills and Skill Dice are retired/.test(e))).toBe(true);
+    bond.selectedSkills = [];
+    expect(validateBondRitual(bond, 3).ok).toBe(true);
   });
 });
 

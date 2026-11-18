@@ -456,7 +456,7 @@ describe('buildPrintCombatPreview', () => {
         isSpell: true,
         castingAttribute: 'resolve',
         spellResolution: 'spellAttack',
-        powerTemplateId: 'active-ranged-aoe-targeted-special',
+        powerTemplateId: 'active-ranged-aoe-damage-t3',
       },
       [],
     );

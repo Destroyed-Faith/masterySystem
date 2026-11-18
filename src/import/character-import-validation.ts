@@ -23,7 +23,6 @@ import {
   expectedPowerCount,
   IMPORT_STARTING_ATTRIBUTE_STONES,
   isKnownMinorExpressionId,
-  isKnownSkillKey,
   normalizeDisadvantageEntries,
   normalizeImportPermanentColorless,
   normalizeImportStoneAssignments,
@@ -92,10 +91,6 @@ function validateSkillsAndExpressions(payload: CharacterImportPayload): string[]
   if (payload.skills && typeof payload.skills === 'object') {
     let spent = 0;
     for (const [key, value] of Object.entries(payload.skills)) {
-      if (!isKnownSkillKey(key)) {
-        errors.push(`Unknown skill key "${key}".`);
-        continue;
-      }
       const rank = Number(value);
       if (!Number.isFinite(rank) || rank < 0) {
         errors.push(`Skill "${key}" must be a non-negative number.`);
@@ -234,7 +229,7 @@ function validateDf2026Fields(payload: CharacterImportPayload): {
   });
   const warnings: string[] = [];
   if (payload.skills && Object.keys(payload.skills).length > 0) {
-    warnings.push('Legacy `skills` are archive-only — define `specializations` instead; Ratings are not converted.');
+    warnings.push('Legacy `skills` are archived on the actor flag only — define `specializations` instead; Ratings are not converted.');
   }
   if (Array.isArray(payload.minorExpressions) && payload.minorExpressions.length > 0) {
     warnings.push('Legacy `minorExpressions` are archive-only — define `echoImprints` instead.');

@@ -3,10 +3,8 @@
  */
 import { masteryRoll } from '../dice/roll-handler.js';
 import type { EpicMasteryRollSession, EpicParticipantResult } from './epic-mastery-roll-types.js';
-export declare function pickSkillAttribute(actor: Actor, skillKey: string): Promise<string | null>;
 export interface EpicRollBuiltContext {
     label: string;
-    skillKey?: string;
     attributeKey?: string;
     isSkillRoll: boolean;
     baseModifier: number;
@@ -15,7 +13,6 @@ export interface EpicRollBuiltContext {
 }
 export declare function shouldStageEpicFailure(opts: {
     success: boolean;
-    hasSkillSpend: boolean;
     hasRerollPoint: boolean;
     alreadyRerolled: boolean;
 }): boolean;
@@ -34,6 +31,5 @@ export declare function submitEpicParticipantResult(sessionId: string, result: E
 export declare function performEpicParticipantRoll(session: EpicMasteryRollSession, actorId: string, attributeKeyOverride?: string): Promise<EpicParticipantResult | null>;
 export declare function performEpicParticipantReroll(session: EpicMasteryRollSession, actorId: string): Promise<EpicParticipantResult | null>;
 export declare function finalizeEpicParticipantResult(session: EpicMasteryRollSession, result: EpicParticipantResult): Promise<void>;
-export declare function applyEpicSkillSpendAndFinalize(session: EpicMasteryRollSession, actorId: string, spendAmount: number): Promise<void>;
 export declare function confirmEpicRollWithoutSpend(session: EpicMasteryRollSession, actorId: string): Promise<void>;
 //# sourceMappingURL=epic-mastery-roll-roll.d.ts.map

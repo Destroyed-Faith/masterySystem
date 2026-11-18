@@ -2,20 +2,15 @@
  * Epic Mastery Roll — shared types.
  */
 
-import { SKILLS } from '../utils/skills.js';
 import type { MasteryRollResult } from '../types/index.js';
 
+/** Dialog modes. `skill` publishes a chat Training Check and never opens a session. */
 export type EpicRollKind = 'skill' | 'attribute' | 'fear';
 
 export interface EpicTnConfig {
   challengeMR: number;
   baseTN: number;
   raises: number;
-}
-
-export interface EpicSkillRollConfig {
-  kind: 'skill';
-  skillKey: string;
 }
 
 export interface EpicAttributeRollConfig {
@@ -28,7 +23,7 @@ export interface EpicFearRollConfig {
   kind: 'fear';
 }
 
-export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicFearRollConfig;
+export type EpicRollConfig = EpicAttributeRollConfig | EpicFearRollConfig;
 
 export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 
@@ -39,10 +34,9 @@ export interface EpicParticipant {
   img?: string;
 }
 
-/** Serializable roll payload kept while the player chooses skill spend. */
+/** Serializable roll payload kept while the player decides on a reroll. */
 export interface EpicRollPayload {
   rollResult: MasteryRollResult;
-  skillKey?: string;
   isSkillRoll: boolean;
   baseModifier: number;
   raiseTn?: number;
@@ -58,22 +52,14 @@ export interface EpicParticipantResult {
   raises: number;
   diceSummary: string;
   skipped?: boolean;
-  /** True while the owner may still spend skill points or reroll before locking in. */
+  /** True while the owner may still reroll before locking in. */
   awaitingConfirm?: boolean;
-  skillKey?: string;
   /** Attribute used for this check — needed to reroll the same pool. */
   attributeKey?: string;
-  skillSpent?: number;
   raiseTn?: number;
   /** Already spent a Reroll Point on this Epic Roll. */
   rerolled?: boolean;
   rollPayload?: EpicRollPayload;
-  echoCardUsed?: {
-    cardId: string;
-    optionId: string;
-    cardName: string;
-    optionLabel: string;
-  };
   /** Persisted dice breakdown for overlay / summary after rollPayload is cleared. */
   diceFaces?: EpicDiceFace[];
 }
@@ -216,8 +202,6 @@ export function defaultRollTitleForKind(kind: EpicRollKind): string {
 
 export function rollLabelForConfig(roll: EpicRollConfig): string {
   switch (roll.kind) {
-    case 'skill':
-      return SKILLS[roll.skillKey]?.name ?? roll.skillKey;
     case 'attribute':
       return roll.attributeKey.charAt(0).toUpperCase() + roll.attributeKey.slice(1);
     case 'fear':
@@ -234,10 +218,8 @@ export function participantResultFromRoll(
   rollResult: MasteryRollResult,
   payload: EpicRollPayload,
   opts: {
-    skillKey?: string;
     attributeKey?: string;
     awaitingConfirm?: boolean;
-    skillSpent?: number;
     rerolled?: boolean;
   } = {},
 ): EpicParticipantResult {
@@ -252,9 +234,7 @@ export function participantResultFromRoll(
     diceSummary: formatEpicRollDiceSummary(rollResult),
     diceFaces: buildEpicDiceFaces(rollResult),
     awaitingConfirm: opts.awaitingConfirm,
-    skillKey: opts.skillKey,
     attributeKey: opts.attributeKey,
-    skillSpent: opts.skillSpent ?? 0,
     rerolled: opts.rerolled === true,
     raiseTn: payload.raiseTn,
     rollPayload: payload,

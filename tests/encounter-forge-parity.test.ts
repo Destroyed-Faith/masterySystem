@@ -128,12 +128,12 @@ describe('defense: live aggregators', () => {
 });
 
 describe('offense: legal attack profiles', () => {
-  it('Basic Attack scales as Weapon + MR × 2d8', () => {
+  it('weapon-only baseline has no Basic Attack MR × 2d8 bonus (Actives v0.9.9.6)', () => {
     const cases = [
-      { mr: 1, weapon: 3, expect: 5 },
-      { mr: 2, weapon: 3, expect: 7 },
-      { mr: 3, weapon: 4, expect: 10 },
-      { mr: 4, weapon: 2, expect: 10 },
+      { mr: 1, weapon: 3, expect: 3 },
+      { mr: 2, weapon: 3, expect: 3 },
+      { mr: 3, weapon: 4, expect: 4 },
+      { mr: 4, weapon: 2, expect: 2 },
     ];
     for (const c of cases) {
       const profile = analyzePartyActors([
@@ -145,7 +145,7 @@ describe('offense: legal attack profiles', () => {
     }
   });
 
-  it('keeps Basic, Power-rider and Spell as distinct legal profiles', () => {
+  it('keeps Power-rider and Spell as distinct legal profiles without a Basic Attack', () => {
     const profile = analyzePartyActors([
       makeActor({
         name: 'Mixed',
@@ -156,13 +156,11 @@ describe('offense: legal attack profiles', () => {
       }),
     ]).members[0];
     const roles = profile.offense.sustained.attacks.map((a) => a.role);
-    expect(roles).toContain('basic');
+    expect(roles).not.toContain('basic');
     expect(roles).toContain('power-rider');
     expect(roles).toContain('spell');
-    const basic = profile.offense.sustained.attacks.find((a) => a.role === 'basic')!;
     const rider = profile.offense.sustained.attacks.find((a) => a.role === 'power-rider')!;
     const spell = profile.offense.sustained.attacks.find((a) => a.role === 'spell')!;
-    expect(basic.damageDice).toBe(8); // 4 + MR×2
     expect(rider.damageDice).toBe(9); // 4 weapon + 5 power, no MR×2
     expect(spell.damageDice).toBe(6);
     expect(rider.notes.some((n) => /kein MR/.test(n))).toBe(true);

@@ -358,9 +358,10 @@ describe('tower-wizard-packages', () => {
         expect(groups.length).toBeGreaterThan(0);
         const lacerate = groups.find((g) => g.specialKey === 'lacerate');
         expect(lacerate).toBeDefined();
-        const singleT4 = lacerate!.patterns.find((p) => p.patternId === 'damage-t4');
+        const singleT4 = lacerate!.patterns.find((p) => p.patternId === 'instant-special-t4');
         expect(singleT4).toBeDefined();
-        expect(singleT4!.label).toBe('Damage');
+        expect(lacerate!.patterns.some((p) => p.patternId === 'damage-t4')).toBe(false);
+        expect(singleT4!.label).toBe('Single Target Special');
         expect(singleT4!.label).not.toMatch(/tier\s*\d/i);
         expect(singleT4!.variants.map((v) => v.delivery).sort()).toEqual(['melee', 'ranged']);
         expect(lacerate!.groupTooltip).toMatch(/move more than 0/i);
@@ -380,12 +381,12 @@ describe('tower-wizard-packages', () => {
         expect(patternIds.indexOf('weapon-split')).toBeLessThan(patternIds.indexOf('weapon-aoe'));
     });
 
-    it('offense groups combine control actives including damage + stunned', () => {
+    it('offense groups combine Push / Pull control actives', () => {
         const groups = getOffenseActiveSpecialGroups(null);
         const control = groups.find((g) => g.groupLabel === 'Control');
         expect(control).toBeDefined();
         const patternIds = control!.patterns.map((p) => p.patternId);
-        expect(patternIds.some((id) => id.includes('damage-stunned'))).toBe(true);
+        expect(patternIds.some((id) => id.includes('damage-stunned'))).toBe(false);
         expect(patternIds.some((id) => id.includes('control-'))).toBe(true);
         expect(groups.indexOf(control!)).toBeLessThan(
             groups.findIndex((g) => g.specialKey === 'lacerate'),
@@ -397,13 +398,12 @@ describe('tower-wizard-packages', () => {
         const healing = groups.find((g) => g.groupLabel === 'Restoration & Cleanse');
         expect(healing).toBeDefined();
         const labels = healing!.patterns.map((p) => p.label);
-        // Catalogue Single Target Heal (HP) is selectable again alongside Scarred Bar Restoration.
-        expect(healing!.patterns.some((p) => /single-heal/.test(p.patternId))).toBe(true);
+        expect(healing!.patterns.some((p) => /single-heal/.test(p.patternId))).toBe(false);
         expect(labels.some((l) => /restoration|heal/i.test(l))).toBe(true);
         expect(healing!.patterns.some((p) => p.patternId.includes('health-level-heal'))).toBe(true);
         expect(healing!.patterns.some((p) => p.patternId.includes('aoe-restoration'))).toBe(true);
         expect(labels.some((l) => /cleanse/i.test(l))).toBe(true);
-        expect(healing!.patterns.some((p) => p.patternId.includes('heal-cleanse-mixed'))).toBe(true);
+        expect(healing!.patterns.some((p) => p.patternId.includes('heal-cleanse-mixed'))).toBe(false);
     });
 
     it('offense groups omit dispel actives', () => {
@@ -583,7 +583,7 @@ describe('tower-wizard-packages', () => {
 
     it('catalogEntryMatchesGrantKey rejects wrong category for slot', () => {
         const passive = findCatalogEntry('passive-temp-hp');
-        const active = findCatalogEntry('active-ranged-damage-t4', 'mark');
+        const active = findCatalogEntry('active-ranged-instant-special-t4', 'mark');
         expect(passive).toBeTruthy();
         expect(active).toBeTruthy();
         expect(catalogEntryMatchesGrantKey(passive!, 'passive-2')).toBe(true);
@@ -593,6 +593,6 @@ describe('tower-wizard-packages', () => {
     });
 
     it('playerFacingPowerName prefers special names over tier labels', () => {
-        expect(playerFacingPowerName({ templateId: 'active-ranged-damage-t4', rank: 2, special: 'mark' })).toBe('Mark');
+        expect(playerFacingPowerName({ templateId: 'active-ranged-instant-special-t4', rank: 2, special: 'mark' })).toBe('Mark');
     });
 });

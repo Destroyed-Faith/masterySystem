@@ -13,12 +13,12 @@ import { getActiveSpecialValue, hasActiveSpecial } from '../system/active-specia
 import { getActorInventoryLoadZone, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
-import { getRulesMasteryRank, getWorldDefaultMasteryRank, suggestedMasteryRank, } from '../utils/mastery-rank-sync.js';
+import { getWorldDefaultMasteryRank, suggestedMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { ensureNpcHasPerception } from '../rules/npc-situational-skills.js';
 import { ensureCharacterHasPerceptionSpec } from '../rules/specializations.js';
-import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
+import { quarantineLegacySkillWrites, LEGACY_SKILL_MIGRATION_OPTION, LEGACY_SKILL_QUARANTINE_FLAG, } from '../utils/legacy-skill-write-guard.js';
 import { isLifetimeStoneMode, resolvedPermanentStoneTotal, resolvedStonePoolMax, systemWithStoneProgression, usesV099Stones, } from '../progression/v099-rules.js';
 /**
  * Token ActorDeltas often omit progression (Lifetime track lives on the world
@@ -40,57 +40,6 @@ function stoneSystemForPrepare(self) {
         /* game optional during early boot */
     }
     return system;
-}
-/** Clamp skill ranks in an actor update to MR × 4 (and ≥ 0). */
-function clampSkillRanksInUpdate(actor, changed) {
-    if (actor.type !== 'character')
-        return;
-    const systemChange = changed?.system;
-    if (!systemChange || typeof systemChange !== 'object')
-        return;
-    // Stored Mastery Rank is authoritative (GM may keep a character below the
-    // Lifetime-XP suggestion). Do not overwrite rank from XP here.
-    const currentMr = getRulesMasteryRank(actor);
-    const nextMrRaw = systemChange.mastery?.rank;
-    const nextMr = nextMrRaw != null && Number.isFinite(Number(nextMrRaw))
-        ? Math.max(1, Math.min(8, Math.floor(Number(nextMrRaw))))
-        : currentMr;
-    const maxSkill = calculateMaxSkillRank(nextMr);
-    const masteryDropped = nextMr < currentMr;
-    const skillPatch = systemChange.skills && typeof systemChange.skills === 'object'
-        ? { ...systemChange.skills }
-        : null;
-    if (skillPatch) {
-        for (const [key, raw] of Object.entries(skillPatch)) {
-            if (raw == null)
-                continue;
-            const n = Math.floor(Number(raw));
-            if (!Number.isFinite(n))
-                continue;
-            skillPatch[key] = validateSkillValue(Math.max(0, n), nextMr);
-        }
-        systemChange.skills = skillPatch;
-    }
-    // When MR drops, also clamp skills that are not part of this write.
-    if (masteryDropped) {
-        const currentSkills = actor.system?.skills && typeof actor.system.skills === 'object'
-            ? actor.system.skills
-            : {};
-        const merged = { ...(systemChange.skills || {}) };
-        let changedAny = false;
-        for (const [key, raw] of Object.entries(currentSkills)) {
-            if (Object.prototype.hasOwnProperty.call(merged, key))
-                continue;
-            const n = Math.max(0, Math.floor(Number(raw) || 0));
-            if (n > maxSkill) {
-                merged[key] = maxSkill;
-                changedAny = true;
-            }
-        }
-        if (changedAny) {
-            systemChange.skills = merged;
-        }
-    }
 }
 /**
  * True when this character is in a *started* fight. Must not touch `c.actor`
@@ -158,9 +107,33 @@ export class MasteryActor extends Actor {
     // which corrupted the v13 effect-phase tracking on synthetic (unlinked
     // token) actors — "ActiveEffect application phase … has already completed"
     // — and silently overwrote any ActiveEffect changes to derived values.
-    /** Enforce the skill rank ceiling (MR × 4) on every write path. */
+    /** Legacy skill fields are quarantined instead of written (see legacy-skill-write-guard). */
+    async _preCreate(data, options, user) {
+        const allowed = await super._preCreate(data, options, user);
+        if (allowed === false)
+            return false;
+        const probe = { system: foundry.utils.deepClone(data?.system ?? {}) };
+        const dropped = quarantineLegacySkillWrites(probe, data?.flags?.['mastery-system']?.[LEGACY_SKILL_QUARANTINE_FLAG]);
+        if (!dropped.length)
+            return allowed;
+        const patch = {};
+        for (const key of dropped) {
+            const path = key.split('.');
+            path[path.length - 1] = `-=${path[path.length - 1]}`;
+            patch[path.join('.')] = null;
+        }
+        const quarantine = probe.flags?.['mastery-system']?.[LEGACY_SKILL_QUARANTINE_FLAG];
+        if (quarantine)
+            patch[`flags.mastery-system.${LEGACY_SKILL_QUARANTINE_FLAG}`] = quarantine;
+        this.updateSource(patch);
+        return allowed;
+    }
     async _preUpdate(changed, options, user) {
-        clampSkillRanksInUpdate(this, changed);
+        if (options?.[LEGACY_SKILL_MIGRATION_OPTION] === true)
+            return super._preUpdate(changed, options, user);
+        const dropped = quarantineLegacySkillWrites(changed, this.flags?.['mastery-system']?.[LEGACY_SKILL_QUARANTINE_FLAG]);
+        if (dropped.length)
+            console.warn(`Mastery System | Dropped legacy skill write on ${this.name}:`, dropped);
         return super._preUpdate(changed, options, user);
     }
     /**

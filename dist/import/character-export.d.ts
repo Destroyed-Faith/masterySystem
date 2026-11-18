@@ -3,8 +3,9 @@
  *
  * Emits a `mastery-foundry-actor` document (`actor.system` + items + flags) so
  * `importMasteryCharacter` can recreate the character, including the DF 2026
- * `system.specializations` and `system.echoImprints`. Legacy `skills` /
- * `minorExpressions` stay in `system` as archive fields only.
+ * `system.specializations` and `system.echoImprints`. Archived legacy Skills
+ * travel in `flags.mastery-system.legacySkillsArchive`; a pre-cleanup export's
+ * `system.skills` is quarantined on create (see legacy-skill-write-guard).
  */
 import { type MasteryFoundryActorImportDocument } from './character-import-types.js';
 /** Build the export document (pure — safe for tests). */

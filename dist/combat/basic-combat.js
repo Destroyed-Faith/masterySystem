@@ -1,22 +1,18 @@
 /**
  * Basic Combat Maneuvers helpers (universal options for every combatant).
  *
- * Basic Attack damage: Weapon Damage + MR × 2d8.
+ * There is no automatic Basic Attack (Actives v0.9.9.6): damage attacks come
+ * from learned or granted Attack Powers.
  * Basic Reactions: Guard (+MR×2 Armor), Evade (+MR×2 Evade), Dive for Cover (AoE).
- * Counterattack is no longer a universal Basic Reaction (NPC config / powers only).
+ * Counterattack is not a Basic Reaction; legacy Counterattack items are never offered.
  */
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 export function getMasteryRank(actor) {
     return getRulesMasteryRank(actor);
 }
-/** MR × 2 — used for Basic Attack bonus dice and Guard/Evade bonuses. */
+/** MR × 2 — Guard / Evade bonuses and Dive for Cover distance. */
 export function basicCombatMrTimesTwo(actor) {
     return getMasteryRank(actor) * 2;
-}
-/** Dice formula for the Basic Attack MR bonus pool, e.g. `"8d8"`. */
-export function basicAttackMrDamageFormula(actor) {
-    const n = basicCombatMrTimesTwo(actor);
-    return n > 0 ? `${n}d8` : '0';
 }
 export const BASIC_REACTION_IDS = {
     guard: 'basic-reaction-guard',
@@ -69,11 +65,10 @@ export function buildBasicReactionItems(actor) {
     ];
 }
 /**
- * Counterattack item for NPC reaction config / legacy callers.
- * Not included in {@link buildBasicReactionItems}.
+ * @deprecated Legacy Counterattack item (old NPC configs / chat cards). Never
+ * offered: reaction eligibility hides every `basicReaction: 'counterattack'`.
  */
-export function buildCounterattackReactionItem(actor) {
-    const mr2 = basicCombatMrTimesTwo(actor);
+export function buildCounterattackReactionItem(_actor) {
     return {
         id: BASIC_REACTION_IDS.counterattack,
         name: 'Counterattack',
@@ -81,7 +76,7 @@ export function buildCounterattackReactionItem(actor) {
         system: {
             powerType: 'reaction',
             templateId: 'basic-counterattack',
-            description: `Make a Basic Attack (Weapon + ${mr2}d8) against the triggering creature.`,
+            description: 'Retired: there is no Basic Attack (Actives v0.9.9.6).',
         },
         basicReaction: 'counterattack',
         mechanics: {},

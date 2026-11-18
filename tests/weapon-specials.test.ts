@@ -108,10 +108,10 @@ describe('weapon specials', () => {
         artifactWeapon: { weaponType: 'melee', damage: '7d8', hands: 2, specials: [] },
         baseValues: [
           { type: 'weaponDamage', label: 'Weapon Damage', value: '7d8' },
-          { type: 'weaponSpecial', label: 'Requiem', value: 4 },
+          { type: 'weaponSpecial', label: 'Expose', value: 4 },
         ],
       },
     });
-    expect(weapon.system.specials).toEqual([{ specialId: 'requiem', value: 4 }]);
+    expect(weapon.system.specials).toEqual([{ specialId: 'expose', value: 4 }]);
   });
 });

@@ -204,13 +204,7 @@
         "current": 0,
         "maximum": 100
       },
-      "skills": {},
-      "skillsSpent": {},
       "specializations": [],
-      "skillPoints": {
-        "unspent": 0,
-        "placed": {}
-      },
       "conditions": [],
       "statusEffects": [],
       "schticks": {
@@ -223,15 +217,12 @@
       },
       "creation": {
         "complete": false,
-        "skillsRedistributing": false,
         "equipmentReviewed": false
       },
       "echo": {
         "key": "",
         "subChoiceKey": "",
         "veiledFormKey": "",
-        "selectedCardIds": [],
-        "cardUses": {},
         "traitUses": {},
         "unboundShape": ""
       },
@@ -264,7 +255,6 @@
         "currentBar": 0,
         "tempHP": 0
       },
-      "skills": {},
       "situationalSkills": [
         {
           "id": "nss-perception",
@@ -440,7 +430,6 @@
       "traits": [],
       "bonuses": {
         "attributes": {},
-        "skills": {},
         "other": ""
       },
       "options": []

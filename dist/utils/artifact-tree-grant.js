@@ -4,47 +4,7 @@
 import { readActorArtifactProgress, } from './artifact-actor-rules.js';
 import { findRootWorldArtifactInFolder, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from './artifact-actor-tree.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
-import { GENERAL_ARTIFACTS } from './general-artifacts.js';
 import { upsertRootActorProgress, upsertRootActorProgressForActor, } from './world-artifact-flag-sync.js';
-/** Infer catalog key from item display name (Echo + General artifacts). */
-export function inferArtifactKeyFromName(name) {
-    const n = String(name || '').toLowerCase();
-    for (const [key, def] of Object.entries(GENERAL_ARTIFACTS)) {
-        if (n.includes(def.name.toLowerCase()))
-            return key;
-    }
-    if (n.includes('dragon head'))
-        return 'dragonHead';
-    if (n.includes('dragon claw'))
-        return 'dragonClaws';
-    if (n.includes('wyrm scale') && n.includes('light'))
-        return 'wyrmScalesLight';
-    if (n.includes('wyrm scale') && n.includes('heavy'))
-        return 'wyrmScalesHeavy';
-    if (n.includes('serpent scale'))
-        return 'wyrmScalesLight';
-    if (n.includes('wyrm scale'))
-        return 'wyrmScalesHeavy';
-    // Titan Scars variants are all named "Titan Scars"; the affinity isn't in the
-    // name, so default name-based wiring to the Might variant (legacy default).
-    if (n.includes('titan scar'))
-        return 'titanScars';
-    if (n.includes('ringchain'))
-        return 'ringchainOfKeptNames';
-    if (n.includes('stonebound sole'))
-        return 'stoneboundSoles';
-    if (n.includes('elorian stride'))
-        return 'elorianStride';
-    if (n.includes('elven stride'))
-        return 'elorianStride';
-    if (n.includes('sentinel frame'))
-        return 'sentinelFrame';
-    if (n.includes('judicator frame'))
-        return 'judicatorFrame';
-    if (n.includes('oracle frame'))
-        return 'oracleFrame';
-    return null;
-}
 function resolveRootForArtifactKey(artifactKey) {
     return findEchoArtifactRootInWorld(artifactKey);
 }
@@ -67,8 +27,7 @@ export async function wireEmbeddedArtifactToWorldTree(actor, embeddedItem, optio
     const sourceWorld = options.sourceWorldItem;
     const artifactKey = embeddedItem.getFlag?.('mastery-system', 'echoArtifactKey') ||
         sourceWorld?.getFlag?.('mastery-system', 'echoArtifactKey') ||
-        inferArtifactKeyFromName(embeddedItem.name) ||
-        (sourceWorld ? inferArtifactKeyFromName(sourceWorld.name) : null);
+        null;
     let rootItem = artifactKey ? resolveRootForArtifactKey(artifactKey) : null;
     if (!rootItem && sourceWorld) {
         rootItem = resolveRootFromWorldItem(sourceWorld);
@@ -198,8 +157,7 @@ export function listUnwiredEmbeddedArtifacts(actor) {
     for (const emb of Array.from(A.items.filter((i) => i.type === 'artifact'))) {
         if (emb.getFlag?.('mastery-system', 'evolutionRootItemId'))
             continue;
-        const key = emb.getFlag?.('mastery-system', 'echoArtifactKey') ||
-            inferArtifactKeyFromName(emb.name);
+        const key = emb.getFlag?.('mastery-system', 'echoArtifactKey');
         if (key || emb.getFlag?.('mastery-system', 'nodeId'))
             out.push(emb);
     }

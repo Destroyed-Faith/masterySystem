@@ -8,13 +8,13 @@
  * When history shows a paid upgrade but live level is already at/below `from`
  * (desync / orphan spend), GMs can still credit the XP without a tree walk.
  */
-import { applyAttributePendingChanges, applyPowerPendingChanges, applySkillPendingChanges, getAttributeXpBaseline, } from '../progression/progression-hub-actions.js';
+import { applyAttributePendingChanges, applyPowerPendingChanges, getAttributeXpBaseline, } from '../progression/progression-hub-actions.js';
 import { downgradeArtifactForActor } from '../artifacts/artifact-evolution-actions.js';
-import { attributeBandCost, skillBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
+import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
 import { getPowerMinLevel } from './power-xp-refund.js';
 import { resolveEffectiveArtifactLevel } from './artifact-evolution-repair.js';
 import { appendXpHistory, currentXpUser } from './xp-history.js';
-const REFUNDABLE_CATEGORIES = new Set(['attribute', 'skill', 'power', 'artifact']);
+const REFUNDABLE_CATEGORIES = new Set(['attribute', 'power', 'artifact']);
 export function liveRefundXp(category, current, target) {
     if (current <= target)
         return 0;
@@ -26,7 +26,7 @@ export function liveRefundXp(category, current, target) {
     }
     let sum = 0;
     for (let v = current; v > target; v--) {
-        sum += category === 'power' ? powerLevelCost(v) : category === 'skill' ? skillBandCost(v) : attributeBandCost(v);
+        sum += category === 'power' ? powerLevelCost(v) : attributeBandCost(v);
     }
     return sum;
 }
@@ -56,12 +56,6 @@ function readCurrentAndFloor(actor, category, key, label) {
         if (!Number.isFinite(current))
             return { error: 'Attribute not found.' };
         return { current, floor: getAttributeXpBaseline(actor, key), resolvedKey: key };
-    }
-    if (category === 'skill') {
-        const current = Number(actor?.system?.skills?.[key] ?? NaN);
-        if (!Number.isFinite(current))
-            return { error: 'Skill not found.' };
-        return { current, floor: 0, resolvedKey: key };
     }
     if (category === 'power') {
         const item = actor?.items?.get?.(key);
@@ -218,10 +212,6 @@ export async function refundHistoryRow(actor, row) {
     }
     if (plan.category === 'attribute') {
         const res = await applyAttributePendingChanges(actor, { [plan.key]: plan.pending });
-        return { ok: res.ok, error: res.error, plan };
-    }
-    if (plan.category === 'skill') {
-        const res = await applySkillPendingChanges(actor, { [plan.key]: plan.pending });
         return { ok: res.ok, error: res.error, plan };
     }
     if (plan.category === 'power') {

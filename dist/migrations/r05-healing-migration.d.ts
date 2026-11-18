@@ -13,6 +13,9 @@
  * some low AoE levels have none). Illegal conversions are NOT forced: the item keeps its data and
  * is flagged `r05Retired` with `r05MigrationNote` so a GM/player can re-buy at a legal level.
  *
+ * Artifact-sourced `active-*-single-heal` items (old Moonlight Mending grants)
+ * are skipped here; the legacy-cleanup migration retires them.
+ *
  * Idempotent: converted items carry the new template id, flagged items carry the flag, so a
  * second run writes nothing. Pure planning (`planR05HealingItem`) is separated from the
  * Foundry writes so it can be unit-tested.
@@ -44,6 +47,12 @@ export type R05ItemPlan = {
 export declare function isR05RetiredHealingPower(item: any): boolean;
 /** Restoration pool at this rank (0 = no legal version). */
 export declare function restorationPoolAtRank(templateId: string, rank: number): number;
+/**
+ * True when the item came from an Artifact / Echo grant. Artifact-bound
+ * `active-*-single-heal` (old Moonlight Mending) is handled by the
+ * legacy-cleanup migration, not converted by R-05.
+ */
+export declare function isArtifactSourcedPowerItem(item: any): boolean;
 /** Decide what (if anything) to do to one owned power/passive item. Pure. */
 export declare function planR05HealingItem(item: any): R05ItemPlan;
 export interface R05HealingMigrationSummary {

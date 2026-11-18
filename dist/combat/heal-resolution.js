@@ -18,24 +18,9 @@ import { getActionEconomyActor } from './action-economy.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
 import { HL_HEAL_MELEE_POOL, HL_HEAL_RANGED_POOL, } from '../utils/powers/templates/actives.js';
-import { resolvePowerIdentity } from '../utils/power-identity.js';
-import { compareIdentityDecision } from '../utils/identity-shadow.js';
 export const HEAL_CHAT_FLAG = 'healResolution';
 /** Caster flag: `{ [powerKey]: spentLevels }` since last Safe Haven Rest. */
 export const HLR_SPENT_FLAG = 'healthLevelRecoverySpent';
-/** Catalog Health Level Recovery band for HP-heal Actives (0 below L4, max 4 at L15–16). */
-export function healHealthLevelRecoveryForRank(rank) {
-    const lvl = Math.max(1, Math.min(16, Math.floor(Number(rank) || 1)));
-    if (lvl >= 15)
-        return 4;
-    if (lvl >= 12)
-        return 3;
-    if (lvl >= 8)
-        return 2;
-    if (lvl >= 4)
-        return 1;
-    return 0;
-}
 /**
  * True for dedicated Scarred Bar Restoration (ST + AoE; no HP dice — pool is the
  * whole Power, restored bars return at full HP).
@@ -48,7 +33,7 @@ export function isScarredRestorationPower(item) {
  * Safe Haven Rest pool size for this Power:
  * - Scarred Bar Restoration → catalog pool at Power Level (up to 12)
  * - else authored `mechanics.healthLevelRecovery` when present
- * - else the small HP-heal HLR band
+ * - else 0
  */
 export function getPowerHlrPoolMax(powerItem) {
     const rank = powerItemRank(powerItem);
@@ -70,13 +55,7 @@ export function getPowerHlrPoolMax(powerItem) {
         const table = /ranged/i.test(tid) ? R05_RANGED_AOE_POOL : R05_MELEE_AOE_POOL;
         return poolAt(table, rank);
     }
-    // Catalogue Single Target Heal restores HP only — no Scarred Bar pool.
-    if (/single-heal/i.test(tid))
-        return 0;
-    // R-05: Heal + Cleanse mixed is cleanse-only now — no Health Level Recovery pool.
-    if (/heal-cleanse/i.test(tid))
-        return 0;
-    return healHealthLevelRecoveryForRank(rank);
+    return 0;
 }
 export function powerItemRank(item) {
     const sys = item?.system ?? {};
@@ -146,30 +125,9 @@ export async function clearHlrSpentOnCaster(caster) {
         /* ignore */
     }
 }
-/** Catalog / artifact template ids that deliver heal (incl. heal+cleanse mixed). */
+/** Catalog / artifact template ids that deliver Scarred Bar Restoration. */
 export function isHealTemplateId(templateId) {
-    const tid = String(templateId || '');
-    if (!tid)
-        return false;
-    if (/health-level-heal/i.test(tid))
-        return true;
-    if (/aoe-restoration/i.test(tid))
-        return true;
-    if (/heal-cleanse/i.test(tid))
-        return true;
-    if (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))
-        return true;
-    return false;
-}
-function artifactRowLooksLikeHeal(option) {
-    const blob = `${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`;
-    if (!/\bheal\b/i.test(blob))
-        return false;
-    // Offensive artifact actives that mention heal incidentally stay out.
-    if (/\b(requiem|exorcism|damage|sundered|lacerate)\b/i.test(blob) && !/\bheal\b.*\bd\d+/i.test(blob)) {
-        return false;
-    }
-    return true;
+    return isScarredRestorationTemplateId(String(templateId || ''));
 }
 /** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel-only). */
 export function isHealPowerItem(item) {
@@ -177,16 +135,7 @@ export function isHealPowerItem(item) {
         return false;
     const sys = item.system ?? {};
     const tid = String(sys.templateId || '');
-    const sub = String(sys.subfamily || '');
-    if (/health-level-heal/i.test(tid))
-        return true;
-    if (/aoe-restoration/i.test(tid))
-        return true;
-    if (/support-heal/i.test(sub))
-        return true;
-    if (/heal-cleanse/i.test(tid))
-        return true;
-    if (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))
+    if (isScarredRestorationTemplateId(tid))
         return true;
     try {
         const mech = resolvePowerMechanics(item);
@@ -200,38 +149,17 @@ export function isHealPowerItem(item) {
 }
 /**
  * True for radial options that should use green ally heal targeting.
- * Covers real power items and artifact rows (Moonlight Mending, …) where
- * `option.item` is the artifact document, not a power.
+ * Covers real power items and artifact rows whose `artifactPowerTemplateId`
+ * is a Restoration template (`option.item` is then the artifact document).
  */
 export function isHealRadialOption(option) {
     if (!option || option.source !== 'power')
         return false;
-    // C2.e / K8.e: identity templateId decides when resolvable; text/legacy only as
-    // missing-ID bridge. Legacy thunk (A1) skips text inference when identity resolves.
-    const hasStructuredId = !!(option.artifactPowerTemplateId ||
-        option.item?.system?.templateId);
-    return compareIdentityDecision('heal.isHealRadialOption', () => {
-        if (option.aoePlacementProfile === 'heal')
-            return true;
-        if (isHealTemplateId(option.artifactPowerTemplateId))
-            return true;
-        if (option.item && isHealPowerItem(option.item))
-            return true;
-        if (!hasStructuredId && option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
-            return true;
-        }
-        if (!hasStructuredId &&
-            option.item?.type === 'artifact' &&
-            inferRestorationTemplateFromArtifactText(`${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`)) {
-            return true;
-        }
-        return false;
-    }, () => {
-        const id = resolvePowerIdentity({ kind: 'radial-option', option });
-        if (!id.ok)
-            return { kind: 'unresolved', reason: id.reason || 'missing-identity' };
-        return isHealTemplateId(id.templateId);
-    }, { name: option.name }, { prefer: 'identity' });
+    if (option.aoePlacementProfile === 'heal')
+        return true;
+    if (isHealTemplateId(option.artifactPowerTemplateId))
+        return true;
+    return !!option.item && isHealPowerItem(option.item);
 }
 /**
  * Resolve a power-shaped item for heal dice / HLR — real power, or a synthetic
@@ -265,85 +193,7 @@ export function healPowerItemFromRadialOption(option) {
             },
         };
     }
-    // Authored / legacy artifact rows without a template id.
-    // Catalogue Technical References that print "Ranged Single Target Heal" /
-    // Moonlight Mending map to HP-heal templates (Artefacts 2026-10-25).
-    // Scarred-Bar "Restoration" wording still uses the R-05 restoration templates.
-    if (option.item?.type === 'artifact') {
-        const blob = `${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`;
-        if (/moonlight\s*mending/i.test(blob) ||
-            /ranged\s+single\s+target\s+heal/i.test(blob) ||
-            /melee\s+single\s+target\s+heal/i.test(blob)) {
-            const templateId = /melee\s+single\s+target\s+heal/i.test(blob)
-                ? 'active-melee-single-heal'
-                : 'active-ranged-single-heal';
-            const tpl = getTemplate(templateId);
-            const rankFromOption = option.rank != null && Number.isFinite(Number(option.rank))
-                ? Math.max(1, Math.floor(Number(option.rank)))
-                : null;
-            const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
-            const rank = rankFromOption ?? Math.max(1, Math.floor(Number(rankKey) || 1));
-            return {
-                type: 'power',
-                id: option.id,
-                name: option.name,
-                system: {
-                    templateId,
-                    category: 'active',
-                    subfamily: 'support-heal',
-                    rank,
-                    level: rank,
-                    levels: tpl?.levels ?? {},
-                },
-            };
-        }
-        const inferred = inferRestorationTemplateFromArtifactText(blob);
-        if (inferred || artifactRowLooksLikeHeal(option)) {
-            const templateId = inferred?.templateId ?? 'active-ranged-health-level-heal';
-            const tpl = getTemplate(templateId);
-            const rankFromOption = option.rank != null && Number.isFinite(Number(option.rank))
-                ? Math.max(1, Math.floor(Number(option.rank)))
-                : null;
-            const rankKey = inferred?.pl ?? artifactLevelToTemplateRank(option.artifactRowLevel || 1);
-            const rank = rankFromOption ?? Math.max(1, Math.floor(Number(rankKey) || 1));
-            return {
-                type: 'power',
-                id: option.id,
-                name: option.name,
-                system: {
-                    templateId,
-                    category: 'active',
-                    subfamily: 'support-heal',
-                    rank,
-                    level: rank,
-                    levels: tpl?.levels ?? {},
-                },
-            };
-        }
-    }
     return option.item?.type === 'power' ? option.item : null;
-}
-/**
- * Infer a Restoration template id (+ printed PL) from artifact row text such as
- * "Ranged Single Target Restoration (PL 10)" / "Melee AoE Restoration (PL 4)" and
- * legacy "Ranged Single Target Heal (PL 16)" / "Healing Aura (PL 4)" technical references.
- */
-export function inferRestorationTemplateFromArtifactText(text) {
-    const blob = String(text || '');
-    if (!blob)
-        return null;
-    const plMatch = /\(\s*PL\s*(\d{1,2})\s*\)/i.exec(blob);
-    const pl = plMatch ? Math.max(1, Math.min(16, parseInt(plMatch[1], 10))) : null;
-    const ranged = /\branged\b/i.test(blob);
-    const melee = /\bmelee\b/i.test(blob);
-    if (/\bAoE\s+Restoration\b/i.test(blob) || /\bHealing\s+Aura\b/i.test(blob)) {
-        return { templateId: ranged && !melee ? 'active-ranged-aoe-restoration' : 'active-melee-aoe-restoration', pl };
-    }
-    // Scarred Bar Restoration only — plain "Single Target Heal" is HP dice (catalogue).
-    if (/\bSingle\s+Target\s+Restoration\b/i.test(blob) || /\bScarred\s+Bar\s+Restoration\b/i.test(blob)) {
-        return { templateId: melee && !ranged ? 'active-melee-health-level-heal' : 'active-ranged-health-level-heal', pl };
-    }
-    return null;
 }
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export function getHealDiceFormula(item) {
@@ -718,7 +568,7 @@ async function applyHpHealPass(args) {
     catch (err) {
         console.warn('Mastery System | heal chat failed', err);
     }
-    // Heal + Cleanse mixed: interactive Cleanse distribution after HP heal.
+    // Interactive Cleanse distribution after the heal, when the power carries a Cleanse rank.
     try {
         const { getCleanseRankFromPower, postCleansePromptForTarget } = await import('./cleanse-resolution.js');
         if (getCleanseRankFromPower(args.powerItem) > 0) {
@@ -839,7 +689,7 @@ export async function resolveHealOnTokens(args) {
             })
             : null;
     if (!content && !formula && pending.cleanseRank > 0 && poolMax <= 0) {
-        // R-05: Cleanse-only (ex Heal + Cleanse mixed) — no HP / Scarred step; go straight to Cleanse.
+        // Cleanse-only — no HP / Scarred step; go straight to Cleanse.
         try {
             const { postCleansePromptForTarget } = await import('./cleanse-resolution.js');
             for (const tok of args.targetTokens) {

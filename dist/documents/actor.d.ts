@@ -2,7 +2,8 @@
  * Extended Actor document for Mastery System
  */
 export declare class MasteryActor extends Actor {
-    /** Enforce the skill rank ceiling (MR × 4) on every write path. */
+    /** Legacy skill fields are quarantined instead of written (see legacy-skill-write-guard). */
+    _preCreate(data: any, options: any, user: any): Promise<any>;
     _preUpdate(changed: any, options: any, user: any): Promise<any>;
     /**
      * Prepare base data for the actor (attributes, stones, etc.)

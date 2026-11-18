@@ -22,7 +22,7 @@ import {
   readCheckContestMode,
   readContestDialogChoice,
 } from '../src/contests/contest-dialog-section.js';
-import { buildSkillRollContext, buildAttributeRollContext } from '../src/dice/roll-context-build.js';
+import { buildAttributeRollContext } from '../src/dice/roll-context-build.js';
 
 function actor(attrs: Record<string, number>, rank = 3, extra: Record<string, unknown> = {}): any {
   const attributes: Record<string, { value: number }> = {};
@@ -128,7 +128,7 @@ describe('Contest consequences per workflow', () => {
     expect(win.grapple).toBe('apply');
     expect(win.note).toMatch(/both|Grappled with each other/i);
     expect(win.note).toMatch(/no damage/i);
-    expect(win.note).toMatch(/Unarmed Basic Attack/);
+    expect(win.note).toMatch(/Melee Attack Power with Unarmed delivery/);
     expect(win.note).not.toMatch(/Mastery Rank damage|ignores Armor|Root/i);
     expect(contestConsequence('grapple', 'tie', 'Bjorn', 'Wolf')).toEqual({ grapple: 'none', note: 'Wolf remains free.' });
     expect(contestConsequence('grapple', 'opponent', 'Bjorn', 'Wolf').grapple).toBe('none');
@@ -205,7 +205,7 @@ describe('Contest chat card', () => {
     expect(html).toContain('Bjorn wins the contest.');
     expect(html).toContain('Final Result: <strong>17</strong>');
     expect(html).toContain('Final Result: <strong>12</strong>');
-    expect(html).toMatch(/Unarmed Basic Attack/);
+    expect(html).toMatch(/Melee Attack Power with Unarmed delivery/);
   });
 
   it('general contests offer every Attribute to the opponent', () => {
@@ -269,20 +269,7 @@ describe('Check / Contest dialog mode (non-combat entry point)', () => {
   });
 });
 
-describe('Existing Skill Check behaviour is untouched', () => {
-  it('skill checks still carry skillKey, isSkillRoll, TN and the skill raise model', () => {
-    const a = actor({ might: 6, agility: 5 }, 3);
-    const ctx = buildSkillRollContext(a, 'athletics', 'might', { baseTN: 22, raises: 1 });
-    expect(ctx).not.toBeNull();
-    expect(ctx!.rollOptions.isSkillRoll).toBe(true);
-    expect(ctx!.rollOptions.skillKey).toBe('athletics');
-    expect(ctx!.rollOptions.tn).toBe(22);
-    expect(ctx!.rollOptions.raiseTn).toBe(26);
-    expect(ctx!.rollOptions.declaredRaiseSlots).toBe(1);
-    expect(ctx!.rollOptions.raiseModel).toBe('skill');
-    expect(ctx!.rollOptions.rollKind).toBe('skill');
-  });
-
+describe('Attribute checks stay separate from contests', () => {
   it('attribute checks keep TN and Raises and stay separate from contests', () => {
     const a = actor({ might: 6 }, 3);
     const ctx = buildAttributeRollContext(a, 'might', { baseTN: 22, raises: 0 });

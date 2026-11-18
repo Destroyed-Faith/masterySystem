@@ -115,7 +115,7 @@ export interface RollOptions {
      * Raise resolution model:
      * - `power`: dual-TN for declared raises (combat powers)
      * - `skill`: margin raises after roll + optional dual-TN pre-declare (no cost)
-     * - `margin`: margin raises only (echo cards, rituals)
+     * - `margin`: margin raises only (rituals)
      */
     raiseModel?: 'power' | 'skill' | 'margin';
     /** Blood Raises: each adds +4 to the roll total (HP cost handled by caller). */
@@ -245,7 +245,7 @@ export declare function showMasteryRollDice3d(result: MasteryRollResult & {
  * Quick roll from actor
  * Helper function to make rolling easier
  */
-export declare function quickRoll(actor: Actor, attributeName: string, skillName?: string, tn?: number, label?: string, modifier?: number, flavor?: string): Promise<MasteryRollResult>;
+export declare function quickRoll(actor: Actor, attributeName: string, tn?: number, label?: string, modifier?: number, flavor?: string): Promise<MasteryRollResult>;
 declare const _default: {
     masteryRoll: typeof masteryRoll;
     quickRoll: typeof quickRoll;

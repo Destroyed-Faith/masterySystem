@@ -20,8 +20,6 @@ import {
   STARTING_SPECIALIZATION_COUNT,
   STARTING_SPECIALIZATION_RANK,
   SKILL_CREATION_POINTS,
-  summonSkillDiceCap,
-  summonTaskSlotCount,
   validateEchoImprintSelections,
   validateSkillRaiseAllocation,
   validateSpecializationList,
@@ -155,14 +153,6 @@ describe('Fear / Health / Summons', () => {
     expect(safeHavenScarBarsRecovered(null)).toBe(1);
     expect(safeHavenScarBarsRecovered(4)).toBe(2);
     expect(safeHavenScarBarsRecovered(8)).toBe(3);
-  });
-
-  it('Summon slots and dice caps', () => {
-    expect(summonTaskSlotCount(1)).toBe(2);
-    expect(summonTaskSlotCount(3)).toBe(4);
-    expect(summonSkillDiceCap({ task: 'perception', ownerMasteryRank: 2 })).toBe(4);
-    expect(summonSkillDiceCap({ task: 'stealth', ownerMasteryRank: 2, matchingSpecializationRank: 2 })).toBe(4);
-    expect(summonSkillDiceCap({ task: 'tracking', ownerMasteryRank: 2, matchingSpecializationRank: 1 })).toBe(2);
   });
 });
 

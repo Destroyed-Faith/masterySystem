@@ -2,10 +2,9 @@
  * Option Collection and Parsing for Radial Menu
  */
 
-import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
+import type { CombatSlot } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
-import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -52,8 +51,6 @@ import {
   buildConsumableRadialOptions,
   isConsumableCombatOption,
 } from '../utils/consumable-slots.js';
-import { getActiveAmmoPair, quiverAmmunitionLabel } from '../utils/ammunition.js';
-
 function meleeReachBonusMeters(actor: any): number {
   return getStoneAreaBonusMeters(actor, 'reach') + (readGrowthFormRider(actor)?.reachBonusM ?? 0);
 }
@@ -64,7 +61,7 @@ function withCircularAoeBonus(actor: any, radiusM: number | undefined): number |
   return radiusM + getEffectiveCircularAoeRadiusBonusMeters(actor);
 }
 
-/** Attack-slot maneuvers the radial shows (Basic Attack is injected separately). */
+/** Attack-slot maneuvers the radial shows. */
 export const RADIAL_ATTACK_MANEUVER_IDS: readonly string[] = [
   'parry-stance',
   'reload',
@@ -610,7 +607,7 @@ export function textSuggestsActiveBuff(name: string, description?: string): bool
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
 function legacySegmentIdForOption(option: RadialCombatOption): InnerSegment['id'] {
-  // Maneuvers: Parry, Basic Attack, and the Grapple family live in the blue
+  // Maneuvers: Parry and the Grapple family live in the blue
   // MAN. segment even though their slot is 'attack'. The Atk ring stays for
   // powers. They still spend an Attack Action.
   if (option.source === 'maneuver') {
@@ -832,6 +829,8 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     if ((item.system as any)?.showInRadialMenu === false) {
       continue;
     }
+    if ((item as any).flags?.['mastery-system']?.v0996Retired === true) continue;
+    if ((item as any).flags?.['mastery-system']?.legacyCleanupRetired === true) continue;
 
     const powerType = (item.system as any)?.powerType;
     if (!powerType) continue;
@@ -1210,8 +1209,8 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
     
-    // For attack slot: Parry Stance, Reload, Drop Load and the Grapple family
-    // (Weapon Attack is injected separately). Grapple-state gating happens in
+    // For attack slot: Parry Stance, Reload, Drop Load and the Grapple family.
+    // Grapple-state gating happens in
     // `getAvailableManeuvers` (requirements).
     if (maneuver.slot === 'attack') {
       if (!RADIAL_ATTACK_MANEUVER_IDS.includes(maneuver.id)) {
@@ -1287,43 +1286,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     allManeuvers.push(maneuverOption);
   }
 
-  // Add "Weapon Attack" if not present
-  const hasWeaponAttack = allManeuvers.some(opt => 
-    opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack')
-  );
-  const skipWeaponForNpc = actor.type === 'npc' && npcAttackOptions.length > 0;
+  // Actives v0.9.9.6: there is no automatic Basic Attack — damage attacks come
+  // from learned or granted Attack Powers (or NPC attack rows).
 
-  if (
-    !hasWeaponAttack &&
-    !skipWeaponForNpc &&
-    !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')
-  ) {
-    const profile = describeActiveWeaponProfile(actor);
-    const ammoPair = getActiveAmmoPair(actor);
-    const ammoNote = ammoPair ? ` ${quiverAmmunitionLabel(ammoPair.quiver)}` : '';
-    allManeuvers.push({
-      id: 'weapon-attack',
-      name: 'Basic Attack',
-      description: `${profile.summary}${ammoNote}`,
-      slot: 'attack',
-      source: 'maneuver',
-      range: profile.rangeM,
-      maneuver: {
-        id: 'weapon-attack',
-        name: 'Basic Attack',
-        description: profile.summary,
-        slot: 'attack',
-        category: 'combat-action',
-        tags: ['attack', 'weapon', 'basic', ...(profile.attackType === 'ranged' ? ['ranged'] : [])],
-        effect: profile.unarmed
-          ? 'Improvised strike with empty hands: 1d8 + MR × 2d8. No weapon Specials. Swap Weapon Set to put a weapon back in your hands.'
-          : `Basic Attack with the active Weapon Set (${profile.name}): weapon damage + MR × 2d8.`,
-      } as CombatManeuver,
-      tags: ['attack', 'weapon', 'basic', ...(profile.attackType === 'ranged' ? ['ranged'] : [])],
-      costsAction: true
-    });
-  }
-  
   // --- BUILD MOVEMENT SEGMENT WITH PROPER ORDERING ---
   const movementOptions: RadialCombatOption[] = [];
 

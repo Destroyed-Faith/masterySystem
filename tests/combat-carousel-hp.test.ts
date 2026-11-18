@@ -23,10 +23,11 @@ describe('hideCarouselHpNumbers / NPC bars', () => {
     expect(hideCarouselNpcHpBars('npc', true)).toBe(false);
   });
 
-  it('shows the side Health rail only for the GM on player characters', () => {
+  it('shows the side Health rail for the GM on PCs and NPCs, never for players', () => {
     expect(showCarouselSideHp('character', true)).toBe(true);
+    expect(showCarouselSideHp('npc', true)).toBe(true);
     expect(showCarouselSideHp('character', false)).toBe(false);
-    expect(showCarouselSideHp('npc', true)).toBe(false);
+    expect(showCarouselSideHp('npc', false)).toBe(false);
     expect(showCarouselSideHp('summon', true)).toBe(false);
   });
 });

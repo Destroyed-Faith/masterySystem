@@ -1,3 +1,4 @@
+<!-- Editorial reorder 2026-11-18 of v0.9.9.6 audit working copy: 88 reconstructed tooltips retained; discontinued psychic offensive table removed by editorial decision; unchanged remaining table values. Not a recalibrated release. Persistent Zones require balance decisions. Adopted 2026-11-18: repeatable Attack Powers, no automatic Basic Attack, Ruin immediate damage (Balance Review open). -->
 {{wide
 ---
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -13,9 +14,6 @@
 
 ![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/LogosBanners/Destroyed%20Faith%20Banner%20Beige.png)  {position:absolute,top:0px,right:55px,width:700px}
 
-
-
-<!-- PLAYTEST REVISION 2026-11-04: Damage AoEs add matching Weapon or Spell Focus Damage once per shared roll. All Instant Special-only Attacks (Single Target and AoE) deal zero direct Attack Damage. Limited is a separately purchased Instant Damage Attack Power, x4 its own printed Power Damage Dice, using one global Limited charge per character per Safe Haven Rest. Special-only Powers cannot be Limited. See Core. -->
 \page
 
 {{pageNumber,auto}}
@@ -60,979 +58,35 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Actives
-Version: v0.9.9.5 (2026-11-04)  
+Version: v0.9.9.6 (2026-11-08)  
 
 }}
 
 }}
+
 \page
 {{pageNumber,auto}}
 {{toc,wide
 # Summary
 
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
-- #### [{{ Active Delivery and Technical Identity}}{{ 4}}](#p4)
-- #### [{{ Persistent Diminishing Zones}}{{ 4}}](#p4)
-- #### [{{ Pure Forced-Movement Actives}}{{ 10}}](#p10)
-- #### [{{ Support Actives: Healing, Cleanse & Restoration}}{{ 12}}](#p12)
-- #### [{{ Healing Actives}}{{ 14}}](#p14)
-- #### [{{ Restoration Actives}}{{ 18}}](#p18)
-- #### [{{ Cleanse Actives}}{{ 20}}](#p20)
-- #### [{{ Active Constructs and Terrain}}{{ 24}}](#p24)
-- #### [{{ Barrier Actives}}{{ 31}}](#p31)
-- #### [{{ Illusion Fields and Power Images}}{{ 32}}](#p32)
-- #### [{{ Core Attack Power Templates}}{{ 36}}](#p36)
-- #### [{{ Mental Powers}}{{ 51}}](#p51)
-- #### [{ Pure Instant Special Powers}{ 60 }](#p60)
-- #### [{{ Damage Transfer Actives}}{{ 118 }}](#p118)
-- #### [{{ Limited Damage Powers — Playtest}}{{ Appendix }}](#limited-damage-powers)
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-### Active Delivery and Technical Identity
-
-**Approved Power Point exceptions (16 October 2026):** Melee AoE Heal and Ranged AoE Heal at PL 1 each cost **40 PP against the 30 PP target** (+10 PP). Approved Persistent Zone: Expose and Ranged Barrier exceptions likewise retain their printed Power Points. These are intentional approved values.
-
-
-Every catalogue entry uses a canonical Technical Power Name. Slash-separated
-Special alternatives require the player to **choose one** when learning the Power.
-That choice becomes part of the Power's technical identity and does not change later.
-
-An otherwise legal **Ranged Active** can use either Martial or Spell delivery
-under the Core Rules. This choice does **not** create a second selectable Power
-or circumvent the named Power use limit. Self and Melee entries remain Martial
-unless an exact rule allows another delivery.
-
-Ranged entries use their Martial baseline. For Spell delivery:
-
-1. A printed Ranged/Thrown Weapon requirement is Martial-only. The Spell version
-   uses normal Spell delivery and does not require the weapon.
-2. Attack Pool / Attack Roll becomes **Casting Pool / Casting Roll**.
-3. Evade becomes **Final Spell TN** for directly affected creatures.
-4. Weapon Damage does not carry into Spell delivery. An eligible **Damage AoE** instead adds matching **Spell Focus Damage** to its shared Damage Pool; its purchased Power Damage is unchanged.
-5. A hostile single-target **Damage Attack** or Autofire Spell hit adds matching Spell Focus Damage, and an eligible **Damage AoE** adds matching Spell Focus Damage once to its common Damage Roll. **Special-only Attacks (Single Target or AoE) and pure forced-movement attacks do not add Weapon Damage, Spell Focus Damage, or any other direct Attack Damage; they make no Damage Roll.** Support, placement, persistent zones and other non-attacking effects likewise gain no delivery damage.
-6. Defenses requiring a Martial Attack or explicitly altering Evade do not
-   automatically apply to the Spell version. Dive for Cover remains available
-   against legal Spell AoEs with a shared Casting Roll.
-7. A Spell normally makes a Casting Roll. **Exception:** a Persistent Special Zone makes **no Casting Roll**, no Spell Base TN check, and no Spell Resistance check on occupancy; it delivers its Special automatically. Other Spell Powers retain their normal Casting and resistance rules.
-
-The Core's rules for Special-less Spell Powers apply unchanged.
-
----
-:
-## Ranged Persistent Special Zones
-
-### Distinction: Instant AoE, Persistent Zone, Special Aura
-
-- **Instant AoE Attack (Active):** one Attack/Casting Roll against the valid targets. The attacker may exclude any creature in the area; allies are excluded automatically. AoE is an instant delivery, not an ongoing field.
-- **Persistent Special Zone (Active):** **always Ranged placement** at a fixed point within Range; no Melee Zone exists. It has no friend/foe filtering or caster immunity. It must be sustained through Attack Actions and applies only its printed Special. It does not make an Attack, Casting, or Damage Roll.
-- **Special Aura (Active Buff):** a Self-range, caster-centered melee-radius area that moves with the caster. **Only the Aura caster is exempt**; allies and all other creatures are not. It uses general Active Buff limits, duration and activation rules; see Active Buff catalogue. It is not a Persistent Zone or a Melee Attack.
-
-### Persistent Zone Creation and Maintenance
-
-**Activation:** Every Persistent Zone has **Ranged placement** and **no Melee delivery variant**. Spend **1 Attack Action** on your Turn to place the Zone at a fixed point within the listed Range. It applies its printed Special **immediately** to every creature already inside. Its origin remains fixed; it does not follow its creator. The Zone has **no fixed Round duration**.
-
-**Maintenance:** At the **start of each subsequent Turn of its creator**, spend **1 available Attack Action per Zone** to keep that Zone active until the creator's next Turn. If the Action cannot be paid or the creator declines, that Zone ends immediately. Maintenance is not a new cast, Attack, activation, or Special application. If the creator is unable to act or a legal effect prevents paying the required Action, the Zone ends. An active Zone may also be dismissed willingly.
-
-**Overlapping Zones:** **There is no global or per-character one-Zone limit.** A character can maintain multiple Zones only if they have enough available Attack Actions to pay for every one of them on every subsequent Turn. Each Zone remains a distinct source with separate coverage and Special application. Overlapping Zones all apply; different Zone sources may stack under the respective Special's own Stacking rules. The normal once-per-Round named Power rule still applies to the creation of new Powers; spending an Action to maintain an existing Zone is not a new Power use.
-
-### Targets, Timing, and Special Application
-
-**Zone targets:** A Persistent Zone affects **every creature** occupying its area, including its creator, allies, enemies, neutral creatures, and Summons. **No exceptions or target selection.**
-
-**Aura targets:** A Special Aura is centered on its caster, who is **the only creature exempt from that Aura**. Every other creature in the Aura, including allies, neutrals, enemies, and Summons, is affected. The Aura exemption never makes its caster immune to a Persistent Zone. Effects are based on actual occupancy, not hostility.
-
-**Automatic application, no dice:** Zones and Special Auras have **no Attack Roll, Casting Roll, or Damage Roll**. Placement does not require a Spell Base TN. Entry does not require an Evade or Spell Resistance check; the printed Special is applied automatically. Normal explicit **Special Negation, Cleanse, Recovery, Decay, and effect-specific defenses** still work. No Damage or Special Raises are available because no Attack/Casting Roll is made. A Zone never adds Weapon Damage, Spell Focus Damage, Power Damage, or external Attack Damage Dice. Damage later caused by Ruin or another applied Special follows that Special's rules.
-
-**When a creature is affected:**
-- immediately when the Zone is created around it;
-- immediately the first time it enters that Zone during a Round;
-- or at the start of its Turn, if it remains in the Zone and has not already received that Zone's application during the current Round.
-
-**Once per Zone/creature per Round:** Each distinct Zone may apply its Special to each creature **at most once per combat Round**. Leaving and re-entering the same Zone during that Round never retriggers it. Different overlapping Zones independently apply their payload once each. An Aura follows the same **once per Aura/creature per Round** timing. After the end of the Round, a creature that remains inside can receive another application during the next Round. At a creature's Turn start, resolve Ticks of pre-existing Specials, Natural Special Recovery, Diminishing Decay and other start-of-turn recovery **before** applying the new Zone or Aura Special. Newly applied Ruin does not receive a retroactive Tick.
-
-**Stacking:** Diminishing Specials from distinct or repeated legal applications stack according to their own rules. Timed Specials (such as Blight) refresh or use the higher duration rather than adding durations. The removed **4 x target MR per-Round Special Application Limit** does not return.
-
-### Power-Point Calibration (Playtest Transition)
-
-The following Zone Level tables retain their **previously printed Range, Radius, and Special values** as a conservative interim baseline. The old **4-Round duration and x2 duration multiplier are removed mechanically**. Because maintenance now costs one Attack Action each subsequent Turn, the old PP calculations and explanatory tooltips no longer determine the appropriate long-term budget. **Numerical repricing remains pending**; do not use the retired x2 formula when creating new Zones. Existing Level tables do not gain free Special increases automatically.
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Ranged Persistent Special Zone: Blight
-
----
-:
-<h3 id="ranged-persistent-zone-blight">Ranged Persistent Special Zone: Blight</h3>
-
-A ranged persistent pestilence cloud that remains on the battlefield while maintained. Affected creatures receive timed Blight (Disadvantage on all Attribute-based dice pools); X is the number of their Turns it lasts after application. The cloud can refresh Blight, but repeated applications do not add durations.
-
----
-:
-**Requirement:** None
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(2)**. |
-| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(3)**. |
-| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(4)**. |
-| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(4)**. |
-| **7** | Active | 32 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
-| **8** | Active | 36 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
-| **9** | Active | 40 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
-| **10** | Active | 44 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
-| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(6)**. |
-| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(6)**. |
-| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(7)**. |
-| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(7)**. |
-| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(8)**. |
-| **16** | Active | 68 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(8)**. |
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-## Ranged Persistent Special Zone: Lacerate / Mark / Ruin / Slow
-
----
-:
-<h3 id="ranged-persistent-zone-standard-diminishing-special">Ranged Persistent Special Zone: Lacerate / Mark / Ruin / Slow</h3>
-
-A ranged persistent area that applies a standard Diminishing Special while maintained.  
-This template covers Lacerate, Mark, Ruin, and Slow.
-
----
-:
-**Requirement:** None
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
-| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
-| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **7** | Active | 32 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **8** | Active | 36 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
-| **9** | Active | 40 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **10** | Active | 44 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
-| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
-| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-| **16** | Active | 68 m | Radius 4 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-## Ranged Persistent Special Zone: Challenge / Corrode / Hex / Sundered
-
----
-:
-<h3 id="ranged-persistent-zone-heavy-diminishing-special">Ranged Persistent Special Zone: Challenge / Corrode / Hex / Sundered</h3>
-
-A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered while maintained.
-
----
-:
-**Requirement:** None
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **7** | Active | 32 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **8** | Active | 36 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **9** | Active | 40 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **10** | Active | 44 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **16** | Active | 68 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Ranged Persistent Special Zone: Disoriented / Expose / Soulburn / Weaken
-
-<h3 id="ranged-persistent-zone-pool-reduction-special">Ranged Persistent Special Zone: Disoriented / Expose / Soulburn / Weaken</h3>
-
-A persistent battlefield zone that weakens perception, defense, physical performance, or spiritual performance.
-
-**Historical pricing note (superseded):** The earlier fixed-four-Round Zone model had approved Expose exceptions of +8 PP at PL3 and +6 PP at PL5. These prior exceptions and the old duration multiplier no longer govern the new Attack-Action-maintained Zone. The printed Zone Special, Radius and Range values are retained conservatively until the new PP audit.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
-| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
-| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
-| **7** | Active | 32 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
-| **8** | Active | 36 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
-| **9** | Active | 40 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
-| **10** | Active | 44 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
-| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
-| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
-| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
-| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
-| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
-| **16** | Active | 68 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-## Pure Forced-Movement Actives
-
-These Powers purchase **one control effect only**: Push or Pull. They grant no purchased Power Damage Dice and do not deal direct Attack Damage. **Neither Weapon Damage nor Spell Focus Damage is added**, and no Attack Damage bonus or Damage Raise may create a Damage Roll. A successful Attack/Casting delivery applies only the printed forced movement; no other Special or control rider is purchased.
-
-**Pricing:** Push and Pull cost **30 PP per 2 m**. Ranged delivery also pays for
-Range under the ordinary Active pricing rule. Choose Push **or** Pull when the
-Power is learned; do not gain both effects from one activation.
-
-**Resolution:** Melee and ranged Martial versions use their corresponding Attack Roll.
-Ranged Spell versions use the Casting Roll against the target's Final Spell TN.
-On a failure, the target is not moved. On success, apply the listed distance.
-
-**Scope:** These are pure Control Powers. Prone, Disarm, Stunned and mixtures
-of several control effects are not separately selectable through this beta catalogue.
-
----
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-<h3 id="melee-push-pull">
-  Melee Push / Pull
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Melee Range = Melee Reach<br>
-      No Range cost<br>
-      Forced Movement cost = 30 PP per 2 m<br>
-      No Power Damage is purchased; no Weapon Damage, Spell Focus Damage, or direct Attack Damage applies.<br><br>
-      FORCED MOVEMENT COSTS<br>
-      Push/Pull 2 m = 30 PP<br>
-      Push/Pull 4 m = 60 PP<br>
-      Push/Pull 6 m = 90 PP<br>
-      Push/Pull 8 m = 120 PP<br>
-      Push/Pull 10 m = 150 PP<br>
-      Push/Pull 12 m = 180 PP<br>
-      Push/Pull 14 m = 210 PP<br>
-      Push/Pull 16 m = 240 PP<br>
-      Push/Pull 18 m = 270 PP<br>
-      Push/Pull 20 m = 300 PP<br>
-      Push/Pull 22 m = 330 PP<br>
-      Push/Pull 24 m = 360 PP<br>
-      Push/Pull 26 m = 390 PP<br>
-      Push/Pull 28 m = 420 PP<br>
-      Push/Pull 30 m = 450 PP<br>
-      Push/Pull 32 m = 480 PP<br><br>
-      SCALING RULE<br>
-      This is a Control-first Martial Active.<br>
-      Push/Pull distance is the primary scaling axis.<br>
-      Purchased Power Damage is omitted to keep the clean distance curve; matching delivery damage is free baseline.<br>
-      Push/Pull distance may stay the same or increase, but it may never decrease.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: Push/Pull 2 m (30) + Damage — (0) = 30 PP<br>
-      L2 → Target 60 PP: Push/Pull 4 m (60) + Damage — (0) = 60 PP<br>
-      L3 → Target 90 PP: Push/Pull 6 m (90) + Damage — (0) = 90 PP<br>
-      L4 → Target 120 PP: Push/Pull 8 m (120) + Damage — (0) = 120 PP<br>
-      L5 → Target 150 PP: Push/Pull 10 m (150) + Damage — (0) = 150 PP<br>
-      L6 → Target 180 PP: Push/Pull 12 m (180) + Damage — (0) = 180 PP<br>
-      L7 → Target 210 PP: Push/Pull 14 m (210) + Damage — (0) = 210 PP<br>
-      L8 → Target 240 PP: Push/Pull 16 m (240) + Damage — (0) = 240 PP<br>
-      L9 → Target 270 PP: Push/Pull 18 m (270) + Damage — (0) = 270 PP<br>
-      L10 → Target 300 PP: Push/Pull 20 m (300) + Damage — (0) = 300 PP<br>
-      L11 → Target 330 PP: Push/Pull 22 m (330) + Damage — (0) = 330 PP<br>
-      L12 → Target 360 PP: Push/Pull 24 m (360) + Damage — (0) = 360 PP<br>
-      L13 → Target 390 PP: Push/Pull 26 m (390) + Damage — (0) = 390 PP<br>
-      L14 → Target 420 PP: Push/Pull 28 m (420) + Damage — (0) = 420 PP<br>
-      L15 → Target 450 PP: Push/Pull 30 m (450) + Damage — (0) = 450 PP<br>
-      L16 → Target 480 PP: Push/Pull 32 m (480) + Damage — (0) = 480 PP<br><br>
-      NOTES<br>
-      Push and Pull use the same cost structure.<br>
-      The Power buys no direct damage; neither Weapon Damage nor Spell Focus Damage is added.<br>
-      Its purchased effect is forced movement.
-    </span>
-  </span>
-</h3>
-
-A close-range martial control technique that forces the target away from you or draws it toward you.
-
----
-:
-**Requirement:** Melee Weapon or Unarmed
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | No direct damage. | **Push 2 m / Pull 2 m** |
-| **2** | Active | Melee Reach | — | Instant | No direct damage. | **Push 4 m / Pull 4 m** |
-| **3** | Active | Melee Reach | — | Instant | No direct damage. | **Push 6 m / Pull 6 m** |
-| **4** | Active | Melee Reach | — | Instant | No direct damage. | **Push 8 m / Pull 8 m** |
-| **5** | Active | Melee Reach | — | Instant | No direct damage. | **Push 10 m / Pull 10 m** |
-| **6** | Active | Melee Reach | — | Instant | No direct damage. | **Push 12 m / Pull 12 m** |
-| **7** | Active | Melee Reach | — | Instant | No direct damage. | **Push 14 m / Pull 14 m** |
-| **8** | Active | Melee Reach | — | Instant | No direct damage. | **Push 16 m / Pull 16 m** |
-| **9** | Active | Melee Reach | — | Instant | No direct damage. | **Push 18 m / Pull 18 m** |
-| **10** | Active | Melee Reach | — | Instant | No direct damage. | **Push 20 m / Pull 20 m** |
-| **11** | Active | Melee Reach | — | Instant | No direct damage. | **Push 22 m / Pull 22 m** |
-| **12** | Active | Melee Reach | — | Instant | No direct damage. | **Push 24 m / Pull 24 m** |
-| **13** | Active | Melee Reach | — | Instant | No direct damage. | **Push 26 m / Pull 26 m** |
-| **14** | Active | Melee Reach | — | Instant | No direct damage. | **Push 28 m / Pull 28 m** |
-| **15** | Active | Melee Reach | — | Instant | No direct damage. | **Push 30 m / Pull 30 m** |
-| **16** | Active | Melee Reach | — | Instant | No direct damage. | **Push 32 m / Pull 32 m** |
-
----
-:
-<h3 id="ranged-push-pull">
-  Ranged Push / Pull
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged Power uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Forced Movement cost = 30 PP per 2 m<br>
-      No Power Damage is purchased; Range and forced movement use the PP budget.<br><br>
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-      FORCED MOVEMENT COSTS<br>
-      Push/Pull 2 m = 30 PP<br>
-      Push/Pull 4 m = 60 PP<br>
-      Push/Pull 6 m = 90 PP<br>
-      Push/Pull 8 m = 120 PP<br>
-      Push/Pull 10 m = 150 PP<br>
-      Push/Pull 12 m = 180 PP<br>
-      Push/Pull 14 m = 210 PP<br>
-      Push/Pull 16 m = 240 PP<br>
-      Push/Pull 18 m = 270 PP<br>
-      Push/Pull 20 m = 300 PP<br>
-      Push/Pull 22 m = 330 PP<br>
-      Push/Pull 24 m = 360 PP<br>
-      Push/Pull 26 m = 390 PP<br><br>
-      SCALING RULE<br>
-      This is a Control-first Ranged Active shown with Martial delivery.<br>
-      Range is paid as a fixed cost each level.<br>
-      Push/Pull distance is the primary scaling axis after Range.<br>
-      Purchased Power Damage is omitted because it would make the forced movement progression uneven.<br>
-      Push/Pull distance may stay the same or increase, but it may never decrease.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Push/Pull 2 m (30) + Damage — (0) = 30 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Push/Pull 2 m (30) + Damage — (0) = 35 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Push/Pull 4 m (60) + Damage — (0) = 70 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Push/Pull 6 m (90) + Damage — (0) = 105 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Push/Pull 8 m (120) + Damage — (0) = 140 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Push/Pull 10 m (150) + Damage — (0) = 175 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Push/Pull 12 m (180) + Damage — (0) = 210 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Push/Pull 12 m (180) + Damage — (0) = 215 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Push/Pull 14 m (210) + Damage — (0) = 250 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Push/Pull 16 m (240) + Damage — (0) = 285 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Push/Pull 18 m (270) + Damage — (0) = 320 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Push/Pull 20 m (300) + Damage — (0) = 355 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Push/Pull 22 m (330) + Damage — (0) = 390 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Push/Pull 22 m (330) + Damage — (0) = 395 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Push/Pull 24 m (360) + Damage — (0) = 430 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Push/Pull 26 m (390) + Damage — (0) = 465 PP<br><br>
-      NOTES<br>
-      Push and Pull use the same cost structure.<br>
-      The Ranged version trails behind Melee because it pays Range every level.<br>
-      Purchased Damage is omitted; the pure forced-movement template also adds no Weapon Damage or Spell Focus Damage.
-    </span>
-  </span>
-</h3>
-
-A ranged martial control technique that forces the target away from the impact point or draws it toward the source.
-
----
-:
-**Martial Requirement:** Ranged Weapon or Thrown Weapon  
-**Spell Delivery:** The Martial weapon requirement is replaced by the normal Spell delivery rules.
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | No direct damage. | **Push 2 m / Pull 2 m** |
-| **2** | Active | 12 m | — | Instant | No direct damage. | **Push 2 m / Pull 2 m** |
-| **3** | Active | 16 m | — | Instant | No direct damage. | **Push 4 m / Pull 4 m** |
-| **4** | Active | 20 m | — | Instant | No direct damage. | **Push 6 m / Pull 6 m** |
-| **5** | Active | 24 m | — | Instant | No direct damage. | **Push 8 m / Pull 8 m** |
-| **6** | Active | 28 m | — | Instant | No direct damage. | **Push 10 m / Pull 10 m** |
-| **7** | Active | 32 m | — | Instant | No direct damage. | **Push 12 m / Pull 12 m** |
-| **8** | Active | 36 m | — | Instant | No direct damage. | **Push 12 m / Pull 12 m** |
-| **9** | Active | 40 m | — | Instant | No direct damage. | **Push 14 m / Pull 14 m** |
-| **10** | Active | 44 m | — | Instant | No direct damage. | **Push 16 m / Pull 16 m** |
-| **11** | Active | 48 m | — | Instant | No direct damage. | **Push 18 m / Pull 18 m** |
-| **12** | Active | 52 m | — | Instant | No direct damage. | **Push 20 m / Pull 20 m** |
-| **13** | Active | 56 m | — | Instant | No direct damage. | **Push 22 m / Pull 22 m** |
-| **14** | Active | 60 m | — | Instant | No direct damage. | **Push 22 m / Pull 22 m** |
-| **15** | Active | 64 m | — | Instant | No direct damage. | **Push 24 m / Pull 24 m** |
-| **16** | Active | 68 m | — | Instant | No direct damage. | **Push 26 m / Pull 26 m** |
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Support Actives: Healing, Cleanse & Restoration
-
-> **Design Rule:** These Powers are **Support Actives**.  
-> They restore HP, remove eligible negative creature Specials, or reopen Scarred Health Bars through Restoration.
-
-Support Actives are not attack Powers unless they explicitly include a damaging attack.
-
-A Support Active normally affects willing creatures, allied creatures, or ongoing creature effects.
-
-A Support Active with Martial delivery normally uses the printed Support resolution below. If it is used on an unwilling creature or a contested target, the GM may require an appropriate Attack Roll or contest.
-
-A **Ranged Support Active with Spell delivery always makes a Casting Roll** under the Core Spell rules. A willing creature may voluntarily suppress its Spell Resistance for that Spell as described in the Core Rules; an unwilling creature uses its normal Final Spell TN.
-
----
-
-### Support Resolution
-
-When using a Support Active, choose a valid target within the Power's listed Range.
-
-If the Power is single-target, it affects one valid creature.
-
-If the Power is AoE, it affects all valid creatures in the listed area.
-
-Support Powers do not use the target's Evade unless the Power is also an attack or the GM rules that the target actively resists the effect.
-
-
-For Spell delivery, **Evade is never substituted for the Casting check**. The Spell must reach Spell Base TN, and any creature that does not voluntarily suppress Spell Resistance is checked against its Final Spell TN.
-
----
-
-### Support Cost Reference
-
-| **Support Effect** | **Cost** | **Scaling Axis** |
-|---|:--:|---|
-| **Healing** | **20 PP per +1d8 Healing** | Healing dice |
-| **Health Level Recovery** | **40 PP per restored Health Level per Safe Haven Rest** | Dedicated Restoration Power; resets at Safe Haven Rest |
-| **Cleanse(X)** | **4 × T(X) PP** | Total negative Special value removed |
-| **Damage** | **15 PP per +1d8 Damage** | Damage dice |
-
----
-
-### Healing
-
-Healing restores current HP inside the currently active Health Bar.
-
-A Heal Active rolls the listed Healing dice and restores that much HP to the target.
-
-Healing cannot restore lost Health Bars unless a Power explicitly belongs to a separate Health Bar Recovery subsystem.
-
-**Healing, Cleanse and Restoration are three separate Powers.** Healing uses **20 PP per 1d8** and restores only ordinary HP. Cleanse removes eligible negative Specials. Restoration reopens Scarred Health Bars but does not restore HP; each recovered Health Bar costs **40 PP** from the Restoration Power's shared Safe Haven Rest pool. The pool refreshes once per **Safe Haven Rest**. The first selectable Restoration Power is Power Level 2. None of these Powers combines these functions.
-
-Healing cannot raise a creature above its maximum HP unless a Power explicitly says otherwise.
-
----
-
-### Cleanse
-
-Cleanse removes negative Special value from a creature.
-
-When you use **Cleanse(X)**, remove up to **X total points** from one or more eligible negative Specials affecting the target. You choose how to distribute the reduction between those Specials.
-
-If a Special is reduced to **0**, it ends. If the target has less than **X total eligible negative Special value**, any unused Cleanse points are lost.
-
-Cleanse provides no additional Damage, Armor, Evade, Speed, Healing, Restoration, Temporary HP, or Absorption Stone effect.
-
-Examples:
-
-- **Cleanse(3)** reduces **Ruin(5)** to **Ruin(2)**.
-- **Cleanse(6)** may end **Hex(4)** and reduce **Slow(3)** to **Slow(1)**.
-- **Cleanse(6)** may remove **Ruin(3)** and **Slow(3)** completely.
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-Cleanse can reduce eligible creature effects such as:
-
-- **Blight(X)**
-- **Challenge(X)**
-- **Corrode(X)**
-- **Disoriented(X)**
-- **Expose(X)**
-- **Hex(X)**
-- **Lacerate(X)**
-- **Mark(X)**
-- **Root(X)**
-- **Ruin(X)**
-- **Slow(X)**
-- **Soulburn(X)**
-- **Sundered(X)**
-- **Weaken(X)**
-
-Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.
-
-Those require Dispel or a dedicated rule.
-
----
-
-### Cleanse and Restoration Are Separate
-
-A **Cleanse** Power removes eligible negative Specials and grants no Damage,
-Speed, Armor, Evade, Healing or Restoration rider.
-**Healing** restores HP only. **Restoration** reopens Scarred Health Bars only.
-To provide more than one of these functions, a character must learn the
-corresponding Powers separately.
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-## Healing Actives
-
----
-:
-<h3 id="melee-single-target-heal">
-  Melee Single Target Heal
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Target budget = 30 PP x Power Level<br>
-      Duration = Instant<br>
-      Range = Touch / Melee Reach<br>
-      Healing = 20 PP per 1d8 of HP Healing<br>
-      Pure HP Healing: this Power does NOT restore Scarred Health Bars / Health Levels<br>
-      For Scarred Health Bars, learn a separate Restoration Power<br>
-      Purchase only the printed Range and AoE coverage, then whole Healing Dice<br>
-      Minimum-function exceptions in exact pure-AoE Healing rows remain as printed<br>
-      CALCULATION<br>
-      L1: Healing 1d8 x 20 = 20 PP = 20 / 30 PP; 10 PP unused.<br>
-      L2: Healing 3d8 x 20 = 60 PP = 60 / 60 PP; 0 PP unused.<br>
-      L3: Healing 4d8 x 20 = 80 PP = 80 / 90 PP; 10 PP unused.<br>
-      L4: Healing 6d8 x 20 = 120 PP = 120 / 120 PP; 0 PP unused.<br>
-      L5: Healing 7d8 x 20 = 140 PP = 140 / 150 PP; 10 PP unused.<br>
-      L6: Healing 9d8 x 20 = 180 PP = 180 / 180 PP; 0 PP unused.<br>
-      L7: Healing 10d8 x 20 = 200 PP = 200 / 210 PP; 10 PP unused.<br>
-      L8: Healing 12d8 x 20 = 240 PP = 240 / 240 PP; 0 PP unused.<br>
-      L9: Healing 13d8 x 20 = 260 PP = 260 / 270 PP; 10 PP unused.<br>
-      L10: Healing 15d8 x 20 = 300 PP = 300 / 300 PP; 0 PP unused.<br>
-      L11: Healing 16d8 x 20 = 320 PP = 320 / 330 PP; 10 PP unused.<br>
-      L12: Healing 18d8 x 20 = 360 PP = 360 / 360 PP; 0 PP unused.<br>
-      L13: Healing 19d8 x 20 = 380 PP = 380 / 390 PP; 10 PP unused.<br>
-      L14: Healing 21d8 x 20 = 420 PP = 420 / 420 PP; 0 PP unused.<br>
-      L15: Healing 22d8 x 20 = 440 PP = 440 / 450 PP; 10 PP unused.<br>
-      L16: Healing 24d8 x 20 = 480 PP = 480 / 480 PP; 0 PP unused.<br>
-      NOTES<br>
-      No Health Level Recovery pool, no extra recovery axis; all Healing Dice are non-exploding d8
-    </span>
-  </span>
-</h3>
-
-A close-range Active that restores only HP to one creature. It does not restore Scarred Health Bars; Restoration is a separate Power.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **1d8 HP**. |
-| **2** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **3d8 HP**. |
-| **3** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **4d8 HP**. |
-| **4** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **6d8 HP**. |
-| **5** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **7d8 HP**. |
-| **6** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **9d8 HP**. |
-| **7** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **10d8 HP**. |
-| **8** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **12d8 HP**. |
-| **9** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **13d8 HP**. |
-| **10** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **15d8 HP**. |
-| **11** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **16d8 HP**. |
-| **12** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **18d8 HP**. |
-| **13** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **19d8 HP**. |
-| **14** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **21d8 HP**. |
-| **15** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **22d8 HP**. |
-| **16** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **24d8 HP**. |
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-<h3 id="ranged-single-target-heal">
-  Ranged Single Target Heal
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Target budget = 30 PP x Power Level<br>
-      Duration = Instant<br>
-      Range = 8 m at PL 1, +4 m per Level; Range cost = 5 PP per +4 m beyond 8 m<br>
-      Healing = 20 PP per 1d8 of HP Healing<br>
-      Pure HP Healing: this Power does NOT restore Scarred Health Bars / Health Levels<br>
-      For Scarred Health Bars, learn a separate Restoration Power<br>
-      Purchase only the printed Range and AoE coverage, then whole Healing Dice<br>
-      Minimum-function exceptions in exact pure-AoE Healing rows remain as printed<br>
-      CALCULATION<br>
-      L1: Healing 1d8 x 20 = 20 PP + Range 0 PP = 20 / 30 PP; 10 PP unused.<br>
-      L2: Healing 2d8 x 20 = 40 PP + Range 5 PP = 45 / 60 PP; 15 PP unused.<br>
-      L3: Healing 4d8 x 20 = 80 PP + Range 10 PP = 90 / 90 PP; 0 PP unused.<br>
-      L4: Healing 5d8 x 20 = 100 PP + Range 15 PP = 115 / 120 PP; 5 PP unused.<br>
-
-L5: Healing 6d8 x 20 = 120 PP + Range 20 PP = 140 / 150 PP; 10 PP unused.<br>
-      L6: Healing 7d8 x 20 = 140 PP + Range 25 PP = 165 / 180 PP; 15 PP unused.<br>
-      L7: Healing 9d8 x 20 = 180 PP + Range 30 PP = 210 / 210 PP; 0 PP unused.<br>
-      L8: Healing 10d8 x 20 = 200 PP + Range 35 PP = 235 / 240 PP; 5 PP unused.<br>
-      L9: Healing 11d8 x 20 = 220 PP + Range 40 PP = 260 / 270 PP; 10 PP unused.<br>
-      L10: Healing 12d8 x 20 = 240 PP + Range 45 PP = 285 / 300 PP; 15 PP unused.<br>
-      L11: Healing 14d8 x 20 = 280 PP + Range 50 PP = 330 / 330 PP; 0 PP unused.<br>
-      L12: Healing 15d8 x 20 = 300 PP + Range 55 PP = 355 / 360 PP; 5 PP unused.<br>
-      L13: Healing 16d8 x 20 = 320 PP + Range 60 PP = 380 / 390 PP; 10 PP unused.<br>
-      L14: Healing 17d8 x 20 = 340 PP + Range 65 PP = 405 / 420 PP; 15 PP unused.<br>
-      L15: Healing 19d8 x 20 = 380 PP + Range 70 PP = 450 / 450 PP; 0 PP unused.<br>
-      L16: Healing 20d8 x 20 = 400 PP + Range 75 PP = 475 / 480 PP; 5 PP unused.<br>
-      NOTES<br>
-      No Health Level Recovery pool, no extra recovery axis; all Healing Dice are non-exploding d8
-    </span>
-  </span>
-</h3>
-
-A ranged Active that restores only HP to one creature. It does not restore Scarred Health Bars; Restoration is a separate Power.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | None | Instant | Heal one creature for **1d8 HP**. |
-| **2** | Active, Support | 12 m | None | Instant | Heal one creature for **2d8 HP**. |
-| **3** | Active, Support | 16 m | None | Instant | Heal one creature for **4d8 HP**. |
-| **4** | Active, Support | 20 m | None | Instant | Heal one creature for **5d8 HP**. |
-| **5** | Active, Support | 24 m | None | Instant | Heal one creature for **6d8 HP**. |
-| **6** | Active, Support | 28 m | None | Instant | Heal one creature for **7d8 HP**. |
-| **7** | Active, Support | 32 m | None | Instant | Heal one creature for **9d8 HP**. |
-| **8** | Active, Support | 36 m | None | Instant | Heal one creature for **10d8 HP**. |
-| **9** | Active, Support | 40 m | None | Instant | Heal one creature for **11d8 HP**. |
-| **10** | Active, Support | 44 m | None | Instant | Heal one creature for **12d8 HP**. |
-| **11** | Active, Support | 48 m | None | Instant | Heal one creature for **14d8 HP**. |
-| **12** | Active, Support | 52 m | None | Instant | Heal one creature for **15d8 HP**. |
-| **13** | Active, Support | 56 m | None | Instant | Heal one creature for **16d8 HP**. |
-| **14** | Active, Support | 60 m | None | Instant | Heal one creature for **17d8 HP**. |
-| **15** | Active, Support | 64 m | None | Instant | Heal one creature for **19d8 HP**. |
-| **16** | Active, Support | 68 m | None | Instant | Heal one creature for **20d8 HP**. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="melee-aoe-heal">
-  Melee AoE Heal
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Target budget = 30 PP x Power Level<br>
-      Duration = Instant<br>
-      Range = Self (AoE)<br>
-      AoE radius costs: 2 m = 20 PP; 3 m = 50 PP; 4 m = 90 PP<br>
-      Radius progression retained from the earlier v0.9.9.2 candidate<br>
-      Healing = 20 PP per 1d8 of HP Healing<br>
-      Pure HP Healing: this Power does NOT restore Scarred Health Bars / Health Levels<br>
-      For Scarred Health Bars, learn a separate Restoration Power<br>
-      Healing dice are delivered to every eligible creature in the printed AoE<br>
-      Purchase only the printed Range and AoE coverage, then whole Healing Dice<br>
-      Minimum-function exceptions in exact pure-AoE Healing rows remain as printed<br>
-      CALCULATION<br>
-      L1: Healing 1d8 x 20 = 20 PP + Radius 2 m (20 PP) = 40 / 30 PP; budget exception +10 PP (minimum legal effect).<br>
-      L2: Healing 2d8 x 20 = 40 PP + Radius 2 m (20 PP) = 60 / 60 PP; 0 PP unused.<br>
-      L3: Healing 3d8 x 20 = 60 PP + Radius 2 m (20 PP) = 80 / 90 PP; 10 PP unused.<br>
-      L4: Healing 5d8 x 20 = 100 PP + Radius 2 m (20 PP) = 120 / 120 PP; 0 PP unused.<br>
-      L5: Healing 6d8 x 20 = 120 PP + Radius 2 m (20 PP) = 140 / 150 PP; 10 PP unused.<br>
-      L6: Healing 6d8 x 20 = 120 PP + Radius 3 m (50 PP) = 170 / 180 PP; 10 PP unused.<br>
-      L7: Healing 8d8 x 20 = 160 PP + Radius 3 m (50 PP) = 210 / 210 PP; 0 PP unused.<br>
-      L8: Healing 9d8 x 20 = 180 PP + Radius 3 m (50 PP) = 230 / 240 PP; 10 PP unused.<br>
-      L9: Healing 9d8 x 20 = 180 PP + Radius 4 m (90 PP) = 270 / 270 PP; 0 PP unused.<br>
-      L10: Healing 10d8 x 20 = 200 PP + Radius 4 m (90 PP) = 290 / 300 PP; 10 PP unused.<br>
-      L11: Healing 12d8 x 20 = 240 PP + Radius 4 m (90 PP) = 330 / 330 PP; 0 PP unused.<br>
-      L12: Healing 13d8 x 20 = 260 PP + Radius 4 m (90 PP) = 350 / 360 PP; 10 PP unused.<br>
-      L13: Healing 15d8 x 20 = 300 PP + Radius 4 m (90 PP) = 390 / 390 PP; 0 PP unused.<br>
-      L14: Healing 16d8 x 20 = 320 PP + Radius 4 m (90 PP) = 410 / 420 PP; 10 PP unused.<br>
-      L15: Healing 18d8 x 20 = 360 PP + Radius 4 m (90 PP) = 450 / 450 PP; 0 PP unused.<br>
-      L16: Healing 19d8 x 20 = 380 PP + Radius 4 m (90 PP) = 470 / 480 PP; 10 PP unused.<br>
-      NOTES<br>
-      No Health Level Recovery pool, no extra recovery axis; all Healing Dice are non-exploding d8
-    </span>
-  </span>
-</h3>
-
-A self-centered area Active that restores HP to all eligible affected creatures. It does not restore Scarred Health Bars.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Self | Radius 2 m | Instant | Heal affected creatures for **1d8 HP**. |
-| **2** | Active, Support | Self | Radius 2 m | Instant | Heal affected creatures for **2d8 HP**. |
-| **3** | Active, Support | Self | Radius 2 m | Instant | Heal affected creatures for **3d8 HP**. |
-| **4** | Active, Support | Self | Radius 2 m | Instant | Heal affected creatures for **5d8 HP**. |
-| **5** | Active, Support | Self | Radius 2 m | Instant | Heal affected creatures for **6d8 HP**. |
-| **6** | Active, Support | Self | Radius 3 m | Instant | Heal affected creatures for **6d8 HP**. |
-| **7** | Active, Support | Self | Radius 3 m | Instant | Heal affected creatures for **8d8 HP**. |
-| **8** | Active, Support | Self | Radius 3 m | Instant | Heal affected creatures for **9d8 HP**. |
-| **9** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **9d8 HP**. |
-| **10** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **10d8 HP**. |
-| **11** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **12d8 HP**. |
-| **12** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **13d8 HP**. |
-| **13** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **15d8 HP**. |
-| **14** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **16d8 HP**. |
-| **15** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **18d8 HP**. |
-| **16** | Active, Support | Self | Radius 4 m | Instant | Heal affected creatures for **19d8 HP**. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="ranged-aoe-heal">
-  Ranged AoE Heal
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Target budget = 30 PP x Power Level<br>
-      Duration = Instant<br>
-      Range = 8 m at PL 1, +4 m per Level; Range cost = 5 PP per +4 m beyond 8 m<br>
-      AoE radius costs: 2 m = 20 PP; 3 m = 50 PP;<br>
-      Radius progression retained from the earlier v0.9.9.2 candidate<br>
-      Healing = 20 PP per 1d8 of HP Healing<br>
-      Pure HP Healing: this Power does NOT restore Scarred Health Bars / Health Levels<br>
-      For Scarred Health Bars, learn a separate Restoration Power<br>
-      Healing dice are delivered to every eligible creature in the printed AoE<br>
-      Purchase only the printed Range and AoE coverage, then whole Healing Dice<br>
-      Minimum-function exceptions in exact pure-AoE Healing rows remain as printed<br>
-      CALCULATION<br>
-      L1: Healing 1d8 x 20 = 20 PP + Range 0 PP + Radius 2 m (20 PP) = 40 / 30 PP; budget exception +10 PP (minimum legal effect).<br>
-      L2: Healing 1d8 x 20 = 20 PP + Range 5 PP + Radius 2 m (20 PP) = 45 / 60 PP; 15 PP unused.<br>
-      L3: Healing 3d8 x 20 = 60 PP + Range 10 PP + Radius 2 m (20 PP) = 90 / 90 PP; 0 PP unused.<br>
-      L4: Healing 4d8 x 20 = 80 PP + Range 15 PP + Radius 2 m (20 PP) = 115 / 120 PP; 5 PP unused.<br>
-      L5: Healing 5d8 x 20 = 100 PP + Range 20 PP + Radius 2 m (20 PP) = 140 / 150 PP; 10 PP unused.<br>
-      L6: Healing 6d8 x 20 = 120 PP + Range 25 PP + Radius 2 m (20 PP) = 165 / 180 PP; 15 PP unused.<br>
-      L7: Healing 8d8 x 20 = 160 PP + Range 30 PP + Radius 2 m (20 PP) = 210 / 210 PP; 0 PP unused.<br>
-      L8: Healing 9d8 x 20 = 180 PP + Range 35 PP + Radius 2 m (20 PP) = 235 / 240 PP; 5 PP unused.<br>
-      L9: Healing 9d8 x 20 = 180 PP + Range 40 PP + Radius 3 m (50 PP) = 270 / 270 PP; 0 PP unused.<br>
-      L10: Healing 10d8 x 20 = 200 PP + Range 45 PP + Radius 3 m (50 PP) = 295 / 300 PP; 5 PP unused.<br>
-      L11: Healing 11d8 x 20 = 220 PP + Range 50 PP + Radius 3 m (50 PP) = 320 / 330 PP; 10 PP unused.<br>
-      L12: Healing 12d8 x 20 = 240 PP + Range 55 PP + Radius 3 m (50 PP) = 345 / 360 PP; 15 PP unused.<br>
-      L13: Healing 14d8 x 20 = 280 PP + Range 60 PP + Radius 3 m (50 PP) = 390 / 390 PP; 0 PP unused.<br>
-      L14: Healing 15d8 x 20 = 300 PP + Range 65 PP + Radius 3 m (50 PP) = 415 / 420 PP; 5 PP unused.<br>
-      L15: Healing 16d8 x 20 = 320 PP + Range 70 PP + Radius 3 m (50 PP) = 440 / 450 PP; 10 PP unused.<br>
-      L16: Healing 17d8 x 20 = 340 PP + Range 75 PP + Radius 3 m (50 PP) = 465 / 480 PP; 15 PP unused.<br>
-      NOTES<br>
-      No Health Level Recovery pool, no extra recovery axis; all Healing Dice are non-exploding d8
-    </span>
-  </span>
-</h3>
-
-A ranged area Active that restores HP to all eligible affected creatures. It does not restore Scarred Health Bars.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | Radius 2 m | Instant | Heal affected creatures for **1d8 HP**. |
-| **2** | Active, Support | 12 m | Radius 2 m | Instant | Heal affected creatures for **1d8 HP**. |
-| **3** | Active, Support | 16 m | Radius 2 m | Instant | Heal affected creatures for **3d8 HP**. |
-| **4** | Active, Support | 20 m | Radius 2 m | Instant | Heal affected creatures for **4d8 HP**. |
-| **5** | Active, Support | 24 m | Radius 2 m | Instant | Heal affected creatures for **5d8 HP**. |
-| **6** | Active, Support | 28 m | Radius 2 m | Instant | Heal affected creatures for **6d8 HP**. |
-| **7** | Active, Support | 32 m | Radius 2 m | Instant | Heal affected creatures for **8d8 HP**. |
-| **8** | Active, Support | 36 m | Radius 2 m | Instant | Heal affected creatures for **9d8 HP**. |
-| **9** | Active, Support | 40 m | Radius 3 m | Instant | Heal affected creatures for **9d8 HP**. |
-| **10** | Active, Support | 44 m | Radius 3 m | Instant | Heal affected creatures for **10d8 HP**. |
-| **11** | Active, Support | 48 m | Radius 3 m | Instant | Heal affected creatures for **11d8 HP**. |
-| **12** | Active, Support | 52 m | Radius 3 m | Instant | Heal affected creatures for **12d8 HP**. |
-| **13** | Active, Support | 56 m | Radius 3 m | Instant | Heal affected creatures for **14d8 HP**. |
-| **14** | Active, Support | 60 m | Radius 3 m | Instant | Heal affected creatures for **15d8 HP**. |
-| **15** | Active, Support | 64 m | Radius 3 m | Instant | Heal affected creatures for **16d8 HP**. |
-| **16** | Active, Support | 68 m | Radius 3 m | Instant | Heal affected creatures for **17d8 HP**. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="melee-single-target-restoration">
-  Melee Single Target Restoration
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Target budget = 30 PP x Power Level<br>
-      Duration = Instant<br>
-      Range = Touch / Melee Reach<br>
-      Health Level Recovery = 40 PP per restored Health Level per Safe Haven Rest<br>
-      Pool refreshes once per Safe Haven Rest<br>
-      This is the dedicated structural recovery Power; it does NOT restore HP<br>
-      No legal Level 1 version: 30 PP cannot buy the minimum 40 PP Health Level<br>
-      Recovery Levels form a shared per-Power pool, usable over one or multiple legal uses and recipients<br>
-      One restored Level reopens one Scarred Health Bar; no automatic HP replenishment<br>
-      CALCULATION<br>
-      L1: Health Level Recovery 0 x 40 = 0 PP = 0 / 30 PP; NOT SELECTABLE at PL1.<br>
-      L2: Health Level Recovery 1 x 40 = 40 PP = 40 / 60 PP; 20 PP unused.<br>
-      L3: Health Level Recovery 2 x 40 = 80 PP = 80 / 90 PP; 10 PP unused.<br>
-      L4: Health Level Recovery 3 x 40 = 120 PP = 120 / 120 PP; 0 PP unused.<br>
-      L5: Health Level Recovery 3 x 40 = 120 PP = 120 / 150 PP; 30 PP unused.<br>
-      L6: Health Level Recovery 4 x 40 = 160 PP = 160 / 180 PP; 20 PP unused.<br>
-      L7: Health Level Recovery 5 x 40 = 200 PP = 200 / 210 PP; 10 PP unused.<br>
-      L8: Health Level Recovery 6 x 40 = 240 PP = 240 / 240 PP; 0 PP unused.<br>
-      L9: Health Level Recovery 6 x 40 = 240 PP = 240 / 270 PP; 30 PP unused.<br>
-      L10: Health Level Recovery 7 x 40 = 280 PP = 280 / 300 PP; 20 PP unused.<br>
-      L11: Health Level Recovery 8 x 40 = 320 PP = 320 / 330 PP; 10 PP unused.<br>
-      L12: Health Level Recovery 9 x 40 = 360 PP = 360 / 360 PP; 0 PP unused.<br>
-      L13: Health Level Recovery 9 x 40 = 360 PP = 360 / 390 PP; 30 PP unused.<br>
-      L14: Health Level Recovery 10 x 40 = 400 PP = 400 / 420 PP; 20 PP unused.<br>
-      L15: Health Level Recovery 11 x 40 = 440 PP = 440 / 450 PP; 10 PP unused.<br>
-      L16: Health Level Recovery 12 x 40 = 480 PP = 480 / 480 PP; 0 PP unused.<br>
-      NOTES<br>
-      The pool refreshes once per Safe Haven Rest; Restoration reopens a Scarred Health Bar
-    </span>
-  </span>
-</h3>
-
-A dedicated close-range Active that reopens Scarred Health Bars from a pool refreshed once per Safe Haven Rest, without restoring HP. First available at Power Level 2.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Health Level Recovery Pool** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active, Support | Touch / Melee Reach | None | Instant | **Not available at Power Level 1:** a Health Level costs 40 PP. This Power has no legal Level 1 version. | None |
-| **2** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **1 lost Health Level** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **1 Health Level** per Safe Haven Rest. |
-| **3** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **2 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **2 Health Levels** per Safe Haven Rest. |
-| **4** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **3 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **3 Health Levels** per Safe Haven Rest. |
-| **5** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **3 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **3 Health Levels** per Safe Haven Rest. |
-| **6** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **4 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **4 Health Levels** per Safe Haven Rest. |
-| **7** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **5 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **5 Health Levels** per Safe Haven Rest. |
-| **8** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **6 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **6 Health Levels** per Safe Haven Rest. |
-| **9** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **6 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **6 Health Levels** per Safe Haven Rest. |
-| **10** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **7 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **7 Health Levels** per Safe Haven Rest. |
-| **11** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **8 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **8 Health Levels** per Safe Haven Rest. |
-| **12** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **9 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **9 Health Levels** per Safe Haven Rest. |
-| **13** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **9 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **9 Health Levels** per Safe Haven Rest. |
-| **14** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **10 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **10 Health Levels** per Safe Haven Rest. |
-| **15** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **11 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **11 Health Levels** per Safe Haven Rest. |
-| **16** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **12 lost Health Levels** on one creature you can touch or reach using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **12 Health Levels** per Safe Haven Rest. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="ranged-single-target-restoration">
-  Ranged Single Target Restoration
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Target budget = 30 PP x Power Level<br>
-      Duration = Instant<br>
-      Range = 8 m at PL 1, +4 m per Level; Range cost = 5 PP per +4 m beyond 8 m<br>
-      Health Level Recovery = 40 PP per restored Health Level per Safe Haven Rest<br>
-      Pool refreshes once per Safe Haven Rest<br>
-      This is the dedicated structural recovery Power; it does NOT restore HP<br>
-      No legal Level 1 version: 30 PP cannot buy the minimum 40 PP Health Level<br>
-      Recovery Levels form a shared per-Power pool, usable over one or multiple legal uses and recipients<br>
-      One restored Level reopens one Scarred Health Bar; no automatic HP replenishment<br>
-      CALCULATION<br>
-      L1: Health Level Recovery 0 x 40 = 0 PP + Range 0 PP = 0 / 30 PP; NOT SELECTABLE at PL1.<br>
-      L2: Health Level Recovery 1 x 40 = 40 PP + Range 5 PP = 45 / 60 PP; 15 PP unused.<br>
-      L3: Health Level Recovery 2 x 40 = 80 PP + Range 10 PP = 90 / 90 PP; 0 PP unused.<br>
-      L4: Health Level Recovery 2 x 40 = 80 PP + Range 15 PP = 95 / 120 PP; 25 PP unused.<br>
-      L5: Health Level Recovery 3 x 40 = 120 PP + Range 20 PP = 140 / 150 PP; 10 PP unused.<br>
-      L6: Health Level Recovery 3 x 40 = 120 PP + Range 25 PP = 145 / 180 PP; 35 PP unused.<br>
-      L7: Health Level Recovery 4 x 40 = 160 PP + Range 30 PP = 190 / 210 PP; 20 PP unused.<br>
-      L8: Health Level Recovery 5 x 40 = 200 PP + Range 35 PP = 235 / 240 PP; 5 PP unused.<br>
-      L9: Health Level Recovery 5 x 40 = 200 PP + Range 40 PP = 240 / 270 PP; 30 PP unused.<br>
-      L10: Health Level Recovery 6 x 40 = 240 PP + Range 45 PP = 285 / 300 PP; 15 PP unused.<br>
-      L11: Health Level Recovery 7 x 40 = 280 PP + Range 50 PP = 330 / 330 PP; 0 PP unused.<br>
-      L12: Health Level Recovery 7 x 40 = 280 PP + Range 55 PP = 335 / 360 PP; 25 PP unused.<br>
-      L13: Health Level Recovery 8 x 40 = 320 PP + Range 60 PP = 380 / 390 PP; 10 PP unused.<br>
-      L14: Health Level Recovery 8 x 40 = 320 PP + Range 65 PP = 385 / 420 PP; 35 PP unused.<br>
-      L15: Health Level Recovery 9 x 40 = 360 PP + Range 70 PP = 430 / 450 PP; 20 PP unused.<br>
-      L16: Health Level Recovery 10 x 40 = 400 PP + Range 75 PP = 475 / 480 PP; 5 PP unused.<br>
-      NOTES<br>
-      The pool refreshes once per Safe Haven Rest; Restoration reopens a Scarred Health Bar
-    </span>
-  </span>
-</h3>
-
-A dedicated ranged Active that reopens Scarred Health Bars from a pool refreshed once per Safe Haven Rest, without restoring HP. First available at Power Level 2.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Health Level Recovery Pool** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active, Support | 8 m | None | Instant | **Not available at Power Level 1:** a Health Level costs 40 PP. This Power has no legal Level 1 version. | None |
-| **2** | Active, Support | 12 m | None | Instant | Restore up to **1 lost Health Level** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **1 Health Level** per Safe Haven Rest. |
-| **3** | Active, Support | 16 m | None | Instant | Restore up to **2 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **2 Health Levels** per Safe Haven Rest. |
-| **4** | Active, Support | 20 m | None | Instant | Restore up to **2 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **2 Health Levels** per Safe Haven Rest. |
-| **5** | Active, Support | 24 m | None | Instant | Restore up to **3 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **3 Health Levels** per Safe Haven Rest. |
-| **6** | Active, Support | 28 m | None | Instant | Restore up to **3 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **3 Health Levels** per Safe Haven Rest. |
-| **7** | Active, Support | 32 m | None | Instant | Restore up to **4 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **4 Health Levels** per Safe Haven Rest. |
-| **8** | Active, Support | 36 m | None | Instant | Restore up to **5 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **5 Health Levels** per Safe Haven Rest. |
-| **9** | Active, Support | 40 m | None | Instant | Restore up to **5 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **5 Health Levels** per Safe Haven Rest. |
-| **10** | Active, Support | 44 m | None | Instant | Restore up to **6 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **6 Health Levels** per Safe Haven Rest. |
-| **11** | Active, Support | 48 m | None | Instant | Restore up to **7 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **7 Health Levels** per Safe Haven Rest. |
-| **12** | Active, Support | 52 m | None | Instant | Restore up to **7 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **7 Health Levels** per Safe Haven Rest. |
-| **13** | Active, Support | 56 m | None | Instant | Restore up to **8 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **8 Health Levels** per Safe Haven Rest. |
-| **14** | Active, Support | 60 m | None | Instant | Restore up to **8 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **8 Health Levels** per Safe Haven Rest. |
-| **15** | Active, Support | 64 m | None | Instant | Restore up to **9 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **9 Health Levels** per Safe Haven Rest. |
-| **16** | Active, Support | 68 m | None | Instant | Restore up to **10 lost Health Levels** on one creature within range using this Power's remaining Safe Haven Rest pool. This Power restores no HP. | Restore up to **10 Health Levels** per Safe Haven Rest. |
+- #### [{{ Actives: Delivery and Power Identity}}{{ 4}}](#p4)
+- #### [{{ Core Attack Rules & Examples}}{{ 5}}](#p5)
+- #### [{{ Single-Target Damage Attacks}}{{ 12}}](#p12)
+- #### [{{ AoE Damage Attacks}}{{ 13}}](#p13)
+- #### [{{ Split Attacks}}{{ 15}}](#p15)
+- #### [{{ Ranged Autofire}}{{ 17}}](#p17)
+- #### [{{ Melee & Ranged Single-Target Specials}}{{ 18}}](#p18)
+- #### [{{ Melee Single-Target Special Tables}}{{ 19}}](#p19)
+- #### [{{ Ranged Single-Target Special Tables}}{{ 33}}](#p33)
+- #### [{{ Melee & Ranged AoE Special Tables}}{{ 47}}](#p47)
+- #### [{{ Limited Damage Powers}}{{ 76}}](#p76)
+- #### [{{ Damage Transfer Actives}}{{ 81}}](#p81)
+- #### [{{ Forced-Movement Actives}}{{ 84}}](#p84)
+- #### [{{ Support: Restoration & Cleanse}}{{ 86}}](#p86)
+- #### [{{ Mental Powers (Illusion, Probe, Control)}}{{ 95}}](#p95)
+- #### [{{ Constructs, Barriers & Power Images}}{{ 102}}](#p102)
+- #### [{{ Ranged Persistent Special Zones}}{{ 108}}](#p108)
 
 }}
 
@@ -1040,1139 +94,20 @@ A dedicated ranged Active that reopens Scarred Health Bars from a pool refreshed
 
 {{pageNumber,auto}}
 {{wide
+### Actives: Delivery and Power Identity
 
-## Cleanse Actives
+Each named Active is a Power with its own **Technical Reference**. For a slash-separated choice, select **one printed Special** when learning the Power; that choice remains part of its identity.
 
----
-{{wide
-<h3 id="melee-single-target-cleanse">
-  Melee Single Target Cleanse
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Active curve = 30 PP per level<br>
-      Melee Support Range = Touch / Melee Reach<br>
-      Range cost = 0 PP<br>
-      AoE = none<br>
-      Duration = Instant<br>
-      Cleanse(X) = 4 × T(X) PP<br>
-      T(X) = X × (X + 1) / 2<br><br>
-      CLEANSE COSTS<br>
-      Cleanse(1) = 4 PP<br>
-      Cleanse(2) = 12 PP<br>
-      Cleanse(3) = 24 PP<br>
-      Cleanse(4) = 40 PP<br>
-      Cleanse(5) = 60 PP<br>
-      Cleanse(6) = 84 PP<br>
-      Cleanse(7) = 112 PP<br>
-      Cleanse(8) = 144 PP<br>
-      Cleanse(9) = 180 PP<br>
-      Cleanse(10) = 220 PP<br>
-      Cleanse(11) = 264 PP<br>
-      Cleanse(12) = 312 PP<br>
-      Cleanse(13) = 364 PP<br>
-      Cleanse(14) = 420 PP<br>
-      Cleanse(15) = 480 PP<br><br>
-      CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from the target.<br>
-      The removed value may be split across one or more eligible negative Specials.<br>
-      If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
-      Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-      SCALING RULE<br>
-      Spend the Active budget on Cleanse strength.<br>
-      Cleanse may stay the same or increase, but it may never decrease.<br>
-      Unused PP remains unused.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: Cleanse(3) (24) = 24 PP<br>
-      L2 → Target 60 PP: Cleanse(5) (60) = 60 PP<br>
-      L3 → Target 90 PP: Cleanse(6) (84) = 84 PP<br>
-      L4 → Target 120 PP: Cleanse(7) (112) = 112 PP<br>
-      L5 → Target 150 PP: Cleanse(8) (144) = 144 PP<br>
-      L6 → Target 180 PP: Cleanse(9) (180) = 180 PP<br>
-      L7 → Target 210 PP: Cleanse(9) (180) = 180 PP<br>
-      L8 → Target 240 PP: Cleanse(10) (220) = 220 PP<br>
-      L9 → Target 270 PP: Cleanse(11) (264) = 264 PP<br>
-      L10 → Target 300 PP: Cleanse(11) (264) = 264 PP<br>
-      L11 → Target 330 PP: Cleanse(12) (312) = 312 PP<br>
-      L12 → Target 360 PP: Cleanse(12) (312) = 312 PP<br>
-      L13 → Target 390 PP: Cleanse(13) (364) = 364 PP<br>
-      L14 → Target 420 PP: Cleanse(14) (420) = 420 PP<br>
-      L15 → Target 450 PP: Cleanse(14) (420) = 420 PP<br>
-      L16 → Target 480 PP: Cleanse(15) (480) = 480 PP<br><br>
-      NOTES<br>
-      This is the pure melee removal version.<br>
-      It has no Healing, no Health Level Recovery, no Temporary HP, and no additional Stone generation.
-    </span>
-  </span>
-</h3>
+A legal **Ranged Active** may use **Martial or Spell delivery** as described in the Player's Guide. The delivery method is a way to use that Power, not an additional instance. **An Attack Power (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special) may be used repeatedly in the same Round as long as the character still has an Attack Action available for each use.** Explicit limits still apply: Limited charges, printed use limits, Reaction and Movement economy, Active Buff limits and Stone limits are unchanged. **Support, Barrier, Power Image, Mental Powers and Persistent Special Zones keep their own usage rules: each independently learned or granted instance of these Powers can normally be used once per Round.** Separate acquisitions of the same Technical Reference are separate instances.
 
-A close-range support Active that removes negative Special value from one creature you can touch or reach.
+### Ranged Spell Delivery
 
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
-| **2** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
-| **3** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
-| **4** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
-| **5** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
-| **6** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **7** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **8** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
-| **9** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **10** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **11** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **12** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **13** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
-| **14** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
-| **15** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
-| **16** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(15)** total negative Special value from one creature. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="ranged-single-target-cleanse">
-  Ranged Single Target Cleanse
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Active curve = 30 PP per level<br>
-      Ranged Support uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      AoE = none<br>
-      Duration = Instant<br>
-      Cleanse(X) = 4 × T(X) PP<br>
-      T(X) = X × (X + 1) / 2<br><br>
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-      CLEANSE COSTS<br>
-      Cleanse(1) = 4 PP<br>
-      Cleanse(2) = 12 PP<br>
-      Cleanse(3) = 24 PP<br>
-      Cleanse(4) = 40 PP<br>
-      Cleanse(5) = 60 PP<br>
-      Cleanse(6) = 84 PP<br>
-      Cleanse(7) = 112 PP<br>
-      Cleanse(8) = 144 PP<br>
-      Cleanse(9) = 180 PP<br>
-      Cleanse(10) = 220 PP<br>
-      Cleanse(11) = 264 PP<br>
-      Cleanse(12) = 312 PP<br>
-      Cleanse(13) = 364 PP<br><br>
-      CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from the target.<br>
-      The removed value may be split across one or more eligible negative Specials.<br>
-      If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
-      Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-      SCALING RULE<br>
-      First pay Range.<br>
-      Spend the remaining Active budget on Cleanse strength.<br>
-      Cleanse may stay the same or increase, but it may never decrease.<br>
-      Unused PP remains unused.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0), Cleanse(3) (24) = 24 PP<br>
-      L2 → Target 60 PP: Range 12 m (5), Cleanse(4) (40) = 45 PP<br>
-      L3 → Target 90 PP: Range 16 m (10), Cleanse(5) (60) = 70 PP<br>
-      L4 → Target 120 PP: Range 20 m (15), Cleanse(6) (84) = 99 PP<br>
-      L5 → Target 150 PP: Range 24 m (20), Cleanse(7) (112) = 132 PP<br>
-      L6 → Target 180 PP: Range 28 m (25), Cleanse(8) (144) = 169 PP<br>
-      L7 → Target 210 PP: Range 32 m (30), Cleanse(9) (180) = 210 PP<br>
-      L8 → Target 240 PP: Range 36 m (35), Cleanse(9) (180) = 215 PP<br>
-      L9 → Target 270 PP: Range 40 m (40), Cleanse(10) (220) = 260 PP<br>
-      L10 → Target 300 PP: Range 44 m (45), Cleanse(10) (220) = 265 PP<br>
-      L11 → Target 330 PP: Range 48 m (50), Cleanse(11) (264) = 314 PP<br>
-      L12 → Target 360 PP: Range 52 m (55), Cleanse(11) (264) = 319 PP<br>
-      L13 → Target 390 PP: Range 56 m (60), Cleanse(12) (312) = 372 PP<br>
-      L14 → Target 420 PP: Range 60 m (65), Cleanse(12) (312) = 377 PP<br>
-      L15 → Target 450 PP: Range 64 m (70), Cleanse(13) (364) = 434 PP<br>
-      L16 → Target 480 PP: Range 68 m (75), Cleanse(13) (364) = 439 PP<br><br>
-      NOTES<br>
-      This Power restores less Cleanse value than the melee version because printed Range is paid every level.<br>
-      It has no Healing, no Health Level Recovery, no Temporary HP, and no additional Stone generation.
-    </span>
-  </span>
-</h3>
-
-A ranged support Active that removes negative Special value from one creature within range.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
-| **2** | Active, Support | 12 m | None | Instant | Remove up to **Cleanse(4)** total negative Special value from one creature. |
-| **3** | Active, Support | 16 m | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
-| **4** | Active, Support | 20 m | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
-| **5** | Active, Support | 24 m | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
-| **6** | Active, Support | 28 m | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
-| **7** | Active, Support | 32 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **8** | Active, Support | 36 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
-| **9** | Active, Support | 40 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
-| **10** | Active, Support | 44 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
-| **11** | Active, Support | 48 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **12** | Active, Support | 52 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
-| **13** | Active, Support | 56 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **14** | Active, Support | 60 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
-| **15** | Active, Support | 64 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
-| **16** | Active, Support | 68 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="melee-aoe-cleanse">
-  Melee AoE Cleanse
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Active curve = 30 PP per level<br>
-      Melee AoE Support Range = Self<br>
-      Range cost = 0 PP<br>
-      Duration = Instant<br>
-      Cleanse(X) = 4 × T(X) PP<br>
-      T(X) = X × (X + 1) / 2<br><br>
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br><br>
-      CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from each affected creature.<br>
-      For each affected creature, the removed value may be split independently across one or more eligible negative Specials.<br>
-      If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
-      Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-      SCALING RULE<br>
-      First pay AoE radius.<br>
-      Spend the remaining Active budget on Cleanse strength.<br>
-      Cleanse and AoE may stay the same or increase, but they may never decrease.<br>
-      If increasing Radius would force Cleanse to decrease, the Radius increase is delayed.<br>
-      Unused PP remains unused.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: Radius 2 m (20), Cleanse(1) (4) = 24 PP<br>
-      L2 → Target 60 PP: Radius 2 m (20), Cleanse(4) (40) = 60 PP<br>
-      L3 → Target 90 PP: Radius 2 m (20), Cleanse(5) (60) = 80 PP<br>
-      L4 → Target 120 PP: Radius 2 m (20), Cleanse(6) (84) = 104 PP<br>
-      L5 → Target 150 PP: Radius 3 m (50), Cleanse(6) (84) = 134 PP<br>
-      L6 → Target 180 PP: Radius 3 m (50), Cleanse(7) (112) = 162 PP<br>
-      L7 → Target 210 PP: Radius 3 m (50), Cleanse(8) (144) = 194 PP<br>
-      L8 → Target 240 PP: Radius 4 m (90), Cleanse(8) (144) = 234 PP<br>
-      L9 → Target 270 PP: Radius 4 m (90), Cleanse(9) (180) = 270 PP<br>
-      L10 → Target 300 PP: Radius 4 m (90), Cleanse(9) (180) = 270 PP<br>
-      L11 → Target 330 PP: Radius 4 m (90), Cleanse(10) (220) = 310 PP<br>
-      L12 → Target 360 PP: Radius 4 m (90), Cleanse(11) (264) = 354 PP<br>
-      L13 → Target 390 PP: Radius 4 m (90), Cleanse(11) (264) = 354 PP<br>
-      L14 → Target 420 PP: Radius 5 m (140), Cleanse(11) (264) = 404 PP<br>
-      L15 → Target 450 PP: Radius 5 m (140), Cleanse(11) (264) = 404 PP<br>
-      L16 → Target 480 PP: Radius 5 m (140), Cleanse(12) (312) = 452 PP<br><br>
-      NOTES<br>
-      This is the self-centered area removal version.<br>
-      AoE Cleanse is weaker in raw Cleanse value than single-target Cleanse because Radius is paid from the same Active budget.<br>
-      This Power has no Healing, no Health Level Recovery, no Temporary HP, and no additional Stone generation.
-    </span>
-  </span>
-</h3>
-
-A self-centered support Active that removes negative Special value from affected creatures.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
-| **2** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(4)** total negative Special value from each affected creature. |
-| **3** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
-| **4** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **5** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **6** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
-| **7** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **8** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **9** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **10** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **11** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **12** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **13** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **14** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **15** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **16** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(12)** total negative Special value from each affected creature. |
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="ranged-aoe-cleanse">
-  Ranged AoE Cleanse
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Support<br>
-      Active curve = 30 PP per level<br>
-      Ranged AoE Support uses printed Range and Radius<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Duration = Instant<br>
-      Cleanse(X) = 4 × T(X) PP<br>
-      T(X) = X × (X + 1) / 2<br><br>
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br><br>
-      CLEANSE RULE<br>
-      Cleanse(X) removes up to X total negative Special value from each affected creature.<br>
-      For each affected creature, the removed value may be split independently across one or more eligible negative Specials.<br>
-      If a Special is reduced to 0, it is removed.<br>
-      Cleanse removes Special value, not PP value.<br>
-      Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
-      SCALING RULE<br>
-      First pay Range and AoE radius.<br>
-      Spend the remaining Active budget on Cleanse strength.<br>
-      Cleanse, Range, and AoE may stay the same or increase, but they may never decrease.<br>
-      If increasing Radius would force Cleanse to decrease, the Radius increase is delayed.<br>
-      Unused PP remains unused.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0), Radius 2 m (20), Cleanse(1) (4) = 24 PP<br>
-      L2 → Target 60 PP: Range 12 m (5), Radius 2 m (20), Cleanse(3) (24) = 49 PP<br>
-      L3 → Target 90 PP: Range 16 m (10), Radius 2 m (20), Cleanse(5) (60) = 90 PP<br>
-      L4 → Target 120 PP: Range 20 m (15), Radius 2 m (20), Cleanse(6) (84) = 119 PP<br>
-      L5 → Target 150 PP: Range 24 m (20), Radius 2 m (20), Cleanse(6) (84) = 124 PP<br>
-      L6 → Target 180 PP: Range 28 m (25), Radius 2 m (20), Cleanse(7) (112) = 157 PP<br>
-      L7 → Target 210 PP: Range 32 m (30), Radius 2 m (20), Cleanse(8) (144) = 194 PP<br>
-      L8 → Target 240 PP: Range 36 m (35), Radius 3 m (50), Cleanse(8) (144) = 229 PP<br>
-      L9 → Target 270 PP: Range 40 m (40), Radius 3 m (50), Cleanse(9) (180) = 270 PP<br>
-      L10 → Target 300 PP: Range 44 m (45), Radius 3 m (50), Cleanse(9) (180) = 275 PP<br>
-      L11 → Target 330 PP: Range 48 m (50), Radius 3 m (50), Cleanse(10) (220) = 320 PP<br>
-      L12 → Target 360 PP: Range 52 m (55), Radius 3 m (50), Cleanse(10) (220) = 325 PP<br>
-      L13 → Target 390 PP: Range 56 m (60), Radius 4 m (90), Cleanse(10) (220) = 370 PP<br>
-      L14 → Target 420 PP: Range 60 m (65), Radius 4 m (90), Cleanse(11) (264) = 419 PP<br>
-      L15 → Target 450 PP: Range 64 m (70), Radius 4 m (90), Cleanse(11) (264) = 424 PP<br>
-      L16 → Target 480 PP: Range 68 m (75), Radius 5 m (140), Cleanse(11) (264) = 479 PP<br><br>
-      NOTES<br>
-      This is the ranged area removal version.<br>
-      It pays Range and Radius before buying Cleanse, so its Cleanse value is lower than the melee area version.<br>
-      Radius 5 m appears only at Level 16 because it can be added without lowering Cleanse.<br>
-      This Power has no Healing, no Health Level Recovery, no Temporary HP, and no additional Stone generation.
-    </span>
-  </span>
-</h3>
-
-A ranged area support Active that removes negative Special value from affected creatures.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
-| **2** | Active, Support | 12 m | Radius 2 m | Instant | Remove up to **Cleanse(3)** total negative Special value from each affected creature. |
-| **3** | Active, Support | 16 m | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
-| **4** | Active, Support | 20 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **5** | Active, Support | 24 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **6** | Active, Support | 28 m | Radius 2 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
-| **7** | Active, Support | 32 m | Radius 2 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **8** | Active, Support | 36 m | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
-| **9** | Active, Support | 40 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **10** | Active, Support | 44 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **11** | Active, Support | 48 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **12** | Active, Support | 52 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **13** | Active, Support | 56 m | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
-| **14** | Active, Support | 60 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **15** | Active, Support | 64 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **16** | Active, Support | 68 m | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Active Constructs & Terrain
-
-> **Design Rule:** These Powers are **Construct / Terrain Actives**.  
-> They do not primarily deal damage and do not primarily apply Specials.  
-> Instead, they create battlefield objects, barriers, walls, fields, images, illusions, or position-based effects.
-
-These Powers still use the normal **Active curve**:
-
-| **Level** | **Target PP** |
-|:--:|:--:|
-| 1 | 30 PP |
-| 2 | 60 PP |
-| 3 | 90 PP |
-| 4 | 120 PP |
-| 5 | 150 PP |
-| 6 | 180 PP |
-| 7 | 210 PP |
-| 8 | 240 PP |
-| 9 | 270 PP |
-| 10 | 300 PP |
-| 11 | 330 PP |
-| 12 | 360 PP |
-| 13 | 390 PP |
-| 14 | 420 PP |
-| 15 | 450 PP |
-| 16 | 480 PP |
-
----
-
-### Construct Active Formula
-
-Construct and Terrain Actives are priced as:
-
-**Final Cost = Range Cost + [(Radius / Shape Cost + Construct Payload) × Duration Modifier]**
-
-Range is paid once and is never multiplied.
-
-The persistent part of the Power is multiplied by Duration:
-
-- Radius / Shape Cost
-- Barrier HP
-- Illusion Strength
-- Concealment Strength
-- Field Strength
-- or another ongoing payload
-
----
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-### Range Cost
-
-Use the normal Ranged Active range progression.
-
-| **Range** | **Cost** |
-|:--:|:--:|
-| 8 m | 0 PP |
-| 12 m | 5 PP |
-| 16 m | 10 PP |
-| 20 m | 15 PP |
-| 24 m | 20 PP |
-| 28 m | 25 PP |
-| 32 m | 30 PP |
-| 36 m | 35 PP |
-| 40 m | 40 PP |
-| 44 m | 45 PP |
-| 48 m | 50 PP |
-| 52 m | 55 PP |
-| 56 m | 60 PP |
-| 60 m | 65 PP |
-| 64 m | 70 PP |
-| 68 m | 75 PP |
-
----
-
-### Radius / Field Cost
-
-For circular fields, use the normal AoE radius table.
-
-| **Radius** | **Cost** |
-|:--:|:--:|
-| 2 m | 20 PP |
-| 3 m | 50 PP |
-| 4 m | 90 PP |
-| 5 m | 140 PP |
-| 6 m | 200 PP |
-| 7 m | 270 PP |
-| 8 m | 350 PP |
-
-A circular field may be reshaped into connected spaces or hexes of equivalent area if the table or VTT uses hexes.
-
-The Power determines the total area.  
-The caster may place that area freely as long as all spaces remain connected and within range.
-
----
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-### Duration Cost
-
-Construct and Terrain Actives may last from **1 to 4 Rounds**.
-
-| **Duration** | **Cost Modifier** |
-|:--:|:--:|
-| 1 Round | ×1 |
-| 2 Rounds | ×1.25 |
-| 3 Rounds | ×1.5 |
-| 4 Rounds | ×2 |
-
-Only the persistent part of the Power is multiplied.
-
-Range is never multiplied.
-
-For barriers, walls, fields, and similar ongoing constructs, multiply:
-
-- Radius / Shape Cost
-- Barrier HP
-- Illusion Strength
-- Field Strength
-- other ongoing payloads
-
----
-
-### Barrier HP Cost
-
-Barrier HP replaces damage.
-
-A Barrier Power does not deal damage by default.  
-Instead, it creates destructible HP on the battlefield.
-
-| **Barrier HP** | **Cost** |
-|:--:|:--:|
-| 1 HP | 1 PP |
-
-Barrier HP represents the total durability of the created object.
-
-When a Barrier is split into **N** spaces or Wall segments with total **H** HP, give each segment **floor(H/N) HP**, then distribute the remaining **H mod N** HP **one at a time** to different segments chosen by the creator. The sum of segment HP equals H. Each segment tracks damage separately. A segment reaching 0 HP is destroyed.
-
-A Barrier space or segment is destroyed when its HP reaches 0.
-
----
-
-### Barrier Rules
-
-A Barrier is a temporary battlefield object with HP.
-
-A Barrier may be attacked and damaged.
-
-Unless a Power says otherwise:
-
-- Barriers have **0 Armor**.
-- Barriers have **0 Evade**.
-- Barriers do not make Attribute Checks.
-- Barriers are immune to Mental effects.
-- Barriers are immune to creature-only negative Specials such as Blight, Lacerate, Mark, Disoriented, and similar creature-only effects.
-
-A Barrier does not attack, move, deal damage, heal, apply Specials, or provide any additional effect unless the Power explicitly says so.
-
-A Barrier is destroyed when its HP reaches 0.
-
----
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-### Wall Rules
-
-A Wall is a Barrier arranged as connected spaces instead of a circular radius.
-
-When a Power allows a Barrier to be shaped as a Wall, the Wall uses the same total number of spaces as the listed Radius / Field shape.
-
-All Wall spaces must be connected.
-
-The caster may choose the exact shape, but the Wall may not be split into separate disconnected sections unless the Power explicitly allows it.
-
-If the Wall occupies multiple spaces, divide its total HP using the **Barrier HP Cost** allocation: floor(total HP / number of spaces) per segment, and give each remaining HP to a different creator-chosen space.
-
-A Wall space is destroyed when its HP reaches 0.
-
----
-
-### Barrier Design Rule
-
-Barrier Powers are Actives.
-
-They are not attacks that deal damage.
-
-They are not defensive Buffs.
-
-They are not Passives.
-
-They are battlefield-shaping Powers that trade direct damage for temporary HP and positioning.
-
-Do not add damage, Specials, healing, DR, Phasing, or other major riders unless the Power explicitly pays for them.
-
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
----
-
-### Example — Creating a Barrier
-
-A character uses a Barrier Active.
-
-The Power lists:
-
-- Range: **32 m**
-- Area: **Radius 3 m**
-- Duration: **4 Rounds**
-- Barrier HP: **40 HP**
-
-The character chooses a point within **32 m** and creates the Barrier there.
-
-The Barrier occupies the listed area or an equivalent connected shape.
-
-The Barrier has **40 total HP**.
-
-It does not deal damage.  
-It does not apply Specials.  
-It does not move.  
-It does not attack.
-
-It only exists as a temporary battlefield object.
-
----
-
-### Example — Barrier and Wall HP
-
-A character creates a Barrier with **40 HP**.
-
-If the Barrier is placed as one object, it has **40 HP**.
-
-If the Barrier is shaped into **4 connected Wall spaces**, the HP is divided evenly.
-
-Each Wall space has **10 HP**.
-
-An enemy attacks one Wall space and deals **7 damage**.
-
-That Wall space is reduced from **10 HP** to **3 HP**.
-
-Later, another attack deals **3 damage** to the same Wall space.
-
-That Wall space reaches **0 HP** and is destroyed.
-
-The other Wall spaces remain until they are destroyed or the Power's Duration ends.
-
----
-
-### Example — Uneven Wall HP
-
-A **22 HP Barrier** formed into **three** connected Wall spaces gives each space 7 HP, with **one extra HP** placed in a space chosen by the creator: **8 / 7 / 7 HP**. Each segment then loses HP individually when damaged. A Barrier or Wall is placed only in **unoccupied, traversable Hexes**.
-
----
-
-### Example — Blocking Movement
-
-A character creates a stone wall across a narrow passage.
-
-The wall occupies battlefield spaces.
-
-A creature cannot move through those spaces unless it destroys the wall, moves around it, climbs over it, teleports, phases, or uses another valid method.
-
-The wall does not make an attack roll.
-
-The wall does not require an Attribute Check.
-
-It simply occupies space as a real obstruction.
-
----
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-### Example — Destroying a Barrier
-
-A Barrier has **40 HP**, **0 Armor**, and **0 Evade**.
-
-An enemy attacks the Barrier.
-
-Because the Barrier has **0 Evade**, attacks against it use **TN 0** unless another rule says otherwise.
-
-If the attack deals **15 damage**, the Barrier is reduced from **40 HP** to **25 HP**.
-
-When the Barrier reaches **0 HP**, it is destroyed.
-
-Destroyed Barrier spaces no longer occupy the battlefield.
-
----
-
-### Wall Shape and Hexes
-
-If the table or VTT uses hexes, the Wall occupies a number of connected hexes equal to the Power's listed area.
-
-The Wall must be one connected shape.
-
-The caster may bend, curve, or angle the Wall as needed, but every Wall hex must touch at least one other Wall hex.
-
-The Wall cannot be split into separate disconnected pieces unless the Power explicitly allows it.
-
----
-}}
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-### Example — What a Barrier Cannot Do
-
-A character creates a Barrier in front of an enemy.
-
-The Barrier can occupy space and force enemies to interact with it as a real battlefield object.
-
-The Barrier does not automatically:
-
-- damage the enemy,
-- push the enemy,
-- knock the enemy prone,
-- apply Root,
-- apply Blight,
-- trap the enemy permanently,
-- create Damage Reduction,
-- heal allies,
-- become invisible,
-- or create any other mechanical effect.
-
-If the Power should do any of those things, the Power must pay for that effect separately.
-
----
-
-### Example — Barrier as Battlefield Control
-
-A character creates a wall between enemies and wounded allies.
-
-The wall does not deal damage.
-
-However, it changes the battlefield.
-
-Enemies may need to:
-
-- move around it,
-- spend attacks destroying it,
-- teleport past it,
-- phase through it,
-- destroy one or more Wall spaces,
-- or wait until it expires.
-
-This is the purpose of Construct and Terrain Actives.
-
-They trade direct damage for position, protection, delay, and battlefield control.
-
-}}
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-## Barrier Actives
-
----
-:
----
-:
-<h3 id="ranged-barrier">
-  Ranged Barrier
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged Power uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Duration = 4 Rounds<br>
-      4-Round persistent multiplier = ×2<br>
-      Barrier HP = 1 PP per 1 HP<br><br>
-      FORMULA<br>
-      Final Cost = Range Cost + [(Radius Cost + Barrier HP) × 2]<br>
-      Range is paid normally and is not multiplied.<br>
-      Radius and Barrier HP are persistent payload and are multiplied by duration.<br><br>
-      RANGE COSTS<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-      AOE COSTS<br>
-      Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br><br>
-      DESIGN RULE<br>
-      This version is recalculated on curve with non-decreasing Barrier HP.<br>
-      Range is paid first.<br>
-      Radius is paid second.<br>
-      Barrier HP is only increased when it can remain permanently afterward.<br>
-      Barrier HP may stay the same or increase, but it may never decrease.<br>
-      Radius may stay the same or increase, but it may never decrease.<br>
-      Unused PP may remain unused if spending it would cause HP flicker later.<br><br>
-      REMOVAL<br>
-      Barrier spaces lose their printed HP when damaged. A separate explicitly granted dispelling effect may remove an ongoing Power only according to that effect's own rules. This Barrier entry does not grant a Dispel ability.<br><br>
-      CALCULATION<br>
-      L1 → Target 30 PP: no effect = 0 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + [(Radius 2 m (20) + 10 HP (10)) × 2] = 65 PP ≈ 60 target<br>
-      L3 → Target 90 PP: Range 16 m (10) + [(Radius 2 m (20) + 22 HP (22)) × 2] = 94 PP ≈ 90 target<br>
-      L4 → Target 120 PP: Range 20 m (15) + [(Radius 2 m (20) + 35 HP (35)) × 2] = 125 PP ≈ 120 target<br>
-      L5 → Target 150 PP: Range 24 m (20) + [(Radius 2 m (20) + 42 HP (42)) × 2] = 144 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + [(Radius 2 m (20) + 42 HP (42)) × 2] = 149 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + [(Radius 3 m (50) + 42 HP (42)) × 2] = 214 PP ≈ 210 target<br>
-      L8 → Target 240 PP: Range 36 m (35) + [(Radius 3 m (50) + 55 HP (55)) × 2] = 245 PP ≈ 240 target<br>
-      L9 → Target 270 PP: Range 40 m (40) + [(Radius 3 m (50) + 65 HP (65)) × 2] = 270 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + [(Radius 3 m (50) + 65 HP (65)) × 2] = 275 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + [(Radius 3 m (50) + 65 HP (65)) × 2] = 280 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + [(Radius 4 m (90) + 65 HP (65)) × 2] = 365 PP ≈ 360 target<br>
-      L13 → Target 390 PP: Range 56 m (60) + [(Radius 4 m (90) + 77 HP (77)) × 2] = 394 PP ≈ 390 target<br>
-      L14 → Target 420 PP: Range 60 m (65) + [(Radius 4 m (90) + 90 HP (90)) × 2] = 425 PP ≈ 420 target<br>
-      L15 → Target 450 PP: Range 64 m (70) + [(Radius 4 m (90) + 102 HP (102)) × 2] = 454 PP ≈ 450 target<br>
-      L16 → Target 480 PP: Range 68 m (75) + [(Radius 4 m (90) + 115 HP (115)) × 2] = 485 PP ≈ 480 target<br><br>
-      NOTES<br>
-      The earlier version reduced Barrier HP when the radius increased.<br>
-      This corrected version delays and anchors Barrier HP so it never decreases.<br>
-      Level 1 has no effect because a legal 4-Round ranged barrier cannot fit the Level 1 Active budget.
-    </span>
-  </span>
-</h3>
-
-A ranged protective barrier that creates a temporary area of cover and obstruction.
-
-**Minimum functional Power Level: 2.** A Barrier at Level 1 has no legal effect and therefore cannot be learned, purchased, or used at that Level. All existing Level 2+ values remain unchanged. The printed **+4 to +5 PP** overruns in the Barrier rows (PL 2, 3, 4, 7, 8, 12, 13, 14, 15, 16) are **explicitly approved minimum/progression exceptions**, not arithmetic errors. A separately approved deviation of up to +10 absolute PP is acceptable from PL 4 onward, but this does not authorize arbitrary new overspends.
-
----
-:
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Unavailable | — | — | — | Requires Power Level 2. | — |
-| **2** | Active | 12 m | Radius 2 m | 4 Rounds | Create a Barrier with **10 HP**. | — |
-| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a Barrier with **22 HP**. | — |
-| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a Barrier with **35 HP**. | — |
-| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
-| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
-| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
-| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a Barrier with **55 HP**. | — |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **12** | Active | 52 m | Radius 4 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **13** | Active | 56 m | Radius 4 m | 4 Rounds | Create a Barrier with **77 HP**. | — |
-| **14** | Active | 60 m | Radius 4 m | 4 Rounds | Create a Barrier with **90 HP**. | — |
-| **15** | Active | 64 m | Radius 4 m | 4 Rounds | Create a Barrier with **102 HP**. | — |
-| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a Barrier with **115 HP**. | — |
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Illusion Fields / Power Images
-
-> **Design Rule:** Illusion Fields create sensory images or false battlefield information.  
-> They are priced like Construct / Terrain Actives: Range + Radius + Duration + Illusion Strength.
-
-An Illusion Field does not deal damage by default.  
-It creates false sensory information inside an area.
-
----
-
-### Illusion Strength
-
-Illusion Strength measures how convincing, detailed, and hard to disbelieve the illusion is.
-
-| **Illusion Strength** | **Cost** | **Effect** |
-|:--:|:--:|---|
-| **1** | 15 PP | Simple visual image or minor sensory falsehood. |
-| **2** | 30 PP | Clear visual image with one additional sense. |
-| **3** | 45 PP | Detailed image with multiple senses. |
-| **4** | 60 PP | Complex scene with motion, sound, and reactive detail. |
-| **5** | 75 PP | Highly convincing battlefield illusion. |
-| **6** | 90 PP | Major illusion that can strongly mislead tactical decisions. |
-| **7** | 105 PP | Advanced illusion with layered sensory complexity. |
-| **8** | 120 PP | Extremely convincing illusion, suitable for high-level play. |
-
----
-
-### Sensory Layers
-
-An Illusion Field may include one or more sensory layers.
-
-Common sensory layers:
-
-- visual image,
-- sound,
-- smell,
-- temperature impression,
-- texture or touch impression,
-- false motion,
-- false number of creatures,
-- false terrain,
-- false barrier,
-- false light or darkness.
-
-A simple illusion normally uses one sensory layer.
-
-A higher Illusion Strength may justify multiple layers without requiring separate pricing for each minor sensory detail.
-
----
-
-### Illusion Check
-
-A creature may attempt to disbelieve an Illusion Field when:
-
-- it spends **1 Attack Action** to inspect it,
-- it physically interacts with the illusion,
-- the illusion behaves impossibly,
-- or the GM decides the creature has a clear reason to doubt it.
-
-The check is normally:
-
-**Wits Attribute Check or Perception Skill Check against TN (8 × the creator's Mastery Rank) − 2**
-
-On success, that creature recognizes the illusion as false.
-
-On failure, that creature treats the illusion as real for the purpose of perception and decision-making.
-
----
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-### Illusion Limits
-
-An Illusion Field cannot directly:
-
-- deal damage,
-- heal,
-- apply Specials,
-- physically block movement,
-- create real cover,
-- create real light or darkness,
-- restrain a creature,
-- force movement,
-- or change actual terrain.
-
-It may only make creatures believe those things are present.
-
-If the illusion is meant to create a real mechanical penalty, such as concealment, attack penalties, fear, or false cover, that effect must be priced separately.
-
----
-
-### Illusion Field Formula
-
-**Final Cost = Range Cost + [(Radius Cost + Illusion Strength Cost) × Duration Modifier]**
-
-Range is paid once and is not multiplied.
-
-Radius and Illusion Strength are multiplied by duration.
-
----
-
-### Power Image Rule
-
-A Power Image is a specific kind of Illusion Field.
-
-It creates an image of a creature, object, terrain feature, spell effect, wall, hazard, or other visible phenomenon.
-
-A Power Image may appear to:
-
-- move,
-- speak,
-- attack,
-- cast,
-- burn,
-- Slow,
-- bleed,
-- threaten,
-- guard an area,
-- or imitate a battlefield object.
-
-However, unless the Power pays for a real effect, the image remains only an illusion.
-
-A false fire does not burn.  
-A false wall does not stop movement.  
-A false monster does not make real attacks.  
-A false pit does not create a real hole.
-
----
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-### Illusion Design Rule
-
-Illusions create decisions, not direct output.
-
-They are strongest when they:
-
-- waste enemy actions,
-- hide real movement,
-- create uncertainty,
-- split attention,
-- obscure intentions,
-- or bait enemies into poor positioning.
-
-Do not price Illusion Fields as damage Powers.
-
-Do not attach free control effects to illusions.
-
-If the illusion causes a real mechanical penalty, pay for that penalty separately.
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-
-## Ranged Power Image
-
----
-:
-<h3 id="ranged-power-image">
-  Ranged Power Image
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged Power Image uses printed Range and Image Size<br>
-      Duration = 4 Rounds<br>
-      Duration Multiplier = ×2<br>
-      Range is not multiplied<br><br>
-      FORMULA<br>
-      Final Cost = Range Cost + [(Image Size Cost + Image Tier Cost) ×2]<br><br>
-      RANGE COSTS<br>
-      8 m = 0 PP<br>
-      12 m = 5 PP<br>
-      16 m = 10 PP<br>
-      20 m = 15 PP<br>
-      24 m = 20 PP<br>
-      28 m = 25 PP<br>
-      32 m = 30 PP<br>
-      36 m = 35 PP<br>
-      40 m = 40 PP<br>
-      44 m = 45 PP<br>
-      48 m = 50 PP<br>
-      52 m = 55 PP<br>
-      56 m = 60 PP<br>
-      60 m = 65 PP<br>
-      64 m = 70 PP<br>
-      68 m = 75 PP<br><br>
-      IMAGE SIZE COSTS<br>
-      Single Small Image = 0 PP<br>
-      Single Human-Sized Image = 10 PP<br>
-      Large Image / Radius 2 m = 20 PP<br>
-      Radius 3 m = 50 PP<br>
-      Radius 4 m = 90 PP<br>
-      Radius 5 m = 140 PP<br><br>
-      IMAGE TIER COSTS<br>
-      Image I = 10 PP<br>
-      Image II = 20 PP<br>
-      Image III = 35 PP<br>
-      Image IV = 55 PP<br>
-      Image V = 80 PP<br>
-      Image VI = 110 PP<br>
-      Image VII = 145 PP<br><br>
-      SCALING RULE<br>
-      This is an Illusion-first Active.<br>
-      Image Tier is the primary scaling axis.<br>
-      Image Size is the secondary scaling axis.<br>
-      Images do not create real matter, damage, barriers, terrain, summons, or Specials.<br>
-      Image Tier and Image Size may stay the same or increase, but they may never decrease.<br><br>
-      CALCULATION<br>
-      L1 → Range 8 m (0) + [(Single Small Image (0) + Image I (10)) ×2] = 20 PP<br>
-      L2 → Range 12 m (5) + [(Single Human-Sized Image (10) + Image I (10)) ×2] = 45 PP<br>
-      L3 → Range 16 m (10) + [(Single Human-Sized Image (10) + Image II (20)) ×2] = 70 PP<br>
-      L4 → Range 20 m (15) + [(Large Image / Radius 2 m (20) + Image II (20)) ×2] = 95 PP<br>
-      L5 → Range 24 m (20) + [(Large Image / Radius 2 m (20) + Image III (35)) ×2] = 130 PP<br>
-      L6 → Range 28 m (25) + [(Large Image / Radius 2 m (20) + Image III (35)) ×2] = 135 PP<br>
-      L7 → Range 32 m (30) + [(Large Image / Radius 2 m (20) + Image IV (55)) ×2] = 180 PP<br>
-      L8 → Range 36 m (35) + [(Radius 3 m (50) + Image IV (55)) ×2] = 245 PP above target, so Radius 2 m is retained = 185 PP<br>
-      L9 → Range 40 m (40) + [(Radius 3 m (50) + Image IV (55)) ×2] = 250 PP<br>
-      L10 → Range 44 m (45) + [(Radius 3 m (50) + Image IV (55)) ×2] = 255 PP<br>
-      L11 → Range 48 m (50) + [(Radius 3 m (50) + Image V (80)) ×2] = 310 PP<br>
-      L12 → Range 52 m (55) + [(Radius 3 m (50) + Image V (80)) ×2] = 315 PP<br>
-      L13 → Range 56 m (60) + [(Radius 3 m (50) + Image VI (110)) ×2] = 380 PP<br>
-      L14 → Range 60 m (65) + [(Radius 3 m (50) + Image VI (110)) ×2] = 385 PP<br>
-      L15 → Range 64 m (70) + [(Radius 4 m (90) + Image VI (110)) ×2] = 470 PP above target, so Radius 3 m is retained = 390 PP<br>
-      L16 → Range 68 m (75) + [(Radius 3 m (50) + Image VII (145)) ×2] = 465 PP<br><br>
-      NOTES<br>
-      Images begin as simple visual illusions and scale into multi-sense and battlefield-scale illusions.<br>
-      Radius increases are delayed because the illusion lasts 4 Rounds.<br>
-      Image VII appears at Level 16 and represents a large complex battlefield illusion, but it is still not physically real.
-    </span>
-  </span>
-</h3>
-
-A ranged illusion Active that creates false sensory information for 4 Rounds.
-
----
-:
-**Requirement:** None
-
----
-:
-| **Level** | **Type** | **Range** | **AoE / Size** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active | 8 m | Single Small Image | 4 Rounds | Create **Image I**: a simple static visual image. |
-| **2** | Active | 12 m | Single Human-Sized Image | 4 Rounds | Create **Image I**: a simple static visual image. |
-| **3** | Active | 16 m | Single Human-Sized Image | 4 Rounds | Create **Image II**: a moving visual image. |
-| **4** | Active | 20 m | Large Image / Radius 2 m | 4 Rounds | Create **Image II**: a moving visual image. |
-| **5** | Active | 24 m | Large Image / Radius 2 m | 4 Rounds | Create **Image III**: a sight and sound image. |
-| **6** | Active | 28 m | Large Image / Radius 2 m | 4 Rounds | Create **Image III**: a sight and sound image. |
-| **7** | Active | 32 m | Large Image / Radius 2 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
-| **8** | Active | 36 m | Large Image / Radius 2 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create **Image V**: a multi-sense image. |
-| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create **Image V**: a multi-sense image. |
-| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create **Image VI**: a small scene with several moving parts. |
-| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create **Image VI**: a small scene with several moving parts. |
-| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create **Image VI**: a small scene with several moving parts. |
-| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create **Image VII**: a complex battlefield illusion. |
+- Use the eligible **Casting Pool and Casting Roll** in place of the Martial Attack Roll.
+- Resolve against **Final Spell TN** instead of Evade. Spell Base TN uses the **Power Level actually cast**.
+- A damaging single-target Spell, damaging AoE Spell or damaging Autofire Spell adds eligible **Spell Focus Damage** instead of Weapon Damage. A damaging AoE uses **one shared Damage Roll**.
+- A **Special-only Attack** applies its printed Special on a hit and deals **zero direct Attack Damage**, including Weapon and Spell Focus Damage. Resolve it without a Damage Roll.
+- **Instant AoEs** may exclude any creatures; allies are excluded by default. Zones and Auras use the occupancy rules in the final chapter.
+- Spell defenses, resistance and Dive for Cover work as described in the Core Rules. A **Persistent Special Zone** applies its Special automatically on occupancy using the Persistent Special Zone rules in the final chapter.
 
 }}
 
@@ -2192,7 +127,7 @@ These templates are still **Actives**. Their Technical Reference does not change
 
 ### Weapon Damage Rule
 
-A successful hostile **Damage Attack** or damage-dealing Autofire Martial hit includes matching Weapon Damage; an eligible damaging Spell instead includes matching Spell Focus Damage. **An Instant Special-only Attack (Single Target or AoE) and a pure Push/Pull Attack deal zero direct Attack Damage. They add no Power Damage, Weapon Damage, Spell Focus Damage, external Attack Damage bonuses, Damage Raises, or triggered hit-damage bonuses, and no Damage Roll occurs.** Special-generated later damage uses the Special's own rules. Ordinary Basic Attacks, Split Attacks and Autofire remain damaging attacks under their own templates, even when their purchased Power Damage Dice are zero. Non-attack Support Powers gain no delivery damage.
+A successful hostile **Damage Attack** or damage-dealing Autofire Martial hit includes matching Weapon Damage; an eligible damaging Spell instead includes matching Spell Focus Damage. **An Instant Special-only Attack (Single Target or AoE) and a pure Push/Pull Attack deal zero direct Attack Damage. They add no Power Damage, Weapon Damage, Spell Focus Damage, external Attack Damage bonuses, Damage Raises, or triggered hit-damage bonuses, and no Damage Roll occurs.** Special-generated later damage uses the Special's own rules. There is no automatic Basic Attack; damage attacks are made with a learned or granted Attack Power. Split Attacks and Autofire remain damaging attacks under their own templates, even when their purchased Power Damage Dice are zero. Non-attack Support Powers gain no delivery damage.
 
 Purchased bonus Damage Dice are listed as **+Xd8 damage**. An **instant Damage AoE** adds the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once to its single shared Damage Roll. A **Special-only AoE** adds neither and deals absolutely no direct Attack Damage, regardless of external Attack Damage modifiers.
 
@@ -2234,6 +169,7 @@ It does not hit additional creatures unless another rule says so.
 
 ---
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2277,6 +213,7 @@ Every valid creature inside the listed Radius is checked separately against the 
 
 ---
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2349,11 +286,12 @@ The first attack has **no Autofire surcharge**. Later slots carry cumulative **+
 
 **One Damage Roll:** Every successful slot is a **separate hit**, even against the same creature. Each hit gets full matching Weapon Damage (Martial) or Spell Focus Damage (Spell), purchased Power Damage and legal Specials. Roll the eligible common Damage Dice **once**; reuse the results for every hit. Never divide or reroll. Resolve Armor, Damage Reduction, Damage Negation, Temporary HP, Special Negation and other defenses **separately per hit**, consuming resources independently.
 
-**Costs:** **30 PP per additional attack slot** beyond the first; the published Attack Capacity, Range, PP calculations and PL Damage Dice remain unchanged. Declaring fewer slots is allowed. One Power use consumes **one Attack Action**, not one per slot.
+**Action cost:** One Autofire use consumes **one Attack Action**. You may declare fewer attack slots than the Power Level grants.
 
 ---
 :
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2394,6 +332,7 @@ Roll one shared Pool of **6d8 Power Damage + matching Weapon Damage**; every ene
 A miss against one creature does not change the result against any other creature.
 
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2418,6 +357,7 @@ Roll one shared Pool of **3d8 Power Damage + matching Weapon Damage (Martial) or
 The attack does not make separate Attack Rolls against the creatures in the area.
 
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2428,6 +368,7 @@ The attack does not make separate Attack Rolls against the creatures in the area
 A character uses a Level 7 Melee Split Attack with an Attack Pool of **12 dice**. The character divides the Pool into **6 dice against Enemy A** and **6 dice against Enemy B**. Each split is rolled against its target. If both hit, each receives a separate roll of **full Weapon Damage plus the Power's full bonus Damage**. With one declared Paid Raise, both TNs rise by **4**; after the rolls, the player chooses one Raise effect and applies that same effect to every successful split. The character splits accuracy, not damage.
 
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2450,6 +391,7 @@ Roll the eligible **Weapon Damage + 5d8 Power Damage once**. Apply that same Dam
 The cumulative Autofire +4 steps are **not Paid Raises** and award no free Raise effects. Dive for Cover cannot be used against Autofire.
 
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2463,36 +405,31 @@ The cumulative Autofire +4 steps are **not Paid Raises** and award no free Raise
   Melee Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Melee Range = Melee Reach<br>
-      No Range cost<br>
-      +1d8 Damage = 15 PP<br><br>
-      CALCULATION<br>
-      L1 → +2d8 Damage (30) = 30 PP<br>
-      L2 → +4d8 Damage (60) = 60 PP<br>
-      L3 → +6d8 Damage (90) = 90 PP<br>
-      L4 → +8d8 Damage (120) = 120 PP<br>
-      L5 → +10d8 Damage (150) = 150 PP<br>
-      L6 → +12d8 Damage (180) = 180 PP<br>
-      L7 → +14d8 Damage (210) = 210 PP<br>
-      L8 → +16d8 Damage (240) = 240 PP<br>
-      L9 → +18d8 Damage (270) = 270 PP<br>
-      L10 → +20d8 Damage (300) = 300 PP<br>
-      L11 → +22d8 Damage (330) = 330 PP<br>
-      L12 → +24d8 Damage (360) = 360 PP<br>
-      L13 → +26d8 Damage (390) = 390 PP<br>
-      L14 → +28d8 Damage (420) = 420 PP<br>
-      L15 → +30d8 Damage (450) = 450 PP<br>
-      L16 → +32d8 Damage (480) = 480 PP<br><br>
-      NOTES<br>
-      This is the clean melee weapon attack template.<br>
-      It makes one melee weapon attack and adds the listed bonus damage to normal weapon damage.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
+      L1: Range 0 + Area 0 + 2d8 x 15 = 30/30 PP (0 unused).<br>
+      L2: Range 0 + Area 0 + 4d8 x 15 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + 6d8 x 15 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 0 + 8d8 x 15 = 120/120 PP (0 unused).<br>
+      L5: Range 0 + Area 0 + 10d8 x 15 = 150/150 PP (0 unused).<br>
+      L6: Range 0 + Area 0 + 12d8 x 15 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Area 0 + 14d8 x 15 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Area 0 + 16d8 x 15 = 240/240 PP (0 unused).<br>
+      L9: Range 0 + Area 0 + 18d8 x 15 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Area 0 + 20d8 x 15 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Area 0 + 22d8 x 15 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 0 + 24d8 x 15 = 360/360 PP (0 unused).<br>
+      L13: Range 0 + Area 0 + 26d8 x 15 = 390/390 PP (0 unused).<br>
+      L14: Range 0 + Area 0 + 28d8 x 15 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Area 0 + 30d8 x 15 = 450/450 PP (0 unused).<br>
+      L16: Range 0 + Area 0 + 32d8 x 15 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-A clean melee weapon attack with no Special, rider, movement, or secondary effect.
+A straightforward melee strike that adds the printed Power Damage to matching Weapon Damage.
 
 ---
 :
@@ -2525,37 +462,31 @@ A clean melee weapon attack with no Special, rider, movement, or secondary effec
   Ranged Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged Power uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      +1d8 Damage = 15 PP<br><br>
-      CALCULATION<br>
-      L1 → Range 8 m (0) + +2d8 Damage (30) = 30 PP<br>
-      L2 → Range 12 m (5) + +3d8 Damage (45) = 50 PP<br>
-      L3 → Range 16 m (10) + +5d8 Damage (75) = 85 PP<br>
-      L4 → Range 20 m (15) + +7d8 Damage (105) = 120 PP<br>
-      L5 → Range 24 m (20) + +8d8 Damage (120) = 140 PP<br>
-      L6 → Range 28 m (25) + +10d8 Damage (150) = 175 PP<br>
-      L7 → Range 32 m (30) + +12d8 Damage (180) = 210 PP<br>
-      L8 → Range 36 m (35) + +13d8 Damage (195) = 230 PP<br>
-      L9 → Range 40 m (40) + +15d8 Damage (225) = 265 PP<br>
-      L10 → Range 44 m (45) + +17d8 Damage (255) = 300 PP<br>
-      L11 → Range 48 m (50) + +18d8 Damage (270) = 320 PP<br>
-      L12 → Range 52 m (55) + +20d8 Damage (300) = 355 PP<br>
-      L13 → Range 56 m (60) + +22d8 Damage (330) = 390 PP<br>
-      L14 → Range 60 m (65) + +23d8 Damage (345) = 410 PP<br>
-      L15 → Range 64 m (70) + +25d8 Damage (375) = 445 PP<br>
-      L16 → Range 68 m (75) + +27d8 Damage (405) = 480 PP<br><br>
-      NOTES<br>
-      This is the clean ranged weapon attack template.<br>
-      It pays Range every level, so its bonus damage trails behind the melee version.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
+      L1: Range 0 + Area 0 + 2d8 x 15 = 30/30 PP (0 unused).<br>
+      L2: Range 5 + Area 0 + 3d8 x 15 = 50/60 PP (10 unused).<br>
+      L3: Range 10 + Area 0 + 5d8 x 15 = 85/90 PP (5 unused).<br>
+      L4: Range 15 + Area 0 + 7d8 x 15 = 120/120 PP (0 unused).<br>
+      L5: Range 20 + Area 0 + 8d8 x 15 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Area 0 + 10d8 x 15 = 175/180 PP (5 unused).<br>
+      L7: Range 30 + Area 0 + 12d8 x 15 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 0 + 13d8 x 15 = 230/240 PP (10 unused).<br>
+      L9: Range 40 + Area 0 + 15d8 x 15 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 0 + 17d8 x 15 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + Area 0 + 18d8 x 15 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Area 0 + 20d8 x 15 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Area 0 + 22d8 x 15 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 0 + 23d8 x 15 = 410/420 PP (10 unused).<br>
+      L15: Range 70 + Area 0 + 25d8 x 15 = 445/450 PP (5 unused).<br>
+      L16: Range 75 + Area 0 + 27d8 x 15 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-A clean ranged weapon attack with no Special, rider, movement, or secondary effect.
+A straightforward ranged attack that adds the printed Power Damage to matching Weapon Damage (Martial) or Spell Focus Damage (Spell).
 
 ---
 :
@@ -2592,7 +523,7 @@ A clean ranged weapon attack with no Special, rider, movement, or secondary effe
 
 ## AoE Attacks
 
-**PL 1 Damage-AoE exception (Attacks only):** Melee/Ranged AoE Attack buy a 2 m radius + 1d8 Power Damage for 35 PP (+5); both have 2d8 at PL 2. Matching Weapon/Spell Focus Damage is normal delivery, not extra purchased Power Dice. **Special-only AoEs never gain any direct damage from this exception.**
+**At PL 1**, the Melee and Ranged **Damage AoE Attacks** have a 2 m radius and **1d8 Power Damage**; at PL 2 they have **2d8 Power Damage**. Add matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once to the shared Damage Roll. Special-only AoEs apply their printed Specials instead.
 
 ---
 :
@@ -2600,35 +531,26 @@ A clean ranged weapon attack with no Special, rider, movement, or secondary effe
   Melee AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Melee Range = Self; no Range cost<br>
-      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      +1d8 Damage = 15 PP<br><br>
-      DESIGN STRUCTURE<br>
-      Every successful target receives printed Power Damage plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell), added once to the shared Damage Roll. These delivery dice cost no extra Active PP.<br>
-      One AoE Attack Roll is compared separately against each creature's Evade. Dive for Cover is resolved before payload.<br>
-      Damage never decreases. PP not spent at a level may be intentionally reserved in the curve so a larger-radius level does not force damage to decrease; PP is not banked between levels.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Target 30 PP: Radius 2 m (20) + Damage +1d8 (15) = 35 PP; minimum-function exception +5 PP<br>
-      L2 → Target 60 PP: Radius 2 m (20) + Damage +2d8 (30) = 50 PP<br>
-      L3 → Target 90 PP: Radius 3 m (50) + Damage +2d8 (30) = 80 PP<br>
-      L4 → Target 120 PP: Radius 3 m (50) + Damage +4d8 (60) = 110 PP<br>
-      L5 → Target 150 PP: Radius 4 m (80) + Damage +4d8 (60) = 140 PP<br>
-      L6 → Target 180 PP: Radius 4 m (80) + Damage +6d8 (90) = 170 PP<br>
-      L7 → Target 210 PP: Radius 5 m (120) + Damage +6d8 (90) = 210 PP<br>
-      L8 → Target 240 PP: Radius 5 m (120) + Damage +7d8 (105) = 225 PP<br>
-      L9 → Target 270 PP: Radius 6 m (165) + Damage +7d8 (105) = 270 PP<br>
-      L10 → Target 300 PP: Radius 6 m (165) + Damage +7d8 (105) = 270 PP<br>
-      L11 → Target 330 PP: Radius 7 m (220) + Damage +7d8 (105) = 325 PP<br>
-      L12 → Target 360 PP: Radius 7 m (220) + Damage +7d8 (105) = 325 PP<br>
-      L13 → Target 390 PP: Radius 8 m (280) + Damage +7d8 (105) = 385 PP<br>
-      L14 → Target 420 PP: Radius 8 m (280) + Damage +9d8 (135) = 415 PP<br>
-      L15 → Target 450 PP: Radius 8 m (280) + Damage +11d8 (165) = 445 PP<br>
-      L16 → Target 480 PP: Radius 8 m (280) + Damage +13d8 (195) = 475 PP<br>
-<br>      NOTES<br>
-      Active Buff: Damage applies its full listed bonus to every successfully hit creature.<br>
-      Radius 8 m remains the standard player cap.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
+      L1: Range 0 + Area 20 + 1d8 x 15 = 35/30 PP (-5 unused); MINIMUM FUNCTION +5 PP.<br>
+      L2: Range 0 + Area 20 + 2d8 x 15 = 50/60 PP (10 unused).<br>
+      L3: Range 0 + Area 50 + 2d8 x 15 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 50 + 4d8 x 15 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + 4d8 x 15 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + 6d8 x 15 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + Area 120 + 6d8 x 15 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Area 120 + 7d8 x 15 = 225/240 PP (15 unused).<br>
+      L9: Range 0 + Area 165 + 7d8 x 15 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Area 165 + 7d8 x 15 = 270/300 PP (30 unused).<br>
+      L11: Range 0 + Area 220 + 7d8 x 15 = 325/330 PP (5 unused).<br>
+      L12: Range 0 + Area 220 + 7d8 x 15 = 325/360 PP (35 unused).<br>
+      L13: Range 0 + Area 280 + 7d8 x 15 = 385/390 PP (5 unused).<br>
+      L14: Range 0 + Area 280 + 9d8 x 15 = 415/420 PP (5 unused).<br>
+      L15: Range 0 + Area 280 + 11d8 x 15 = 445/450 PP (5 unused).<br>
+      L16: Range 0 + Area 280 + 13d8 x 15 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
@@ -2662,6 +584,7 @@ A self-centered Martial **Damage AoE** that deals the same shared Power Damage p
 
 ---
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2670,35 +593,26 @@ A self-centered Martial **Damage AoE** that deals the same shared Power Damage p
   Ranged AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
-      Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      +1d8 Damage = 15 PP<br><br>
-      DESIGN STRUCTURE<br>
-      Every successful target receives printed Power Damage plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell), added once to the shared Damage Roll. These delivery dice cost no extra Active PP.<br>
-      One AoE Attack Roll is compared separately against each creature's Evade. Dive for Cover is resolved before payload.<br>
-      Damage never decreases. PP not spent at a level may be intentionally reserved in the curve so a larger-radius level does not force damage to decrease; PP is not banked between levels.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Radius 2 m (20) + Damage +1d8 (15) = 35 PP; minimum-function exception +5 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Radius 2 m (20) + Damage +2d8 (30) = 55 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Radius 3 m (50) + Damage +2d8 (30) = 90 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Radius 3 m (50) + Damage +3d8 (45) = 110 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Radius 4 m (80) + Damage +3d8 (45) = 145 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Radius 4 m (80) + Damage +4d8 (60) = 165 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Radius 5 m (120) + Damage +4d8 (60) = 210 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Radius 5 m (120) + Damage +4d8 (60) = 215 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Radius 6 m (165) + Damage +4d8 (60) = 265 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Radius 6 m (165) + Damage +4d8 (60) = 270 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Radius 7 m (220) + Damage +4d8 (60) = 330 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Radius 7 m (220) + Damage +5d8 (75) = 350 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Radius 7 m (220) + Damage +5d8 (75) = 355 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Radius 8 m (280) + Damage +5d8 (75) = 420 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Radius 8 m (280) + Damage +6d8 (90) = 440 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Radius 8 m (280) + Damage +8d8 (120) = 475 PP<br>
-<br>      NOTES<br>
-      Active Buff: Damage applies its full listed bonus to every successfully hit creature.<br>
-      Radius 8 m remains the standard player cap.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
+      L1: Range 0 + Area 20 + 1d8 x 15 = 35/30 PP (-5 unused); MINIMUM FUNCTION +5 PP.<br>
+      L2: Range 5 + Area 20 + 2d8 x 15 = 55/60 PP (5 unused).<br>
+      L3: Range 10 + Area 50 + 2d8 x 15 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 50 + 3d8 x 15 = 110/120 PP (10 unused).<br>
+      L5: Range 20 + Area 80 + 3d8 x 15 = 145/150 PP (5 unused).<br>
+      L6: Range 25 + Area 80 + 4d8 x 15 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + 4d8 x 15 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + 4d8 x 15 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 165 + 4d8 x 15 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 165 + 4d8 x 15 = 270/300 PP (30 unused).<br>
+      L11: Range 50 + Area 220 + 4d8 x 15 = 330/330 PP (0 unused).<br>
+      L12: Range 55 + Area 220 + 5d8 x 15 = 350/360 PP (10 unused).<br>
+      L13: Range 60 + Area 220 + 5d8 x 15 = 355/390 PP (35 unused).<br>
+      L14: Range 65 + Area 280 + 5d8 x 15 = 420/420 PP (0 unused).<br>
+      L15: Range 70 + Area 280 + 6d8 x 15 = 440/450 PP (10 unused).<br>
+      L16: Range 75 + Area 280 + 8d8 x 15 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
@@ -2729,11 +643,11 @@ A ranged **Damage AoE** (Martial or legal Spell delivery) that adds matching Wea
 | **13** | Active | 56 m | Radius 7 m | Instant | Make one ranged AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 | **14** | Active | 60 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 | **15** | Active | 64 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **6d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
-
 | **16** | Active | 68 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **8d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 
 ---
 }}
+
 \page
 
 {{pageNumber,auto}}
@@ -2742,18 +656,26 @@ A ranged **Damage AoE** (Martial or legal Spell delivery) that adds matching Wea
   Melee Split Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Melee Range = Melee Reach<br>
-      No Range cost<br>
-      Split Attack = 30 PP per additional attack<br>
-      +1d8 Damage = 15 PP<br><br>
-      ATTACK COUNT<br>
-      All levels → up to 2 attacks<br><br>
-      NOTES<br>
-      Each successful split deals full listed damage.<br>
-      The attacker splits the Attack Pool before rolling.<br>
-      Roll the full Damage Pool separately for each successful hit.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Published model: 30 PP for second attack + 15 PP per bonus d8 + Range. Split divides Attack/Casting Pool only; each successful split deals full Damage Pool. Accuracy trade-off needs playtest calibration.<br>
+      L1: Range 0 + extra target 30 + 0d8 x 15 = 30/30 PP (0 unused).<br>
+      L2: Range 0 + extra target 30 + 2d8 x 15 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + extra target 30 + 4d8 x 15 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + extra target 30 + 6d8 x 15 = 120/120 PP (0 unused).<br>
+      L5: Range 0 + extra target 30 + 8d8 x 15 = 150/150 PP (0 unused).<br>
+      L6: Range 0 + extra target 30 + 10d8 x 15 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + extra target 30 + 10d8 x 15 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + extra target 30 + 12d8 x 15 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + extra target 30 + 14d8 x 15 = 240/270 PP (30 unused).<br>
+      L10: Range 0 + extra target 30 + 16d8 x 15 = 270/300 PP (30 unused).<br>
+      L11: Range 0 + extra target 30 + 18d8 x 15 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + extra target 30 + 20d8 x 15 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + extra target 30 + 20d8 x 15 = 330/390 PP (60 unused).<br>
+      L14: Range 0 + extra target 30 + 22d8 x 15 = 360/420 PP (60 unused).<br>
+      L15: Range 0 + extra target 30 + 24d8 x 15 = 390/450 PP (60 unused).<br>
+      L16: Range 0 + extra target 30 + 26d8 x 15 = 420/480 PP (60 unused).<br>
     </span>
   </span>
 </h3>
@@ -2798,18 +720,26 @@ A melee technique that divides one attack sequence between multiple targets.
   Ranged Split Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Ranged Power uses printed Range<br>
-      Range progression = +4 m per level<br>
-      Range cost = +5 PP per +4 m after 8 m<br>
-      Split Attack = 30 PP per additional attack<br>
-      +1d8 Damage = 15 PP<br><br>
-      ATTACK COUNT<br>
-      All levels → up to 2 attacks<br><br>
-      NOTES<br>
-      Each successful split deals full listed damage.<br>
-      The Ranged version pays Range every level, so its bonus damage trails behind the melee version.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Published model: 30 PP for second attack + 15 PP per bonus d8 + Range. Split divides Attack/Casting Pool only; each successful split deals full Damage Pool. Accuracy trade-off needs playtest calibration.<br>
+      L1: Range 0 + extra target 30 + 0d8 x 15 = 30/30 PP (0 unused).<br>
+      L2: Range 5 + extra target 30 + 1d8 x 15 = 50/60 PP (10 unused).<br>
+      L3: Range 10 + extra target 30 + 3d8 x 15 = 85/90 PP (5 unused).<br>
+      L4: Range 15 + extra target 30 + 5d8 x 15 = 120/120 PP (0 unused).<br>
+      L5: Range 20 + extra target 30 + 6d8 x 15 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + extra target 30 + 8d8 x 15 = 175/180 PP (5 unused).<br>
+      L7: Range 30 + extra target 30 + 8d8 x 15 = 180/210 PP (30 unused).<br>
+      L8: Range 35 + extra target 30 + 9d8 x 15 = 200/240 PP (40 unused).<br>
+      L9: Range 40 + extra target 30 + 11d8 x 15 = 235/270 PP (35 unused).<br>
+      L10: Range 45 + extra target 30 + 13d8 x 15 = 270/300 PP (30 unused).<br>
+      L11: Range 50 + extra target 30 + 14d8 x 15 = 290/330 PP (40 unused).<br>
+      L12: Range 55 + extra target 30 + 16d8 x 15 = 325/360 PP (35 unused).<br>
+      L13: Range 60 + extra target 30 + 16d8 x 15 = 330/390 PP (60 unused).<br>
+      L14: Range 65 + extra target 30 + 17d8 x 15 = 350/420 PP (70 unused).<br>
+      L15: Range 70 + extra target 30 + 19d8 x 15 = 385/450 PP (65 unused).<br>
+      L16: Range 75 + extra target 30 + 21d8 x 15 = 420/480 PP (60 unused).<br>
     </span>
   </span>
 </h3>
@@ -2856,48 +786,27 @@ A ranged technique that divides one attack sequence between multiple targets.
   Ranged Autofire
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Active curve = 30 PP per level<br>
-      Range progression = +4 m per level; Range cost = +5 PP per +4 m after 8 m<br>
-      Autofire Attack Capacity = 30 PP per additional attack slot<br>
-      +1d8 Damage = 15 PP<br><br>
-      DESIGN STRUCTURE<br>
-      Declare up to the purchased number of ordered attack slots before rolling; creatures may repeat.<br>
-      Every slot after the first must be within 4 m of the previous slot's target; all slots must be within printed Range.<br>
-      Make one shared Attack/Casting Roll. Slot i requires target Evade/Final Spell TN + 4 x (i-1) + 4 per ordinary Paid Raise.<br>
-      Cumulative +4 Autofire steps are not Paid Raises and do not grant Raise effects or consume Free Raises.<br>
-      The first missed or resisted slot ends the chain. Each earlier hit receives full matching Weapon or Spell Focus Damage, printed Power damage and legal Specials.<br>
-      Roll shared Damage Dice once; defend against every successful hit separately, even repeated hits on the same creature.<br>
-      Reaction: Evade applies to Martial Autofire only; Dive for Cover cannot be used.<br><br>
-      AUTOFIRE ATTACK CAPACITY<br>
-      L1–2 → first attack + 1 additional attack<br>
-      L3–4 → first attack + 2 additional attacks<br>
-      L5–6 → first attack + 3 additional attacks<br>
-      L7–8 → first attack + 4 additional attacks<br>
-      L9–10 → first attack + 5 additional attacks<br>
-      L11–12 → first attack + 6 additional attacks<br>
-      L13–14 → first attack + 7 additional attacks<br>
-      L15–16 → first attack + 8 additional attacks<br>
-<br>      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → Target 30 PP: Range 8 m (0) + Autofire +1 additional attack (30) + Damage +0d8 (0) = 30 PP<br>
-      L2 → Target 60 PP: Range 12 m (5) + Autofire +1 additional attack (30) + Damage +1d8 (15) = 50 PP<br>
-      L3 → Target 90 PP: Range 16 m (10) + Autofire +2 additional attacks (60) + Damage +1d8 (15) = 85 PP<br>
-      L4 → Target 120 PP: Range 20 m (15) + Autofire +2 additional attacks (60) + Damage +2d8 (30) = 105 PP<br>
-      L5 → Target 150 PP: Range 24 m (20) + Autofire +3 additional attacks (90) + Damage +2d8 (30) = 140 PP<br>
-      L6 → Target 180 PP: Range 28 m (25) + Autofire +3 additional attacks (90) + Damage +4d8 (60) = 175 PP<br>
-      L7 → Target 210 PP: Range 32 m (30) + Autofire +4 additional attacks (120) + Damage +4d8 (60) = 210 PP<br>
-      L8 → Target 240 PP: Range 36 m (35) + Autofire +4 additional attacks (120) + Damage +5d8 (75) = 230 PP<br>
-      L9 → Target 270 PP: Range 40 m (40) + Autofire +5 additional attacks (150) + Damage +5d8 (75) = 265 PP<br>
-      L10 → Target 300 PP: Range 44 m (45) + Autofire +5 additional attacks (150) + Damage +6d8 (90) = 285 PP<br>
-      L11 → Target 330 PP: Range 48 m (50) + Autofire +6 additional attacks (180) + Damage +6d8 (90) = 320 PP<br>
-      L12 → Target 360 PP: Range 52 m (55) + Autofire +6 additional attacks (180) + Damage +8d8 (120) = 355 PP<br>
-      L13 → Target 390 PP: Range 56 m (60) + Autofire +7 additional attacks (210) + Damage +8d8 (120) = 390 PP<br>
-      L14 → Target 420 PP: Range 60 m (65) + Autofire +7 additional attacks (210) + Damage +9d8 (135) = 410 PP<br>
-      L15 → Target 450 PP: Range 64 m (70) + Autofire +8 additional attacks (240) + Damage +9d8 (135) = 445 PP<br>
-      L16 → Target 480 PP: Range 68 m (75) + Autofire +8 additional attacks (240) + Damage +11d8 (165) = 480 PP<br>
-<br>      NOTES<br>
-      Damage is held at some levels so it never decreases when Attack Capacity increases.<br>
-      The structure remains weaker than a Single Attack against one target because a substantial part of its budget is permanently invested in Attack Capacity.
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: Range PP + 30 PP per attack slot beyond the first + 15 PP per bonus Power Damage d8.<br>
+      Each later slot increases target threshold by +4; repeated targets allowed and chain ends at first miss.<br>
+      L1: Range 0 + 1 extra slots x30 + 0d8 x15 = 30/30 PP (0 unused).<br>
+      L2: Range 5 + 1 extra slots x30 + 1d8 x15 = 50/60 PP (10 unused).<br>
+      L3: Range 10 + 2 extra slots x30 + 1d8 x15 = 85/90 PP (5 unused).<br>
+      L4: Range 15 + 2 extra slots x30 + 2d8 x15 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + 3 extra slots x30 + 2d8 x15 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + 3 extra slots x30 + 4d8 x15 = 175/180 PP (5 unused).<br>
+      L7: Range 30 + 4 extra slots x30 + 4d8 x15 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + 4 extra slots x30 + 5d8 x15 = 230/240 PP (10 unused).<br>
+      L9: Range 40 + 5 extra slots x30 + 5d8 x15 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + 5 extra slots x30 + 6d8 x15 = 285/300 PP (15 unused).<br>
+      L11: Range 50 + 6 extra slots x30 + 6d8 x15 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + 6 extra slots x30 + 8d8 x15 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + 7 extra slots x30 + 8d8 x15 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + 7 extra slots x30 + 9d8 x15 = 410/420 PP (10 unused).<br>
+      L15: Range 70 + 8 extra slots x30 + 9d8 x15 = 445/450 PP (5 unused).<br>
+      L16: Range 75 + 8 extra slots x30 + 11d8 x15 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
@@ -2932,470 +841,28 @@ A ranged Active that walks an ordered burst of **attacks**, which may repeatedly
 
 ---
 }}
-\page
 
+\page
 {{pageNumber,auto}}
 {{wide
-## Mental Powers
+## Instant Single-Target Special Powers
 
-Mental Powers affect thought, perception, emotion, memory, or the mind itself.
 
-The core Mental Power catalogue contains four distinct Actives:
+Choose one printed **Special** and one of four deliveries: **Melee Single Target, Ranged Single Target, Melee AoE or Ranged AoE**. Each combination is its own learned Power identity. The **Single-Target** Power tables come first, followed by the **AoE** Special tables in the next section. A Ranged version can use Martial or legal Spell delivery.
 
-- **Mental Attack** harms the mind.
-- **Mind Illusion** changes what a creature perceives.
-- **Mind Probe** reads thoughts, intentions, and memories.
-- **Mental Control** imposes temporary noncombat instructions, attitudes, or beliefs on weaker creatures.
+On a successful delivery, **apply the full listed Special(X)** to each hit target. A Special-only Attack deals **zero direct Attack Damage** and uses **no Damage Roll**, including Weapon Damage, Spell Focus Damage, Attack Damage bonuses or Damage Raises. **Special Raises** remain eligible. Later damage generated by a Special (such as Ruin) follows that Special's own rules.
 
-Mental Powers are not normal weapon attacks.
+**Ruin immediate damage:** Whenever Ruin stacks are newly applied to a creature, it immediately loses **4 HP per newly applied stack**. This damage ignores Armor and is not Attack Damage; otherwise it uses the same protection rules as the Ruin tick (Damage Reduction, Damage Negation and Temporary HP apply). Only stacks actually added after Special Negation and other Special defenses count; if no stack is added, no immediate damage occurs. The printed Ruin values are unchanged; **Balance Review: open**.
 
-Mental Powers do not target Evade unless a Power explicitly says otherwise.
+An AoE makes one Attack or Casting Roll for the whole area, compares against each target's eligible defense, and allows Dive for Cover where legal. Its Special is applied separately to each creature hit. Melee AoEs are centered on their user; Ranged AoEs are placed at a legal point within Range. Timing, recovery, decay, Cleanse and stacking follow the Core rules for the particular Special.
 
-Mental Powers are not reduced by Armor unless a Power explicitly says otherwise.
-
-Most Mental Powers require **Telepathic Access**.
-
----
-
-### Telepathic Access
-
-Telepathic Access represents the ability to reach and affect another creature's mind.
-
-A creature has Telepathic Access to a target if one of the following is true:
-
-- the creature has a **Telepathy Passive** that reaches a target it can perceive or whose location it knows,
-- the target is part of the creature's willing Mind Link,
-- the target is already affected by one of the creature's Mental Powers,
-- the Power explicitly creates its own Telepathic Access.
-
-Telepathic Access alone reveals no thoughts, memories, identity, or hidden information.
-
-Mental Attack, Mind Illusion, Mind Probe, and Mental Control require Telepathic Access unless the Power explicitly says otherwise.
-
-A Mental Power's level cannot exceed the user's **Telepathy Passive** level unless a rule explicitly says otherwise.
-
-Telekinesis does not require Telepathic Access unless the Power explicitly says otherwise.
-
----
-
-### Mental Power Resolution
-
-Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like Spells, but their **Spell Base TN is increased by +4**.
-
-First determine the user's normal Spell Base TN from Mastery Rank, then increase it by +4:
-
-`Mental Power Base TN = Spell Base TN + 4`
-
-For a Mental Power that affects another creature, add that creature's Spell Resistance:
-
-`Final Mental Power TN = Mental Power Base TN + Target Spell Resistance`
-
-When a Mental Power affects more than one creature, make **one** roll and compare that same result separately against each creature's Final Mental Power TN.
-
-A creature that knowingly accepts the Mental Power may treat its Spell Resistance as **0** against it. Mental Power Base TN is never reduced this way.
-
-If the Mental Power roll is below Mental Power Base TN, the Power fizzles. If the roll reaches Mental Power Base TN but does not reach a creature's Final Mental Power TN, the Power was successfully executed but that creature resists it.
-
-If the roll reaches a creature's Final Mental Power TN, the Power's listed effect resolves for that creature.
-
-The target does not make an automatic second roll. A later Intellect or Wits Attribute Check occurs only if the Power explicitly grants a disbelief, break, or intrusion response.
-
----
-
-}}
-
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Mental Attack
-
-Mental Attack Powers harm the mind directly.
-
-Mental Attacks require Telepathic Access unless the Power explicitly says otherwise.
-
-Mental Attacks use the normal **Final Mental Power TN**.
-
-Mental Attacks do not target Evade.
-
-Mental Attack damage ignores Armor.
-
-Mental Attack damage costs **30 PP per +1d8 Mental Damage**.
-
-If a Mental Attack also applies a Special, the Special must be paid normally.
-
-If a Mental Attack also applies a control effect, the control effect must be paid as a separate rider or defined by the Power.
-
-On a successful Mental Power roll, the target takes the full listed Mental Damage and suffers any paid Special or rider.
-
-Mental Attack does not grant an automatic Intellect or Wits Attribute Check after the Power succeeds.
-}}
-
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-<h3 id="mental-attack">
-  Mental Attack
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Mental<br>
-      Active curve = 30 PP per level<br>
-      Requires Telepathic Access<br>
-      Uses Final Mental Power TN = Spell Base TN +4 + target Spell Resistance<br>
-      Mental Damage = 30 PP per +1d8 Mental Damage<br>
-      Mental Damage ignores Armor<br>
-      Mental Attack does not target Evade<br><br>
-      DESIGN STRUCTURE<br>
-      This is a premium damage axis.<br>
-      It is expensive because it bypasses Armor and uses mental defenses instead of physical defenses.<br>
-      It also requires a Telepathy Passive, which costs a Passive Slot and limits the maximum Mental Power level.
-    </span>
-  </span>
-</h3>
-
-A direct psychic assault that harms a creature's mind.
-
-| **Level** | **Type** | **Range** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--|
-| **1** | Active, Mental | Telepathic Access | Instant | Deal **1d8 Mental Damage**. |
-| **2** | Active, Mental | Telepathic Access | Instant | Deal **2d8 Mental Damage**. |
-| **3** | Active, Mental | Telepathic Access | Instant | Deal **3d8 Mental Damage**. |
-| **4** | Active, Mental | Telepathic Access | Instant | Deal **4d8 Mental Damage**. |
-| **5** | Active, Mental | Telepathic Access | Instant | Deal **5d8 Mental Damage**. |
-| **6** | Active, Mental | Telepathic Access | Instant | Deal **6d8 Mental Damage**. |
-| **7** | Active, Mental | Telepathic Access | Instant | Deal **7d8 Mental Damage**. |
-| **8** | Active, Mental | Telepathic Access | Instant | Deal **8d8 Mental Damage**. |
-| **9** | Active, Mental | Telepathic Access | Instant | Deal **9d8 Mental Damage**. |
-| **10** | Active, Mental | Telepathic Access | Instant | Deal **10d8 Mental Damage**. |
-| **11** | Active, Mental | Telepathic Access | Instant | Deal **11d8 Mental Damage**. |
-| **12** | Active, Mental | Telepathic Access | Instant | Deal **12d8 Mental Damage**. |
-| **13** | Active, Mental | Telepathic Access | Instant | Deal **13d8 Mental Damage**. |
-| **14** | Active, Mental | Telepathic Access | Instant | Deal **14d8 Mental Damage**. |
-| **15** | Active, Mental | Telepathic Access | Instant | Deal **15d8 Mental Damage**. |
-| **16** | Active, Mental | Telepathic Access | Instant | Deal **16d8 Mental Damage**. |
-
----
-}}
-
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Mind Illusions
-
-Mind Illusions create false perceptions inside a creature's mind.
-
-Mind Illusions require Telepathic Access unless the Power explicitly says otherwise.
-
-Mind Illusions use the shared Mental Power resolution above, including **Final Mental Power TN**.
-
-A result below Mental Power Base TN fizzles. A result that reaches Mental Power Base TN but not a creature's Final Mental Power TN is resisted by that creature. If the result reaches a creature's Final Mental Power TN, the listed illusion applies to that creature. There is no automatic second resistance roll.
-
-Mind Illusions do not create real objects, creatures, walls, sounds, terrain, light, darkness, or battlefield effects.
-
-A Mind Illusion only exists for the affected creature.
-
-Other creatures do not perceive the illusion unless they are also affected by the same Power.
-
-Mind Illusions cannot directly force a creature to harm itself.
-
-Mind Illusions cannot control a creature's actions.
-
-Mind Illusions may cause the affected creature to perceive something false, but the creature still chooses its own actions based on that perception.
-
-Mind Illusions cannot create real cover, real terrain, real summons, real barriers, or real line-of-sight blockers.
-
-If a creature spends **1 Attack Action** to inspect the Mind Illusion, physically interacts with something it cannot support, or receives clear contradictory evidence, it may make a **Wits Attribute Check** against the original Final Mental Power TN used when the illusion was applied. A specifically analytical or memory-based Power may name **Intellect** instead. On a success, the illusion ends for that creature.
-}}
-
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-<h3 id="mind-illusion">
-  Mind Illusion
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Mental<br>
-      Active curve = 30 PP per level<br>
-      Requires Telepathic Access<br>
-      Uses Final Mental Power TN = Spell Base TN +4 + target Spell Resistance<br>
-      DESIGN STRUCTURE<br>
-      Mind Illusions scale through affected creatures, affected senses, believability, and complexity.<br>
-      They are inspired by mental images and sense-affecting illusion structures.<br>
-      They do not create real battlefield objects.<br>
-      They do not control the target's actions.<br><br>
-      SENSE MODEL<br>
-      Basic senses include sight, hearing, smell, touch, taste, pain, temperature, direction, balance, and emotional impression.<br>
-      A Mind Illusion may affect only the senses listed by its level.
-    </span>
-  </span>
-</h3>
-
-A mental illusion that creates false perceptions inside affected creatures' minds.
-
-| **Level** | **Type** | **Range** | **Targets** | **Senses / Complexity** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--|:--:|:--|
-| **1** | Active, Mental | Telepathic Access | 1 creature | 1 simple sense | MR rounds | Create a minor false perception, such as a whisper, flicker, smell, touch, or brief image. |
-| **2** | Active, Mental | Telepathic Access | 1 creature | 1 clear sense | MR rounds | Create a clear false sensory detail in one sense. |
-| **3** | Active, Mental | Telepathic Access | 1 creature | 2 simple senses | MR rounds | Combine two simple sensory details, such as image and sound. |
-| **4** | Active, Mental | Telepathic Access | 1 creature | 2 clear senses | MR rounds | Create a believable personal illusion affecting two senses. |
-| **5** | Active, Mental | Telepathic Access | 2 creatures | 2 clear senses | MR rounds | Affect two creatures with the same personal illusion. |
-| **6** | Active, Mental | Telepathic Access | 2 creatures | 3 senses | MR rounds | Create a more complete false perception affecting three senses. |
-| **7** | Active, Mental | Telepathic Access | 2 creatures | 3 senses, moving illusion | MR rounds | The illusion may move naturally inside the target's perception. |
-| **8** | Active, Mental | Telepathic Access | 3 creatures | 3 senses, reactive illusion | MR rounds | The illusion may react in simple ways to the target's movement or attention. |
-| **9** | Active, Mental | Telepathic Access | 3 creatures | 4 senses | MR rounds | Create a strong false perception affecting four senses. |
-| **10** | Active, Mental | Telepathic Access | 3 creatures | 4 senses, detailed illusion | MR rounds | The illusion may contain detailed features, such as a creature, object, voice, or false threat. |
-| **11** | Active, Mental | Telepathic Access | 4 creatures | 4 senses, reactive illusion | MR rounds | Affect up to four creatures with a shared but personal mental illusion. |
-| **12** | Active, Mental | Telepathic Access | 4 creatures | 5 senses | MR rounds | Create a nearly complete sensory illusion inside each target's mind. |
-| **13** | Active, Mental | Telepathic Access | 5 creatures | 5 senses, detailed moving illusion | MR rounds | The illusion may appear complex, moving, and emotionally convincing. |
-| **14** | Active, Mental | Telepathic Access | 5 creatures | 5 senses, reactive false scene | MR rounds | Create a false scene inside the targets' perception. It still has no real battlefield presence. |
-| **15** | Active, Mental | Telepathic Access | MR + 2 creatures | all normal senses | MR rounds | Affect all normal senses with a convincing personal illusion. |
-| **16** | Active, Mental | Telepathic Access | MR + 3 creatures | all normal senses, complex reactive illusion | MR rounds | Create a complex shared mental illusion for affected creatures. It remains mental only and cannot control actions directly. |
-
----
-}}
-
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-### Mind Illusion Limits
-
-Mind Illusions cannot directly force a creature to take a specific Action or Movement.
-
-Mind Illusions cannot force self-harm.
-
-Mind Illusions cannot spend a creature's limited resources.
-
-Mind Illusions cannot make a creature reveal information it does not know.
-
-Mind Illusions cannot create real walls, real cover, real terrain, real summons, real damage zones, or real barriers.
-
-Mind Illusions cannot block line of sight for creatures that are not affected by the illusion.
-
-Mind Illusions cannot be removed by normal Cleanse unless the Power explicitly applies a cleanseable numeric Special.
-
-A Mind Illusion ends for a creature if it succeeds on the listed Wits or Intellect Attribute Check, the duration ends, or the Power is otherwise broken by a listed rule.
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-## Mind Probe
-
-Mind Probe searches a creature's active thoughts and memories.
-
-Mind Probe requires Telepathic Access unless the Power explicitly says otherwise.
-
-Mind Probe uses the normal **Final Mental Power TN**.
-
-On a success, learn only the information allowed by the Power's current level.
-
-Mind Probe returns information as the target understands or remembers it. A false belief, incomplete memory, or mistaken conclusion remains false, incomplete, or mistaken when read.
-
-Mind Probe cannot discover information the target never knew.
-
-An unwilling target knows that its mind was probed after the Power resolves, but it does not automatically know exactly what was learned.
-
-Mind Probe does not alter memories, create beliefs, control actions, or deal damage.
-
----
-
-<h3 id="mind-probe">
-  Mind Probe
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Mental<br>
-      Active curve = 30 PP per level<br>
-      Requires Telepathic Access<br>
-      Uses Final Mental Power TN = Spell Base TN +4 + target Spell Resistance<br><br>
-      DESIGN STRUCTURE<br>
-      Mind Probe is a fixed qualitative Mental Active.<br>
-      Its full budget is spent on information depth, precision, memory age, and access to difficult memories.<br>
-      It affects one creature and returns one listed answer, fact set, or memory per use unless a level explicitly grants more.<br>
-      It cannot be combined with damage, Specials, Mind Illusion, or Mental Control in a standard catalogue entry.
-    </span>
-  </span>
-</h3>
-
-A direct mental search that extracts one thought, fact, intention, or memory from a creature.
-
-| **Level** | **Type** | **Range** | **Targets** | **Duration** | **Information Access** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn the target's current dominant emotion. |
-| **2** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one dominant surface thought currently passing through the target's mind. |
-| **3** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn the target's immediate intention or next intended non-reflexive action. |
-| **4** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn one simple fact currently held in the target's active memory. |
-| **5** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one sensory memory from approximately the last minute. |
-| **6** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one event memory from approximately the last hour. |
-| **7** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last day. |
-| **8** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last 7 Tyhran Days. |
-| **9** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last 44 Tyhran Days. |
-| **10** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last year. |
-| **11** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one accessible named memory from any point in the target's life. |
-| **12** | Active, Mental | Telepathic Access | 1 creature | Instant | Follow one connected memory chain and learn up to **MR linked facts** about one named person, place, object, or event. |
-| **13** | Active, Mental | Telepathic Access | 1 creature | Instant | Recover one fragmented or partially forgotten memory as the target's mind still retains it. |
-| **14** | Active, Mental | Telepathic Access | 1 creature | Instant | Reach one deliberately suppressed or deeply buried memory. |
-| **15** | Active, Mental | Telepathic Access | 1 creature | Instant | Reach one memory protected by a Mental Power, ward, or seal of a lower Power Level. Equal- or higher-level protection still blocks the probe. |
-| **16** | Active, Mental | Telepathic Access | 1 creature | Instant | Reconstruct one complete remembered sequence around a named event, including connected sensory details, emotions, and up to **MR linked facts**. |
+The following tables supply the **exact Special values** at each Power Level. Their entries deliver the Special stated in the row, with its existing rules.
 
 ---
 }}
 
 \page
 
-{{pageNumber,auto}}
-{{wide
-### Mind Probe Limits
-
-Mind Probe reads the target's mind. It does not establish objective truth.
-
-Mind Probe cannot:
-
-- discover knowledge the target never possessed,
-- make an incorrect belief become correct,
-- recover information completely erased from the target's mind,
-- alter, erase, implant, or rewrite memories,
-- force the target to act or speak,
-- apply a Special,
-- or deal damage.
-
-A willing target may voluntarily share information through Telepathy instead. Mind Probe is required when the user searches, extracts, or reaches into an unwilling mind.
-
----
-
-## Mental Control
-
-Mental Control imposes a temporary instruction, attitude, relationship, belief, or behavioral program on a weaker creature.
-
-Mental Control requires Telepathic Access unless the Power explicitly says otherwise.
-
-Mental Control uses the normal **Final Mental Power TN**.
-
-Mental Control can affect only a creature whose **Mastery Rank is strictly lower** than the user's Mastery Rank.
-
-Mental Control is a **noncombat Power**. It cannot be activated after Initiative begins, against a creature currently participating in combat, or to create an allied combatant.
-
-If a controlled creature becomes a participant in combat, the Mental Control ends immediately before it takes its first combat action.
-
----
-
-<h3 id="mental-control">
-  Mental Control
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Power Type = Active, Mental, Noncombat<br>
-      Active curve = 30 PP per level<br>
-      Requires Telepathic Access<br>
-      Target Mastery Rank must be lower than the user's Mastery Rank<br>
-      Uses Final Mental Power TN = Spell Base TN +4 + target Spell Resistance<br><br>
-      DESIGN STRUCTURE<br>
-      Mental Control is a fixed qualitative Mental Active.<br>
-      Its full budget is spent on instruction complexity, target count, duration, conditional behavior, and the breadth of one defined noncombat purpose.<br>
-      It never creates a combatant, never grants direct action-economy value, and never replaces Summon, Companion, or combat-control Powers.
-    </span>
-  </span>
-</h3>
-
-A temporary mental command that changes what weaker creatures are willing to do, believe, or accept outside combat.
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-| **Level** | **Type** | **Targets** | **Duration** | **Control Scope** |
-|:--:|:--|:--:|:--:|:--|
-| **1** | Active, Mental, Noncombat | 1 creature | 1 Tyhran Minute | Impose one immediate, simple, non-harmful instruction. |
-| **2** | Active, Mental, Noncombat | 1 creature | 10 Tyhran Minutes | Impose one simple task that can be completed without complex judgment. |
-| **3** | Active, Mental, Noncombat | 1 creature | 1 Tyhran Hour | Impose one simple task with several obvious steps. |
-| **4** | Active, Mental, Noncombat | 1 creature | 4 Tyhran Hours | Impose one clear command or one temporary attitude toward a person, place, or object. |
-| **5** | Active, Mental, Noncombat | 2 creatures | 4 Tyhran Hours | Give both targets the same simple task or attitude. |
-| **6** | Active, Mental, Noncombat | 2 creatures | 8 Tyhran Hours | Impose one sustained role, routine, or pattern of cooperation. |
-| **7** | Active, Mental, Noncombat | 2 creatures | 12 Tyhran Hours | Impose two linked instructions or one simple conditional instruction. |
-| **8** | Active, Mental, Noncombat | 3 creatures | 1 Tyhran Day | Impose one believable temporary relationship, loyalty, aversion, trust, affection, or false assumption. |
-| **9** | Active, Mental, Noncombat | 3 creatures | 1 Tyhran Day | Impose one complex noncombat objective and allow reasonable improvisation toward it. |
-| **10** | Active, Mental, Noncombat | MR creatures | 2 Tyhran Days | Give all targets the same complex task, attitude, or temporary relationship. |
-| **11** | Active, Mental, Noncombat | MR creatures | 3 Tyhran Days | Impose one conditional behavioral program with a clear trigger and response. |
-| **12** | Active, Mental, Noncombat | MR + 1 creatures | 3 Tyhran Days | Combine one complex task with one supporting attitude or belief. |
-| **13** | Active, Mental, Noncombat | MR + 1 creatures | 7 Tyhran Days | Impose one sustained false loyalty, relationship, social role, or long-form objective. |
-| **14** | Active, Mental, Noncombat | MR + 2 creatures | 7 Tyhran Days | Impose several linked instructions serving one defined noncombat purpose. |
-| **15** | Active, Mental, Noncombat | MR + 3 creatures | 14 Tyhran Days | Impose a broad behavioral program around one defined noncombat purpose. |
-| **16** | Active, Mental, Noncombat | MR + 4 creatures | 44 Tyhran Days | Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior. |
-
----
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
-### Mental Control Limits
-
-All targets must be within Telepathic Access when the Power is activated. When several creatures are affected, they receive the same control program.
-
-Mental Control may order a creature to speak, cooperate, open a door, ignore an intrusion, leave an area, deliver a message, adopt a temporary attitude, or pursue another noncombat objective within the Power's listed scope.
-
-Mental Control may not:
-
-- be activated during combat,
-- order a creature to make an attack, use an offensive Power, or participate in combat,
-- create an allied combatant,
-- force direct self-harm, obvious suicide, or entry into clearly lethal danger,
-- force the expenditure of Stones, Charges, once-per-rest abilities, or other limited combat resources,
-- grant knowledge the target does not possess,
-- rewrite or erase memories,
-- permanently change personality, loyalty, love, identity, or conviction,
-- or affect a creature whose Mastery Rank is equal to or higher than the user's.
-
-Mental Control transmits intent telepathically and does not require a shared spoken language, but a target cannot execute concepts it is incapable of understanding.
-
-A controlled creature remembers its actions when the effect ends. It may recognize that its behavior was unnatural.
-
-The effect ends immediately if the controller or one of the controller's obvious allies directly harms the target.
-
-A target receives a **Wits Attribute Check** against the original Final Mental Power TN only when the control directly collides with a defining conviction, a deeply held bond, or clear evidence that obedience would cause severe harm to someone it is committed to protect. On a success, the control ends. This is a later break opportunity, not an automatic resistance roll when the Power is applied.
-
-Mental Control can make a target speak or cooperate, but it does not guarantee complete or objectively truthful information. Use Mind Probe to search thoughts and memories directly.
-
----
-
-### Excluded Mental Conditions and Power Locks
-
-**Frightened**, **Charmed**, and **Confused** are not separate core Specials or Power families. Their noncombat narrative functions are handled through Mental Control; false perception is handled through Mind Illusion; general combat impairment is handled through existing Specials such as Disoriented, Weaken, or Soulburn.
-
-**Silence**, **Null Field**, and **Power Lock** are not standard player Powers or core Specials. A specific adventure, location, Artifact, monster, or narrative effect may prohibit a named Power, Special, or Power tag, but it must write that exception explicitly.
-
-}}
-
-{{wide
-
-## Instant Single-Special Powers
-
-Each of the following is a **separate technical Power identity** identified by its delivery and its one chosen Special. These Powers purchase **no Power Damage**, Healing, Cleanse, or unrelated control effect. **A Special-only Attack deals zero direct Attack Damage regardless of whether it is Single Target or AoE. Neither Weapon Damage nor Spell Focus Damage is added; neither external Attack Damage bonuses nor Damage Raises can create direct damage. No Damage Roll is made.** Only the printed Special is delivered; its later effects follow its own rules.
-
-Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Melee AoE**, and **Ranged AoE**. All are Instant Actives; existing Specials may continue to diminish, count down or be recovered according to their own rules after that instant application. These are **Special-only Actives and cannot be learned as Limited Powers**. Specials still follow their own duration, diminishing, timing, stacking, Natural Special Recovery and Cleanse rules; there is no global 4 x MR new-application cap.
-
-**Target and delivery rules:** Martial uses the usual Attack Pool and target Evade; Ranged Spell uses the normal Casting/Spell Resistance resolution. Melee AoE is centered on the user; Ranged AoE is placed at a legal point in range. One AoE roll is checked separately for each eligible creature and permits Dive for Cover. Every hit creature receives the **full Special(X)** without splitting or a Primary Target. **All Special-only deliveries (Single Target and AoE) have no direct Damage Roll**, even from a Weapon, Spell Focus, Damage Buff, Stone-based Attack Damage bonus, Raise assigned to Damage, or other Attack Damage bonus. Damage Raises are ineligible; Special Raises remain legal. Later Special-generated damage (such as Ruin) resolves normally. The attacker does not affect itself unless expressly permitted.
-
-**PP calculation:** Direct Active target 30 PP × PL. A Special-only AoE purchases **zero Power Damage Dice** (0 damage PP); the full legal budget is already committed to its printed single Special, radius and, if Ranged, range. Removing external Weapon/Focus damage **does not free PP**. An extra Special point may be added only if its entire incremental Special cost fits without reducing the listed radius, range, or any higher-level Special value. Choose one printed Special at learning; it cannot change without retraining.
-
----
-}}
-
-\page
 {{pageNumber,auto}}
 
 {{wide
@@ -3404,61 +871,62 @@ Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Me
   Melee Single Target Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Blight (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Blight(4) 30 = 30/30 PP (0 unused)<br>
-      L2: Range 0 + Radius 0 + Blight(5) 45 = 45/60 PP (15 unused)<br>
-      L3: Range 0 + Radius 0 + Blight(7) 84 = 84/90 PP (6 unused)<br>
-      L4: Range 0 + Radius 0 + Blight(8) 108 = 108/120 PP (12 unused)<br>
-      L5: Range 0 + Radius 0 + Blight(9) 135 = 135/150 PP (15 unused)<br>
-      L6: Range 0 + Radius 0 + Blight(10) 165 = 165/180 PP (15 unused)<br>
-      L7: Range 0 + Radius 0 + Blight(11) 198 = 198/210 PP (12 unused)<br>
-      L8: Range 0 + Radius 0 + Blight(12) 234 = 234/240 PP (6 unused)<br>
-      L9: Range 0 + Radius 0 + Blight(12) 234 = 234/270 PP (36 unused)<br>
-      L10: Range 0 + Radius 0 + Blight(13) 273 = 273/300 PP (27 unused)<br>
-      L11: Range 0 + Radius 0 + Blight(14) 315 = 315/330 PP (15 unused)<br>
-      L12: Range 0 + Radius 0 + Blight(15) 360 = 360/360 PP (0 unused)<br>
-      L13: Range 0 + Radius 0 + Blight(15) 360 = 360/390 PP (30 unused)<br>
-      L14: Range 0 + Radius 0 + Blight(16) 408 = 408/420 PP (12 unused)<br>
-      L15: Range 0 + Radius 0 + Blight(16) 408 = 408/450 PP (42 unused)<br>
-      L16: Range 0 + Radius 0 + Blight(17) 459 = 459/480 PP (21 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Blight cost: 3 x T(X).<br>
+      Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Blight(4) 30 = 30/30 PP (0 unused).<br>
+      L2: Range 0 + Area 0 + Blight(5) 45 = 45/60 PP (15 unused).<br>
+      L3: Range 0 + Area 0 + Blight(7) 84 = 84/90 PP (6 unused).<br>
+      L4: Range 0 + Area 0 + Blight(8) 108 = 108/120 PP (12 unused).<br>
+      L5: Range 0 + Area 0 + Blight(9) 135 = 135/150 PP (15 unused).<br>
+      L6: Range 0 + Area 0 + Blight(10) 165 = 165/180 PP (15 unused).<br>
+      L7: Range 0 + Area 0 + Blight(11) 198 = 198/210 PP (12 unused).<br>
+      L8: Range 0 + Area 0 + Blight(12) 234 = 234/240 PP (6 unused).<br>
+      L9: Range 0 + Area 0 + Blight(12) 234 = 234/270 PP (36 unused).<br>
+      L10: Range 0 + Area 0 + Blight(13) 273 = 273/300 PP (27 unused).<br>
+      L11: Range 0 + Area 0 + Blight(14) 315 = 315/330 PP (15 unused).<br>
+      L12: Range 0 + Area 0 + Blight(15) 360 = 360/360 PP (0 unused).<br>
+      L13: Range 0 + Area 0 + Blight(15) 360 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + Area 0 + Blight(16) 408 = 408/420 PP (12 unused).<br>
+      L15: Range 0 + Area 0 + Blight(16) 408 = 408/450 PP (42 unused).<br>
+      L16: Range 0 + Area 0 + Blight(17) 459 = 459/480 PP (21 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Blight(X)** (Timed Disadvantage). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Blight(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(4)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(5)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(7)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(8)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(9)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(10)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(11)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(12)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(12)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(13)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(14)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(15)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(15)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(16)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(16)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(17)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(4)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(5)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(7)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(8)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(9)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(10)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(11)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(12)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(12)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(13)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(14)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(15)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(15)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(16)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(16)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Blight(17)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3467,61 +935,61 @@ Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Me
   Melee Single Target Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Challenge (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Challenge(1) 6 = 6/30 PP (24 unused)<br>
-      L2: Range 0 + Radius 0 + Challenge(2) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Challenge(2) 60 = 60/90 PP (30 unused)<br>
-      L4: Range 0 + Radius 0 + Challenge(2) 60 = 60/120 PP (60 unused)<br>
-      L5: Range 0 + Radius 0 + Challenge(3) 126 = 126/150 PP (24 unused)<br>
-      L6: Range 0 + Radius 0 + Challenge(3) 126 = 126/180 PP (54 unused)<br>
-      L7: Range 0 + Radius 0 + Challenge(3) 126 = 126/210 PP (84 unused)<br>
-      L8: Range 0 + Radius 0 + Challenge(4) 216 = 216/240 PP (24 unused)<br>
-      L9: Range 0 + Radius 0 + Challenge(4) 216 = 216/270 PP (54 unused)<br>
-      L10: Range 0 + Radius 0 + Challenge(4) 216 = 216/300 PP (84 unused)<br>
-      L11: Range 0 + Radius 0 + Challenge(5) 330 = 330/330 PP (0 unused)<br>
-      L12: Range 0 + Radius 0 + Challenge(5) 330 = 330/360 PP (30 unused)<br>
-      L13: Range 0 + Radius 0 + Challenge(5) 330 = 330/390 PP (60 unused)<br>
-      L14: Range 0 + Radius 0 + Challenge(5) 330 = 330/420 PP (90 unused)<br>
-      L15: Range 0 + Radius 0 + Challenge(5) 330 = 330/450 PP (120 unused)<br>
-      L16: Range 0 + Radius 0 + Challenge(6) 468 = 468/480 PP (12 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Challenge(1) 6 = 6/30 PP (24 unused).<br>
+      L2: Range 0 + Area 0 + Challenge(2) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Challenge(2) 60 = 60/90 PP (30 unused).<br>
+      L4: Range 0 + Area 0 + Challenge(2) 60 = 60/120 PP (60 unused).<br>
+      L5: Range 0 + Area 0 + Challenge(3) 126 = 126/150 PP (24 unused).<br>
+      L6: Range 0 + Area 0 + Challenge(3) 126 = 126/180 PP (54 unused).<br>
+      L7: Range 0 + Area 0 + Challenge(3) 126 = 126/210 PP (84 unused).<br>
+      L8: Range 0 + Area 0 + Challenge(4) 216 = 216/240 PP (24 unused).<br>
+      L9: Range 0 + Area 0 + Challenge(4) 216 = 216/270 PP (54 unused).<br>
+      L10: Range 0 + Area 0 + Challenge(4) 216 = 216/300 PP (84 unused).<br>
+      L11: Range 0 + Area 0 + Challenge(5) 330 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 0 + Challenge(5) 330 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + Area 0 + Challenge(5) 330 = 330/390 PP (60 unused).<br>
+      L14: Range 0 + Area 0 + Challenge(5) 330 = 330/420 PP (90 unused).<br>
+      L15: Range 0 + Area 0 + Challenge(5) 330 = 330/450 PP (120 unused).<br>
+      L16: Range 0 + Area 0 + Challenge(6) 468 = 468/480 PP (12 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Challenge(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Challenge(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(1)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(2)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(2)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(2)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(6)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(1)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(2)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(2)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(2)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(6)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3530,61 +998,61 @@ Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Me
   Melee Single Target Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Corrode (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Corrode(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 0 + Radius 0 + Corrode(4) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Corrode(5) 90 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 0 + Corrode(5) 90 = 90/120 PP (30 unused)<br>
-      L5: Range 0 + Radius 0 + Corrode(6) 126 = 126/150 PP (24 unused)<br>
-      L6: Range 0 + Radius 0 + Corrode(7) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Corrode(7) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Corrode(8) 216 = 216/240 PP (24 unused)<br>
-      L9: Range 0 + Radius 0 + Corrode(9) 270 = 270/270 PP (0 unused)<br>
-      L10: Range 0 + Radius 0 + Corrode(9) 270 = 270/300 PP (30 unused)<br>
-      L11: Range 0 + Radius 0 + Corrode(10) 330 = 330/330 PP (0 unused)<br>
-      L12: Range 0 + Radius 0 + Corrode(10) 330 = 330/360 PP (30 unused)<br>
-      L13: Range 0 + Radius 0 + Corrode(10) 330 = 330/390 PP (60 unused)<br>
-      L14: Range 0 + Radius 0 + Corrode(11) 396 = 396/420 PP (24 unused)<br>
-      L15: Range 0 + Radius 0 + Corrode(11) 396 = 396/450 PP (54 unused)<br>
-      L16: Range 0 + Radius 0 + Corrode(12) 468 = 468/480 PP (12 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Corrode cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Corrode(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 0 + Area 0 + Corrode(4) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Corrode(5) 90 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 0 + Corrode(5) 90 = 90/120 PP (30 unused).<br>
+      L5: Range 0 + Area 0 + Corrode(6) 126 = 126/150 PP (24 unused).<br>
+      L6: Range 0 + Area 0 + Corrode(7) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Corrode(7) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Corrode(8) 216 = 216/240 PP (24 unused).<br>
+      L9: Range 0 + Area 0 + Corrode(9) 270 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Area 0 + Corrode(9) 270 = 270/300 PP (30 unused).<br>
+      L11: Range 0 + Area 0 + Corrode(10) 330 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 0 + Corrode(10) 330 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + Area 0 + Corrode(10) 330 = 330/390 PP (60 unused).<br>
+      L14: Range 0 + Area 0 + Corrode(11) 396 = 396/420 PP (24 unused).<br>
+      L15: Range 0 + Area 0 + Corrode(11) 396 = 396/450 PP (54 unused).<br>
+      L16: Range 0 + Area 0 + Corrode(12) 468 = 468/480 PP (12 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Corrode(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Corrode(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(2)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(4)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(5)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(5)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(6)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(7)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(7)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(8)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(9)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(9)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(10)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(10)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(10)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(11)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(11)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(12)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(2)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(4)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(5)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(5)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(6)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(7)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(7)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(8)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(9)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(9)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(10)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(10)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(10)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(11)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(11)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Corrode(12)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3593,61 +1061,61 @@ Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Me
   Melee Single Target Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Disoriented (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Disoriented(1) 8 = 8/30 PP (22 unused)<br>
-      L2: Range 0 + Radius 0 + Disoriented(1) 8 = 8/60 PP (52 unused)<br>
-      L3: Range 0 + Radius 0 + Disoriented(2) 80 = 80/90 PP (10 unused)<br>
-      L4: Range 0 + Radius 0 + Disoriented(2) 80 = 80/120 PP (40 unused)<br>
-      L5: Range 0 + Radius 0 + Disoriented(2) 80 = 80/150 PP (70 unused)<br>
-      L6: Range 0 + Radius 0 + Disoriented(3) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Disoriented(3) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Disoriented(3) 168 = 168/240 PP (72 unused)<br>
-      L9: Range 0 + Radius 0 + Disoriented(3) 168 = 168/270 PP (102 unused)<br>
-      L10: Range 0 + Radius 0 + Disoriented(4) 288 = 288/300 PP (12 unused)<br>
-      L11: Range 0 + Radius 0 + Disoriented(4) 288 = 288/330 PP (42 unused)<br>
-      L12: Range 0 + Radius 0 + Disoriented(4) 288 = 288/360 PP (72 unused)<br>
-      L13: Range 0 + Radius 0 + Disoriented(4) 288 = 288/390 PP (102 unused)<br>
-      L14: Range 0 + Radius 0 + Disoriented(4) 288 = 288/420 PP (132 unused)<br>
-      L15: Range 0 + Radius 0 + Disoriented(5) 440 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 0 + Disoriented(5) 440 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Disoriented(1) 8 = 8/30 PP (22 unused).<br>
+      L2: Range 0 + Area 0 + Disoriented(1) 8 = 8/60 PP (52 unused).<br>
+      L3: Range 0 + Area 0 + Disoriented(2) 80 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 0 + Disoriented(2) 80 = 80/120 PP (40 unused).<br>
+      L5: Range 0 + Area 0 + Disoriented(2) 80 = 80/150 PP (70 unused).<br>
+      L6: Range 0 + Area 0 + Disoriented(3) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Disoriented(3) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Disoriented(3) 168 = 168/240 PP (72 unused).<br>
+      L9: Range 0 + Area 0 + Disoriented(3) 168 = 168/270 PP (102 unused).<br>
+      L10: Range 0 + Area 0 + Disoriented(4) 288 = 288/300 PP (12 unused).<br>
+      L11: Range 0 + Area 0 + Disoriented(4) 288 = 288/330 PP (42 unused).<br>
+      L12: Range 0 + Area 0 + Disoriented(4) 288 = 288/360 PP (72 unused).<br>
+      L13: Range 0 + Area 0 + Disoriented(4) 288 = 288/390 PP (102 unused).<br>
+      L14: Range 0 + Area 0 + Disoriented(4) 288 = 288/420 PP (132 unused).<br>
+      L15: Range 0 + Area 0 + Disoriented(5) 440 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 0 + Disoriented(5) 440 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Disoriented(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Disoriented(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Disoriented(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(1)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(1)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(5)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(5)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(1)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(1)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(5)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(5)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3656,61 +1124,61 @@ Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Me
   Melee Single Target Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Expose (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Expose(2) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 0 + Expose(3) 48 = 48/60 PP (12 unused)<br>
-      L3: Range 0 + Radius 0 + Expose(4) 80 = 80/90 PP (10 unused)<br>
-      L4: Range 0 + Radius 0 + Expose(5) 120 = 120/120 PP (0 unused)<br>
-      L5: Range 0 + Radius 0 + Expose(5) 120 = 120/150 PP (30 unused)<br>
-      L6: Range 0 + Radius 0 + Expose(6) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Expose(6) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Expose(7) 224 = 224/240 PP (16 unused)<br>
-      L9: Range 0 + Radius 0 + Expose(7) 224 = 224/270 PP (46 unused)<br>
-      L10: Range 0 + Radius 0 + Expose(8) 288 = 288/300 PP (12 unused)<br>
-      L11: Range 0 + Radius 0 + Expose(8) 288 = 288/330 PP (42 unused)<br>
-      L12: Range 0 + Radius 0 + Expose(9) 360 = 360/360 PP (0 unused)<br>
-      L13: Range 0 + Radius 0 + Expose(9) 360 = 360/390 PP (30 unused)<br>
-      L14: Range 0 + Radius 0 + Expose(9) 360 = 360/420 PP (60 unused)<br>
-      L15: Range 0 + Radius 0 + Expose(10) 440 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 0 + Expose(10) 440 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Expose cost: 8 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Expose(2) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 0 + Expose(3) 48 = 48/60 PP (12 unused).<br>
+      L3: Range 0 + Area 0 + Expose(4) 80 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 0 + Expose(5) 120 = 120/120 PP (0 unused).<br>
+      L5: Range 0 + Area 0 + Expose(5) 120 = 120/150 PP (30 unused).<br>
+      L6: Range 0 + Area 0 + Expose(6) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Expose(6) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Expose(7) 224 = 224/240 PP (16 unused).<br>
+      L9: Range 0 + Area 0 + Expose(7) 224 = 224/270 PP (46 unused).<br>
+      L10: Range 0 + Area 0 + Expose(8) 288 = 288/300 PP (12 unused).<br>
+      L11: Range 0 + Area 0 + Expose(8) 288 = 288/330 PP (42 unused).<br>
+      L12: Range 0 + Area 0 + Expose(9) 360 = 360/360 PP (0 unused).<br>
+      L13: Range 0 + Area 0 + Expose(9) 360 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + Area 0 + Expose(9) 360 = 360/420 PP (60 unused).<br>
+      L15: Range 0 + Area 0 + Expose(10) 440 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 0 + Expose(10) 440 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Expose(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Expose(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(2)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(3)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(4)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(5)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(5)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(6)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(6)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(7)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(7)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(8)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(8)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(9)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(9)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(9)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(10)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(10)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(2)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(3)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(4)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(5)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(5)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(6)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(6)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(7)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(7)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(8)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(8)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(9)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(9)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(9)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(10)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Expose(10)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3719,62 +1187,61 @@ Available deliveries are **Melee Single Target**, **Ranged Single Target**, **Me
   Melee Single Target Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Hex (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Hex(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 0 + Radius 0 + Hex(4) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Hex(5) 90 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 0 + Hex(5) 90 = 90/120 PP (30 unused)<br>
-      L5: Range 0 + Radius 0 + Hex(6) 126 = 126/150 PP (24 unused)<br>
-
-L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Hex(7) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Hex(8) 216 = 216/240 PP (24 unused)<br>
-      L9: Range 0 + Radius 0 + Hex(9) 270 = 270/270 PP (0 unused)<br>
-      L10: Range 0 + Radius 0 + Hex(9) 270 = 270/300 PP (30 unused)<br>
-      L11: Range 0 + Radius 0 + Hex(10) 330 = 330/330 PP (0 unused)<br>
-      L12: Range 0 + Radius 0 + Hex(10) 330 = 330/360 PP (30 unused)<br>
-      L13: Range 0 + Radius 0 + Hex(10) 330 = 330/390 PP (60 unused)<br>
-      L14: Range 0 + Radius 0 + Hex(11) 396 = 396/420 PP (24 unused)<br>
-      L15: Range 0 + Radius 0 + Hex(11) 396 = 396/450 PP (54 unused)<br>
-      L16: Range 0 + Radius 0 + Hex(12) 468 = 468/480 PP (12 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Hex cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Hex(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 0 + Area 0 + Hex(4) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Hex(5) 90 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 0 + Hex(5) 90 = 90/120 PP (30 unused).<br>
+      L5: Range 0 + Area 0 + Hex(6) 126 = 126/150 PP (24 unused).<br>
+      L6: Range 0 + Area 0 + Hex(7) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Hex(7) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Hex(8) 216 = 216/240 PP (24 unused).<br>
+      L9: Range 0 + Area 0 + Hex(9) 270 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Area 0 + Hex(9) 270 = 270/300 PP (30 unused).<br>
+      L11: Range 0 + Area 0 + Hex(10) 330 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 0 + Hex(10) 330 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + Area 0 + Hex(10) 330 = 330/390 PP (60 unused).<br>
+      L14: Range 0 + Area 0 + Hex(11) 396 = 396/420 PP (24 unused).<br>
+      L15: Range 0 + Area 0 + Hex(11) 396 = 396/450 PP (54 unused).<br>
+      L16: Range 0 + Area 0 + Hex(12) 468 = 468/480 PP (12 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Hex(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Hex(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(2)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(4)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(5)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(5)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(6)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(7)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(7)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(8)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(9)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(9)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(10)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(10)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(10)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(11)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(11)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(12)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(2)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(4)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(5)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(5)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(6)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(7)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(7)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(8)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(9)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(9)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(10)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(10)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(10)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(11)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(11)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(12)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3783,61 +1250,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Lacerate (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Lacerate(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 0 + Lacerate(5) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Lacerate(6) 84 = 84/90 PP (6 unused)<br>
-      L4: Range 0 + Radius 0 + Lacerate(7) 112 = 112/120 PP (8 unused)<br>
-      L5: Range 0 + Radius 0 + Lacerate(8) 144 = 144/150 PP (6 unused)<br>
-      L6: Range 0 + Radius 0 + Lacerate(9) 180 = 180/180 PP (0 unused)<br>
-      L7: Range 0 + Radius 0 + Lacerate(9) 180 = 180/210 PP (30 unused)<br>
-      L8: Range 0 + Radius 0 + Lacerate(10) 220 = 220/240 PP (20 unused)<br>
-      L9: Range 0 + Radius 0 + Lacerate(11) 264 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 0 + Lacerate(11) 264 = 264/300 PP (36 unused)<br>
-      L11: Range 0 + Radius 0 + Lacerate(12) 312 = 312/330 PP (18 unused)<br>
-      L12: Range 0 + Radius 0 + Lacerate(12) 312 = 312/360 PP (48 unused)<br>
-      L13: Range 0 + Radius 0 + Lacerate(13) 364 = 364/390 PP (26 unused)<br>
-      L14: Range 0 + Radius 0 + Lacerate(14) 420 = 420/420 PP (0 unused)<br>
-      L15: Range 0 + Radius 0 + Lacerate(14) 420 = 420/450 PP (30 unused)<br>
-      L16: Range 0 + Radius 0 + Lacerate(15) 480 = 480/480 PP (0 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Lacerate cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Lacerate(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 0 + Lacerate(5) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Lacerate(6) 84 = 84/90 PP (6 unused).<br>
+      L4: Range 0 + Area 0 + Lacerate(7) 112 = 112/120 PP (8 unused).<br>
+      L5: Range 0 + Area 0 + Lacerate(8) 144 = 144/150 PP (6 unused).<br>
+      L6: Range 0 + Area 0 + Lacerate(9) 180 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Area 0 + Lacerate(9) 180 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + Area 0 + Lacerate(10) 220 = 220/240 PP (20 unused).<br>
+      L9: Range 0 + Area 0 + Lacerate(11) 264 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 0 + Lacerate(11) 264 = 264/300 PP (36 unused).<br>
+      L11: Range 0 + Area 0 + Lacerate(12) 312 = 312/330 PP (18 unused).<br>
+      L12: Range 0 + Area 0 + Lacerate(12) 312 = 312/360 PP (48 unused).<br>
+      L13: Range 0 + Area 0 + Lacerate(13) 364 = 364/390 PP (26 unused).<br>
+      L14: Range 0 + Area 0 + Lacerate(14) 420 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Area 0 + Lacerate(14) 420 = 420/450 PP (30 unused).<br>
+      L16: Range 0 + Area 0 + Lacerate(15) 480 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Lacerate(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Lacerate(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(3)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(5)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(6)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(7)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(8)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(9)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(9)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(10)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(11)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(11)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(12)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(12)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(13)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(14)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(14)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(15)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(3)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(5)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(6)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(7)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(8)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(9)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(9)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(10)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(11)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(11)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(12)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(12)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(13)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(14)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(14)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Lacerate(15)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3846,61 +1313,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Mark (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Mark(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 0 + Mark(5) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Mark(6) 84 = 84/90 PP (6 unused)<br>
-      L4: Range 0 + Radius 0 + Mark(7) 112 = 112/120 PP (8 unused)<br>
-      L5: Range 0 + Radius 0 + Mark(8) 144 = 144/150 PP (6 unused)<br>
-      L6: Range 0 + Radius 0 + Mark(9) 180 = 180/180 PP (0 unused)<br>
-      L7: Range 0 + Radius 0 + Mark(9) 180 = 180/210 PP (30 unused)<br>
-      L8: Range 0 + Radius 0 + Mark(10) 220 = 220/240 PP (20 unused)<br>
-      L9: Range 0 + Radius 0 + Mark(11) 264 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 0 + Mark(11) 264 = 264/300 PP (36 unused)<br>
-      L11: Range 0 + Radius 0 + Mark(12) 312 = 312/330 PP (18 unused)<br>
-      L12: Range 0 + Radius 0 + Mark(12) 312 = 312/360 PP (48 unused)<br>
-      L13: Range 0 + Radius 0 + Mark(13) 364 = 364/390 PP (26 unused)<br>
-      L14: Range 0 + Radius 0 + Mark(14) 420 = 420/420 PP (0 unused)<br>
-      L15: Range 0 + Radius 0 + Mark(14) 420 = 420/450 PP (30 unused)<br>
-      L16: Range 0 + Radius 0 + Mark(15) 480 = 480/480 PP (0 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Mark cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Mark(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 0 + Mark(5) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Mark(6) 84 = 84/90 PP (6 unused).<br>
+      L4: Range 0 + Area 0 + Mark(7) 112 = 112/120 PP (8 unused).<br>
+      L5: Range 0 + Area 0 + Mark(8) 144 = 144/150 PP (6 unused).<br>
+      L6: Range 0 + Area 0 + Mark(9) 180 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Area 0 + Mark(9) 180 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + Area 0 + Mark(10) 220 = 220/240 PP (20 unused).<br>
+      L9: Range 0 + Area 0 + Mark(11) 264 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 0 + Mark(11) 264 = 264/300 PP (36 unused).<br>
+      L11: Range 0 + Area 0 + Mark(12) 312 = 312/330 PP (18 unused).<br>
+      L12: Range 0 + Area 0 + Mark(12) 312 = 312/360 PP (48 unused).<br>
+      L13: Range 0 + Area 0 + Mark(13) 364 = 364/390 PP (26 unused).<br>
+      L14: Range 0 + Area 0 + Mark(14) 420 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Area 0 + Mark(14) 420 = 420/450 PP (30 unused).<br>
+      L16: Range 0 + Area 0 + Mark(15) 480 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Mark(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Mark(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(3)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(5)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(6)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(7)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(8)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(9)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(9)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(10)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(11)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(11)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(12)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(12)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(13)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(14)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(14)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(15)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(3)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(5)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(6)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(7)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(8)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(9)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(9)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(10)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(11)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(11)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(12)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(12)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(13)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(14)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(14)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(15)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3909,61 +1376,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Root (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Root(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 0 + Radius 0 + Root(4) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Root(5) 90 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 0 + Root(5) 90 = 90/120 PP (30 unused)<br>
-      L5: Range 0 + Radius 0 + Root(6) 126 = 126/150 PP (24 unused)<br>
-      L6: Range 0 + Radius 0 + Root(7) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Root(7) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Root(8) 216 = 216/240 PP (24 unused)<br>
-      L9: Range 0 + Radius 0 + Root(9) 270 = 270/270 PP (0 unused)<br>
-      L10: Range 0 + Radius 0 + Root(9) 270 = 270/300 PP (30 unused)<br>
-      L11: Range 0 + Radius 0 + Root(10) 330 = 330/330 PP (0 unused)<br>
-      L12: Range 0 + Radius 0 + Root(10) 330 = 330/360 PP (30 unused)<br>
-      L13: Range 0 + Radius 0 + Root(10) 330 = 330/390 PP (60 unused)<br>
-      L14: Range 0 + Radius 0 + Root(11) 396 = 396/420 PP (24 unused)<br>
-      L15: Range 0 + Radius 0 + Root(11) 396 = 396/450 PP (54 unused)<br>
-      L16: Range 0 + Radius 0 + Root(12) 468 = 468/480 PP (12 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Root cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 0 + Area 0 + Root(4) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Root(5) 90 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 0 + Root(5) 90 = 90/120 PP (30 unused).<br>
+      L5: Range 0 + Area 0 + Root(6) 126 = 126/150 PP (24 unused).<br>
+      L6: Range 0 + Area 0 + Root(7) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Root(7) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Root(8) 216 = 216/240 PP (24 unused).<br>
+      L9: Range 0 + Area 0 + Root(9) 270 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Area 0 + Root(9) 270 = 270/300 PP (30 unused).<br>
+      L11: Range 0 + Area 0 + Root(10) 330 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 0 + Root(10) 330 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + Area 0 + Root(10) 330 = 330/390 PP (60 unused).<br>
+      L14: Range 0 + Area 0 + Root(11) 396 = 396/420 PP (24 unused).<br>
+      L15: Range 0 + Area 0 + Root(11) 396 = 396/450 PP (54 unused).<br>
+      L16: Range 0 + Area 0 + Root(12) 468 = 468/480 PP (12 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Root(X)** (Until Broken). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Root(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Root(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(2)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(4)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(5)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(5)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(6)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(7)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(7)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(8)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(9)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(9)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(10)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(10)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(10)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(11)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(11)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(12)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(2)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(4)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(5)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(5)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(6)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(7)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(7)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(8)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(9)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(9)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(10)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(10)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(10)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(11)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(11)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Root(12)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -3972,61 +1439,62 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Ruin (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Ruin(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 0 + Ruin(5) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Ruin(6) 84 = 84/90 PP (6 unused)<br>
-      L4: Range 0 + Radius 0 + Ruin(7) 112 = 112/120 PP (8 unused)<br>
-      L5: Range 0 + Radius 0 + Ruin(8) 144 = 144/150 PP (6 unused)<br>
-      L6: Range 0 + Radius 0 + Ruin(9) 180 = 180/180 PP (0 unused)<br>
-      L7: Range 0 + Radius 0 + Ruin(9) 180 = 180/210 PP (30 unused)<br>
-      L8: Range 0 + Radius 0 + Ruin(10) 220 = 220/240 PP (20 unused)<br>
-      L9: Range 0 + Radius 0 + Ruin(11) 264 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 0 + Ruin(11) 264 = 264/300 PP (36 unused)<br>
-      L11: Range 0 + Radius 0 + Ruin(12) 312 = 312/330 PP (18 unused)<br>
-      L12: Range 0 + Radius 0 + Ruin(12) 312 = 312/360 PP (48 unused)<br>
-      L13: Range 0 + Radius 0 + Ruin(13) 364 = 364/390 PP (26 unused)<br>
-      L14: Range 0 + Radius 0 + Ruin(14) 420 = 420/420 PP (0 unused)<br>
-      L15: Range 0 + Radius 0 + Ruin(14) 420 = 420/450 PP (30 unused)<br>
-      L16: Range 0 + Radius 0 + Ruin(15) 480 = 480/480 PP (0 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Ruin cost: 4 x T(X).<br>
+      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Ruin(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 0 + Ruin(5) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Ruin(6) 84 = 84/90 PP (6 unused).<br>
+      L4: Range 0 + Area 0 + Ruin(7) 112 = 112/120 PP (8 unused).<br>
+      L5: Range 0 + Area 0 + Ruin(8) 144 = 144/150 PP (6 unused).<br>
+      L6: Range 0 + Area 0 + Ruin(9) 180 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Area 0 + Ruin(9) 180 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + Area 0 + Ruin(10) 220 = 220/240 PP (20 unused).<br>
+      L9: Range 0 + Area 0 + Ruin(11) 264 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 0 + Ruin(11) 264 = 264/300 PP (36 unused).<br>
+      L11: Range 0 + Area 0 + Ruin(12) 312 = 312/330 PP (18 unused).<br>
+      L12: Range 0 + Area 0 + Ruin(12) 312 = 312/360 PP (48 unused).<br>
+      L13: Range 0 + Area 0 + Ruin(13) 364 = 364/390 PP (26 unused).<br>
+      L14: Range 0 + Area 0 + Ruin(14) 420 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Area 0 + Ruin(14) 420 = 420/450 PP (30 unused).<br>
+      L16: Range 0 + Area 0 + Ruin(15) 480 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Ruin(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Ruin(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(3)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(5)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(6)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(7)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(8)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(9)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(9)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(10)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(11)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(11)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(12)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(12)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(13)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(14)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(14)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(15)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(3)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(5)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(6)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(7)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(8)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(9)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(9)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(10)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(11)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(11)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(12)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(12)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(13)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(14)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(14)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(15)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4035,61 +1503,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Slow (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Slow(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 0 + Slow(5) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Slow(6) 84 = 84/90 PP (6 unused)<br>
-      L4: Range 0 + Radius 0 + Slow(7) 112 = 112/120 PP (8 unused)<br>
-      L5: Range 0 + Radius 0 + Slow(8) 144 = 144/150 PP (6 unused)<br>
-      L6: Range 0 + Radius 0 + Slow(9) 180 = 180/180 PP (0 unused)<br>
-      L7: Range 0 + Radius 0 + Slow(9) 180 = 180/210 PP (30 unused)<br>
-      L8: Range 0 + Radius 0 + Slow(10) 220 = 220/240 PP (20 unused)<br>
-      L9: Range 0 + Radius 0 + Slow(11) 264 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 0 + Slow(11) 264 = 264/300 PP (36 unused)<br>
-      L11: Range 0 + Radius 0 + Slow(12) 312 = 312/330 PP (18 unused)<br>
-      L12: Range 0 + Radius 0 + Slow(12) 312 = 312/360 PP (48 unused)<br>
-      L13: Range 0 + Radius 0 + Slow(13) 364 = 364/390 PP (26 unused)<br>
-      L14: Range 0 + Radius 0 + Slow(14) 420 = 420/420 PP (0 unused)<br>
-      L15: Range 0 + Radius 0 + Slow(14) 420 = 420/450 PP (30 unused)<br>
-      L16: Range 0 + Radius 0 + Slow(15) 480 = 480/480 PP (0 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Slow cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Slow(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 0 + Slow(5) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Slow(6) 84 = 84/90 PP (6 unused).<br>
+      L4: Range 0 + Area 0 + Slow(7) 112 = 112/120 PP (8 unused).<br>
+      L5: Range 0 + Area 0 + Slow(8) 144 = 144/150 PP (6 unused).<br>
+      L6: Range 0 + Area 0 + Slow(9) 180 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Area 0 + Slow(9) 180 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + Area 0 + Slow(10) 220 = 220/240 PP (20 unused).<br>
+      L9: Range 0 + Area 0 + Slow(11) 264 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 0 + Slow(11) 264 = 264/300 PP (36 unused).<br>
+      L11: Range 0 + Area 0 + Slow(12) 312 = 312/330 PP (18 unused).<br>
+      L12: Range 0 + Area 0 + Slow(12) 312 = 312/360 PP (48 unused).<br>
+      L13: Range 0 + Area 0 + Slow(13) 364 = 364/390 PP (26 unused).<br>
+      L14: Range 0 + Area 0 + Slow(14) 420 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Area 0 + Slow(14) 420 = 420/450 PP (30 unused).<br>
+      L16: Range 0 + Area 0 + Slow(15) 480 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Slow(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Slow(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(3)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(5)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(6)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(7)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(8)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(9)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(9)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(10)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(11)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(11)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(12)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(12)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(13)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(14)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(14)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(15)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(3)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(5)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(6)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(7)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(8)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(9)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(9)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(10)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(11)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(11)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(12)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(12)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(13)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(14)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(14)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Slow(15)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4098,61 +1566,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Soulburn (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Soulburn(1) 8 = 8/30 PP (22 unused)<br>
-      L2: Range 0 + Radius 0 + Soulburn(1) 8 = 8/60 PP (52 unused)<br>
-      L3: Range 0 + Radius 0 + Soulburn(2) 80 = 80/90 PP (10 unused)<br>
-      L4: Range 0 + Radius 0 + Soulburn(2) 80 = 80/120 PP (40 unused)<br>
-      L5: Range 0 + Radius 0 + Soulburn(2) 80 = 80/150 PP (70 unused)<br>
-      L6: Range 0 + Radius 0 + Soulburn(3) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Soulburn(3) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Soulburn(3) 168 = 168/240 PP (72 unused)<br>
-      L9: Range 0 + Radius 0 + Soulburn(3) 168 = 168/270 PP (102 unused)<br>
-      L10: Range 0 + Radius 0 + Soulburn(4) 288 = 288/300 PP (12 unused)<br>
-      L11: Range 0 + Radius 0 + Soulburn(4) 288 = 288/330 PP (42 unused)<br>
-      L12: Range 0 + Radius 0 + Soulburn(4) 288 = 288/360 PP (72 unused)<br>
-      L13: Range 0 + Radius 0 + Soulburn(4) 288 = 288/390 PP (102 unused)<br>
-      L14: Range 0 + Radius 0 + Soulburn(4) 288 = 288/420 PP (132 unused)<br>
-      L15: Range 0 + Radius 0 + Soulburn(5) 440 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 0 + Soulburn(5) 440 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Soulburn(1) 8 = 8/30 PP (22 unused).<br>
+      L2: Range 0 + Area 0 + Soulburn(1) 8 = 8/60 PP (52 unused).<br>
+      L3: Range 0 + Area 0 + Soulburn(2) 80 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 0 + Soulburn(2) 80 = 80/120 PP (40 unused).<br>
+      L5: Range 0 + Area 0 + Soulburn(2) 80 = 80/150 PP (70 unused).<br>
+      L6: Range 0 + Area 0 + Soulburn(3) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Soulburn(3) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Soulburn(3) 168 = 168/240 PP (72 unused).<br>
+      L9: Range 0 + Area 0 + Soulburn(3) 168 = 168/270 PP (102 unused).<br>
+      L10: Range 0 + Area 0 + Soulburn(4) 288 = 288/300 PP (12 unused).<br>
+      L11: Range 0 + Area 0 + Soulburn(4) 288 = 288/330 PP (42 unused).<br>
+      L12: Range 0 + Area 0 + Soulburn(4) 288 = 288/360 PP (72 unused).<br>
+      L13: Range 0 + Area 0 + Soulburn(4) 288 = 288/390 PP (102 unused).<br>
+      L14: Range 0 + Area 0 + Soulburn(4) 288 = 288/420 PP (132 unused).<br>
+      L15: Range 0 + Area 0 + Soulburn(5) 440 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 0 + Soulburn(5) 440 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Soulburn(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Soulburn(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(1)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(1)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(5)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(5)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(1)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(1)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(5)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(5)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4161,61 +1629,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Sundered (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Sundered(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 0 + Radius 0 + Sundered(4) 60 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 0 + Sundered(5) 90 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 0 + Sundered(5) 90 = 90/120 PP (30 unused)<br>
-      L5: Range 0 + Radius 0 + Sundered(6) 126 = 126/150 PP (24 unused)<br>
-      L6: Range 0 + Radius 0 + Sundered(7) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Sundered(7) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Sundered(8) 216 = 216/240 PP (24 unused)<br>
-      L9: Range 0 + Radius 0 + Sundered(9) 270 = 270/270 PP (0 unused)<br>
-      L10: Range 0 + Radius 0 + Sundered(9) 270 = 270/300 PP (30 unused)<br>
-      L11: Range 0 + Radius 0 + Sundered(10) 330 = 330/330 PP (0 unused)<br>
-      L12: Range 0 + Radius 0 + Sundered(10) 330 = 330/360 PP (30 unused)<br>
-      L13: Range 0 + Radius 0 + Sundered(10) 330 = 330/390 PP (60 unused)<br>
-      L14: Range 0 + Radius 0 + Sundered(11) 396 = 396/420 PP (24 unused)<br>
-      L15: Range 0 + Radius 0 + Sundered(11) 396 = 396/450 PP (54 unused)<br>
-      L16: Range 0 + Radius 0 + Sundered(12) 468 = 468/480 PP (12 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Sundered cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Sundered(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 0 + Area 0 + Sundered(4) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Sundered(5) 90 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 0 + Sundered(5) 90 = 90/120 PP (30 unused).<br>
+      L5: Range 0 + Area 0 + Sundered(6) 126 = 126/150 PP (24 unused).<br>
+      L6: Range 0 + Area 0 + Sundered(7) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Sundered(7) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Sundered(8) 216 = 216/240 PP (24 unused).<br>
+      L9: Range 0 + Area 0 + Sundered(9) 270 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Area 0 + Sundered(9) 270 = 270/300 PP (30 unused).<br>
+      L11: Range 0 + Area 0 + Sundered(10) 330 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 0 + Sundered(10) 330 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + Area 0 + Sundered(10) 330 = 330/390 PP (60 unused).<br>
+      L14: Range 0 + Area 0 + Sundered(11) 396 = 396/420 PP (24 unused).<br>
+      L15: Range 0 + Area 0 + Sundered(11) 396 = 396/450 PP (54 unused).<br>
+      L16: Range 0 + Area 0 + Sundered(12) 468 = 468/480 PP (12 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Sundered(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Sundered(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(2)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(4)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(5)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(5)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(6)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(7)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(7)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(8)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(9)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(9)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(10)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(10)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(10)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(11)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(11)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(12)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(2)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(4)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(5)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(5)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(6)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(7)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(7)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(8)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(9)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(9)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(10)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(10)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(10)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(11)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(11)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Sundered(12)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4224,61 +1692,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Melee Single Target Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Weaken (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Weaken(1) 8 = 8/30 PP (22 unused)<br>
-      L2: Range 0 + Radius 0 + Weaken(1) 8 = 8/60 PP (52 unused)<br>
-      L3: Range 0 + Radius 0 + Weaken(2) 80 = 80/90 PP (10 unused)<br>
-      L4: Range 0 + Radius 0 + Weaken(2) 80 = 80/120 PP (40 unused)<br>
-      L5: Range 0 + Radius 0 + Weaken(2) 80 = 80/150 PP (70 unused)<br>
-      L6: Range 0 + Radius 0 + Weaken(3) 168 = 168/180 PP (12 unused)<br>
-      L7: Range 0 + Radius 0 + Weaken(3) 168 = 168/210 PP (42 unused)<br>
-      L8: Range 0 + Radius 0 + Weaken(3) 168 = 168/240 PP (72 unused)<br>
-      L9: Range 0 + Radius 0 + Weaken(3) 168 = 168/270 PP (102 unused)<br>
-      L10: Range 0 + Radius 0 + Weaken(4) 288 = 288/300 PP (12 unused)<br>
-      L11: Range 0 + Radius 0 + Weaken(4) 288 = 288/330 PP (42 unused)<br>
-      L12: Range 0 + Radius 0 + Weaken(4) 288 = 288/360 PP (72 unused)<br>
-      L13: Range 0 + Radius 0 + Weaken(4) 288 = 288/390 PP (102 unused)<br>
-      L14: Range 0 + Radius 0 + Weaken(4) 288 = 288/420 PP (132 unused)<br>
-      L15: Range 0 + Radius 0 + Weaken(5) 440 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 0 + Weaken(5) 440 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Weaken(1) 8 = 8/30 PP (22 unused).<br>
+      L2: Range 0 + Area 0 + Weaken(1) 8 = 8/60 PP (52 unused).<br>
+      L3: Range 0 + Area 0 + Weaken(2) 80 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 0 + Weaken(2) 80 = 80/120 PP (40 unused).<br>
+      L5: Range 0 + Area 0 + Weaken(2) 80 = 80/150 PP (70 unused).<br>
+      L6: Range 0 + Area 0 + Weaken(3) 168 = 168/180 PP (12 unused).<br>
+      L7: Range 0 + Area 0 + Weaken(3) 168 = 168/210 PP (42 unused).<br>
+      L8: Range 0 + Area 0 + Weaken(3) 168 = 168/240 PP (72 unused).<br>
+      L9: Range 0 + Area 0 + Weaken(3) 168 = 168/270 PP (102 unused).<br>
+      L10: Range 0 + Area 0 + Weaken(4) 288 = 288/300 PP (12 unused).<br>
+      L11: Range 0 + Area 0 + Weaken(4) 288 = 288/330 PP (42 unused).<br>
+      L12: Range 0 + Area 0 + Weaken(4) 288 = 288/360 PP (72 unused).<br>
+      L13: Range 0 + Area 0 + Weaken(4) 288 = 288/390 PP (102 unused).<br>
+      L14: Range 0 + Area 0 + Weaken(4) 288 = 288/420 PP (132 unused).<br>
+      L15: Range 0 + Area 0 + Weaken(5) 440 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 0 + Weaken(5) 440 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Weaken(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within Range (Melee Reach). Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Weaken(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Weaken(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Martial Attack Roll against one creature within Melee Reach.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(1)**; **no direct damage**. |
-| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(1)**; **no direct damage**. |
-| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(5)**; **no direct damage**. |
-| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(5)**; **no direct damage**. |
+| **1** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(1)**. |
+| **2** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(1)**. |
+| **3** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **4** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **5** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **6** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **7** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **8** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **9** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **10** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **11** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **12** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **13** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **14** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(5)**. |
+| **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(5)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4287,61 +1755,62 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Blight (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Blight(4) 30 = 30/30 PP (0 unused)<br>
-      L2: Range 5 + Radius 0 + Blight(5) 45 = 50/60 PP (10 unused)<br>
-      L3: Range 10 + Radius 0 + Blight(6) 63 = 73/90 PP (17 unused)<br>
-      L4: Range 15 + Radius 0 + Blight(7) 84 = 99/120 PP (21 unused)<br>
-      L5: Range 20 + Radius 0 + Blight(8) 108 = 128/150 PP (22 unused)<br>
-      L6: Range 25 + Radius 0 + Blight(9) 135 = 160/180 PP (20 unused)<br>
-      L7: Range 30 + Radius 0 + Blight(10) 165 = 195/210 PP (15 unused)<br>
-      L8: Range 35 + Radius 0 + Blight(11) 198 = 233/240 PP (7 unused)<br>
-      L9: Range 40 + Radius 0 + Blight(11) 198 = 238/270 PP (32 unused)<br>
-      L10: Range 45 + Radius 0 + Blight(12) 234 = 279/300 PP (21 unused)<br>
-      L11: Range 50 + Radius 0 + Blight(13) 273 = 323/330 PP (7 unused)<br>
-      L12: Range 55 + Radius 0 + Blight(13) 273 = 328/360 PP (32 unused)<br>
-      L13: Range 60 + Radius 0 + Blight(14) 315 = 375/390 PP (15 unused)<br>
-      L14: Range 65 + Radius 0 + Blight(14) 315 = 380/420 PP (40 unused)<br>
-      L15: Range 70 + Radius 0 + Blight(15) 360 = 430/450 PP (20 unused)<br>
-      L16: Range 75 + Radius 0 + Blight(15) 360 = 435/480 PP (45 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Blight cost: 3 x T(X).<br>
+      Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Blight(4) 30 = 30/30 PP (0 unused).<br>
+      L2: Range 5 + Area 0 + Blight(5) 45 = 50/60 PP (10 unused).<br>
+      L3: Range 10 + Area 0 + Blight(6) 63 = 73/90 PP (17 unused).<br>
+      L4: Range 15 + Area 0 + Blight(7) 84 = 99/120 PP (21 unused).<br>
+      L5: Range 20 + Area 0 + Blight(8) 108 = 128/150 PP (22 unused).<br>
+      L6: Range 25 + Area 0 + Blight(9) 135 = 160/180 PP (20 unused).<br>
+      L7: Range 30 + Area 0 + Blight(10) 165 = 195/210 PP (15 unused).<br>
+      L8: Range 35 + Area 0 + Blight(11) 198 = 233/240 PP (7 unused).<br>
+      L9: Range 40 + Area 0 + Blight(11) 198 = 238/270 PP (32 unused).<br>
+      L10: Range 45 + Area 0 + Blight(12) 234 = 279/300 PP (21 unused).<br>
+      L11: Range 50 + Area 0 + Blight(13) 273 = 323/330 PP (7 unused).<br>
+      L12: Range 55 + Area 0 + Blight(13) 273 = 328/360 PP (32 unused).<br>
+      L13: Range 60 + Area 0 + Blight(14) 315 = 375/390 PP (15 unused).<br>
+      L14: Range 65 + Area 0 + Blight(14) 315 = 380/420 PP (40 unused).<br>
+      L15: Range 70 + Area 0 + Blight(15) 360 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Area 0 + Blight(15) 360 = 435/480 PP (45 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Blight(X)** (Timed Disadvantage). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Blight(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Blight(4)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Blight(5)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Blight(6)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Blight(7)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Blight(8)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Blight(9)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Blight(10)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Blight(11)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Blight(11)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Blight(12)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Blight(13)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Blight(13)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Blight(14)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Blight(14)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Blight(15)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Blight(15)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Blight(4)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Blight(5)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Blight(6)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Blight(7)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Blight(8)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Blight(9)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Blight(10)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Blight(11)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Blight(11)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Blight(12)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Blight(13)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Blight(13)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Blight(14)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Blight(14)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Blight(15)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Blight(15)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4350,61 +1819,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Challenge (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Challenge(1) 6 = 6/30 PP (24 unused)<br>
-      L2: Range 5 + Radius 0 + Challenge(1) 6 = 11/60 PP (49 unused)<br>
-      L3: Range 10 + Radius 0 + Challenge(2) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Challenge(2) 60 = 75/120 PP (45 unused)<br>
-      L5: Range 20 + Radius 0 + Challenge(3) 126 = 146/150 PP (4 unused)<br>
-      L6: Range 25 + Radius 0 + Challenge(3) 126 = 151/180 PP (29 unused)<br>
-      L7: Range 30 + Radius 0 + Challenge(3) 126 = 156/210 PP (54 unused)<br>
-      L8: Range 35 + Radius 0 + Challenge(3) 126 = 161/240 PP (79 unused)<br>
-      L9: Range 40 + Radius 0 + Challenge(4) 216 = 256/270 PP (14 unused)<br>
-      L10: Range 45 + Radius 0 + Challenge(4) 216 = 261/300 PP (39 unused)<br>
-      L11: Range 50 + Radius 0 + Challenge(4) 216 = 266/330 PP (64 unused)<br>
-      L12: Range 55 + Radius 0 + Challenge(4) 216 = 271/360 PP (89 unused)<br>
-      L13: Range 60 + Radius 0 + Challenge(5) 330 = 390/390 PP (0 unused)<br>
-      L14: Range 65 + Radius 0 + Challenge(5) 330 = 395/420 PP (25 unused)<br>
-      L15: Range 70 + Radius 0 + Challenge(5) 330 = 400/450 PP (50 unused)<br>
-      L16: Range 75 + Radius 0 + Challenge(5) 330 = 405/480 PP (75 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Challenge(1) 6 = 6/30 PP (24 unused).<br>
+      L2: Range 5 + Area 0 + Challenge(1) 6 = 11/60 PP (49 unused).<br>
+      L3: Range 10 + Area 0 + Challenge(2) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Challenge(2) 60 = 75/120 PP (45 unused).<br>
+      L5: Range 20 + Area 0 + Challenge(3) 126 = 146/150 PP (4 unused).<br>
+      L6: Range 25 + Area 0 + Challenge(3) 126 = 151/180 PP (29 unused).<br>
+      L7: Range 30 + Area 0 + Challenge(3) 126 = 156/210 PP (54 unused).<br>
+      L8: Range 35 + Area 0 + Challenge(3) 126 = 161/240 PP (79 unused).<br>
+      L9: Range 40 + Area 0 + Challenge(4) 216 = 256/270 PP (14 unused).<br>
+      L10: Range 45 + Area 0 + Challenge(4) 216 = 261/300 PP (39 unused).<br>
+      L11: Range 50 + Area 0 + Challenge(4) 216 = 266/330 PP (64 unused).<br>
+      L12: Range 55 + Area 0 + Challenge(4) 216 = 271/360 PP (89 unused).<br>
+      L13: Range 60 + Area 0 + Challenge(5) 330 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 0 + Challenge(5) 330 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Area 0 + Challenge(5) 330 = 400/450 PP (50 unused).<br>
+      L16: Range 75 + Area 0 + Challenge(5) 330 = 405/480 PP (75 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Challenge(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Challenge(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Challenge(1)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Challenge(1)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Challenge(2)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Challenge(2)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Challenge(3)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Challenge(4)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Challenge(5)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Challenge(1)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Challenge(1)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Challenge(2)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Challenge(2)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Challenge(3)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Challenge(4)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Challenge(5)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Challenge(5)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4413,61 +1882,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Corrode (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Corrode(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 5 + Radius 0 + Corrode(3) 36 = 41/60 PP (19 unused)<br>
-      L3: Range 10 + Radius 0 + Corrode(4) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Corrode(5) 90 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 0 + Corrode(6) 126 = 146/150 PP (4 unused)<br>
-      L6: Range 25 + Radius 0 + Corrode(6) 126 = 151/180 PP (29 unused)<br>
-      L7: Range 30 + Radius 0 + Corrode(7) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Corrode(7) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Corrode(8) 216 = 256/270 PP (14 unused)<br>
-      L10: Range 45 + Radius 0 + Corrode(8) 216 = 261/300 PP (39 unused)<br>
-      L11: Range 50 + Radius 0 + Corrode(9) 270 = 320/330 PP (10 unused)<br>
-      L12: Range 55 + Radius 0 + Corrode(9) 270 = 325/360 PP (35 unused)<br>
-      L13: Range 60 + Radius 0 + Corrode(10) 330 = 390/390 PP (0 unused)<br>
-      L14: Range 65 + Radius 0 + Corrode(10) 330 = 395/420 PP (25 unused)<br>
-      L15: Range 70 + Radius 0 + Corrode(10) 330 = 400/450 PP (50 unused)<br>
-      L16: Range 75 + Radius 0 + Corrode(11) 396 = 471/480 PP (9 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Corrode cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Corrode(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 5 + Area 0 + Corrode(3) 36 = 41/60 PP (19 unused).<br>
+      L3: Range 10 + Area 0 + Corrode(4) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Corrode(5) 90 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 0 + Corrode(6) 126 = 146/150 PP (4 unused).<br>
+      L6: Range 25 + Area 0 + Corrode(6) 126 = 151/180 PP (29 unused).<br>
+      L7: Range 30 + Area 0 + Corrode(7) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Corrode(7) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Corrode(8) 216 = 256/270 PP (14 unused).<br>
+      L10: Range 45 + Area 0 + Corrode(8) 216 = 261/300 PP (39 unused).<br>
+      L11: Range 50 + Area 0 + Corrode(9) 270 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Area 0 + Corrode(9) 270 = 325/360 PP (35 unused).<br>
+      L13: Range 60 + Area 0 + Corrode(10) 330 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 0 + Corrode(10) 330 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Area 0 + Corrode(10) 330 = 400/450 PP (50 unused).<br>
+      L16: Range 75 + Area 0 + Corrode(11) 396 = 471/480 PP (9 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Corrode(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Corrode(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Corrode(2)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Corrode(3)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Corrode(4)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Corrode(5)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Corrode(6)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Corrode(6)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Corrode(7)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Corrode(7)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Corrode(8)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Corrode(8)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Corrode(9)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Corrode(9)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Corrode(10)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Corrode(10)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Corrode(10)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Corrode(11)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Corrode(2)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Corrode(3)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Corrode(4)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Corrode(5)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Corrode(6)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Corrode(6)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Corrode(7)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Corrode(7)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Corrode(8)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Corrode(8)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Corrode(9)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Corrode(9)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Corrode(10)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Corrode(10)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Corrode(10)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Corrode(11)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4476,61 +1945,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Disoriented (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Disoriented(1) 8 = 8/30 PP (22 unused)<br>
-      L2: Range 5 + Radius 0 + Disoriented(1) 8 = 13/60 PP (47 unused)<br>
-      L3: Range 10 + Radius 0 + Disoriented(2) 80 = 90/90 PP (0 unused)<br>
-      L4: Range 15 + Radius 0 + Disoriented(2) 80 = 95/120 PP (25 unused)<br>
-      L5: Range 20 + Radius 0 + Disoriented(2) 80 = 100/150 PP (50 unused)<br>
-      L6: Range 25 + Radius 0 + Disoriented(2) 80 = 105/180 PP (75 unused)<br>
-      L7: Range 30 + Radius 0 + Disoriented(3) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Disoriented(3) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Disoriented(3) 168 = 208/270 PP (62 unused)<br>
-      L10: Range 45 + Radius 0 + Disoriented(3) 168 = 213/300 PP (87 unused)<br>
-      L11: Range 50 + Radius 0 + Disoriented(3) 168 = 218/330 PP (112 unused)<br>
-      L12: Range 55 + Radius 0 + Disoriented(4) 288 = 343/360 PP (17 unused)<br>
-      L13: Range 60 + Radius 0 + Disoriented(4) 288 = 348/390 PP (42 unused)<br>
-      L14: Range 65 + Radius 0 + Disoriented(4) 288 = 353/420 PP (67 unused)<br>
-      L15: Range 70 + Radius 0 + Disoriented(4) 288 = 358/450 PP (92 unused)<br>
-      L16: Range 75 + Radius 0 + Disoriented(4) 288 = 363/480 PP (117 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Disoriented(1) 8 = 8/30 PP (22 unused).<br>
+      L2: Range 5 + Area 0 + Disoriented(1) 8 = 13/60 PP (47 unused).<br>
+      L3: Range 10 + Area 0 + Disoriented(2) 80 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 0 + Disoriented(2) 80 = 95/120 PP (25 unused).<br>
+      L5: Range 20 + Area 0 + Disoriented(2) 80 = 100/150 PP (50 unused).<br>
+      L6: Range 25 + Area 0 + Disoriented(2) 80 = 105/180 PP (75 unused).<br>
+      L7: Range 30 + Area 0 + Disoriented(3) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Disoriented(3) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Disoriented(3) 168 = 208/270 PP (62 unused).<br>
+      L10: Range 45 + Area 0 + Disoriented(3) 168 = 213/300 PP (87 unused).<br>
+      L11: Range 50 + Area 0 + Disoriented(3) 168 = 218/330 PP (112 unused).<br>
+      L12: Range 55 + Area 0 + Disoriented(4) 288 = 343/360 PP (17 unused).<br>
+      L13: Range 60 + Area 0 + Disoriented(4) 288 = 348/390 PP (42 unused).<br>
+      L14: Range 65 + Area 0 + Disoriented(4) 288 = 353/420 PP (67 unused).<br>
+      L15: Range 70 + Area 0 + Disoriented(4) 288 = 358/450 PP (92 unused).<br>
+      L16: Range 75 + Area 0 + Disoriented(4) 288 = 363/480 PP (117 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Disoriented(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Disoriented(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Disoriented(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Disoriented(1)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Disoriented(1)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Disoriented(2)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Disoriented(3)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Disoriented(4)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Disoriented(1)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Disoriented(1)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Disoriented(2)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Disoriented(3)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Disoriented(4)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Disoriented(4)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4539,61 +2008,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Expose (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Expose(2) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 0 + Expose(3) 48 = 53/60 PP (7 unused)<br>
-      L3: Range 10 + Radius 0 + Expose(4) 80 = 90/90 PP (0 unused)<br>
-      L4: Range 15 + Radius 0 + Expose(4) 80 = 95/120 PP (25 unused)<br>
-      L5: Range 20 + Radius 0 + Expose(5) 120 = 140/150 PP (10 unused)<br>
-      L6: Range 25 + Radius 0 + Expose(5) 120 = 145/180 PP (35 unused)<br>
-      L7: Range 30 + Radius 0 + Expose(6) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Expose(6) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Expose(7) 224 = 264/270 PP (6 unused)<br>
-      L10: Range 45 + Radius 0 + Expose(7) 224 = 269/300 PP (31 unused)<br>
-      L11: Range 50 + Radius 0 + Expose(7) 224 = 274/330 PP (56 unused)<br>
-      L12: Range 55 + Radius 0 + Expose(8) 288 = 343/360 PP (17 unused)<br>
-      L13: Range 60 + Radius 0 + Expose(8) 288 = 348/390 PP (42 unused)<br>
-      L14: Range 65 + Radius 0 + Expose(8) 288 = 353/420 PP (67 unused)<br>
-      L15: Range 70 + Radius 0 + Expose(9) 360 = 430/450 PP (20 unused)<br>
-      L16: Range 75 + Radius 0 + Expose(9) 360 = 435/480 PP (45 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Expose cost: 8 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Expose(2) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 0 + Expose(3) 48 = 53/60 PP (7 unused).<br>
+      L3: Range 10 + Area 0 + Expose(4) 80 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 0 + Expose(4) 80 = 95/120 PP (25 unused).<br>
+      L5: Range 20 + Area 0 + Expose(5) 120 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Area 0 + Expose(5) 120 = 145/180 PP (35 unused).<br>
+      L7: Range 30 + Area 0 + Expose(6) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Expose(6) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Expose(7) 224 = 264/270 PP (6 unused).<br>
+      L10: Range 45 + Area 0 + Expose(7) 224 = 269/300 PP (31 unused).<br>
+      L11: Range 50 + Area 0 + Expose(7) 224 = 274/330 PP (56 unused).<br>
+      L12: Range 55 + Area 0 + Expose(8) 288 = 343/360 PP (17 unused).<br>
+      L13: Range 60 + Area 0 + Expose(8) 288 = 348/390 PP (42 unused).<br>
+      L14: Range 65 + Area 0 + Expose(8) 288 = 353/420 PP (67 unused).<br>
+      L15: Range 70 + Area 0 + Expose(9) 360 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Area 0 + Expose(9) 360 = 435/480 PP (45 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Expose(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Expose(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Expose(2)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Expose(3)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Expose(4)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Expose(4)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Expose(5)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Expose(5)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Expose(6)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Expose(6)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Expose(7)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Expose(7)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Expose(7)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Expose(8)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Expose(8)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Expose(8)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Expose(9)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Expose(9)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Expose(2)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Expose(3)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Expose(4)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Expose(4)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Expose(5)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Expose(5)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Expose(6)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Expose(6)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Expose(7)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Expose(7)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Expose(7)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Expose(8)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Expose(8)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Expose(8)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Expose(9)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Expose(9)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4602,61 +2071,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Hex (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Hex(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 5 + Radius 0 + Hex(3) 36 = 41/60 PP (19 unused)<br>
-      L3: Range 10 + Radius 0 + Hex(4) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Hex(5) 90 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 0 + Hex(6) 126 = 146/150 PP (4 unused)<br>
-      L6: Range 25 + Radius 0 + Hex(6) 126 = 151/180 PP (29 unused)<br>
-      L7: Range 30 + Radius 0 + Hex(7) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Hex(7) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Hex(8) 216 = 256/270 PP (14 unused)<br>
-      L10: Range 45 + Radius 0 + Hex(8) 216 = 261/300 PP (39 unused)<br>
-      L11: Range 50 + Radius 0 + Hex(9) 270 = 320/330 PP (10 unused)<br>
-      L12: Range 55 + Radius 0 + Hex(9) 270 = 325/360 PP (35 unused)<br>
-      L13: Range 60 + Radius 0 + Hex(10) 330 = 390/390 PP (0 unused)<br>
-      L14: Range 65 + Radius 0 + Hex(10) 330 = 395/420 PP (25 unused)<br>
-      L15: Range 70 + Radius 0 + Hex(10) 330 = 400/450 PP (50 unused)<br>
-      L16: Range 75 + Radius 0 + Hex(11) 396 = 471/480 PP (9 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Hex cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Hex(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 5 + Area 0 + Hex(3) 36 = 41/60 PP (19 unused).<br>
+      L3: Range 10 + Area 0 + Hex(4) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Hex(5) 90 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 0 + Hex(6) 126 = 146/150 PP (4 unused).<br>
+      L6: Range 25 + Area 0 + Hex(6) 126 = 151/180 PP (29 unused).<br>
+      L7: Range 30 + Area 0 + Hex(7) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Hex(7) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Hex(8) 216 = 256/270 PP (14 unused).<br>
+      L10: Range 45 + Area 0 + Hex(8) 216 = 261/300 PP (39 unused).<br>
+      L11: Range 50 + Area 0 + Hex(9) 270 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Area 0 + Hex(9) 270 = 325/360 PP (35 unused).<br>
+      L13: Range 60 + Area 0 + Hex(10) 330 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 0 + Hex(10) 330 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Area 0 + Hex(10) 330 = 400/450 PP (50 unused).<br>
+      L16: Range 75 + Area 0 + Hex(11) 396 = 471/480 PP (9 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Hex(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Hex(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Hex(2)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Hex(3)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Hex(4)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Hex(5)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Hex(6)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Hex(6)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Hex(7)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Hex(7)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Hex(8)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Hex(8)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Hex(9)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Hex(9)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Hex(10)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Hex(10)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Hex(10)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Hex(11)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Hex(2)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Hex(3)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Hex(4)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Hex(5)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Hex(6)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Hex(6)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Hex(7)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Hex(7)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Hex(8)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Hex(8)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Hex(9)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Hex(9)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Hex(10)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Hex(10)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Hex(10)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Hex(11)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4665,61 +2134,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Lacerate (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Lacerate(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 0 + Lacerate(4) 40 = 45/60 PP (15 unused)<br>
-      L3: Range 10 + Radius 0 + Lacerate(5) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Lacerate(6) 84 = 99/120 PP (21 unused)<br>
-      L5: Range 20 + Radius 0 + Lacerate(7) 112 = 132/150 PP (18 unused)<br>
-      L6: Range 25 + Radius 0 + Lacerate(8) 144 = 169/180 PP (11 unused)<br>
-      L7: Range 30 + Radius 0 + Lacerate(9) 180 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 0 + Lacerate(9) 180 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 0 + Lacerate(10) 220 = 260/270 PP (10 unused)<br>
-      L10: Range 45 + Radius 0 + Lacerate(10) 220 = 265/300 PP (35 unused)<br>
-      L11: Range 50 + Radius 0 + Lacerate(11) 264 = 314/330 PP (16 unused)<br>
-      L12: Range 55 + Radius 0 + Lacerate(11) 264 = 319/360 PP (41 unused)<br>
-      L13: Range 60 + Radius 0 + Lacerate(12) 312 = 372/390 PP (18 unused)<br>
-      L14: Range 65 + Radius 0 + Lacerate(12) 312 = 377/420 PP (43 unused)<br>
-      L15: Range 70 + Radius 0 + Lacerate(13) 364 = 434/450 PP (16 unused)<br>
-      L16: Range 75 + Radius 0 + Lacerate(13) 364 = 439/480 PP (41 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Lacerate cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Lacerate(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 0 + Lacerate(4) 40 = 45/60 PP (15 unused).<br>
+      L3: Range 10 + Area 0 + Lacerate(5) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Lacerate(6) 84 = 99/120 PP (21 unused).<br>
+      L5: Range 20 + Area 0 + Lacerate(7) 112 = 132/150 PP (18 unused).<br>
+      L6: Range 25 + Area 0 + Lacerate(8) 144 = 169/180 PP (11 unused).<br>
+      L7: Range 30 + Area 0 + Lacerate(9) 180 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 0 + Lacerate(9) 180 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 0 + Lacerate(10) 220 = 260/270 PP (10 unused).<br>
+      L10: Range 45 + Area 0 + Lacerate(10) 220 = 265/300 PP (35 unused).<br>
+      L11: Range 50 + Area 0 + Lacerate(11) 264 = 314/330 PP (16 unused).<br>
+      L12: Range 55 + Area 0 + Lacerate(11) 264 = 319/360 PP (41 unused).<br>
+      L13: Range 60 + Area 0 + Lacerate(12) 312 = 372/390 PP (18 unused).<br>
+      L14: Range 65 + Area 0 + Lacerate(12) 312 = 377/420 PP (43 unused).<br>
+      L15: Range 70 + Area 0 + Lacerate(13) 364 = 434/450 PP (16 unused).<br>
+      L16: Range 75 + Area 0 + Lacerate(13) 364 = 439/480 PP (41 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Lacerate(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Lacerate(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Lacerate(3)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Lacerate(4)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Lacerate(5)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Lacerate(6)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Lacerate(7)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Lacerate(8)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Lacerate(9)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Lacerate(9)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Lacerate(10)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Lacerate(10)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Lacerate(11)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Lacerate(11)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Lacerate(12)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Lacerate(12)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Lacerate(13)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Lacerate(13)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Lacerate(3)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Lacerate(4)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Lacerate(5)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Lacerate(6)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Lacerate(7)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Lacerate(8)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Lacerate(9)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Lacerate(9)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Lacerate(10)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Lacerate(10)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Lacerate(11)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Lacerate(11)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Lacerate(12)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Lacerate(12)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Lacerate(13)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Lacerate(13)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4728,62 +2197,61 @@ L6: Range 0 + Radius 0 + Hex(7) 168 = 168/180 PP (12 unused)<br>
   Ranged Single Target Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Mark (including compressed pool-reduction prices where applicable).<br>
-
-Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Mark(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 0 + Mark(4) 40 = 45/60 PP (15 unused)<br>
-      L3: Range 10 + Radius 0 + Mark(5) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Mark(6) 84 = 99/120 PP (21 unused)<br>
-      L5: Range 20 + Radius 0 + Mark(7) 112 = 132/150 PP (18 unused)<br>
-      L6: Range 25 + Radius 0 + Mark(8) 144 = 169/180 PP (11 unused)<br>
-      L7: Range 30 + Radius 0 + Mark(9) 180 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 0 + Mark(9) 180 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 0 + Mark(10) 220 = 260/270 PP (10 unused)<br>
-      L10: Range 45 + Radius 0 + Mark(10) 220 = 265/300 PP (35 unused)<br>
-      L11: Range 50 + Radius 0 + Mark(11) 264 = 314/330 PP (16 unused)<br>
-      L12: Range 55 + Radius 0 + Mark(11) 264 = 319/360 PP (41 unused)<br>
-      L13: Range 60 + Radius 0 + Mark(12) 312 = 372/390 PP (18 unused)<br>
-      L14: Range 65 + Radius 0 + Mark(12) 312 = 377/420 PP (43 unused)<br>
-      L15: Range 70 + Radius 0 + Mark(13) 364 = 434/450 PP (16 unused)<br>
-      L16: Range 75 + Radius 0 + Mark(13) 364 = 439/480 PP (41 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Mark cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Mark(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 0 + Mark(4) 40 = 45/60 PP (15 unused).<br>
+      L3: Range 10 + Area 0 + Mark(5) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Mark(6) 84 = 99/120 PP (21 unused).<br>
+      L5: Range 20 + Area 0 + Mark(7) 112 = 132/150 PP (18 unused).<br>
+      L6: Range 25 + Area 0 + Mark(8) 144 = 169/180 PP (11 unused).<br>
+      L7: Range 30 + Area 0 + Mark(9) 180 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 0 + Mark(9) 180 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 0 + Mark(10) 220 = 260/270 PP (10 unused).<br>
+      L10: Range 45 + Area 0 + Mark(10) 220 = 265/300 PP (35 unused).<br>
+      L11: Range 50 + Area 0 + Mark(11) 264 = 314/330 PP (16 unused).<br>
+      L12: Range 55 + Area 0 + Mark(11) 264 = 319/360 PP (41 unused).<br>
+      L13: Range 60 + Area 0 + Mark(12) 312 = 372/390 PP (18 unused).<br>
+      L14: Range 65 + Area 0 + Mark(12) 312 = 377/420 PP (43 unused).<br>
+      L15: Range 70 + Area 0 + Mark(13) 364 = 434/450 PP (16 unused).<br>
+      L16: Range 75 + Area 0 + Mark(13) 364 = 439/480 PP (41 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Mark(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Mark(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Mark(3)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Mark(4)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Mark(5)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Mark(6)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Mark(7)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Mark(8)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Mark(9)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Mark(9)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Mark(10)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Mark(10)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Mark(11)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Mark(11)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Mark(12)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Mark(12)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Mark(13)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Mark(13)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Mark(3)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Mark(4)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Mark(5)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Mark(6)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Mark(7)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Mark(8)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Mark(9)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Mark(9)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Mark(10)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Mark(10)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Mark(11)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Mark(11)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Mark(12)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Mark(12)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Mark(13)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Mark(13)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4792,61 +2260,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged Single Target Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Root (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Root(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 5 + Radius 0 + Root(3) 36 = 41/60 PP (19 unused)<br>
-      L3: Range 10 + Radius 0 + Root(4) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Root(5) 90 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 0 + Root(6) 126 = 146/150 PP (4 unused)<br>
-      L6: Range 25 + Radius 0 + Root(6) 126 = 151/180 PP (29 unused)<br>
-      L7: Range 30 + Radius 0 + Root(7) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Root(7) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Root(8) 216 = 256/270 PP (14 unused)<br>
-      L10: Range 45 + Radius 0 + Root(8) 216 = 261/300 PP (39 unused)<br>
-      L11: Range 50 + Radius 0 + Root(9) 270 = 320/330 PP (10 unused)<br>
-      L12: Range 55 + Radius 0 + Root(9) 270 = 325/360 PP (35 unused)<br>
-      L13: Range 60 + Radius 0 + Root(10) 330 = 390/390 PP (0 unused)<br>
-      L14: Range 65 + Radius 0 + Root(10) 330 = 395/420 PP (25 unused)<br>
-      L15: Range 70 + Radius 0 + Root(10) 330 = 400/450 PP (50 unused)<br>
-      L16: Range 75 + Radius 0 + Root(11) 396 = 471/480 PP (9 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Root cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 5 + Area 0 + Root(3) 36 = 41/60 PP (19 unused).<br>
+      L3: Range 10 + Area 0 + Root(4) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Root(5) 90 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 0 + Root(6) 126 = 146/150 PP (4 unused).<br>
+      L6: Range 25 + Area 0 + Root(6) 126 = 151/180 PP (29 unused).<br>
+      L7: Range 30 + Area 0 + Root(7) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Root(7) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Root(8) 216 = 256/270 PP (14 unused).<br>
+      L10: Range 45 + Area 0 + Root(8) 216 = 261/300 PP (39 unused).<br>
+      L11: Range 50 + Area 0 + Root(9) 270 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Area 0 + Root(9) 270 = 325/360 PP (35 unused).<br>
+      L13: Range 60 + Area 0 + Root(10) 330 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 0 + Root(10) 330 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Area 0 + Root(10) 330 = 400/450 PP (50 unused).<br>
+      L16: Range 75 + Area 0 + Root(11) 396 = 471/480 PP (9 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Root(X)** (Until Broken). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Root(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Root(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Root(2)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Root(3)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Root(4)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Root(5)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Root(6)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Root(6)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Root(7)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Root(7)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Root(8)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Root(8)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Root(9)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Root(9)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Root(10)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Root(10)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Root(10)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Root(11)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Root(2)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Root(3)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Root(4)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Root(5)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Root(6)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Root(6)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Root(7)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Root(7)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Root(8)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Root(8)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Root(9)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Root(9)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Root(10)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Root(10)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Root(10)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Root(11)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4855,61 +2323,62 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged Single Target Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Ruin (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Ruin(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 0 + Ruin(4) 40 = 45/60 PP (15 unused)<br>
-      L3: Range 10 + Radius 0 + Ruin(5) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Ruin(6) 84 = 99/120 PP (21 unused)<br>
-      L5: Range 20 + Radius 0 + Ruin(7) 112 = 132/150 PP (18 unused)<br>
-      L6: Range 25 + Radius 0 + Ruin(8) 144 = 169/180 PP (11 unused)<br>
-      L7: Range 30 + Radius 0 + Ruin(9) 180 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 0 + Ruin(9) 180 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 0 + Ruin(10) 220 = 260/270 PP (10 unused)<br>
-      L10: Range 45 + Radius 0 + Ruin(10) 220 = 265/300 PP (35 unused)<br>
-      L11: Range 50 + Radius 0 + Ruin(11) 264 = 314/330 PP (16 unused)<br>
-      L12: Range 55 + Radius 0 + Ruin(11) 264 = 319/360 PP (41 unused)<br>
-      L13: Range 60 + Radius 0 + Ruin(12) 312 = 372/390 PP (18 unused)<br>
-      L14: Range 65 + Radius 0 + Ruin(12) 312 = 377/420 PP (43 unused)<br>
-      L15: Range 70 + Radius 0 + Ruin(13) 364 = 434/450 PP (16 unused)<br>
-      L16: Range 75 + Radius 0 + Ruin(13) 364 = 439/480 PP (41 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Ruin cost: 4 x T(X).<br>
+      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Ruin(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 0 + Ruin(4) 40 = 45/60 PP (15 unused).<br>
+      L3: Range 10 + Area 0 + Ruin(5) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Ruin(6) 84 = 99/120 PP (21 unused).<br>
+      L5: Range 20 + Area 0 + Ruin(7) 112 = 132/150 PP (18 unused).<br>
+      L6: Range 25 + Area 0 + Ruin(8) 144 = 169/180 PP (11 unused).<br>
+      L7: Range 30 + Area 0 + Ruin(9) 180 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 0 + Ruin(9) 180 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 0 + Ruin(10) 220 = 260/270 PP (10 unused).<br>
+      L10: Range 45 + Area 0 + Ruin(10) 220 = 265/300 PP (35 unused).<br>
+      L11: Range 50 + Area 0 + Ruin(11) 264 = 314/330 PP (16 unused).<br>
+      L12: Range 55 + Area 0 + Ruin(11) 264 = 319/360 PP (41 unused).<br>
+      L13: Range 60 + Area 0 + Ruin(12) 312 = 372/390 PP (18 unused).<br>
+      L14: Range 65 + Area 0 + Ruin(12) 312 = 377/420 PP (43 unused).<br>
+      L15: Range 70 + Area 0 + Ruin(13) 364 = 434/450 PP (16 unused).<br>
+      L16: Range 75 + Area 0 + Ruin(13) 364 = 439/480 PP (41 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Ruin(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Ruin(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Ruin(3)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Ruin(4)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Ruin(5)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Ruin(6)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Ruin(7)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Ruin(8)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Ruin(9)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Ruin(9)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Ruin(10)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Ruin(10)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Ruin(11)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Ruin(11)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Ruin(12)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Ruin(12)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Ruin(13)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Ruin(13)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Ruin(3)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Ruin(4)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Ruin(5)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Ruin(6)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Ruin(7)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Ruin(8)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Ruin(9)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Ruin(9)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Ruin(10)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Ruin(10)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Ruin(11)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Ruin(11)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Ruin(12)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Ruin(12)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Ruin(13)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Ruin(13)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4918,61 +2387,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged Single Target Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Slow (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Slow(3) 24 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 0 + Slow(4) 40 = 45/60 PP (15 unused)<br>
-      L3: Range 10 + Radius 0 + Slow(5) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Slow(6) 84 = 99/120 PP (21 unused)<br>
-      L5: Range 20 + Radius 0 + Slow(7) 112 = 132/150 PP (18 unused)<br>
-      L6: Range 25 + Radius 0 + Slow(8) 144 = 169/180 PP (11 unused)<br>
-      L7: Range 30 + Radius 0 + Slow(9) 180 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 0 + Slow(9) 180 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 0 + Slow(10) 220 = 260/270 PP (10 unused)<br>
-      L10: Range 45 + Radius 0 + Slow(10) 220 = 265/300 PP (35 unused)<br>
-      L11: Range 50 + Radius 0 + Slow(11) 264 = 314/330 PP (16 unused)<br>
-      L12: Range 55 + Radius 0 + Slow(11) 264 = 319/360 PP (41 unused)<br>
-      L13: Range 60 + Radius 0 + Slow(12) 312 = 372/390 PP (18 unused)<br>
-      L14: Range 65 + Radius 0 + Slow(12) 312 = 377/420 PP (43 unused)<br>
-      L15: Range 70 + Radius 0 + Slow(13) 364 = 434/450 PP (16 unused)<br>
-      L16: Range 75 + Radius 0 + Slow(13) 364 = 439/480 PP (41 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Slow cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Slow(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 0 + Slow(4) 40 = 45/60 PP (15 unused).<br>
+      L3: Range 10 + Area 0 + Slow(5) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Slow(6) 84 = 99/120 PP (21 unused).<br>
+      L5: Range 20 + Area 0 + Slow(7) 112 = 132/150 PP (18 unused).<br>
+      L6: Range 25 + Area 0 + Slow(8) 144 = 169/180 PP (11 unused).<br>
+      L7: Range 30 + Area 0 + Slow(9) 180 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 0 + Slow(9) 180 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 0 + Slow(10) 220 = 260/270 PP (10 unused).<br>
+      L10: Range 45 + Area 0 + Slow(10) 220 = 265/300 PP (35 unused).<br>
+      L11: Range 50 + Area 0 + Slow(11) 264 = 314/330 PP (16 unused).<br>
+      L12: Range 55 + Area 0 + Slow(11) 264 = 319/360 PP (41 unused).<br>
+      L13: Range 60 + Area 0 + Slow(12) 312 = 372/390 PP (18 unused).<br>
+      L14: Range 65 + Area 0 + Slow(12) 312 = 377/420 PP (43 unused).<br>
+      L15: Range 70 + Area 0 + Slow(13) 364 = 434/450 PP (16 unused).<br>
+      L16: Range 75 + Area 0 + Slow(13) 364 = 439/480 PP (41 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Slow(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Slow(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Slow(3)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Slow(4)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Slow(5)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Slow(6)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Slow(7)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Slow(8)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Slow(9)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Slow(9)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Slow(10)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Slow(10)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Slow(11)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Slow(11)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Slow(12)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Slow(12)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Slow(13)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Slow(13)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Slow(3)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Slow(4)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Slow(5)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Slow(6)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Slow(7)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Slow(8)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Slow(9)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Slow(9)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Slow(10)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Slow(10)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Slow(11)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Slow(11)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Slow(12)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Slow(12)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Slow(13)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Slow(13)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -4981,61 +2450,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged Single Target Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Soulburn (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Soulburn(1) 8 = 8/30 PP (22 unused)<br>
-      L2: Range 5 + Radius 0 + Soulburn(1) 8 = 13/60 PP (47 unused)<br>
-      L3: Range 10 + Radius 0 + Soulburn(2) 80 = 90/90 PP (0 unused)<br>
-      L4: Range 15 + Radius 0 + Soulburn(2) 80 = 95/120 PP (25 unused)<br>
-      L5: Range 20 + Radius 0 + Soulburn(2) 80 = 100/150 PP (50 unused)<br>
-      L6: Range 25 + Radius 0 + Soulburn(2) 80 = 105/180 PP (75 unused)<br>
-      L7: Range 30 + Radius 0 + Soulburn(3) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Soulburn(3) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Soulburn(3) 168 = 208/270 PP (62 unused)<br>
-      L10: Range 45 + Radius 0 + Soulburn(3) 168 = 213/300 PP (87 unused)<br>
-      L11: Range 50 + Radius 0 + Soulburn(3) 168 = 218/330 PP (112 unused)<br>
-      L12: Range 55 + Radius 0 + Soulburn(4) 288 = 343/360 PP (17 unused)<br>
-      L13: Range 60 + Radius 0 + Soulburn(4) 288 = 348/390 PP (42 unused)<br>
-      L14: Range 65 + Radius 0 + Soulburn(4) 288 = 353/420 PP (67 unused)<br>
-      L15: Range 70 + Radius 0 + Soulburn(4) 288 = 358/450 PP (92 unused)<br>
-      L16: Range 75 + Radius 0 + Soulburn(4) 288 = 363/480 PP (117 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Soulburn(1) 8 = 8/30 PP (22 unused).<br>
+      L2: Range 5 + Area 0 + Soulburn(1) 8 = 13/60 PP (47 unused).<br>
+      L3: Range 10 + Area 0 + Soulburn(2) 80 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 0 + Soulburn(2) 80 = 95/120 PP (25 unused).<br>
+      L5: Range 20 + Area 0 + Soulburn(2) 80 = 100/150 PP (50 unused).<br>
+      L6: Range 25 + Area 0 + Soulburn(2) 80 = 105/180 PP (75 unused).<br>
+      L7: Range 30 + Area 0 + Soulburn(3) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Soulburn(3) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Soulburn(3) 168 = 208/270 PP (62 unused).<br>
+      L10: Range 45 + Area 0 + Soulburn(3) 168 = 213/300 PP (87 unused).<br>
+      L11: Range 50 + Area 0 + Soulburn(3) 168 = 218/330 PP (112 unused).<br>
+      L12: Range 55 + Area 0 + Soulburn(4) 288 = 343/360 PP (17 unused).<br>
+      L13: Range 60 + Area 0 + Soulburn(4) 288 = 348/390 PP (42 unused).<br>
+      L14: Range 65 + Area 0 + Soulburn(4) 288 = 353/420 PP (67 unused).<br>
+      L15: Range 70 + Area 0 + Soulburn(4) 288 = 358/450 PP (92 unused).<br>
+      L16: Range 75 + Area 0 + Soulburn(4) 288 = 363/480 PP (117 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Soulburn(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Soulburn(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Soulburn(1)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Soulburn(1)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Soulburn(2)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Soulburn(3)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Soulburn(4)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Soulburn(1)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Soulburn(1)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Soulburn(2)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Soulburn(3)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Soulburn(4)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Soulburn(4)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5044,61 +2513,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged Single Target Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Sundered (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Sundered(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 5 + Radius 0 + Sundered(3) 36 = 41/60 PP (19 unused)<br>
-      L3: Range 10 + Radius 0 + Sundered(4) 60 = 70/90 PP (20 unused)<br>
-      L4: Range 15 + Radius 0 + Sundered(5) 90 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 0 + Sundered(6) 126 = 146/150 PP (4 unused)<br>
-      L6: Range 25 + Radius 0 + Sundered(6) 126 = 151/180 PP (29 unused)<br>
-      L7: Range 30 + Radius 0 + Sundered(7) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Sundered(7) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Sundered(8) 216 = 256/270 PP (14 unused)<br>
-      L10: Range 45 + Radius 0 + Sundered(8) 216 = 261/300 PP (39 unused)<br>
-      L11: Range 50 + Radius 0 + Sundered(9) 270 = 320/330 PP (10 unused)<br>
-      L12: Range 55 + Radius 0 + Sundered(9) 270 = 325/360 PP (35 unused)<br>
-      L13: Range 60 + Radius 0 + Sundered(10) 330 = 390/390 PP (0 unused)<br>
-      L14: Range 65 + Radius 0 + Sundered(10) 330 = 395/420 PP (25 unused)<br>
-      L15: Range 70 + Radius 0 + Sundered(10) 330 = 400/450 PP (50 unused)<br>
-      L16: Range 75 + Radius 0 + Sundered(11) 396 = 471/480 PP (9 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Sundered cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Sundered(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 5 + Area 0 + Sundered(3) 36 = 41/60 PP (19 unused).<br>
+      L3: Range 10 + Area 0 + Sundered(4) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Sundered(5) 90 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 0 + Sundered(6) 126 = 146/150 PP (4 unused).<br>
+      L6: Range 25 + Area 0 + Sundered(6) 126 = 151/180 PP (29 unused).<br>
+      L7: Range 30 + Area 0 + Sundered(7) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Sundered(7) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Sundered(8) 216 = 256/270 PP (14 unused).<br>
+      L10: Range 45 + Area 0 + Sundered(8) 216 = 261/300 PP (39 unused).<br>
+      L11: Range 50 + Area 0 + Sundered(9) 270 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Area 0 + Sundered(9) 270 = 325/360 PP (35 unused).<br>
+      L13: Range 60 + Area 0 + Sundered(10) 330 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 0 + Sundered(10) 330 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Area 0 + Sundered(10) 330 = 400/450 PP (50 unused).<br>
+      L16: Range 75 + Area 0 + Sundered(11) 396 = 471/480 PP (9 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Sundered(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Sundered(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Sundered(2)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Sundered(3)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Sundered(4)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Sundered(5)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Sundered(6)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Sundered(6)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Sundered(7)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Sundered(7)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Sundered(8)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Sundered(8)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Sundered(9)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Sundered(9)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Sundered(10)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Sundered(10)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Sundered(10)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Sundered(11)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Sundered(2)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Sundered(3)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Sundered(4)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Sundered(5)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Sundered(6)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Sundered(6)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Sundered(7)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Sundered(7)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Sundered(8)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Sundered(8)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Sundered(9)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Sundered(9)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Sundered(10)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Sundered(10)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Sundered(10)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Sundered(11)**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5107,61 +2576,75 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged Single Target Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Weaken (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Weaken(1) 8 = 8/30 PP (22 unused)<br>
-      L2: Range 5 + Radius 0 + Weaken(1) 8 = 13/60 PP (47 unused)<br>
-      L3: Range 10 + Radius 0 + Weaken(2) 80 = 90/90 PP (0 unused)<br>
-      L4: Range 15 + Radius 0 + Weaken(2) 80 = 95/120 PP (25 unused)<br>
-      L5: Range 20 + Radius 0 + Weaken(2) 80 = 100/150 PP (50 unused)<br>
-      L6: Range 25 + Radius 0 + Weaken(2) 80 = 105/180 PP (75 unused)<br>
-      L7: Range 30 + Radius 0 + Weaken(3) 168 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 0 + Weaken(3) 168 = 203/240 PP (37 unused)<br>
-      L9: Range 40 + Radius 0 + Weaken(3) 168 = 208/270 PP (62 unused)<br>
-      L10: Range 45 + Radius 0 + Weaken(3) 168 = 213/300 PP (87 unused)<br>
-      L11: Range 50 + Radius 0 + Weaken(3) 168 = 218/330 PP (112 unused)<br>
-      L12: Range 55 + Radius 0 + Weaken(4) 288 = 343/360 PP (17 unused)<br>
-      L13: Range 60 + Radius 0 + Weaken(4) 288 = 348/390 PP (42 unused)<br>
-      L14: Range 65 + Radius 0 + Weaken(4) 288 = 353/420 PP (67 unused)<br>
-      L15: Range 70 + Radius 0 + Weaken(4) 288 = 358/450 PP (92 unused)<br>
-      L16: Range 75 + Radius 0 + Weaken(4) 288 = 363/480 PP (117 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Weaken(1) 8 = 8/30 PP (22 unused).<br>
+      L2: Range 5 + Area 0 + Weaken(1) 8 = 13/60 PP (47 unused).<br>
+      L3: Range 10 + Area 0 + Weaken(2) 80 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 0 + Weaken(2) 80 = 95/120 PP (25 unused).<br>
+      L5: Range 20 + Area 0 + Weaken(2) 80 = 100/150 PP (50 unused).<br>
+      L6: Range 25 + Area 0 + Weaken(2) 80 = 105/180 PP (75 unused).<br>
+      L7: Range 30 + Area 0 + Weaken(3) 168 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 0 + Weaken(3) 168 = 203/240 PP (37 unused).<br>
+      L9: Range 40 + Area 0 + Weaken(3) 168 = 208/270 PP (62 unused).<br>
+      L10: Range 45 + Area 0 + Weaken(3) 168 = 213/300 PP (87 unused).<br>
+      L11: Range 50 + Area 0 + Weaken(3) 168 = 218/330 PP (112 unused).<br>
+      L12: Range 55 + Area 0 + Weaken(4) 288 = 343/360 PP (17 unused).<br>
+      L13: Range 60 + Area 0 + Weaken(4) 288 = 348/390 PP (42 unused).<br>
+      L14: Range 65 + Area 0 + Weaken(4) 288 = 353/420 PP (67 unused).<br>
+      L15: Range 70 + Area 0 + Weaken(4) 288 = 358/450 PP (92 unused).<br>
+      L16: Range 75 + Area 0 + Weaken(4) 288 = 363/480 PP (117 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Weaken(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** One creature within printed Range. Make one legal Attack Roll against the target; only a successful roll applies the Special.
+Apply **Weaken(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Weaken(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. **Neither Weapon Damage nor Spell Focus Damage is added.** This Special-only Active deals **no Power Damage and no other direct Attack Damage**, regardless of delivery. **No Damage Roll is made.** No other Special is added.
+**Delivery:** Make one Ranged Martial Attack Roll or legal Spell Casting Roll against one creature within Range.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Weaken(1)**; **no direct damage**. |
-| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Weaken(1)**; **no direct damage**. |
-| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Weaken(2)**; **no direct damage**. |
-| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Weaken(3)**; **no direct damage**. |
-| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
-| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Weaken(4)**; **no direct damage**. |
+| **1** | Active, Special | 8 m | — | Instant | On successful delivery apply **Weaken(1)**. |
+| **2** | Active, Special | 12 m | — | Instant | On successful delivery apply **Weaken(1)**. |
+| **3** | Active, Special | 16 m | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **4** | Active, Special | 20 m | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **5** | Active, Special | 24 m | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **6** | Active, Special | 28 m | — | Instant | On successful delivery apply **Weaken(2)**. |
+| **7** | Active, Special | 32 m | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **8** | Active, Special | 36 m | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **9** | Active, Special | 40 m | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **10** | Active, Special | 44 m | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **11** | Active, Special | 48 m | — | Instant | On successful delivery apply **Weaken(3)**. |
+| **12** | Active, Special | 52 m | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **13** | Active, Special | 56 m | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **14** | Active, Special | 60 m | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **15** | Active, Special | 64 m | — | Instant | On successful delivery apply **Weaken(4)**. |
+| **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Weaken(4)**. |
 
 ---
 }}
 
 \page
+{{pageNumber,auto}}
+{{wide
+## Instant AoE Special Powers
+
+The following **Melee AoE** and **Ranged AoE** Powers use the same Special-only construction described in the preceding chapter. They apply their printed Special(X) to each creature successfully hit, without adding direct Attack Damage.
+
+- **Melee AoE:** centered on the user.
+- **Ranged AoE:** placed at a legal point within the printed Range; Martial or eligible Spell delivery.
+
+The existing Power Level tables, delivery restrictions, and calculation tooltips remain unchanged in this editorial reordering.
+
+}}
+
+\page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5170,61 +2653,62 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Blight (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Blight(2) 9 = 29/30 PP (1 unused)<br>
-      L2: Range 0 + Radius 20 + Blight(4) 30 = 50/60 PP (10 unused)<br>
-      L3: Range 0 + Radius 50 + Blight(4) 30 = 80/90 PP (10 unused)<br>
-      L4: Range 0 + Radius 50 + Blight(6) 63 = 113/120 PP (7 unused)<br>
-      L5: Range 0 + Radius 80 + Blight(6) 63 = 143/150 PP (7 unused)<br>
-      L6: Range 0 + Radius 80 + Blight(7) 84 = 164/180 PP (16 unused)<br>
-      L7: Range 0 + Radius 120 + Blight(7) 84 = 204/210 PP (6 unused)<br>
-      L8: Range 0 + Radius 120 + Blight(8) 108 = 228/240 PP (12 unused)<br>
-      L9: Range 0 + Radius 120 + Blight(9) 135 = 255/270 PP (15 unused)<br>
-      L10: Range 0 + Radius 165 + Blight(9) 135 = 300/300 PP (0 unused)<br>
-      L11: Range 0 + Radius 165 + Blight(10) 165 = 330/330 PP (0 unused)<br>
-      L12: Range 0 + Radius 165 + Blight(10) 165 = 330/360 PP (30 unused)<br>
-      L13: Range 0 + Radius 220 + Blight(10) 165 = 385/390 PP (5 unused)<br>
-      L14: Range 0 + Radius 220 + Blight(11) 198 = 418/420 PP (2 unused)<br>
-      L15: Range 0 + Radius 220 + Blight(11) 198 = 418/450 PP (32 unused)<br>
-      L16: Range 0 + Radius 280 + Blight(11) 198 = 478/480 PP (2 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Blight cost: 3 x T(X).<br>
+      Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Blight(2) 9 = 29/30 PP (1 unused).<br>
+      L2: Range 0 + Area 20 + Blight(4) 30 = 50/60 PP (10 unused).<br>
+      L3: Range 0 + Area 50 + Blight(4) 30 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 50 + Blight(6) 63 = 113/120 PP (7 unused).<br>
+      L5: Range 0 + Area 80 + Blight(6) 63 = 143/150 PP (7 unused).<br>
+      L6: Range 0 + Area 80 + Blight(7) 84 = 164/180 PP (16 unused).<br>
+      L7: Range 0 + Area 120 + Blight(7) 84 = 204/210 PP (6 unused).<br>
+      L8: Range 0 + Area 120 + Blight(8) 108 = 228/240 PP (12 unused).<br>
+      L9: Range 0 + Area 120 + Blight(9) 135 = 255/270 PP (15 unused).<br>
+      L10: Range 0 + Area 165 + Blight(9) 135 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Area 165 + Blight(10) 165 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Area 165 + Blight(10) 165 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + Area 220 + Blight(10) 165 = 385/390 PP (5 unused).<br>
+      L14: Range 0 + Area 220 + Blight(11) 198 = 418/420 PP (2 unused).<br>
+      L15: Range 0 + Area 220 + Blight(11) 198 = 418/450 PP (32 unused).<br>
+      L16: Range 0 + Area 280 + Blight(11) 198 = 478/480 PP (2 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Blight(X)** (Timed Disadvantage). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Blight(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Blight(2)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Blight(4)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Blight(4)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Blight(6)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Blight(6)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Blight(7)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Blight(7)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Blight(8)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Blight(9)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Blight(9)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Blight(10)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Blight(11)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Blight(11)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Blight(11)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Blight(2)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Blight(4)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Blight(4)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Blight(6)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Blight(6)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Blight(7)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Blight(7)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Blight(8)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Blight(9)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Blight(9)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Blight(10)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Blight(11)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Blight(11)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Blight(11)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5233,61 +2717,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Challenge (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Challenge(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 0 + Radius 20 + Challenge(1) 6 = 26/60 PP (34 unused)<br>
-      L3: Range 0 + Radius 50 + Challenge(1) 6 = 56/90 PP (34 unused)<br>
-      L4: Range 0 + Radius 50 + Challenge(2) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Challenge(2) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Challenge(2) 60 = 140/180 PP (40 unused)<br>
-      L7: Range 0 + Radius 120 + Challenge(2) 60 = 180/210 PP (30 unused)<br>
-      L8: Range 0 + Radius 120 + Challenge(2) 60 = 180/240 PP (60 unused)<br>
-      L9: Range 0 + Radius 165 + Challenge(2) 60 = 225/270 PP (45 unused)<br>
-      L10: Range 0 + Radius 165 + Challenge(3) 126 = 291/300 PP (9 unused)<br>
-      L11: Range 0 + Radius 165 + Challenge(3) 126 = 291/330 PP (39 unused)<br>
-      L12: Range 0 + Radius 220 + Challenge(3) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 0 + Radius 220 + Challenge(3) 126 = 346/390 PP (44 unused)<br>
-      L14: Range 0 + Radius 280 + Challenge(3) 126 = 406/420 PP (14 unused)<br>
-      L15: Range 0 + Radius 280 + Challenge(3) 126 = 406/450 PP (44 unused)<br>
-      L16: Range 0 + Radius 280 + Challenge(3) 126 = 406/480 PP (74 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Challenge(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 0 + Area 20 + Challenge(1) 6 = 26/60 PP (34 unused).<br>
+      L3: Range 0 + Area 50 + Challenge(1) 6 = 56/90 PP (34 unused).<br>
+      L4: Range 0 + Area 50 + Challenge(2) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Challenge(2) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Challenge(2) 60 = 140/180 PP (40 unused).<br>
+      L7: Range 0 + Area 120 + Challenge(2) 60 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + Area 120 + Challenge(2) 60 = 180/240 PP (60 unused).<br>
+      L9: Range 0 + Area 165 + Challenge(2) 60 = 225/270 PP (45 unused).<br>
+      L10: Range 0 + Area 165 + Challenge(3) 126 = 291/300 PP (9 unused).<br>
+      L11: Range 0 + Area 165 + Challenge(3) 126 = 291/330 PP (39 unused).<br>
+      L12: Range 0 + Area 220 + Challenge(3) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 0 + Area 220 + Challenge(3) 126 = 346/390 PP (44 unused).<br>
+      L14: Range 0 + Area 280 + Challenge(3) 126 = 406/420 PP (14 unused).<br>
+      L15: Range 0 + Area 280 + Challenge(3) 126 = 406/450 PP (44 unused).<br>
+      L16: Range 0 + Area 280 + Challenge(3) 126 = 406/480 PP (74 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Challenge(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Challenge(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5296,61 +2780,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Corrode (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Corrode(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 0 + Radius 20 + Corrode(3) 36 = 56/60 PP (4 unused)<br>
-      L3: Range 0 + Radius 50 + Corrode(3) 36 = 86/90 PP (4 unused)<br>
-      L4: Range 0 + Radius 50 + Corrode(4) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Corrode(4) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Corrode(5) 90 = 170/180 PP (10 unused)<br>
-      L7: Range 0 + Radius 120 + Corrode(5) 90 = 210/210 PP (0 unused)<br>
-      L8: Range 0 + Radius 120 + Corrode(5) 90 = 210/240 PP (30 unused)<br>
-      L9: Range 0 + Radius 165 + Corrode(5) 90 = 255/270 PP (15 unused)<br>
-      L10: Range 0 + Radius 165 + Corrode(6) 126 = 291/300 PP (9 unused)<br>
-      L11: Range 0 + Radius 165 + Corrode(6) 126 = 291/330 PP (39 unused)<br>
-      L12: Range 0 + Radius 220 + Corrode(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 0 + Radius 220 + Corrode(7) 168 = 388/390 PP (2 unused)<br>
-      L14: Range 0 + Radius 220 + Corrode(7) 168 = 388/420 PP (32 unused)<br>
-      L15: Range 0 + Radius 280 + Corrode(7) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Corrode(7) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Corrode cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Corrode(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 0 + Area 20 + Corrode(3) 36 = 56/60 PP (4 unused).<br>
+      L3: Range 0 + Area 50 + Corrode(3) 36 = 86/90 PP (4 unused).<br>
+      L4: Range 0 + Area 50 + Corrode(4) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Corrode(4) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Corrode(5) 90 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + Area 120 + Corrode(5) 90 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Area 120 + Corrode(5) 90 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + Area 165 + Corrode(5) 90 = 255/270 PP (15 unused).<br>
+      L10: Range 0 + Area 165 + Corrode(6) 126 = 291/300 PP (9 unused).<br>
+      L11: Range 0 + Area 165 + Corrode(6) 126 = 291/330 PP (39 unused).<br>
+      L12: Range 0 + Area 220 + Corrode(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 0 + Area 220 + Corrode(7) 168 = 388/390 PP (2 unused).<br>
+      L14: Range 0 + Area 220 + Corrode(7) 168 = 388/420 PP (32 unused).<br>
+      L15: Range 0 + Area 280 + Corrode(7) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Corrode(7) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Corrode(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Corrode(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Corrode(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Corrode(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Corrode(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Corrode(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Corrode(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Corrode(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Corrode(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Corrode(5)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Corrode(5)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Corrode(7)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Corrode(7)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Corrode(7)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Corrode(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Corrode(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Corrode(3)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Corrode(3)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Corrode(4)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Corrode(4)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Corrode(5)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Corrode(5)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Corrode(5)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Corrode(5)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Corrode(7)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Corrode(7)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Corrode(7)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Corrode(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5359,61 +2843,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Disoriented (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Disoriented(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 0 + Radius 20 + Disoriented(1) 8 = 28/60 PP (32 unused)<br>
-      L3: Range 0 + Radius 50 + Disoriented(1) 8 = 58/90 PP (32 unused)<br>
-      L4: Range 0 + Radius 50 + Disoriented(1) 8 = 58/120 PP (62 unused)<br>
-      L5: Range 0 + Radius 80 + Disoriented(1) 8 = 88/150 PP (62 unused)<br>
-      L6: Range 0 + Radius 80 + Disoriented(2) 80 = 160/180 PP (20 unused)<br>
-      L7: Range 0 + Radius 120 + Disoriented(2) 80 = 200/210 PP (10 unused)<br>
-      L8: Range 0 + Radius 120 + Disoriented(2) 80 = 200/240 PP (40 unused)<br>
-      L9: Range 0 + Radius 165 + Disoriented(2) 80 = 245/270 PP (25 unused)<br>
-      L10: Range 0 + Radius 165 + Disoriented(2) 80 = 245/300 PP (55 unused)<br>
-      L11: Range 0 + Radius 220 + Disoriented(2) 80 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 220 + Disoriented(2) 80 = 300/360 PP (60 unused)<br>
-      L13: Range 0 + Radius 280 + Disoriented(2) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 0 + Radius 280 + Disoriented(2) 80 = 360/420 PP (60 unused)<br>
-      L15: Range 0 + Radius 280 + Disoriented(3) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Disoriented(3) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Disoriented(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 0 + Area 20 + Disoriented(1) 8 = 28/60 PP (32 unused).<br>
+      L3: Range 0 + Area 50 + Disoriented(1) 8 = 58/90 PP (32 unused).<br>
+      L4: Range 0 + Area 50 + Disoriented(1) 8 = 58/120 PP (62 unused).<br>
+      L5: Range 0 + Area 80 + Disoriented(1) 8 = 88/150 PP (62 unused).<br>
+      L6: Range 0 + Area 80 + Disoriented(2) 80 = 160/180 PP (20 unused).<br>
+      L7: Range 0 + Area 120 + Disoriented(2) 80 = 200/210 PP (10 unused).<br>
+      L8: Range 0 + Area 120 + Disoriented(2) 80 = 200/240 PP (40 unused).<br>
+      L9: Range 0 + Area 165 + Disoriented(2) 80 = 245/270 PP (25 unused).<br>
+      L10: Range 0 + Area 165 + Disoriented(2) 80 = 245/300 PP (55 unused).<br>
+      L11: Range 0 + Area 220 + Disoriented(2) 80 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 220 + Disoriented(2) 80 = 300/360 PP (60 unused).<br>
+      L13: Range 0 + Area 280 + Disoriented(2) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + Area 280 + Disoriented(2) 80 = 360/420 PP (60 unused).<br>
+      L15: Range 0 + Area 280 + Disoriented(3) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Disoriented(3) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Disoriented(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Disoriented(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Disoriented(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(3)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(3)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(3)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(3)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5422,61 +2906,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Expose (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Expose(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 0 + Radius 20 + Expose(2) 24 = 44/60 PP (16 unused)<br>
-      L3: Range 0 + Radius 50 + Expose(2) 24 = 74/90 PP (16 unused)<br>
-      L4: Range 0 + Radius 50 + Expose(3) 48 = 98/120 PP (22 unused)<br>
-      L5: Range 0 + Radius 80 + Expose(3) 48 = 128/150 PP (22 unused)<br>
-      L6: Range 0 + Radius 80 + Expose(4) 80 = 160/180 PP (20 unused)<br>
-      L7: Range 0 + Radius 120 + Expose(4) 80 = 200/210 PP (10 unused)<br>
-      L8: Range 0 + Radius 120 + Expose(5) 120 = 240/240 PP (0 unused)<br>
-      L9: Range 0 + Radius 120 + Expose(5) 120 = 240/270 PP (30 unused)<br>
-      L10: Range 0 + Radius 165 + Expose(5) 120 = 285/300 PP (15 unused)<br>
-      L11: Range 0 + Radius 165 + Expose(5) 120 = 285/330 PP (45 unused)<br>
-      L12: Range 0 + Radius 220 + Expose(5) 120 = 340/360 PP (20 unused)<br>
-      L13: Range 0 + Radius 220 + Expose(6) 168 = 388/390 PP (2 unused)<br>
-      L14: Range 0 + Radius 220 + Expose(6) 168 = 388/420 PP (32 unused)<br>
-      L15: Range 0 + Radius 280 + Expose(6) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Expose(6) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Expose cost: 8 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Expose(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 0 + Area 20 + Expose(2) 24 = 44/60 PP (16 unused).<br>
+      L3: Range 0 + Area 50 + Expose(2) 24 = 74/90 PP (16 unused).<br>
+      L4: Range 0 + Area 50 + Expose(3) 48 = 98/120 PP (22 unused).<br>
+      L5: Range 0 + Area 80 + Expose(3) 48 = 128/150 PP (22 unused).<br>
+      L6: Range 0 + Area 80 + Expose(4) 80 = 160/180 PP (20 unused).<br>
+      L7: Range 0 + Area 120 + Expose(4) 80 = 200/210 PP (10 unused).<br>
+      L8: Range 0 + Area 120 + Expose(5) 120 = 240/240 PP (0 unused).<br>
+      L9: Range 0 + Area 120 + Expose(5) 120 = 240/270 PP (30 unused).<br>
+      L10: Range 0 + Area 165 + Expose(5) 120 = 285/300 PP (15 unused).<br>
+      L11: Range 0 + Area 165 + Expose(5) 120 = 285/330 PP (45 unused).<br>
+      L12: Range 0 + Area 220 + Expose(5) 120 = 340/360 PP (20 unused).<br>
+      L13: Range 0 + Area 220 + Expose(6) 168 = 388/390 PP (2 unused).<br>
+      L14: Range 0 + Area 220 + Expose(6) 168 = 388/420 PP (32 unused).<br>
+      L15: Range 0 + Area 280 + Expose(6) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Expose(6) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Expose(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Expose(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Expose(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Expose(2)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Expose(2)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Expose(3)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Expose(3)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Expose(6)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Expose(6)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Expose(6)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Expose(6)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Expose(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Expose(2)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Expose(2)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Expose(3)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Expose(3)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Expose(6)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Expose(6)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Expose(6)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Expose(6)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5485,61 +2969,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Hex (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Hex(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 0 + Radius 20 + Hex(3) 36 = 56/60 PP (4 unused)<br>
-      L3: Range 0 + Radius 50 + Hex(3) 36 = 86/90 PP (4 unused)<br>
-      L4: Range 0 + Radius 50 + Hex(4) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Hex(4) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Hex(5) 90 = 170/180 PP (10 unused)<br>
-      L7: Range 0 + Radius 120 + Hex(5) 90 = 210/210 PP (0 unused)<br>
-      L8: Range 0 + Radius 120 + Hex(5) 90 = 210/240 PP (30 unused)<br>
-      L9: Range 0 + Radius 165 + Hex(5) 90 = 255/270 PP (15 unused)<br>
-      L10: Range 0 + Radius 165 + Hex(6) 126 = 291/300 PP (9 unused)<br>
-      L11: Range 0 + Radius 165 + Hex(6) 126 = 291/330 PP (39 unused)<br>
-      L12: Range 0 + Radius 220 + Hex(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 0 + Radius 220 + Hex(7) 168 = 388/390 PP (2 unused)<br>
-      L14: Range 0 + Radius 220 + Hex(7) 168 = 388/420 PP (32 unused)<br>
-      L15: Range 0 + Radius 280 + Hex(7) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Hex(7) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Hex cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Hex(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 0 + Area 20 + Hex(3) 36 = 56/60 PP (4 unused).<br>
+      L3: Range 0 + Area 50 + Hex(3) 36 = 86/90 PP (4 unused).<br>
+      L4: Range 0 + Area 50 + Hex(4) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Hex(4) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Hex(5) 90 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + Area 120 + Hex(5) 90 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Area 120 + Hex(5) 90 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + Area 165 + Hex(5) 90 = 255/270 PP (15 unused).<br>
+      L10: Range 0 + Area 165 + Hex(6) 126 = 291/300 PP (9 unused).<br>
+      L11: Range 0 + Area 165 + Hex(6) 126 = 291/330 PP (39 unused).<br>
+      L12: Range 0 + Area 220 + Hex(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 0 + Area 220 + Hex(7) 168 = 388/390 PP (2 unused).<br>
+      L14: Range 0 + Area 220 + Hex(7) 168 = 388/420 PP (32 unused).<br>
+      L15: Range 0 + Area 280 + Hex(7) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Hex(7) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Hex(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Hex(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Hex(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Hex(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Hex(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Hex(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Hex(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Hex(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Hex(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Hex(5)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Hex(5)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Hex(7)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Hex(7)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Hex(7)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Hex(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Hex(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Hex(3)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Hex(3)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Hex(4)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Hex(4)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Hex(5)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Hex(5)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Hex(5)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Hex(5)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Hex(7)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Hex(7)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Hex(7)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Hex(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5548,61 +3032,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Lacerate (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Lacerate(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 20 + Lacerate(4) 40 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 50 + Lacerate(4) 40 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 50 + Lacerate(5) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Lacerate(5) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Lacerate(6) 84 = 164/180 PP (16 unused)<br>
-      L7: Range 0 + Radius 120 + Lacerate(6) 84 = 204/210 PP (6 unused)<br>
-      L8: Range 0 + Radius 120 + Lacerate(7) 112 = 232/240 PP (8 unused)<br>
-      L9: Range 0 + Radius 120 + Lacerate(8) 144 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 120 + Lacerate(9) 180 = 300/300 PP (0 unused)<br>
-      L11: Range 0 + Radius 120 + Lacerate(9) 180 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 165 + Lacerate(9) 180 = 345/360 PP (15 unused)<br>
-      L13: Range 0 + Radius 165 + Lacerate(10) 220 = 385/390 PP (5 unused)<br>
-      L14: Range 0 + Radius 165 + Lacerate(10) 220 = 385/420 PP (35 unused)<br>
-      L15: Range 0 + Radius 220 + Lacerate(10) 220 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 220 + Lacerate(10) 220 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Lacerate cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Lacerate(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 20 + Lacerate(4) 40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 50 + Lacerate(4) 40 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 50 + Lacerate(5) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Lacerate(5) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Lacerate(6) 84 = 164/180 PP (16 unused).<br>
+      L7: Range 0 + Area 120 + Lacerate(6) 84 = 204/210 PP (6 unused).<br>
+      L8: Range 0 + Area 120 + Lacerate(7) 112 = 232/240 PP (8 unused).<br>
+      L9: Range 0 + Area 120 + Lacerate(8) 144 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 120 + Lacerate(9) 180 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Area 120 + Lacerate(9) 180 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 165 + Lacerate(9) 180 = 345/360 PP (15 unused).<br>
+      L13: Range 0 + Area 165 + Lacerate(10) 220 = 385/390 PP (5 unused).<br>
+      L14: Range 0 + Area 165 + Lacerate(10) 220 = 385/420 PP (35 unused).<br>
+      L15: Range 0 + Area 220 + Lacerate(10) 220 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 220 + Lacerate(10) 220 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Lacerate(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Lacerate(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Lacerate(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Lacerate(4)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(4)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(5)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Lacerate(5)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Lacerate(6)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(6)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(7)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(8)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Lacerate(9)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Lacerate(10)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Lacerate(10)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Lacerate(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Lacerate(4)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(4)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(5)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Lacerate(5)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Lacerate(6)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(6)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(7)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(8)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Lacerate(9)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Lacerate(10)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Lacerate(10)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5611,61 +3095,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Mark (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Mark(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 20 + Mark(4) 40 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 50 + Mark(4) 40 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 50 + Mark(5) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Mark(5) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Mark(6) 84 = 164/180 PP (16 unused)<br>
-      L7: Range 0 + Radius 120 + Mark(6) 84 = 204/210 PP (6 unused)<br>
-      L8: Range 0 + Radius 120 + Mark(7) 112 = 232/240 PP (8 unused)<br>
-      L9: Range 0 + Radius 120 + Mark(8) 144 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 120 + Mark(9) 180 = 300/300 PP (0 unused)<br>
-      L11: Range 0 + Radius 120 + Mark(9) 180 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 165 + Mark(9) 180 = 345/360 PP (15 unused)<br>
-      L13: Range 0 + Radius 165 + Mark(10) 220 = 385/390 PP (5 unused)<br>
-      L14: Range 0 + Radius 165 + Mark(10) 220 = 385/420 PP (35 unused)<br>
-      L15: Range 0 + Radius 220 + Mark(10) 220 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 220 + Mark(10) 220 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Mark cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Mark(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 20 + Mark(4) 40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 50 + Mark(4) 40 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 50 + Mark(5) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Mark(5) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Mark(6) 84 = 164/180 PP (16 unused).<br>
+      L7: Range 0 + Area 120 + Mark(6) 84 = 204/210 PP (6 unused).<br>
+      L8: Range 0 + Area 120 + Mark(7) 112 = 232/240 PP (8 unused).<br>
+      L9: Range 0 + Area 120 + Mark(8) 144 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 120 + Mark(9) 180 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Area 120 + Mark(9) 180 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 165 + Mark(9) 180 = 345/360 PP (15 unused).<br>
+      L13: Range 0 + Area 165 + Mark(10) 220 = 385/390 PP (5 unused).<br>
+      L14: Range 0 + Area 165 + Mark(10) 220 = 385/420 PP (35 unused).<br>
+      L15: Range 0 + Area 220 + Mark(10) 220 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 220 + Mark(10) 220 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Mark(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Mark(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Mark(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Mark(4)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Mark(4)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Mark(5)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Mark(5)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Mark(6)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(6)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(7)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(8)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(9)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(9)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Mark(9)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Mark(10)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Mark(10)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Mark(10)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Mark(10)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Mark(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Mark(4)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Mark(4)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Mark(5)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Mark(5)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Mark(6)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(6)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(7)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(8)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(9)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Mark(9)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Mark(9)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Mark(10)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Mark(10)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Mark(10)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Mark(10)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5674,61 +3158,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Root (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Root(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 0 + Radius 20 + Root(3) 36 = 56/60 PP (4 unused)<br>
-      L3: Range 0 + Radius 50 + Root(3) 36 = 86/90 PP (4 unused)<br>
-      L4: Range 0 + Radius 50 + Root(4) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Root(4) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Root(5) 90 = 170/180 PP (10 unused)<br>
-      L7: Range 0 + Radius 120 + Root(5) 90 = 210/210 PP (0 unused)<br>
-      L8: Range 0 + Radius 120 + Root(5) 90 = 210/240 PP (30 unused)<br>
-      L9: Range 0 + Radius 165 + Root(5) 90 = 255/270 PP (15 unused)<br>
-      L10: Range 0 + Radius 165 + Root(6) 126 = 291/300 PP (9 unused)<br>
-      L11: Range 0 + Radius 165 + Root(6) 126 = 291/330 PP (39 unused)<br>
-      L12: Range 0 + Radius 220 + Root(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 0 + Radius 220 + Root(7) 168 = 388/390 PP (2 unused)<br>
-      L14: Range 0 + Radius 220 + Root(7) 168 = 388/420 PP (32 unused)<br>
-      L15: Range 0 + Radius 280 + Root(7) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Root(7) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Root cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 0 + Area 20 + Root(3) 36 = 56/60 PP (4 unused).<br>
+      L3: Range 0 + Area 50 + Root(3) 36 = 86/90 PP (4 unused).<br>
+      L4: Range 0 + Area 50 + Root(4) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Root(4) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Root(5) 90 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + Area 120 + Root(5) 90 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Area 120 + Root(5) 90 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + Area 165 + Root(5) 90 = 255/270 PP (15 unused).<br>
+      L10: Range 0 + Area 165 + Root(6) 126 = 291/300 PP (9 unused).<br>
+      L11: Range 0 + Area 165 + Root(6) 126 = 291/330 PP (39 unused).<br>
+      L12: Range 0 + Area 220 + Root(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 0 + Area 220 + Root(7) 168 = 388/390 PP (2 unused).<br>
+      L14: Range 0 + Area 220 + Root(7) 168 = 388/420 PP (32 unused).<br>
+      L15: Range 0 + Area 280 + Root(7) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Root(7) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Root(X)** (Until Broken). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Root(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Root(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 1 m | Instant | Apply **Root(2)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Root(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Root(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Root(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Root(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Root(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Root(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Root(5)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Root(5)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Root(7)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Root(7)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Root(7)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Root(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 1 m | Instant | Apply **Root(2)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Root(3)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Root(3)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Root(4)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Root(4)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Root(5)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Root(5)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Root(5)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Root(5)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Root(7)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Root(7)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Root(7)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Root(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5737,61 +3221,62 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Ruin (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Ruin(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 20 + Ruin(4) 40 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 50 + Ruin(4) 40 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 50 + Ruin(5) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Ruin(5) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Ruin(6) 84 = 164/180 PP (16 unused)<br>
-      L7: Range 0 + Radius 120 + Ruin(6) 84 = 204/210 PP (6 unused)<br>
-      L8: Range 0 + Radius 120 + Ruin(7) 112 = 232/240 PP (8 unused)<br>
-      L9: Range 0 + Radius 120 + Ruin(8) 144 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 120 + Ruin(9) 180 = 300/300 PP (0 unused)<br>
-      L11: Range 0 + Radius 120 + Ruin(9) 180 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 165 + Ruin(9) 180 = 345/360 PP (15 unused)<br>
-      L13: Range 0 + Radius 165 + Ruin(10) 220 = 385/390 PP (5 unused)<br>
-      L14: Range 0 + Radius 165 + Ruin(10) 220 = 385/420 PP (35 unused)<br>
-      L15: Range 0 + Radius 220 + Ruin(10) 220 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 220 + Ruin(10) 220 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Ruin cost: 4 x T(X).<br>
+      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Ruin(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 20 + Ruin(4) 40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 50 + Ruin(4) 40 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 50 + Ruin(5) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Ruin(5) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Ruin(6) 84 = 164/180 PP (16 unused).<br>
+      L7: Range 0 + Area 120 + Ruin(6) 84 = 204/210 PP (6 unused).<br>
+      L8: Range 0 + Area 120 + Ruin(7) 112 = 232/240 PP (8 unused).<br>
+      L9: Range 0 + Area 120 + Ruin(8) 144 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 120 + Ruin(9) 180 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Area 120 + Ruin(9) 180 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 165 + Ruin(9) 180 = 345/360 PP (15 unused).<br>
+      L13: Range 0 + Area 165 + Ruin(10) 220 = 385/390 PP (5 unused).<br>
+      L14: Range 0 + Area 165 + Ruin(10) 220 = 385/420 PP (35 unused).<br>
+      L15: Range 0 + Area 220 + Ruin(10) 220 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 220 + Ruin(10) 220 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Ruin(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Ruin(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Ruin(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Ruin(4)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Ruin(4)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Ruin(5)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Ruin(5)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Ruin(6)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(6)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(7)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(8)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(9)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(9)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Ruin(9)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Ruin(10)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Ruin(10)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Ruin(10)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Ruin(10)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Ruin(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Ruin(4)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Ruin(4)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Ruin(5)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Ruin(5)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Ruin(6)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(6)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(7)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(8)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(9)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Ruin(9)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Ruin(9)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Ruin(10)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Ruin(10)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Ruin(10)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Ruin(10)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5800,61 +3285,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Slow (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Slow(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 0 + Radius 20 + Slow(4) 40 = 60/60 PP (0 unused)<br>
-      L3: Range 0 + Radius 50 + Slow(4) 40 = 90/90 PP (0 unused)<br>
-      L4: Range 0 + Radius 50 + Slow(5) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Slow(5) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Slow(6) 84 = 164/180 PP (16 unused)<br>
-      L7: Range 0 + Radius 120 + Slow(6) 84 = 204/210 PP (6 unused)<br>
-      L8: Range 0 + Radius 120 + Slow(7) 112 = 232/240 PP (8 unused)<br>
-      L9: Range 0 + Radius 120 + Slow(8) 144 = 264/270 PP (6 unused)<br>
-      L10: Range 0 + Radius 120 + Slow(9) 180 = 300/300 PP (0 unused)<br>
-      L11: Range 0 + Radius 120 + Slow(9) 180 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 165 + Slow(9) 180 = 345/360 PP (15 unused)<br>
-      L13: Range 0 + Radius 165 + Slow(10) 220 = 385/390 PP (5 unused)<br>
-      L14: Range 0 + Radius 165 + Slow(10) 220 = 385/420 PP (35 unused)<br>
-      L15: Range 0 + Radius 220 + Slow(10) 220 = 440/450 PP (10 unused)<br>
-      L16: Range 0 + Radius 220 + Slow(10) 220 = 440/480 PP (40 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Slow cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Slow(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 20 + Slow(4) 40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 50 + Slow(4) 40 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Area 50 + Slow(5) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Slow(5) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Slow(6) 84 = 164/180 PP (16 unused).<br>
+      L7: Range 0 + Area 120 + Slow(6) 84 = 204/210 PP (6 unused).<br>
+      L8: Range 0 + Area 120 + Slow(7) 112 = 232/240 PP (8 unused).<br>
+      L9: Range 0 + Area 120 + Slow(8) 144 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 120 + Slow(9) 180 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Area 120 + Slow(9) 180 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 165 + Slow(9) 180 = 345/360 PP (15 unused).<br>
+      L13: Range 0 + Area 165 + Slow(10) 220 = 385/390 PP (5 unused).<br>
+      L14: Range 0 + Area 165 + Slow(10) 220 = 385/420 PP (35 unused).<br>
+      L15: Range 0 + Area 220 + Slow(10) 220 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Area 220 + Slow(10) 220 = 440/480 PP (40 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Slow(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Slow(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Slow(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Slow(4)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Slow(4)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Slow(5)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Slow(5)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Slow(6)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(6)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(7)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(8)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(9)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(9)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Slow(9)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Slow(10)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Slow(10)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Slow(10)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Slow(10)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Slow(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Slow(4)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Slow(4)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Slow(5)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Slow(5)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Slow(6)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(6)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(7)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(8)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(9)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 5 m | Instant | Apply **Slow(9)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 6 m | Instant | Apply **Slow(9)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 6 m | Instant | Apply **Slow(10)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 6 m | Instant | Apply **Slow(10)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 7 m | Instant | Apply **Slow(10)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Slow(10)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5863,61 +3348,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Soulburn (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Soulburn(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 0 + Radius 20 + Soulburn(1) 8 = 28/60 PP (32 unused)<br>
-      L3: Range 0 + Radius 50 + Soulburn(1) 8 = 58/90 PP (32 unused)<br>
-      L4: Range 0 + Radius 50 + Soulburn(1) 8 = 58/120 PP (62 unused)<br>
-      L5: Range 0 + Radius 80 + Soulburn(1) 8 = 88/150 PP (62 unused)<br>
-      L6: Range 0 + Radius 80 + Soulburn(2) 80 = 160/180 PP (20 unused)<br>
-      L7: Range 0 + Radius 120 + Soulburn(2) 80 = 200/210 PP (10 unused)<br>
-      L8: Range 0 + Radius 120 + Soulburn(2) 80 = 200/240 PP (40 unused)<br>
-      L9: Range 0 + Radius 165 + Soulburn(2) 80 = 245/270 PP (25 unused)<br>
-      L10: Range 0 + Radius 165 + Soulburn(2) 80 = 245/300 PP (55 unused)<br>
-      L11: Range 0 + Radius 220 + Soulburn(2) 80 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 220 + Soulburn(2) 80 = 300/360 PP (60 unused)<br>
-      L13: Range 0 + Radius 280 + Soulburn(2) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 0 + Radius 280 + Soulburn(2) 80 = 360/420 PP (60 unused)<br>
-      L15: Range 0 + Radius 280 + Soulburn(3) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Soulburn(3) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Soulburn(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 0 + Area 20 + Soulburn(1) 8 = 28/60 PP (32 unused).<br>
+      L3: Range 0 + Area 50 + Soulburn(1) 8 = 58/90 PP (32 unused).<br>
+      L4: Range 0 + Area 50 + Soulburn(1) 8 = 58/120 PP (62 unused).<br>
+      L5: Range 0 + Area 80 + Soulburn(1) 8 = 88/150 PP (62 unused).<br>
+      L6: Range 0 + Area 80 + Soulburn(2) 80 = 160/180 PP (20 unused).<br>
+      L7: Range 0 + Area 120 + Soulburn(2) 80 = 200/210 PP (10 unused).<br>
+      L8: Range 0 + Area 120 + Soulburn(2) 80 = 200/240 PP (40 unused).<br>
+      L9: Range 0 + Area 165 + Soulburn(2) 80 = 245/270 PP (25 unused).<br>
+      L10: Range 0 + Area 165 + Soulburn(2) 80 = 245/300 PP (55 unused).<br>
+      L11: Range 0 + Area 220 + Soulburn(2) 80 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 220 + Soulburn(2) 80 = 300/360 PP (60 unused).<br>
+      L13: Range 0 + Area 280 + Soulburn(2) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + Area 280 + Soulburn(2) 80 = 360/420 PP (60 unused).<br>
+      L15: Range 0 + Area 280 + Soulburn(3) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Soulburn(3) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Soulburn(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Soulburn(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(3)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(3)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(3)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(3)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5926,61 +3411,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Sundered (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Sundered(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 0 + Radius 20 + Sundered(3) 36 = 56/60 PP (4 unused)<br>
-      L3: Range 0 + Radius 50 + Sundered(3) 36 = 86/90 PP (4 unused)<br>
-      L4: Range 0 + Radius 50 + Sundered(4) 60 = 110/120 PP (10 unused)<br>
-      L5: Range 0 + Radius 80 + Sundered(4) 60 = 140/150 PP (10 unused)<br>
-      L6: Range 0 + Radius 80 + Sundered(5) 90 = 170/180 PP (10 unused)<br>
-      L7: Range 0 + Radius 120 + Sundered(5) 90 = 210/210 PP (0 unused)<br>
-      L8: Range 0 + Radius 120 + Sundered(5) 90 = 210/240 PP (30 unused)<br>
-      L9: Range 0 + Radius 165 + Sundered(5) 90 = 255/270 PP (15 unused)<br>
-      L10: Range 0 + Radius 165 + Sundered(6) 126 = 291/300 PP (9 unused)<br>
-      L11: Range 0 + Radius 165 + Sundered(6) 126 = 291/330 PP (39 unused)<br>
-      L12: Range 0 + Radius 220 + Sundered(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 0 + Radius 220 + Sundered(7) 168 = 388/390 PP (2 unused)<br>
-      L14: Range 0 + Radius 220 + Sundered(7) 168 = 388/420 PP (32 unused)<br>
-      L15: Range 0 + Radius 280 + Sundered(7) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Sundered(7) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Sundered cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Sundered(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 0 + Area 20 + Sundered(3) 36 = 56/60 PP (4 unused).<br>
+      L3: Range 0 + Area 50 + Sundered(3) 36 = 86/90 PP (4 unused).<br>
+      L4: Range 0 + Area 50 + Sundered(4) 60 = 110/120 PP (10 unused).<br>
+      L5: Range 0 + Area 80 + Sundered(4) 60 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Area 80 + Sundered(5) 90 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + Area 120 + Sundered(5) 90 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Area 120 + Sundered(5) 90 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + Area 165 + Sundered(5) 90 = 255/270 PP (15 unused).<br>
+      L10: Range 0 + Area 165 + Sundered(6) 126 = 291/300 PP (9 unused).<br>
+      L11: Range 0 + Area 165 + Sundered(6) 126 = 291/330 PP (39 unused).<br>
+      L12: Range 0 + Area 220 + Sundered(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 0 + Area 220 + Sundered(7) 168 = 388/390 PP (2 unused).<br>
+      L14: Range 0 + Area 220 + Sundered(7) 168 = 388/420 PP (32 unused).<br>
+      L15: Range 0 + Area 280 + Sundered(7) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Sundered(7) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Sundered(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Sundered(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Sundered(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Sundered(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Sundered(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Sundered(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Sundered(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Sundered(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Sundered(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Sundered(5)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Sundered(5)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Sundered(7)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Sundered(7)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Sundered(7)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Sundered(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Sundered(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Sundered(3)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Sundered(3)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Sundered(4)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Sundered(4)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Sundered(5)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Sundered(5)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Sundered(5)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Sundered(5)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 7 m | Instant | Apply **Sundered(7)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 7 m | Instant | Apply **Sundered(7)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Sundered(7)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Sundered(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -5989,61 +3474,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Melee AoE Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Weaken (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Weaken(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 0 + Radius 20 + Weaken(1) 8 = 28/60 PP (32 unused)<br>
-      L3: Range 0 + Radius 50 + Weaken(1) 8 = 58/90 PP (32 unused)<br>
-      L4: Range 0 + Radius 50 + Weaken(1) 8 = 58/120 PP (62 unused)<br>
-      L5: Range 0 + Radius 80 + Weaken(1) 8 = 88/150 PP (62 unused)<br>
-      L6: Range 0 + Radius 80 + Weaken(2) 80 = 160/180 PP (20 unused)<br>
-      L7: Range 0 + Radius 120 + Weaken(2) 80 = 200/210 PP (10 unused)<br>
-      L8: Range 0 + Radius 120 + Weaken(2) 80 = 200/240 PP (40 unused)<br>
-      L9: Range 0 + Radius 165 + Weaken(2) 80 = 245/270 PP (25 unused)<br>
-      L10: Range 0 + Radius 165 + Weaken(2) 80 = 245/300 PP (55 unused)<br>
-      L11: Range 0 + Radius 220 + Weaken(2) 80 = 300/330 PP (30 unused)<br>
-      L12: Range 0 + Radius 220 + Weaken(2) 80 = 300/360 PP (60 unused)<br>
-      L13: Range 0 + Radius 280 + Weaken(2) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 0 + Radius 280 + Weaken(2) 80 = 360/420 PP (60 unused)<br>
-      L15: Range 0 + Radius 280 + Weaken(3) 168 = 448/450 PP (2 unused)<br>
-      L16: Range 0 + Radius 280 + Weaken(3) 168 = 448/480 PP (32 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Weaken(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 0 + Area 20 + Weaken(1) 8 = 28/60 PP (32 unused).<br>
+      L3: Range 0 + Area 50 + Weaken(1) 8 = 58/90 PP (32 unused).<br>
+      L4: Range 0 + Area 50 + Weaken(1) 8 = 58/120 PP (62 unused).<br>
+      L5: Range 0 + Area 80 + Weaken(1) 8 = 88/150 PP (62 unused).<br>
+      L6: Range 0 + Area 80 + Weaken(2) 80 = 160/180 PP (20 unused).<br>
+      L7: Range 0 + Area 120 + Weaken(2) 80 = 200/210 PP (10 unused).<br>
+      L8: Range 0 + Area 120 + Weaken(2) 80 = 200/240 PP (40 unused).<br>
+      L9: Range 0 + Area 165 + Weaken(2) 80 = 245/270 PP (25 unused).<br>
+      L10: Range 0 + Area 165 + Weaken(2) 80 = 245/300 PP (55 unused).<br>
+      L11: Range 0 + Area 220 + Weaken(2) 80 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 220 + Weaken(2) 80 = 300/360 PP (60 unused).<br>
+      L13: Range 0 + Area 280 + Weaken(2) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + Area 280 + Weaken(2) 80 = 360/420 PP (60 unused).<br>
+      L15: Range 0 + Area 280 + Weaken(3) 168 = 448/450 PP (2 unused).<br>
+      L16: Range 0 + Area 280 + Weaken(3) 168 = 448/480 PP (32 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Weaken(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Self-centered melee area. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Weaken(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Weaken(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Make one Martial Attack Roll for the area centered on you; compare with each eligible target and resolve Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | Self | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(3)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(3)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | Self | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **2** | Active, Special | Self | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **3** | Active, Special | Self | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **4** | Active, Special | Self | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **5** | Active, Special | Self | Radius 4 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **6** | Active, Special | Self | Radius 4 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **7** | Active, Special | Self | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **8** | Active, Special | Self | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **9** | Active, Special | Self | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **10** | Active, Special | Self | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **11** | Active, Special | Self | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **12** | Active, Special | Self | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **13** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **14** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **15** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(3)** to every creature hit in the area. |
+| **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(3)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6052,61 +3537,62 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Blight (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Blight(2) 9 = 29/30 PP (1 unused)<br>
-      L2: Range 5 + Radius 20 + Blight(4) 30 = 55/60 PP (5 unused)<br>
-      L3: Range 10 + Radius 50 + Blight(4) 30 = 90/90 PP (0 unused)<br>
-      L4: Range 15 + Radius 50 + Blight(5) 45 = 110/120 PP (10 unused)<br>
-      L5: Range 20 + Radius 80 + Blight(5) 45 = 145/150 PP (5 unused)<br>
-      L6: Range 25 + Radius 80 + Blight(6) 63 = 168/180 PP (12 unused)<br>
-      L7: Range 30 + Radius 80 + Blight(7) 84 = 194/210 PP (16 unused)<br>
-      L8: Range 35 + Radius 120 + Blight(7) 84 = 239/240 PP (1 unused)<br>
-      L9: Range 40 + Radius 120 + Blight(8) 108 = 268/270 PP (2 unused)<br>
-      L10: Range 45 + Radius 120 + Blight(9) 135 = 300/300 PP (0 unused)<br>
-      L11: Range 50 + Radius 120 + Blight(9) 135 = 305/330 PP (25 unused)<br>
-      L12: Range 55 + Radius 165 + Blight(9) 135 = 355/360 PP (5 unused)<br>
-      L13: Range 60 + Radius 165 + Blight(10) 165 = 390/390 PP (0 unused)<br>
-      L14: Range 65 + Radius 165 + Blight(10) 165 = 395/420 PP (25 unused)<br>
-      L15: Range 70 + Radius 165 + Blight(11) 198 = 433/450 PP (17 unused)<br>
-      L16: Range 75 + Radius 165 + Blight(12) 234 = 474/480 PP (6 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Blight cost: 3 x T(X).<br>
+      Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Blight(2) 9 = 29/30 PP (1 unused).<br>
+      L2: Range 5 + Area 20 + Blight(4) 30 = 55/60 PP (5 unused).<br>
+      L3: Range 10 + Area 50 + Blight(4) 30 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 50 + Blight(5) 45 = 110/120 PP (10 unused).<br>
+      L5: Range 20 + Area 80 + Blight(5) 45 = 145/150 PP (5 unused).<br>
+      L6: Range 25 + Area 80 + Blight(6) 63 = 168/180 PP (12 unused).<br>
+      L7: Range 30 + Area 80 + Blight(7) 84 = 194/210 PP (16 unused).<br>
+      L8: Range 35 + Area 120 + Blight(7) 84 = 239/240 PP (1 unused).<br>
+      L9: Range 40 + Area 120 + Blight(8) 108 = 268/270 PP (2 unused).<br>
+      L10: Range 45 + Area 120 + Blight(9) 135 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + Area 120 + Blight(9) 135 = 305/330 PP (25 unused).<br>
+      L12: Range 55 + Area 165 + Blight(9) 135 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Area 165 + Blight(10) 165 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Area 165 + Blight(10) 165 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Area 165 + Blight(11) 198 = 433/450 PP (17 unused).<br>
+      L16: Range 75 + Area 165 + Blight(12) 234 = 474/480 PP (6 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Blight(X)** (Timed Disadvantage). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Blight(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Blight(2)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Blight(4)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Blight(4)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Blight(5)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Blight(5)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Blight(6)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 4 m | Instant | Apply **Blight(7)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Blight(7)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Blight(8)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 5 m | Instant | Apply **Blight(9)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 5 m | Instant | Apply **Blight(9)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Blight(9)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Blight(11)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 6 m | Instant | Apply **Blight(12)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Blight(2)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Blight(4)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Blight(4)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Blight(5)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Blight(5)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Blight(6)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 4 m | Instant | Apply **Blight(7)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Blight(7)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Blight(8)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 5 m | Instant | Apply **Blight(9)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 5 m | Instant | Apply **Blight(9)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Blight(9)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Blight(10)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Blight(11)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 6 m | Instant | Apply **Blight(12)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6115,61 +3601,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Challenge (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Challenge(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 5 + Radius 20 + Challenge(1) 6 = 31/60 PP (29 unused)<br>
-      L3: Range 10 + Radius 50 + Challenge(1) 6 = 66/90 PP (24 unused)<br>
-      L4: Range 15 + Radius 50 + Challenge(1) 6 = 71/120 PP (49 unused)<br>
-      L5: Range 20 + Radius 80 + Challenge(1) 6 = 106/150 PP (44 unused)<br>
-      L6: Range 25 + Radius 80 + Challenge(2) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Challenge(2) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Challenge(2) 60 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 165 + Challenge(2) 60 = 265/270 PP (5 unused)<br>
-      L10: Range 45 + Radius 165 + Challenge(2) 60 = 270/300 PP (30 unused)<br>
-      L11: Range 50 + Radius 220 + Challenge(2) 60 = 330/330 PP (0 unused)<br>
-      L12: Range 55 + Radius 220 + Challenge(2) 60 = 335/360 PP (25 unused)<br>
-      L13: Range 60 + Radius 220 + Challenge(2) 60 = 340/390 PP (50 unused)<br>
-      L14: Range 65 + Radius 280 + Challenge(2) 60 = 405/420 PP (15 unused)<br>
-      L15: Range 70 + Radius 280 + Challenge(2) 60 = 410/450 PP (40 unused)<br>
-      L16: Range 75 + Radius 280 + Challenge(2) 60 = 415/480 PP (65 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Challenge(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 5 + Area 20 + Challenge(1) 6 = 31/60 PP (29 unused).<br>
+      L3: Range 10 + Area 50 + Challenge(1) 6 = 66/90 PP (24 unused).<br>
+      L4: Range 15 + Area 50 + Challenge(1) 6 = 71/120 PP (49 unused).<br>
+      L5: Range 20 + Area 80 + Challenge(1) 6 = 106/150 PP (44 unused).<br>
+      L6: Range 25 + Area 80 + Challenge(2) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Challenge(2) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Challenge(2) 60 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 165 + Challenge(2) 60 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 165 + Challenge(2) 60 = 270/300 PP (30 unused).<br>
+      L11: Range 50 + Area 220 + Challenge(2) 60 = 330/330 PP (0 unused).<br>
+      L12: Range 55 + Area 220 + Challenge(2) 60 = 335/360 PP (25 unused).<br>
+      L13: Range 60 + Area 220 + Challenge(2) 60 = 340/390 PP (50 unused).<br>
+      L14: Range 65 + Area 280 + Challenge(2) 60 = 405/420 PP (15 unused).<br>
+      L15: Range 70 + Area 280 + Challenge(2) 60 = 410/450 PP (40 unused).<br>
+      L16: Range 75 + Area 280 + Challenge(2) 60 = 415/480 PP (65 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Challenge(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Challenge(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Challenge(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 7 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Challenge(1)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 7 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6178,61 +3664,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Corrode (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Corrode(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 5 + Radius 20 + Corrode(2) 18 = 43/60 PP (17 unused)<br>
-      L3: Range 10 + Radius 50 + Corrode(2) 18 = 78/90 PP (12 unused)<br>
-      L4: Range 15 + Radius 50 + Corrode(3) 36 = 101/120 PP (19 unused)<br>
-      L5: Range 20 + Radius 80 + Corrode(3) 36 = 136/150 PP (14 unused)<br>
-      L6: Range 25 + Radius 80 + Corrode(4) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Corrode(4) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Corrode(4) 60 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 165 + Corrode(4) 60 = 265/270 PP (5 unused)<br>
-      L10: Range 45 + Radius 165 + Corrode(5) 90 = 300/300 PP (0 unused)<br>
-      L11: Range 50 + Radius 165 + Corrode(5) 90 = 305/330 PP (25 unused)<br>
-      L12: Range 55 + Radius 165 + Corrode(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 60 + Radius 165 + Corrode(6) 126 = 351/390 PP (39 unused)<br>
-      L14: Range 65 + Radius 220 + Corrode(6) 126 = 411/420 PP (9 unused)<br>
-      L15: Range 70 + Radius 220 + Corrode(6) 126 = 416/450 PP (34 unused)<br>
-      L16: Range 75 + Radius 220 + Corrode(7) 168 = 463/480 PP (17 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Corrode cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Corrode(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 5 + Area 20 + Corrode(2) 18 = 43/60 PP (17 unused).<br>
+      L3: Range 10 + Area 50 + Corrode(2) 18 = 78/90 PP (12 unused).<br>
+      L4: Range 15 + Area 50 + Corrode(3) 36 = 101/120 PP (19 unused).<br>
+      L5: Range 20 + Area 80 + Corrode(3) 36 = 136/150 PP (14 unused).<br>
+      L6: Range 25 + Area 80 + Corrode(4) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Corrode(4) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Corrode(4) 60 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 165 + Corrode(4) 60 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 165 + Corrode(5) 90 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + Area 165 + Corrode(5) 90 = 305/330 PP (25 unused).<br>
+      L12: Range 55 + Area 165 + Corrode(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 60 + Area 165 + Corrode(6) 126 = 351/390 PP (39 unused).<br>
+      L14: Range 65 + Area 220 + Corrode(6) 126 = 411/420 PP (9 unused).<br>
+      L15: Range 70 + Area 220 + Corrode(6) 126 = 416/450 PP (34 unused).<br>
+      L16: Range 75 + Area 220 + Corrode(7) 168 = 463/480 PP (17 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Corrode(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Corrode(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Corrode(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Corrode(2)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Corrode(2)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Corrode(3)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Corrode(3)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Corrode(4)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Corrode(4)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Corrode(4)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Corrode(4)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Corrode(5)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Corrode(5)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Corrode(6)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Corrode(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Corrode(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Corrode(2)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Corrode(2)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Corrode(3)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Corrode(3)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Corrode(4)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Corrode(4)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Corrode(4)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Corrode(4)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Corrode(5)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Corrode(5)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Corrode(6)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Corrode(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6241,61 +3727,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Disoriented (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Disoriented(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 5 + Radius 20 + Disoriented(1) 8 = 33/60 PP (27 unused)<br>
-      L3: Range 10 + Radius 50 + Disoriented(1) 8 = 68/90 PP (22 unused)<br>
-      L4: Range 15 + Radius 50 + Disoriented(1) 8 = 73/120 PP (47 unused)<br>
-      L5: Range 20 + Radius 80 + Disoriented(1) 8 = 108/150 PP (42 unused)<br>
-      L6: Range 25 + Radius 80 + Disoriented(1) 8 = 113/180 PP (67 unused)<br>
-      L7: Range 30 + Radius 120 + Disoriented(1) 8 = 158/210 PP (52 unused)<br>
-      L8: Range 35 + Radius 120 + Disoriented(2) 80 = 235/240 PP (5 unused)<br>
-      L9: Range 40 + Radius 120 + Disoriented(2) 80 = 240/270 PP (30 unused)<br>
-      L10: Range 45 + Radius 165 + Disoriented(2) 80 = 290/300 PP (10 unused)<br>
-      L11: Range 50 + Radius 165 + Disoriented(2) 80 = 295/330 PP (35 unused)<br>
-      L12: Range 55 + Radius 220 + Disoriented(2) 80 = 355/360 PP (5 unused)<br>
-      L13: Range 60 + Radius 220 + Disoriented(2) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 65 + Radius 220 + Disoriented(2) 80 = 365/420 PP (55 unused)<br>
-      L15: Range 70 + Radius 280 + Disoriented(2) 80 = 430/450 PP (20 unused)<br>
-      L16: Range 75 + Radius 280 + Disoriented(2) 80 = 435/480 PP (45 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Disoriented(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 5 + Area 20 + Disoriented(1) 8 = 33/60 PP (27 unused).<br>
+      L3: Range 10 + Area 50 + Disoriented(1) 8 = 68/90 PP (22 unused).<br>
+      L4: Range 15 + Area 50 + Disoriented(1) 8 = 73/120 PP (47 unused).<br>
+      L5: Range 20 + Area 80 + Disoriented(1) 8 = 108/150 PP (42 unused).<br>
+      L6: Range 25 + Area 80 + Disoriented(1) 8 = 113/180 PP (67 unused).<br>
+      L7: Range 30 + Area 120 + Disoriented(1) 8 = 158/210 PP (52 unused).<br>
+      L8: Range 35 + Area 120 + Disoriented(2) 80 = 235/240 PP (5 unused).<br>
+      L9: Range 40 + Area 120 + Disoriented(2) 80 = 240/270 PP (30 unused).<br>
+      L10: Range 45 + Area 165 + Disoriented(2) 80 = 290/300 PP (10 unused).<br>
+      L11: Range 50 + Area 165 + Disoriented(2) 80 = 295/330 PP (35 unused).<br>
+      L12: Range 55 + Area 220 + Disoriented(2) 80 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Area 220 + Disoriented(2) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 65 + Area 220 + Disoriented(2) 80 = 365/420 PP (55 unused).<br>
+      L15: Range 70 + Area 280 + Disoriented(2) 80 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Area 280 + Disoriented(2) 80 = 435/480 PP (45 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Disoriented(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Disoriented(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Disoriented(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Disoriented(1)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Disoriented(1)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Disoriented(2)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6304,61 +3790,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Expose (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Expose(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 5 + Radius 20 + Expose(2) 24 = 49/60 PP (11 unused)<br>
-      L3: Range 10 + Radius 50 + Expose(2) 24 = 84/90 PP (6 unused)<br>
-      L4: Range 15 + Radius 50 + Expose(3) 48 = 113/120 PP (7 unused)<br>
-      L5: Range 20 + Radius 80 + Expose(3) 48 = 148/150 PP (2 unused)<br>
-      L6: Range 25 + Radius 80 + Expose(3) 48 = 153/180 PP (27 unused)<br>
-      L7: Range 30 + Radius 120 + Expose(3) 48 = 198/210 PP (12 unused)<br>
-      L8: Range 35 + Radius 120 + Expose(4) 80 = 235/240 PP (5 unused)<br>
-      L9: Range 40 + Radius 120 + Expose(4) 80 = 240/270 PP (30 unused)<br>
-      L10: Range 45 + Radius 165 + Expose(4) 80 = 290/300 PP (10 unused)<br>
-      L11: Range 50 + Radius 165 + Expose(4) 80 = 295/330 PP (35 unused)<br>
-      L12: Range 55 + Radius 220 + Expose(4) 80 = 355/360 PP (5 unused)<br>
-      L13: Range 60 + Radius 220 + Expose(4) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 65 + Radius 220 + Expose(5) 120 = 405/420 PP (15 unused)<br>
-      L15: Range 70 + Radius 220 + Expose(5) 120 = 410/450 PP (40 unused)<br>
-      L16: Range 75 + Radius 280 + Expose(5) 120 = 475/480 PP (5 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Expose cost: 8 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Expose(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 5 + Area 20 + Expose(2) 24 = 49/60 PP (11 unused).<br>
+      L3: Range 10 + Area 50 + Expose(2) 24 = 84/90 PP (6 unused).<br>
+      L4: Range 15 + Area 50 + Expose(3) 48 = 113/120 PP (7 unused).<br>
+      L5: Range 20 + Area 80 + Expose(3) 48 = 148/150 PP (2 unused).<br>
+      L6: Range 25 + Area 80 + Expose(3) 48 = 153/180 PP (27 unused).<br>
+      L7: Range 30 + Area 120 + Expose(3) 48 = 198/210 PP (12 unused).<br>
+      L8: Range 35 + Area 120 + Expose(4) 80 = 235/240 PP (5 unused).<br>
+      L9: Range 40 + Area 120 + Expose(4) 80 = 240/270 PP (30 unused).<br>
+      L10: Range 45 + Area 165 + Expose(4) 80 = 290/300 PP (10 unused).<br>
+      L11: Range 50 + Area 165 + Expose(4) 80 = 295/330 PP (35 unused).<br>
+      L12: Range 55 + Area 220 + Expose(4) 80 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Area 220 + Expose(4) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 65 + Area 220 + Expose(5) 120 = 405/420 PP (15 unused).<br>
+      L15: Range 70 + Area 220 + Expose(5) 120 = 410/450 PP (40 unused).<br>
+      L16: Range 75 + Area 280 + Expose(5) 120 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Expose(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Expose(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Expose(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Expose(2)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Expose(2)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Expose(3)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Expose(3)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Expose(3)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Expose(3)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Expose(4)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Expose(5)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Expose(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Expose(2)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Expose(2)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Expose(3)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Expose(3)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Expose(3)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Expose(3)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Expose(4)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Expose(5)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6367,61 +3853,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Hex (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Hex(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 5 + Radius 20 + Hex(2) 18 = 43/60 PP (17 unused)<br>
-      L3: Range 10 + Radius 50 + Hex(2) 18 = 78/90 PP (12 unused)<br>
-      L4: Range 15 + Radius 50 + Hex(3) 36 = 101/120 PP (19 unused)<br>
-      L5: Range 20 + Radius 80 + Hex(3) 36 = 136/150 PP (14 unused)<br>
-      L6: Range 25 + Radius 80 + Hex(4) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Hex(4) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Hex(4) 60 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 165 + Hex(4) 60 = 265/270 PP (5 unused)<br>
-      L10: Range 45 + Radius 165 + Hex(5) 90 = 300/300 PP (0 unused)<br>
-      L11: Range 50 + Radius 165 + Hex(5) 90 = 305/330 PP (25 unused)<br>
-      L12: Range 55 + Radius 165 + Hex(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 60 + Radius 165 + Hex(6) 126 = 351/390 PP (39 unused)<br>
-      L14: Range 65 + Radius 220 + Hex(6) 126 = 411/420 PP (9 unused)<br>
-      L15: Range 70 + Radius 220 + Hex(6) 126 = 416/450 PP (34 unused)<br>
-      L16: Range 75 + Radius 220 + Hex(7) 168 = 463/480 PP (17 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Hex cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Hex(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 5 + Area 20 + Hex(2) 18 = 43/60 PP (17 unused).<br>
+      L3: Range 10 + Area 50 + Hex(2) 18 = 78/90 PP (12 unused).<br>
+      L4: Range 15 + Area 50 + Hex(3) 36 = 101/120 PP (19 unused).<br>
+      L5: Range 20 + Area 80 + Hex(3) 36 = 136/150 PP (14 unused).<br>
+      L6: Range 25 + Area 80 + Hex(4) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Hex(4) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Hex(4) 60 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 165 + Hex(4) 60 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 165 + Hex(5) 90 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + Area 165 + Hex(5) 90 = 305/330 PP (25 unused).<br>
+      L12: Range 55 + Area 165 + Hex(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 60 + Area 165 + Hex(6) 126 = 351/390 PP (39 unused).<br>
+      L14: Range 65 + Area 220 + Hex(6) 126 = 411/420 PP (9 unused).<br>
+      L15: Range 70 + Area 220 + Hex(6) 126 = 416/450 PP (34 unused).<br>
+      L16: Range 75 + Area 220 + Hex(7) 168 = 463/480 PP (17 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Hex(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Hex(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Hex(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Hex(2)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Hex(2)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Hex(3)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Hex(3)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Hex(4)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Hex(4)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Hex(4)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Hex(4)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Hex(5)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Hex(5)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Hex(6)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Hex(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Hex(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Hex(2)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Hex(2)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Hex(3)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Hex(3)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Hex(4)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Hex(4)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Hex(4)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Hex(4)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Hex(5)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Hex(5)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Hex(6)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Hex(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6430,61 +3916,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Lacerate (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Lacerate(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 20 + Lacerate(3) 24 = 49/60 PP (11 unused)<br>
-      L3: Range 10 + Radius 50 + Lacerate(3) 24 = 84/90 PP (6 unused)<br>
-      L4: Range 15 + Radius 50 + Lacerate(4) 40 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 80 + Lacerate(4) 40 = 140/150 PP (10 unused)<br>
-      L6: Range 25 + Radius 80 + Lacerate(5) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Lacerate(5) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Lacerate(6) 84 = 239/240 PP (1 unused)<br>
-      L9: Range 40 + Radius 120 + Lacerate(6) 84 = 244/270 PP (26 unused)<br>
-      L10: Range 45 + Radius 165 + Lacerate(6) 84 = 294/300 PP (6 unused)<br>
-      L11: Range 50 + Radius 165 + Lacerate(7) 112 = 327/330 PP (3 unused)<br>
-      L12: Range 55 + Radius 165 + Lacerate(7) 112 = 332/360 PP (28 unused)<br>
-      L13: Range 60 + Radius 165 + Lacerate(8) 144 = 369/390 PP (21 unused)<br>
-      L14: Range 65 + Radius 165 + Lacerate(9) 180 = 410/420 PP (10 unused)<br>
-      L15: Range 70 + Radius 165 + Lacerate(9) 180 = 415/450 PP (35 unused)<br>
-      L16: Range 75 + Radius 220 + Lacerate(9) 180 = 475/480 PP (5 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Lacerate cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Lacerate(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 20 + Lacerate(3) 24 = 49/60 PP (11 unused).<br>
+      L3: Range 10 + Area 50 + Lacerate(3) 24 = 84/90 PP (6 unused).<br>
+      L4: Range 15 + Area 50 + Lacerate(4) 40 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 80 + Lacerate(4) 40 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Area 80 + Lacerate(5) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Lacerate(5) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Lacerate(6) 84 = 239/240 PP (1 unused).<br>
+      L9: Range 40 + Area 120 + Lacerate(6) 84 = 244/270 PP (26 unused).<br>
+      L10: Range 45 + Area 165 + Lacerate(6) 84 = 294/300 PP (6 unused).<br>
+      L11: Range 50 + Area 165 + Lacerate(7) 112 = 327/330 PP (3 unused).<br>
+      L12: Range 55 + Area 165 + Lacerate(7) 112 = 332/360 PP (28 unused).<br>
+      L13: Range 60 + Area 165 + Lacerate(8) 144 = 369/390 PP (21 unused).<br>
+      L14: Range 65 + Area 165 + Lacerate(9) 180 = 410/420 PP (10 unused).<br>
+      L15: Range 70 + Area 165 + Lacerate(9) 180 = 415/450 PP (35 unused).<br>
+      L16: Range 75 + Area 220 + Lacerate(9) 180 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Lacerate(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Lacerate(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Lacerate(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Lacerate(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Lacerate(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Lacerate(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Lacerate(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Lacerate(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Lacerate(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Lacerate(6)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Lacerate(6)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Lacerate(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Lacerate(7)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Lacerate(7)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Lacerate(8)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Lacerate(9)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Lacerate(9)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Lacerate(9)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Lacerate(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Lacerate(3)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Lacerate(3)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Lacerate(4)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Lacerate(4)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Lacerate(5)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Lacerate(5)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Lacerate(6)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Lacerate(6)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Lacerate(6)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Lacerate(7)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Lacerate(7)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Lacerate(8)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Lacerate(9)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Lacerate(9)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Lacerate(9)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6493,61 +3979,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Mark (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Mark(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 20 + Mark(3) 24 = 49/60 PP (11 unused)<br>
-      L3: Range 10 + Radius 50 + Mark(3) 24 = 84/90 PP (6 unused)<br>
-      L4: Range 15 + Radius 50 + Mark(4) 40 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 80 + Mark(4) 40 = 140/150 PP (10 unused)<br>
-      L6: Range 25 + Radius 80 + Mark(5) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Mark(5) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Mark(6) 84 = 239/240 PP (1 unused)<br>
-      L9: Range 40 + Radius 120 + Mark(6) 84 = 244/270 PP (26 unused)<br>
-      L10: Range 45 + Radius 165 + Mark(6) 84 = 294/300 PP (6 unused)<br>
-      L11: Range 50 + Radius 165 + Mark(7) 112 = 327/330 PP (3 unused)<br>
-      L12: Range 55 + Radius 165 + Mark(7) 112 = 332/360 PP (28 unused)<br>
-      L13: Range 60 + Radius 165 + Mark(8) 144 = 369/390 PP (21 unused)<br>
-      L14: Range 65 + Radius 165 + Mark(9) 180 = 410/420 PP (10 unused)<br>
-      L15: Range 70 + Radius 165 + Mark(9) 180 = 415/450 PP (35 unused)<br>
-      L16: Range 75 + Radius 220 + Mark(9) 180 = 475/480 PP (5 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Mark cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Mark(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 20 + Mark(3) 24 = 49/60 PP (11 unused).<br>
+      L3: Range 10 + Area 50 + Mark(3) 24 = 84/90 PP (6 unused).<br>
+      L4: Range 15 + Area 50 + Mark(4) 40 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 80 + Mark(4) 40 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Area 80 + Mark(5) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Mark(5) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Mark(6) 84 = 239/240 PP (1 unused).<br>
+      L9: Range 40 + Area 120 + Mark(6) 84 = 244/270 PP (26 unused).<br>
+      L10: Range 45 + Area 165 + Mark(6) 84 = 294/300 PP (6 unused).<br>
+      L11: Range 50 + Area 165 + Mark(7) 112 = 327/330 PP (3 unused).<br>
+      L12: Range 55 + Area 165 + Mark(7) 112 = 332/360 PP (28 unused).<br>
+      L13: Range 60 + Area 165 + Mark(8) 144 = 369/390 PP (21 unused).<br>
+      L14: Range 65 + Area 165 + Mark(9) 180 = 410/420 PP (10 unused).<br>
+      L15: Range 70 + Area 165 + Mark(9) 180 = 415/450 PP (35 unused).<br>
+      L16: Range 75 + Area 220 + Mark(9) 180 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Mark(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Mark(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Mark(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Mark(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Mark(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Mark(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Mark(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Mark(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Mark(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Mark(6)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Mark(6)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Mark(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Mark(7)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Mark(7)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Mark(8)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Mark(9)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Mark(9)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Mark(9)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Mark(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Mark(3)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Mark(3)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Mark(4)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Mark(4)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Mark(5)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Mark(5)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Mark(6)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Mark(6)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Mark(6)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Mark(7)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Mark(7)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Mark(8)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Mark(9)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Mark(9)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Mark(9)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6556,61 +4042,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Root (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 0 + Root(2) 18 = 18/30 PP (12 unused)<br>
-      L2: Range 5 + Radius 20 + Root(2) 18 = 43/60 PP (17 unused)<br>
-      L3: Range 10 + Radius 50 + Root(2) 18 = 78/90 PP (12 unused)<br>
-      L4: Range 15 + Radius 50 + Root(3) 36 = 101/120 PP (19 unused)<br>
-      L5: Range 20 + Radius 80 + Root(3) 36 = 136/150 PP (14 unused)<br>
-      L6: Range 25 + Radius 80 + Root(4) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Root(4) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Root(4) 60 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 165 + Root(4) 60 = 265/270 PP (5 unused)<br>
-      L10: Range 45 + Radius 165 + Root(5) 90 = 300/300 PP (0 unused)<br>
-      L11: Range 50 + Radius 165 + Root(5) 90 = 305/330 PP (25 unused)<br>
-      L12: Range 55 + Radius 165 + Root(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 60 + Radius 165 + Root(6) 126 = 351/390 PP (39 unused)<br>
-      L14: Range 65 + Radius 220 + Root(6) 126 = 411/420 PP (9 unused)<br>
-      L15: Range 70 + Radius 220 + Root(6) 126 = 416/450 PP (34 unused)<br>
-      L16: Range 75 + Radius 220 + Root(7) 168 = 463/480 PP (17 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Root cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
+      L2: Range 5 + Area 20 + Root(2) 18 = 43/60 PP (17 unused).<br>
+      L3: Range 10 + Area 50 + Root(2) 18 = 78/90 PP (12 unused).<br>
+      L4: Range 15 + Area 50 + Root(3) 36 = 101/120 PP (19 unused).<br>
+      L5: Range 20 + Area 80 + Root(3) 36 = 136/150 PP (14 unused).<br>
+      L6: Range 25 + Area 80 + Root(4) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Root(4) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Root(4) 60 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 165 + Root(4) 60 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 165 + Root(5) 90 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + Area 165 + Root(5) 90 = 305/330 PP (25 unused).<br>
+      L12: Range 55 + Area 165 + Root(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 60 + Area 165 + Root(6) 126 = 351/390 PP (39 unused).<br>
+      L14: Range 65 + Area 220 + Root(6) 126 = 411/420 PP (9 unused).<br>
+      L15: Range 70 + Area 220 + Root(6) 126 = 416/450 PP (34 unused).<br>
+      L16: Range 75 + Area 220 + Root(7) 168 = 463/480 PP (17 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Root(X)** (Until Broken). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Root(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Root(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 1 m | Instant | Apply **Root(2)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Root(2)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Root(2)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Root(3)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Root(3)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Root(4)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Root(4)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Root(4)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Root(4)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Root(5)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Root(5)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Root(6)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Root(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 1 m | Instant | Apply **Root(2)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Root(2)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Root(2)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Root(3)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Root(3)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Root(4)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Root(4)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Root(4)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Root(4)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Root(5)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Root(5)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Root(6)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Root(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6619,61 +4105,62 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Ruin (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Ruin(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 20 + Ruin(3) 24 = 49/60 PP (11 unused)<br>
-      L3: Range 10 + Radius 50 + Ruin(3) 24 = 84/90 PP (6 unused)<br>
-      L4: Range 15 + Radius 50 + Ruin(4) 40 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 80 + Ruin(4) 40 = 140/150 PP (10 unused)<br>
-      L6: Range 25 + Radius 80 + Ruin(5) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Ruin(5) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Ruin(6) 84 = 239/240 PP (1 unused)<br>
-      L9: Range 40 + Radius 120 + Ruin(6) 84 = 244/270 PP (26 unused)<br>
-      L10: Range 45 + Radius 165 + Ruin(6) 84 = 294/300 PP (6 unused)<br>
-      L11: Range 50 + Radius 165 + Ruin(7) 112 = 327/330 PP (3 unused)<br>
-      L12: Range 55 + Radius 165 + Ruin(7) 112 = 332/360 PP (28 unused)<br>
-      L13: Range 60 + Radius 165 + Ruin(8) 144 = 369/390 PP (21 unused)<br>
-      L14: Range 65 + Radius 165 + Ruin(9) 180 = 410/420 PP (10 unused)<br>
-      L15: Range 70 + Radius 165 + Ruin(9) 180 = 415/450 PP (35 unused)<br>
-      L16: Range 75 + Radius 220 + Ruin(9) 180 = 475/480 PP (5 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Ruin cost: 4 x T(X).<br>
+      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Ruin(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 20 + Ruin(3) 24 = 49/60 PP (11 unused).<br>
+      L3: Range 10 + Area 50 + Ruin(3) 24 = 84/90 PP (6 unused).<br>
+      L4: Range 15 + Area 50 + Ruin(4) 40 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 80 + Ruin(4) 40 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Area 80 + Ruin(5) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Ruin(5) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Ruin(6) 84 = 239/240 PP (1 unused).<br>
+      L9: Range 40 + Area 120 + Ruin(6) 84 = 244/270 PP (26 unused).<br>
+      L10: Range 45 + Area 165 + Ruin(6) 84 = 294/300 PP (6 unused).<br>
+      L11: Range 50 + Area 165 + Ruin(7) 112 = 327/330 PP (3 unused).<br>
+      L12: Range 55 + Area 165 + Ruin(7) 112 = 332/360 PP (28 unused).<br>
+      L13: Range 60 + Area 165 + Ruin(8) 144 = 369/390 PP (21 unused).<br>
+      L14: Range 65 + Area 165 + Ruin(9) 180 = 410/420 PP (10 unused).<br>
+      L15: Range 70 + Area 165 + Ruin(9) 180 = 415/450 PP (35 unused).<br>
+      L16: Range 75 + Area 220 + Ruin(9) 180 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Ruin(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Ruin(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Ruin(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Ruin(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Ruin(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Ruin(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Ruin(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Ruin(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Ruin(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Ruin(6)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Ruin(6)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Ruin(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Ruin(7)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Ruin(7)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Ruin(8)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Ruin(9)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Ruin(9)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Ruin(9)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Ruin(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Ruin(3)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Ruin(3)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Ruin(4)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Ruin(4)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Ruin(5)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Ruin(5)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Ruin(6)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Ruin(6)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Ruin(6)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Ruin(7)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Ruin(7)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Ruin(8)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Ruin(9)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Ruin(9)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Ruin(9)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6682,61 +4169,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Slow (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Slow(1) 4 = 24/30 PP (6 unused)<br>
-      L2: Range 5 + Radius 20 + Slow(3) 24 = 49/60 PP (11 unused)<br>
-      L3: Range 10 + Radius 50 + Slow(3) 24 = 84/90 PP (6 unused)<br>
-      L4: Range 15 + Radius 50 + Slow(4) 40 = 105/120 PP (15 unused)<br>
-      L5: Range 20 + Radius 80 + Slow(4) 40 = 140/150 PP (10 unused)<br>
-      L6: Range 25 + Radius 80 + Slow(5) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Slow(5) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Slow(6) 84 = 239/240 PP (1 unused)<br>
-      L9: Range 40 + Radius 120 + Slow(6) 84 = 244/270 PP (26 unused)<br>
-      L10: Range 45 + Radius 165 + Slow(6) 84 = 294/300 PP (6 unused)<br>
-      L11: Range 50 + Radius 165 + Slow(7) 112 = 327/330 PP (3 unused)<br>
-      L12: Range 55 + Radius 165 + Slow(7) 112 = 332/360 PP (28 unused)<br>
-      L13: Range 60 + Radius 165 + Slow(8) 144 = 369/390 PP (21 unused)<br>
-      L14: Range 65 + Radius 165 + Slow(9) 180 = 410/420 PP (10 unused)<br>
-      L15: Range 70 + Radius 165 + Slow(9) 180 = 415/450 PP (35 unused)<br>
-      L16: Range 75 + Radius 220 + Slow(9) 180 = 475/480 PP (5 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Slow cost: 4 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Slow(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 20 + Slow(3) 24 = 49/60 PP (11 unused).<br>
+      L3: Range 10 + Area 50 + Slow(3) 24 = 84/90 PP (6 unused).<br>
+      L4: Range 15 + Area 50 + Slow(4) 40 = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Area 80 + Slow(4) 40 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Area 80 + Slow(5) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Slow(5) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Slow(6) 84 = 239/240 PP (1 unused).<br>
+      L9: Range 40 + Area 120 + Slow(6) 84 = 244/270 PP (26 unused).<br>
+      L10: Range 45 + Area 165 + Slow(6) 84 = 294/300 PP (6 unused).<br>
+      L11: Range 50 + Area 165 + Slow(7) 112 = 327/330 PP (3 unused).<br>
+      L12: Range 55 + Area 165 + Slow(7) 112 = 332/360 PP (28 unused).<br>
+      L13: Range 60 + Area 165 + Slow(8) 144 = 369/390 PP (21 unused).<br>
+      L14: Range 65 + Area 165 + Slow(9) 180 = 410/420 PP (10 unused).<br>
+      L15: Range 70 + Area 165 + Slow(9) 180 = 415/450 PP (35 unused).<br>
+      L16: Range 75 + Area 220 + Slow(9) 180 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Slow(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Slow(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Slow(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Slow(3)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Slow(3)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Slow(4)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Slow(4)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Slow(5)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Slow(5)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Slow(6)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Slow(6)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Slow(6)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Slow(7)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Slow(7)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Slow(8)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Slow(9)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Slow(9)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Slow(9)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Slow(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Slow(3)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Slow(3)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Slow(4)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Slow(4)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Slow(5)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Slow(5)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Slow(6)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Slow(6)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Slow(6)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Slow(7)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Slow(7)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Slow(8)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 6 m | Instant | Apply **Slow(9)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 6 m | Instant | Apply **Slow(9)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Slow(9)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6745,61 +4232,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Soulburn (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Soulburn(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 5 + Radius 20 + Soulburn(1) 8 = 33/60 PP (27 unused)<br>
-      L3: Range 10 + Radius 50 + Soulburn(1) 8 = 68/90 PP (22 unused)<br>
-      L4: Range 15 + Radius 50 + Soulburn(1) 8 = 73/120 PP (47 unused)<br>
-      L5: Range 20 + Radius 80 + Soulburn(1) 8 = 108/150 PP (42 unused)<br>
-      L6: Range 25 + Radius 80 + Soulburn(1) 8 = 113/180 PP (67 unused)<br>
-      L7: Range 30 + Radius 120 + Soulburn(1) 8 = 158/210 PP (52 unused)<br>
-      L8: Range 35 + Radius 120 + Soulburn(2) 80 = 235/240 PP (5 unused)<br>
-      L9: Range 40 + Radius 120 + Soulburn(2) 80 = 240/270 PP (30 unused)<br>
-      L10: Range 45 + Radius 165 + Soulburn(2) 80 = 290/300 PP (10 unused)<br>
-      L11: Range 50 + Radius 165 + Soulburn(2) 80 = 295/330 PP (35 unused)<br>
-      L12: Range 55 + Radius 220 + Soulburn(2) 80 = 355/360 PP (5 unused)<br>
-      L13: Range 60 + Radius 220 + Soulburn(2) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 65 + Radius 220 + Soulburn(2) 80 = 365/420 PP (55 unused)<br>
-      L15: Range 70 + Radius 280 + Soulburn(2) 80 = 430/450 PP (20 unused)<br>
-      L16: Range 75 + Radius 280 + Soulburn(2) 80 = 435/480 PP (45 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Soulburn(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 5 + Area 20 + Soulburn(1) 8 = 33/60 PP (27 unused).<br>
+      L3: Range 10 + Area 50 + Soulburn(1) 8 = 68/90 PP (22 unused).<br>
+      L4: Range 15 + Area 50 + Soulburn(1) 8 = 73/120 PP (47 unused).<br>
+      L5: Range 20 + Area 80 + Soulburn(1) 8 = 108/150 PP (42 unused).<br>
+      L6: Range 25 + Area 80 + Soulburn(1) 8 = 113/180 PP (67 unused).<br>
+      L7: Range 30 + Area 120 + Soulburn(1) 8 = 158/210 PP (52 unused).<br>
+      L8: Range 35 + Area 120 + Soulburn(2) 80 = 235/240 PP (5 unused).<br>
+      L9: Range 40 + Area 120 + Soulburn(2) 80 = 240/270 PP (30 unused).<br>
+      L10: Range 45 + Area 165 + Soulburn(2) 80 = 290/300 PP (10 unused).<br>
+      L11: Range 50 + Area 165 + Soulburn(2) 80 = 295/330 PP (35 unused).<br>
+      L12: Range 55 + Area 220 + Soulburn(2) 80 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Area 220 + Soulburn(2) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 65 + Area 220 + Soulburn(2) 80 = 365/420 PP (55 unused).<br>
+      L15: Range 70 + Area 280 + Soulburn(2) 80 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Area 280 + Soulburn(2) 80 = 435/480 PP (45 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Soulburn(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Soulburn(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Soulburn(1)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Soulburn(1)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Soulburn(2)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6808,61 +4295,61 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Sundered (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Sundered(1) 6 = 26/30 PP (4 unused)<br>
-      L2: Range 5 + Radius 20 + Sundered(2) 18 = 43/60 PP (17 unused)<br>
-      L3: Range 10 + Radius 50 + Sundered(2) 18 = 78/90 PP (12 unused)<br>
-      L4: Range 15 + Radius 50 + Sundered(3) 36 = 101/120 PP (19 unused)<br>
-      L5: Range 20 + Radius 80 + Sundered(3) 36 = 136/150 PP (14 unused)<br>
-      L6: Range 25 + Radius 80 + Sundered(4) 60 = 165/180 PP (15 unused)<br>
-      L7: Range 30 + Radius 120 + Sundered(4) 60 = 210/210 PP (0 unused)<br>
-      L8: Range 35 + Radius 120 + Sundered(4) 60 = 215/240 PP (25 unused)<br>
-      L9: Range 40 + Radius 165 + Sundered(4) 60 = 265/270 PP (5 unused)<br>
-      L10: Range 45 + Radius 165 + Sundered(5) 90 = 300/300 PP (0 unused)<br>
-      L11: Range 50 + Radius 165 + Sundered(5) 90 = 305/330 PP (25 unused)<br>
-      L12: Range 55 + Radius 165 + Sundered(6) 126 = 346/360 PP (14 unused)<br>
-      L13: Range 60 + Radius 165 + Sundered(6) 126 = 351/390 PP (39 unused)<br>
-      L14: Range 65 + Radius 220 + Sundered(6) 126 = 411/420 PP (9 unused)<br>
-      L15: Range 70 + Radius 220 + Sundered(6) 126 = 416/450 PP (34 unused)<br>
-      L16: Range 75 + Radius 220 + Sundered(7) 168 = 463/480 PP (17 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Sundered cost: 6 x T(X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Sundered(1) 6 = 26/30 PP (4 unused).<br>
+      L2: Range 5 + Area 20 + Sundered(2) 18 = 43/60 PP (17 unused).<br>
+      L3: Range 10 + Area 50 + Sundered(2) 18 = 78/90 PP (12 unused).<br>
+      L4: Range 15 + Area 50 + Sundered(3) 36 = 101/120 PP (19 unused).<br>
+      L5: Range 20 + Area 80 + Sundered(3) 36 = 136/150 PP (14 unused).<br>
+      L6: Range 25 + Area 80 + Sundered(4) 60 = 165/180 PP (15 unused).<br>
+      L7: Range 30 + Area 120 + Sundered(4) 60 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 120 + Sundered(4) 60 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 165 + Sundered(4) 60 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + Area 165 + Sundered(5) 90 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + Area 165 + Sundered(5) 90 = 305/330 PP (25 unused).<br>
+      L12: Range 55 + Area 165 + Sundered(6) 126 = 346/360 PP (14 unused).<br>
+      L13: Range 60 + Area 165 + Sundered(6) 126 = 351/390 PP (39 unused).<br>
+      L14: Range 65 + Area 220 + Sundered(6) 126 = 411/420 PP (9 unused).<br>
+      L15: Range 70 + Area 220 + Sundered(6) 126 = 416/450 PP (34 unused).<br>
+      L16: Range 75 + Area 220 + Sundered(7) 168 = 463/480 PP (17 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Sundered(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Sundered(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Sundered(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Sundered(2)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Sundered(2)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Sundered(3)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Sundered(3)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Sundered(4)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Sundered(4)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Sundered(4)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Sundered(4)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Sundered(5)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Sundered(5)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Sundered(6)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Sundered(7)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Sundered(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Sundered(2)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Sundered(2)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Sundered(3)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Sundered(3)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Sundered(4)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Sundered(4)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Sundered(4)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 6 m | Instant | Apply **Sundered(4)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Sundered(5)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Sundered(5)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 6 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 7 m | Instant | Apply **Sundered(6)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 7 m | Instant | Apply **Sundered(7)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 
 {{wide
@@ -6871,96 +4358,367 @@ Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/8
   Ranged AoE Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      SINGLE-FOCUS INSTANT SPECIAL<br>
-      Active budget 30 PP per Power Level.<br>
-      Special cost uses the exact current Core/AGENT formula for Weaken (including compressed pool-reduction prices where applicable).<br>
-      Ranged cost 5 PP per +4 m beyond 8 m; Instant AoE Radius 1–8 m costs 0/20/50/80/120/165/220/280 PP respectively.<br>
-      Damage 0 PP; no other purchased effect. Each chosen Special is a separate named Power identity.<br>
-      PRICE AUDIT<br>
-      L1: Range 0 + Radius 20 + Weaken(1) 8 = 28/30 PP (2 unused)<br>
-      L2: Range 5 + Radius 20 + Weaken(1) 8 = 33/60 PP (27 unused)<br>
-      L3: Range 10 + Radius 50 + Weaken(1) 8 = 68/90 PP (22 unused)<br>
-      L4: Range 15 + Radius 50 + Weaken(1) 8 = 73/120 PP (47 unused)<br>
-      L5: Range 20 + Radius 80 + Weaken(1) 8 = 108/150 PP (42 unused)<br>
-      L6: Range 25 + Radius 80 + Weaken(1) 8 = 113/180 PP (67 unused)<br>
-      L7: Range 30 + Radius 120 + Weaken(1) 8 = 158/210 PP (52 unused)<br>
-      L8: Range 35 + Radius 120 + Weaken(2) 80 = 235/240 PP (5 unused)<br>
-      L9: Range 40 + Radius 120 + Weaken(2) 80 = 240/270 PP (30 unused)<br>
-      L10: Range 45 + Radius 165 + Weaken(2) 80 = 290/300 PP (10 unused)<br>
-      L11: Range 50 + Radius 165 + Weaken(2) 80 = 295/330 PP (35 unused)<br>
-      L12: Range 55 + Radius 220 + Weaken(2) 80 = 355/360 PP (5 unused)<br>
-      L13: Range 60 + Radius 220 + Weaken(2) 80 = 360/390 PP (30 unused)<br>
-      L14: Range 65 + Radius 220 + Weaken(2) 80 = 365/420 PP (55 unused)<br>
-      L15: Range 70 + Radius 280 + Weaken(2) 80 = 430/450 PP (20 unused)<br>
-      L16: Range 75 + Radius 280 + Weaken(2) 80 = 435/480 PP (45 unused)
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
+      Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
+      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      L1: Range 0 + Area 20 + Weaken(1) 8 = 28/30 PP (2 unused).<br>
+      L2: Range 5 + Area 20 + Weaken(1) 8 = 33/60 PP (27 unused).<br>
+      L3: Range 10 + Area 50 + Weaken(1) 8 = 68/90 PP (22 unused).<br>
+      L4: Range 15 + Area 50 + Weaken(1) 8 = 73/120 PP (47 unused).<br>
+      L5: Range 20 + Area 80 + Weaken(1) 8 = 108/150 PP (42 unused).<br>
+      L6: Range 25 + Area 80 + Weaken(1) 8 = 113/180 PP (67 unused).<br>
+      L7: Range 30 + Area 120 + Weaken(1) 8 = 158/210 PP (52 unused).<br>
+      L8: Range 35 + Area 120 + Weaken(2) 80 = 235/240 PP (5 unused).<br>
+      L9: Range 40 + Area 120 + Weaken(2) 80 = 240/270 PP (30 unused).<br>
+      L10: Range 45 + Area 165 + Weaken(2) 80 = 290/300 PP (10 unused).<br>
+      L11: Range 50 + Area 165 + Weaken(2) 80 = 295/330 PP (35 unused).<br>
+      L12: Range 55 + Area 220 + Weaken(2) 80 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Area 220 + Weaken(2) 80 = 360/390 PP (30 unused).<br>
+      L14: Range 65 + Area 220 + Weaken(2) 80 = 365/420 PP (55 unused).<br>
+      L15: Range 70 + Area 280 + Weaken(2) 80 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Area 280 + Weaken(2) 80 = 435/480 PP (45 unused).<br>
     </span>
   </span>
 </h3>
 
-**One Special only:** This is an **Instant Active** that applies only **Weaken(X)** (Diminishing). The Power purchases exactly one numeric Special and **no purchased Power Damage**.
 
-**Delivery:** Target point within printed Range. Make one Attack Roll for the whole area and compare against each creature’s Evade; individual defenses and Dive for Cover apply.
+Apply **Weaken(X)** as an Instant Special-only Active. The printed row gives the Special strength.
 
-**Resolution:** On a successful delivery, apply the printed **Weaken(X)** once per eligible target after normal Special Negation and the Special's own stacking rules. Subsequent natural decay, Cleanse, Timed countdown, or Root's own recovery follow the existing core rules; the **Power itself** has no ongoing duration. An AoE hit applies the full listed Special to each hit creature. **No direct Attack Damage and no Damage Roll from any source** (including Weapon Damage, Spell Focus Damage, external Attack Damage bonuses or Damage Raises); never split its Special among targets. Any later Special tick resolves independently.
+**Delivery:** Place the area within Range; make one Ranged Martial Attack Roll or legal Spell Casting Roll for its targets, with Dive for Cover where legal.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Weaken(1)** to every creature hit in the area; **no direct damage**. |
-| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
-| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area; **no direct damage**. |
+| **1** | Active, Special | 8 m | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **2** | Active, Special | 12 m | Radius 2 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **3** | Active, Special | 16 m | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **4** | Active, Special | 20 m | Radius 3 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **5** | Active, Special | 24 m | Radius 4 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **6** | Active, Special | 28 m | Radius 4 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **7** | Active, Special | 32 m | Radius 5 m | Instant | Apply **Weaken(1)** to every creature hit in the area. |
+| **8** | Active, Special | 36 m | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **9** | Active, Special | 40 m | Radius 5 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **10** | Active, Special | 44 m | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **11** | Active, Special | 48 m | Radius 6 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **12** | Active, Special | 52 m | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **13** | Active, Special | 56 m | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **14** | Active, Special | 60 m | Radius 7 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **15** | Active, Special | 64 m | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
+| **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Weaken(2)** to every creature hit in the area. |
 
 ---
 }}
 
 \page
-{{pageNumber,auto}}
 
+{{pageNumber,auto}}
+{{wide
+## Limited Damage Powers
+
+The following four **Limited Damage Attacks** are separate learned Power choices: **Melee Single Target**, **Ranged Single Target**, **Melee AoE** and **Ranged AoE**. Each uses its own Technical Reference, normal Power Level and advancement.
+
+**One shared charge:** A character has **one global Limited use per Safe Haven Rest**, shared by all Limited Powers from every source, including Artifacts. Declare the Limited Attack and spend that charge when using it, including on a missed or resisted attack.
+
+**Damage:** Multiply **only the printed base Power Damage Dice by four**. Add matching Weapon Damage (Martial) or Spell Focus Damage (Spell), applicable Raises and other legal damage bonuses **once at their normal value**. For a damaging AoE, use one shared Damage Roll and resolve each hit creature separately.
+
+Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy, Power-instance use limits and Maximization timing**. Their four Level tables supply the complete purchased Power Damage, Range and Radius.
+
+}}
 
 \page
+
+{{pageNumber,auto}}
+{{wide
+<h3 id="limited-melee-single-target-attack">
+  Limited Melee Single Target Attack
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
+      L1: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
+      L2: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L3: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
+      L4: Printed 32d8 = base 8d8 x 4: OK. Base PP separate.<br>
+      L5: Printed 40d8 = base 10d8 x 4: OK. Base PP separate.<br>
+      L6: Printed 48d8 = base 12d8 x 4: OK. Base PP separate.<br>
+      L7: Printed 56d8 = base 14d8 x 4: OK. Base PP separate.<br>
+      L8: Printed 64d8 = base 16d8 x 4: OK. Base PP separate.<br>
+      L9: Printed 72d8 = base 18d8 x 4: OK. Base PP separate.<br>
+      L10: Printed 80d8 = base 20d8 x 4: OK. Base PP separate.<br>
+      L11: Printed 88d8 = base 22d8 x 4: OK. Base PP separate.<br>
+      L12: Printed 96d8 = base 24d8 x 4: OK. Base PP separate.<br>
+      L13: Printed 104d8 = base 26d8 x 4: OK. Base PP separate.<br>
+      L14: Printed 112d8 = base 28d8 x 4: OK. Base PP separate.<br>
+      L15: Printed 120d8 = base 30d8 x 4: OK. Base PP separate.<br>
+      L16: Printed 128d8 = base 32d8 x 4: OK. Base PP separate.<br>
+    </span>
+  </span>
+</h3>
+
+**Requirement:** Melee Weapon or Unarmed.
+
+**Delivery:** Martial; Melee Reach. This is a distinct Power Technical Reference from `Melee Single Target Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+
+**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
+
+**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Limited Active | Melee Reach | — | Instant | On hit, deal **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage; one target. |
+| **2** | Limited Active | Melee Reach | — | Instant | On hit, deal **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage; one target. |
+| **3** | Limited Active | Melee Reach | — | Instant | On hit, deal **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage; one target. |
+| **4** | Limited Active | Melee Reach | — | Instant | On hit, deal **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage; one target. |
+| **5** | Limited Active | Melee Reach | — | Instant | On hit, deal **40d8 Limited Power Damage** (base 10d8 x4) plus matching Weapon Damage; one target. |
+| **6** | Limited Active | Melee Reach | — | Instant | On hit, deal **48d8 Limited Power Damage** (base 12d8 x4) plus matching Weapon Damage; one target. |
+| **7** | Limited Active | Melee Reach | — | Instant | On hit, deal **56d8 Limited Power Damage** (base 14d8 x4) plus matching Weapon Damage; one target. |
+| **8** | Limited Active | Melee Reach | — | Instant | On hit, deal **64d8 Limited Power Damage** (base 16d8 x4) plus matching Weapon Damage; one target. |
+| **9** | Limited Active | Melee Reach | — | Instant | On hit, deal **72d8 Limited Power Damage** (base 18d8 x4) plus matching Weapon Damage; one target. |
+| **10** | Limited Active | Melee Reach | — | Instant | On hit, deal **80d8 Limited Power Damage** (base 20d8 x4) plus matching Weapon Damage; one target. |
+| **11** | Limited Active | Melee Reach | — | Instant | On hit, deal **88d8 Limited Power Damage** (base 22d8 x4) plus matching Weapon Damage; one target. |
+| **12** | Limited Active | Melee Reach | — | Instant | On hit, deal **96d8 Limited Power Damage** (base 24d8 x4) plus matching Weapon Damage; one target. |
+| **13** | Limited Active | Melee Reach | — | Instant | On hit, deal **104d8 Limited Power Damage** (base 26d8 x4) plus matching Weapon Damage; one target. |
+| **14** | Limited Active | Melee Reach | — | Instant | On hit, deal **112d8 Limited Power Damage** (base 28d8 x4) plus matching Weapon Damage; one target. |
+| **15** | Limited Active | Melee Reach | — | Instant | On hit, deal **120d8 Limited Power Damage** (base 30d8 x4) plus matching Weapon Damage; one target. |
+| **16** | Limited Active | Melee Reach | — | Instant | On hit, deal **128d8 Limited Power Damage** (base 32d8 x4) plus matching Weapon Damage; one target. |
+
+---
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+<h3 id="limited-ranged-single-target-attack">
+  Limited Ranged Single Target Attack
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
+      L1: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
+      L2: Printed 12d8 = base 3d8 x 4: OK. Base PP separate.<br>
+      L3: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
+      L4: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L5: Printed 32d8 = base 8d8 x 4: OK. Base PP separate.<br>
+      L6: Printed 40d8 = base 10d8 x 4: OK. Base PP separate.<br>
+      L7: Printed 48d8 = base 12d8 x 4: OK. Base PP separate.<br>
+      L8: Printed 52d8 = base 13d8 x 4: OK. Base PP separate.<br>
+      L9: Printed 60d8 = base 15d8 x 4: OK. Base PP separate.<br>
+      L10: Printed 68d8 = base 17d8 x 4: OK. Base PP separate.<br>
+      L11: Printed 72d8 = base 18d8 x 4: OK. Base PP separate.<br>
+      L12: Printed 80d8 = base 20d8 x 4: OK. Base PP separate.<br>
+      L13: Printed 88d8 = base 22d8 x 4: OK. Base PP separate.<br>
+      L14: Printed 92d8 = base 23d8 x 4: OK. Base PP separate.<br>
+      L15: Printed 100d8 = base 25d8 x 4: OK. Base PP separate.<br>
+      L16: Printed 108d8 = base 27d8 x 4: OK. Base PP separate.<br>
+    </span>
+  </span>
+</h3>
+
+**Requirement:** Ranged Weapon or Thrown Weapon for Martial; legal Spell delivery requires no such weapon.
+
+**Delivery:** Martial or Spell; Printed Range. This is a distinct Power Technical Reference from `Ranged Single Target Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+
+**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
+
+**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Limited Active | 8 m | — | Instant | On hit, deal **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **2** | Limited Active | 12 m | — | Instant | On hit, deal **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **3** | Limited Active | 16 m | — | Instant | On hit, deal **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **4** | Limited Active | 20 m | — | Instant | On hit, deal **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **5** | Limited Active | 24 m | — | Instant | On hit, deal **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **6** | Limited Active | 28 m | — | Instant | On hit, deal **40d8 Limited Power Damage** (base 10d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **7** | Limited Active | 32 m | — | Instant | On hit, deal **48d8 Limited Power Damage** (base 12d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **8** | Limited Active | 36 m | — | Instant | On hit, deal **52d8 Limited Power Damage** (base 13d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **9** | Limited Active | 40 m | — | Instant | On hit, deal **60d8 Limited Power Damage** (base 15d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **10** | Limited Active | 44 m | — | Instant | On hit, deal **68d8 Limited Power Damage** (base 17d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **11** | Limited Active | 48 m | — | Instant | On hit, deal **72d8 Limited Power Damage** (base 18d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **12** | Limited Active | 52 m | — | Instant | On hit, deal **80d8 Limited Power Damage** (base 20d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **13** | Limited Active | 56 m | — | Instant | On hit, deal **88d8 Limited Power Damage** (base 22d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **14** | Limited Active | 60 m | — | Instant | On hit, deal **92d8 Limited Power Damage** (base 23d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **15** | Limited Active | 64 m | — | Instant | On hit, deal **100d8 Limited Power Damage** (base 25d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+| **16** | Limited Active | 68 m | — | Instant | On hit, deal **108d8 Limited Power Damage** (base 27d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
+
+---
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+<h3 id="limited-melee-aoe-attack">
+  Limited Melee AoE Attack
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
+      L1: Printed 4d8 = base 1d8 x 4: OK. Base PP separate.<br>
+      L2: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
+      L3: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
+      L4: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L5: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L6: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
+      L7: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
+      L8: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L9: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L10: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L11: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L12: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L13: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
+      L14: Printed 36d8 = base 9d8 x 4: OK. Base PP separate.<br>
+      L15: Printed 44d8 = base 11d8 x 4: OK. Base PP separate.<br>
+      L16: Printed 52d8 = base 13d8 x 4: OK. Base PP separate.<br>
+    </span>
+  </span>
+</h3>
+
+**Requirement:** Melee Weapon or Unarmed.
+
+**Delivery:** Martial; Self-centered. This is a distinct Power Technical Reference from `Melee Aoe Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+
+**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
+
+**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **4d8 Limited Power Damage** (base 1d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **2** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **3** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **4** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **5** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **6** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **7** | Limited Active | Self | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **8** | Limited Active | Self | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **9** | Limited Active | Self | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **10** | Limited Active | Self | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **11** | Limited Active | Self | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **12** | Limited Active | Self | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **13** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **14** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **36d8 Limited Power Damage** (base 9d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **15** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **44d8 Limited Power Damage** (base 11d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **16** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **52d8 Limited Power Damage** (base 13d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+
+---
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+<h3 id="limited-ranged-aoe-attack">
+  Limited Ranged AoE Attack
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
+      L1: Printed 4d8 = base 1d8 x 4: OK. Base PP separate.<br>
+      L2: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
+      L3: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
+      L4: Printed 12d8 = base 3d8 x 4: OK. Base PP separate.<br>
+      L5: Printed 12d8 = base 3d8 x 4: OK. Base PP separate.<br>
+      L6: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L7: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L8: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L9: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L10: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L11: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L12: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
+      L13: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
+      L14: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
+      L15: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
+      L16: Printed 32d8 = base 8d8 x 4: OK. Base PP separate.<br>
+    </span>
+  </span>
+</h3>
+
+**Requirement:** Ranged Weapon or Thrown Weapon for Martial; legal Spell delivery requires no such weapon.
+
+**Delivery:** Martial or Spell; Target point in printed Range. This is a distinct Power Technical Reference from `Ranged Aoe Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+
+**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
+
+**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Limited Active | 8 m | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **4d8 Limited Power Damage** (base 1d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **2** | Limited Active | 12 m | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **3** | Limited Active | 16 m | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **4** | Limited Active | 20 m | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **5** | Limited Active | 24 m | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **6** | Limited Active | 28 m | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **7** | Limited Active | 32 m | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **8** | Limited Active | 36 m | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **9** | Limited Active | 40 m | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **10** | Limited Active | 44 m | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **11** | Limited Active | 48 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **12** | Limited Active | 52 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **13** | Limited Active | 56 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **14** | Limited Active | 60 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **15** | Limited Active | 64 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **16** | Limited Active | 68 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+
+---
+}}
+
+\page
+
 {{pageNumber,auto}}
 {{wide
 ## Damage Transfer Actives (Vampyr)
 
-Damage Transfer (the fiction-facing *Vampyr* concept) is a **dedicated instant, single-target Active** whose one inseparable mechanic is **damage that restores the attacker's own HP**. It is not a selectable Damage + Healing hybrid or an upgrade to Healing Actives.
+**Damage Transfer** is a dedicated Instant Single-Target attack that damages an enemy and heals its user by the **real HP lost by that enemy**. Make the normal Martial Attack Roll, or a Casting Roll for an eligible Ranged Spell delivery.
 
-**Resolution:** Make the printed Martial Attack Roll, or a Casting Roll for an eligible Ranged Spell delivery. On hit, form the regular Damage Pool (including Weapon Damage only for Martial weapon delivery), then resolve Damage Negation, damage, Penetration, Armor, Damage Reduction, Temporary HP, and Health loss in the ordinary order. The user heals **exactly the real HP the target actually loses from this attack**, capped by missing HP in the user's **current active Health Bar**. No separate Healing Dice are rolled. No Scarred Health Bars reopen and no overhealing or Temporary HP is created. If no real HP is lost, heal **0**.
+Resolve the damage through the normal sequence: Damage Negation, Penetration, Armor, Damage Reduction, Temporary HP and actual Health loss. The user recovers HP equal to the target's **actual HP loss**, up to the missing HP in the user's **currently active Health Bar**. If the attack removes zero real HP, it heals zero.
 
-**Dedicated cost:** **25 PP per +1d8 Power Damage**, versus **15 PP per +1d8** for an ordinary single-target Attack. This is a fixed bundled price for a conditional self-transfer effect, not the ordinary 20-PP Healing Die price and not permission to add independent Healing to Damage. Melee uses no Range cost; Ranged uses the standard Range cost. Unused PP is permitted. One target and one Damage Roll only; this Power is never an AoE.
+The Power's printed Damage Dice and delivery are in the tables below. Vitality: Maximization may maximize its eligible Damage Roll under its usual rules. **Damage Transfer uses its own learned Technical Reference** for Melee or Ranged delivery; Ranged Spell delivery substitutes Spell Focus Damage for Weapon Damage under the normal rules.
 
-**Limited and Stone interaction:** Damage Transfer is **not** one of the four permitted Limited Attack templates and cannot be learned in Limited form. Vitality: Damage Maximization may still maximize its normal complete legal Damage Roll. Healing always equals **actual HP lost after all mitigation**, never the Damage Pool before mitigation.
+Damage Transfer restores **current Bar HP**. Reopening a Scarred Bar uses a Restoration Power.
 
-**Technical identities:** `Melee Single Target Damage Transfer` and `Ranged Single Target Damage Transfer` are separate learned Power identities. For Ranged Spell delivery, the normal Spell rules apply, including no Weapon Damage. The name *Vampyr* is descriptive only, not a second Power identity.
-
----
 }}
+
 \page
+
 {{pageNumber,auto}}
 {{wide
 <h3 id="melee-single-target-damage-transfer">
   Melee Single Target Damage Transfer
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      FIXED DAMAGE TRANSFER COST<br>
-      Budget = 30 PP per Level<br>
-      Purchased Damage = 25 PP per +1d8<br>
-      Melee Reach; no Range cost.<br>
-      On hit: healing = target's real HP actually removed by the same attack after mitigation, limited to attacker's current active Health Bar.<br>
-      Includes Weapon Damage in the damage roll only with Martial weapon delivery. Never adds separate Healing Dice or restores Scarred bars.<br>
-      LEVEL-BY-LEVEL PP AUDIT<br>
-      L1: 1d8 x 25 = 25/30 PP (5 unused)<br>      L2: 2d8 x 25 = 50/60 PP (10 unused)<br>      L3: 3d8 x 25 = 75/90 PP (15 unused)<br>      L4: 4d8 x 25 = 100/120 PP (20 unused)<br>      L5: 6d8 x 25 = 150/150 PP (0 unused)<br>      L6: 7d8 x 25 = 175/180 PP (5 unused)<br>      L7: 8d8 x 25 = 200/210 PP (10 unused)<br>      L8: 9d8 x 25 = 225/240 PP (15 unused)<br>      L9: 10d8 x 25 = 250/270 PP (20 unused)<br>      L10: 12d8 x 25 = 300/300 PP (0 unused)<br>      L11: 13d8 x 25 = 325/330 PP (5 unused)<br>      L12: 14d8 x 25 = 350/360 PP (10 unused)<br>      L13: 15d8 x 25 = 375/390 PP (15 unused)<br>      L14: 16d8 x 25 = 400/420 PP (20 unused)<br>      L15: 18d8 x 25 = 450/450 PP (0 unused)<br>      L16: 19d8 x 25 = 475/480 PP (5 unused)<br>
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical original Actives tooltip: Damage Transfer 25 PP per purchased +1d8 plus Range; healing equals actual target HP lost, limited to current Health Bar.<br>
+      L1: Range 0 + 1d8 x25 = 25/30 PP (5 unused).<br>
+      L2: Range 0 + 2d8 x25 = 50/60 PP (10 unused).<br>
+      L3: Range 0 + 3d8 x25 = 75/90 PP (15 unused).<br>
+      L4: Range 0 + 4d8 x25 = 100/120 PP (20 unused).<br>
+      L5: Range 0 + 6d8 x25 = 150/150 PP (0 unused).<br>
+      L6: Range 0 + 7d8 x25 = 175/180 PP (5 unused).<br>
+      L7: Range 0 + 8d8 x25 = 200/210 PP (10 unused).<br>
+      L8: Range 0 + 9d8 x25 = 225/240 PP (15 unused).<br>
+      L9: Range 0 + 10d8 x25 = 250/270 PP (20 unused).<br>
+      L10: Range 0 + 12d8 x25 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + 13d8 x25 = 325/330 PP (5 unused).<br>
+      L12: Range 0 + 14d8 x25 = 350/360 PP (10 unused).<br>
+      L13: Range 0 + 15d8 x25 = 375/390 PP (15 unused).<br>
+      L14: Range 0 + 16d8 x25 = 400/420 PP (20 unused).<br>
+      L15: Range 0 + 18d8 x25 = 450/450 PP (0 unused).<br>
+      L16: Range 0 + 19d8 x25 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
@@ -6994,21 +4752,35 @@ A melee damage-to-self-healing transfer that siphons only real HP removed from t
 
 ---
 }}
+
 \page
+
 {{pageNumber,auto}}
 {{wide
 <h3 id="ranged-single-target-damage-transfer">
   Ranged Single Target Damage Transfer
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      FIXED DAMAGE TRANSFER COST<br>
-      Budget = 30 PP per Level<br>
-      Purchased Damage = 25 PP per +1d8<br>
-      Ranged 8 m = 0 PP; +4 m costs +5 PP.<br>
-      On hit: healing = target's real HP actually removed by the same attack after mitigation, limited to attacker's current active Health Bar.<br>
-      Includes Weapon Damage in the damage roll only with Martial weapon delivery. Never adds separate Healing Dice or restores Scarred bars.<br>
-      LEVEL-BY-LEVEL PP AUDIT<br>
-      L1: Range 0 PP + 1d8 x 25 = 25/30 PP (5 unused)<br>      L2: Range 5 PP + 2d8 x 25 = 55/60 PP (5 unused)<br>      L3: Range 10 PP + 3d8 x 25 = 85/90 PP (5 unused)<br>      L4: Range 15 PP + 4d8 x 25 = 115/120 PP (5 unused)<br>      L5: Range 20 PP + 5d8 x 25 = 145/150 PP (5 unused)<br>      L6: Range 25 PP + 6d8 x 25 = 175/180 PP (5 unused)<br>      L7: Range 30 PP + 7d8 x 25 = 205/210 PP (5 unused)<br>      L8: Range 35 PP + 8d8 x 25 = 235/240 PP (5 unused)<br>      L9: Range 40 PP + 9d8 x 25 = 265/270 PP (5 unused)<br>      L10: Range 45 PP + 10d8 x 25 = 295/300 PP (5 unused)<br>      L11: Range 50 PP + 11d8 x 25 = 325/330 PP (5 unused)<br>      L12: Range 55 PP + 12d8 x 25 = 355/360 PP (5 unused)<br>      L13: Range 60 PP + 13d8 x 25 = 385/390 PP (5 unused)<br>      L14: Range 65 PP + 14d8 x 25 = 415/420 PP (5 unused)<br>      L15: Range 70 PP + 15d8 x 25 = 445/450 PP (5 unused)<br>      L16: Range 75 PP + 16d8 x 25 = 475/480 PP (5 unused)<br>
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical original Actives tooltip: Damage Transfer 25 PP per purchased +1d8 plus Range; healing equals actual target HP lost, limited to current Health Bar.<br>
+      L1: Range 0 + 1d8 x25 = 25/30 PP (5 unused).<br>
+      L2: Range 5 + 2d8 x25 = 55/60 PP (5 unused).<br>
+      L3: Range 10 + 3d8 x25 = 85/90 PP (5 unused).<br>
+      L4: Range 15 + 4d8 x25 = 115/120 PP (5 unused).<br>
+      L5: Range 20 + 5d8 x25 = 145/150 PP (5 unused).<br>
+      L6: Range 25 + 6d8 x25 = 175/180 PP (5 unused).<br>
+      L7: Range 30 + 7d8 x25 = 205/210 PP (5 unused).<br>
+      L8: Range 35 + 8d8 x25 = 235/240 PP (5 unused).<br>
+      L9: Range 40 + 9d8 x25 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + 10d8 x25 = 295/300 PP (5 unused).<br>
+      L11: Range 50 + 11d8 x25 = 325/330 PP (5 unused).<br>
+      L12: Range 55 + 12d8 x25 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + 13d8 x25 = 385/390 PP (5 unused).<br>
+      L14: Range 65 + 14d8 x25 = 415/420 PP (5 unused).<br>
+      L15: Range 70 + 15d8 x25 = 445/450 PP (5 unused).<br>
+      L16: Range 75 + 16d8 x25 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
@@ -7044,294 +4816,1316 @@ A ranged damage-to-self-healing transfer, usable through Martial or legal Spell 
 ---
 }}
 
-
 \page
+
 {{pageNumber,auto}}
 {{wide
-## Limited Damage Powers
+## Pure Forced-Movement Actives
 
-**Separate learned Powers, not a toggle.** The four Powers below are the only generic Limited choices in this playtest. Each has its own technical identity, normal Power Level and XP advancement and must be bought separately from its normal counterpart. You may learn several Limited variants, but **all share exactly one use per character per Safe Haven Rest**. There is no maximum number learned beyond normal progression limits.
+Choose **Push** or **Pull** when learning this Power. On a successful delivery, move the target up to the printed distance along a legal path, following the Core **Push/Pull** rules.
 
-**Damage rule:** When declaring an eligible Limited Active, spend the character's one global Limited use, even if the roll fails. Only the **base Power's purchased printed Power Damage Dice** are multiplied by four. Matching Weapon Damage / Spell Focus Damage, Raises, external damage and Special(X) are never multiplied. Normal attack/resolution, once-per-round named Power limits, and Maximization (after Damage Negation, before Armor) are unchanged. A single AoE use covers its whole area.
+**Delivery:** Melee and ranged Martial use their respective Attack Rolls. An eligible Ranged Spell uses a Casting Roll against **Final Spell TN**. The Power uses one Attack Action and applies the chosen control effect on a hit.
 
-**Not eligible:** Special-only Actives (single or AoE), Damage Transfer, Split Attacks, Autofire, Healing, Cleanse, Restoration, movement, reactions, passives, Active Buffs, persistent zones, barriers, walls, summons, auras, and other non-listed templates. Artefact-granted versions of these four catalogued types may use the shared charge, but do not create extra uses.
+These are **control-only attacks**: the printed forced movement is their full payload. They deal **zero direct Attack Damage** and make no Damage Roll. This distinction applies equally to Martial and Spell delivery.
 
-**Price and progression:** Each Limited Power uses its base template's entire legal 30 PP per PL budget, Range, Radius and printed base Power Damage before the multiplier; no free PP, no PP discount, and no special potency change.
+The two tables below list the Melee and Ranged distances at every Power Level.
 
----
 }}
+
 \page
 
 {{pageNumber,auto}}
 {{wide
-<h3 id="limited-melee-single-target-attack">
-  Limited Melee Single Target Attack
+<h3 id="melee-push-pull">
+  Melee Push / Pull
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      LIMITED INSTANT DAMAGE ACTIVE — 2026-11-04 PLAYTEST<br>
-      Base Power: Melee Single Target Attack<br>
-      Active budget = 30 PP x Power Level, using EXACTLY the base Power's purchased Power Damage and delivery prices.<br>
-      Limited is a separately acquired Power with normal XP cost and its own PL; the x4 output is NOT purchased as additional PP damage.<br>
-      One GLOBAL Limited use per character per Safe Haven Rest, shared by every Limited Power from all sources.<br>
-      Spend that use at declaration even if the Attack misses or Spell is resisted; one AoE spends one use, not one per creature.<br>
-      x4 affects only base printed Power Damage Dice, never Weapon Damage, Spell Focus Damage, Raise Dice, Special(X) or external bonuses.<br>
-      A regular base Power is separate and available only if separately learned/granted.<br>
-      All normal attack, casting, defense, limited delivery and Maximization timing rules remain in force.<br>
-      FULL 16-LEVEL BASE/OUTPUT AUDIT<br>
-      PL1: base 2d8 -> Limited 8d8; base PP budget 30; single target; range Melee Reach.<br>
-      PL2: base 4d8 -> Limited 16d8; base PP budget 60; single target; range Melee Reach.<br>
-      PL3: base 6d8 -> Limited 24d8; base PP budget 90; single target; range Melee Reach.<br>
-      PL4: base 8d8 -> Limited 32d8; base PP budget 120; single target; range Melee Reach.<br>
-      PL5: base 10d8 -> Limited 40d8; base PP budget 150; single target; range Melee Reach.<br>
-      PL6: base 12d8 -> Limited 48d8; base PP budget 180; single target; range Melee Reach.<br>
-      PL7: base 14d8 -> Limited 56d8; base PP budget 210; single target; range Melee Reach.<br>
-      PL8: base 16d8 -> Limited 64d8; base PP budget 240; single target; range Melee Reach.<br>
-      PL9: base 18d8 -> Limited 72d8; base PP budget 270; single target; range Melee Reach.<br>
-      PL10: base 20d8 -> Limited 80d8; base PP budget 300; single target; range Melee Reach.<br>
-      PL11: base 22d8 -> Limited 88d8; base PP budget 330; single target; range Melee Reach.<br>
-      PL12: base 24d8 -> Limited 96d8; base PP budget 360; single target; range Melee Reach.<br>
-      PL13: base 26d8 -> Limited 104d8; base PP budget 390; single target; range Melee Reach.<br>
-      PL14: base 28d8 -> Limited 112d8; base PP budget 420; single target; range Melee Reach.<br>
-      PL15: base 30d8 -> Limited 120d8; base PP budget 450; single target; range Melee Reach.<br>
-      PL16: base 32d8 -> Limited 128d8; base PP budget 480; single target; range Melee Reach.<br>
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: forced movement 30 PP per 2m plus legal Ranged Range cost. Control-only: zero direct Attack Damage.<br>
+      L1: Range 0 + Push/Pull 2m (1 x 30) = 30/30 PP (0 unused).<br>
+      L2: Range 0 + Push/Pull 4m (2 x 30) = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Push/Pull 6m (3 x 30) = 90/90 PP (0 unused).<br>
+      L4: Range 0 + Push/Pull 8m (4 x 30) = 120/120 PP (0 unused).<br>
+      L5: Range 0 + Push/Pull 10m (5 x 30) = 150/150 PP (0 unused).<br>
+      L6: Range 0 + Push/Pull 12m (6 x 30) = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Push/Pull 14m (7 x 30) = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Push/Pull 16m (8 x 30) = 240/240 PP (0 unused).<br>
+      L9: Range 0 + Push/Pull 18m (9 x 30) = 270/270 PP (0 unused).<br>
+      L10: Range 0 + Push/Pull 20m (10 x 30) = 300/300 PP (0 unused).<br>
+      L11: Range 0 + Push/Pull 22m (11 x 30) = 330/330 PP (0 unused).<br>
+      L12: Range 0 + Push/Pull 24m (12 x 30) = 360/360 PP (0 unused).<br>
+      L13: Range 0 + Push/Pull 26m (13 x 30) = 390/390 PP (0 unused).<br>
+      L14: Range 0 + Push/Pull 28m (14 x 30) = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Push/Pull 30m (15 x 30) = 450/450 PP (0 unused).<br>
+      L16: Range 0 + Push/Pull 32m (16 x 30) = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**Requirement:** Melee Weapon or Unarmed.
-
-**Delivery:** Martial; Melee Reach. This is a distinct Power Technical Reference from `Melee Single Target Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
-
-**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
-
-**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Limited Active | Melee Reach | — | Instant | On hit, deal **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage; one target. |
-| **2** | Limited Active | Melee Reach | — | Instant | On hit, deal **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage; one target. |
-| **3** | Limited Active | Melee Reach | — | Instant | On hit, deal **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage; one target. |
-| **4** | Limited Active | Melee Reach | — | Instant | On hit, deal **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage; one target. |
-| **5** | Limited Active | Melee Reach | — | Instant | On hit, deal **40d8 Limited Power Damage** (base 10d8 x4) plus matching Weapon Damage; one target. |
-| **6** | Limited Active | Melee Reach | — | Instant | On hit, deal **48d8 Limited Power Damage** (base 12d8 x4) plus matching Weapon Damage; one target. |
-| **7** | Limited Active | Melee Reach | — | Instant | On hit, deal **56d8 Limited Power Damage** (base 14d8 x4) plus matching Weapon Damage; one target. |
-| **8** | Limited Active | Melee Reach | — | Instant | On hit, deal **64d8 Limited Power Damage** (base 16d8 x4) plus matching Weapon Damage; one target. |
-| **9** | Limited Active | Melee Reach | — | Instant | On hit, deal **72d8 Limited Power Damage** (base 18d8 x4) plus matching Weapon Damage; one target. |
-| **10** | Limited Active | Melee Reach | — | Instant | On hit, deal **80d8 Limited Power Damage** (base 20d8 x4) plus matching Weapon Damage; one target. |
-| **11** | Limited Active | Melee Reach | — | Instant | On hit, deal **88d8 Limited Power Damage** (base 22d8 x4) plus matching Weapon Damage; one target. |
-| **12** | Limited Active | Melee Reach | — | Instant | On hit, deal **96d8 Limited Power Damage** (base 24d8 x4) plus matching Weapon Damage; one target. |
-| **13** | Limited Active | Melee Reach | — | Instant | On hit, deal **104d8 Limited Power Damage** (base 26d8 x4) plus matching Weapon Damage; one target. |
-| **14** | Limited Active | Melee Reach | — | Instant | On hit, deal **112d8 Limited Power Damage** (base 28d8 x4) plus matching Weapon Damage; one target. |
-| **15** | Limited Active | Melee Reach | — | Instant | On hit, deal **120d8 Limited Power Damage** (base 30d8 x4) plus matching Weapon Damage; one target. |
-| **16** | Limited Active | Melee Reach | — | Instant | On hit, deal **128d8 Limited Power Damage** (base 32d8 x4) plus matching Weapon Damage; one target. |
+A close-range martial control technique that forces the target away from you or draws it toward you.
 
 ---
-}}
+:
+**Requirement:** Melee Weapon or Unarmed
 
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | Melee Reach | — | Instant | No direct damage. | **Push 2 m / Pull 2 m** |
+| **2** | Active | Melee Reach | — | Instant | No direct damage. | **Push 4 m / Pull 4 m** |
+| **3** | Active | Melee Reach | — | Instant | No direct damage. | **Push 6 m / Pull 6 m** |
+| **4** | Active | Melee Reach | — | Instant | No direct damage. | **Push 8 m / Pull 8 m** |
+| **5** | Active | Melee Reach | — | Instant | No direct damage. | **Push 10 m / Pull 10 m** |
+| **6** | Active | Melee Reach | — | Instant | No direct damage. | **Push 12 m / Pull 12 m** |
+| **7** | Active | Melee Reach | — | Instant | No direct damage. | **Push 14 m / Pull 14 m** |
+| **8** | Active | Melee Reach | — | Instant | No direct damage. | **Push 16 m / Pull 16 m** |
+| **9** | Active | Melee Reach | — | Instant | No direct damage. | **Push 18 m / Pull 18 m** |
+| **10** | Active | Melee Reach | — | Instant | No direct damage. | **Push 20 m / Pull 20 m** |
+| **11** | Active | Melee Reach | — | Instant | No direct damage. | **Push 22 m / Pull 22 m** |
+| **12** | Active | Melee Reach | — | Instant | No direct damage. | **Push 24 m / Pull 24 m** |
+| **13** | Active | Melee Reach | — | Instant | No direct damage. | **Push 26 m / Pull 26 m** |
+| **14** | Active | Melee Reach | — | Instant | No direct damage. | **Push 28 m / Pull 28 m** |
+| **15** | Active | Melee Reach | — | Instant | No direct damage. | **Push 30 m / Pull 30 m** |
+| **16** | Active | Melee Reach | — | Instant | No direct damage. | **Push 32 m / Pull 32 m** |
+
+---
+:
+<h3 id="ranged-push-pull">
+  Ranged Push / Pull
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: forced movement 30 PP per 2m plus legal Ranged Range cost. Control-only: zero direct Attack Damage.<br>
+      L1: Range 0 + Push/Pull 2m (1 x 30) = 30/30 PP (0 unused).<br>
+      L2: Range 5 + Push/Pull 2m (1 x 30) = 35/60 PP (25 unused).<br>
+      L3: Range 10 + Push/Pull 4m (2 x 30) = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Push/Pull 6m (3 x 30) = 105/120 PP (15 unused).<br>
+      L5: Range 20 + Push/Pull 8m (4 x 30) = 140/150 PP (10 unused).<br>
+      L6: Range 25 + Push/Pull 10m (5 x 30) = 175/180 PP (5 unused).<br>
+      L7: Range 30 + Push/Pull 12m (6 x 30) = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Push/Pull 12m (6 x 30) = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Push/Pull 14m (7 x 30) = 250/270 PP (20 unused).<br>
+      L10: Range 45 + Push/Pull 16m (8 x 30) = 285/300 PP (15 unused).<br>
+      L11: Range 50 + Push/Pull 18m (9 x 30) = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Push/Pull 20m (10 x 30) = 355/360 PP (5 unused).<br>
+      L13: Range 60 + Push/Pull 22m (11 x 30) = 390/390 PP (0 unused).<br>
+      L14: Range 65 + Push/Pull 22m (11 x 30) = 395/420 PP (25 unused).<br>
+      L15: Range 70 + Push/Pull 24m (12 x 30) = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Push/Pull 26m (13 x 30) = 465/480 PP (15 unused).<br>
+    </span>
+  </span>
+</h3>
+
+A ranged martial control technique that forces the target away from the impact point or draws it toward the source.
+
+---
+:
+**Martial Requirement:** Ranged Weapon or Thrown Weapon  
+**Spell Delivery:** The Martial weapon requirement is replaced by the normal Spell delivery rules.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Active | 8 m | — | Instant | No direct damage. | **Push 2 m / Pull 2 m** |
+| **2** | Active | 12 m | — | Instant | No direct damage. | **Push 2 m / Pull 2 m** |
+| **3** | Active | 16 m | — | Instant | No direct damage. | **Push 4 m / Pull 4 m** |
+| **4** | Active | 20 m | — | Instant | No direct damage. | **Push 6 m / Pull 6 m** |
+| **5** | Active | 24 m | — | Instant | No direct damage. | **Push 8 m / Pull 8 m** |
+| **6** | Active | 28 m | — | Instant | No direct damage. | **Push 10 m / Pull 10 m** |
+| **7** | Active | 32 m | — | Instant | No direct damage. | **Push 12 m / Pull 12 m** |
+| **8** | Active | 36 m | — | Instant | No direct damage. | **Push 12 m / Pull 12 m** |
+| **9** | Active | 40 m | — | Instant | No direct damage. | **Push 14 m / Pull 14 m** |
+| **10** | Active | 44 m | — | Instant | No direct damage. | **Push 16 m / Pull 16 m** |
+| **11** | Active | 48 m | — | Instant | No direct damage. | **Push 18 m / Pull 18 m** |
+| **12** | Active | 52 m | — | Instant | No direct damage. | **Push 20 m / Pull 20 m** |
+| **13** | Active | 56 m | — | Instant | No direct damage. | **Push 22 m / Pull 22 m** |
+| **14** | Active | 60 m | — | Instant | No direct damage. | **Push 22 m / Pull 22 m** |
+| **15** | Active | 64 m | — | Instant | No direct damage. | **Push 24 m / Pull 24 m** |
+| **16** | Active | 68 m | — | Instant | No direct damage. | **Push 26 m / Pull 26 m** |
+
+}}
 
 \page
 
 {{pageNumber,auto}}
 {{wide
-<h3 id="limited-ranged-single-target-attack">
-  Limited Ranged Single Target Attack
+## Support Actives: Cleanse & Restoration
+
+Support Actives aid eligible creatures within the printed Range or area. A single-target Support Power affects one creature; an AoE Support Power affects eligible creatures in its listed area.
+
+**Martial delivery** normally resolves the printed support effect on a willing target. The GM may call for an appropriate contest against an unwilling or actively resisting target. A **Ranged Spell Support Active** uses a Casting Roll; a willing target may suppress its Spell Resistance, while a resisting target uses its normal Final Spell TN.
+
+### Cleanse
+
+**Cleanse(X)** removes up to **X total points** of eligible negative creature Specials. For each target, assign those points across one or more of its active negative Specials. A Special ending at 0 is removed. Typical eligible effects include Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken.
+
+### Scarred-Bar Restoration
+
+**Restoration** reopens the listed number of **Scarred Health Bars at full HP**. Recover the lowest eligible Scarred Bar first (including Broken when applicable), following the Player's Guide's recovery order. Each acquired Restoration Power has **one shared recovery pool per Safe Haven Rest**; repeated uses draw from that pool until the next Safe Haven Rest. **AoE Restoration** divides that pool among eligible recipients chosen within its radius.
+
+**Ordinary HP Healing** is provided by **Resolve Ability: Healing** under the Stone Ability rules. **Damage Transfer** has its own damage-linked self-healing. **Cleanse and Restoration** are separately learned Support Actives with the effects, ranges and areas printed below.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+
+{{wide
+<h3 id="melee-single-target-restoration">
+  Melee Single Target Restoration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      LIMITED INSTANT DAMAGE ACTIVE — 2026-11-04 PLAYTEST<br>
-      Base Power: Ranged Single Target Attack<br>
-      Active budget = 30 PP x Power Level, using EXACTLY the base Power's purchased Power Damage and delivery prices.<br>
-      Limited is a separately acquired Power with normal XP cost and its own PL; the x4 output is NOT purchased as additional PP damage.<br>
-      One GLOBAL Limited use per character per Safe Haven Rest, shared by every Limited Power from all sources.<br>
-      Spend that use at declaration even if the Attack misses or Spell is resisted; one AoE spends one use, not one per creature.<br>
-      x4 affects only base printed Power Damage Dice, never Weapon Damage, Spell Focus Damage, Raise Dice, Special(X) or external bonuses.<br>
-      A regular base Power is separate and available only if separately learned/granted.<br>
-      All normal attack, casting, defense, limited delivery and Maximization timing rules remain in force.<br>
-      FULL 16-LEVEL BASE/OUTPUT AUDIT<br>
-      PL1: base 2d8 -> Limited 8d8; base PP budget 30; single target; range 8 m.<br>
-      PL2: base 3d8 -> Limited 12d8; base PP budget 60; single target; range 12 m.<br>
-      PL3: base 5d8 -> Limited 20d8; base PP budget 90; single target; range 16 m.<br>
-      PL4: base 7d8 -> Limited 28d8; base PP budget 120; single target; range 20 m.<br>
-      PL5: base 8d8 -> Limited 32d8; base PP budget 150; single target; range 24 m.<br>
-      PL6: base 10d8 -> Limited 40d8; base PP budget 180; single target; range 28 m.<br>
-      PL7: base 12d8 -> Limited 48d8; base PP budget 210; single target; range 32 m.<br>
-      PL8: base 13d8 -> Limited 52d8; base PP budget 240; single target; range 36 m.<br>
-      PL9: base 15d8 -> Limited 60d8; base PP budget 270; single target; range 40 m.<br>
-      PL10: base 17d8 -> Limited 68d8; base PP budget 300; single target; range 44 m.<br>
-      PL11: base 18d8 -> Limited 72d8; base PP budget 330; single target; range 48 m.<br>
-      PL12: base 20d8 -> Limited 80d8; base PP budget 360; single target; range 52 m.<br>
-      PL13: base 22d8 -> Limited 88d8; base PP budget 390; single target; range 56 m.<br>
-      PL14: base 23d8 -> Limited 92d8; base PP budget 420; single target; range 60 m.<br>
-      PL15: base 25d8 -> Limited 100d8; base PP budget 450; single target; range 64 m.<br>
-      PL16: base 27d8 -> Limited 108d8; base PP budget 480; single target; range 68 m.<br>
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
+      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      L1: unavailable; no purchased legal function.<br>
+      L2: Range 0 + support Radius 0 + 1 Bars x40 = 40/60 PP (20 unused).<br>
+      L3: Range 0 + support Radius 0 + 2 Bars x40 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + support Radius 0 + 3 Bars x40 = 120/120 PP (0 unused).<br>
+      L5: Range 0 + support Radius 0 + 3 Bars x40 = 120/150 PP (30 unused).<br>
+      L6: Range 0 + support Radius 0 + 4 Bars x40 = 160/180 PP (20 unused).<br>
+      L7: Range 0 + support Radius 0 + 5 Bars x40 = 200/210 PP (10 unused).<br>
+      L8: Range 0 + support Radius 0 + 6 Bars x40 = 240/240 PP (0 unused).<br>
+      L9: Range 0 + support Radius 0 + 6 Bars x40 = 240/270 PP (30 unused).<br>
+      L10: Range 0 + support Radius 0 + 7 Bars x40 = 280/300 PP (20 unused).<br>
+      L11: Range 0 + support Radius 0 + 8 Bars x40 = 320/330 PP (10 unused).<br>
+      L12: Range 0 + support Radius 0 + 9 Bars x40 = 360/360 PP (0 unused).<br>
+      L13: Range 0 + support Radius 0 + 9 Bars x40 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + support Radius 0 + 10 Bars x40 = 400/420 PP (20 unused).<br>
+      L15: Range 0 + support Radius 0 + 11 Bars x40 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + support Radius 0 + 12 Bars x40 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**Requirement:** Ranged Weapon or Thrown Weapon for Martial; legal Spell delivery requires no such weapon.
+Restore Scarred Health Bars at **full HP** to one creature within reach. The shared recovery pool refreshes at Safe Haven Rest. Available from Power Level 2.
 
-**Delivery:** Martial or Spell; Printed Range. This is a distinct Power Technical Reference from `Ranged Single Target Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Health Level Recovery Pool** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | Touch / Melee Reach | None | Instant | Available at Power Level 2. | None |
+| **2** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **1 Scarred Bar at full HP** from this Power's shared recovery pool. | Restore up to **1 Scarred Bar** per Safe Haven Rest. |
+| **3** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **2 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **2 Scarred Bars** per Safe Haven Rest. |
+| **4** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **3 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **3 Scarred Bars** per Safe Haven Rest. |
+| **5** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **3 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **3 Scarred Bars** per Safe Haven Rest. |
+| **6** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **4 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **4 Scarred Bars** per Safe Haven Rest. |
+| **7** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **5 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **5 Scarred Bars** per Safe Haven Rest. |
+| **8** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **6 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **6 Scarred Bars** per Safe Haven Rest. |
+| **9** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **6 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **6 Scarred Bars** per Safe Haven Rest. |
+| **10** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **7 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **7 Scarred Bars** per Safe Haven Rest. |
+| **11** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **8 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **8 Scarred Bars** per Safe Haven Rest. |
+| **12** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **9 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **9 Scarred Bars** per Safe Haven Rest. |
+| **13** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **9 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **9 Scarred Bars** per Safe Haven Rest. |
+| **14** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **10 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **10 Scarred Bars** per Safe Haven Rest. |
+| **15** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **11 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **11 Scarred Bars** per Safe Haven Rest. |
+| **16** | Active, Support | Touch / Melee Reach | None | Instant | Restore up to **12 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **12 Scarred Bars** per Safe Haven Rest. |
 
-**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
-
-**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Limited Active | 8 m | — | Instant | On hit, deal **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **2** | Limited Active | 12 m | — | Instant | On hit, deal **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **3** | Limited Active | 16 m | — | Instant | On hit, deal **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **4** | Limited Active | 20 m | — | Instant | On hit, deal **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **5** | Limited Active | 24 m | — | Instant | On hit, deal **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **6** | Limited Active | 28 m | — | Instant | On hit, deal **40d8 Limited Power Damage** (base 10d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **7** | Limited Active | 32 m | — | Instant | On hit, deal **48d8 Limited Power Damage** (base 12d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **8** | Limited Active | 36 m | — | Instant | On hit, deal **52d8 Limited Power Damage** (base 13d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **9** | Limited Active | 40 m | — | Instant | On hit, deal **60d8 Limited Power Damage** (base 15d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **10** | Limited Active | 44 m | — | Instant | On hit, deal **68d8 Limited Power Damage** (base 17d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **11** | Limited Active | 48 m | — | Instant | On hit, deal **72d8 Limited Power Damage** (base 18d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **12** | Limited Active | 52 m | — | Instant | On hit, deal **80d8 Limited Power Damage** (base 20d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **13** | Limited Active | 56 m | — | Instant | On hit, deal **88d8 Limited Power Damage** (base 22d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **14** | Limited Active | 60 m | — | Instant | On hit, deal **92d8 Limited Power Damage** (base 23d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **15** | Limited Active | 64 m | — | Instant | On hit, deal **100d8 Limited Power Damage** (base 25d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-| **16** | Limited Active | 68 m | — | Instant | On hit, deal **108d8 Limited Power Damage** (base 27d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell); one target. |
-
----
 }}
 
+\page
+
+{{pageNumber,auto}}
+
+{{wide
+<h3 id="ranged-single-target-restoration">
+  Ranged Single Target Restoration
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
+      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      L1: unavailable; no purchased legal function.<br>
+      L2: Range 5 + support Radius 0 + 1 Bars x40 = 45/60 PP (15 unused).<br>
+      L3: Range 10 + support Radius 0 + 2 Bars x40 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + support Radius 0 + 2 Bars x40 = 95/120 PP (25 unused).<br>
+      L5: Range 20 + support Radius 0 + 3 Bars x40 = 140/150 PP (10 unused).<br>
+      L6: Range 25 + support Radius 0 + 3 Bars x40 = 145/180 PP (35 unused).<br>
+      L7: Range 30 + support Radius 0 + 4 Bars x40 = 190/210 PP (20 unused).<br>
+      L8: Range 35 + support Radius 0 + 5 Bars x40 = 235/240 PP (5 unused).<br>
+      L9: Range 40 + support Radius 0 + 5 Bars x40 = 240/270 PP (30 unused).<br>
+      L10: Range 45 + support Radius 0 + 6 Bars x40 = 285/300 PP (15 unused).<br>
+      L11: Range 50 + support Radius 0 + 7 Bars x40 = 330/330 PP (0 unused).<br>
+      L12: Range 55 + support Radius 0 + 7 Bars x40 = 335/360 PP (25 unused).<br>
+      L13: Range 60 + support Radius 0 + 8 Bars x40 = 380/390 PP (10 unused).<br>
+      L14: Range 65 + support Radius 0 + 8 Bars x40 = 385/420 PP (35 unused).<br>
+      L15: Range 70 + support Radius 0 + 9 Bars x40 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + support Radius 0 + 10 Bars x40 = 475/480 PP (5 unused).<br>
+    </span>
+  </span>
+</h3>
+
+Restore Scarred Health Bars at **full HP** to one creature within Range. The shared recovery pool refreshes at Safe Haven Rest. Available from Power Level 2.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Health Level Recovery Pool** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | 8 m | None | Instant | Available at Power Level 2. | None |
+| **2** | Active, Support | 12 m | None | Instant | Restore up to **1 Scarred Bar at full HP** from this Power's shared recovery pool. | Restore up to **1 Scarred Bar** per Safe Haven Rest. |
+| **3** | Active, Support | 16 m | None | Instant | Restore up to **2 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **2 Scarred Bars** per Safe Haven Rest. |
+| **4** | Active, Support | 20 m | None | Instant | Restore up to **2 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **2 Scarred Bars** per Safe Haven Rest. |
+| **5** | Active, Support | 24 m | None | Instant | Restore up to **3 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **3 Scarred Bars** per Safe Haven Rest. |
+| **6** | Active, Support | 28 m | None | Instant | Restore up to **3 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **3 Scarred Bars** per Safe Haven Rest. |
+| **7** | Active, Support | 32 m | None | Instant | Restore up to **4 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **4 Scarred Bars** per Safe Haven Rest. |
+| **8** | Active, Support | 36 m | None | Instant | Restore up to **5 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **5 Scarred Bars** per Safe Haven Rest. |
+| **9** | Active, Support | 40 m | None | Instant | Restore up to **5 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **5 Scarred Bars** per Safe Haven Rest. |
+| **10** | Active, Support | 44 m | None | Instant | Restore up to **6 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **6 Scarred Bars** per Safe Haven Rest. |
+| **11** | Active, Support | 48 m | None | Instant | Restore up to **7 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **7 Scarred Bars** per Safe Haven Rest. |
+| **12** | Active, Support | 52 m | None | Instant | Restore up to **7 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **7 Scarred Bars** per Safe Haven Rest. |
+| **13** | Active, Support | 56 m | None | Instant | Restore up to **8 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **8 Scarred Bars** per Safe Haven Rest. |
+| **14** | Active, Support | 60 m | None | Instant | Restore up to **8 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **8 Scarred Bars** per Safe Haven Rest. |
+| **15** | Active, Support | 64 m | None | Instant | Restore up to **9 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **9 Scarred Bars** per Safe Haven Rest. |
+| **16** | Active, Support | 68 m | None | Instant | Restore up to **10 Scarred Bars at full HP** from this Power's shared recovery pool. | Restore up to **10 Scarred Bars** per Safe Haven Rest. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+
+{{wide
+<h3 id="melee-aoe-restoration">
+  Melee AoE Restoration
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
+      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      L1: unavailable; no purchased legal function.<br>
+      L2: Range 0 + support Radius 20 + 1 Bars x40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + support Radius 20 + 1 Bars x40 = 60/90 PP (30 unused).<br>
+      L4: Range 0 + support Radius 20 + 2 Bars x40 = 100/120 PP (20 unused).<br>
+      L5: Range 0 + support Radius 20 + 3 Bars x40 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + support Radius 50 + 3 Bars x40 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + support Radius 50 + 4 Bars x40 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + support Radius 50 + 4 Bars x40 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + support Radius 90 + 4 Bars x40 = 250/270 PP (20 unused).<br>
+      L10: Range 0 + support Radius 90 + 5 Bars x40 = 290/300 PP (10 unused).<br>
+      L11: Range 0 + support Radius 90 + 6 Bars x40 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + support Radius 90 + 6 Bars x40 = 330/360 PP (30 unused).<br>
+      L13: Range 0 + support Radius 90 + 7 Bars x40 = 370/390 PP (20 unused).<br>
+      L14: Range 0 + support Radius 90 + 8 Bars x40 = 410/420 PP (10 unused).<br>
+      L15: Range 0 + support Radius 90 + 9 Bars x40 = 450/450 PP (0 unused).<br>
+      L16: Range 0 + support Radius 90 + 9 Bars x40 = 450/480 PP (30 unused).<br>
+    </span>
+  </span>
+</h3>
+
+Choose eligible creatures in the radius around you, including yourself. Spend **one Attack Action** to restore Scarred Health Bars at **full HP**, distributing the recovered Bars among the chosen recipients. Use **one shared recovery pool per acquired Power**, refreshed at a Safe Haven Rest. Each restored Bar spends one point from that pool. You may use remaining points in a later Round, following the normal Active Power use rules.
+
+The Restoration Power starts at **PL 2**. The size of its shared pool and the area it covers are given below.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Scarred-Bar Recovery Pool** |
+|:--:|:--|:--:|:--:|:--:|:--|:--:|
+| **1** | Unavailable | Self | -- | -- | Available at Power Level 2. | -- |
+| **2** | Active, Support | Self | Radius 2 m | Instant | Distribute up to **1 Scarred Bar at full HP** among eligible creatures. | **1 Bar** / Safe Haven Rest |
+| **3** | Active, Support | Self | Radius 2 m | Instant | Distribute up to **1 Scarred Bar at full HP** among eligible creatures. | **1 Bar** / Safe Haven Rest |
+| **4** | Active, Support | Self | Radius 2 m | Instant | Distribute up to **2 Scarred Bars at full HP** among eligible creatures. | **2 Bars** / Safe Haven Rest |
+| **5** | Active, Support | Self | Radius 2 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
+| **6** | Active, Support | Self | Radius 3 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
+| **7** | Active, Support | Self | Radius 3 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
+| **8** | Active, Support | Self | Radius 3 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
+| **9** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
+| **10** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **5 Scarred Bars at full HP** among eligible creatures. | **5 Bars** / Safe Haven Rest |
+| **11** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
+| **12** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
+| **13** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
+| **14** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **8 Scarred Bars at full HP** among eligible creatures. | **8 Bars** / Safe Haven Rest |
+| **15** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **9 Scarred Bars at full HP** among eligible creatures. | **9 Bars** / Safe Haven Rest |
+| **16** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **9 Scarred Bars at full HP** among eligible creatures. | **9 Bars** / Safe Haven Rest |
+
+}}
 
 \page
 
 {{pageNumber,auto}}
 {{wide
-<h3 id="limited-melee-aoe-attack">
-  Limited Melee AoE Attack
+<h3 id="ranged-aoe-restoration">
+  Ranged AoE Restoration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      LIMITED INSTANT DAMAGE ACTIVE — 2026-11-04 PLAYTEST<br>
-      Base Power: Melee Aoe Attack<br>
-      Active budget = 30 PP x Power Level, using EXACTLY the base Power's purchased Power Damage and delivery prices.<br>
-      Limited is a separately acquired Power with normal XP cost and its own PL; the x4 output is NOT purchased as additional PP damage.<br>
-      One GLOBAL Limited use per character per Safe Haven Rest, shared by every Limited Power from all sources.<br>
-      Spend that use at declaration even if the Attack misses or Spell is resisted; one AoE spends one use, not one per creature.<br>
-      x4 affects only base printed Power Damage Dice, never Weapon Damage, Spell Focus Damage, Raise Dice, Special(X) or external bonuses.<br>
-      A regular base Power is separate and available only if separately learned/granted.<br>
-      All normal attack, casting, defense, limited delivery and Maximization timing rules remain in force.<br>
-      FULL 16-LEVEL BASE/OUTPUT AUDIT<br>
-      PL1: base 1d8 -> Limited 4d8; base PP budget 30; radius Radius 2 m; range Self.<br>
-      PL2: base 2d8 -> Limited 8d8; base PP budget 60; radius Radius 2 m; range Self.<br>
-      PL3: base 2d8 -> Limited 8d8; base PP budget 90; radius Radius 3 m; range Self.<br>
-      PL4: base 4d8 -> Limited 16d8; base PP budget 120; radius Radius 3 m; range Self.<br>
-      PL5: base 4d8 -> Limited 16d8; base PP budget 150; radius Radius 4 m; range Self.<br>
-      PL6: base 6d8 -> Limited 24d8; base PP budget 180; radius Radius 4 m; range Self.<br>
-      PL7: base 6d8 -> Limited 24d8; base PP budget 210; radius Radius 5 m; range Self.<br>
-      PL8: base 7d8 -> Limited 28d8; base PP budget 240; radius Radius 5 m; range Self.<br>
-      PL9: base 7d8 -> Limited 28d8; base PP budget 270; radius Radius 6 m; range Self.<br>
-      PL10: base 7d8 -> Limited 28d8; base PP budget 300; radius Radius 6 m; range Self.<br>
-      PL11: base 7d8 -> Limited 28d8; base PP budget 330; radius Radius 7 m; range Self.<br>
-      PL12: base 7d8 -> Limited 28d8; base PP budget 360; radius Radius 7 m; range Self.<br>
-      PL13: base 7d8 -> Limited 28d8; base PP budget 390; radius Radius 8 m; range Self.<br>
-      PL14: base 9d8 -> Limited 36d8; base PP budget 420; radius Radius 8 m; range Self.<br>
-      PL15: base 11d8 -> Limited 44d8; base PP budget 450; radius Radius 8 m; range Self.<br>
-      PL16: base 13d8 -> Limited 52d8; base PP budget 480; radius Radius 8 m; range Self.<br>
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
+      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      L1: unavailable; no purchased legal function.<br>
+      L2: unavailable; no purchased legal function.<br>
+      L3: Range 10 + support Radius 20 + 1 Bars x40 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + support Radius 20 + 2 Bars x40 = 115/120 PP (5 unused).<br>
+      L5: Range 20 + support Radius 20 + 2 Bars x40 = 120/150 PP (30 unused).<br>
+      L6: Range 25 + support Radius 50 + 2 Bars x40 = 155/180 PP (25 unused).<br>
+      L7: Range 30 + support Radius 50 + 3 Bars x40 = 200/210 PP (10 unused).<br>
+      L8: Range 35 + support Radius 50 + 3 Bars x40 = 205/240 PP (35 unused).<br>
+      L9: Range 40 + support Radius 90 + 3 Bars x40 = 250/270 PP (20 unused).<br>
+      L10: Range 45 + support Radius 90 + 4 Bars x40 = 295/300 PP (5 unused).<br>
+      L11: Range 50 + support Radius 90 + 4 Bars x40 = 300/330 PP (30 unused).<br>
+      L12: Range 55 + support Radius 90 + 5 Bars x40 = 345/360 PP (15 unused).<br>
+      L13: Range 60 + support Radius 90 + 6 Bars x40 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + support Radius 90 + 6 Bars x40 = 395/420 PP (25 unused).<br>
+      L15: Range 70 + support Radius 90 + 7 Bars x40 = 440/450 PP (10 unused).<br>
+      L16: Range 75 + support Radius 90 + 7 Bars x40 = 445/480 PP (35 unused).<br>
     </span>
   </span>
 </h3>
 
-**Requirement:** Melee Weapon or Unarmed.
+Choose a point within the printed Range and eligible creatures in its Radius. Spend **one Attack Action** to reopen Scarred Health Bars **at full HP**, distributing the restored Bars among those recipients. Each activation uses the remaining **shared recovery pool per acquired Power**, refreshed at Safe Haven Rest. A later use may spend any points still available.
 
-**Delivery:** Martial; Self-centered. This is a distinct Power Technical Reference from `Melee Aoe Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+Use normal **Ranged Support delivery**: Martial when applicable, or Spell with a Casting Roll and the usual support-target rules.
 
-**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
+This Power is available from **PL 3**. The radius, range and shared recovery pool scale as follows.
 
-**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Scarred-Bar Recovery Pool** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | — | — | — | Available at Power Level 3. | — |
+| **2** | Unavailable | — | — | — | Available at Power Level 3. | — |
+| **3** | Active, Support | 16 m | Radius 2 m | Instant | Distribute up to **1 Scarred Bar at full HP** among eligible creatures. | **1 Bar** / Safe Haven Rest |
+| **4** | Active, Support | 20 m | Radius 2 m | Instant | Distribute up to **2 Scarred Bars at full HP** among eligible creatures. | **2 Bars** / Safe Haven Rest |
+| **5** | Active, Support | 24 m | Radius 2 m | Instant | Distribute up to **2 Scarred Bars at full HP** among eligible creatures. | **2 Bars** / Safe Haven Rest |
+| **6** | Active, Support | 28 m | Radius 3 m | Instant | Distribute up to **2 Scarred Bars at full HP** among eligible creatures. | **2 Bars** / Safe Haven Rest |
+| **7** | Active, Support | 32 m | Radius 3 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
+| **8** | Active, Support | 36 m | Radius 3 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
+| **9** | Active, Support | 40 m | Radius 4 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
+| **10** | Active, Support | 44 m | Radius 4 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
+| **11** | Active, Support | 48 m | Radius 4 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
+| **12** | Active, Support | 52 m | Radius 4 m | Instant | Distribute up to **5 Scarred Bars at full HP** among eligible creatures. | **5 Bars** / Safe Haven Rest |
+| **13** | Active, Support | 56 m | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
+| **14** | Active, Support | 60 m | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
+| **15** | Active, Support | 64 m | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
+| **16** | Active, Support | 68 m | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
 
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **4d8 Limited Power Damage** (base 1d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **2** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **3** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **4** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **5** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **6** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **7** | Limited Active | Self | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **8** | Limited Active | Self | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **9** | Limited Active | Self | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **10** | Limited Active | Self | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **11** | Limited Active | Self | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **12** | Limited Active | Self | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **13** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **14** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **36d8 Limited Power Damage** (base 9d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **15** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **44d8 Limited Power Damage** (base 11d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **16** | Limited Active | Self | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **52d8 Limited Power Damage** (base 13d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-
----
 }}
-
 
 \page
 
 {{pageNumber,auto}}
 {{wide
-<h3 id="limited-ranged-aoe-attack">
-  Limited Ranged AoE Attack
+
+## Cleanse Actives
+
+---
+{{wide
+<h3 id="melee-single-target-cleanse">
+  Melee Single Target Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      LIMITED INSTANT DAMAGE ACTIVE — 2026-11-04 PLAYTEST<br>
-      Base Power: Ranged Aoe Attack<br>
-      Active budget = 30 PP x Power Level, using EXACTLY the base Power's purchased Power Damage and delivery prices.<br>
-      Limited is a separately acquired Power with normal XP cost and its own PL; the x4 output is NOT purchased as additional PP damage.<br>
-      One GLOBAL Limited use per character per Safe Haven Rest, shared by every Limited Power from all sources.<br>
-      Spend that use at declaration even if the Attack misses or Spell is resisted; one AoE spends one use, not one per creature.<br>
-      x4 affects only base printed Power Damage Dice, never Weapon Damage, Spell Focus Damage, Raise Dice, Special(X) or external bonuses.<br>
-      A regular base Power is separate and available only if separately learned/granted.<br>
-      All normal attack, casting, defense, limited delivery and Maximization timing rules remain in force.<br>
-      FULL 16-LEVEL BASE/OUTPUT AUDIT<br>
-      PL1: base 1d8 -> Limited 4d8; base PP budget 30; radius Radius 2 m; range 8 m.<br>
-      PL2: base 2d8 -> Limited 8d8; base PP budget 60; radius Radius 2 m; range 12 m.<br>
-      PL3: base 2d8 -> Limited 8d8; base PP budget 90; radius Radius 3 m; range 16 m.<br>
-      PL4: base 3d8 -> Limited 12d8; base PP budget 120; radius Radius 3 m; range 20 m.<br>
-      PL5: base 3d8 -> Limited 12d8; base PP budget 150; radius Radius 4 m; range 24 m.<br>
-      PL6: base 4d8 -> Limited 16d8; base PP budget 180; radius Radius 4 m; range 28 m.<br>
-      PL7: base 4d8 -> Limited 16d8; base PP budget 210; radius Radius 5 m; range 32 m.<br>
-      PL8: base 4d8 -> Limited 16d8; base PP budget 240; radius Radius 5 m; range 36 m.<br>
-      PL9: base 4d8 -> Limited 16d8; base PP budget 270; radius Radius 6 m; range 40 m.<br>
-      PL10: base 4d8 -> Limited 16d8; base PP budget 300; radius Radius 6 m; range 44 m.<br>
-      PL11: base 4d8 -> Limited 16d8; base PP budget 330; radius Radius 7 m; range 48 m.<br>
-      PL12: base 5d8 -> Limited 20d8; base PP budget 360; radius Radius 7 m; range 52 m.<br>
-      PL13: base 5d8 -> Limited 20d8; base PP budget 390; radius Radius 7 m; range 56 m.<br>
-      PL14: base 5d8 -> Limited 20d8; base PP budget 420; radius Radius 8 m; range 60 m.<br>
-      PL15: base 6d8 -> Limited 24d8; base PP budget 450; radius Radius 8 m; range 64 m.<br>
-      PL16: base 8d8 -> Limited 32d8; base PP budget 480; radius Radius 8 m; range 68 m.<br>
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
+      L1: Range 0 + Area 0 + Cleanse(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 0 + Cleanse(5) 60 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 0 + Cleanse(6) 84 = 84/90 PP (6 unused).<br>
+      L4: Range 0 + Area 0 + Cleanse(7) 112 = 112/120 PP (8 unused).<br>
+      L5: Range 0 + Area 0 + Cleanse(8) 144 = 144/150 PP (6 unused).<br>
+      L6: Range 0 + Area 0 + Cleanse(9) 180 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + Area 0 + Cleanse(9) 180 = 180/210 PP (30 unused).<br>
+      L8: Range 0 + Area 0 + Cleanse(10) 220 = 220/240 PP (20 unused).<br>
+      L9: Range 0 + Area 0 + Cleanse(11) 264 = 264/270 PP (6 unused).<br>
+      L10: Range 0 + Area 0 + Cleanse(11) 264 = 264/300 PP (36 unused).<br>
+      L11: Range 0 + Area 0 + Cleanse(12) 312 = 312/330 PP (18 unused).<br>
+      L12: Range 0 + Area 0 + Cleanse(12) 312 = 312/360 PP (48 unused).<br>
+      L13: Range 0 + Area 0 + Cleanse(13) 364 = 364/390 PP (26 unused).<br>
+      L14: Range 0 + Area 0 + Cleanse(14) 420 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + Area 0 + Cleanse(14) 420 = 420/450 PP (30 unused).<br>
+      L16: Range 0 + Area 0 + Cleanse(15) 480 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
 
-**Requirement:** Ranged Weapon or Thrown Weapon for Martial; legal Spell delivery requires no such weapon.
+A close-range support Active that removes negative Special value from one creature you can touch or reach.
 
-**Delivery:** Martial or Spell; Target point in printed Range. This is a distinct Power Technical Reference from `Ranged Aoe Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
-
-**Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
-
-**Shared resource:** Regardless of the number or sources of Limited Powers owned, each character has **one global Limited charge**. Using any Limited Power spends it for all Limited Powers until the next Safe Haven Rest. The charge is spent on declaration, even on miss/resistance. An Artifact-granted Limited attack also uses this same charge. Learning a Limited Power never grants its normal version.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Limited Active | 8 m | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **4d8 Limited Power Damage** (base 1d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **2** | Limited Active | 12 m | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **3** | Limited Active | 16 m | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **4** | Limited Active | 20 m | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **5** | Limited Active | 24 m | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **6** | Limited Active | 28 m | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **7** | Limited Active | 32 m | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **8** | Limited Active | 36 m | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **9** | Limited Active | 40 m | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **10** | Limited Active | 44 m | Radius 6 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **11** | Limited Active | 48 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **12** | Limited Active | 52 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **13** | Limited Active | 56 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **14** | Limited Active | 60 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **15** | Limited Active | 64 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **16** | Limited Active | 68 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **1** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
+| **2** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
+| **3** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
+| **4** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
+| **5** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
+| **6** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **7** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **8** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
+| **9** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **10** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **11** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **12** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **13** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
+| **14** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
+| **15** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
+| **16** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(15)** total negative Special value from one creature. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+
+{{wide
+<h3 id="ranged-single-target-cleanse">
+  Ranged Single Target Cleanse
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
+      L1: Range 0 + Area 0 + Cleanse(3) 24 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 0 + Cleanse(4) 40 = 45/60 PP (15 unused).<br>
+      L3: Range 10 + Area 0 + Cleanse(5) 60 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Area 0 + Cleanse(6) 84 = 99/120 PP (21 unused).<br>
+      L5: Range 20 + Area 0 + Cleanse(7) 112 = 132/150 PP (18 unused).<br>
+      L6: Range 25 + Area 0 + Cleanse(8) 144 = 169/180 PP (11 unused).<br>
+      L7: Range 30 + Area 0 + Cleanse(9) 180 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + Area 0 + Cleanse(9) 180 = 215/240 PP (25 unused).<br>
+      L9: Range 40 + Area 0 + Cleanse(10) 220 = 260/270 PP (10 unused).<br>
+      L10: Range 45 + Area 0 + Cleanse(10) 220 = 265/300 PP (35 unused).<br>
+      L11: Range 50 + Area 0 + Cleanse(11) 264 = 314/330 PP (16 unused).<br>
+      L12: Range 55 + Area 0 + Cleanse(11) 264 = 319/360 PP (41 unused).<br>
+      L13: Range 60 + Area 0 + Cleanse(12) 312 = 372/390 PP (18 unused).<br>
+      L14: Range 65 + Area 0 + Cleanse(12) 312 = 377/420 PP (43 unused).<br>
+      L15: Range 70 + Area 0 + Cleanse(13) 364 = 434/450 PP (16 unused).<br>
+      L16: Range 75 + Area 0 + Cleanse(13) 364 = 439/480 PP (41 unused).<br>
+    </span>
+  </span>
+</h3>
+
+A ranged support Active that removes negative Special value from one creature within range.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active, Support | 8 m | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
+| **2** | Active, Support | 12 m | None | Instant | Remove up to **Cleanse(4)** total negative Special value from one creature. |
+| **3** | Active, Support | 16 m | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
+| **4** | Active, Support | 20 m | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
+| **5** | Active, Support | 24 m | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
+| **6** | Active, Support | 28 m | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
+| **7** | Active, Support | 32 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **8** | Active, Support | 36 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **9** | Active, Support | 40 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
+| **10** | Active, Support | 44 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
+| **11** | Active, Support | 48 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **12** | Active, Support | 52 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **13** | Active, Support | 56 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **14** | Active, Support | 60 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **15** | Active, Support | 64 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
+| **16** | Active, Support | 68 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+
+{{wide
+<h3 id="melee-aoe-cleanse">
+  Melee AoE Cleanse
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
+      L1: Range 0 + Area 20 + Cleanse(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 0 + Area 20 + Cleanse(4) 40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Area 20 + Cleanse(5) 60 = 80/90 PP (10 unused).<br>
+      L4: Range 0 + Area 20 + Cleanse(6) 84 = 104/120 PP (16 unused).<br>
+      L5: Range 0 + Area 50 + Cleanse(6) 84 = 134/150 PP (16 unused).<br>
+      L6: Range 0 + Area 50 + Cleanse(7) 112 = 162/180 PP (18 unused).<br>
+      L7: Range 0 + Area 50 + Cleanse(8) 144 = 194/210 PP (16 unused).<br>
+      L8: Range 0 + Area 80 + Cleanse(8) 144 = 224/240 PP (16 unused).<br>
+      L9: Range 0 + Area 80 + Cleanse(9) 180 = 260/270 PP (10 unused).<br>
+      L10: Range 0 + Area 80 + Cleanse(9) 180 = 260/300 PP (40 unused).<br>
+      L11: Range 0 + Area 80 + Cleanse(10) 220 = 300/330 PP (30 unused).<br>
+      L12: Range 0 + Area 80 + Cleanse(11) 264 = 344/360 PP (16 unused).<br>
+      L13: Range 0 + Area 80 + Cleanse(11) 264 = 344/390 PP (46 unused).<br>
+      L14: Range 0 + Area 120 + Cleanse(11) 264 = 384/420 PP (36 unused).<br>
+      L15: Range 0 + Area 120 + Cleanse(11) 264 = 384/450 PP (66 unused).<br>
+      L16: Range 0 + Area 120 + Cleanse(12) 312 = 432/480 PP (48 unused).<br>
+    </span>
+  </span>
+</h3>
+
+A self-centered support Active that removes negative Special value from affected creatures.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
+| **2** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(4)** total negative Special value from each affected creature. |
+| **3** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
+| **4** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **5** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **6** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
+| **7** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **8** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **9** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **10** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **11** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **12** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **13** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **14** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **15** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **16** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(12)** total negative Special value from each affected creature. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+
+{{wide
+<h3 id="ranged-aoe-cleanse">
+  Ranged AoE Cleanse
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
+      L1: Range 0 + Area 20 + Cleanse(1) 4 = 24/30 PP (6 unused).<br>
+      L2: Range 5 + Area 20 + Cleanse(3) 24 = 49/60 PP (11 unused).<br>
+      L3: Range 10 + Area 20 + Cleanse(5) 60 = 90/90 PP (0 unused).<br>
+      L4: Range 15 + Area 20 + Cleanse(6) 84 = 119/120 PP (1 unused).<br>
+      L5: Range 20 + Area 20 + Cleanse(6) 84 = 124/150 PP (26 unused).<br>
+      L6: Range 25 + Area 20 + Cleanse(7) 112 = 157/180 PP (23 unused).<br>
+      L7: Range 30 + Area 20 + Cleanse(8) 144 = 194/210 PP (16 unused).<br>
+      L8: Range 35 + Area 50 + Cleanse(8) 144 = 229/240 PP (11 unused).<br>
+      L9: Range 40 + Area 50 + Cleanse(9) 180 = 270/270 PP (0 unused).<br>
+      L10: Range 45 + Area 50 + Cleanse(9) 180 = 275/300 PP (25 unused).<br>
+      L11: Range 50 + Area 50 + Cleanse(10) 220 = 320/330 PP (10 unused).<br>
+      L12: Range 55 + Area 50 + Cleanse(10) 220 = 325/360 PP (35 unused).<br>
+      L13: Range 60 + Area 80 + Cleanse(10) 220 = 360/390 PP (30 unused).<br>
+      L14: Range 65 + Area 80 + Cleanse(11) 264 = 409/420 PP (11 unused).<br>
+      L15: Range 70 + Area 80 + Cleanse(11) 264 = 414/450 PP (36 unused).<br>
+      L16: Range 75 + Area 120 + Cleanse(11) 264 = 459/480 PP (21 unused).<br>
+    </span>
+  </span>
+</h3>
+
+A ranged area support Active that removes negative Special value from affected creatures.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active, Support | 8 m | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
+| **2** | Active, Support | 12 m | Radius 2 m | Instant | Remove up to **Cleanse(3)** total negative Special value from each affected creature. |
+| **3** | Active, Support | 16 m | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
+| **4** | Active, Support | 20 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **5** | Active, Support | 24 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **6** | Active, Support | 28 m | Radius 2 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
+| **7** | Active, Support | 32 m | Radius 2 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **8** | Active, Support | 36 m | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **9** | Active, Support | 40 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **10** | Active, Support | 44 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **11** | Active, Support | 48 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **12** | Active, Support | 52 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **13** | Active, Support | 56 m | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **14** | Active, Support | 60 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **15** | Active, Support | 64 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **16** | Active, Support | 68 m | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+## Mental Powers
+
+Mental Powers affect perception, thought, memory or a creature's mind:
+
+- **Mind Illusion** changes the perceptions of affected creatures.
+- **Mind Probe** reads information held in a target's mind.
+- **Mental Control** gives temporary noncombat instructions to weaker creatures.
+
+### Telepathic Access
+
+Mind Illusion, Mind Probe and Mental Control require **Telepathic Access**. Access may come from a slotted **Passive: Telepathy**, a willing Mind Link, an existing Mental effect on the target, or an explicit Power rule. Use the relevant Power's printed targets and Range. The Mental Power's **Power Level may be no higher than Passive: Telepathy's Power Level** unless a more specific rule applies.
+
+### Mental Power Resolution
+
+Roll the normal **Spell Casting Pool**. Mental Powers use a Base TN **4 higher** than an ordinary Spell of the **Power Level actually used**:
+
+**Mental Power Base TN = (used PL × 4) + 4**
+
+**Final Mental Power TN = Mental Power Base TN + target's applicable Spell Resistance**
+
+For several targets, make one Casting Roll and compare the result against each target's Final Mental Power TN. A willing target may waive its Spell Resistance, leaving the Base TN unchanged.
+
+A roll below Base TN fizzles. A roll reaching Base TN but falling short of a target's Final TN is resisted by that target. A roll reaching its Final TN applies the listed effect. The affected creature makes an additional check only when that Power provides a later disbelief, break or intrusion response. Ordinary Armor and Evade are not Mental Power defenses.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+## Mind Illusions
+
+A **Mind Illusion** places false perceptions inside one or more creatures' minds. Use **Telepathic Access**, the normal Mental Power Casting Roll and each target's **Final Mental Power TN**.
+
+A successful application changes only what that creature perceives. Affected creatures choose how to react to what they believe is real. The Power's Level table specifies its eligible targets, duration and sensory complexity.
+
+### Recognizing and Breaking a Mind Illusion
+
+A creature that spends **one Attack Action** to inspect the illusion, interacts with something inconsistent, or observes clear contradictory evidence may make a **Wits Attribute Check** against the **original Final Mental Power TN** of the application. A Power explicitly focused on analysis or memory may specify **Intellect** instead. On success, the illusion ends for that creature. It also ends at its normal Duration or another explicit break condition.
+
+Mind Illusions remain mental perceptions; physical terrain, other creatures and independently acting targets continue to follow their actual rules.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+<h3 id="mind-illusion">
+  Mind Illusion
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Dedicated qualitative Mental Power; original source states fixed per-Level milestones and telepathic prerequisites. There is no general PP-per-sense, PP-per-memory or PP-per-control formula in the supplied agent.md.<br>
+      NO AUTOMATIC RECALCULATION. Review level semantics, access, limits, and test behavior against current Core.<br>
+    </span>
+  </span>
+</h3>
+
+A mental illusion that creates false perceptions inside affected creatures' minds.
+
+| **Level** | **Type** | **Range** | **Targets** | **Senses / Complexity** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--|:--:|:--|
+| **1** | Active, Mental | Telepathic Access | 1 creature | 1 simple sense | MR rounds | Create a minor false perception, such as a whisper, flicker, smell, touch, or brief image. |
+| **2** | Active, Mental | Telepathic Access | 1 creature | 1 clear sense | MR rounds | Create a clear false sensory detail in one sense. |
+| **3** | Active, Mental | Telepathic Access | 1 creature | 2 simple senses | MR rounds | Combine two simple sensory details, such as image and sound. |
+| **4** | Active, Mental | Telepathic Access | 1 creature | 2 clear senses | MR rounds | Create a believable personal illusion affecting two senses. |
+| **5** | Active, Mental | Telepathic Access | 2 creatures | 2 clear senses | MR rounds | Affect two creatures with the same personal illusion. |
+| **6** | Active, Mental | Telepathic Access | 2 creatures | 3 senses | MR rounds | Create a more complete false perception affecting three senses. |
+| **7** | Active, Mental | Telepathic Access | 2 creatures | 3 senses, moving illusion | MR rounds | The illusion may move naturally inside the target's perception. |
+| **8** | Active, Mental | Telepathic Access | 3 creatures | 3 senses, reactive illusion | MR rounds | The illusion may react in simple ways to the target's movement or attention. |
+| **9** | Active, Mental | Telepathic Access | 3 creatures | 4 senses | MR rounds | Create a strong false perception affecting four senses. |
+| **10** | Active, Mental | Telepathic Access | 3 creatures | 4 senses, detailed illusion | MR rounds | The illusion may contain detailed features, such as a creature, object, voice, or false threat. |
+| **11** | Active, Mental | Telepathic Access | 4 creatures | 4 senses, reactive illusion | MR rounds | Affect up to four creatures with a shared but personal mental illusion. |
+| **12** | Active, Mental | Telepathic Access | 4 creatures | 5 senses | MR rounds | Create a nearly complete sensory illusion inside each target's mind. |
+| **13** | Active, Mental | Telepathic Access | 5 creatures | 5 senses, detailed moving illusion | MR rounds | The illusion may appear complex, moving, and emotionally convincing. |
+| **14** | Active, Mental | Telepathic Access | 5 creatures | 5 senses, reactive false scene | MR rounds | Create a false scene inside the targets' perception. It still has no real battlefield presence. |
+| **15** | Active, Mental | Telepathic Access | MR + 2 creatures | all normal senses | MR rounds | Affect all normal senses with a convincing personal illusion. |
+| **16** | Active, Mental | Telepathic Access | MR + 3 creatures | all normal senses, complex reactive illusion | MR rounds | Create a complex shared mental illusion for affected creatures. It remains mental only and cannot control actions directly. |
 
 ---
 }}
 
+\page
+
+{{pageNumber,auto}}
+{{wide
+## Mind Probe
+
+Mind Probe searches a creature's active thoughts and memories.
+
+Mind Probe requires Telepathic Access unless the Power explicitly says otherwise.
+
+Mind Probe uses the normal **Final Mental Power TN**.
+
+On a success, learn only the information allowed by the Power's current level.
+
+Mind Probe returns information as the target understands or remembers it. A false belief, incomplete memory, or mistaken conclusion remains false, incomplete, or mistaken when read.
+
+Mind Probe reveals information as it exists in the target's memory and understanding.
+
+An unwilling target knows that its mind was probed after the Power resolves, but it does not automatically know exactly what was learned.
+
+Mind Probe searches the mind. Use other Mental Powers for altered perception or control.
+
+---
+
+<h3 id="mind-probe">
+  Mind Probe
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Dedicated qualitative Mental Power; original source states fixed per-Level milestones and telepathic prerequisites. There is no general PP-per-sense, PP-per-memory or PP-per-control formula in the supplied agent.md.<br>
+      NO AUTOMATIC RECALCULATION. Review level semantics, access, limits, and test behavior against current Core.<br>
+    </span>
+  </span>
+</h3>
+
+A direct mental search that extracts one thought, fact, intention, or memory from a creature.
+
+| **Level** | **Type** | **Range** | **Targets** | **Duration** | **Information Access** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn the target's current dominant emotion. |
+| **2** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one dominant surface thought currently passing through the target's mind. |
+| **3** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn the target's immediate intention or next intended non-reflexive action. |
+| **4** | Active, Mental | Telepathic Access | 1 creature | Instant | Learn one simple fact currently held in the target's active memory. |
+| **5** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one sensory memory from approximately the last minute. |
+| **6** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one event memory from approximately the last hour. |
+| **7** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last day. |
+| **8** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last 7 Tyhran Days. |
+| **9** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last 44 Tyhran Days. |
+| **10** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one named memory from approximately the last year. |
+| **11** | Active, Mental | Telepathic Access | 1 creature | Instant | Read one accessible named memory from any point in the target's life. |
+| **12** | Active, Mental | Telepathic Access | 1 creature | Instant | Follow one connected memory chain and learn up to **MR linked facts** about one named person, place, object, or event. |
+| **13** | Active, Mental | Telepathic Access | 1 creature | Instant | Recover one fragmented or partially forgotten memory as the target's mind still retains it. |
+| **14** | Active, Mental | Telepathic Access | 1 creature | Instant | Reach one deliberately suppressed or deeply buried memory. |
+| **15** | Active, Mental | Telepathic Access | 1 creature | Instant | Reach one memory protected by a Mental Power, ward, or seal of a lower Power Level. Equal- or higher-level protection still blocks the probe. |
+| **16** | Active, Mental | Telepathic Access | 1 creature | Instant | Reconstruct one complete remembered sequence around a named event, including connected sensory details, emotions, and up to **MR linked facts**. |
+
+---
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+### Mind Probe: Scope
+
+Mind Probe reveals **thoughts or memories the target actually possesses**, within the depth and timeframe shown by its Power Level. A false belief remains a false belief when read; deleted or absent information cannot be recovered by ordinary probing.
+
+A willing creature may share information through Telepathy. **Mind Probe** is the dedicated Power for actively searching another creature's thoughts or memories.
+
+## Mental Control
+
+**Mental Control** imposes the listed temporary **noncombat task, attitude, belief or behavioral program** on a creature whose **Mastery Rank is strictly lower** than the user's. Use Telepathic Access and the normal Mental Power Casting Roll.
+
+Control takes place **outside Combat**. If an affected creature becomes a Combat participant, the control ends before its first combat action.
+
+<h3 id="mental-control">Mental Control
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Dedicated qualitative Mental Power; original source states fixed per-Level milestones and telepathic prerequisites. There is no general PP-per-sense, PP-per-memory or PP-per-control formula in the supplied agent.md.<br>
+      NO AUTOMATIC RECALCULATION. Review level semantics, access, limits, and test behavior against current Core.<br>
+    </span>
+  </span>
+</h3>
+
+Choose a believable noncombat instruction matching the Power's current Level; consult the following table for eligible targets, complexity and Duration.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+| **Level** | **Type** | **Targets** | **Duration** | **Control Scope** |
+|:--:|:--|:--:|:--:|:--|
+| **1** | Active, Mental, Noncombat | 1 creature | 1 Tyhran Minute | Impose one immediate, simple, non-harmful instruction. |
+| **2** | Active, Mental, Noncombat | 1 creature | 10 Tyhran Minutes | Impose one simple task that can be completed without complex judgment. |
+| **3** | Active, Mental, Noncombat | 1 creature | 1 Tyhran Hour | Impose one simple task with several obvious steps. |
+| **4** | Active, Mental, Noncombat | 1 creature | 4 Tyhran Hours | Impose one clear command or one temporary attitude toward a person, place, or object. |
+| **5** | Active, Mental, Noncombat | 2 creatures | 4 Tyhran Hours | Give both targets the same simple task or attitude. |
+| **6** | Active, Mental, Noncombat | 2 creatures | 8 Tyhran Hours | Impose one sustained role, routine, or pattern of cooperation. |
+| **7** | Active, Mental, Noncombat | 2 creatures | 12 Tyhran Hours | Impose two linked instructions or one simple conditional instruction. |
+| **8** | Active, Mental, Noncombat | 3 creatures | 1 Tyhran Day | Impose one believable temporary relationship, loyalty, aversion, trust, affection, or false assumption. |
+| **9** | Active, Mental, Noncombat | 3 creatures | 1 Tyhran Day | Impose one complex noncombat objective and allow reasonable improvisation toward it. |
+| **10** | Active, Mental, Noncombat | MR creatures | 2 Tyhran Days | Give all targets the same complex task, attitude, or temporary relationship. |
+| **11** | Active, Mental, Noncombat | MR creatures | 3 Tyhran Days | Impose one conditional behavioral program with a clear trigger and response. |
+| **12** | Active, Mental, Noncombat | MR + 1 creatures | 3 Tyhran Days | Combine one complex task with one supporting attitude or belief. |
+| **13** | Active, Mental, Noncombat | MR + 1 creatures | 7 Tyhran Days | Impose one sustained false loyalty, relationship, social role, or long-form objective. |
+| **14** | Active, Mental, Noncombat | MR + 2 creatures | 7 Tyhran Days | Impose several linked instructions serving one defined noncombat purpose. |
+| **15** | Active, Mental, Noncombat | MR + 3 creatures | 14 Tyhran Days | Impose a broad behavioral program around one defined noncombat purpose. |
+| **16** | Active, Mental, Noncombat | MR + 4 creatures | 44 Tyhran Days | Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior. |
+
+---
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+### Mental Control: Boundaries and Recovery
+
+Targets must be within Telepathic Access when Mental Control is applied. All affected creatures receive the same program.
+
+A program may ask a creature to speak, cooperate, open a door, look away, leave an area, deliver a message, change a temporary attitude or pursue another **noncombat** objective. It operates within the target's knowledge, understanding and available ordinary actions.
+
+A program ends if the controller or an obvious ally directly harms the target. A target also receives a **Wits Attribute Check** against the original Final Mental Power TN when obedience collides with a defining conviction, deep bond or obvious threat of severe harm to someone it must protect. On success, the control ends. The target remembers what it did afterward.
+
+The control can change decisions and cooperation, but does not compel combat actions, suicide, expenditure of limited resources, permanent personality changes or knowledge the target never possessed. Use **Mind Probe** when searching for specific information rather than asking for cooperation.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+## Active Constructs and Terrain
+
+Construct and Terrain Actives create **temporary battlefield objects or areas**. Read their Power Level table for **Range, area, duration, durability and effect**. The printed Power determines what is created.
+
+### Barriers and Walls
+
+A **Barrier** occupies legal unoccupied battlefield spaces and has the printed **total HP**. It provides a physical obstruction, can be attacked and damaged, and ends when its duration expires or it is destroyed. Unless the Power specifies another value, it has **0 Armor** and **0 Evade**. Attack rolls against a Barrier use **TN 0** before applicable modifiers. Barriers are objects: they make no Attribute Checks and are unaffected by Mental effects and creature-only Specials.
+
+A **Wall** is the same type of Barrier arranged as **connected spaces or hexes**. The creator chooses its connected shape within the legal area and Range. The Wall can block movement until a creature moves around, over or through it using a legal method, or destroys the obstructing segment.
+
+### Distributing Wall HP
+
+For **H total HP** and **N occupied segments**, give each segment **floor(H/N)** HP. Assign the remaining **H mod N** points, one each, to different segments the creator chooses. Each segment tracks damage independently and is destroyed at **0 HP**.
+
+Example: A **22 HP** Wall occupying three connected segments has **8 / 7 / 7 HP**, assigned by the creator. Damage dealt to one segment reduces only that segment's HP.
+
+Barrier and Wall creation, targeting, durations, cover and other interactions use the corresponding rules in the Player's Guide.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+### Playing with Constructs
+
+An Active Construct is a way to change **routes, cover and access**. Use a Wall to divide a passage, shield a retreat or make enemies spend actions on a physical obstruction.
+
+**Example:** A 40 HP Barrier becomes four connected Wall spaces. Give each space **10 HP**. An enemy deals **7 damage** to one segment, leaving it at **3 HP**; a later hit dealing 3 more destroys that segment. The three other segments remain until they are destroyed or the Power ends.
+
+**Placement:** Create Barriers and Walls in **unoccupied, traversable spaces** as described by their printed Power. Each Wall must be connected and stay within its legal area. The area and duration are printed in the Power's Level table.
+
+**Durability:** Attacks affect the chosen physical object or segment. The Barrier itself provides obstruction; a Power grants any further effects only where its entry says so.
+
+**Illusions:** False objects or scenes are handled by **Power Image** and the Illusion rules, rather than by Barriers or Walls.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+
+## Barrier Actives
+
+---
+:
+---
+:
+<h3 id="ranged-barrier">
+  Ranged Barrier
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Historical dedicated 4-Round Barrier formula: Range + 2 x (radius cost + barrier HP); distinct from current maintained Special Zones. Barrier HP costs 1PP each.<br>
+      L1: unavailable.<br>
+      L2: Range 5 + 2 x (Radius 20 + Barrier 10 HP) = 65/60 PP (-5 unused).<br>
+      L3: Range 10 + 2 x (Radius 20 + Barrier 22 HP) = 94/90 PP (-4 unused).<br>
+      L4: Range 15 + 2 x (Radius 20 + Barrier 35 HP) = 125/120 PP (-5 unused).<br>
+      L5: Range 20 + 2 x (Radius 20 + Barrier 42 HP) = 144/150 PP (6 unused).<br>
+      L6: Range 25 + 2 x (Radius 20 + Barrier 42 HP) = 149/180 PP (31 unused).<br>
+      L7: Range 30 + 2 x (Radius 50 + Barrier 42 HP) = 214/210 PP (-4 unused).<br>
+      L8: Range 35 + 2 x (Radius 50 + Barrier 55 HP) = 245/240 PP (-5 unused).<br>
+      L9: Range 40 + 2 x (Radius 50 + Barrier 65 HP) = 270/270 PP (0 unused).<br>
+      L10: Range 45 + 2 x (Radius 50 + Barrier 65 HP) = 275/300 PP (25 unused).<br>
+      L11: Range 50 + 2 x (Radius 50 + Barrier 65 HP) = 280/330 PP (50 unused).<br>
+      L12: Range 55 + 2 x (Radius 90 + Barrier 65 HP) = 365/360 PP (-5 unused).<br>
+      L13: Range 60 + 2 x (Radius 90 + Barrier 77 HP) = 394/390 PP (-4 unused).<br>
+      L14: Range 65 + 2 x (Radius 90 + Barrier 90 HP) = 425/420 PP (-5 unused).<br>
+      L15: Range 70 + 2 x (Radius 90 + Barrier 102 HP) = 454/450 PP (-4 unused).<br>
+      L16: Range 75 + 2 x (Radius 90 + Barrier 115 HP) = 485/480 PP (-5 unused).<br>
+    </span>
+  </span>
+</h3>
+
+A ranged protective barrier that creates a temporary area of cover and obstruction.
+
+**Available from Power Level 2.** The Power creates a Barrier with the Range, Radius, duration and total HP printed in the table.
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | — | — | — | Requires Power Level 2. | — |
+| **2** | Active | 12 m | Radius 2 m | 4 Rounds | Create a Barrier with **10 HP**. | — |
+| **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a Barrier with **22 HP**. | — |
+| **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a Barrier with **35 HP**. | — |
+| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
+| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
+| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
+| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a Barrier with **55 HP**. | — |
+| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
+| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
+| **12** | Active | 52 m | Radius 4 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
+| **13** | Active | 56 m | Radius 4 m | 4 Rounds | Create a Barrier with **77 HP**. | — |
+| **14** | Active | 60 m | Radius 4 m | 4 Rounds | Create a Barrier with **90 HP**. | — |
+| **15** | Active | 64 m | Radius 4 m | 4 Rounds | Create a Barrier with **102 HP**. | — |
+| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a Barrier with **115 HP**. | — |
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+## Illusion Fields and Power Images
+
+An Illusion Field creates **false sensory information** within its area. It can depict creatures, objects, sounds, movement, light, mist, a wall, a hazard or an entire scene. The Power's printed **Illusion Strength, size, duration and sensory detail** describe the image's complexity.
+
+### Describing an Illusion
+
+| Illusion Strength | Example of Presentation |
+|:--:|---|
+| **1** | Simple image or minor false sensory detail |
+| **2** | Clear image with an additional sense |
+| **3** | Detailed image with several senses |
+| **4** | Reactive motion, sound and scene detail |
+| **5** | Convincing battlefield illusion |
+| **6** | Major complex illusion capable of strongly misleading decisions |
+| **7** | Advanced layered sensory scene |
+| **8** | Extremely convincing high-level scene |
+
+A Power Image is a particular Illusion Field portraying a creature, object or other visible phenomenon. Its printed **Image Tier (I–VII)** and size govern its complexity. Characters respond to what their senses appear to tell them, using the normal rules below.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+### Interacting with Illusions
+
+Illusions influence **perception and decisions**. For example, an image of a wall may persuade a guard to take another path; the space itself remains physically passable. Other senses, interaction and contradictory evidence can reveal the illusion.
+
+A creature may inspect an Illusion Field by spending **one Attack Action**, physically interacting with it, or noticing a clear contradiction. Make a **Perception Training Check using Wits** against **TN = (8 × the creator's MR) − 2**. Apply the creature's Perception Rank, Training Advantage and any eligible Training Crit under the Player's Guide. On success, it recognizes the illusion for what it is.
+
+A Power that explicitly grants a real mechanical effect resolves that effect under its own written rule. Illusion Field and Power Image entries grant the **perceptions** described by their Level tables.
+
+**Examples:** A false fire looks dangerous and may discourage passage. A false monster can distract guards. A false wall can misdirect pursuers. Physical collision and combat effects continue to follow the actual battlefield.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+
+## Ranged Power Image
+
+---
+:
+<h3 id="ranged-power-image">
+  Ranged Power Image
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      Dedicated qualitative Image/Illusion progression; original source uses Range + 2 x (Image Size cost + Tier cost) for 4-round duration. Do not invent exact Image Size/Tier prices from this simplified document.<br>
+      REQUIRES DEDICATED MILSTONE RE-AUDIT with original tooltip and canon, not a basic Special or Damage PP curve.<br>
+    </span>
+  </span>
+</h3>
+
+A ranged illusion Active that creates false sensory information for 4 Rounds.
+
+---
+:
+**Requirement:** None
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE / Size** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Active | 8 m | Single Small Image | 4 Rounds | Create **Image I**: a simple static visual image. |
+| **2** | Active | 12 m | Single Human-Sized Image | 4 Rounds | Create **Image I**: a simple static visual image. |
+| **3** | Active | 16 m | Single Human-Sized Image | 4 Rounds | Create **Image II**: a moving visual image. |
+| **4** | Active | 20 m | Large Image / Radius 2 m | 4 Rounds | Create **Image II**: a moving visual image. |
+| **5** | Active | 24 m | Large Image / Radius 2 m | 4 Rounds | Create **Image III**: a sight and sound image. |
+| **6** | Active | 28 m | Large Image / Radius 2 m | 4 Rounds | Create **Image III**: a sight and sound image. |
+| **7** | Active | 32 m | Large Image / Radius 2 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
+| **8** | Active | 36 m | Large Image / Radius 2 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
+| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
+| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create **Image IV**: a complex creature or object image. |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create **Image V**: a multi-sense image. |
+| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create **Image V**: a multi-sense image. |
+| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create **Image VI**: a small scene with several moving parts. |
+| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create **Image VI**: a small scene with several moving parts. |
+| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create **Image VI**: a small scene with several moving parts. |
+| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create **Image VII**: a complex battlefield illusion. |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Ranged Persistent Special Zones
+
+
+Spend **one Attack Action** to place a Zone at a fixed point within its printed Range. Immediately apply the printed Special to creatures already in the area. The Zone stays in place while maintained.
+
+At the **start of each subsequent Turn**, spend **one Attack Action per maintained Zone** to sustain it until your next Turn. Maintenance continues the existing Zone and applies no extra Special. You may dismiss a Zone voluntarily or sustain multiple Zones when you can pay for each one.
+
+**Targets:** Each Zone affects **every occupying creature**, including its creator, allies, neutral creatures and Summons. A **Special Aura**, by contrast, is a moving Active Buff centered on its caster; it affects everyone in the radius **except its caster**. A named Special Aura can be activated **once per Combat** during Preparation, following the Active Buff rules.
+
+**Application:** Apply a Zone or Aura's printed Special **once per source, creature and Combat Round**: on creation, first entry, or at the creature's Turn start if it has not been affected by that source this Round. At Turn start, resolve existing Special ticks, natural recovery and decay before a new Zone or Aura application. Each overlapping source is resolved separately under the Special stacking rules. Special Negation, Cleanse and other applicable Special defenses work normally.
+
+Zones and Special Auras apply their Specials automatically, without Attack, Casting or Damage Rolls. Any later damage caused by the Special itself follows that Special's normal timing and resolution.
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+
+## Ranged Persistent Special Zone: Blight
+
+---
+:
+<h3 id="ranged-persistent-zone-blight">Ranged Persistent Special Zone: Blight
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
+      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
+      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
+      L3: printed Range 16 m, Radius 2 m, Blight(2). PP STATUS: pending.<br>
+      L4: printed Range 20 m, Radius 2 m, Blight(3). PP STATUS: pending.<br>
+      L5: printed Range 24 m, Radius 2 m, Blight(4). PP STATUS: pending.<br>
+      L6: printed Range 28 m, Radius 2 m, Blight(4). PP STATUS: pending.<br>
+      L7: printed Range 32 m, Radius 2 m, Blight(5). PP STATUS: pending.<br>
+      L8: printed Range 36 m, Radius 2 m, Blight(5). PP STATUS: pending.<br>
+      L9: printed Range 40 m, Radius 3 m, Blight(5). PP STATUS: pending.<br>
+      L10: printed Range 44 m, Radius 3 m, Blight(5). PP STATUS: pending.<br>
+      L11: printed Range 48 m, Radius 3 m, Blight(6). PP STATUS: pending.<br>
+      L12: printed Range 52 m, Radius 3 m, Blight(6). PP STATUS: pending.<br>
+      L13: printed Range 56 m, Radius 3 m, Blight(7). PP STATUS: pending.<br>
+      L14: printed Range 60 m, Radius 3 m, Blight(7). PP STATUS: pending.<br>
+      L15: printed Range 64 m, Radius 3 m, Blight(8). PP STATUS: pending.<br>
+      L16: printed Range 68 m, Radius 3 m, Blight(8). PP STATUS: pending.<br>
+    </span>
+  </span>
+</h3>
+
+A ranged persistent pestilence cloud that remains on the battlefield while maintained. Affected creatures receive timed Blight (Disadvantage on all Attribute-based dice pools); X is the number of their Turns it lasts after application. The cloud can refresh Blight, but repeated applications do not add durations.
+
+---
+:
+**Requirement:** None
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(2)**. |
+| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(3)**. |
+| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(4)**. |
+| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(4)**. |
+| **7** | Active | 32 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
+| **8** | Active | 36 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
+| **9** | Active | 40 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
+| **10** | Active | 44 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(5)**. |
+| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(6)**. |
+| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(6)**. |
+| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(7)**. |
+| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(7)**. |
+| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(8)**. |
+| **16** | Active | 68 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Blight(8)**. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+
+## Ranged Persistent Special Zone: Lacerate / Mark / Ruin / Slow
+
+---
+:
+<h3 id="ranged-persistent-zone-standard-diminishing-special">Ranged Persistent Special Zone: Lacerate / Mark / Ruin / Slow
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
+      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
+      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
+      L3: printed Range 16 m, Radius 2 m, Lacerate(1) / Slow(1) / Ruin(1) / Mark(1). PP STATUS: pending.<br>
+      L4: printed Range 20 m, Radius 2 m, Lacerate(2) / Slow(2) / Ruin(2) / Mark(2). PP STATUS: pending.<br>
+      L5: printed Range 24 m, Radius 2 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
+      L6: printed Range 28 m, Radius 2 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
+      L7: printed Range 32 m, Radius 3 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
+      L8: printed Range 36 m, Radius 3 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
+      L9: printed Range 40 m, Radius 3 m, Lacerate(4) / Slow(4) / Ruin(4) / Mark(4). PP STATUS: pending.<br>
+      L10: printed Range 44 m, Radius 3 m, Lacerate(4) / Slow(4) / Ruin(4) / Mark(4). PP STATUS: pending.<br>
+      L11: printed Range 48 m, Radius 3 m, Lacerate(5) / Slow(5) / Ruin(5) / Mark(5). PP STATUS: pending.<br>
+      L12: printed Range 52 m, Radius 3 m, Lacerate(5) / Slow(5) / Ruin(5) / Mark(5). PP STATUS: pending.<br>
+      L13: printed Range 56 m, Radius 3 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
+      L14: printed Range 60 m, Radius 3 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
+      L15: printed Range 64 m, Radius 3 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
+      L16: printed Range 68 m, Radius 4 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
+    </span>
+  </span>
+</h3>
+
+A ranged persistent area that applies a standard Diminishing Special while maintained.  
+This template covers Lacerate, Mark, Ruin, and Slow.
+
+---
+:
+**Requirement:** None
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(1) / Slow(1) / Ruin(1) / Mark(1)**. |
+| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(2) / Slow(2) / Ruin(2) / Mark(2)**. |
+| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **7** | Active | 32 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **8** | Active | 36 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(3) / Slow(3) / Ruin(3) / Mark(3)**. |
+| **9** | Active | 40 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **10** | Active | 44 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(4) / Slow(4) / Ruin(4) / Mark(4)**. |
+| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(5) / Slow(5) / Ruin(5) / Mark(5)**. |
+| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+| **16** | Active | 68 m | Radius 4 m | Maintained | Create a persistent zone. | Affected creatures gain **Lacerate(6) / Slow(6) / Ruin(6) / Mark(6)**. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+
+## Ranged Persistent Special Zone: Challenge / Corrode / Hex / Sundered
+
+---
+:
+<h3 id="ranged-persistent-zone-heavy-diminishing-special">Ranged Persistent Special Zone: Challenge / Corrode / Hex / Sundered
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
+      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
+      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
+      L3: printed Range 16 m, Radius 2 m, Challenge(1) / Corrode(1) / Hex(1) / Sundered(1). PP STATUS: pending.<br>
+      L4: printed Range 20 m, Radius 2 m, Challenge(1) / Corrode(1) / Hex(1) / Sundered(1). PP STATUS: pending.<br>
+      L5: printed Range 24 m, Radius 2 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
+      L6: printed Range 28 m, Radius 2 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
+      L7: printed Range 32 m, Radius 3 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
+      L8: printed Range 36 m, Radius 3 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
+      L9: printed Range 40 m, Radius 3 m, Challenge(1) / Corrode(3) / Hex(3) / Sundered(3). PP STATUS: pending.<br>
+      L10: printed Range 44 m, Radius 3 m, Challenge(1) / Corrode(3) / Hex(3) / Sundered(3). PP STATUS: pending.<br>
+      L11: printed Range 48 m, Radius 3 m, Challenge(2) / Corrode(4) / Hex(4) / Sundered(4). PP STATUS: pending.<br>
+      L12: printed Range 52 m, Radius 3 m, Challenge(2) / Corrode(4) / Hex(4) / Sundered(4). PP STATUS: pending.<br>
+      L13: printed Range 56 m, Radius 3 m, Challenge(2) / Corrode(4) / Hex(4) / Sundered(4). PP STATUS: pending.<br>
+      L14: printed Range 60 m, Radius 3 m, Challenge(2) / Corrode(5) / Hex(5) / Sundered(5). PP STATUS: pending.<br>
+      L15: printed Range 64 m, Radius 3 m, Challenge(2) / Corrode(5) / Hex(5) / Sundered(5). PP STATUS: pending.<br>
+      L16: printed Range 68 m, Radius 3 m, Challenge(2) / Corrode(5) / Hex(5) / Sundered(5). PP STATUS: pending.<br>
+    </span>
+  </span>
+</h3>
+
+A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered while maintained.
+
+---
+:
+**Requirement:** None
+
+---
+:
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
+| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **7** | Active | 32 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **8** | Active | 36 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **9** | Active | 40 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **10** | Active | 44 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **16** | Active | 68 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
+
+}}
+
+\page
+
+{{pageNumber,auto}}
+{{wide
+## Ranged Persistent Special Zone: Disoriented / Expose / Soulburn / Weaken
+
+<h3 id="ranged-persistent-zone-pool-reduction-special">Ranged Persistent Special Zone: Disoriented / Expose / Soulburn / Weaken
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
+      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
+      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
+      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
+      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
+      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
+      L3: printed Range 16 m, Radius 2 m, Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L4: printed Range 20 m, Radius 2 m, Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L5: printed Range 24 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L6: printed Range 28 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L7: printed Range 32 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L8: printed Range 36 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L9: printed Range 40 m, Radius 2 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L10: printed Range 44 m, Radius 2 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L11: printed Range 48 m, Radius 3 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L12: printed Range 52 m, Radius 3 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L13: printed Range 56 m, Radius 3 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
+      L14: printed Range 60 m, Radius 3 m, Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2). PP STATUS: pending.<br>
+      L15: printed Range 64 m, Radius 3 m, Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2). PP STATUS: pending.<br>
+      L16: printed Range 68 m, Radius 3 m, Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2). PP STATUS: pending.<br>
+    </span>
+  </span>
+</h3>
+
+A persistent battlefield zone that weakens perception, defense, physical performance, or spiritual performance.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
+| **1** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **2** | Unavailable | — | — | — | Requires Power Level 3. | — |
+| **3** | Active | 16 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **4** | Active | 20 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
+| **5** | Active | 24 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **6** | Active | 28 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **7** | Active | 32 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **8** | Active | 36 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **9** | Active | 40 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **10** | Active | 44 m | Radius 2 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **11** | Active | 48 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **12** | Active | 52 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **13** | Active | 56 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **14** | Active | 60 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
+| **15** | Active | 64 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
+| **16** | Active | 68 m | Radius 3 m | Maintained | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
+
+---
+}}

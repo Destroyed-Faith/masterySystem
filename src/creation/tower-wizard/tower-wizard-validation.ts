@@ -46,6 +46,7 @@ import type {
 } from './tower-wizard-types.js';
 import { validateEchoImprintSelections, type EchoImprintAttribute } from '../../rules/echo-imprints.js';
 import { validateSpecializationList } from '../../rules/specializations.js';
+import { isAttackPowerItem, isAttackPowerTemplateId } from '../../utils/attack-power.js';
 import { ATTRIBUTE_KEYS, permanentStonesFromLifetimeXp, startingPackageIsValid } from '../../progression/v099-rules.js';
 import type { TowerWizardEchoContext } from './tower-wizard-echo-advisor.js';
 import {
@@ -293,8 +294,12 @@ export function validateManualWizardSelection(selection: Partial<TowerWizardSele
     if (speciallessSpells > masteryRank) {
         return `Spell Powers without a Special are limited to Mastery Rank (${masteryRank}).`;
     }
+    if (!specs.some((s) => isAttackPowerTemplateId(s.templateId))) return NO_ATTACK_POWER_MESSAGE;
     return null;
 }
+
+const NO_ATTACK_POWER_MESSAGE =
+    'Choose at least one Attack Power (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special). There is no automatic Basic Attack.';
 
 export function validateTowerWizardSelection(
     selection: Partial<TowerWizardSelection>,
@@ -379,6 +384,7 @@ export function validateTowerWizardSelection(
         if (seen.has(key)) return 'This package contains duplicate Powers. Change or reset one of them.';
         seen.add(key);
     }
+    if (!specs.some((s) => isAttackPowerTemplateId(s.templateId))) return NO_ATTACK_POWER_MESSAGE;
     return null;
 }
 
@@ -410,6 +416,7 @@ export function validateTowerWizardCreation(actor: Actor): string | null {
 
     const duplicate = findDuplicatePowerLabel(powers);
     if (duplicate) return `Duplicate power "${duplicate}".`;
+    if (!powers.some((p: any) => isAttackPowerItem(p))) return NO_ATTACK_POWER_MESSAGE;
 
     let defensive = 0;
     let offensive = 0;

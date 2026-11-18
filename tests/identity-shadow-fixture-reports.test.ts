@@ -22,7 +22,6 @@ import {
 import { isLimitedAttackDeclaration } from '../src/combat/limited-charge.js';
 import { isHealRadialOption } from '../src/combat/heal-resolution.js';
 import { isCleanseRadialOption } from '../src/combat/cleanse-resolution.js';
-import { isBreathWeaponName } from '../src/utils/breath-weapon.js';
 import { isLimitedPowerTemplateId } from '../src/combat/limited-charge.js';
 import { resolvePowerIdentity, deriveActiveSegment } from '../src/utils/power-identity.js';
 import { getEffect } from '../src/utils/special-effects.js';
@@ -240,7 +239,6 @@ describe('K5b identity shadow fixture reports', () => {
     const cases: CaseRow[] = [];
     const name = 'Breath Weapon';
     const legacyIsBreath =
-      isBreathWeaponName(name) ||
       /breath\s*weapon/i.test(name) ||
       /damage\s*breath/i.test(name) ||
       /ruin\s*breath/i.test(name);
@@ -306,7 +304,7 @@ describe('K5b identity shadow fixture reports', () => {
         type: 'power',
         name: 'ZZZ_HEAL',
         system: {
-          templateId: 'active-ranged-single-heal',
+          templateId: 'active-ranged-health-level-heal',
           rank: 3,
           category: 'active',
           powerType: 'active',
@@ -454,7 +452,7 @@ describe('K5b identity shadow fixture reports', () => {
           type: 'power',
           name: 'ZZZ_HEAL',
           system: {
-            templateId: 'active-ranged-single-heal',
+            templateId: 'active-ranged-health-level-heal',
             rank: 4,
             category: 'active',
             powerType: 'active',

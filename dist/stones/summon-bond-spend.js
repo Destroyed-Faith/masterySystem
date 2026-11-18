@@ -2,7 +2,7 @@
  * Controlled spend helpers for the Summon Bond Ritual UI.
  * Purchase counts are never taken from free-text number fields.
  */
-import { MAX_ARTIFACT_BONUS_TOKENS, MAX_PURCHASE_HARD_CAP, SUMMON_CAPS, computeSummonBond, emptyBodySpend, emptyBondSpend, isSummonSkillEligible, maxMovementPurchases, normalizeMovementMode, } from './summon-bond-rules.js';
+import { MAX_ARTIFACT_BONUS_TOKENS, MAX_PURCHASE_HARD_CAP, SUMMON_CAPS, computeSummonBond, emptyBodySpend, emptyBondSpend, maxMovementPurchases, normalizeMovementMode, } from './summon-bond-rules.js';
 const BOND_FIELD_COST = {
     attackPurchases: SUMMON_CAPS.attackTokenCost,
     damagePurchases: SUMMON_CAPS.damageTokenCost,
@@ -125,17 +125,6 @@ export function maxAffordablePurchases(remainingTokens, costPer, hardCap) {
         return 0;
     return Math.min(hardCap, Math.floor(Math.max(0, remainingTokens) / costPer));
 }
-/** Max Skill Dice purchases from remaining tokens and selected-skill owner ratings. */
-export function skillDicePurchaseCap(selectedSkills, ratings, remainingIfSkillPurchasesZero, ownerMasteryRank = 1) {
-    const byTokens = Math.max(0, Math.floor(remainingIfSkillPurchasesZero));
-    const eligible = (selectedSkills || []).filter((id) => isSummonSkillEligible(ratings?.[id] ?? 0, ownerMasteryRank));
-    if (!eligible.length)
-        return 0;
-    const capacity = eligible.reduce((sum, id) => {
-        return sum + safePurchaseInt(ratings?.[id] ?? 0, 99);
-    }, 0);
-    return Math.min(byTokens, Math.floor(capacity / SUMMON_CAPS.skillDicePerPurchase));
-}
 export function ruleMaxForBondField(field, ctx) {
     const mode = normalizeMovementMode(ctx.movementMode);
     switch (field) {
@@ -206,27 +195,6 @@ export function applyBodyFieldDelta(spend, bodyIndex, field, delta, ctx) {
         return null;
     return next;
 }
-export function applySkillDiceAllocDelta(alloc, skill, delta, ownerRating, purchasedTotal) {
-    if (delta !== 1 && delta !== -1)
-        return null;
-    const next = { ...alloc };
-    const cur = safePurchaseInt(next[skill]);
-    const nextVal = cur + delta;
-    if (nextVal < 0)
-        return null;
-    if (nextVal > safePurchaseInt(ownerRating))
-        return null;
-    let others = 0;
-    for (const [id, dice] of Object.entries(next)) {
-        if (id === skill)
-            continue;
-        others += safePurchaseInt(dice);
-    }
-    if (others + nextVal > safePurchaseInt(purchasedTotal))
-        return null;
-    next[skill] = nextVal;
-    return next;
-}
 export function applyBonusTokenDelta(currentBonus, deltaStones, maxBonus, boundStoneCount) {
     if (deltaStones !== 1 && deltaStones !== -1)
         return null;
@@ -288,33 +256,10 @@ export function inspectBondSpend(spend, ctx) {
     if (isIllegalBonusTokens(ctx.bonusTokens, bonusMax, ctx.boundStoneCount)) {
         reasons.push('Artifact bonus Tokens are illegal (must be a multiple of 4 from Artifact Summon Stones, and cannot create a Bond).');
     }
-    if ((ctx.selectedSkills ?? []).length) {
-        const withoutSkill = { ...sanitized, skillDicePurchases: 0 };
-        const remainingIfZero = tokensRemainingFor(withoutSkill, ctx);
-        const cap = skillDicePurchaseCap(ctx.selectedSkills ?? [], ctx.ownerSkillRatings, remainingIfZero, ctx.ownerMasteryRank ?? 1);
-        if (sanitized.skillDicePurchases > cap) {
-            reasons.push(`Skill Dice purchases ${sanitized.skillDicePurchases} exceed capacity ${cap}.`);
-        }
-    }
-    const mr = ctx.ownerMasteryRank ?? 1;
-    for (const skill of ctx.selectedSkills ?? []) {
-        if (!isSummonSkillEligible(ctx.ownerSkillRatings?.[skill] ?? 0, mr)) {
-            reasons.push(`${skill}: Owner has Rating 0 — the Bond cannot select this Skill.`);
-        }
-    }
-    if (ctx.skillDiceAlloc) {
-        for (const [skill, dice] of Object.entries(ctx.skillDiceAlloc)) {
-            if (isAbsurdPurchaseRaw(dice)) {
-                absurd = true;
-                reasons.push(`Illegal skill dice allocation on ${skill}.`);
-                continue;
-            }
-            const d = safePurchaseInt(dice);
-            const rating = safePurchaseInt(ctx.ownerSkillRatings?.[skill] ?? 0);
-            if (d > rating) {
-                reasons.push(`${skill}: ${d} dice exceed owner Rating ${rating}.`);
-            }
-        }
+    if (sanitized.skillDicePurchases > 0 ||
+        (ctx.selectedSkills ?? []).length > 0 ||
+        Object.keys(ctx.skillDiceAlloc ?? {}).length > 0) {
+        reasons.push('Summon Skills and Skill Dice are retired; natural tasks use the owner\'s Professions.');
     }
     const computed = computeSummonBond({
         boundStoneCount: ctx.boundStoneCount,

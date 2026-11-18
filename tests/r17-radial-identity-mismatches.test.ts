@@ -32,8 +32,8 @@ function potionOfMoonlightMending(id = 'vDZ9GD9Ut3KDevZR') {
           snapshot: {
             powerId: 'mending-1',
             powerName: 'Moonlight Mending I',
-            templateId: 'active-ranged-single-heal',
-            templateName: 'Ranged Single Target Heal',
+            templateId: 'active-ranged-health-level-heal',
+            templateName: 'Ranged Single Target Restoration',
             powerLevel: 4,
             definitionRank: 4,
             category: 'active',
@@ -90,7 +90,7 @@ describe('R-17 radial identity mismatches', () => {
         { system: { mastery: { rank: 3 } } },
         potionOfMoonlightMending(),
       );
-      expect(option.item.system.templateId).toBe('active-ranged-single-heal');
+      expect(option.item.system.templateId).toBe('active-ranged-health-level-heal');
       expect(option.item.system.rank).toBe(4);
       expect(option.slot).toBe('attack');
       expect(option.consumableItemId).toBe('vDZ9GD9Ut3KDevZR');
@@ -104,7 +104,7 @@ describe('R-17 radial identity mismatches', () => {
       const id = resolvePowerIdentity({ kind: 'radial-option', option });
       expect(id.ok).toBe(true);
       if (id.ok) {
-        expect(id.templateId).toBe('active-ranged-single-heal');
+        expect(id.templateId).toBe('active-ranged-health-level-heal');
         expect(id.category).toBe('active');
       }
       expect(getSegmentIdForOption(option)).toBe('attack');

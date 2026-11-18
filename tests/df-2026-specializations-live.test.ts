@@ -185,27 +185,3 @@ describe('Specialization list helpers + Rank-up', () => {
     expect(removeSpecialization(edited, lockpicking.id)).toHaveLength(1);
   });
 });
-
-describe('Skill Spend retired', () => {
-  it('epic roll spend options are always empty', async () => {
-    const { getSkillSpendOptions } = await import('../src/epic-roll/epic-mastery-roll-skill-spend.js');
-    const actor: any = { system: { skills: { stealth: 8 }, skillsSpent: {}, mastery: { rank: 2 } } };
-    const out = getSkillSpendOptions(actor, 'stealth', { kept: [3], tn: 10, success: false, raises: 0 } as any, 0);
-    expect(out.options).toEqual([]);
-    expect(out.remainingPool).toBe(0);
-  });
-
-  it('registerSkillSpendClickHandler registers no hooks', async () => {
-    const on = vi.fn();
-    (globalThis as any).Hooks = { on };
-    const { registerSkillSpendClickHandler } = await import('../src/chat/skill-spend-handler.js');
-    registerSkillSpendClickHandler();
-    expect(on).not.toHaveBeenCalled();
-  });
-
-  it('retroactive Stealth spend always returns 0', async () => {
-    const { promptRetroactiveStealthSpend } = await import('../src/combat/perception-gate.js');
-    const actor: any = { system: { skills: { stealth: 8 }, skillsSpent: {}, mastery: { rank: 2 } } };
-    await expect(promptRetroactiveStealthSpend(actor, 20, 10)).resolves.toBe(0);
-  });
-});

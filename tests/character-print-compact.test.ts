@@ -129,17 +129,17 @@ function alarisActor() {
         },
       },
       {
-        name: 'Melee Damage — Tier 6 — Sundered',
+        name: 'Melee Single Target Special: Sundered',
         type: 'power',
         system: {
           category: 'active',
-          templateId: 'active-melee-damage-t6',
+          templateId: 'active-melee-instant-special-t6',
           rank: 5,
           level: 5,
           chosenSpecial: { key: 'sundered', tier: 6 },
           cost: { action: 'attack' },
           slot: 'attack',
-          effect: 'Deal **+2d8 damage** on hit.',
+          effect: 'On hit, apply **Sundered**.',
         },
       },
       {
@@ -338,24 +338,12 @@ describe('Quick Play character print', () => {
     expect(extraAttack.tiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6]);
   });
 
-  it('shows only trained skills by category with Keep and existing skill-use boxes', () => {
+  it('prints Professions only, never the legacy Skill grid', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
-    expect(ctx.skills.map((s: any) => s.name)).not.toContain('Athletics');
-    expect(ctx.skillCategories.some((c: any) => c.label === 'Physical')).toBe(true);
-    const acro = ctx.skills.find((s: any) => s.name === 'Acrobatics');
-    expect(acro.attrs).toBe('Agility');
-    expect(acro.pool).toBe(10);
-    expect(acro.keep).toBe('k2');
-    expect(acro.poolLabel).toBe('10k2');
-    expect(acro.halfPool).toBe(false);
-    expect(acro.boxes.map((b: any) => b.size)).toEqual([2, 2, 0, 0]);
-    expect(acro.boxes.map((b: any) => b.state)).toEqual([
-      'available',
-      'available',
-      'locked',
-      'locked',
-    ]);
-    expect(ctx.skills.every((s: any) => s.boxes.length === 4)).toBe(true);
+    for (const key of ['skills', 'hasSkills', 'perceptionSkill', 'skillCategories', 'showSpecializations']) {
+      expect(ctx[key]).toBeUndefined();
+    }
+    expect(ctx.hasSpecializations).toBe(true);
   });
 
   it('counts Phasing boxes from Passive + Reaction + Buff sources', () => {
@@ -565,7 +553,7 @@ describe('Quick Play character print', () => {
     expect(meleeSingle.damage).not.toMatch(/2d8/);
 
     const sundered = active.find((i: any) => String(i.name).includes('Sundered'));
-    expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
+    expect(sundered.damage).toBe('Sundered(2)');
   });
 
   it('folds Artifact powers into POWERS with source labels and drops the Artifacts block', () => {
@@ -606,7 +594,7 @@ describe('Quick Play character print', () => {
     expect(ctx.weaponSetTiles.some((t: any) => /Moonlight Greatsword/i.test(t.title))).toBe(true);
 
     const sundered = allPowers.find((i: any) => String(i.name).includes('Sundered'));
-    expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
+    expect(sundered.damage).toBe('Sundered(2)');
     const meleeSingle = allPowers.find((i: any) => i.name === 'Melee Single Attack');
     expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');
     expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);

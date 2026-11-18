@@ -3,10 +3,10 @@
  *
  * Values come from the same aggregation live Foundry combat uses
  * (`getTargetEvade`, `getTargetArmor`, `getTargetSpellResistance`,
- * mechanics breakdown, Basic Attack = weapon + MR×2d8).
+ * mechanics breakdown, no Basic Attack in Actives v0.9.9.6).
  *
  * Three bands:
- *   Baseline  — always-on equipment/passives-in-totals, Basic Attack, 1 action
+ *   Baseline  — always-on equipment/passives-in-totals, weapon-only baseline, 1 action
  *   Sustained — Baseline + currently active buffs; legal repeatable attacks
  *   Burst     — Sustained + stone extras / limited powers
  *
@@ -196,9 +196,6 @@ export function analyzePc(actor) {
     if (tempHP > 0) {
         warnings.push(`${actor?.name ?? '?'}: ${tempHP} Temp-HP im Datensatz — Baseline rechnet ohne Temp-HP.`);
     }
-    if (system.creation?.skillsRedistributing === true) {
-        warnings.push(`${actor?.name ?? '?'}: ist im Skill-Bearbeitungsmodus — Werte können transient sein.`);
-    }
     const bars = Array.isArray(system.health?.bars) ? system.health.bars : [];
     const healthBars = bars.map((b) => Math.max(0, num(b?.max, 0)));
     if (healthBars.length === 0)
@@ -333,7 +330,6 @@ export function analyzePc(actor) {
     const penetration = weaponSpecials
         .filter((s) => s.id === 'penetration')
         .reduce((a, s) => a + s.value, 0);
-    const basicMrDice = mr * 2;
     const pool = Math.max(mr, Math.floor(attackAttrValue)) + mechAttackDice;
     const weaponName = weapon?.name ? String(weapon.name) : 'Unbewaffnet';
     const basicAttack = {
@@ -343,7 +339,7 @@ export function analyzePc(actor) {
         delivery: isRangedWeapon ? 'ranged' : 'melee',
         pool,
         keep: mr,
-        damageDice: weaponDamage.dice + basicMrDice + mechDamageDice,
+        damageDice: weaponDamage.dice + mechDamageDice,
         flatDamage: Math.max(0, weaponDamage.flat) + meleeFlat,
         penetration,
         specials: weaponSpecials.filter((s) => s.id !== 'penetration' && s.id !== 'finesse'),
@@ -351,12 +347,12 @@ export function analyzePc(actor) {
         casterMr: mr,
         mentalFinalTnSurcharge: 0,
         notes: [
-            `Basic Attack: ${weaponDamage.dice}d8 Waffe + ${basicMrDice}d8 (MR×2)`,
+            `Baseline: nur Waffe ${weaponDamage.dice}d8 (kein Basic Attack, keine Attack Power)`,
             mechAttackDice ? `Passive/Buff Attack-Dice +${mechAttackDice}` : '',
             mechDamageDice ? `Passive/Buff Damage-Dice +${mechDamageDice}` : '',
         ].filter(Boolean),
     };
-    const sustainedAttacks = [basicAttack];
+    const sustainedAttacks = [];
     const burstOnlyAttacks = [];
     for (const it of items) {
         if (it?.type !== 'power')
@@ -450,6 +446,10 @@ export function analyzePc(actor) {
         else
             sustainedAttacks.push(profile);
     }
+    // Actives v0.9.9.6: no Basic Attack. Without a damaging Attack Power the
+    // weapon-only baseline stands in so the analyzer still has a profile.
+    if (sustainedAttacks.length === 0)
+        sustainedAttacks.push(basicAttack);
     const pickBest = (list) => list.reduce((best, a) => (rawAttackScore(a) > rawAttackScore(best) ? a : best));
     let stonesTotal = 0;
     if (usesV099Stones(system)) {

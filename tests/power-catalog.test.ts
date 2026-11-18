@@ -13,7 +13,6 @@ import {
     findDuplicatePowerLabel,
     powerIdentityKeyFromEntry,
     findTemplateById,
-    isDispelCatalogEntry,
     isSelectableActiveBuffTemplateId,
     isCanonicalPassiveTemplateId,
     labelPowerSubfamily,
@@ -157,30 +156,10 @@ describe('Power Catalog (Templates refactor)', () => {
         }
     });
 
-    it('exposes Targeted Special Attack templates (Exorcism / Requiem picker)', () => {
+    it('offers no Targeted Special, Exorcism or Requiem identities', () => {
         const entries = getAllCatalogEntries();
-        const targetedIds = [
-            'active-melee-targeted-special',
-            'active-ranged-targeted-special',
-            'active-melee-aoe-targeted-special',
-            'active-ranged-aoe-targeted-special',
-        ];
-        for (const id of targetedIds) {
-            const hits = entries.filter((e) => e.templateId === id);
-            expect(hits.length, `missing targeted template: ${id}`).toBeGreaterThanOrEqual(2);
-            expect(hits.every((h) => h.subfamily === 'targeted-special-attack')).toBe(true);
-            const keys = new Set(hits.map((h) => h.chosenSpecial?.key));
-            expect(keys.has('exorcism')).toBe(true);
-            expect(keys.has('requiem')).toBe(true);
-        }
-        const aoe = entries.find(
-            (e) => e.templateId === 'active-ranged-aoe-targeted-special' && e.chosenSpecial?.key === 'requiem',
-        )!;
-        expect(aoe.chosenSpecial?.key).toBe('requiem');
-        expect((aoe.raw as any).levels['1'].specials[0]).toMatchObject({ key: 'SPECIAL', rank: 2 });
-        expect((aoe.raw as any).levels['4'].specials[0]).toMatchObject({ key: 'SPECIAL', rank: 6 });
-        expect((aoe.raw as any).levels['16'].specials[0]).toMatchObject({ key: 'SPECIAL', rank: 10 });
-        expect((aoe.raw as any).levels['7'].aoe).toMatchObject({ shape: 'radius', radiusM: 5 });
+        expect(entries.some((e) => e.templateId.includes('targeted-special'))).toBe(false);
+        expect(entries.some((e) => ['exorcism', 'requiem'].includes(e.chosenSpecial?.key ?? ''))).toBe(false);
     });
 
     it('exposes the Ranged Images illusion template', () => {
@@ -189,16 +168,6 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(hit).toBeDefined();
         expect(hit!.subfamily).toBe('illusion');
         expect(hit!.chosenSpecial).toBeUndefined();
-    });
-
-    it('Stunning Strike uses fixed (rank-less) Stunned on unlocked levels', () => {
-        const entries = getAllCatalogEntries();
-        const melee = entries.find((e) => e.templateId === 'active-melee-damage-stunned');
-        expect(melee).toBeDefined();
-        const row4 = (melee!.raw as any).levels['4'];
-        expect(row4.specials).toEqual([{ key: 'stunned' }]);
-        const row1 = (melee!.raw as any).levels['1'];
-        expect(row1.specials).toEqual([]);
     });
 
     it('detects duplicate passive powers by templateId', () => {
@@ -224,9 +193,10 @@ describe('Power Catalog (Templates refactor)', () => {
     });
 
     it('any legal ranged active may become a spell, including damage-only', () => {
-        expect(activeTemplateCanBeSpell('active-ranged-damage-t4')).toBe(true);
+        expect(activeTemplateCanBeSpell('active-ranged-weapon-single')).toBe(true);
+        expect(activeTemplateCanBeSpell('active-ranged-instant-special-t4')).toBe(true);
         expect(activeTemplateCanBeSpell('active-ranged-health-level-heal')).toBe(true);
-        expect(activeTemplateCanBeSpell('active-melee-damage-t4')).toBe(false);
+        expect(activeTemplateCanBeSpell('active-melee-instant-special-t4')).toBe(false);
         expect(activeTemplateCanBeSpell('active-melee-weapon-single')).toBe(false);
     });
 
@@ -285,10 +255,10 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(powerSubfamilyHint('weapon-attack')).toMatch(/equipped weapon/i);
     });
 
-    it('excludes dispel actives from the catalog (cleanse replaces dispel at the table)', () => {
+    it('has no Dispel actives (Cleanse replaces Dispel)', () => {
         const entries = getAllCatalogEntries();
-        expect(entries.some((e) => isDispelCatalogEntry(e))).toBe(false);
         expect(entries.some((e) => e.templateId.includes('dispel'))).toBe(false);
-        expect(filterCatalog({ category: 'active', search: 'dispel' }).every((e) => !isDispelCatalogEntry(e))).toBe(true);
+        expect(entries.some((e) => e.chosenSpecial?.key === 'dispel-magic')).toBe(false);
+        expect(filterCatalog({ category: 'active', search: 'dispel' })).toEqual([]);
     });
 });

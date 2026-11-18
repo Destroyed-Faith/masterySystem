@@ -72,7 +72,8 @@ describe('reaction eligibility', () => {
     expect(evaluateReactionEligibility(counter, miss).shown).toBe(false);
     expect(evaluateReactionEligibility(armor, hitCtx).shown).toBe(true);
     expect(evaluateReactionEligibility(evade, hitCtx).shown).toBe(true);
-    expect(evaluateReactionEligibility(counter, hitCtx).shown).toBe(true);
+    // Retired with the Basic Attack (Actives v0.9.9.6): never offered, even on a hit.
+    expect(evaluateReactionEligibility(counter, hitCtx).shown).toBe(false);
   });
 
   it('hides DR without Passive DR and Ghost Slip without Passive Phasing', () => {
@@ -149,29 +150,17 @@ describe('reaction eligibility', () => {
     ).toBe(false);
   });
 
-  it('hides Counterattack when the reactor cannot reach the attacker', () => {
+  it('never offers the retired Counterattack, regardless of reach', () => {
     const counter = { basicReaction: 'counterattack', id: 'basic-reaction-counterattack' };
-    expect(
-      evaluateReactionEligibility(counter, {
+    for (const reach of [false, true, null]) {
+      const r = evaluateReactionEligibility(counter, {
         ...hitCtx,
         rangeToAttackerM: 8,
-        canReachAttackerWithBasicAttack: false,
-      }).shown,
-    ).toBe(false);
-    expect(
-      evaluateReactionEligibility(counter, {
-        ...hitCtx,
-        rangeToAttackerM: 8,
-        canReachAttackerWithBasicAttack: true,
-      }).shown,
-    ).toBe(true);
-    // Unknown reach → keep available (theater of the mind / missing tokens).
-    expect(
-      evaluateReactionEligibility(counter, {
-        ...hitCtx,
-        canReachAttackerWithBasicAttack: null,
-      }).shown,
-    ).toBe(true);
+        canReachAttackerWithBasicAttack: reach,
+      });
+      expect(r.shown).toBe(false);
+      expect(r.enabled).toBe(false);
+    }
   });
 
   it('actorCanReachWithBasicAttack: melee reach or equipped ranged weapon', () => {

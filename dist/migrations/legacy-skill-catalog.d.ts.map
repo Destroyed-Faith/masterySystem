@@ -1,0 +1,1 @@
+{"version":3,"file":"legacy-skill-catalog.d.ts","sourceRoot":"","sources":["../../src/migrations/legacy-skill-catalog.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,eAAO,MAAM,uBAAuB;;;;;;CAM1B,CAAC;AAEX,MAAM,WAAW,gBAAgB;IAC/B,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;CAClB;AAED,eAAO,MAAM,oBAAoB,EAAE,MAAM,CAAC,MAAM,EAAE,gBAAgB,CAgCjE,CAAC"}

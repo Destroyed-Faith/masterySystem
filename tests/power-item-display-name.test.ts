@@ -53,18 +53,17 @@ describe('defaultPowerItemDisplayName', () => {
     ).toBe('Active Buff: Temporary HP');
   });
 
-  it('shortens special actives to Delivery [AoE|Zone] Special', () => {
-    const rangedHex = findCatalogEntry('active-ranged-damage-t5', 'hex');
-    expect(rangedHex).toBeTruthy();
-    expect(defaultPowerItemDisplayName(rangedHex!)).toBe('Ranged Hex');
-
+  it('names special actives by their printed Actives heading', () => {
     const meleeAoeSlow = findCatalogEntry('active-melee-aoe-damage-t4', 'slow');
     expect(meleeAoeSlow).toBeTruthy();
-    expect(defaultPowerItemDisplayName(meleeAoeSlow!)).toBe('Melee AoE Slow');
+    expect(defaultPowerItemDisplayName(meleeAoeSlow!)).toBe('Melee AoE Special: Slow');
 
     const zone = findCatalogEntry('active-ranged-zone-t5', 'hex');
     expect(zone).toBeTruthy();
-    expect(defaultPowerItemDisplayName(zone!)).toBe('Ranged Zone Hex');
+    expect(defaultPowerItemDisplayName(zone!)).toBe('Ranged Persistent Special Zone: Hex');
+
+    const stRuin = findCatalogEntry('active-melee-instant-special-t4', 'ruin');
+    expect(defaultPowerItemDisplayName(stRuin!)).toBe('Melee Single Target Special: Ruin');
   });
 
   it('shortens weapon singles to Melee/Ranged Attack', () => {

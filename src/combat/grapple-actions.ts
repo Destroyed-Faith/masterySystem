@@ -3,7 +3,7 @@
  *
  * Grapple / Escape post an Opposed Attribute Contest card via
  * `startAttributeContest`; Release ends the pair link. None of this rolls
- * damage — hurting a held creature is the normal Unarmed Basic Attack.
+ * damage — hurting a held creature takes a Melee Attack Power with Unarmed delivery.
  */
 
 import { PHYSICAL_CONTEST_ATTRIBUTES } from '../contests/opposed-attribute-contest.js';
@@ -138,7 +138,7 @@ export async function confirmReleaseGrappleForWeaponAttack(token: any, attackNam
       try {
         new DialogCtor({
           title: 'Release Grapple?',
-          content: `<p>You are holding <strong>${String(state.partnerName)}</strong>. A weapon attack is not part of the Grapple — you have to let go first.</p><p>Release the Grapple and attack with <strong>${String(attackName)}</strong>? (To keep the hold, cancel and use an Unarmed Basic Attack instead.)</p>`,
+          content: `<p>You are holding <strong>${String(state.partnerName)}</strong>. A weapon attack is not part of the Grapple — you have to let go first.</p><p>Release the Grapple and attack with <strong>${String(attackName)}</strong>? (To keep the hold, cancel and use a Melee Attack Power with Unarmed delivery instead.)</p>`,
           buttons: {
             release: { icon: '<i class="fas fa-hand-paper"></i>', label: 'Release & Attack', callback: () => finish(true) },
             cancel: { label: 'Cancel', callback: () => finish(false) },

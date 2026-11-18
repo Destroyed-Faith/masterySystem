@@ -14,8 +14,6 @@ function deepClone<T>(v: T): T {
 
 export interface PostCreationProgress {
   attributes: Record<string, number>;
-  skills: Record<string, number>;
-  skillsSpent: Record<string, number>;
   powerLevels: Record<string, number>;
 }
 
@@ -25,14 +23,12 @@ export function buildPostCreationSnapshot(actor: any): PostCreationProgress {
   for (const k of ATTRIBUTE_KEYS) {
     attributes[k] = system.attributes?.[k]?.value ?? 2;
   }
-  const skills = deepClone(system.skills || {});
-  const skillsSpent = deepClone(system.skillsSpent || {});
   const powerLevels: Record<string, number> = {};
   const items = actor.items?.filter((i: any) => i.type === 'power') || [];
   for (const item of items) {
     powerLevels[item.id] = item.system?.level ?? 1;
   }
-  return { attributes, skills, skillsSpent, powerLevels };
+  return { attributes, powerLevels };
 }
 
 export function actorHasPostCreationSnapshot(actor: any): boolean {
@@ -42,7 +38,7 @@ export function actorHasPostCreationSnapshot(actor: any): boolean {
 }
 
 /**
- * GM: restore attributes, skills, power levels, and session skill spend to post-creation snapshot;
+ * GM: restore attributes and power levels to the post-creation snapshot;
  * return all earned XP to the available pool (totalSpent cleared).
  */
 export async function resetActorProgressToPostCreation(
@@ -71,28 +67,6 @@ export async function resetActorProgressToPostCreation(
   for (const k of ATTRIBUTE_KEYS) {
     updates[`system.attributes.${k}.value`] = snap.attributes[k] ?? 2;
   }
-
-  for (const key of Object.keys(snap.skills || {})) {
-    updates[`system.skills.${key}`] = snap.skills[key];
-  }
-  for (const key of Object.keys(actor.system.skills || {})) {
-    if (!Object.prototype.hasOwnProperty.call(snap.skills, key)) {
-      updates[`system.skills.${key}`] = 0;
-    }
-  }
-
-  const spentSnap = snap.skillsSpent || {};
-  for (const key of Object.keys(spentSnap)) {
-    updates[`system.skillsSpent.${key}`] = spentSnap[key];
-  }
-  for (const key of Object.keys(actor.system.skillsSpent || {})) {
-    if (!Object.prototype.hasOwnProperty.call(spentSnap, key)) {
-      updates[`system.skillsSpent.${key}`] = 0;
-    }
-  }
-
-  // Skill Points are retired — clear any leftover pool on progression reset.
-  updates['system.skillPoints'] = { unspent: 0, placed: {} };
 
   updates['system.points.xp'] = totalEarned;
   updates['system.xp.totalSpent'] = 0;

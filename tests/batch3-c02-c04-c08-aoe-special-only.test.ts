@@ -119,8 +119,6 @@ describe('Batch 3 C04 — Special-only Attacks never deal direct damage', () => 
     'active-ranged-instant-special-t4',
     'active-melee-aoe-damage-t4',
     'active-ranged-aoe-damage-t5',
-    'active-melee-aoe-targeted-special',
-    'active-ranged-aoe-targeted-special',
   ])('template %s is Special-only', (id) => {
     expect(isSpecialOnlyTemplateId(id)).toBe(true);
     expect(isSpecialOnlyAttack({ selectedPowerTemplateId: id })).toBe(true);

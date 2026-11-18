@@ -311,9 +311,6 @@ export function buildSummonActorDataFromBond(bond, body, ownerActor) {
                 damageDice: bond.damageDice,
                 specialKey: bond.specialKey ?? null,
                 specialValue: bond.specialValue,
-                selectedSkills: bond.selectedSkills ?? [],
-                skillDiceAlloc: bond.skillDiceAlloc ?? {},
-                taskSpecMap: bond.taskSpecMap ?? {},
                 powers: body.powers ?? [],
             },
             health: {

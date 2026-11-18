@@ -2,7 +2,7 @@
  * Ground-truth XP recalculation.
  *
  * Recomputes a character's *invested* XP directly from the current build
- * (attributes, skills, power levels, artifact levels) measured against the
+ * (attributes, Profession ranks, power levels, artifact levels) measured against the
  * immutable post-creation baseline, then redistributes the two XP pools so that
  * `invested = freeSpent + regularSpent` with the **Free pool spent first**
  * (matching the live spend logic), and derives the correct available XP.
@@ -22,7 +22,7 @@ export interface XpRecalcResult {
     skillSpent: number;
     powerSpent: number;
     artifactSpent: number;
-    /** Total XP invested in the current build (attributes + skills + powers + artifacts). */
+    /** Total XP invested in the current build (attributes + Professions + powers + artifacts). */
     totalInvested: number;
     /** Correct regular spent (after Free pool absorbs as much as possible). */
     regularSpent: number;
@@ -48,7 +48,7 @@ export interface XpRecalcResult {
 /**
  * Recompute the correct XP balance for `actor` from its current build.
  * Returns `ok:false` with an `error` when no post-creation snapshot exists
- * (attributes / skills cannot be measured without a baseline).
+ * (attributes cannot be measured without a baseline).
  */
 export declare function computeGroundTruthXp(actor: any): XpRecalcResult;
 /** HTML breakdown for the GM confirm dialog. */

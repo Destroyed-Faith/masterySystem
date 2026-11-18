@@ -86,8 +86,8 @@
           {{#if tokens.skillDiceTokenCredit}}
           <div>Skill Dice credit = <strong>+{{tokens.skillDiceTokenCredit}}</strong> (unspent Bond upgrade budget)</div>
           {{/if}}
-          <div>Spent {{tokens.spent}} · Bond {{tokens.bondSpent}} · Skills {{tokens.skillsSpent}}{{#each tokens.bodySpentViews}} · Body {{this.label}} {{this.spent}}{{/each}}</div>
-          <div class="sb-status sb-status-{{bondStatus}}">Status: <strong>{{bondStatusLabel}}</strong> · Skill slots: {{tokens.skillSlots}}</div>
+          <div>Spent {{tokens.spent}} · Bond {{tokens.bondSpent}}{{#each tokens.bodySpentViews}} · Body {{this.label}} {{this.spent}}{{/each}}</div>
+          <div class="sb-status sb-status-{{bondStatus}}">Status: <strong>{{bondStatusLabel}}</strong></div>
         </div>
       </div>
       <div class="sb-stat-grid">

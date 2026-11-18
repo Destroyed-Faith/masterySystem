@@ -5,7 +5,7 @@ import { validateTowerWizardSelection } from '../creation/tower-wizard/tower-wiz
 import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { findCatalogEntry, CREATION_POWER_TOTAL } from '../utils/power-catalog.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS, CHARACTER_IMPORT_EXPORT_KIND, CHARACTER_IMPORT_SCHEMA_VERSION, CHARACTER_IMPORT_SYSTEM_ID, FOUNDRY_ACTOR_IMPORT_EXPORT_KIND, } from './character-import-types.js';
-import { disadvantagePointsTotal, expectedPowerCount, IMPORT_STARTING_ATTRIBUTE_STONES, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, normalizeImportPermanentColorless, normalizeImportStoneAssignments, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, sumImportStoneAssignments, validateArtifactImportSpec, } from './character-import-build.js';
+import { disadvantagePointsTotal, expectedPowerCount, IMPORT_STARTING_ATTRIBUTE_STONES, isKnownMinorExpressionId, normalizeDisadvantageEntries, normalizeImportPermanentColorless, normalizeImportStoneAssignments, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, sumImportStoneAssignments, validateArtifactImportSpec, } from './character-import-build.js';
 import { validateEchoImprintSelections, validateSpecializationList, } from '../rules/index.js';
 import { ECHO_ARTIFACTS, validateEchoArtifactSelection } from '../utils/echo-artifacts.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
@@ -55,10 +55,6 @@ function validateSkillsAndExpressions(payload) {
     if (payload.skills && typeof payload.skills === 'object') {
         let spent = 0;
         for (const [key, value] of Object.entries(payload.skills)) {
-            if (!isKnownSkillKey(key)) {
-                errors.push(`Unknown skill key "${key}".`);
-                continue;
-            }
             const rank = Number(value);
             if (!Number.isFinite(rank) || rank < 0) {
                 errors.push(`Skill "${key}" must be a non-negative number.`);
@@ -180,7 +176,7 @@ function validateDf2026Fields(payload) {
     });
     const warnings = [];
     if (payload.skills && Object.keys(payload.skills).length > 0) {
-        warnings.push('Legacy `skills` are archive-only — define `specializations` instead; Ratings are not converted.');
+        warnings.push('Legacy `skills` are archived on the actor flag only — define `specializations` instead; Ratings are not converted.');
     }
     if (Array.isArray(payload.minorExpressions) && payload.minorExpressions.length > 0) {
         warnings.push('Legacy `minorExpressions` are archive-only — define `echoImprints` instead.');

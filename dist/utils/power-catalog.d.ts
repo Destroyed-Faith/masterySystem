@@ -10,7 +10,7 @@
  * Filter axes (CatalogFilter):
  *  - category    : PowerCategory
  *  - subfamily   : string (e.g. 'teleport', 'damage-aoe', 'conditional-combined')
- *  - templateId  : canonical template id (e.g. 'active-ranged-damage-t4')
+ *  - templateId  : canonical template id (e.g. 'active-ranged-instant-special-t4')
  *  - tier        : 3 | 4 | 5 | 6     (Actives only)
  *  - special     : Special key   (Actives only — matches chosenSpecial.key)
  *  - uiEffect    : UI-only Active Effect discovery filter
@@ -251,14 +251,6 @@ export declare function catalogSelectOptionLabel(entry: CatalogEntry): string;
 export declare function sortCatalogEntriesForPicker(entries: CatalogEntry[]): CatalogEntry[];
 /** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
 export declare function echoRequirementMet(requires: string[] | undefined, echoKey?: string | null, subChoiceKey?: string | null): boolean;
-/** Dispel actives are retired — cleanse covers table play; hide from all pickers. */
-export declare function isDispelCatalogEntry(entry: {
-    templateId: string;
-    subfamily?: string;
-    chosenSpecial?: {
-        key: string;
-    };
-}): boolean;
 export declare function getAllCatalogEntries(): CatalogEntry[];
 /** Invalidate the catalog cache (mainly for tests). */
 export declare function _resetCatalogCache(): void;

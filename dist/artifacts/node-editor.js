@@ -45,7 +45,7 @@ const STONE_FN_ATTR_LABELS = {
 };
 /**
  * Catalog Power templates the GM can assign to a progression pick, grouped by
- * category. Martial Special Damage delivery forms live in the Active list
+ * category. Martial Single Target / AoE Special delivery forms live in the Active list
  * (`martial:melee-single`, etc.) with a Special picker — no separate mode.
  */
 const POWER_PICK_MODE_OPTIONS = [

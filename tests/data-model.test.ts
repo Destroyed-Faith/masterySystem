@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { SKILLS } from '../src/utils/skills';
 
 const templatePath = resolve(__dirname, '..', 'template.json');
 const template = JSON.parse(readFileSync(templatePath, 'utf8'));
@@ -317,35 +316,5 @@ describe('Item Data Model - template.json', () => {
     it('has masteryRank', () => {
       expect(schtick.masteryRank).toBeDefined();
     });
-  });
-});
-
-describe('Skill Keys Match Between skills.ts and Data Model', () => {
-  it('all skill keys in SKILLS are valid identifiers', () => {
-    for (const key of Object.keys(SKILLS)) {
-      expect(key).toMatch(/^[a-zA-Z][a-zA-Z0-9]*$/);
-    }
-  });
-
-  it('every skill has a valid category', () => {
-    const validCategories = ['Perception', 'Awareness', 'Physical', 'Knowledge & Craft', 'Social', 'Survival'];
-    for (const skill of Object.values(SKILLS)) {
-      expect(validCategories).toContain(skill.category);
-    }
-  });
-
-  it('every skill has at least one attribute', () => {
-    for (const [key, skill] of Object.entries(SKILLS)) {
-      expect(skill.attributes.length).toBeGreaterThanOrEqual(1);
-    }
-  });
-
-  it('all skill attributes reference valid attribute names', () => {
-    const validAttrs = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-    for (const skill of Object.values(SKILLS)) {
-      for (const attr of skill.attributes) {
-        expect(validAttrs).toContain(attr);
-      }
-    }
   });
 });

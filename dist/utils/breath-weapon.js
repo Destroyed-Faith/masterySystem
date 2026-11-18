@@ -12,59 +12,39 @@
  * Do not add Dragon Claws or other weapons to Damage Breath.
  */
 import { weaponDamageForLevel } from './artifact-base-derive.js';
-export function isBreathWeaponName(name) {
-    const n = String(name || '');
-    return /breath\s*weapon/i.test(n) || /damage\s*breath/i.test(n) || /ruin\s*breath/i.test(n);
-}
-export function isDragonBreathDamageMode(name) {
-    return /damage\s*breath/i.test(String(name || ''));
-}
-export function isDragonBreathRuinMode(name) {
-    return /ruin\s*breath/i.test(String(name || ''));
-}
-/** Damage Breath cone length (m) at artifact stages → PL 4 / 10 / 16. */
-export function breathDamageConeMeters(artifactLevel) {
-    const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
-    if (level <= 3)
-        return 3;
-    if (level <= 6)
-        return 6;
-    return 8;
-}
-/** Ruin Breath cone length (m) at artifact stages → PL 4 / 10 / 16. */
-export function breathRuinConeMeters(artifactLevel) {
-    const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
-    if (level <= 3)
-        return 3;
-    if (level <= 6)
-        return 5;
-    return 7;
-}
-/** @deprecated Prefer `breathDamageConeMeters` (Breath is Cone, not a radius burst). */
-export function breathDamageRadiusMeters(artifactLevel) {
-    return breathDamageConeMeters(artifactLevel);
-}
-/** @deprecated Prefer `breathRuinConeMeters`. */
-export function breathRuinRadiusMeters(artifactLevel) {
-    return breathRuinConeMeters(artifactLevel);
-}
-/** Printed Melee AoE Attack Power Dice at Breath stages (PL 4 / 10 / 16). */
-export function breathPowerDamageDice(artifactLevel) {
+import { aoeSpecialRadiusM, aoeSpecialRank } from './powers/instant-special-ranks.js';
+import { getTemplate } from './powers/templates/index.js';
+/** Breath Weapon stage I / II / III (Artifact Level 1–3 / 4–6 / 7–10) → Power Level 4 / 10 / 16. */
+export function breathPowerLevel(artifactLevel) {
     const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
     if (level <= 3)
         return 4;
     if (level <= 6)
-        return 7;
-    return 13;
+        return 10;
+    return 16;
 }
-/** Printed Melee AoE Special: Ruin(X) at Breath stages (PL 4 / 10 / 16). */
+const DAMAGE_BREATH_TEMPLATE_ID = 'active-melee-weapon-aoe';
+function damageBreathRow(artifactLevel) {
+    const tpl = getTemplate(DAMAGE_BREATH_TEMPLATE_ID);
+    return tpl?.levels?.[String(breathPowerLevel(artifactLevel))];
+}
+/** Damage Breath cone length (m): Melee AoE Attack radius at the stage Power Level. */
+export function breathDamageConeMeters(artifactLevel) {
+    return Number(damageBreathRow(artifactLevel)?.aoe?.radiusM) || 0;
+}
+/** Ruin Breath cone length (m): Melee AoE Special: Ruin radius at the stage Power Level. */
+export function breathRuinConeMeters(artifactLevel) {
+    return aoeSpecialRadiusM('melee', 'ruin', breathPowerLevel(artifactLevel)) ?? 0;
+}
+/** Melee AoE Attack Power Dice (d8 count) at the stage Power Level. */
+export function breathPowerDamageDice(artifactLevel) {
+    const flat = String(damageBreathRow(artifactLevel)?.mechanics?.damageRider?.flat || '');
+    const m = flat.match(/(\d+)d8/i);
+    return m ? Number(m[1]) : 0;
+}
+/** Melee AoE Special: Ruin(X) at the stage Power Level. */
 export function breathRuinValue(artifactLevel) {
-    const level = Math.max(1, Math.floor(Number(artifactLevel) || 1));
-    if (level <= 3)
-        return 5;
-    if (level <= 6)
-        return 9;
-    return 10;
+    return aoeSpecialRank('melee', 'ruin', breathPowerLevel(artifactLevel)) ?? 0;
 }
 /** Dragon Head Bite Weapon Damage at Artifact Level (1d8…10d8). */
 export function dragonHeadBiteDamage(artifactLevel) {
@@ -102,9 +82,7 @@ export function breathWeaponRowDisplay(artifactLevel) {
 export function progressionRowRangeAoe(row, fallbackLevel) {
     if (!row)
         return { range: '', aoe: '' };
-    // K8.d: prefer artifactFunctionId; name bridge when afid absent.
-    if (row.artifactFunctionId === 'dragon-breath' ||
-        (!row.artifactFunctionId && isBreathWeaponName(row.name))) {
+    if (row.artifactFunctionId === 'dragon-breath') {
         return breathWeaponRowDisplay(Number(row.level) || Number(fallbackLevel) || 1);
     }
     return { range: String(row.range || ''), aoe: String(row.aoe || '') };

@@ -12,7 +12,7 @@
  * stacks still decay linearly each turn.
  *
  * Mechanical effects implemented per canonical special-effects.ts:
- *   ruin — tick damage 4×X (ignores Armor); exorcism/requiem — tick X (ignores Armor), corrode — Armor −X,
+ *   ruin — tick damage 4×X (ignores Armor), corrode — Armor −X,
  *   expose — Evade −X, disoriented — attack dice −X, challenge — attack dice
  *   −X when ignoring the challenger, sundered — +1d8 per 2 on non-Spell hits,
  *   hex — +1d8 per 2 on Spell hits, lacerate — movement-triggered damage,

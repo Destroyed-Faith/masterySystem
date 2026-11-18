@@ -33,7 +33,7 @@ import {
   type SpecializationRecord,
 } from '../rules/index.js';
 import { DF_2026_RULES_SCHEMA_VERSION } from '../rules/index.js';
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { LEGACY_SKILL_CATALOG, LEGACY_SKILL_CATEGORIES } from './legacy-skill-catalog.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import {
   DF_2026_LEGACY_SNAPSHOT_FLAG,
@@ -56,11 +56,11 @@ const IMPRINT_ATTRIBUTES: EchoImprintAttribute[] = [
 /** Legacy Skill category → closest Specialization Field (suggestion only). */
 const CATEGORY_TO_FIELD: Record<string, SkillField> = {
   // Perception is a free universal Skill — do not suggest it as Investigation.
-  [SKILL_CATEGORIES.AWARENESS]: 'investigation',
-  [SKILL_CATEGORIES.PHYSICAL]: 'physical',
-  [SKILL_CATEGORIES.KNOWLEDGE_CRAFT]: 'science-craft',
-  [SKILL_CATEGORIES.SOCIAL]: 'social',
-  [SKILL_CATEGORIES.SURVIVAL]: 'survival',
+  [LEGACY_SKILL_CATEGORIES.AWARENESS]: 'investigation',
+  [LEGACY_SKILL_CATEGORIES.PHYSICAL]: 'physical',
+  [LEGACY_SKILL_CATEGORIES.KNOWLEDGE_CRAFT]: 'science-craft',
+  [LEGACY_SKILL_CATEGORIES.SOCIAL]: 'social',
+  [LEGACY_SKILL_CATEGORIES.SURVIVAL]: 'survival',
 };
 
 /** One rated legacy Skill from the migration snapshot (display / copy only). */
@@ -204,7 +204,7 @@ export function buildDf2026ReviewPlan(actor: any): Df2026ReviewPlan {
     for (const [skillKey, value] of Object.entries(legacySkills as Record<string, unknown>)) {
       const rating = legacyRating(value);
       if (rating <= 0) continue;
-      const def = SKILLS[skillKey];
+      const def = LEGACY_SKILL_CATALOG[skillKey];
       const name = def?.name ?? titleCase(skillKey);
       // Universal Perception is never a paid Spec suggestion.
       if (skillKey === 'perception' || normalizeSpecializationName(name) === 'perception') {

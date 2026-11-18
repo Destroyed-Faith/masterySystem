@@ -174,13 +174,13 @@ describe('Moonlight Greatsword', () => {
     );
   });
 
-  it('builds its three signature lines from standard catalog Powers (only renamed)', () => {
+  it('builds its three signature lines (Healing Stone Power Support + standard catalog Powers)', () => {
     const def = getGeneralArtifact('moonlightGreatsword')!;
-    // Artifacts_FULL_Moonlight_Sundered: Mending = ST Heal; Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
+    // PH: Mending = Resolve Ability: Healing (Stone Power Support); Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
     const picks = buildEchoProgressionPicks(def) as any[];
-    expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
-    expect(picks.map((p) => p.powerTemplateId)).toEqual([
-      'active-ranged-single-heal',
+    expect(picks.map((p) => p.kind)).toEqual(['stoneFunction', 'power', 'power']);
+    expect(picks[0].stoneFunction).toMatchObject({ attribute: 'resolve', stonePowerId: 'resolve.healing', supportStages: [1, 4, 7] });
+    expect(picks.slice(1).map((p) => p.powerTemplateId)).toEqual([
       'active-ranged-limited-aoe',
       'ab-sundered-aura',
     ]);
@@ -193,19 +193,15 @@ describe('Moonlight Greatsword', () => {
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Moonlight Shadow/);
     expect((byLevel.get(10) as any).name).toMatch(/Artifact Awakening/i);
 
-    const mending = sysAt(tree, 7).powers.find((p: any) => /Moonlight Mending/.test(p.name));
-    expect(mending.category).toBe('active');
-
-    // Catalogue: Ranged Single Target Heal PL 4 / 10 / 16 → 5d8 / 12d8 / 20d8 HP.
     const mendingRows = resolvedProgression(def).filter((r: any) => /Moonlight Mending/.test(r.name)) as any[];
     expect(mendingRows.map((r) => r.level)).toEqual([1, 4, 7]);
     for (const r of mendingRows) {
-      expect(r.powerTemplateId).toBe('active-ranged-single-heal');
-      expect(r.effect).toMatch(/\d+d8 HP/);
+      expect(r.powerTemplateId).toBeFalsy();
+      expect(r.effect).not.toMatch(/\d+d8 HP/);
     }
-    expect(mendingRows[0].effect).toMatch(/\b5d8 HP\b/);
-    expect(mendingRows[1].effect).toMatch(/\b12d8 HP\b/);
-    expect(mendingRows[2].effect).toMatch(/\b20d8 HP\b/);
+    expect(mendingRows[0].effect).toMatch(/Rank 2/);
+    expect(mendingRows[1].effect).toMatch(/Rank 3/);
+    expect(mendingRows[2].effect).toMatch(/Rank 4/);
     const shadow = sysAt(tree, 6).powers.find((p: any) => /Moonlight Shadow/.test(p.name));
     expect(shadow.category).toBe('activeBuff');
   });
@@ -963,7 +959,7 @@ describe("Lor-Keth's Staff", () => {
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'stoneFunction']);
     expect(picks[0]).toMatchObject({
-      powerTemplateId: 'active-melee-damage-t5',
+      powerTemplateId: 'active-melee-instant-special-t5',
       chosenSpecial: { key: 'challenge' },
       displayName: 'Giant Shock Strike',
     });
@@ -985,7 +981,7 @@ describe("Lor-Keth's Staff", () => {
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Might Ignore Armor Support/);
     expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
-    expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-damage-t5');
+    expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-instant-special-t5');
     expect((byLevel.get(1) as any).chosenSpecialKey).toBe('challenge');
     expect((byLevel.get(2) as any).powerTemplateId).toBe('reaction-armor');
     expect((byLevel.get(1) as any).type).toMatch(/Melee/i);

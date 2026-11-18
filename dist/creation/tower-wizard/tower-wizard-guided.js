@@ -714,7 +714,7 @@ function findGuidedSpecialCatalogEntry(delivery, specialKey, actorEchoKey) {
     }
     const tiers = [4, 3, 5, 6];
     const templateBases = [
-        (t) => `active-${delivery}-damage-t${t}`,
+        (t) => `active-${delivery}-instant-special-t${t}`,
         (t) => `active-${delivery}-aoe-damage-t${t}`,
     ];
     for (const tier of tiers) {

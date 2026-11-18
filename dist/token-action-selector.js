@@ -1209,8 +1209,8 @@ export async function handleChosenCombatOption(token, option) {
     catch (err) {
         console.warn('Mastery System | heal/cleanse radial branch failed', err);
     }
-    // A grappler attacking with a weapon has to let go first (unarmed Basic
-    // Attack and spells keep the hold). Asked once, before targeting starts.
+    // A grappler attacking with a weapon has to let go first (Unarmed Melee
+    // Attack Powers and spells keep the hold). Asked once, before targeting starts.
     if (option.slot === 'attack') {
         try {
             const { attackRequiresGrappleRelease } = await import('./combat/grapple-state.js');

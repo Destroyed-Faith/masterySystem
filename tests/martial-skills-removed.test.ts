@@ -1,23 +1,18 @@
 /**
  * Martial Skills (Hand-to-Hand, Melee Weapons, Ranged Weapons, Defensive
- * Combat, Combat Reflexes) no longer exist. Combat rolls stand as rolled;
- * only Skill Checks and Rituals still spend Skill Points.
+ * Combat, Combat Reflexes) no longer exist. The retired Skill keys survive only as a
+ * migration lookup; combat rolls stand as rolled.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { SKILLS, SKILL_CATEGORIES, getSkillsByCategory } from '../src/utils/skills';
+import { LEGACY_SKILL_CATALOG, LEGACY_SKILL_CATEGORIES } from '../src/migrations/legacy-skill-catalog';
 import {
-  RITUALS,
-  RITUAL_CATEGORY_LABELS,
-  RITUAL_SKILLS_BY_CATEGORY,
-  eligibleSkillsForRitual,
-} from '../src/utils/rituals';
+  LEGACY_SKILL_QUARANTINE_FLAG,
+  quarantineLegacySkillWrites,
+  stripLegacySkillWrites,
+} from '../src/utils/legacy-skill-write-guard';
 import { getTargetEvade } from '../src/combat/target-defenses';
-import {
-  applySkillSpendToActor,
-  getSkillSpendOptions,
-} from '../src/epic-roll/epic-mastery-roll-skill-spend';
 import { COMBAT_MANEUVERS } from '../src/system/combat-maneuvers';
 
 const LEGACY_KEYS = ['handToHand', 'meleeWeapons', 'rangedWeapons', 'defensiveCombat', 'combatReflexes'];
@@ -41,47 +36,69 @@ function read(rel: string): string {
   return readFileSync(resolve(rel), 'utf8');
 }
 
-describe('Martial Skills are gone from the active Skill system', () => {
-  it('Skill selection / allocation lists none of the removed Skills or a Martial category', () => {
-    for (const key of LEGACY_KEYS) expect(SKILLS[key]).toBeUndefined();
-    const names = Object.values(SKILLS).map((s) => s.name);
+describe('the fixed Skill catalog is retired', () => {
+  it('no runtime Skill catalog module remains', () => {
+    expect(existsSync(resolve('src/utils/skills.ts'))).toBe(false);
+    expect(existsSync(resolve('dist/utils/skills.js'))).toBe(false);
+  });
+
+  it('the migration lookup lists none of the Martial Skills or a Martial category', () => {
+    for (const key of LEGACY_KEYS) expect(LEGACY_SKILL_CATALOG[key]).toBeUndefined();
+    const names = Object.values(LEGACY_SKILL_CATALOG).map((s) => s.name);
     for (const name of LEGACY_NAMES) expect(names).not.toContain(name);
-    expect(Object.values(SKILL_CATEGORIES)).not.toContain('Martial');
-    expect(Object.keys(getSkillsByCategory())).not.toContain('Martial');
-    expect(Object.keys(SKILLS)).toHaveLength(31);
+    expect(Object.values(LEGACY_SKILL_CATEGORIES)).not.toContain('Martial');
+    expect(Object.keys(LEGACY_SKILL_CATALOG)).toHaveLength(31);
   });
 
-  it('Ritual Skill categories have no Martial category and still resolve eligible Skills', () => {
-    expect((RITUAL_CATEGORY_LABELS as Record<string, string>).martial).toBeUndefined();
-    expect((RITUAL_SKILLS_BY_CATEGORY as Record<string, readonly string[]>).martial).toBeUndefined();
-    const catalogNames = new Set(Object.values(SKILLS).map((s) => s.name));
-    for (const skillList of Object.values(RITUAL_SKILLS_BY_CATEGORY)) {
-      for (const name of skillList) {
-        expect(catalogNames.has(name)).toBe(true);
-        expect(LEGACY_NAMES).not.toContain(name);
-      }
+  it('only migrations import the lookup', () => {
+    const offenders: string[] = [];
+    for (const file of walk(resolve('src'), ['.ts'])) {
+      if (file.startsWith(resolve('src/migrations') + sep)) continue;
+      if (/legacy-skill-catalog/.test(readFileSync(file, 'utf8'))) offenders.push(file);
     }
-    for (const ritual of RITUALS) {
-      const eligible = eligibleSkillsForRitual(ritual);
-      expect(eligible.length).toBeGreaterThan(0);
-      for (const name of eligible) expect(LEGACY_NAMES).not.toContain(name);
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe('no runtime code writes retired Skill or Echo Card data', () => {
+  // Deletions (`-=`) are allowed; any set of these paths would recreate legacy state.
+  const WRITE_PATTERN =
+    /['"`]system\.(?:skills|skillsSpent|skillPoints|creation\.skillsRedistributing|creation\.skillsRedistributeBackup|postCreationProgress\.(?:skills|skillsSpent|skillPointsUnspent)|echo\.(?:selectedCardIds|cardUses)|echoCards)\b/;
+  const allowed = new Set([resolve('src/utils/legacy-skill-write-guard.ts')]);
+
+  it('runtime sources outside src/migrations', () => {
+    const offenders: string[] = [];
+    for (const file of walk(resolve('src'), ['.ts'])) {
+      if (file.startsWith(resolve('src/migrations') + sep) || allowed.has(file)) continue;
+      readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+        if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;
+        if (WRITE_PATTERN.test(line)) offenders.push(`${relative(resolve('.'), file)}:${i + 1}`);
+      });
     }
+    expect(offenders).toEqual([]);
   });
 
-  it('Skill Point spending is retired (DF 2026): no options, no actor update', async () => {
-    const updates: Record<string, unknown>[] = [];
-    const actor: any = {
-      system: { skills: { perception: 8 }, skillsSpent: { perception: 2 }, mastery: { rank: 2 } },
-      update: async (data: Record<string, unknown>) => {
-        updates.push(data);
-      },
-    };
-    const roll: any = { kept: [5, 6], tn: 14, success: false, raises: 0 };
-    const { remainingPool, options } = getSkillSpendOptions(actor, 'perception', roll);
-    expect(remainingPool).toBe(0);
-    expect(options).toEqual([]);
-    await applySkillSpendToActor(actor, 'perception', 4);
-    expect(updates).toEqual([]);
+  it('the scan catches a legacy write', () => {
+    expect(WRITE_PATTERN.test(`await actor.update({ 'system.skills.athletics': 2 });`)).toBe(true);
+    expect(WRITE_PATTERN.test(`updates['system.echo.cardUses'] = {};`)).toBe(true);
+    expect(WRITE_PATTERN.test(`updates['system.echo.-=cardUses'] = null;`)).toBe(false);
+  });
+
+  it('the write guard quarantines Echo Card picks from an old export', () => {
+    const create: any = { system: { echo: { key: 'humans', selectedCardIds: ['c1'], cardUses: { c1: true } } } };
+    quarantineLegacySkillWrites(create);
+    expect(create.system.echo).toEqual({ key: 'humans' });
+    const entry = create.flags['mastery-system'][LEGACY_SKILL_QUARANTINE_FLAG].entries[0];
+    expect(entry.values['system.echo.selectedCardIds']).toEqual(['c1']);
+    const flat: any = { 'system.echo.cardUses': {}, 'system.echo.-=selectedCardIds': null };
+    stripLegacySkillWrites(flat);
+    expect(flat).toEqual({ 'system.echo.-=selectedCardIds': null });
+  });
+
+  it('template.json seeds no Echo Card fields', () => {
+    const template = JSON.parse(read('template.json'));
+    expect(template.Actor.character.echo.selectedCardIds).toBeUndefined();
+    expect(template.Actor.character.echo.cardUses).toBeUndefined();
   });
 });
 
@@ -133,6 +150,7 @@ describe('no player-facing surface mentions the removed Skills', () => {
   const allowed = new Set([
     resolve('src/migrations/martial-skills-refund-migration.ts'),
     resolve('src/progression/xp-consistency.ts'),
+    resolve('src/migrations/legacy-cleanup-2026-migration.ts'),
   ]);
   // Embedded DF 2026 catalogs may use plain English like "defensive combat effect"
   // in imprint/ritual flavor — not the retired Martial Skill keys.
@@ -159,8 +177,12 @@ describe('no player-facing surface mentions the removed Skills', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('template.json keeps a cleared Skill Point residue field (retired)', () => {
+  it('template.json has no legacy Skill fields', () => {
     const template = JSON.parse(read('template.json'));
-    expect(template.Actor.character.skillPoints).toEqual({ unspent: 0, placed: {} });
+    for (const key of ['skills', 'skillsSpent', 'skillPoints']) {
+      expect(template.Actor.character[key]).toBeUndefined();
+    }
+    expect(template.Actor.npc.skills).toBeUndefined();
+    expect(template.Actor.character.creation.skillsRedistributing).toBeUndefined();
   });
 });

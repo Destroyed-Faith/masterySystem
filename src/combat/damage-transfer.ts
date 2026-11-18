@@ -76,7 +76,6 @@ export function isInstantAoeFlags(flags: InstantAoeFlagBag | null | undefined): 
  * Covers:
  * - Instant Single-Special (ST): `active-*-instant-special-t[3-6]`
  * - Instant AoE Special (0 Power dice): `active-*-aoe-damage-t[3-6]`
- * - AoE Targeted Special (Exorcism/Requiem, no Power/Weapon/Focus damage)
  *
  * Does NOT cover Damage+Special (`active-*-damage-t*`), ST Targeted Special
  * (weapon damage), or Weapon AoE (shared Damage Pool).
@@ -86,8 +85,7 @@ export function isSpecialOnlyTemplateId(templateId: unknown): boolean {
   if (!id) return false;
   return (
     /^active-(melee|ranged)-instant-special-t[3-6]$/.test(id) ||
-    /^active-(melee|ranged)-aoe-damage-t[3-6]$/.test(id) ||
-    /^active-(melee|ranged)-aoe-targeted-special$/.test(id)
+    /^active-(melee|ranged)-aoe-damage-t[3-6]$/.test(id)
   );
 }
 

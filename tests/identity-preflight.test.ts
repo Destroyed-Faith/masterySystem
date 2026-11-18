@@ -322,13 +322,6 @@ describe('identity preflight', () => {
             currentLevel: 2,
             levelProgression: [
               {
-                level: 1,
-                name: 'Moonlight Mending I',
-                type: 'Ranged',
-                powerTemplateId: 'active-ranged-single-heal',
-                rank: 4,
-              },
-              {
                 level: 2,
                 name: 'Moonlight Judgment I',
                 type: 'Artifact Active, Spell',

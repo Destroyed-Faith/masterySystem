@@ -5,7 +5,6 @@
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getEffect, getEffectById } from '../utils/special-effects.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
-import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
 import { getRoundState } from './action-economy.js';
 /**
  * Ward total on the defender: Passive `wardIncoming` plus the Stone
@@ -81,6 +80,7 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
         const sourceUuid = attacker
             ? String(attacker.uuid ?? attacker.id ?? '') || null
             : null;
+        let ruinStacksAdded = 0;
         for (const specialName of specialsUsed) {
             const parseName = String(specialName || '')
                 .replace(/\s*\[Passive:[^\]]*\]\s*$/i, '')
@@ -165,13 +165,12 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
                 limitNotes.push('Root(1) is below the minimum applied value of Root(2) — not applied.');
                 continue;
             }
-            if ((effectId === 'exorcism' || effectId === 'requiem') &&
-                !isTargetedSpecialValidTarget(effectId, target)) {
-                continue;
-            }
             if (isChallenge && wardedValue !== null && wardedValue > 0) {
                 list = mergeChallengeEntry(list, wardedValue, sourceName, sourceUuid);
                 continue;
+            }
+            if (effectId === 'ruin' && wardedValue !== null && wardedValue > 0) {
+                ruinStacksAdded += wardedValue;
             }
             const existingEffect = list.find((e) => (effectId && e.id === effectId) || e.name === effectName);
             if (existingEffect) {
@@ -194,8 +193,20 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
                 });
             }
         }
+        let ruinImmediate = null;
+        if (ruinStacksAdded > 0 && !options?.skipRuinImmediateDamage) {
+            const { buildRuinImmediateDamage } = await import('./ruin-immediate.js');
+            ruinImmediate = await buildRuinImmediateDamage(target, ruinStacksAdded);
+        }
         const { writeActorStatusList } = await import('../system/assign-status.js');
-        await writeActorStatusList(target, list, {}, { deferVisuals: !!options?.deferVisuals });
+        await writeActorStatusList(target, list, ruinImmediate?.patch ?? {}, {
+            deferVisuals: !!options?.deferVisuals,
+        });
+        if (ruinImmediate?.note) {
+            const { announceRuinImmediateDamage, afterRuinImmediateDamage } = await import('./ruin-immediate.js');
+            await announceRuinImmediateDamage(target, ruinImmediate);
+            await afterRuinImmediateDamage(target, ruinImmediate);
+        }
         if (!options?.skipReactiveCleanse) {
             try {
                 const { maybeOfferReactiveCleanseChat } = await import('./reaction-followups.js');

@@ -142,7 +142,7 @@ export function contestConsequence(
     if (outcome === 'initiator') {
       return {
         grapple: 'apply',
-        note: `${initiatorName} and ${opponentName} are now Grappled with each other: Speed 0 m, neither may move away voluntarily. Grapple deals no damage — hurting the held creature is a separate Unarmed Basic Attack. Weapon attacks require releasing the Grapple first.`,
+        note: `${initiatorName} and ${opponentName} are now Grappled with each other: Speed 0 m, neither may move away voluntarily. Grapple deals no damage — hurting the held creature takes a separate Melee Attack Power with Unarmed delivery. Weapon attacks require releasing the Grapple first.`,
       };
     }
     return { grapple: 'none', note: `${opponentName} remains free.` };

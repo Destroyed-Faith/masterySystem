@@ -335,6 +335,19 @@ export declare function powerUseInstanceIdFromOption(option: {
     consumableItemId?: string;
     tags?: string[];
 } | null | undefined): string;
+/**
+ * Template id behind a Power Use Limit key: learned/granted embedded power
+ * items, or artifact staged-slot grants (`artifact:<itemId>:slot:N`).
+ */
+export declare function powerUseTemplateId(actor: Actor, powerItemId: string): string;
+/**
+ * Actives Power Use Limit: Attack Powers (Single Target, AoE, Split, Autofire,
+ * Single Target Special, AoE Special) are repeatable while Attack Actions
+ * remain. Printed use counters (Limited charges, Breath Weapon uses) are
+ * enforced separately; consumables and every non-Attack Active keep the
+ * once-per-Round instance lock.
+ */
+export declare function isRepeatableAttackPower(actor: Actor, powerItemId: string): boolean;
 export declare function hasPowerBeenUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): boolean;
 /**
  * Record a power as used this round. No-op if already recorded.

@@ -12,7 +12,6 @@ import {
   resolveFullLevelProgression,
   visibleAbilityRows,
 } from './artifact-visible-abilities.js';
-import { isBreathWeaponName } from './breath-weapon.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 
 export function isDragonHeadArtifactKey(key: string | null | undefined): boolean {
@@ -29,7 +28,7 @@ export function dragonHeadBreathProgressionBroken(
 ): boolean {
   const level = Math.max(1, Math.min(10, Math.floor(Number(artifactLevel) || 1)));
   const rows = visibleAbilityRows(levelProgression, level);
-  const breath = rows.find((r) => isBreathWeaponName(r.name));
+  const breath = rows.find((r) => r.artifactFunctionId === 'dragon-breath');
   if (!breath) return true;
   const type = String(breath.type || '').trim().toLowerCase();
   // Pre–Melee AoE Core label; catalogue / tree nodes use "Melee AoE".

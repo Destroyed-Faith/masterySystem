@@ -148,29 +148,28 @@ describe('Power Purchase UI filters — Actives Effect/Delivery', () => {
     }
   });
 
-  it('multi-label effects work (damage+special; damage+healing transfer)', () => {
-    expect(activeMatchesUiEffect('active-melee-damage-t4', 'damage')).toBe(true);
-    expect(activeMatchesUiEffect('active-melee-damage-t4', 'special')).toBe(true);
-    expect(activeMatchesUiEffect('active-melee-damage-t4', 'healing')).toBe(false);
+  it('multi-label effects work (damage+healing transfer)', () => {
+    expect(getActiveUiFilterMeta('active-melee-damage-t4')).toBeNull();
 
     expect(activeMatchesUiEffect('active-melee-single-target-damage-transfer', 'damage')).toBe(true);
     expect(activeMatchesUiEffect('active-melee-single-target-damage-transfer', 'healing')).toBe(true);
 
     const dmg = filterCatalog({ category: 'active', uiEffect: 'damage' });
     const special = filterCatalog({ category: 'active', uiEffect: 'special' });
-    expect(dmg.some((e) => e.templateId === 'active-melee-damage-t4')).toBe(true);
-    expect(special.some((e) => e.templateId === 'active-melee-damage-t4')).toBe(true);
+    // Damage + Special no longer exists.
+    expect(dmg.some((e) => e.templateId === 'active-melee-damage-t4')).toBe(false);
+    expect(special.some((e) => e.templateId === 'active-melee-damage-t4')).toBe(false);
+    expect(special.some((e) => e.templateId === 'active-melee-instant-special-t4')).toBe(true);
+    expect(dmg.some((e) => e.templateId === 'active-melee-instant-special-t4')).toBe(false);
     expect(dmg.some((e) => e.templateId === 'active-melee-single-target-damage-transfer')).toBe(true);
   });
 
-  it('mechanics-accurate tags: zones special-only, absorption protection, split/autofire single-target', () => {
+  it('mechanics-accurate tags: zones special-only, split/autofire single-target', () => {
     expect(activeMatchesUiEffect('active-ranged-zone-t4', 'special')).toBe(true);
     expect(activeMatchesUiEffect('active-ranged-zone-t4', 'damage')).toBe(false);
     expect(activeMatchesUiDelivery('active-ranged-zone-t4', 'zone-persistent')).toBe(true);
 
-    expect(activeMatchesUiEffect('active-cleanse-absorption', 'cleanse')).toBe(true);
-    expect(activeMatchesUiEffect('active-cleanse-absorption', 'protection')).toBe(true);
-    expect(activeMatchesUiEffect('active-cleanse-absorption', 'utility')).toBe(false);
+    expect(getActiveUiFilterMeta('active-cleanse-absorption')).toBeNull();
 
     expect(activeMatchesUiDelivery('active-melee-weapon-split', 'single-target')).toBe(true);
     expect(activeMatchesUiDelivery('active-ranged-weapon-autofire', 'single-target')).toBe(true);
@@ -212,8 +211,8 @@ describe('Power Purchase UI filters — Actives Effect/Delivery', () => {
 
   it('Mental, Weapon, Barrier, Control remain discoverable', () => {
     const any = filterCatalog({ category: 'active' });
+    expect(any.some((e) => e.templateId === 'active-mental-attack')).toBe(false);
     for (const id of [
-      'active-mental-attack',
       'active-mental-control',
       'active-mind-illusion',
       'active-mind-probe',

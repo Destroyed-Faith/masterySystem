@@ -39,18 +39,6 @@
       "ruleCite": "C1 — illusion roll.kind none → utility; legacy attack. C2.a."
     },
     {
-      "templateId": "active-melee-single-heal",
-      "identity": "utility",
-      "legacy": "attack",
-      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
-    },
-    {
-      "templateId": "active-ranged-single-heal",
-      "identity": "utility",
-      "legacy": "attack",
-      "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
-    },
-    {
       "templateId": "active-melee-health-level-heal",
       "identity": "utility",
       "legacy": "attack",
@@ -73,18 +61,6 @@
       "identity": "utility",
       "legacy": "attack",
       "ruleCite": "C1 — support-heal → utility; legacy attack. C2.a/e."
-    },
-    {
-      "templateId": "active-cleanse-absorption",
-      "identity": "utility",
-      "legacy": "attack",
-      "ruleCite": "C1 — support-cleanse → utility; legacy attack. C2.a/e."
-    },
-    {
-      "templateId": "active-mental-attack",
-      "identity": "utility",
-      "legacy": "attack",
-      "ruleCite": "C1 — mental roll.kind none → utility; legacy attack. C2.a decision needed."
     },
     {
       "templateId": "active-mind-illusion",

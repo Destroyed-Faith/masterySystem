@@ -16,8 +16,6 @@
 import { calculateBaseEvade, isHealthBarScarred } from '../utils/calculations.js';
 import { buildStoneProgressionSlots, chunkLifetimeSlots, deriveLifetimeXp, permanentColorlessCount, readAssignments, usesV099Stones, } from '../progression/v099-rules.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
-import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
@@ -30,7 +28,7 @@ import { colorlessStoneInitiativeCost } from '../stones/colorless-stones.js';
 import { getTemplate } from '../utils/powers/index.js';
 import { passiveDamageNegationReserveForLevel, passiveParryPoolForLevel, } from '../utils/powers/templates/passives.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
-import { getEcho, getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
+import { getEcho } from '../utils/echos/index.js';
 import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../utils/inventory-grid.js';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
@@ -44,9 +42,8 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
 import { resolvePerceptionRank, UNIVERSAL_PERCEPTION_RANK, } from '../rules/skill-check.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
-import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
+import { basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
-import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
 import { DF_2026_RULES_SCHEMA_VERSION, ECHO_IMPRINT_MIN_ATTRIBUTE, SPECIALIZATION_MAX_RANK, echoImprintTierFromAttribute, findEchoImprint, isCharacterPerceptionSpec, readSpecializations, skillAdvantageLabel, skillCritDailyAllowance, } from '../rules/index.js';
 /**
  * Short table-sheet blurb for a Stone Power (Quick Play style).
@@ -183,88 +180,12 @@ function poolAtHealthFraction(pool, fraction) {
     }
     return Math.max(1, Math.floor(pool * (1 - fraction)));
 }
-/** Skill groups in catalog order (Perception is printed separately at the top). */
-const SKILL_GROUPS = [
-    {
-        key: 'physical',
-        label: SKILL_CATEGORIES.PHYSICAL,
-        skills: Object.entries(SKILLS)
-            .filter(([, def]) => def.category === SKILL_CATEGORIES.PHYSICAL)
-            .map(([key]) => key)
-            .sort((a, b) => SKILLS[a].name.localeCompare(SKILLS[b].name)),
-    },
-    {
-        key: 'knowledge',
-        label: SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
-        skills: Object.entries(SKILLS)
-            .filter(([, def]) => def.category === SKILL_CATEGORIES.KNOWLEDGE_CRAFT)
-            .map(([key]) => key)
-            .sort((a, b) => SKILLS[a].name.localeCompare(SKILLS[b].name)),
-    },
-    {
-        key: 'social',
-        label: SKILL_CATEGORIES.SOCIAL,
-        skills: Object.entries(SKILLS)
-            .filter(([, def]) => def.category === SKILL_CATEGORIES.SOCIAL)
-            .map(([key]) => key)
-            .sort((a, b) => SKILLS[a].name.localeCompare(SKILLS[b].name)),
-    },
-    {
-        key: 'survival',
-        label: SKILL_CATEGORIES.SURVIVAL,
-        skills: Object.entries(SKILLS)
-            .filter(([, def]) => def.category === SKILL_CATEGORIES.SURVIVAL)
-            .map(([key]) => key)
-            .sort((a, b) => SKILLS[a].name.localeCompare(SKILLS[b].name)),
-    },
-];
 function cap(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 function num(value, fallback = 0) {
     const n = Number(value);
     return Number.isFinite(n) ? n : fallback;
-}
-function formatAttrs(attrs) {
-    if (!attrs || attrs.length === 0)
-        return '';
-    return attrs.map((a) => cap(a)).join(' / ');
-}
-function buildPrintSkillPoolFields(actor, skillKey, attributes, rating) {
-    const attributeKeys = attributes?.length ? attributes : [];
-    if (!attributeKeys.length) {
-        return { poolLabel: '—', halfPool: false, pool: '—', keep: '', poolChips: [] };
-    }
-    const previews = attributeKeys.map((attributeKey) => buildSkillRollPoolPreview(actor, skillKey, attributeKey, rating));
-    const primary = previews[0];
-    return {
-        poolLabel: previews.map((p) => p.rollLabel).join(' · '),
-        halfPool: previews.some((p) => p.halfPool),
-        pool: primary.numDice > 0 ? primary.numDice : '—',
-        keep: primary.keepDice > 0 ? `k${primary.keepDice}` : '',
-        poolChips: previews.map((p, i) => ({
-            attributeKey: attributeKeys[i],
-            attributeLabel: cap(attributeKeys[i]),
-            rollLabel: p.rollLabel,
-            halfPool: p.halfPool,
-        })),
-    };
-}
-function buildPrintSkillRow(actor, key, rating, spent, masteryRank) {
-    const def = SKILLS[key];
-    const poolFields = buildPrintSkillPoolFields(actor, key, def?.attributes, rating);
-    const boxes = buildSkillUseBoxes(rating, spent, masteryRank || 1).map((b) => ({
-        size: b.size,
-        state: b.state,
-    }));
-    return {
-        key,
-        name: def?.name || cap(key),
-        attrs: formatAttrs(def?.attributes),
-        ...poolFields,
-        rating,
-        boxes,
-    };
 }
 /** Pips printed per Specialization (Rank 1–8). */
 const PRINT_SPEC_PIPS = Array.from({ length: SPECIALIZATION_MAX_RANK }, (_, i) => i + 1);
@@ -319,7 +240,6 @@ function buildPrintSpecializations(system) {
         specializationCount: specs.length,
         specializationBlankRows: Array.from({ length: usesDf2026 ? Math.max(0, PRINT_SPEC_MIN_ROWS - specs.length) : 0 }, (_, i) => i + 1),
         hasSpecializations: specs.length > 0,
-        showSpecializations: specs.length > 0 || usesDf2026,
     };
 }
 /** DF 2026 Echo Imprints with the effect text for the character's current Attribute tier. */
@@ -676,9 +596,9 @@ function buildPrintEquipment(allItems) {
 export function buildCharacterPrintContext(actor, options = {}) {
     const system = actor?.system ?? {};
     const masteryRank = num(system?.mastery?.rank, 2);
-    // Basic Reactions default on; Basic Attack is opt-in (frees an Active card slot).
+    // Basic Reactions default on. There is no Basic Attack (Actives v0.9.9.6).
     const includeStandardManeuvers = options.includeStandardManeuvers !== false;
-    const showBasicAttack = options.showBasicAttack === true;
+    const showBasicAttack = false;
     const includeModules = options.includeModules === true;
     // ── Abilities ─────────────────────────────────────────────────────────
     const abilities = ATTR_ORDER.map((key) => {
@@ -964,26 +884,9 @@ export function buildCharacterPrintContext(actor, options = {}) {
     const battleActive = [];
     const battleBuffs = [];
     const battleReactions = [];
-    // Optional: universal Basic Attack (opt-in) + Basic Reactions (default on).
+    // Basic Reactions (default on).
     if (includeStandardManeuvers) {
-        const mrDice = basicAttackMrDamageFormula(actor);
         const mr2 = basicCombatMrTimesTwo(actor);
-        if (showBasicAttack) {
-            battleActive.push({
-                name: 'Basic Attack',
-                effect: `Weapon Damage + ${mrDice} (MR × 2d8). No Active Power effects. ` +
-                    `Weapon properties and eligible Passives / Buffs still apply.`,
-                phase: 'Active',
-                baseline: true,
-                battleCompact: true,
-                attackKind: 'Melee / Ranged',
-                damageRoll: `Weapon + ${mrDice}`,
-                rollKind: 'damage',
-                rollLabel: 'Damage',
-                battleFootnote: 'Universal — not a Power; usable every round.',
-                hideRank: true,
-            });
-        }
         for (const r of buildBasicReactionItems(actor)) {
             const key = String(r.basicReaction || '');
             const entry = {
@@ -1058,45 +961,6 @@ export function buildCharacterPrintContext(actor, options = {}) {
         activeBuffRoundBoxes,
         activeBuffDuration: activeBuffRoundBoxes.length,
     };
-    // ── Skills: Perception elevated, then categories (full catalog) ──────
-    const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
-    const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-    const perceptionRank = Math.max(UNIVERSAL_PERCEPTION_RANK, resolvePerceptionRank(system), num(skillMap.perception));
-    const perceptionSkill = {
-        ...buildPrintSkillRow(actor, 'perception', Math.max(num(skillMap.perception), perceptionRank), num(skillsSpent.perception), masteryRank || 1),
-        rank: perceptionRank,
-    };
-    const skillCategories = SKILL_GROUPS.map((group) => ({
-        key: group.key,
-        label: group.label,
-        skills: group.skills
-            .filter((sk) => !!SKILLS[sk] && sk !== 'perception')
-            .map((sk) => buildPrintSkillRow(actor, sk, num(skillMap[sk]), num(skillsSpent[sk]), masteryRank || 1)),
-    })).filter((g) => g.skills.length > 0);
-    // Flat list kept for tests / tooling (includes Perception + every catalog skill).
-    const learnedSkills = [
-        perceptionSkill,
-        ...skillCategories.flatMap((g) => g.skills),
-    ];
-    // Legacy full catalog (kept for tests / optional tooling; not printed on core pages).
-    const skillsByGroup = SKILL_GROUPS.map((group) => ({
-        key: group.key,
-        label: group.label,
-        skills: group.skills
-            .filter((sk) => !!SKILLS[sk])
-            .map((sk) => {
-            const def = SKILLS[sk];
-            const rank = num(system?.skills?.[sk]);
-            const uses = buildSkillUseBoxes(rank, 0, masteryRank).map((box) => box.size);
-            return {
-                key: sk,
-                name: def.name,
-                attrs: formatAttrs(def.attributes),
-                rank,
-                uses
-            };
-        })
-    }));
     // ── Disadvantages ─────────────────────────────────────────────────────
     // Show more than just the name: a player-specific line (who hunts you, the
     // substance, the oath/limitation title + note) plus the concise mechanical
@@ -1154,27 +1018,6 @@ export function buildCharacterPrintContext(actor, options = {}) {
             name: def.name,
             attribute: cap(def.attribute),
             body: tierBodyForExpression(def, attrVal)
-        };
-    })
-        .filter(Boolean);
-    // ── Echo Cards — the deck cards the character has actually unlocked ────
-    // Printed near Social Combat on page 2. Each card lists its trigger and its
-    // four skill-keyed options.
-    const echoKey = String(system?.echo?.key ?? '').trim();
-    const selectedEchoCardIds = Array.isArray(system?.echo?.selectedCardIds) ? system.echo.selectedCardIds : [];
-    const echoCards = getLicensedEchoCardIds(selectedEchoCardIds, masteryRank)
-        .map((rawId) => {
-        const card = getEchoCard(echoKey, String(rawId ?? '').trim());
-        if (!card)
-            return null;
-        return {
-            name: card.name,
-            trigger: card.trigger,
-            options: card.options.map((o) => ({
-                label: String(o?.label ?? ''),
-                skill: SKILLS[String(o?.skill ?? '')]?.name ?? cap(String(o?.skill ?? '')),
-                description: String(o?.description ?? '')
-            }))
         };
     })
         .filter(Boolean);
@@ -1373,18 +1216,12 @@ export function buildCharacterPrintContext(actor, options = {}) {
         passivePowerCards,
         battle,
         combatSensesDisplay: buildCombatSensesDisplayContext(actor),
-        skillsByGroup,
-        perceptionSkill,
-        skillCategories,
-        learnedSkills,
-        hasLearnedSkills: learnedSkills.length > 0,
         disadvantages,
         disadvantagePoints,
         // One strike-off square per Disadvantage point (rerolls earned).
         rerollBoxes: Array.from({ length: Math.max(0, disadvantagePoints) }, () => true),
-        // DF 2026 Specializations / Echo Imprints. Legacy skill + Minor Expression
-        // fields stay in the context (tooling / tests) but templates print them
-        // only when the character has not moved to the DF 2026 model.
+        // Professions / Echo Imprints. Minor Expressions print only when the
+        // character has no Echo Imprints yet.
         ...buildPrintSpecializations(system),
         ...buildPrintEchoImprints(system),
         minorExpressions,
@@ -1392,8 +1229,6 @@ export function buildCharacterPrintContext(actor, options = {}) {
         // One strike-off square per Minor Expression use per Safe Haven Rest
         // (Mastery Rank × 2 uses total).
         minorExpressionUseBoxes: Array.from({ length: Math.max(0, masteryRank * 2) }, () => true),
-        echoCards,
-        hasEchoCards: echoCards.length > 0,
         familiars,
         hasFamiliars,
         // Three core table pages; optional modules do not change the core footer.
@@ -2120,23 +1955,6 @@ export function buildCharacterCompactPrintContext(actor) {
         label: 'General',
         powers: compactStoneRows('generic', supportByPowerId),
     };
-    const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
-    const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-    const perceptionRating = num(skillMap.perception);
-    const perceptionSkill = perceptionRating > 0
-        ? buildPrintSkillRow(actor, 'perception', perceptionRating, num(skillsSpent.perception), masteryRank || 1)
-        : null;
-    const skillCategories = SKILL_GROUPS.map((group) => ({
-        key: group.key,
-        label: group.label,
-        skills: group.skills
-            .filter((sk) => sk !== 'perception' && num(skillMap[sk]) > 0)
-            .map((sk) => buildPrintSkillRow(actor, sk, num(skillMap[sk]), num(skillsSpent[sk]), masteryRank || 1)),
-    })).filter((g) => g.skills.length > 0);
-    const skills = [
-        ...(perceptionSkill ? [perceptionSkill] : []),
-        ...skillCategories.flatMap((g) => g.skills),
-    ];
     const weaponSetTiles = buildCompactWeaponSetTiles(actor);
     const powerItems = allItems.filter((i) => i?.type === 'power');
     const powers = {
@@ -2248,10 +2066,6 @@ export function buildCharacterCompactPrintContext(actor) {
         hasStress: stressBars.length > 0,
         attributeModules,
         generalStones,
-        skills,
-        hasSkills: skills.length > 0,
-        perceptionSkill,
-        skillCategories,
         weaponSetTiles,
         hasWeaponSets: weaponSetTiles.length > 0,
         powerGroups,

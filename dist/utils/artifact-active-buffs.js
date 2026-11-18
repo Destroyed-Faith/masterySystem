@@ -249,9 +249,7 @@ export async function activateArtifactActiveBuff(actor, artifactItem, option) {
             return false;
         }
     }
-    // K8.c: structured templateId first; name bridge only when tid absent.
-    const isMoonlightShadow = option.artifactPowerTemplateId === 'ab-sundered-aura' ||
-        (!option.artifactPowerTemplateId && /moonlight\s*shadow/i.test(optionName));
+    const isMoonlightShadow = option.artifactPowerTemplateId === 'ab-sundered-aura';
     // Moonlight Shadow uses official Active Buff: Sundered Aura — no separate
     // Safe Haven Rest use limit (Batch 9I / Artifacts_FULL_Moonlight_Sundered).
     const isGrowth = option.artifactPowerTemplateId === 'ab-growth-form' ||

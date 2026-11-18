@@ -31,18 +31,8 @@
             <img class="emr-portrait-img" src="{{p.portrait}}" alt="{{p.actorName}}" crossorigin="anonymous" />
           </div>
 
-          {{#if p.showAttributePick}}
-          <div class="emr-attr-pick-row">
-            {{#each p.attributeOptions as |opt|}}
-            <button type="button" class="emr-attr-btn {{#if opt.selected}}is-selected{{/if}}" data-action="emr-pick-attr" data-actor-id="{{../actorId}}" data-emr-attr="{{opt.key}}" title="Roll {{opt.numDice}}d8, keep highest {{opt.keepDice}}">
-              {{opt.label}} · {{opt.numDice}}d8 keep {{opt.keepDice}}
-            </button>
-            {{/each}}
-          </div>
-          {{/if}}
-
           {{#if p.canRoll}}
-          <button type="button" class="emr-roll-btn" data-action="emr-roll" data-actor-id="{{p.actorId}}" title="Roll" {{#unless p.rollReady}}disabled{{/unless}} {{#if ../rolling}}disabled{{/if}}>
+          <button type="button" class="emr-roll-btn" data-action="emr-roll" data-actor-id="{{p.actorId}}" title="Roll" {{#if ../rolling}}disabled{{/if}}>
             Roll
           </button>
           {{else if p.showRollResult}}
@@ -64,27 +54,7 @@
           {{/if}}
 
           {{#if p.showFailureActions}}
-          <div class="emr-skill-spend">
-            {{#if p.showSkillSpend}}
-            <div class="emr-skill-packets" role="group" aria-label="Spend skill points by Mastery Rank packet">
-              {{#each p.skillPackets as |pkt|}}
-              <button
-                type="button"
-                class="emr-skill-packet {{#if pkt.locked}}is-locked{{else if pkt.selected}}is-selected{{else}}is-available{{/if}}"
-                data-action="emr-toggle-packet"
-                data-actor-id="{{../actorId}}"
-                data-packet-index="{{pkt.index}}"
-                title="{{#if pkt.locked}}No points{{else}}Spend {{pkt.amount}} skill point(s){{/if}}"
-                {{#if pkt.locked}}disabled{{/if}}
-              >
-                {{pkt.amount}}
-              </button>
-              {{/each}}
-            </div>
-            <button type="button" class="emr-add-skill-btn" data-action="emr-add-skill" data-actor-id="{{p.actorId}}" {{#unless p.canAddSkillPoints}}disabled{{/unless}} hidden>
-              Add Raises
-            </button>
-            {{/if}}
+          <div class="emr-failure-actions">
             {{#if p.showReroll}}
             <button type="button" class="emr-reroll-btn" data-action="emr-reroll" data-actor-id="{{p.actorId}}" title="Spend 1 Reroll Point to reroll all dice once" {{#if ../rolling}}disabled{{/if}}>
               <i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)
@@ -94,33 +64,9 @@
           </div>
           {{/if}}
 
-          {{#if p.showEchoCards}}
-          <div class="emr-echo-cards">
-            <div class="emr-echo-cards-label">Echo Cards</div>
-            {{#each p.echoOffers as |echo|}}
-            <button
-              type="button"
-              class="emr-echo-card-btn"
-              data-action="emr-use-echo"
-              data-actor-id="{{../actorId}}"
-              data-card-id="{{echo.cardId}}"
-              data-option-id="{{echo.optionId}}"
-              title="{{echo.trigger}}"
-            >
-              <span class="emr-echo-card-name">{{echo.cardName}}</span>
-              <span class="emr-echo-card-option">{{echo.optionLabel}}</span>
-            </button>
-            {{/each}}
-          </div>
-          {{/if}}
-
           {{#if p.showFinalMeta}}
           <div class="emr-roll-final-meta">
             {{#if p.result.rerolled}}Rerolled{{/if}}
-            {{#if p.result.skillSpent}}{{#if p.result.rerolled}} · {{/if}}+{{p.result.skillSpent}} skill spent{{/if}}
-            {{#if p.echoCardUsed}}
-            {{#if p.result.skillSpent}} · {{else if p.result.rerolled}} · {{/if}}Echo: {{p.echoCardUsed.cardName}}
-            {{/if}}
           </div>
           {{/if}}
 

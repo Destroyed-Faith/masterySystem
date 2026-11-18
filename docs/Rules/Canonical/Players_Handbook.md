@@ -1387,7 +1387,7 @@ The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allie
  
 > **Action:** You may take 1 Attack Action per turn (Attack, Cast, etc.).
 
-> **Reaction:** Special defense actions you may take outside your turn (Guard, Evade, Counterattack, etc.).  
+> **Reaction:** Special defense actions you may take outside your turn (Guard, Evade, Dive for Cover, Reaction Powers, etc.).  
 \page
 {{pageNumber,auto}}
 
@@ -2146,7 +2146,7 @@ Use the Power Catalogues when you need to know:
 
 {{note
 ##### Mentalist Option
-A character may build around Mental Powers by choosing **Telepathy** as a Passive. Telepathy grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mental Attack, Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Power Level cannot normally exceed the character's **Passive: Telepathy** Power Level.
+A character may build around Mental Powers by choosing **Telepathy** as a Passive. Telepathy grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Power Level cannot normally exceed the character's **Passive: Telepathy** Power Level.
 }}
 
 ---
@@ -4617,6 +4617,8 @@ The final character should read as one connected plan rather than a collection o
 
 **Moonlight Greatsword - Inherent Finesse:** This named Artifact retains the normal Greatsword's **4d8 starting weapon damage** and **Precision(2)**, while its own Inherent Ability: **Finesse** permits Agility for the Attack Roll (not for damage). At Artifact Level 1 its +1d8 Artifact Weapon Damage produces **5d8 total Weapon Damage**. Inherent Finesse is not an additional Power, a purchased Special, or a fourth Artifact Base Value.
 
+**Moonlight Greatsword - Moonlight Mending:** Moonlight Mending is **Resolve Ability: Healing (Stone Power Support)**, not an Active Power. Artifact Level 1 pre-fills **Rank 2** (Rank 1 must still be paid). Artifact Level 4 pre-fills **Rank 3** (Ranks 1 and 2 must still be paid) and replaces the Level 1 value. Artifact Level 7 pre-fills **Rank 4** (Ranks 1, 2, and 3 must still be paid) and replaces the Level 4 value. The support is not limited to yourself: targets and every other effect follow Resolve Ability: Healing. It does not restore Scarred Bars and grants no separate Heal Active.
+
 ### Her combat rhythm
 
 1. Reach a useful melee position through normal movement, a purchased Movement Power if available, or an Agility Stone option. Catfall offers no combat movement bonus.
@@ -5693,7 +5695,7 @@ If a creature begins an Opposed Attribute Contest against another creature that 
 {{wide
 ### Grapple
 
-Grapple is a Basic Attack Action and an application of an Opposed Attribute Contest.
+Grapple is a Basic Combat Maneuver that spends 1 Attack Action and an application of an Opposed Attribute Contest.
 
 **Cost:** 1 Attack Action
 **Range:** Melee Reach
@@ -5708,7 +5710,7 @@ A Grapple is a **shared physical hold**:
 - Grapple is **not Root** and does not count as Root,
 - Grapple by itself gives no Attack, Evade, Armor, Damage, or other numeric modifier.
 
-**Grapple itself never deals damage.** The creature maintaining the Grapple may make an **Unarmed Basic Attack** without releasing it. If that creature makes a **weapon Attack**, it must release the Grapple first; the weapon Attack is a separate Attack, not part of Grapple. The creature that established the Grapple may release it freely on its Turn without spending an action. A creature trying to break free spends **1 Attack Action** and starts another physical Opposed Attribute Contest. If it wins, the Grapple ends. On a tie, the existing Grapple remains.
+**Grapple itself never deals damage.** The creature maintaining the Grapple may use a **Melee Attack Power with Unarmed delivery** without releasing it. If that creature makes a **weapon Attack** (an Attack Power delivered with a weapon), it must release the Grapple first; the weapon Attack is a separate Attack, not part of Grapple. The creature that established the Grapple may release it freely on its Turn without spending an action. A creature trying to break free spends **1 Attack Action** and starts another physical Opposed Attribute Contest. If it wins, the Grapple ends. On a tie, the existing Grapple remains.
 
 The Grapple also ends if the creatures are forcibly separated beyond Melee Reach, if one participant is teleported or otherwise removed from the hold, or if the creature maintaining the hold becomes unable to physically maintain it.
 
@@ -6096,10 +6098,10 @@ Combat Maneuvers are the universal combat options available to **all player char
 Every combatant knows how to:
 
 * move,
-* make a Basic Attack,
+* use Basic Combat Maneuvers such as Grapple, Dash, Disengage, Quick Load and Stand Up,
 * and use Basic Reactions.
 
-Powers expand, improve, or replace these basic options, but they are never required for a creature to participate effectively in combat. This means that even if a character has no suitable Power available, has already used their Powers, or has not purchased additional combat Powers, they still have meaningful Movement, Attack, and Reaction options.
+There is **no automatic Basic Attack**. Damage attacks are made with a learned or granted **Attack Power** (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special). Every player character therefore learns at least one Attack Power during Character Creation. An Attack Power may be used repeatedly in the same Round as long as an Attack Action is available for each use (see Power Use Limit).
 
 Every character normally has:
 
@@ -6111,31 +6113,15 @@ per round, unless another rule grants additional uses. Additional Movements, Att
 
 ---
 :
-### Basic Attack
+### Attacking
 
-Every character can make a normal attack without using an Active Power. This is called a **Basic Attack**.
-
-### Damage
-
-A Basic Attack deals:
-
-**Weapon Damage + MR × 2d8 Damage**
-
-Apply any eligible Passive, Active Buff, Artifact, weapon, or other effects that normally modify the attack or its damage.
-
-### Basic Attack Rules
-
-**No Power Required:**
-A Basic Attack does not require an Active Power.
-
-**No Power Effects:**
-You may not add damage, Specials, AoE, Split Attack, Autofire, control effects, or other effects belonging to an Active Power unless another rule explicitly allows it.
+Every damage attack uses an **Attack Power**. Each use spends **1 Attack Action**. Weapon Damage (Martial) or Spell Focus Damage (Spell) is added as described by the Power's template.
 
 **Weapon Properties Apply:**
 Normal properties and effects belonging to the weapon itself still apply when appropriate.
 
 **Extra Attacks:**
-If you gain additional Attack Actions through Stones, Powers, or another effect, you may use them to make additional Basic Attacks. A Basic Attack is not a Power and does not become spent after use.
+If you gain additional Attack Actions through Stones, Powers, or another effect, you may use them to use the same or another Attack Power again. Limited charges and other explicit limits still apply.
 
 ---
 }}
@@ -6208,23 +6194,9 @@ Recover from Prone by spending **1 Attack Action**. Until you stand, your normal
 {{pageNumber,auto}}
 {{wide
 
-### Basic Attack Actions
+### Basic Combat Maneuver Actions
 
-Every character can use Basic Attack Actions without purchasing an Active Power. Using a Basic Attack Action spends **1 Attack Action**. Basic Attack Actions are not Powers and do not become spent after use.
-
----
-
-#### Basic Attack
-
-**Requirement:** A Weapon or Natural Weapon capable of making the Attack.
-
-**Effect:** Make a normal Attack.
-
-On hit, deal:
-
-**Weapon Damage + MR × 2d8 Damage**
-
-Eligible Passive, Active Buff, Artifact, weapon, and other effects apply normally. A Basic Attack cannot add damage, Specials, AoE, Split Attack, Autofire, control effects, or other effects belonging to an Active Power unless another rule explicitly allows it. If you gain additional Attack Actions, you may use them to make additional Basic Attacks.
+Basic Combat Maneuvers that spend an Attack Action (such as Grapple and Stand Up) do not require an Active Power. They are not Powers and do not become spent after use. There is no Basic Attack maneuver; damage attacks use an Attack Power.
 
 }}
 \page
@@ -6775,7 +6747,7 @@ Choose one creature. Remove up to **X total points** from one or more ongoing ne
 | **Hex(X)** | When hit by a **Spell**, take **+1d8 bonus damage for every 2 Hex**, rounded up, counting stacks **already present before this hit**. | Yes | Yes |
 | **Lacerate(X)** | Every separate **Movement Event** that changes your position deals **X damage once**. Move, Dash, Reposition, a Movement Power, Push, Pull, and Teleport all count. Distance and whether the movement is voluntary do not change the damage. | Yes | Yes |
 | **Mark(X)** | For a later hit against a marked target, after rolling Damage Dice but before Damage-Trigger Reactions, spend any amount of Mark present **before that hit** as the Damage Floor of each die; then reduce stored Mark by that amount. Mark applied by this same hit becomes usable on the next hit. | Yes | Yes |
-| **Ruin(X)** | At Tick, take **4 × X** damage, ignoring Armor. | Yes | Yes |
+| **Ruin(X)** | On application, take **4** damage per newly applied stack; at Tick, take **4 × X** damage; both ignore Armor. | Yes | Yes |
 | **Slow(X)** | Each point reduces Speed by 1 m, minimum 0 m. At the start-of-Turn Tick, if Speed is 0 m or voluntary movement is prevented by another effect, take X damage, ignoring Armor. Otherwise, Slow deals no damage. Resolve before Natural Special Recovery and decay. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X** (floor 2 rolled dice on legal standard rolls). | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up, counting stacks **already present before this hit**. | Yes | Yes |
@@ -7270,20 +7242,21 @@ Each category has its own design rules, limits, timing, and pricing logic.
 
 ### Power Use Limit
 
-A specific Power can be used only **once per Round**. After you use a Power, that **independently acquired or granted Power instance** is considered **spent** until the start of the next Round. Track usage by a stable **instance ID** for that grant (the learned Power item, or one Artifact grant lineage), **not** only by Technical Reference.
+**Attack Powers are repeatable:** An Attack Power (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special) may be used repeatedly in the same Round as long as an Attack Action is available for each use. Limited charges, printed use limits and Stone limits still apply.
+
+Every other Power (including Support Actives such as Restoration and Cleanse, Barriers, Power Images, Mental Powers, Persistent Special Zones, Active Buffs, Reactions and Movement Powers) can be used only **once per Round**. After you use such a Power, that **independently acquired or granted Power instance** is considered **spent** until the start of the next Round. Track usage by a stable **instance ID** for that grant (the learned Power item, or one Artifact grant lineage), **not** only by Technical Reference.
 
 A learned Power and an Artifact-granted Power with the same Technical Reference (for example a learned Ranged Hex and a staff-granted Ranged Hex) may **each** be used once per Round if you still have the Attack Actions (or other Actions) required. Renaming a Power, downcasting it, changing Martial/Spell delivery, or upgrading one grant does **not** create another instance. Global **Limited** charges, Stone Ability restrictions, the one maintained Active Buff rule, Action economy, and other shared resources still apply across instances.
 
-This applies to all Power Types:
+The once-per-Round limit applies to all Power Types except Attack Powers:
 
-- Actives
+- Actives other than Attack Powers
 - Active Buffs
 - Reactions
 - Movement Powers
 - other named Power effects
 
-Passive Powers are not “used” each round unless they contain a specific activated or triggered effect. If you gain extra Attack Actions, extra Reactions, or extra Movement, you may use them only with Powers that have not already been used this round. Additional Attack Actions from multiple sources do **not** stack unless a rule explicitly says otherwise; use the highest single grant of additional Attack Actions. You cannot use the same Active Power multiple times in the same round. You cannot use the same Reaction multiple times in the same round unless that Reaction explicitly allows repeated uses. Each repeated use still costs **1 Reaction** and does not grant additional Reactions. You cannot use the same Active Buff multiple times in the same round. To attack multiple times with Powers in the same round, you need multiple different Active Powers. To react multiple times in the same round, you need multiple different valid Reactions and enough Reaction uses. To move with multiple Movement Powers in the same round, you need multiple different Movement Powers and enough Movement uses.
-Basic Attacks are not Powers and may be repeated if you have enough Attack Actions.
+Passive Powers are not “used” each round unless they contain a specific activated or triggered effect. If you gain extra Attack Actions, you may use them with the same or another Attack Power, or with other Powers that have not already been used this round. Extra Reactions or extra Movement may be used only with Powers that have not already been used this round. Additional Attack Actions from multiple sources do **not** stack unless a rule explicitly says otherwise; use the highest single grant of additional Attack Actions. You cannot use the same non-Attack Active Power multiple times in the same round. You cannot use the same Reaction multiple times in the same round unless that Reaction explicitly allows repeated uses. Each repeated use still costs **1 Reaction** and does not grant additional Reactions. You cannot use the same Active Buff multiple times in the same round. To react multiple times in the same round, you need multiple different valid Reactions and enough Reaction uses. To move with multiple Movement Powers in the same round, you need multiple different Movement Powers and enough Movement uses.
 
 ### Power Categories
 
@@ -7311,7 +7284,7 @@ Examples:
 
 - A **Ranged Single Target Attack** may be an arrow, a thrown knife, a lightning bolt, a shard of glass, a beam of moonlight, a dragon spark, or a poisonous thorn.
 - A **Melee Push / Pull** may be a shield bash, a hammer blow, a gravity pulse, a burst of wind, or a spectral beast strike.
-- A **Mental Attack** may be a psychic lance, a whispered curse, a memory spike, a pressure wave of fear, or a silent scream.
+- A **Mental Control** may be a whispered command, a hypnotic gaze, a puppeteer's thread, or a pressure wave of fear.
 - A **Mind Illusion** may be a nightmare image, a false wall, a phantom voice, a distorted reflection, a veil of insects, or a hallucinated enemy.
 - A **Heal** may be divine light, blood magic, herbal restoration, ancestral warmth, repairing nanogrowth, or stolen life returned.
 
@@ -7325,7 +7298,7 @@ When a player chooses a Power, they may give it a character-facing name. The tec
 
 Example:
 
-Technical Power: **Mental Attack** Character Power Name: **Psychic Lance**
+Technical Power: **Mind Probe** Character Power Name: **Memory Spike**
 
 Technical Power: **Ranged Single Target Special: Ruin** Character Power Name: **Blackfire Arrow**
 
@@ -7333,7 +7306,7 @@ Technical Power: **Mind Illusion** Character Power Name: **The Wall That Was Nev
 
 Technical Power: **Melee Push / Pull** Character Power Name: **Titanbreaker Blow**
 
-A character-facing Power name does not change the Power's mechanics. Power identity follows the technical name across every source, including purchases, Echo Artifacts, other Artifacts, Trees, and granted abilities. Two character-facing names with the same Technical Reference are the same Power for **duplicate selection**. The once-per-Round **Power Use Limit** tracks independently acquired or granted **instances** (see Power Use Limit): a learned Power and an Artifact grant with the same Technical Reference remain separate uses. Changing between Martial and Spell delivery does not create a new Power identity or a new instance. If a player describes a Power in a way that sounds stronger than its rules text, use the rules text.
+A character-facing Power name does not change the Power's mechanics. Power identity follows the technical name across every source, including purchases, Echo Artifacts, other Artifacts, Trees, and granted abilities. Two character-facing names with the same Technical Reference are the same Power for **duplicate selection**. The once-per-Round **Power Use Limit** for non-Attack Powers tracks independently acquired or granted **instances** (see Power Use Limit): a learned Power and an Artifact grant with the same Technical Reference remain separate uses. Changing between Martial and Spell delivery does not create a new Power identity or a new instance. If a player describes a Power in a way that sounds stronger than its rules text, use the rules text.
 
 If a player describes a Power in a way that sounds weaker, stranger, or more personal, the description is allowed as long as the mechanics remain clear.
 
@@ -9420,7 +9393,7 @@ Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 
 
 #### **5) Power Use Limit**
 
-A Power may be used **once per Round** per **independently acquired or granted instance**. Learned Powers and Artifact grants are separate instances even when they share a Technical Reference. Extra actions permit different legal Powers, other instances, or Basic Attacks — not a second use of the same instance. Reactions with explicit repeat permission follow their text. Competing additional Attack Action grants use the highest single grant unless expressly stackable. Global Limited charges and other shared resources still bind across instances.
+An **Attack Power** may be used repeatedly in the same Round while an Attack Action is available for each use; Limited charges and other explicit limits still apply. Every other Power may be used **once per Round** per **independently acquired or granted instance**. Learned Powers and Artifact grants are separate instances even when they share a Technical Reference. Extra actions permit further Attack Power uses, different legal Powers or other instances — not a second use of the same non-Attack Power instance. Reactions with explicit repeat permission follow their text. Competing additional Attack Action grants use the highest single grant unless expressly stackable. Global Limited charges and other shared resources still bind across instances.
 
 #### **6) Initiative**
 
@@ -9795,6 +9768,8 @@ On a success, reduce Root by **exactly 1**. The amount does not increase with th
 ---
 **Effect:** Ruin deals ongoing damage. At each Ruin Tick, take **4 × the current Ruin(X) value** in damage (for example, Ruin(6) deals 24). This damage ignores Armor unless a specific rule says otherwise. The Tick is Special-generated ongoing damage, not direct Attack Damage, and is not eligible for Attack Damage bonuses, Damage Raises or Limited. At the start of your turn, after the Tick and normal Natural Special Recovery timing, Ruin also decays by **1**. If Ruin reaches **0**, it ends. Any Natural Special Recovery occurs after the Tick as usual.
 
+**Immediate damage:** Whenever Ruin stacks are newly applied, the creature immediately takes **4 damage per newly applied stack**, ignoring Armor. Only stacks actually added after Special Negation and other Special defenses count. This damage is Special-generated, not Attack Damage, and otherwise follows the same protection rules as the Ruin Tick. Printed Ruin values are unchanged; **Balance Review: open**.
+
 ---
 
 ---
@@ -10110,7 +10085,7 @@ Each Limited attack uses the base template's same printed Power Level, XP costs,
 
 **Shared charge — one per character, not one per Power:** Each character has **one single global Limited use per Safe Haven Rest**. All learned and Artifact-granted Limited Powers share it. Declare which Limited Power is used and spend the character's charge **before** its Attack/Casting Roll. A miss, Spell resistance, total prevention or canceled attack does not refund the charge after legal declaration. One AoE consumes only one charge irrespective of targets. When it is spent, **none** of that character's Limited Powers can be used until the next Safe Haven Rest. Learning additional Limited Powers adds options, **never extra charges**.
 
-**Action and duplicate rules:** Limited uses the base Power's normal Attack Action, the normal once-per-Round named Power limit, and the current legal delivery. Its separate Technical Reference allows the normal and Limited version to coexist if both are known; neither may be used a second time in a Round. Additional attack actions still require legal sources.
+**Action and duplicate rules:** Limited uses the base Power's normal Attack Action and the current legal delivery. Its separate Technical Reference allows the normal and Limited version to coexist if both are known. The normal version is a repeatable Attack Power; the Limited version is bound by the single global Limited charge. Additional attack actions still require legal sources.
 
 **Ineligible templates:** All Special-only Powers (including AoE Ruin, Hex, Sundered and Expose), Damage Transfer, Split Attacks, Autofire, Healing, Restoration, Cleanse, utility/defense, Active Buffs, Passives, Reactions, Movement Powers, persistent Zones, Auras, Summons, Barriers, Walls, Rituals and Stone Abilities are **not** generic Limited attacks. Limited never quadruples a numeric Special(X), including Ruin's ongoing tick damage. No Limited Special-only version exists.
 

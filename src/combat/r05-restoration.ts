@@ -72,24 +72,6 @@ export function passiveRegenPoolFromBudget(pl: number): number {
   return Math.max(0, Math.floor((PP_PER_LEVEL_PASSIVE * lvl) / PP_PER_RESTORATION_BAR));
 }
 
-/** Retired ordinary HP-heal Active template ids (R-05). */
-export const R05_RETIRED_HEAL_ACTIVE_IDS = new Set([
-  'active-melee-single-heal',
-  'active-ranged-single-heal',
-  'active-melee-aoe-heal',
-  'active-ranged-aoe-heal',
-  'active-melee-heal-cleanse-mixed',
-  'active-ranged-heal-cleanse-mixed',
-]);
-
-/** Map legacy heal Active → Restoration template id. */
-export const R05_HEAL_TO_RESTORATION_TEMPLATE: Record<string, string> = {
-  'active-melee-single-heal': 'active-melee-health-level-heal',
-  'active-ranged-single-heal': 'active-ranged-health-level-heal',
-  'active-melee-aoe-heal': 'active-melee-aoe-restoration',
-  'active-ranged-aoe-heal': 'active-ranged-aoe-restoration',
-};
-
 export const R05_RETIRED_HEALING_BUFF_IDS = new Set([
   'ab-healing',
   'ab-healing-aura',

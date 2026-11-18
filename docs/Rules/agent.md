@@ -2,9 +2,9 @@
 
 **Public technical reference for Power design, pricing, and mechanical audit**
 
-**Framework version:** 1.1  
-**Rules status:** Destroyed Faith 0.9.9.5 Beta  
-**Canonical sync:** 2026-10-15  
+**Framework version:** 1.2  
+**Rules status:** Destroyed Faith 0.9.9.5 Beta (Actives v0.9.9.6)  
+**Canonical sync:** 2026-11-18  
 **Primary Core baseline:** Destroyed Faith Core v0.9.9.5 (2026-10-15)  
 **Scope:** Powers, Specials, Movement, Artifacts, Stone Power Support, and the separation between character construction math and encounter calibration.
 
@@ -57,7 +57,7 @@ This public audit was checked against:
 | Source | Version used |
 |---|---|
 | Destroyed Faith Core | v0.9.9.5, 2026-10-15 |
-| Actives | v0.9.9.5, 2026-10-15 |
+| Actives | v0.9.9.6, 2026-11-08 (canonical alignment 2026-11-18) |
 | Active Buffs | v0.9.9.5, 2026-10-15 |
 | Passives | v0.9.9.5, 2026-10-15 |
 | Reactions | v0.9.9.5, 2026-10-15 |
@@ -150,11 +150,11 @@ Movement and Attack Action may be used in either legal order on the creature's T
 
 ### 4.4 Named Power use limit
 
-A specific named Power may normally be used only **once per Round**.
+An **Attack Power** (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special) may be used repeatedly in the same Round as long as an Attack Action is available for each use. Limited charges, printed use limits and Stone limits still apply.
 
-Extra Attack Actions, extra Reactions, or extra Movements do not let a character repeat the same named Power during that Round.
+Every other named Power (Support, Barriers, Power Images, Mental Powers, Persistent Special Zones, Active Buffs, Reactions, Movement Powers) may normally be used only **once per Round** per independently acquired or granted instance. Extra Reactions or extra Movements do not let a character repeat the same such Power during that Round.
 
-Basic Attacks are not Powers and may be repeated if the character has enough Attack Actions.
+There is no automatic Basic Attack. Damage attacks use an Attack Power. Repeatable Attack Powers are **not yet priced** for repetition; Balance Review open.
 
 ### 4.5 Initiative
 
@@ -178,9 +178,12 @@ Do not treat a Raise as a generic +4 bonus purchased with PP.
 Unless an exact rule changes the sequence:
 
 1. roll damage;
-2. apply Armor;
+2. apply Armor (Armor-ignoring damage such as Ruin skips this step);
 3. apply Damage Reduction;
-4. apply remaining damage.
+4. apply Damage Negation and Temporary HP as described in the Core;
+5. apply remaining damage.
+
+The Core damage sequence is authoritative; this list is a summary.
 
 If final damage is reduced to 0 or less, the Core minimum-damage rule still applies: the target takes 1 damage per natural 8 rolled on the original damage dice.
 
@@ -195,12 +198,12 @@ Every catalogue Power has a canonical **Technical Power Name**. A character-faci
 Examples:
 
 - `Reaction: Evade` may be described as a shield flash, a sidestep, a shadow flicker, or a divine warning.
-- `Melee Attack + Ruin` may be a cursed blade, corrosive claw, sacred brand, or supernatural martial technique.
+- `Melee Single Target Special: Ruin` may be a cursed blade, corrosive claw, sacred brand, or supernatural martial technique.
 
 The Technical Power Name controls:
 
 - duplicate checks;
-- once-per-Round use tracking;
+- once-per-Round use tracking for non-Attack Powers;
 - source overlap;
 - catalogue rules;
 - Foundry VTT data identity.
@@ -211,9 +214,7 @@ When a catalogue heading contains alternatives separated by `/`, choose one when
 
 ### 5.2 Duplicate sources
 
-Multiple sources that grant the same base Technical Reference do not normally create multiple uses.
-
-Use the highest currently legal source profile. Duplicate sources share the same spent state and do not bypass the Power Use Limit.
+Multiple sources that grant the same base Technical Reference are the same Power for duplicate selection. For the once-per-Round limit of non-Attack Powers, the Core tracks **independently acquired or granted instances**: a learned Power and an Artifact grant are separate instances. Renaming, downcasting or changing delivery does not create a new instance. Attack Powers are repeatable and limited only by Attack Actions and explicit limits.
 
 This rule is especially important for Artifacts, Echoes, purchased Powers, and other layered character sources.
 
@@ -321,7 +322,7 @@ The catalogue prices that behavior explicitly. Never assume that adding targets 
 
 ### 7.4 Closed systems stay closed
 
-Critical, Damage Reduction, Phasing, Parry, Absorption, Damage Negation, Invisibility, Ward, and other dedicated premium systems are not generic riders.
+Critical, Damage Reduction, Phasing, Parry, Absorption, Damage Negation, Invisibility, Special Negation, and other dedicated premium systems are not generic riders.
 
 If the catalogue gives such a subsystem a dedicated Power, use that Power. Do not recreate the mechanic as a cheaper secondary effect inside another template.
 
@@ -521,13 +522,14 @@ There is no additional generic halving or multiplier for an instant Attack AoE S
 Standard ranged Persistent Diminishing Zones:
 
 - are placed at a point within Range;
-- last **4 Rounds**;
+- stay in place while maintained (1 Attack Action per maintained Zone at the start of each subsequent Turn);
 - make no Attack Roll;
 - normally deal no damage;
 - affect a creature when the zone appears on it, when it enters the zone for the first time in a Round, or when it starts its Turn inside;
-- affect the same creature from the same zone at most once per Round.
+- affect the same creature from the same zone at most once per Round;
+- affect every occupying creature, including the creator and allies.
 
-The 4-Round duration uses a **x2 multiplier**.
+**PP status: pending recalibration.** The former 4-Round duration with a **x2 multiplier** no longer matches the maintained-Zone rule in Actives v0.9.9.6. The formula below is the historical pricing model; the printed Zone tables are unchanged and need a separate recalibration.
 
 > **Final Cost = Range Cost + [(Radius Cost + AoE Special Cost) x 2]**
 
@@ -552,7 +554,7 @@ Current Persistent Zone Radius costs are subsystem-specific:
 | 5 m | 140 |
 | 6 m | 200 |
 
-**Important:** repeated application of a Diminishing Special follows the current Core stacking rules unless the exact entry says otherwise. A later Round's legal zone application can therefore add new stacks, subject to the zone's once-per-creature-per-Round rule and the global Special Application Limit.
+**Important:** repeated application of a Diminishing Special follows the current Core stacking rules unless the exact entry says otherwise. A later Round's legal zone application can therefore add new stacks, subject to the zone's once-per-creature-per-Round rule. Each new Ruin application also deals immediate damage (see 14.7).
 
 ### 9.5 Player Split Attack
 
@@ -571,7 +573,7 @@ Flexibility costs accuracy per target; a successful hit still carries full force
 
 ### 9.6 Split AoE
 
-Split AoE applies the same principle to multiple placements:
+**Not part of the current Actives catalogue.** Historical model only:
 
 - split the Attack Pool between placements;
 - resolve each placement separately;
@@ -597,11 +599,11 @@ Attack Capacity costs:
 
 ### 9.8 Support Actives
 
-Healing, Cleanse, Health Level Recovery, and their approved combinations use their own exact catalogue structures.
+Cleanse, Scarred-Bar Restoration and their approved structures use their own exact catalogue entries. Ordinary HP healing is provided by Resolve Ability: Healing, not by an Active.
 
 Do not assume that a healing Power can add damage, control, or unrelated utility because budget remains.
 
-Health Level Recovery is a scarce recovery axis and costs **30 PP per restorable Health Level per Safe Haven Rest** in the current Active catalogue. It is not interchangeable with ordinary HP healing and does not restore HP by itself.
+Scarred-Bar Restoration is a scarce recovery axis and costs **40 PP per restorable Scarred Bar per Safe Haven Rest** in the current Active catalogue. It is not interchangeable with ordinary HP healing.
 
 ### 9.9 Barriers, Images, and terrain
 
@@ -617,7 +619,6 @@ Mental Powers are dedicated Actives, not generic Spell reskins.
 
 The current mental catalogue contains:
 
-- Mental Attack;
 - Mind Illusion;
 - Mind Probe;
 - Mental Control.
@@ -802,7 +803,7 @@ Current categories:
 - Telepathy
 - Phasing
 - Special Aura
-- Ward
+- Special Negation
 - Initiative
 - Invisibility
 - Parry
@@ -845,6 +846,8 @@ There is **no generic percentage discount system** for inventing new conditions.
 Use an approved catalogue condition or create a new condition only through explicit design review.
 
 ### 11.5 Combined Passives
+
+**Combined Passives are not available in the current release** (Core v0.9.9.5). This section is kept as the historical model.
 
 A Combined Passive:
 
@@ -896,7 +899,7 @@ The +1 Special increase never grows to +2 or more through normal Passive Special
 
 ### 11.7 Dedicated Passive subsystems
 
-Damage Reduction, Phasing, Ward, Initiative, Invisibility, Parry, Absorption, Damage Negation, Summon, and other exact dedicated entries follow their own progression.
+Damage Reduction, Phasing, Special Negation, Initiative, Invisibility, Parry, Absorption, Damage Negation, Summon, and other exact dedicated entries follow their own progression.
 
 For `Passive: Parry`, the current maximum Parry Pool is `ceil(5 x Power Level / 2)`, capped naturally by the chosen Parry Attribute. The Level 4 / 8 / 12 / 16 caps are 10 / 20 / 30 / 40.
 
@@ -1071,13 +1074,7 @@ Reapplying the same Diminishing Special normally adds new points to the existing
 
 ### 14.3 Special Application Limit
 
-During one Round, a creature can receive at most:
-
-> **4 x its Mastery Rank**
-
-new points of the same Diminishing Special from all sources combined.
-
-This is an **application limit**, not a maximum stack size. Existing points carried from previous Rounds do not count against the new Round's limit.
+**There is no per-Round 4 x MR Special Application Limit** in the current Core. All surviving Special points (after Special Negation) are applied according to that Special's own stacking, timing and duration rules.
 
 ### 14.4 Start-of-Turn order
 
@@ -1089,6 +1086,10 @@ Natural Special Recovery reduces one or more eligible negative Diminishing Speci
 
 Root is excluded and uses its own Until Broken recovery.
 
+### 14.7 Ruin immediate damage
+
+Whenever Ruin stacks are newly applied, the creature immediately takes **4 damage per newly applied stack**, ignoring Armor. Only stacks actually added after Special Negation count. The damage is Special-generated (not Attack Damage) and otherwise uses the Ruin Tick protection rules. The Ruin cost **4 x T(X)** does not yet price this damage; **Balance Review: open**. Printed Ruin values are unchanged.
+
 ### 14.5 Cleanse eligibility
 
 A Special may be reduced by Cleanse only when its rules mark it as eligible.
@@ -1097,16 +1098,15 @@ Dedicated Cleanse sources may narrow target count, distribution, timing, or scop
 
 ### 14.6 Special synergy is expected
 
-The balance framework intentionally allows different Specials to combine tactically. Corrode can open Armor, Expose can open Evade, Mark can improve payoff from later damage, Hex can support Spell damage, control can buy time, and Cleanse/Ward can answer pressure.
+The balance framework intentionally allows different Specials to combine tactically. Corrode can open Armor, Expose can open Evade, Mark can improve payoff from later damage, Hex can support Spell damage, control can buy time, and Cleanse/Special Negation can answer pressure.
 
 This interaction is not represented by a generic hidden synergy surcharge on every Power. Instead, the system limits stacking through:
 
 - PP cost;
 - action economy;
-- named Power use limits;
+- named Power use limits (non-Attack Powers);
 - Passive slots;
 - Active Buff maintenance;
-- Special Application Limit;
 - Natural Special Recovery;
 - target defenses and encounter geometry.
 
@@ -1548,8 +1548,10 @@ SOURCE_PRECEDENCE:
 
 POWER_IDENTITY:
   technical_name != flavor_name
-  duplicates share spent state unless explicit exception
-  same named Power normally <= 1 use / Round
+  once-per-Round limit tracks independently acquired/granted instances
+  Attack Power: repeatable while Attack Actions remain; Limited and explicit limits still apply
+  other named Power normally <= 1 use / Round per instance
+  no automatic Basic Attack
 
 TARGETS:
   Active(L)      = 30 * L
@@ -1575,14 +1577,16 @@ DICE:
 SPECIALS:
   T(X) = X * (X + 1) / 2
   numeric_cost = BaseCost * T(X)
-  per-Round new same Diminishing Special <= 4 * target MR
+  no per-Round 4 * MR Special Application cap
+  Ruin immediate damage = 4 * newly applied stacks, ignores Armor (unpriced, review open)
   start of Turn = Tick -> Natural Special Recovery -> Decay 1
   Natural Special Recovery total = target MR
   Root uses own recovery and minimum Root(2)
 
 ACTIVE:
   damage = 15 PP / +1d8 where exact entry uses standard Active damage
-  healing = 15 PP / +1d8 where exact entry uses standard Active healing
+  ordinary HP healing is not an Active (Resolve Ability: Healing)
+  Scarred-Bar Restoration = 40 PP per Bar per Safe Haven Rest
   ranged baseline = 8 m at 0 PP, then +5 PP / +4 m
   instant Attack AoE radius uses exact 1-8 m table
   player Split Attack additional target = 30 PP; splits Attack Pool, full damage per hit
@@ -1596,7 +1600,7 @@ ACTIVE_BUFF:
 
 PASSIVE:
   pure = 1 category
-  combined = exactly 2 approved categories, one shared budget
+  combined = not available in the current release (historical model)
   same category normally cannot be active twice
   no generic percentage condition discounts
 
@@ -1619,7 +1623,7 @@ STONES:
 ARTIFACTS:
   Technical Reference inherits exact current catalogue Power
   explicit Artifact restriction may narrow delivery
-  duplicate Technical Reference shares identity/spent state
+  duplicate Technical Reference shares identity; Artifact grant is a separate use instance
   unfinished Ultimate unavailable until fully specified
 
 ENCOUNTERS:
@@ -1771,7 +1775,7 @@ This list is included to make terminology auditable. Exact effects remain in the
 - Passive: Health
 - Passive: Special Aura + [chosen eligible Special]
 - Passive: Spell Resistance
-- Passive: Ward
+- Passive: Special Negation
 - Passive: Telepathy
 - Passive: Summon Tokens
 - Passive: Thorns

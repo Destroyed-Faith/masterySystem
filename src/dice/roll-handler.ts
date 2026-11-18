@@ -136,7 +136,7 @@ export interface RollOptions {
    * Raise resolution model:
    * - `power`: dual-TN for declared raises (combat powers)
    * - `skill`: margin raises after roll + optional dual-TN pre-declare (no cost)
-   * - `margin`: margin raises only (echo cards, rituals)
+   * - `margin`: margin raises only (rituals)
    */
   raiseModel?: 'power' | 'skill' | 'margin';
   /** Blood Raises: each adds +4 to the roll total (HP cost handled by caller). */
@@ -1163,7 +1163,6 @@ async function sendRollToChat(
 export async function quickRoll(
   actor: Actor,
   attributeName: string,
-  skillName?: string,
   tn?: number,
   label?: string,
   modifier?: number,
@@ -1179,8 +1178,6 @@ export async function quickRoll(
   // Get mastery rank (number to keep)
   const keepDice = getRulesMasteryRank(actor);
 
-  // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
-  // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
   const skillBonus = modifier !== undefined ? modifier : 0;
 
   // Build label
@@ -1189,13 +1186,7 @@ export async function quickRoll(
 
   // If no flavor provided, build default
   if (!flavorText) {
-    if (skillName) {
-      // For skill rolls, show pool info
-      const skillRating = actorData.skills?.[skillName] || 0;
-      const skillsSpent = actorData.skillsSpent?.[skillName] || 0;
-      const remainingPool = Math.max(0, skillRating - skillsSpent);
-      flavorText = `Skill: ${skillName} (Pool ${remainingPool}/${skillRating})`;
-    } else if (modifier !== undefined) {
+    if (modifier !== undefined) {
       flavorText = `modifier: ${modifier >= 0 ? '+' : ''}${modifier}`;
     }
   }
@@ -1203,15 +1194,14 @@ export async function quickRoll(
   return await masteryRoll({
     numDice,
     keepDice,
-    skill: skillBonus, // Use modifier if provided, otherwise 0 (for skill rolls, skill points are spent after roll)
+    skill: skillBonus,
     tn,
     label: rollLabel,
     flavor: flavorText,
     actorId: (actor as any).id,
-    skillKey: skillName,
-    isSkillRoll: !!skillName,
+    isSkillRoll: false,
     baseModifier: modifier,
-    rollKind: skillName ? 'skill' : 'generic',
+    rollKind: 'generic',
     poolAttribute: attributeName,
     applyPoolPenalties: true
   });

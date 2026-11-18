@@ -27,7 +27,7 @@ export interface SpecialEffect {
     hasValue: boolean;
     /** Optional dedicated Remove Action skill (e.g. 'Medicine', 'Athletics', 'Meditation', 'Crafting') */
     removeAction?: string;
-    /** Whether Cleanse / Dispel Magic can remove/reduce this effect */
+    /** Whether Cleanse can remove/reduce this effect */
     dispellable?: boolean;
     /** PP pricing formula as a compact reference (Start PP for diminishing, base formula otherwise) */
     pricing?: string;

@@ -7,7 +7,6 @@ import {
   getHealDiceFormula,
   getHlrRemainingOnCaster,
   getPowerHlrPoolMax,
-  healHealthLevelRecoveryForRank,
   healPowerHlrKey,
   healPowerItemFromRadialOption,
   isHealPowerItem,
@@ -19,21 +18,8 @@ import {
   HL_HEAL_RANGED_POOL,
 } from '../src/utils/powers/templates/actives';
 
-describe('healHealthLevelRecoveryForRank', () => {
-  it('matches catalog bands for HP-heal Actives (max 4)', () => {
-    expect(healHealthLevelRecoveryForRank(1)).toBe(0);
-    expect(healHealthLevelRecoveryForRank(3)).toBe(0);
-    expect(healHealthLevelRecoveryForRank(4)).toBe(1);
-    expect(healHealthLevelRecoveryForRank(8)).toBe(2);
-    expect(healHealthLevelRecoveryForRank(12)).toBe(3);
-    expect(healHealthLevelRecoveryForRank(15)).toBe(4);
-    expect(healHealthLevelRecoveryForRank(16)).toBe(4);
-  });
-});
-
 describe('Scarred Bar Restoration pool', () => {
-  it('uses Restoration catalog pools, not the HP-heal HLR band', () => {
-    // Ranged L11 = 7 (rules); old bug used healHealthLevelRecoveryForRank → 2.
+  it('uses Restoration catalog pools', () => {
     expect(HL_HEAL_RANGED_POOL[10]).toBe(7);
     expect(HL_HEAL_MELEE_POOL[9]).toBe(7); // Melee L10
     const ranged = {
@@ -46,7 +32,6 @@ describe('Scarred Bar Restoration pool', () => {
       },
     };
     expect(getPowerHlrPoolMax(ranged)).toBe(7);
-    expect(healHealthLevelRecoveryForRank(11)).toBe(2);
   });
 });
 
@@ -137,37 +122,8 @@ describe('isHealPowerItem / getHealDiceFormula', () => {
   });
 });
 
-describe('artifact heal radial (Moonlight Mending = Ranged Single Target Heal)', () => {
-  const artifactItem = { type: 'artifact', id: 'mg', name: 'Moonlight Greatsword' };
-  const mending = (level: number, name: string) => ({
-    source: 'power' as const,
-    name,
-    description: 'Heal one creature for HP · Range: 20 m',
-    item: artifactItem,
-    artifactPowerTemplateId: 'active-ranged-single-heal',
-    artifactRowLevel: level,
-    aoePlacementProfile: 'heal' as const,
-  });
-
-  it('detects Moonlight Mending: HP heal dice 5d8 / 12d8 / 20d8 at PL 4 / 10 / 16', () => {
-    const stages: Array<[number, string, number, string]> = [
-      [1, 'Moonlight Mending I', 4, '5d8'],
-      [4, 'Moonlight Mending II', 10, '12d8'],
-      [7, 'Moonlight Mending III', 16, '20d8'],
-    ];
-    for (const [level, name, pl, dice] of stages) {
-      const option = mending(level, name);
-      expect(isHealRadialOption(option)).toBe(true);
-      const power = healPowerItemFromRadialOption(option as any);
-      expect(power?.type).toBe('power');
-      expect(power.system.templateId).toBe('active-ranged-single-heal');
-      expect(power.system.rank).toBe(pl);
-      expect(getHealDiceFormula(power)).toBe(dice);
-      expect(getPowerHlrPoolMax(power)).toBe(0);
-    }
-  });
-
-  it('maps authored Echo rows (Hearth Circle / Remembered Hands) by template id or printed text', () => {
+describe('artifact heal radial', () => {
+  it('maps authored Echo rows (Hearth Circle) by template id only', () => {
     const hearth = {
       source: 'power' as const,
       name: 'Hearth Circle II',
@@ -181,7 +137,7 @@ describe('artifact heal radial (Moonlight Mending = Ranged Single Target Heal)',
     const hearthPower = healPowerItemFromRadialOption(hearth as any);
     expect(getPowerHlrPoolMax(hearthPower)).toBe(9);
 
-    // No template id on the row (older world copy): inferred from the printed technical reference.
+    // No template id on the row: printed text is not used to infer a Restoration identity.
     const textOnly = {
       source: 'power' as const,
       name: 'Remembered Hands II',
@@ -191,26 +147,20 @@ describe('artifact heal radial (Moonlight Mending = Ranged Single Target Heal)',
       artifactRowLevel: 7,
       aoePlacementProfile: 'heal' as const,
     };
-    expect(isHealRadialOption(textOnly)).toBe(true);
-    const textPower = healPowerItemFromRadialOption(textOnly as any);
-    expect(textPower.system.templateId).toBe('active-ranged-health-level-heal');
-    expect(getHealDiceFormula(textPower)).toBeNull();
-    expect(getPowerHlrPoolMax(textPower)).toBe(10);
+    expect(healPowerItemFromRadialOption(textOnly as any)).toBeNull();
   });
 
-  it('maps Moonlight Mending / "Heal Nd8 HP" rows to Ranged Single Target Heal (catalogue)', () => {
+  it('retired single-target HP heal rows (old Moonlight Mending) resolve to no heal power', () => {
     const legacy = {
       source: 'power' as const,
       name: 'Moonlight Mending I',
       description: 'Heal one creature for 5d8 HP · Range: 20 m',
-      item: artifactItem,
+      item: { type: 'artifact', id: 'mg', name: 'Moonlight Greatsword' },
+      artifactPowerTemplateId: 'active-ranged-single-heal',
       artifactRowLevel: 1,
-      aoePlacementProfile: 'heal' as const,
     };
-    expect(isHealRadialOption(legacy)).toBe(true);
-    const power = healPowerItemFromRadialOption(legacy as any);
-    expect(power.system.templateId).toBe('active-ranged-single-heal');
-    expect(getHealDiceFormula(power)).toBe('5d8');
+    expect(isHealRadialOption(legacy)).toBe(false);
+    expect(healPowerItemFromRadialOption(legacy as any)).toBeNull();
   });
 });
 

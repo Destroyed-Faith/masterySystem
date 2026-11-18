@@ -203,12 +203,12 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
   {
     id: "counterattack",
     name: "Counterattack",
-    description: "Basic Attack against the creature that hit you (NPC / power option — not a universal Basic Reaction).",
+    description: "Retired: there is no Basic Attack (Actives v0.9.9.6). Never offered in the Reaction Window.",
     slot: "reaction",
     category: "tactical-reaction",
-    tags: ["reaction", "tactical", "melee"],
+    tags: ["reaction", "tactical", "melee", "retired"],
     effect:
-      "Trigger: a creature hits you with an Attack and is a valid target. Immediately make a **Basic Attack** (Weapon Damage + MR × 2d8). No Active Power effects. Not a universal Basic Reaction.",
+      "Retired. Actives v0.9.9.6 has no automatic Basic Attack, so this legacy reaction spawns no attack. For a damaging counter use the catalogue **Reaction: Parry + Weapon Damage**.",
   },
   {
     id: "dive-for-cover",
@@ -243,15 +243,15 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
   {
     id: "opportunity-attack",
     name: "Opportunity Attack",
-    description: "Strike an enemy leaving your melee reach.",
+    description: "Retired: no universal Opportunity Attack and no Basic Attack (Actives v0.9.9.6).",
     slot: "reaction",
     category: "tactical-reaction",
-    tags: ["reaction", "tactical", "opportunity-attack", "melee"],
+    tags: ["reaction", "tactical", "opportunity-attack", "melee", "retired"],
     requirements: {
       requiresMeleeWeapon: true,
     },
     effect:
-      "When an enemy **leaves your melee reach** by movement, spend your Reaction to make **one Basic Attack** (Weapon Damage + MR × 2d8). No Active Power effects.",
+      "Retired. There is no universal Opportunity Attack and no automatic Basic Attack; this legacy entry spawns no attack.",
   },
 
   // ========================================
@@ -328,7 +328,7 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
       requiresNotGrappling: true,
     },
     effect:
-      "Costs **1 Attack Action**. Range: Melee Reach. Resolve an **Opposed Attribute Contest** (Opposed Physical Check): you and the target each choose an appropriate physical Attribute — normally Might or Agility — and roll that Attribute Pool, keep Mastery Rank. No TN, no Raises, no Skill Points. Higher Final Result wins; a tie leaves the target free. If you win, **both creatures are Grappled** with each other: Speed **0 m**, neither may voluntarily move away. Grapple is not Root and deals **no damage**; it does not change Evade, Armor, Attack Pools or Specials. To hurt the held creature make a separate **Unarmed Basic Attack**; a weapon attack is not part of the Grapple and requires releasing it first. **Surprise Grapple:** if the target is genuinely unaware of you, you roll the initial contest with Advantage and the target with Disadvantage. The grappler may release the hold at any time; the held creature may spend **1 Attack Action** to attempt an escape (another Opposed Attribute Contest — win ends the Grapple, a tie keeps it).",
+      "Costs **1 Attack Action**. Range: Melee Reach. Resolve an **Opposed Attribute Contest** (Opposed Physical Check): you and the target each choose an appropriate physical Attribute — normally Might or Agility — and roll that Attribute Pool, keep Mastery Rank. No TN, no Raises, no Skill Points. Higher Final Result wins; a tie leaves the target free. If you win, **both creatures are Grappled** with each other: Speed **0 m**, neither may voluntarily move away. Grapple is not Root and deals **no damage**; it does not change Evade, Armor, Attack Pools or Specials. To hurt the held creature use a separate **Melee Attack Power with Unarmed delivery**; a weapon attack is not part of the Grapple and requires releasing it first. **Surprise Grapple:** if the target is genuinely unaware of you, you roll the initial contest with Advantage and the target with Disadvantage. The grappler may release the hold at any time; the held creature may spend **1 Attack Action** to attempt an escape (another Opposed Attribute Contest — win ends the Grapple, a tie keeps it).",
   },
   {
     id: "grapple-escape",

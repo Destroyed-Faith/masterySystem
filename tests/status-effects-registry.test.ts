@@ -19,7 +19,7 @@ describe('status effect registry audit', () => {
   });
 
   it('hides system-managed statuses from the HUD palette flag', () => {
-    for (const id of ['stunned', 'surprise', 'regeneration', 'crit', 'exorcism', 'requiem', 'invisible']) {
+    for (const id of ['stunned', 'surprise', 'regeneration', 'crit', 'invisible']) {
       const row = MASTERY_STATUS_EFFECTS.find((e) => e.id === id);
       expect(row?.hud).toBe(false);
       expect(isSelectableStatusId(id)).toBe(false);
@@ -28,7 +28,7 @@ describe('status effect registry audit', () => {
 
   it('omits retired picker entries from the registry', () => {
     const ids = MASTERY_STATUS_EFFECTS.map((e) => e.id);
-    for (const id of ['charmed', 'curse', 'entangled', 'suppress', 'advantage', 'cleanse', 'knockback']) {
+    for (const id of ['charmed', 'curse', 'entangled', 'suppress', 'advantage', 'cleanse', 'knockback', 'exorcism', 'requiem']) {
       expect(ids).not.toContain(id);
     }
   });

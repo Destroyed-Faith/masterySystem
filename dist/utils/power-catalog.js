@@ -10,7 +10,7 @@
  * Filter axes (CatalogFilter):
  *  - category    : PowerCategory
  *  - subfamily   : string (e.g. 'teleport', 'damage-aoe', 'conditional-combined')
- *  - templateId  : canonical template id (e.g. 'active-ranged-damage-t4')
+ *  - templateId  : canonical template id (e.g. 'active-ranged-instant-special-t4')
  *  - tier        : 3 | 4 | 5 | 6     (Actives only)
  *  - special     : Special key   (Actives only — matches chosenSpecial.key)
  *  - uiEffect    : UI-only Active Effect discovery filter
@@ -99,14 +99,11 @@ export const SUBFAMILY_LABELS = {
     'weapon-attack': 'Weapon Attack',
     'weapon-single': 'Weapon Attack',
     control: 'Control & Movement',
-    'hard-control': 'Hard Control',
     'persistent-zone': 'Zones & Persistent Effects',
-    mixed: 'Mixed Effects',
     barrier: 'Barrier',
     illusion: 'Illusion',
     'support-heal': 'Heal',
     'support-cleanse': 'Cleanse',
-    'support-dispel': 'Dispel',
 };
 export const SUBFAMILY_HINTS = {
     'damage-single': 'One target. Damage and Special come from the Power itself, not your weapon.',
@@ -115,9 +112,7 @@ export const SUBFAMILY_HINTS = {
     'weapon-attack': 'Uses your equipped weapon’s damage dice and weapon Specials.',
     'weapon-single': 'Uses your equipped weapon’s damage dice and weapon Specials.',
     control: 'Locks down or repositions a target.',
-    'hard-control': 'Stronger lock-down that spends more of the Power’s budget on control.',
     'persistent-zone': 'Leaves a zone or lasting field on the map.',
-    mixed: 'Combines damage, support, or other riders in one Power.',
     barrier: 'Creates a wall, cover, or protective field.',
     illusion: 'Fakes presence, concealment, or a false effect.',
 };
@@ -334,6 +329,9 @@ export function catalogSelectOptionLabel(entry) {
     if (entry.category === 'activeBuff' || entry.category === 'passive') {
         return String(entry.name || entry.templateName || entry.templateId).trim();
     }
+    if (entry.raw?.catalogTitle && entry.chosenSpecial) {
+        return entry.name;
+    }
     const badges = [];
     if (entry.chosenSpecial)
         badges.push(entry.chosenSpecial.key);
@@ -421,7 +419,11 @@ function makeEntry(t, chosen) {
     // `findCatalogEntryByName`. The dropdown label still uses `templateName`
     // plus the category badge, so the user-facing presentation is unchanged.
     const baseName = t.name ?? t.templateName;
-    const name = chosen ? `${baseName} — ${specialLabel(chosen.key)}` : baseName;
+    const name = chosen
+        ? t.catalogTitle
+            ? `${t.catalogTitle}: ${specialLabel(chosen.key)}`
+            : `${baseName} — ${specialLabel(chosen.key)}`
+        : baseName;
     return {
         name,
         templateId: t.templateId,
@@ -447,32 +449,16 @@ function specialLabel(key) {
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
 // ─── Build ───────────────────────────────────────────────────────────────
-/** Dispel actives are retired — cleanse covers table play; hide from all pickers. */
-export function isDispelCatalogEntry(entry) {
-    if (entry.templateId.includes('dispel'))
-        return true;
-    if (entry.subfamily === 'support-dispel')
-        return true;
-    if (entry.chosenSpecial?.key === 'dispel-magic')
-        return true;
-    return false;
-}
 function buildEntries() {
     const out = [];
     for (const t of ALL_POWER_TEMPLATES) {
         if (t.category === 'active' && t.specialSlot) {
             for (const key of t.specialSlot.eligibleSpecialKeys) {
-                const entry = makeEntry(t, { key, tier: t.specialSlot.tier });
-                if (isDispelCatalogEntry(entry))
-                    continue;
-                out.push(entry);
+                out.push(makeEntry(t, { key, tier: t.specialSlot.tier }));
             }
             continue;
         }
-        const entry = makeEntry(t, null);
-        if (isDispelCatalogEntry(entry))
-            continue;
-        out.push(entry);
+        out.push(makeEntry(t, null));
     }
     return out;
 }

@@ -33,7 +33,7 @@ describe('buildSafeHavenRestUpdates', () => {
     });
 
     expect(updates['system.fear']).toBe(0);
-    expect(updates['system.skillsSpent']).toMatchObject({ athletics: 0 });
+    expect(Object.keys(updates).some((k) => k.startsWith('system.skills'))).toBe(false);
     expect(updates['system.faithFractures.current']).toBe(3);
     expect(updates['system.faithFractures.maximum']).toBe(3);
     expect(updates['system.mastery.charges']).toBe(4);

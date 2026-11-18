@@ -359,6 +359,11 @@ export function evaluateReactionEligibility(power, ctx) {
             return { shown: false, enabled: false, reason: 'Ghost Slip requires a hit' };
         }
     }
+    // Actives v0.9.9.6: no automatic Basic Attack, so the legacy Basic
+    // Counterattack / Opportunity Attack (which spawned one) is never offered.
+    if (basic === 'counterattack') {
+        return { shown: false, enabled: false, reason: 'No Basic Attack (Actives v0.9.9.6)' };
+    }
     // Nested counterattack windows.
     if (ctx.suppressCounterattack && basic === 'counterattack') {
         return { shown: false, enabled: false, reason: 'Counterattack already in progress' };

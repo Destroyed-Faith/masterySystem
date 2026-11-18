@@ -11,6 +11,7 @@ import {
     renderPowerLevelTable,
 } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
+import { catalogEntryBoundLevels } from '../utils/power-item-builder.js';
 import {
     CATEGORY_LABELS,
     activeTemplateCanBeSpell,
@@ -55,10 +56,16 @@ function renderEntryDetails(
     selectedLevel: number = 1,
 ): void {
     const raw: any = entry.raw;
-    $description.html(renderCatalogSelectionDetailsHtml(entry, selectedLevel));
-    if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
-        const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l: any) => l?.trigger);
-        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));
+    const levels: any = raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)
+        ? catalogEntryBoundLevels(entry)
+        : null;
+    $description.html(renderCatalogSelectionDetailsHtml(
+        levels ? { ...entry, raw: { ...raw, levels } } : entry,
+        selectedLevel,
+    ));
+    if (levels) {
+        const showTrigger = raw.category === 'reaction' || Object.values(levels).some((l: any) => l?.trigger);
+        $levelTable.html(renderPowerLevelTable(levels, showTrigger, entry.chosenSpecial?.key));
     } else {
         $levelTable.empty();
     }

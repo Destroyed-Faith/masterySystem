@@ -2,6 +2,8 @@
  * Special-first martial damage picks for the Artifact Node Editor.
  *
  * Delivery form + Special → tier (from Special eligibility) → existing tier template.
+ * Single Target picks resolve to `active-*-instant-special-t*` (Actives v0.9.9.6);
+ * stored legacy `active-*-damage-t*` picks still parse until the v0.9.9.6 migration.
  */
 
 import type { ActiveSpecialTier, ArtifactProgressionPick } from '../types/item.js';
@@ -12,15 +14,15 @@ import { getEffect, getEffectBaseName } from './special-effects.js';
 
 export type MartialDelivery = 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
 
-/** Matches `active-{melee|ranged}-{damage|aoe-damage}-t{3|4|5|6}`. */
+/** Matches `active-{melee|ranged}-{instant-special|aoe-damage|damage (legacy)}-t{3|4|5|6}`. */
 export const MARTIAL_DAMAGE_TEMPLATE_RE =
-  /^active-(melee|ranged)-(damage|aoe-damage)-t([3456])$/;
+  /^active-(melee|ranged)-(instant-special|damage|aoe-damage)-t([3456])$/;
 
 export const MARTIAL_DELIVERY_OPTIONS: { value: MartialDelivery; label: string }[] = [
-  { value: 'melee-single', label: 'Melee — Single Target Special Damage' },
-  { value: 'melee-aoe', label: 'Melee — AoE Special Damage' },
-  { value: 'ranged-single', label: 'Ranged — Single Target Special Damage' },
-  { value: 'ranged-aoe', label: 'Ranged — AoE Special Damage' },
+  { value: 'melee-single', label: 'Melee — Single Target Special' },
+  { value: 'melee-aoe', label: 'Melee — AoE Special' },
+  { value: 'ranged-single', label: 'Ranged — Single Target Special' },
+  { value: 'ranged-aoe', label: 'Ranged — AoE Special' },
 ];
 
 /** Prefix for martial delivery rows in the Active catalog dropdown. */
@@ -48,10 +50,10 @@ export function martialDeliveryCatalogOptions(): { id: string; name: string }[] 
 }
 
 const DELIVERY_SHORT_LABEL: Record<MartialDelivery, string> = {
-  'melee-single': 'Melee Special Damage',
-  'melee-aoe': 'Melee AoE Special Damage',
-  'ranged-single': 'Ranged Special Damage',
-  'ranged-aoe': 'Ranged AoE Special Damage',
+  'melee-single': 'Melee Single Target Special',
+  'melee-aoe': 'Melee AoE Special',
+  'ranged-single': 'Ranged Single Target Special',
+  'ranged-aoe': 'Ranged AoE Special',
 };
 
 /** Derive damage tier from Special eligibility lists (T3–T6). */
@@ -87,7 +89,7 @@ export function templateIdForDeliveryAndTier(
   tier: ActiveSpecialTier,
 ): string {
   const [range, scope] = delivery.split('-') as ['melee' | 'ranged', 'single' | 'aoe'];
-  const damagePart = scope === 'aoe' ? 'aoe-damage' : 'damage';
+  const damagePart = scope === 'aoe' ? 'aoe-damage' : 'instant-special';
   return `active-${range}-${damagePart}-t${tier}`;
 }
 
@@ -110,7 +112,7 @@ export function artifactPowerRowLabel(delivery: MartialDelivery, specialKey: str
   const base = DELIVERY_SHORT_LABEL[delivery];
   const ef = getEffect(specialKey);
   const specialLabel = ef ? getEffectBaseName(ef.name) : specialKey;
-  return `${base} (${specialLabel})`;
+  return `${base}: ${specialLabel}`;
 }
 
 export function listMartialDamageSpecialOptions(): {

@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildAttributeRollContext,
-  buildDifficultyPresets,
-  buildSkillRollContext,
-  getSkillRollDicePool,
-} from '../src/dice/roll-context-build.js';
+import { buildAttributeRollContext, buildDifficultyPresets } from '../src/dice/roll-context-build.js';
 import {
   buildEpicDiceFaces,
   formatDiceSummary,
@@ -14,11 +9,6 @@ import {
   skipParticipantInSession,
 } from '../src/epic-roll/epic-mastery-roll-types.js';
 import { buildEpicMasteryRollSummaryHtml } from '../src/epic-roll/epic-mastery-roll-chat.js';
-import {
-  applyEchoCardToParticipantResult,
-  getEpicEchoCardOffers,
-} from '../src/epic-roll/epic-mastery-roll-echo.js';
-import { getSkillSpendOptions, buildSkillSpendPackets, sumSelectedPacketSpend } from '../src/epic-roll/epic-mastery-roll-skill-spend.js';
 import {
   actorEpicRerollPoints,
   canSpendEpicRerollPoint,
@@ -46,7 +36,6 @@ function mockActor(overrides: Record<string, unknown> = {}): Actor {
         influence: { value: 4 },
         wits: { value: 4 },
       },
-      skills: { athletics: 2 },
       health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
     },
     items: [],
@@ -106,62 +95,12 @@ describe('buildDifficultyPresets', () => {
 });
 
 describe('buildRollContext', () => {
-  it('builds skill roll with half-pool when rating below 2×MR', () => {
-    const actor = mockActor({
-      system: {
-        mastery: { rank: 4 },
-        attributes: { might: { value: 10 }, agility: { value: 8 } },
-        skills: { athletics: 2 },
-        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
-      },
-    });
-    const ctx = buildSkillRollContext(actor, 'athletics', 'might', { baseTN: 32, raises: 0 });
-    expect(ctx).not.toBeNull();
-    expect(ctx!.rollOptions.numDice).toBe(5);
-    expect(ctx!.rollOptions.isSkillRoll).toBe(true);
-    expect(ctx!.rollOptions.skillKey).toBe('athletics');
-    expect(ctx!.rollOptions.flavor).toMatch(/Reduced pool/i);
-  });
-
-  it('builds full skill pool when rating meets 2×MR', () => {
-    const actor = mockActor({
-      system: {
-        mastery: { rank: 4 },
-        attributes: { might: { value: 10 }, agility: { value: 8 } },
-        skills: { athletics: 8 },
-        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
-      },
-    });
-    const ctx = buildSkillRollContext(actor, 'athletics', 'might', { baseTN: 32, raises: 1 });
-    expect(ctx!.rollOptions.numDice).toBe(10);
-    expect(ctx!.rollOptions.isSkillRoll).toBe(true);
-    expect(ctx!.rollOptions.raiseTn).toBe(36);
-  });
-
   it('builds attribute roll context', () => {
     const actor = mockActor();
     const ctx = buildAttributeRollContext(actor, 'might', { baseTN: 24, raises: 0 });
     expect(ctx!.rollOptions.numDice).toBe(10);
     expect(ctx!.rollOptions.keepDice).toBe(4);
     expect(ctx!.label).toBe('Might Check');
-  });
-
-  it('skill rolls use attribute pool dice and keep MR highest', () => {
-    const actor = mockActor({
-      system: {
-        mastery: { rank: 4 },
-        attributes: { might: { value: 10 }, agility: { value: 8 } },
-        skills: { athletics: 8 },
-        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
-      },
-    });
-    const pool = getSkillRollDicePool(actor, 'athletics', 'might');
-    expect(pool.numDice).toBe(10);
-    expect(pool.keepDice).toBe(4);
-
-    const ctx = buildSkillRollContext(actor, 'athletics', 'might', { baseTN: 32, raises: 0 });
-    expect(ctx!.rollOptions.numDice).toBe(10);
-    expect(ctx!.rollOptions.keepDice).toBe(4);
   });
 
 });
@@ -173,7 +112,7 @@ describe('Epic Mastery Roll session helpers', () => {
     flavor: '',
     showTn: true,
     tn: { challengeMR: 4, baseTN: 32, raises: 0 },
-    roll: { kind: 'skill', skillKey: 'athletics' },
+    roll: { kind: 'attribute', attributeKey: 'might' },
     participants: [
       { actorId: 'a1', actorName: 'Hero', status: 'pending' },
       { actorId: 'a2', actorName: 'Rogue', status: 'pending' },
@@ -274,87 +213,6 @@ describe('Epic Mastery Roll session helpers', () => {
   });
 });
 
-describe('Epic skill spend helpers', () => {
-  it('offers no spend options (DF 2026: Skill Spend retired)', () => {
-    const actor = mockActor({
-      system: {
-        mastery: { rank: 4 },
-        attributes: { might: { value: 10 } },
-        skills: { athletics: 4 },
-        skillsSpent: { athletics: 0 },
-        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
-      },
-    }) as any;
-    const rollResult = {
-      total: 20,
-      dice: [6, 5, 4, 3],
-      kept: [6, 5, 4, 3],
-      skill: 0,
-      tn: 32,
-      raises: 0,
-      success: false,
-      exploded: [],
-    };
-    const { options, remainingPool } = getSkillSpendOptions(actor, 'athletics', rollResult);
-    expect(remainingPool).toBe(0);
-    expect(options).toEqual([]);
-  });
-
-  it('builds MR packets like the skill sheet (max four, MR-sized chunks)', () => {
-    expect(buildSkillSpendPackets(8, 2).map((p) => p.amount)).toEqual([2, 2, 2, 2]);
-    expect(buildSkillSpendPackets(3, 2).map((p) => p.amount)).toEqual([2, 1, 0, 0]);
-    expect(buildSkillSpendPackets(12, 3).map((p) => p.amount)).toEqual([3, 3, 3, 3]);
-    expect(buildSkillSpendPackets(8, 4).map((p) => p.amount)).toEqual([4, 4, 0, 0]);
-  });
-
-  it('sums only selected clickable packets', () => {
-    const packets = buildSkillSpendPackets(8, 2);
-    expect(sumSelectedPacketSpend(packets, [true, true, false, false])).toBe(4);
-    expect(sumSelectedPacketSpend(packets, [true, true, true, true])).toBe(8);
-  });
-
-  it('lists unused echo cards matching a skill key', () => {
-    const actor = mockActor({
-      system: {
-        mastery: { rank: 4 },
-        echo: {
-          key: 'humans',
-          selectedCardIds: ['desperate-bargain', 'refuse-to-give-up'],
-          cardUses: { 'refuse-to-give-up': true },
-        },
-        skills: { negotiation: 4 },
-        health: { bars: [{ current: 10, max: 10 }], currentBar: 0 },
-      },
-    }) as any;
-
-    const offers = getEpicEchoCardOffers(actor, 'negotiation');
-    expect(offers).toHaveLength(1);
-    expect(offers[0]!.cardId).toBe('desperate-bargain');
-    expect(offers[0]!.optionLabel).toMatch(/Name Your Price/i);
-  });
-
-  it('recalculates margin raises when an echo card is applied', () => {
-    const result = {
-      actorId: 'a1',
-      actorName: 'Hero',
-      label: 'Negotiation Check',
-      total: 40,
-      normalTn: 32,
-      success: true,
-      raises: 0,
-      diceSummary: '8,8,7,6',
-    };
-    const updated = applyEchoCardToParticipantResult(
-      result,
-      'humans',
-      'desperate-bargain',
-      'name-your-price',
-    );
-    expect(updated?.raises).toBe(2);
-    expect(updated?.echoCardUsed?.cardName).toBe('Desperate Bargain');
-  });
-});
-
 describe('Epic Mastery Roll summary HTML', () => {
   it('includes success and failure labels', () => {
     const session: EpicMasteryRollSession = {
@@ -363,7 +221,7 @@ describe('Epic Mastery Roll summary HTML', () => {
       flavor: 'Cross the courtyard',
       showTn: true,
       tn: { challengeMR: 4, baseTN: 32, raises: 0 },
-      roll: { kind: 'skill', skillKey: 'stealth' },
+      roll: { kind: 'attribute', attributeKey: 'agility' },
       participants: [{ actorId: 'a1', actorName: 'Hero', status: 'rolled' }],
       results: {
         a1: {
@@ -393,7 +251,6 @@ describe('Epic Mastery Roll reroll staging', () => {
       system: {
         mastery: { rank: 4 },
         attributes: { might: { value: 10 } },
-        skills: { athletics: 8 },
         faithFractures: { current: 2, maximum: 3 },
       },
     });
@@ -404,11 +261,10 @@ describe('Epic Mastery Roll reroll staging', () => {
     );
   });
 
-  it('stages a failure when a Reroll Point remains, even without skill spend', () => {
+  it('stages a failure when a Reroll Point remains', () => {
     expect(
       shouldStageEpicFailure({
         success: false,
-        hasSkillSpend: false,
         hasRerollPoint: true,
         alreadyRerolled: false,
       }),
@@ -419,26 +275,16 @@ describe('Epic Mastery Roll reroll staging', () => {
     expect(
       shouldStageEpicFailure({
         success: false,
-        hasSkillSpend: false,
         hasRerollPoint: true,
         alreadyRerolled: true,
       }),
     ).toBe(false);
-    expect(
-      shouldStageEpicFailure({
-        success: false,
-        hasSkillSpend: true,
-        hasRerollPoint: true,
-        alreadyRerolled: true,
-      }),
-    ).toBe(true);
   });
 
   it('does not stage a successful roll', () => {
     expect(
       shouldStageEpicFailure({
         success: true,
-        hasSkillSpend: true,
         hasRerollPoint: true,
         alreadyRerolled: false,
       }),

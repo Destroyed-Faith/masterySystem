@@ -12,7 +12,8 @@ import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { isUltimateProgressionRow, progressionSlotIndex, resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
-import { isBreathWeaponName } from '../utils/breath-weapon.js';
+import { isAttackPowerItem, isAttackPowerTemplateId } from '../utils/attack-power.js';
+import { isLimitedPowerTemplateId } from './limited-charge.js';
 import { combatReadyRemaining, minLivePoolCurrent, } from '../stones/stone-combat-ledger.js';
 import { seedNpcMaximizationRoundState } from './npc-maximization.js';
 /**
@@ -625,7 +626,55 @@ export function powerUseInstanceIdFromOption(option) {
         return id;
     return String(option.item?.id || id || '');
 }
+/**
+ * Template id behind a Power Use Limit key: learned/granted embedded power
+ * items, or artifact staged-slot grants (`artifact:<itemId>:slot:N`).
+ */
+export function powerUseTemplateId(actor, powerItemId) {
+    const key = String(powerItemId || '').trim();
+    if (!key)
+        return '';
+    const items = actor?.items;
+    const artifactSlot = /^artifact:([^:]+):slot:(\d+)$/.exec(key);
+    if (artifactSlot) {
+        const sys = items?.get?.(artifactSlot[1])?.system ?? {};
+        const level = Number(sys.currentLevel) || Number(sys.level) || 1;
+        const full = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks, {
+            preferAuthored: sys.useAuthoredLevelProgression === true,
+        });
+        const slot = Number(artifactSlot[2]);
+        const row = visibleAbilityRows(full, level).find((r) => progressionSlotIndex(r) === slot);
+        return String(row?.powerTemplateId ?? '').trim();
+    }
+    if (key.startsWith('artifact:') || key.startsWith('artifact-weapon:'))
+        return '';
+    const item = items?.get?.(key);
+    if (!item || item.type !== 'power')
+        return '';
+    return String(item.system?.templateId ?? item.system?.powerTemplateId ?? '').trim();
+}
+/**
+ * Actives Power Use Limit: Attack Powers (Single Target, AoE, Split, Autofire,
+ * Single Target Special, AoE Special) are repeatable while Attack Actions
+ * remain. Printed use counters (Limited charges, Breath Weapon uses) are
+ * enforced separately; consumables and every non-Attack Active keep the
+ * once-per-Round instance lock.
+ */
+export function isRepeatableAttackPower(actor, powerItemId) {
+    const key = canonicalPowerUseInstanceId(powerItemId);
+    if (!key)
+        return false;
+    const item = actor?.items?.get?.(key);
+    if (item)
+        return isAttackPowerItem(item);
+    const tid = powerUseTemplateId(actor, key);
+    if (!tid || isLimitedPowerTemplateId(tid))
+        return false;
+    return isAttackPowerTemplateId(tid);
+}
 export function hasPowerBeenUsedThisRound(actor, combat, powerItemId) {
+    if (isRepeatableAttackPower(actor, powerItemId))
+        return false;
     const rs = getRoundState(actor, combat);
     const used = rs.usedPowerIdsThisRound ?? [];
     if (!used.length)
@@ -654,6 +703,8 @@ export function hasPowerBeenUsedThisRound(actor, combat, powerItemId) {
  */
 export async function markPowerUsedThisRound(actor, combat, powerItemId) {
     if (!powerItemId)
+        return;
+    if (isRepeatableAttackPower(actor, powerItemId))
         return;
     const identity = powerUseIdentity(actor, powerItemId);
     if (!identity)
@@ -767,7 +818,7 @@ function resolveArtifactUsageDisplayName(actor, key) {
                     full.find((r) => Number(r.level) === level);
         const rowName = String(row?.name || '').trim();
         // Shared Breath instance keys strip :damage/:ruin; keep the radial label.
-        if (isBreathWeaponName(rowName)) {
+        if (row?.artifactFunctionId === 'dragon-breath') {
             const breathLabel = mode === 'ruin' ? 'Ruin Breath' : 'Damage Breath';
             return artifactName ? `${breathLabel} (${artifactName})` : breathLabel;
         }

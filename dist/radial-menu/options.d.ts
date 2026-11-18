@@ -2,7 +2,7 @@
  * Option Collection and Parsing for Radial Menu
  */
 import type { RadialCombatOption, InnerSegment } from './types';
-/** Attack-slot maneuvers the radial shows (Basic Attack is injected separately). */
+/** Attack-slot maneuvers the radial shows. */
 export declare const RADIAL_ATTACK_MANEUVER_IDS: readonly string[];
 /** Grapple family: Grapple reaches like a body (melee reach); escape / release target the partner. */
 export declare const GRAPPLE_MANEUVER_IDS: readonly string[];

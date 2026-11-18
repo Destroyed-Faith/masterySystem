@@ -1,9 +1,9 @@
 /**
- * Unified Progression Hub — Attributes, Skills, Powers, and Artifacts in one dialog.
+ * Unified Progression Hub — Attributes, Professions, Powers, and Artifacts in one dialog.
  */
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
-import { allocateActorSkillPending, applyAttributePendingChanges, applyPowerPendingChanges, applySpecializationRankUp, buildProgressionHubContext, calculateAttributePendingNetCost, calculatePowerPendingNetCost, getAttributeXpBaseline, hasFreeXp, } from '../progression/progression-hub-actions.js';
+import { applyAttributePendingChanges, applyPowerPendingChanges, applySpecializationRankUp, buildProgressionHubContext, calculateAttributePendingNetCost, calculatePowerPendingNetCost, getAttributeXpBaseline, hasFreeXp, } from '../progression/progression-hub-actions.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 import { wireEmbeddedArtifactToWorldTree } from '../utils/artifact-tree-grant.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -14,7 +14,6 @@ export class ProgressionHubDialog extends BaseDialog {
     openSections = new Set();
     scrollTop = 0;
     pendingAttributes = {};
-    pendingSkills = {};
     pendingPowers = {};
     static DEFAULT_OPTIONS = {
         id: 'progression-hub-dialog',
@@ -40,10 +39,8 @@ export class ProgressionHubDialog extends BaseDialog {
         const hub = buildProgressionHubContext(this.actor);
         const stonePools = listArtifactSpendableStonePools(this.actor);
         const attrNet = calculateAttributePendingNetCost(this.actor, this.pendingAttributes);
-        const skillAllocation = allocateActorSkillPending(this.actor, this.pendingSkills);
-        const skillNet = skillAllocation.xpNet;
         const powerNet = calculatePowerPendingNetCost(this.actor, this.pendingPowers);
-        const remainingAfterPending = hub.xp.available - attrNet - skillNet - powerNet;
+        const remainingAfterPending = hub.xp.available - attrNet - powerNet;
         return {
             actor: this.actor,
             expandOverview: this.openSections.has('overview'),
@@ -56,13 +53,10 @@ export class ProgressionHubDialog extends BaseDialog {
             usesStonePools: usesStonePoolEconomy(this.actor),
             isGM: game.user?.isGM === true,
             pendingAttributes: this.pendingAttributes,
-            pendingSkills: this.pendingSkills,
             pendingPowers: this.pendingPowers,
             hasPendingAttributes: Object.keys(this.pendingAttributes).length > 0,
-            hasPendingSkills: Object.keys(this.pendingSkills).length > 0,
             hasPendingPowers: Object.keys(this.pendingPowers).length > 0,
             attrNet,
-            skillNet,
             powerNet,
             remainingAfterPending,
             hasFreeXpPhase: hasFreeXp(this.actor),

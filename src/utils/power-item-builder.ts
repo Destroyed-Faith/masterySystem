@@ -14,7 +14,6 @@ import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 import { getEffectById } from './special-effects.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
-import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 import {
     actorAlreadyHasPower,
     activeTemplateCanBeSpell,
@@ -56,12 +55,17 @@ function specialDisplayLabel(key: string): string {
  *
  * Examples:
  *   Passive: Restoration → Restoration
- *   Ranged Damage — Tier 6 — Hex → Ranged Hex
- *   Melee AoE Damage — Tier 4 — Slow → Melee AoE Slow
+ *   Melee Single Target Special — Ruin → Melee Single Target Special: Ruin
+ *   Ranged AoE Special — Slow → Ranged AoE Special: Slow
+ *   Ranged Damage — Tier 6 — Hex (legacy) → Ranged Hex
  *   Melee Single Attack → Melee Attack
  */
 export function defaultPowerItemDisplayName(entry: CatalogEntry): string {
     const specialKey = entry.chosenSpecial?.key?.trim();
+    const catalogTitle = (entry.raw as { catalogTitle?: string } | undefined)?.catalogTitle;
+    if (entry.category === 'active' && specialKey && catalogTitle) {
+        return `${catalogTitle}: ${specialDisplayLabel(specialKey)}`;
+    }
     if (entry.category === 'active' && specialKey) {
         const id = String(entry.templateId || '');
         const delivery = /ranged/i.test(id) ? 'Ranged' : /melee/i.test(id) ? 'Melee' : '';
@@ -89,6 +93,28 @@ export function defaultPowerItemDisplayName(entry: CatalogEntry): string {
     return name || String(entry.name || 'Power');
 }
 
+/**
+ * Level rows of a catalog entry bound to its chosen Special (rank, radius and
+ * effect text as printed for that Special). Used by item creation and by the
+ * picker preview so both show the same values.
+ */
+export function catalogEntryBoundLevels(entry: CatalogEntry): Record<string, unknown> {
+    const template = entry.raw as EmbeddedPowerData;
+    const levels = (template.levels ?? {}) as Record<string, unknown>;
+    const key = entry.chosenSpecial?.key;
+    if (!key) return levels;
+    const next: Record<string, unknown> = {};
+    for (const [k, row] of Object.entries(levels)) {
+        next[k] = bindPoolSpecialsOnRow(
+            row as { specials?: PowerSpecial[]; effect?: { text?: string } },
+            key,
+            template.templateId,
+            Number(k),
+        );
+    }
+    return next;
+}
+
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(
     entry: CatalogEntry,
@@ -106,26 +132,7 @@ export function buildPowerItemFromCatalogEntry(
         return null;
     }
 
-    let levels: Record<PowerLevelKey, unknown> = template.levels;
-    if (chosenSpecial) {
-        const next: Record<string, unknown> = {};
-        for (const [k, row] of Object.entries(template.levels)) {
-            const bound = bindPoolSpecialsOnRow(
-                row as { specials?: PowerSpecial[]; effect?: { text?: string } },
-                chosenSpecial.key,
-                template.templateId,
-                Number(k),
-            );
-            // Weapon AoE (Tail Sweep): catalog specials stay empty — inject Push/etc.
-            next[k] = injectOptionalWeaponAoeChosenSpecial(
-                bound,
-                chosenSpecial.key,
-                template.templateId,
-                Number(k),
-            );
-        }
-        levels = next as Record<PowerLevelKey, unknown>;
-    }
+    const levels = catalogEntryBoundLevels(entry) as Record<PowerLevelKey, unknown>;
 
     const boundLevelRow = (levels[levelKey] as typeof levelRow | undefined) ?? levelRow;
 

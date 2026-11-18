@@ -109,14 +109,34 @@ describe('Weapon attacks while grappling', () => {
   held.flags['mastery-system'].grapple = { role: 'held', partnerActorId: 'a1', partnerName: 'Bjorn' };
   const free = mockActor('x', 'Free');
 
-  const basicAttack = { id: 'weapon-attack', slot: 'attack', source: 'maneuver', maneuver: { id: 'weapon-attack' } };
+  const basicAttack = {
+    id: 'p-melee',
+    slot: 'attack',
+    source: 'power',
+    item: { system: { powerType: 'active', isSpell: false, templateId: 'active-melee-weapon-single' } },
+  };
 
-  it('unarmed Basic Attack keeps the Grapple', () => {
+  it('a Melee Attack Power with Unarmed delivery keeps the Grapple', () => {
     expect(attackRequiresGrappleRelease(grappler, basicAttack, { unarmedNow: true })).toBe(false);
   });
 
-  it('an armed Basic Attack requires releasing the Grapple first', () => {
+  it('an armed Melee Attack Power requires releasing the Grapple first', () => {
     expect(attackRequiresGrappleRelease(grappler, basicAttack, { unarmedNow: false })).toBe(true);
+  });
+
+  it('a ranged Attack Power requires releasing the Grapple even when unarmed', () => {
+    const ranged = {
+      id: 'p-ranged',
+      slot: 'attack',
+      source: 'power',
+      item: { system: { powerType: 'active', isSpell: false, templateId: 'active-ranged-weapon-single' } },
+    };
+    expect(attackRequiresGrappleRelease(grappler, ranged, { unarmedNow: true })).toBe(true);
+  });
+
+  it('the retired weapon-attack maneuver id no longer counts as an attack', () => {
+    const legacy = { id: 'weapon-attack', slot: 'attack', source: 'maneuver', maneuver: { id: 'weapon-attack' } };
+    expect(attackRequiresGrappleRelease(grappler, legacy, { unarmedNow: false })).toBe(false);
   });
 
   it('only the grappler is gated — the held creature and free actors are not', () => {
@@ -125,13 +145,13 @@ describe('Weapon attacks while grappling', () => {
   });
 
   it('weapon-based Active Powers are gated, spells and Active Buffs are not', () => {
-    const martial = { id: 'p1', slot: 'attack', source: 'power', item: { system: { powerType: 'active', isSpell: false } } };
+    const martial = { id: 'p1', slot: 'attack', source: 'power', item: { system: { powerType: 'active', isSpell: false, templateId: 'active-ranged-weapon-single' } } };
     const spell = { id: 'p2', slot: 'attack', source: 'power', item: { system: { powerType: 'active', isSpell: true } } };
     const buff = { id: 'p3', slot: 'attack', source: 'power', powerType: 'active-buff', item: { system: { powerType: 'active-buff' } } };
     expect(attackRequiresGrappleRelease(grappler, martial, { unarmedNow: true })).toBe(true);
     expect(attackRequiresGrappleRelease(grappler, spell, { unarmedNow: true })).toBe(false);
     expect(attackRequiresGrappleRelease(grappler, buff, { unarmedNow: true })).toBe(false);
-    // NPC sheet attacks are the creature's own body; NPCs have no separate unarmed Basic Attack.
+    // NPC sheet attacks are the creature's own body; NPCs have no separate Unarmed delivery.
     const npcAttack = { id: 'npc-attack-0', slot: 'attack', source: 'npc-attack', tags: ['melee'] };
     expect(attackRequiresGrappleRelease(grappler, npcAttack, { unarmedNow: false })).toBe(false);
   });

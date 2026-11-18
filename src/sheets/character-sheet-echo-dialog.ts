@@ -5,9 +5,7 @@
  *   1. Echo selection (7 Echos)
  *   2. Sub-choice (Elves lineage / Sentinels order) \u2014 only if the Echo has one
  *   3. Veiled Form selection \u2014 Dragonborn only
- *   4. Start Card (1 from the chosen Echo's deck)
- *
- * Separate `showEchoCardPickDialog` handles later card picks (post-creation or on rank-up).
+ *   4. Echo-bound Artifacts
  *
  * All writes land on the Actor under `system.echo.*` \u2014 no Item type involved.
  */
@@ -18,8 +16,6 @@ import {
   ECHO_KEY_ORDER,
   getAllEchos,
   getEcho,
-  getEchoCard,
-  getUnlockedCardSlots,
   type EchoDefinition
 } from '../utils/echos/index.js';
 import {
@@ -168,46 +164,6 @@ function renderUnboundPredatorExtras(currentShape: string, currentStone: string)
   `;
 }
 
-function renderCardPickRows(
-  def: EchoDefinition,
-  selectedId: string,
-  inputName: string,
-  availableIds?: string[],
-): string {
-  const cards = availableIds
-    ? def.deck.filter((c) => availableIds.includes(c.id))
-    : def.deck;
-  return cards.map((c, idx) => {
-    const checked = selectedId === c.id || (idx === 0 && !selectedId);
-    return `
-      <label class="echo-pick-row">
-        <input type="radio" name="${esc(inputName)}" value="${esc(c.id)}"${checked ? ' checked' : ''} />
-        <span class="echo-pick-body">
-          <strong class="echo-pick-name">${esc(c.name)}</strong>
-          <div class="echo-pick-effect">${esc(c.trigger)}</div>
-        </span>
-      </label>
-    `;
-  }).join('');
-}
-
-/** Render the card preview (4 options) for one card id on the chosen Echo. */
-function renderCardPreview(def: EchoDefinition, cardId: string): string {
-  const card = def.deck.find(c => c.id === cardId);
-  if (!card) return '';
-  const opts = card.options.map(o => `
-    <li>
-      <div class="echo-card-option-head"><strong>${esc(o.label)}</strong> <em>Skill: ${esc(o.skill)}</em></div>
-      <div class="echo-card-option-desc">${esc(o.description)}</div>
-    </li>
-  `).join('');
-  return `
-    <div class="echo-card-preview">
-      <ol class="echo-card-options">${opts}</ol>
-    </div>
-  `;
-}
-
 /**
  * Show the full Echo creation dialog (Echo → sub-choice → veiled → artifacts).
  * Echo Cards / Writer are retired from the live sheet (DF 2026).
@@ -322,11 +278,6 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
             }
 
             const traitUses = buildFreshTraitUses(echoKey, subChoiceKey || null, masteryRank);
-            // Preserve any archived card ids; live sheet no longer uses Echo Cards.
-            const priorCards: string[] = Array.isArray(currentEcho.selectedCardIds)
-              ? currentEcho.selectedCardIds.filter((id: unknown) => typeof id === 'string')
-              : [];
-
             const inCreation = (actor as any).system?.creation?.complete === false;
             const nextLanguages = normalizeKnownLanguages(
               (actor as any).system?.languages?.known,
@@ -339,8 +290,6 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
                 key: echoKey,
                 subChoiceKey: subChoiceKey || '',
                 veiledFormKey: veiledFormKey || '',
-                selectedCardIds: priorCards,
-                cardUses: {},
                 traitUses,
                 unboundShape: unboundShape || '',
               },
@@ -711,122 +660,6 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
     }, {
       classes: ['dialog', 'mastery-system', 'echo-creation-dialog'],
       width: 860,
-    });
-    dialog.render(true);
-  });
-}
-
-/**
- * Post-creation / rank-up card picker. Lets the user pick one additional card
- * from their chosen Echo's deck (any card not already selected).
- */
-export async function showEchoCardPickDialog(actor: Actor): Promise<void> {
-  const system = (actor as any).system;
-  const echo = system?.echo;
-  const def = getEcho(echo?.key);
-  if (!def) {
-    (ui as any).notifications?.warn('Choose an Echo before picking cards.');
-    return;
-  }
-  const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
-  const unlocked = getUnlockedCardSlots(masteryRank);
-  const selected: string[] = Array.isArray(echo.selectedCardIds) ? echo.selectedCardIds : [];
-
-  if (selected.length >= unlocked) {
-    (ui as any).notifications?.warn(
-      `You already have ${selected.length} / ${unlocked} cards unlocked at Mastery Rank ${masteryRank}.`
-    );
-    return;
-  }
-  const available = def.deck.filter(c => !selected.includes(c.id));
-  if (available.length === 0) {
-    (ui as any).notifications?.info('Your Echo deck is already fully chosen.');
-    return;
-  }
-
-  const content = `
-    <form class="mastery-system echo-card-pick-form">
-      <div class="echo-form-group">
-        <label class="echo-form-label">Card <span class="echo-form-hint">(${selected.length + 1} / ${unlocked})</span></label>
-        <div id="ecp-card-options" class="echo-pick-list">
-          ${renderCardPickRows(def, '', 'cardId', available.map((c) => c.id))}
-        </div>
-        <div class="echo-card-preview-container" id="ecp-card-preview"></div>
-      </div>
-    </form>
-  `;
-
-  return new Promise<void>((resolve) => {
-    const dialog = new Dialog({
-      title: `Add Echo Card \u2014 ${def.name}`,
-      content,
-      buttons: {
-        confirm: {
-          icon: '<i class="fas fa-check"></i>',
-          label: 'Add',
-          callback: async (htmlCb: any) => {
-            const $html = (htmlCb instanceof HTMLElement) ? $(htmlCb) : $(htmlCb as any);
-            const cardId = String($html.find('input[name="cardId"]:checked').val() || '');
-            if (!cardId) {
-              (ui as any).notifications?.warn('Please select a card.');
-              return false;
-            }
-            const next = [...selected, cardId];
-            await (actor as any).update({
-              'system.echo.selectedCardIds': next
-            });
-            const card = getEchoCard(def.key, cardId);
-            (ui as any).notifications?.info(`Added Echo card: ${card?.name || cardId}.`);
-            return true;
-          }
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: 'Cancel',
-          callback: () => false
-        }
-      },
-      default: 'confirm',
-      close: () => resolve(),
-      render: (htmlRaw: any) => {
-        const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
-        setTimeout(() => {
-          const dlg = html.closest('.window-app.dialog, .window-app, .application');
-          if (dlg.length) {
-            dlg.addClass('mastery-system echo-card-pick-dialog');
-            dlg.css({
-              position: 'fixed',
-              height: 'auto',
-              'min-height': '320px',
-              'max-height': '92vh',
-              width: 'auto',
-              'min-width': '720px',
-              'max-width': '1100px'
-            });
-            const contentEl = dlg.find('.window-content');
-            if (contentEl.length) {
-              contentEl.css({
-                height: 'auto',
-                'max-height': 'calc(92vh - 96px)',
-                'overflow-y': 'auto'
-              });
-            }
-          }
-          scheduleCenterLegacyDialog(html, dialog);
-        }, 0);
-        const $options = html.find('#ecp-card-options');
-        const $preview = html.find('#ecp-card-preview');
-        const paintPreview = () => {
-          const cardId = String($options.find('input[name="cardId"]:checked').val() || '');
-          if (!cardId) { $preview.empty(); return; }
-          $preview.html(renderCardPreview(def, cardId));
-        };
-        $options.on('change', 'input[name="cardId"]', paintPreview);
-        paintPreview();
-      }
-    }, {
-      classes: ['dialog', 'mastery-system', 'echo-card-pick-dialog'],
-      width: 820,
     });
     dialog.render(true);
   });

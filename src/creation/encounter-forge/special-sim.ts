@@ -12,7 +12,7 @@
  * stacks still decay linearly each turn.
  *
  * Mechanical effects implemented per canonical special-effects.ts:
- *   ruin — tick damage 4×X (ignores Armor); exorcism/requiem — tick X (ignores Armor), corrode — Armor −X,
+ *   ruin — tick damage 4×X (ignores Armor), corrode — Armor −X,
  *   expose — Evade −X, disoriented — attack dice −X, challenge — attack dice
  *   −X when ignoring the challenger, sundered — +1d8 per 2 on non-Spell hits,
  *   hex — +1d8 per 2 on Spell hits, lacerate — movement-triggered damage,
@@ -32,7 +32,7 @@ const EVADE_REDUCERS = new Set(['expose']);
 /** Specials that reduce the victim's attack dice pools. */
 const ATTACK_DICE_REDUCERS = new Set(['disoriented']);
 /** Specials that tick HP damage at turn start (ignore Armor). */
-const TICK_DAMAGE = new Set(['ruin', 'exorcism', 'requiem']);
+const TICK_DAMAGE = new Set(['ruin']);
 /** Specials that reduce might/agility-style pools (melee/martial attackers). */
 const PHYSICAL_POOL_REDUCERS = new Set(['weaken']);
 /** Specials that reduce casting-attribute pools. */

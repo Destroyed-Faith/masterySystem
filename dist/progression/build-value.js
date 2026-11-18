@@ -10,7 +10,7 @@
  */
 import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE, deriveLifetimeXp, earnedAttributeXpInvestment, usesV099Stones, } from './v099-rules.js';
 import { actorHasPostCreationSnapshot } from '../utils/xp-post-creation.js';
-import { attributeBandCost, powerLevelCost, skillBandCost, totalArtifactXpToLevel } from '../utils/constants.js';
+import { attributeBandCost, powerLevelCost, totalArtifactXpToLevel } from '../utils/constants.js';
 import { CREATION_DEFENSIVE_RANK, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, resolvePowerCategoryFromItem, } from '../utils/power-catalog.js';
 import { inferProfessionXpInvested, isCharacterPerceptionSpec, readSpecializations, } from '../rules/index.js';
 function n(value) {
@@ -53,38 +53,18 @@ export function attributeXpAboveFreePackage(values) {
 }
 function skillXp(system) {
     const specs = readSpecializations(system);
-    if (specs.length > 0) {
-        let xp = 0;
-        for (const spec of specs) {
-            // Perception / starting slots / GM grants / learned rows each use their own baseline.
-            xp += inferProfessionXpInvested(spec);
-        }
-        const paidLearned = specs.filter((s) => !isCharacterPerceptionSpec(s) && !s.startingSlot && !s.gmGranted).length;
-        return {
-            xp,
-            basis: 'creation-cap',
-            note: paidLearned > 0
-                ? 'Profession XP: starting slots free through Rank 2; learned rows count full ladder; GM grants count 0 until XP rank-ups.'
-                : 'Profession XP: starting slots free through Rank 2; ladder XP for Ranks above.',
-        };
-    }
-    // Legacy archive fallback (pre-DF-2026 sheets without Specs).
-    // Skill Points are retired — ranks above the old free creation cap count as XP only.
-    const skills = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-    const budget = { total: 40, maxPerSkill: 4 };
-    let remaining = budget.total;
     let xp = 0;
-    for (const key of Object.keys(skills).sort()) {
-        const current = n(skills[key]);
-        const creation = Math.min(budget.maxPerSkill, current, remaining);
-        remaining -= creation;
-        if (current > creation)
-            xp += bandSum(creation, current, skillBandCost);
+    for (const spec of specs) {
+        // Perception / starting slots / GM grants / learned rows each use their own baseline.
+        xp += inferProfessionXpInvested(spec);
     }
+    const paidLearned = specs.filter((s) => !isCharacterPerceptionSpec(s) && !s.startingSlot && !s.gmGranted).length;
     return {
         xp,
         basis: 'creation-cap',
-        note: `Legacy Skill archive (pre-Professions): ranks above the old free creation cap.`,
+        note: paidLearned > 0
+            ? 'Profession XP: starting slots free through Rank 2; learned rows count full ladder; GM grants count 0 until XP rank-ups.'
+            : 'Profession XP: starting slots free through Rank 2; ladder XP for Ranks above.',
     };
 }
 function grantedForFree(item) {

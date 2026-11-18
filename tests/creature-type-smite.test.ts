@@ -1,14 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import * as creatureType from '../src/utils/creature-type';
 import {
   resolveCreatureType,
-  isExorcismValidTarget,
-  isRequiemValidTarget,
-  isTargetedSpecialValidTarget,
   normalizeCreatureTypeValue,
   creatureTypeSelectOptions,
 } from '../src/utils/creature-type';
 
-describe('creature-type / Exorcism–Requiem validity', () => {
+describe('creature-type catalog', () => {
   it('resolves deathless and fiend aliases (including legacy undead)', () => {
     expect(resolveCreatureType({ system: { creatureType: 'deathless' } })).toBe('deathless');
     expect(resolveCreatureType({ system: { creatureType: 'undead' } })).toBe('deathless');
@@ -19,19 +17,10 @@ describe('creature-type / Exorcism–Requiem validity', () => {
     expect(resolveCreatureType({ system: { bio: { type: 'vampire' } } })).toBe('deathless');
   });
 
-  it('gates Exorcism to Fiend and Requiem to Deathless', () => {
-    expect(isExorcismValidTarget({ system: { creatureType: 'fiend' } })).toBe(true);
-    expect(isExorcismValidTarget({ system: { creatureType: 'deathless' } })).toBe(false);
-    expect(isExorcismValidTarget({ system: { creatureType: 'undead' } })).toBe(false);
-    expect(isRequiemValidTarget({ system: { creatureType: 'deathless' } })).toBe(true);
-    expect(isRequiemValidTarget({ system: { creatureType: 'undead' } })).toBe(true);
-    expect(isRequiemValidTarget({ system: { creatureType: 'fiend' } })).toBe(false);
-    expect(isExorcismValidTarget({ system: { creatureType: 'humanoid' } })).toBe(false);
-    expect(isRequiemValidTarget({ system: { creatureType: '' } })).toBe(false);
-    expect(isTargetedSpecialValidTarget('exorcism', { system: { creatureType: 'fiend' } })).toBe(true);
-    expect(isTargetedSpecialValidTarget('requiem', { system: { creatureType: 'deathless' } })).toBe(true);
-    expect(isTargetedSpecialValidTarget('requiem', { system: { creatureType: 'undead' } })).toBe(true);
-    expect(isTargetedSpecialValidTarget('exorcism', { system: { creatureType: 'undead' } })).toBe(false);
+  it('has no Exorcism / Requiem target gates (not in the canonical rules)', () => {
+    expect('isExorcismValidTarget' in creatureType).toBe(false);
+    expect('isRequiemValidTarget' in creatureType).toBe(false);
+    expect('isTargetedSpecialValidTarget' in creatureType).toBe(false);
   });
 
   it('normalizes leftover free text onto the catalog and rejects unknown strings', () => {

@@ -88,7 +88,7 @@ async function buildIndexHtml(): Promise<string> {
   }
 
   sections.push(
-    `<p><small>Source: Player's Guide (<code>docs/Rules/players-guide.md</code>). Power Catalogues are not included in this phase.</small></p>`,
+    `<p><small>Source: Player's Guide (<code>docs/Rules/Canonical/Players_Handbook.md</code>). Power Catalogues are not included in this phase.</small></p>`,
   );
   sections.push('</div>');
   return sections.join('\n');

@@ -11,7 +11,6 @@ import { planSpecializationRoll } from '../src/rules/specialization-roll.js';
 import {
   professionIdentityKey,
   readActorSpecializations,
-  summonSkillDiceCap,
   validateSpecializationList,
 } from '../src/rules/specializations.js';
 import { skillAdvantageRerollMax } from '../src/rules/skill-advantage.js';
@@ -104,22 +103,6 @@ describe('K8 Professions', () => {
     expect(safeHavenScarBarsRecovered(4)).toBe(2);
     expect(safeHavenScarBarsRecovered(7)).toBe(2);
     expect(safeHavenScarBarsRecovered(8)).toBe(3);
-  });
-
-  it('legacy summonSkillDiceCap helper remains deterministic (retired purchases)', () => {
-    // Purchases are retired; helper kept for migration/compat math only.
-    expect(summonSkillDiceCap({
-      task: 'stealth',
-      ownerMasteryRank: 2,
-      matchingSpecializationRank: 2,
-      scopeCoversTask: true,
-    })).toBe(4);
-    expect(summonSkillDiceCap({
-      task: 'stealth',
-      ownerMasteryRank: 2,
-      matchingSpecializationRank: 8,
-      scopeCoversTask: false,
-    })).toBe(0);
   });
 
   it('a Ritual without a fitting Profession is not an untrained Disadvantage roll', () => {

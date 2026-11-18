@@ -80,45 +80,25 @@ describe('character print table sheet', () => {
     expect(ctx.battle?.includeStandardManeuvers).toBe(false);
   });
 
-  it('seeds Basic Attack when showBasicAttack is enabled', () => {
+  it('never seeds Basic Attack, even with the deprecated showBasicAttack option', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(3), { showBasicAttack: true }) as any;
     const active = ctx.battle?.active ?? [];
-    expect(active[0]?.name).toBe('Basic Attack');
-    expect(active[0]?.damageRoll).toBe('Weapon + 6d8');
+    expect(active.map((p: any) => p.name)).not.toContain('Basic Attack');
     const reactions = ctx.battle?.reactions ?? [];
     expect(reactions.map((r: any) => r.name)).toEqual(['Guard', 'Evade', 'Dive for Cover']);
     expect(reactions[0]?.damageRoll).toBe('+6 Armor');
     expect(reactions[1]?.damageRoll).toBe('+6 Evade');
     expect(reactions[2]?.damageRoll).toBe('Move 6 m');
-    expect(ctx.battle?.showBasicAttack).toBe(true);
+    expect(ctx.battle?.showBasicAttack).toBe(false);
   });
 
-  it('prints the full skill catalog by category with Perception elevated', () => {
+  it('prints Professions with Perception elevated and no legacy Skill grid', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
-    expect(ctx.hasLearnedSkills).toBe(true);
-    expect(ctx.perceptionSkill?.key).toBe('perception');
-    expect(ctx.perceptionSkill?.poolChips).toHaveLength(3);
-    expect(ctx.skillCategories.map((c: any) => c.label)).toEqual([
-      'Physical',
-      'Knowledge & Craft',
-      'Social',
-      'Survival',
-    ]);
-    expect(ctx.learnedSkills.length).toBe(31);
-    expect(ctx.learnedSkills.map((s: any) => s.name)).toEqual(
-      expect.arrayContaining(['Intimidation', 'Athletics', 'Lore', 'Perception', 'Artisanry']),
-    );
-    expect(ctx.learnedSkills.every((s: any) => s.key !== 'perception' || s === ctx.perceptionSkill)).toBe(
-      true,
-    );
-    const intimidation = ctx.learnedSkills.find((s: any) => s.key === 'intimidation');
-    expect(intimidation?.rating).toBe(2);
-    expect(intimidation?.halfPool).toBe(true);
-    expect(intimidation?.poolLabel).toBe('8k2');
-    const lore = ctx.learnedSkills.find((s: any) => s.key === 'lore');
-    expect(lore?.rating).toBe(0);
-    expect(lore?.halfPool).toBe(true);
-    expect(lore?.poolLabel).toBe('4k2');
+    expect(ctx.perceptionSpecialization?.name).toBe('Perception');
+    expect(ctx.perceptionSpecialization?.rank).toBe(2);
+    for (const key of ['learnedSkills', 'skillCategories', 'perceptionSkill', 'skillsByGroup', 'showSpecializations']) {
+      expect(ctx[key]).toBeUndefined();
+    }
 
     expect(ctx.coreCombat.evade).toBe(12);
     expect(ctx.coreCombat.armor).toBe(4);
@@ -130,18 +110,6 @@ describe('character print table sheet', () => {
     expect(ctx.coreCombat.damageNegation).toBe(0);
     expect(ctx.coreCombat.damageReduction).toBe('0%');
     expect(ctx.coreCombat.parry).toBe(0);
-  });
-
-  it('uses full skill pool when rating reaches 2× Mastery Rank', () => {
-    const ctx = buildCharacterPrintContext(
-      mockCharacter(2, { skills: { intimidation: 4, athletics: 1, lore: 0 } }),
-    ) as any;
-    const intimidation = ctx.learnedSkills.find((s: any) => s.key === 'intimidation');
-    expect(intimidation?.halfPool).toBe(false);
-    expect(intimidation?.poolLabel).toBe('16k2');
-    const athletics = ctx.learnedSkills.find((s: any) => s.key === 'athletics');
-    expect(athletics?.halfPool).toBe(true);
-    expect(athletics?.poolLabel).toBe('8k2');
   });
 
   it('prints Damage Negation, Damage Reduction, and Parry from combat totals', () => {
@@ -277,11 +245,8 @@ describe('character print table sheet', () => {
         skills: { intimidation: 2, meleeWeapons: 4, combatReflexes: 4, defensiveCombat: 4 },
       }),
     ) as any;
-    const keys = ctx.learnedSkills.map((s: any) => s.key);
-    expect(keys).not.toContain('meleeWeapons');
-    expect(keys).not.toContain('combatReflexes');
-    expect(keys).not.toContain('defensiveCombat');
-    expect(ctx.skillCategories.map((c: any) => c.label)).not.toContain('Martial');
+    expect(ctx.learnedSkills).toBeUndefined();
+    expect(JSON.stringify(ctx.specializationGroups)).not.toMatch(/meleeWeapons|combatReflexes|defensiveCombat/);
     expect(ctx.stoneDashboard.combatReflexes).toBeUndefined();
     // Attack prints the physical Attribute pool — Might 16 keep MR 2 — not a Skill.
     expect(ctx.coreCombat.attack).toBe('16k2');

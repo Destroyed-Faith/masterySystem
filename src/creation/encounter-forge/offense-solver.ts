@@ -252,8 +252,6 @@ export function specialPressurePerPoint(
   const lifetime = 1;
   switch (id) {
     case 'ruin':
-    case 'exorcism':
-    case 'requiem':
       return 1 * lifetime; // 1 HP per point per tick, ignores Armor
     case 'lacerate':
       return 1 * lifetime; // ~1 voluntary move per round expected

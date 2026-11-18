@@ -8,7 +8,8 @@ export declare function hideCarouselHpNumbers(actorType: string | undefined, _di
 export declare function hideCarouselNpcHpBars(actorType: string | undefined, isGM: boolean): boolean;
 /**
  * Vertical Health rail beside a carousel portrait.
- * GM only, and only on player characters — NPCs stay without a bar.
+ * GM only — on player characters and NPCs so the GM can track combat without
+ * opening sheets. Players never get a side rail on NPCs (`hideCarouselNpcHpBars`).
  */
 export declare function showCarouselSideHp(actorType: string | undefined, isGM: boolean): boolean;
 export interface CarouselHpSegment {

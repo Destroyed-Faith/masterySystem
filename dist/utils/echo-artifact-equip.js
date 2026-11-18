@@ -8,7 +8,6 @@
  * module dedupes them and keeps the best wired/slotted copy.
  */
 import { getArtifactBindingKind } from './artifact-actor-rules.js';
-import { inferArtifactKeyFromName } from './artifact-tree-grant.js';
 import { inferArtifactEquipSlots, normalizeSlotKey } from './equip-slots.js';
 export function getEchoArtifactKey(item) {
     if (!item || item.type !== 'artifact')
@@ -16,13 +15,10 @@ export function getEchoArtifactKey(item) {
     const flagged = item.getFlag?.('mastery-system', 'echoArtifactKey');
     if (typeof flagged === 'string' && flagged.trim())
         return flagged.trim();
-    if (getArtifactBindingKind(item) === 'echo') {
-        return inferArtifactKeyFromName(item.name);
-    }
     const bound = item.getFlag?.('mastery-system', 'echoBound');
     if (bound && typeof bound === 'string' && bound.trim())
         return bound.trim();
-    return inferArtifactKeyFromName(item.name);
+    return null;
 }
 /** True for Echo-bound artifacts (locked to the character). */
 export function isEchoBoundArtifact(item) {

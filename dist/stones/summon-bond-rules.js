@@ -38,19 +38,6 @@ export const SHARED_SENSE_GROUPS = [
     { value: 'tasteSmell', label: 'Taste / Smell' },
     { value: 'touchPressure', label: 'Touch / Pressure' },
 ];
-/** Approved Summon Skills only (PG). */
-export const SUMMON_SKILL_IDS = [
-    'perception',
-    'investigation',
-    'tracking',
-    'survival',
-    'navigation',
-    'weatherSense',
-    'stealth',
-    'concealment',
-    'athletics',
-    'acrobatics',
-];
 export const BASE_SUMMON = {
     hp: 10,
     armor: 0,
@@ -121,34 +108,6 @@ export function summonTokensFromStones(boundStoneCount, bonusTokens = 0) {
     const stones = Math.max(0, Math.floor(Number(boundStoneCount) || 0));
     const bonus = Math.max(0, Math.floor(Number(bonusTokens) || 0));
     return stones * SUMMON_CAPS.tokensPerStone + bonus;
-}
-/**
- * PG "Buying and Distributing Skill Dice": the only floor is owner Rating ≥ 1
- * ("If the owner has Rating 0 in a Skill, the Bond cannot assign dice").
- */
-export function summonSkillMinRating(_ownerMasteryRank) {
-    return 1;
-}
-/** Owner skill cap: MR × 4. */
-export function summonSkillMaxRating(ownerMasteryRank) {
-    const mr = Math.max(1, Math.floor(Number(ownerMasteryRank) || 1));
-    return mr * 4;
-}
-/** A skill is eligible when the owner has any Rating in it (≥ 1). */
-export function isSummonSkillEligible(ownerRating, ownerMasteryRank) {
-    const rating = Math.max(0, Math.floor(Number(ownerRating) || 0));
-    return rating >= summonSkillMinRating(ownerMasteryRank);
-}
-/** Selected skill slots by Bound Stones (bonus tokens do not increase this). */
-export function summonSkillSlots(boundStoneCount) {
-    const stones = Math.max(0, Math.floor(Number(boundStoneCount) || 0));
-    if (stones <= 0)
-        return 0;
-    if (stones === 1)
-        return 2;
-    if (stones === 2)
-        return 3;
-    return 4;
 }
 /** Max Power Level by owner Mastery Rank. */
 export function maxSummonPowerLevel(ownerMasteryRank) {

@@ -3,14 +3,12 @@
  */
 export interface PostCreationProgress {
     attributes: Record<string, number>;
-    skills: Record<string, number>;
-    skillsSpent: Record<string, number>;
     powerLevels: Record<string, number>;
 }
 export declare function buildPostCreationSnapshot(actor: any): PostCreationProgress;
 export declare function actorHasPostCreationSnapshot(actor: any): boolean;
 /**
- * GM: restore attributes, skills, power levels, and session skill spend to post-creation snapshot;
+ * GM: restore attributes and power levels to the post-creation snapshot;
  * return all earned XP to the available pool (totalSpent cleared).
  */
 export declare function resetActorProgressToPostCreation(actor: any, options: {

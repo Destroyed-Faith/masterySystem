@@ -11,8 +11,6 @@ import type { RadialCombatOption } from '../radial-menu/types.js';
 export declare const HEAL_CHAT_FLAG = "healResolution";
 /** Caster flag: `{ [powerKey]: spentLevels }` since last Safe Haven Rest. */
 export declare const HLR_SPENT_FLAG = "healthLevelRecoverySpent";
-/** Catalog Health Level Recovery band for HP-heal Actives (0 below L4, max 4 at L15–16). */
-export declare function healHealthLevelRecoveryForRank(rank: number): number;
 /**
  * True for dedicated Scarred Bar Restoration (ST + AoE; no HP dice — pool is the
  * whole Power, restored bars return at full HP).
@@ -22,7 +20,7 @@ export declare function isScarredRestorationPower(item: any): boolean;
  * Safe Haven Rest pool size for this Power:
  * - Scarred Bar Restoration → catalog pool at Power Level (up to 12)
  * - else authored `mechanics.healthLevelRecovery` when present
- * - else the small HP-heal HLR band
+ * - else 0
  */
 export declare function getPowerHlrPoolMax(powerItem: any): number;
 export declare function powerItemRank(item: any): number;
@@ -32,38 +30,26 @@ export declare function getHlrSpentOnCaster(caster: any, powerKey: string): numb
 export declare function getHlrRemainingOnCaster(caster: any, powerItem: any): number;
 export declare function spendHlrOnCaster(caster: any, powerKey: string, amount: number): Promise<number>;
 export declare function clearHlrSpentOnCaster(caster: any): Promise<void>;
-/** Catalog / artifact template ids that deliver heal (incl. heal+cleanse mixed). */
+/** Catalog / artifact template ids that deliver Scarred Bar Restoration. */
 export declare function isHealTemplateId(templateId: string | null | undefined): boolean;
 /** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel-only). */
 export declare function isHealPowerItem(item: any): boolean;
 /**
  * True for radial options that should use green ally heal targeting.
- * Covers real power items and artifact rows (Moonlight Mending, …) where
- * `option.item` is the artifact document, not a power.
+ * Covers real power items and artifact rows whose `artifactPowerTemplateId`
+ * is a Restoration template (`option.item` is then the artifact document).
  */
 export declare function isHealRadialOption(option: {
     item?: any;
     source?: string;
     aoePlacementProfile?: string;
     artifactPowerTemplateId?: string;
-    name?: string;
-    description?: string;
-    artifactRowSpecial?: string;
 } | null | undefined): boolean;
 /**
  * Resolve a power-shaped item for heal dice / HLR — real power, or a synthetic
  * catalog snapshot from an artifact progression row (templateId + stage rank).
  */
 export declare function healPowerItemFromRadialOption(option: RadialCombatOption | null | undefined): any | null;
-/**
- * Infer a Restoration template id (+ printed PL) from artifact row text such as
- * "Ranged Single Target Restoration (PL 10)" / "Melee AoE Restoration (PL 4)" and
- * legacy "Ranged Single Target Heal (PL 16)" / "Healing Aura (PL 4)" technical references.
- */
-export declare function inferRestorationTemplateFromArtifactText(text: string | null | undefined): {
-    templateId: string;
-    pl: number | null;
-} | null;
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export declare function getHealDiceFormula(item: any): string | null;
 export declare function getHealAoETargetMode(item: any): 'target' | 'aoe' | 'self';

@@ -1,7 +1,5 @@
 /**
  * Creature type catalog (NPC + Summon). No free text — pick from this list.
- *
- * Exorcism(X) applies only to Fiends; Requiem(X) only to Deathless (Rules).
  */
 export declare const CREATURE_TYPE_OPTIONS: readonly [{
     readonly value: "";
@@ -54,16 +52,4 @@ export declare function normalizeCreatureTypeValue(raw: string | null | undefine
 export declare function resolveCreatureType(actor: {
     system?: any;
 } | null | undefined): string;
-/** True when Exorcism(X) may be applied (Fiend only). */
-export declare function isExorcismValidTarget(actor: {
-    system?: any;
-} | null | undefined): boolean;
-/** True when Requiem(X) may be applied (Deathless only). */
-export declare function isRequiemValidTarget(actor: {
-    system?: any;
-} | null | undefined): boolean;
-/** Tag gate for a targeted Special id (`exorcism` / `requiem`). */
-export declare function isTargetedSpecialValidTarget(specialId: string, actor: {
-    system?: any;
-} | null | undefined): boolean;
 //# sourceMappingURL=creature-type.d.ts.map

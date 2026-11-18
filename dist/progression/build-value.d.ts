@@ -10,7 +10,7 @@
  */
 export interface BuildValue {
     attributes: number;
-    /** Profession ladder XP (legacy Skill archive only when no Specs exist). */
+    /** Profession ladder XP. */
     skills: number;
     powers: number;
     artifacts: number;

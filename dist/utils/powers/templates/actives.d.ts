@@ -1,15 +1,15 @@
 /**
- * Active Power Templates (~54)
+ * Active Power Templates
  *
  * Source: d:\DestroyedFaith\Powers\Actives.md — Levels 1..16.
  *
  * Categories encoded via subfamily:
  *   damage-single, damage-aoe, instant-special-single, persistent-zone,
- *   control, support-heal, support-cleanse, support-dispel, mixed, barrier,
- *   hard-control
+ *   control, support-heal, support-cleanse, barrier, illusion, mental,
+ *   weapon-attack, limited-attack
  *
- * Damage templates (single-target + aoe, per tier T3/T4/T5/T6 in melee &
- * ranged flavours) and Instant Single-Special templates carry a `specialSlot`.
+ * AoE Special and Instant Single-Special templates (per tier T3/T4/T5/T6 in
+ * melee & ranged flavours) and Persistent Zones carry a `specialSlot`.
  * The catalog expands each such template into one entry per eligible Special
  * (see _specials.ts and power-catalog.ts buildEntries()).
  *

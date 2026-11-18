@@ -1,7 +1,7 @@
 /**
  * Eligible Special keys per Active damage tier.
  *
- * Source: `Rules/actives.md` Start PP group tables:
+ * Source: `docs/Rules/Canonical/Actives.md` Start PP group tables:
  *   T3 / Start PP 3 — Blight
  *   T4 / Start PP 4 — Lacerate, Slow, Ruin, Mark
  *   T5 / Start PP 6 — Challenge, Corrode, Hex, Sundered (+ Root)

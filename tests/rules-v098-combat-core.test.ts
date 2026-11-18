@@ -3,7 +3,6 @@ import { BASE_SPEED_M, attributeCheckTn } from '../src/utils/constants';
 import { findTemplateById } from '../src/utils/power-catalog';
 import { PASSIVE_TEMPLATES } from '../src/utils/powers/templates/passives';
 import { ACTIVE_BUFF_TEMPLATES } from '../src/utils/powers/templates/activeBuffs';
-import { SKILL_CATEGORIES } from '../src/utils/skills';
 
 describe('Rules v0.9.8 combat core constants', () => {
   it('base speed is 8 m', () => {
@@ -14,10 +13,6 @@ describe('Rules v0.9.8 combat core constants', () => {
     expect(attributeCheckTn(1)).toBe(6);
     expect(attributeCheckTn(3)).toBe(22);
     expect(attributeCheckTn(5)).toBe(38);
-  });
-
-  it('Perception category label is not Awareness', () => {
-    expect(SKILL_CATEGORIES.AWARENESS).toBe('Perception');
   });
 });
 

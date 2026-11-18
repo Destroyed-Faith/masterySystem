@@ -36,8 +36,7 @@ export interface CharacterPrintOptions {
      */
     includeStandardManeuvers?: boolean;
     /**
-     * When true, also seed Basic Attack into Active / Attack Actions.
-     * Defaults to false on the table sheet — frees a card slot for powers.
+     * @deprecated Actives v0.9.9.6 has no automatic Basic Attack; ignored.
      */
     showBasicAttack?: boolean;
     /**

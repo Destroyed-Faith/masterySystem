@@ -6,7 +6,6 @@ import {
   maxSummonPowerLevel,
   powerTokenCostFromPp,
   standardPowerTokenCost,
-  summonSkillSlots,
   summonTokensFromStones,
   SUMMON_CAPS,
 } from '../src/stones/summon-bond-rules';
@@ -21,15 +20,6 @@ describe('Summons V2 token formula', () => {
 
   it('adds bonus tokens after the stone formula', () => {
     expect(summonTokensFromStones(1, 4)).toBe(12);
-  });
-});
-
-describe('Summons V2 skill slots', () => {
-  it('scales by Bound Stones only', () => {
-    expect(summonSkillSlots(1)).toBe(2);
-    expect(summonSkillSlots(2)).toBe(3);
-    expect(summonSkillSlots(3)).toBe(4);
-    expect(summonSkillSlots(10)).toBe(4);
   });
 });
 

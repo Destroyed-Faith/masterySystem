@@ -36,7 +36,7 @@ export interface WeaponSetHands {
 export interface WeaponSetsState {
   schemaVersion: number;
   active: WeaponSetIndex;
-  /** Weapons put away. All sets stay stored; Basic Attack is Unarmed. */
+  /** Weapons put away. All sets stay stored; melee attacks use Unarmed delivery. */
   stowed?: boolean;
   /** Number of prepared slots (≥ 2). Extra slots are GM-added. */
   count?: number;
@@ -768,7 +768,7 @@ function profileFromItem(item: any): { attackType: 'melee' | 'ranged'; rangeM: n
 }
 
 /**
- * What Basic Attack rolls right now: the active set's main-hand weapon, or
+ * What a weapon-delivered attack rolls right now: the active set's main-hand weapon, or
  * Unarmed 1d8 when that set is empty.
  *
  * Uses Weapon Set assignment — not `system.equipped` — so a two-handed
@@ -784,7 +784,7 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
       damage: '1d8',
       attackType: 'melee',
       rangeM: 2,
-      summary: `${fists} · 1d8 + MR × 2d8. No weapon Specials.`,
+      summary: `${fists} · 1d8. No weapon Specials.`,
     };
   }
   const hands = state.sets[state.active] || emptyHands();
@@ -799,7 +799,7 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
       damage: '1d8',
       attackType: 'melee',
       rangeM: 2,
-      summary: `${fists} · 1d8 + MR × 2d8. No weapon Specials.`,
+      summary: `${fists} · 1d8. No weapon Specials.`,
     };
   }
   const spec = profileFromItem(main);
@@ -810,7 +810,7 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
     damage: spec.damage,
     attackType: spec.attackType,
     rangeM: spec.rangeM,
-    summary: `${name} · ${spec.damage} + MR × 2d8`,
+    summary: `${name} · ${spec.damage}`,
   };
 }
 

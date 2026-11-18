@@ -830,7 +830,7 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
  * Quick roll from actor
  * Helper function to make rolling easier
  */
-export async function quickRoll(actor, attributeName, skillName, tn, label, modifier, flavor) {
+export async function quickRoll(actor, attributeName, tn, label, modifier, flavor) {
     const actorData = actor.system;
     // Base pool = attribute value. Specials, Health/Encumbrance penalties and
     // A pool below Mastery Rank is legal. Zero dice fails inside
@@ -838,37 +838,27 @@ export async function quickRoll(actor, attributeName, skillName, tn, label, modi
     const numDice = actorData.attributes?.[attributeName]?.value || 0;
     // Get mastery rank (number to keep)
     const keepDice = getRulesMasteryRank(actor);
-    // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
-    // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
     const skillBonus = modifier !== undefined ? modifier : 0;
     // Build label
     const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
     let flavorText = flavor || '';
     // If no flavor provided, build default
     if (!flavorText) {
-        if (skillName) {
-            // For skill rolls, show pool info
-            const skillRating = actorData.skills?.[skillName] || 0;
-            const skillsSpent = actorData.skillsSpent?.[skillName] || 0;
-            const remainingPool = Math.max(0, skillRating - skillsSpent);
-            flavorText = `Skill: ${skillName} (Pool ${remainingPool}/${skillRating})`;
-        }
-        else if (modifier !== undefined) {
+        if (modifier !== undefined) {
             flavorText = `modifier: ${modifier >= 0 ? '+' : ''}${modifier}`;
         }
     }
     return await masteryRoll({
         numDice,
         keepDice,
-        skill: skillBonus, // Use modifier if provided, otherwise 0 (for skill rolls, skill points are spent after roll)
+        skill: skillBonus,
         tn,
         label: rollLabel,
         flavor: flavorText,
         actorId: actor.id,
-        skillKey: skillName,
-        isSkillRoll: !!skillName,
+        isSkillRoll: false,
         baseModifier: modifier,
-        rollKind: skillName ? 'skill' : 'generic',
+        rollKind: 'generic',
         poolAttribute: attributeName,
         applyPoolPenalties: true
     });

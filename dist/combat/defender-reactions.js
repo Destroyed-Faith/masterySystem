@@ -209,7 +209,7 @@ export function buildOpportunityAttackReactionItem(actor) {
         system: {
             powerType: 'reaction',
             templateId: 'basic-opportunity-attack',
-            description: `Spend 1 Reaction to make a Basic Attack (Weapon + ${mr2}d8) against the creature that provoked you.`,
+            description: `Retired: no universal Opportunity Attack and no Basic Attack (Actives v0.9.9.6; legacy MR × 2 = ${mr2}).`,
         },
         basicReaction: 'counterattack',
         mechanics: {},

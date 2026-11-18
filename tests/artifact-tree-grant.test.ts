@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   actorHasProgressionArtifacts,
-  inferArtifactKeyFromName,
   listUnwiredEmbeddedArtifacts,
 } from '../src/utils/artifact-tree-grant.js';
 import { buildProgressionHubContext } from '../src/progression/progression-hub-actions.js';
@@ -50,7 +49,6 @@ function mkActor(items: any[], system: Record<string, unknown> = {}): any {
         influence: { value: 2 },
         wits: { value: 2 },
       },
-      skills: {},
       stones: { current: 1 },
       xp: { currentStep: { attributes: [], skills: [], powers: [], artifacts: [] } },
       ...system,
@@ -66,26 +64,16 @@ function mkActor(items: any[], system: Record<string, unknown> = {}): any {
   };
 }
 
-describe('inferArtifactKeyFromName', () => {
-  it('matches general artifact display names', () => {
-    expect(inferArtifactKeyFromName('Moonlight Greatsword (L1)')).toBe('moonlightGreatsword');
-    expect(inferArtifactKeyFromName('Dragon Head')).toBe('dragonHead');
-  });
-
-  it('returns null for unrelated names', () => {
-    expect(inferArtifactKeyFromName('Rusty Dagger')).toBeNull();
-  });
-});
-
 describe('actorHasProgressionArtifacts / listUnwiredEmbeddedArtifacts', () => {
   it('detects any embedded artifact', () => {
     const actor = mkActor([mkItem({})]);
     expect(actorHasProgressionArtifacts(actor)).toBe(true);
   });
 
-  it('lists unwired artifacts with inferable keys', () => {
+  it('lists unwired artifacts that carry an Artifact key; the name alone is not identity', () => {
     const actor = mkActor([
-      mkItem({ id: 'a1', flags: {} }),
+      mkItem({ id: 'a1', flags: { echoArtifactKey: 'moonlightGreatsword' } }),
+      mkItem({ id: 'a3', flags: {} }),
       mkItem({ id: 'a2', flags: { evolutionRootItemId: 'root1', evolutionNodeId: 'n1' } }),
     ]);
     const unwired = listUnwiredEmbeddedArtifacts(actor);
@@ -97,7 +85,7 @@ describe('actorHasProgressionArtifacts / listUnwiredEmbeddedArtifacts', () => {
 describe('buildProgressionHubContext', () => {
   it('includes unwired artifacts and xp summary', () => {
     const actor = mkActor([
-      mkItem({ id: 'emb1', name: 'Moonlight Greatsword' }),
+      mkItem({ id: 'emb1', name: 'Moonlight Greatsword', flags: { echoArtifactKey: 'moonlightGreatsword' } }),
     ]);
     const ctx = buildProgressionHubContext(actor);
     expect(ctx.hasArtifacts).toBe(true);

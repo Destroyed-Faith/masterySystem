@@ -118,16 +118,6 @@ export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<
  * across Effect / Delivery / Special; within a dimension, any listed label matches.
  */
 export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFilterMeta>> = {
-  // Damage single + Special slot
-  'active-melee-damage-t3': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-ranged-damage-t3': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-melee-damage-t4': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-ranged-damage-t4': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-melee-damage-t5': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-ranged-damage-t5': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-melee-damage-t6': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-ranged-damage-t6': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-
   // Damage transfer (Vampyr) — damage + self-heal on real HP loss
   'active-melee-single-target-damage-transfer': {
     effects: ['damage', 'healing'],
@@ -170,32 +160,17 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFi
   'active-ranged-zone-t5': { effects: ['special'], deliveries: ['zone-persistent'] },
   'active-ranged-zone-t6': { effects: ['special'], deliveries: ['zone-persistent'] },
 
-  // Soft control (push/pull/disarm/prone)
+  // Control (Push / Pull)
   'active-melee-control-push-pull': { effects: ['control'], deliveries: ['single-target'] },
   'active-ranged-control-push-pull': { effects: ['control'], deliveries: ['single-target'] },
-  'active-melee-control-pull-disarm': { effects: ['control'], deliveries: ['single-target'] },
-  'active-ranged-control-pull-disarm': { effects: ['control'], deliveries: ['single-target'] },
-  'active-melee-control-push-prone': { effects: ['control'], deliveries: ['single-target'] },
-  'active-ranged-control-push-prone': { effects: ['control'], deliveries: ['single-target'] },
-
-  // Hard control — damage + stunned
-  'active-melee-damage-stunned': { effects: ['damage', 'control'], deliveries: ['single-target'] },
-  'active-ranged-damage-stunned': { effects: ['damage', 'control'], deliveries: ['single-target'] },
 
   // Cleanse
   'active-melee-single-cleanse': { effects: ['cleanse'], deliveries: ['single-target'] },
   'active-ranged-single-cleanse': { effects: ['cleanse'], deliveries: ['single-target'] },
   'active-melee-aoe-cleanse': { effects: ['cleanse'], deliveries: ['area', 'self'] },
   'active-ranged-aoe-cleanse': { effects: ['cleanse'], deliveries: ['area'] },
-  'active-cleanse-absorption': { effects: ['cleanse', 'protection'], deliveries: ['single-target'] },
 
-  // Mixed cleanse-only (R-05: no HP heal)
-  'active-melee-heal-cleanse-mixed': { effects: ['cleanse'], deliveries: ['single-target'] },
-  'active-ranged-heal-cleanse-mixed': { effects: ['cleanse'], deliveries: ['single-target'] },
-
-  // Healing / restoration (HP Single Target Heal + Scarred Bar Restoration)
-  'active-melee-single-heal': { effects: ['healing'], deliveries: ['single-target'] },
-  'active-ranged-single-heal': { effects: ['healing'], deliveries: ['single-target'] },
+  // Scarred Bar Restoration
   'active-melee-health-level-heal': { effects: ['healing'], deliveries: ['single-target'] },
   'active-ranged-health-level-heal': { effects: ['healing'], deliveries: ['single-target'] },
   'active-melee-aoe-restoration': { effects: ['healing'], deliveries: ['area', 'self'] },
@@ -217,14 +192,7 @@ export const ACTIVE_UI_FILTER_BY_TEMPLATE_ID: Readonly<Record<string, ActiveUiFi
   'active-ranged-weapon-split': { effects: ['damage'], deliveries: ['single-target'] },
   'active-ranged-weapon-autofire': { effects: ['damage'], deliveries: ['single-target'] },
 
-  // Targeted Special (Exorcism / Requiem) — ST keeps weapon damage; AoE is Special-only
-  'active-melee-targeted-special': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-ranged-targeted-special': { effects: ['damage', 'special'], deliveries: ['single-target'] },
-  'active-melee-aoe-targeted-special': { effects: ['special'], deliveries: ['area', 'self'] },
-  'active-ranged-aoe-targeted-special': { effects: ['special'], deliveries: ['area'] },
-
   // Mental
-  'active-mental-attack': { effects: ['damage'], deliveries: ['single-target'] },
   'active-mental-control': { effects: ['control'], deliveries: ['single-target'] },
   'active-mind-illusion': { effects: ['illusion'], deliveries: ['single-target', 'area'] },
   'active-mind-probe': { effects: ['utility'], deliveries: ['single-target'] },

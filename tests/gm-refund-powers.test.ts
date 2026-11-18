@@ -131,6 +131,7 @@ describe('listUsedPowersThisRound / refundUsedPowerThisRound', () => {
             level: 1,
             name: 'Breath Weapon I',
             type: 'Melee AoE',
+            artifactFunctionId: 'dragon-breath',
           },
           {
             level: 3,

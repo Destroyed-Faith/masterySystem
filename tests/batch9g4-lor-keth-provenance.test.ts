@@ -46,7 +46,7 @@ describe('Batch 9G.4 — Lor-Keth provenance hold', () => {
       'Artifact Awakening',
     ]);
     expect(rows.find((r) => r.level === 10)?.name).toBe('Artifact Awakening');
-    expect(rows.find((r) => r.level === 1)?.powerTemplateId).toBe('active-melee-damage-t5');
+    expect(rows.find((r) => r.level === 1)?.powerTemplateId).toBe('active-melee-instant-special-t5');
     expect(rows.find((r) => r.level === 2)?.powerTemplateId).toBe('reaction-armor');
   });
 

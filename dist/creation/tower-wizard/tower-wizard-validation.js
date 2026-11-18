@@ -6,6 +6,7 @@ import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPacka
 import { getPassiveCategoryConflictMessage, isAllowedSecondPassive, } from './tower-wizard-passive-categories.js';
 import { validateEchoImprintSelections } from '../../rules/echo-imprints.js';
 import { validateSpecializationList } from '../../rules/specializations.js';
+import { isAttackPowerItem, isAttackPowerTemplateId } from '../../utils/attack-power.js';
 import { ATTRIBUTE_KEYS, permanentStonesFromLifetimeXp, startingPackageIsValid } from '../../progression/v099-rules.js';
 import { collectEchoAdvisorWarnings, } from './tower-wizard-echo-advisor.js';
 /* ------------------------------------------------------------------ */
@@ -219,8 +220,11 @@ export function validateManualWizardSelection(selection) {
     if (speciallessSpells > masteryRank) {
         return `Spell Powers without a Special are limited to Mastery Rank (${masteryRank}).`;
     }
+    if (!specs.some((s) => isAttackPowerTemplateId(s.templateId)))
+        return NO_ATTACK_POWER_MESSAGE;
     return null;
 }
+const NO_ATTACK_POWER_MESSAGE = 'Choose at least one Attack Power (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special). There is no automatic Basic Attack.';
 export function validateTowerWizardSelection(selection, identityCtx) {
     // Combat Package Wizard never writes identity — skip unless a caller still opts in.
     if (selection.skipIdentitySteps !== true) {
@@ -299,6 +303,8 @@ export function validateTowerWizardSelection(selection, identityCtx) {
             return 'This package contains duplicate Powers. Change or reset one of them.';
         seen.add(key);
     }
+    if (!specs.some((s) => isAttackPowerTemplateId(s.templateId)))
+        return NO_ATTACK_POWER_MESSAGE;
     return null;
 }
 export function validateTowerWizardCreation(actor) {
@@ -324,6 +330,8 @@ export function validateTowerWizardCreation(actor) {
     const duplicate = findDuplicatePowerLabel(powers);
     if (duplicate)
         return `Duplicate power "${duplicate}".`;
+    if (!powers.some((p) => isAttackPowerItem(p)))
+        return NO_ATTACK_POWER_MESSAGE;
     let defensive = 0;
     let offensive = 0;
     for (const p of powers) {

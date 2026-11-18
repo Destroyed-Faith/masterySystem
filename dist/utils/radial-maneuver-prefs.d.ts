@@ -1,7 +1,7 @@
 /**
  * Actor preferences for which standard combat maneuvers appear in the token radial menu.
  */
-/** Maneuver IDs the radial menu can show (subset of COMBAT_MANEUVERS + weapon-attack). */
+/** Maneuver IDs the radial menu can show (subset of COMBAT_MANEUVERS). */
 export declare const RADIAL_STANDARD_MANEUVER_IDS: readonly string[];
 /** Maneuver IDs hidden by default; only appear when the player opts in. */
 export declare const OPT_IN_RADIAL_MANEUVER_IDS: readonly string[];

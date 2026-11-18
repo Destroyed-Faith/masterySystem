@@ -16,14 +16,12 @@
     {
       "id": "breath-name-damage",
       "name": "Damage Breath",
-      "isBreathWeaponName": true,
       "legacyModeDefault": "damage",
       "documentedDeviation": "C1/C2.d: executor still defaults mode to damage when unstructured; identity would unresolved"
     },
     {
       "id": "breath-name-ruin",
       "name": "Ruin Breath",
-      "isBreathWeaponName": true,
       "legacyModeDefault": "ruin"
     },
     {

@@ -3,7 +3,7 @@
  *
  * Grapple / Escape post an Opposed Attribute Contest card via
  * `startAttributeContest`; Release ends the pair link. None of this rolls
- * damage — hurting a held creature is the normal Unarmed Basic Attack.
+ * damage — hurting a held creature takes a Melee Attack Power with Unarmed delivery.
  */
 /** Radial "Grapple" after a melee target was picked: attribute prompt → contest card. */
 export declare function beginGrappleContest(attackerToken: any, targetToken: any): Promise<void>;

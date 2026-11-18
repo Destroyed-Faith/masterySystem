@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   getMasteryRank,
   basicCombatMrTimesTwo,
-  basicAttackMrDamageFormula,
   buildBasicReactionItems,
   isBasicReactionItem,
   BASIC_REACTION_IDS,
@@ -16,10 +15,9 @@ import {
 } from '../src/utils/radial-maneuver-prefs.js';
 
 describe('basic-combat helpers', () => {
-  it('clamps Mastery Rank and derives MR×2 / MR×2d8', () => {
+  it('clamps Mastery Rank and derives MR×2', () => {
     expect(getMasteryRank({ system: { mastery: { rank: 4 } } })).toBe(4);
     expect(basicCombatMrTimesTwo({ system: { mastery: { rank: 4 } } })).toBe(8);
-    expect(basicAttackMrDamageFormula({ system: { mastery: { rank: 4 } } })).toBe('8d8');
     expect(getMasteryRank({ system: { mastery: { rank: 0 } } })).toBe(2);
     expect(getMasteryRank({ system: {} })).toBe(2);
   });
@@ -61,22 +59,15 @@ describe('basic combat maneuvers catalog', () => {
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-swap');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('flee');
     expect(RADIAL_STANDARD_MANEUVER_IDS).not.toContain('initiative-delay');
-    expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-attack');
+    expect(RADIAL_STANDARD_MANEUVER_IDS).not.toContain('weapon-attack');
   });
 
-  it('shows Basic Attack in the radial by default', () => {
+  it('has no Basic Attack in the radial prefs (Actives v0.9.9.6)', () => {
     expect(isOptInRadialManeuverId('weapon-attack')).toBe(false);
-    expect(isManeuverHiddenFromActorRadial({ system: {} }, 'weapon-attack')).toBe(false);
     expect(isManeuverHiddenFromActorRadial({ system: {} }, 'move')).toBe(false);
-    expect(
-      isManeuverHiddenFromActorRadial(
-        { system: { radialManeuverPrefs: { hideIds: { 'weapon-attack': true } } } },
-        'weapon-attack',
-      ),
-    ).toBe(true);
     const panel = buildRadialManeuverPrefsContext({});
-    const basic = panel.rows.find((r) => r.id === 'weapon-attack');
-    expect(basic?.hideFromRadial).toBe(false);
+    expect(panel.rows.find((r) => r.id === 'weapon-attack')).toBeUndefined();
+    expect(panel.rows.some((r) => r.id === 'move')).toBe(true);
   });
 
   it('Flee / Dash / Dive texts match current Basic Maneuver rules', () => {

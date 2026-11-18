@@ -2,46 +2,11 @@
  * Epic Mastery Roll — participant roll execution.
  */
 import { masteryRoll, showMasteryRollDice3d } from '../dice/roll-handler.js';
-import { buildAttributeRollContext, buildSkillRollContext, getSkillRollDicePool, } from '../dice/roll-context-build.js';
-import { SKILLS } from '../utils/skills.js';
+import { buildAttributeRollContext } from '../dice/roll-context-build.js';
 import { participantResultFromRoll } from './epic-mastery-roll-types.js';
-import { getSkillSpendOptions } from './epic-mastery-roll-skill-spend.js';
 async function resolveStoneBonusRaises(_actor) {
     // Free Raises are declared on the roll. They are not applied automatically.
     return 0;
-}
-export async function pickSkillAttribute(actor, skillKey) {
-    const def = SKILLS[skillKey];
-    if (!def?.attributes?.length)
-        return null;
-    if (def.attributes.length === 1)
-        return def.attributes[0];
-    const options = def.attributes
-        .map((attr) => {
-        const pool = getSkillRollDicePool(actor, skillKey, attr);
-        const label = attr.charAt(0).toUpperCase() + attr.slice(1);
-        return { attr, label, pool };
-    })
-        .sort((a, b) => b.pool.numDice - a.pool.numDice);
-    return new Promise((resolve) => {
-        const buttons = {};
-        for (const opt of options) {
-            buttons[opt.attr] = {
-                label: `${opt.label} (${opt.pool.numDice}d8, keep ${opt.pool.keepDice})`,
-                callback: () => resolve(opt.attr),
-            };
-        }
-        buttons.cancel = {
-            label: 'Cancel',
-            callback: () => resolve(null),
-        };
-        new Dialog({
-            title: `${def.name} — Choose Attribute`,
-            content: `<p class="emr-attr-pick">Which attribute applies to this check?</p>`,
-            buttons,
-            default: options[0]?.attr,
-        }, { classes: ['mastery-system', 'mastery-roll-dialog'] }).render(true);
-    });
 }
 function tnSpecFromSession(session) {
     return {
@@ -52,29 +17,12 @@ function tnSpecFromSession(session) {
 export function shouldStageEpicFailure(opts) {
     if (opts.success)
         return false;
-    return opts.hasSkillSpend || (opts.hasRerollPoint && !opts.alreadyRerolled);
+    return opts.hasRerollPoint && !opts.alreadyRerolled;
 }
 export async function buildEpicRollContext(session, actor, attributeKeyOverride) {
     const stoneBonusRaises = await resolveStoneBonusRaises(actor);
     const tnSpec = tnSpecFromSession(session);
     let built = null;
-    if (session.roll.kind === 'skill') {
-        const attributeKey = attributeKeyOverride ?? (await pickSkillAttribute(actor, session.roll.skillKey));
-        if (!attributeKey)
-            return null;
-        built = buildSkillRollContext(actor, session.roll.skillKey, attributeKey, tnSpec, stoneBonusRaises);
-        if (!built)
-            return null;
-        return {
-            label: built.label,
-            skillKey: session.roll.skillKey,
-            attributeKey,
-            isSkillRoll: !!built.rollOptions.isSkillRoll,
-            baseModifier: built.rollOptions.baseModifier ?? 0,
-            raiseTn: built.rollOptions.raiseTn ?? tnSpec.baseTN + tnSpec.raises * 4,
-            rollOptions: built.rollOptions,
-        };
-    }
     if (session.roll.kind === 'attribute') {
         built = buildAttributeRollContext(actor, session.roll.attributeKey, tnSpec, stoneBonusRaises);
     }
@@ -121,7 +69,7 @@ export async function buildEpicRollContext(session, actor, attributeKeyOverride)
         return null;
     return {
         label: built.label,
-        attributeKey: session.roll.kind === 'attribute' ? session.roll.attributeKey : built.attributeKey,
+        attributeKey: session.roll.attributeKey,
         isSkillRoll: false,
         baseModifier: built.rollOptions.baseModifier ?? 0,
         raiseTn: built.rollOptions.raiseTn ?? tnSpec.baseTN + tnSpec.raises * 4,
@@ -184,29 +132,20 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
     }
     const payload = {
         rollResult,
-        skillKey: ctx.skillKey,
         isSkillRoll: ctx.isSkillRoll,
         baseModifier: ctx.baseModifier,
         raiseTn: ctx.raiseTn,
     };
-    const hasSkillSpend = session.roll.kind !== 'fear' &&
-        !rollResult.success &&
-        !!ctx.isSkillRoll &&
-        !!ctx.skillKey &&
-        getSkillSpendOptions(actor, ctx.skillKey, rollResult, ctx.baseModifier).options.length > 0;
     const awaitingConfirm = shouldStageEpicFailure({
         success: !!rollResult.success,
-        hasSkillSpend,
-        // Fear Checks: no Skill Points; Reroll Points remain available as a general meta resource.
+        // Reroll Points are a general meta resource (Fear Checks included).
         hasRerollPoint: canSpendEpicRerollPoint(actor),
         alreadyRerolled: isReroll || previous?.rerolled === true,
     });
     const usedAttribute = ctx.attributeKey || attributeKeyOverride || previous?.attributeKey;
     return participantResultFromRoll(actorId, actor.name ?? participant.actorName, ctx.label, rollResult, payload, {
-        skillKey: ctx.skillKey,
         attributeKey: usedAttribute,
         awaitingConfirm,
-        skillSpent: 0,
         rerolled: isReroll || previous?.rerolled === true,
     });
 }
@@ -267,32 +206,6 @@ export async function finalizeEpicParticipantResult(session, result) {
         rollPayload: undefined,
     };
     await submitEpicParticipantResult(session.id, finalized, { staged: false });
-}
-export async function applyEpicSkillSpendAndFinalize(session, actorId, spendAmount) {
-    const draft = session.results[actorId];
-    if (!draft?.rollPayload || !draft.skillKey)
-        return;
-    const actor = game.actors?.get(actorId);
-    if (!actor)
-        return;
-    const { applySkillSpendToActor, totalsAfterSkillSpend } = await import('./epic-mastery-roll-skill-spend.js');
-    await applySkillSpendToActor(actor, draft.skillKey, spendAmount);
-    const { total, success, raises, skill } = totalsAfterSkillSpend(draft.rollPayload.rollResult, spendAmount, draft.rollPayload.baseModifier);
-    const rollResult = {
-        ...draft.rollPayload.rollResult,
-        total,
-        success,
-        raises,
-        skill,
-    };
-    const finalized = participantResultFromRoll(actorId, draft.actorName, draft.label, rollResult, draft.rollPayload, {
-        skillKey: draft.skillKey,
-        attributeKey: draft.attributeKey,
-        skillSpent: spendAmount,
-        rerolled: draft.rerolled === true,
-        awaitingConfirm: false,
-    });
-    await finalizeEpicParticipantResult(session, finalized);
 }
 export async function confirmEpicRollWithoutSpend(session, actorId) {
     const draft = session.results[actorId];

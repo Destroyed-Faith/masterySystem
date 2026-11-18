@@ -15,9 +15,9 @@ describe('artifact-power-pick', () => {
     expect(tierFromSpecialKey('mark')).toBe(4);
   });
 
-  it('maps delivery + tier to existing martial damage template ids', () => {
+  it('maps delivery + tier to AoE Special / Single Target Special template ids', () => {
     expect(templateIdForDeliveryAndTier('melee-aoe', 4)).toBe('active-melee-aoe-damage-t4');
-    expect(templateIdForDeliveryAndTier('ranged-single', 3)).toBe('active-ranged-damage-t3');
+    expect(templateIdForDeliveryAndTier('ranged-single', 3)).toBe('active-ranged-instant-special-t3');
   });
 
   it('exposes martial delivery forms as Active catalog ids', () => {
@@ -41,7 +41,8 @@ describe('artifact-power-pick', () => {
   });
 
   it('formats artifact row labels with delivery + Special', () => {
-    expect(artifactPowerRowLabel('melee-aoe', 'mark')).toBe('Melee AoE Special Damage (Mark)');
+    expect(artifactPowerRowLabel('melee-aoe', 'mark')).toBe('Melee AoE Special: Mark');
+    expect(artifactPowerRowLabel('ranged-single', 'ruin')).toBe('Ranged Single Target Special: Ruin');
   });
 
   it('parseLegacyPick infers delivery from martial template id without chosenSpecial', () => {

@@ -20,13 +20,15 @@
  * attached so downstream consumers can identify the row.
  */
 import { isSpecialOnlyTemplateId } from '../combat/damage-transfer.js';
+import { isCleanseTemplateId } from '../combat/cleanse-resolution.js';
+import { isScarredRestorationTemplateId } from '../combat/r05-restoration.js';
 import { isLimitedChargeAvailable, isLimitedPowerTemplateId, } from '../combat/limited-charge.js';
 import { getEffectiveCircularAoeRadiusBonusMeters } from '../combat/offensive-active-buff-effects.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { isUltimateProgressionRow, progressionSlotIndex, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
-import { breathDamageConeMeters, breathRuinConeMeters, breathRuinValue, damageBreathSharedPoolFormula, isBreathWeaponName, } from '../utils/breath-weapon.js';
+import { breathDamageConeMeters, breathRuinConeMeters, breathRuinValue, damageBreathSharedPoolFormula, } from '../utils/breath-weapon.js';
 import { ARTIFACT_FUNCTION_CONTRACT, isArtifactFunctionId } from '../utils/artifact-functions.js';
 import { enrichArtifactRowIdentity } from '../utils/artifact-row-identity.js';
 import { compareIdentityDecision } from '../utils/identity-shadow.js';
@@ -224,26 +226,13 @@ function rowDescription(row) {
         segs.push(row.special);
     return segs.join(' · ');
 }
-/** Heal / Cleanse support actives on artifacts (Moonlight Mending, …). */
+/** Restoration / Cleanse support actives on artifacts, by template id only. */
 function artifactRowSupportProfile(row) {
     const tid = String(row.powerTemplateId || '');
-    if (/heal-cleanse/i.test(tid) ||
-        /aoe-restoration/i.test(tid) ||
-        (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))) {
+    if (isScarredRestorationTemplateId(tid))
         return 'heal';
-    }
-    if (/\bcleanse\b/i.test(tid) && !/heal/i.test(tid))
+    if (isCleanseTemplateId(tid))
         return 'cleanse';
-    const blob = `${row.name || ''} ${row.effect || ''} ${row.special || ''}`;
-    // R-05: authored Restoration rows (Hearth Circle, Remembered Hands, …) have no template id.
-    if (/\b(?:single target|aoe)\s+restoration\b/i.test(blob))
-        return 'heal';
-    if (/\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob))
-        return 'cleanse';
-    if (/\bheal\b/i.test(blob) && !/\b(requiem|exorcism|damage)\b/i.test(blob))
-        return 'heal';
-    if (/\bheal\b/i.test(blob) && /\d+\s*d\s*8/i.test(blob))
-        return 'heal';
     return null;
 }
 /**
@@ -319,12 +308,6 @@ export function buildArtifactRadialOptions(actor) {
             // Prefer structured identity (Batch C2); fall back to type-text for
             // rows that still lack catalog identity (migration debt).
             let category = categoryFromIdentityOrType(row);
-            if (category === 'passive' &&
-                !row.artifactFunctionId &&
-                !row.powerTemplateId &&
-                isBreathWeaponName(name)) {
-                category = 'attack';
-            }
             // Passives are descriptive only; Reactions are surfaced via the
             // defender-reactions pipeline; Stone Power Supports have no action
             // at all. None of them belong in the active radial.
@@ -533,9 +516,7 @@ export function buildArtifactRadialOptions(actor) {
                 option.defaultTargetGroup = 'enemy';
             }
             // Dragon Head Breath: Damage + Ruin (shared use).
-            // K8.d: artifactFunctionId decides; isBreathWeaponName only when afid absent.
-            if (row.artifactFunctionId === 'dragon-breath' ||
-                (!row.artifactFunctionId && isBreathWeaponName(name))) {
+            if (row.artifactFunctionId === 'dragon-breath') {
                 const dmgL = breathDamageConeMeters(currentLevel);
                 const ruinL = breathRuinConeMeters(currentLevel);
                 const ruinV = breathRuinValue(currentLevel);

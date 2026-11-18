@@ -4,6 +4,39 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.869] - 2026-11-18
+
+### Changed
+
+- **Actives v0.9.9.6:** the canonical `Actives.md` is replaced by v0.9.9.6, with the approved rule changes added to the Players Handbook and `agent.md`. Catalog tables now match it for every Special: AoE Special ranks and radii, Melee Weaken, Zones, and the AoE Cleanse / Restoration radii. The picker lists each Special/Delivery combination once (56 entries), as "Melee/Ranged Single Target Special: X" and "Melee/Ranged AoE Special: X", and its preview shows the values for the chosen Special. Legacy Damage + Special (`damage-t*`) and Mental Attack are no longer purchasable, but owned items keep working.
+- **Attack Powers are repeatable:** an Attack Power (Single Target, AoE, Split, Autofire, Single Target Special, AoE Special) can be used again in the same Round as long as an Attack Action is left. Limited Powers and the other explicit limits are unchanged. Support, Barrier, Image, Mental and Zones stay once per Round.
+- **No Basic Attack:** the automatic "Weapon Attack" (Weapon + MR × 2d8) is removed from the radial, damage dialog, print sheet and Encounter Forge. Grapple and the other basic maneuvers stay. To hurt a grappled creature, use a Melee Attack Power with Unarmed delivery. Counterattack and Opportunity Attack are retired. Character creation now requires at least one Attack Power.
+- **Ruin immediate damage:** newly applied Ruin stacks deal 4 damage per stack right away. Only stacks left after Ward count. The damage ignores Armor; Damage Reduction and Temporary HP still apply. It is announced in chat. Printed Ruin values are unchanged; Balance Review is open.
+- **Moonlight Mending** is now Resolve Ability: Healing (Stone Power Support) instead of a Heal Active: Artifact Level 1 / 4 / 7 pre-fills Rank 2 / 3 / 4, and it can target any legal target. Owned Heal Actives from the old Moonlight Mending grant are retired by the legacy-cleanup migration.
+- **Lor-Keth's Staff:** the Level 1 pick is Melee Single Target Special: Challenge (`active-melee-instant-special-t5`).
+- **Non-canonical Power templates removed:** Damage + Stunned, Pull + Disarm, Push + Prone, Cleanse + Absorption, Heal + Cleanse, Dispel, Damage + Dispel, Targeted Special / Exorcism / Requiem and Zone T5 Root are no longer purchasable and no longer exist in the catalog. Owned Heal + Cleanse items become Cleanse; all other owned items are listed for a GM decision and stay unchanged until then.
+- **Artifact Powers use the canonical values:** artifact picks no longer carry their own Special ranks, damage, range or radius tables, and name-based lookups are replaced by template IDs. Breath values come from the catalog. The optional Special ranks on weapon AoE picks are removed. Artifact progression, binding and charges are unchanged.
+- **Legacy Skills removed:** Skills, Skill Points, Skill XP spending, skill redistribution, skill rolls, Skill Spend in chat, Summon Skills / Skill Dice / task slots and Social Combat are gone from the data model, sheets, print, Progression Hub, import and rolls. Training Checks use Professions and Perception. Character import keeps any old skill data as an archive flag. Writes of the old skill fields to actors are blocked and kept in a quarantine flag for the migration. The fixed Skill catalog is gone from runtime code; only the migration review keeps a key/name lookup.
+- **Echo Cards removed:** the retired Echo Card decks, the card picker, card slots and card use tracking are gone from the Echo data, sheet, Safe Haven rest and import. Old card picks are archived, never deleted.
+- **XP recalculation counts Profession XP:** the XP check now subtracts Profession XP instead of legacy Skill XP.
+
+### Added
+
+- **Actives v0.9.9.6 migration (GM review):** on world load the GM gets a read-only report and a review dialog. Nothing changes until Apply is confirmed. Apply first downloads a JSON backup and adds a backup flag to every changed item. It then:
+  - remaps `damage-t*` to the matching Single Target Special, keeping PL, Special, custom names and favourites,
+  - re-bakes owned items whose v0.9.9.6 values changed,
+  - remaps legacy Artifact picks (Lor-Keth's Staff L1 is held and listed),
+  - flags conflicts and Mental Attack without changing them.
+
+  The report also lists Zone Root, Moonlight Mending and characters without an Attack Power. Until Apply, the template resync leaves changed templates alone. Rollback works per actor: `game.masterySystem.activesV0996Rollback(actor)`. A verification macro for a copy of the world is in `macros/v0996-verification.js`.
+- **Legacy cleanup migration (GM review):** runs after the v0.9.9.6 migration has been applied. On world load the GM gets a dry-run report and a review dialog (Refresh, Export Markdown, Download backup). Nothing changes until Apply is confirmed. Apply downloads a JSON backup first and stores a per-document backup flag. It then:
+  - archives legacy Skills, Skill Points, redistribution state and quarantined writes on characters. Skill ranks bought with XP are refunded as Free XP; ranks from character creation are archived only. Leftover Skill Points become Free XP,
+  - archives NPC Skills, Summon Skill fields and Echo Card picks without converting them,
+  - remaps owned Heal + Cleanse Powers to Cleanse and retires the old Moonlight Mending Heal Actives,
+  - realigns artifact picks to their definitions (Moonlight Mending, Lor-Keth's Staff, Dragon Claws), filling a missing artifact key only when the name matches exactly one artifact.
+
+  Actors whose numbers do not add up, owned Powers of removed templates and artifacts with hand-made rows are listed as conflicts and stay unchanged. Resolve skill conflicts with `game.masterySystem.legacyCleanupResolveSkills(actor, { xpRefund, note })`. Rollback works per actor: `game.masterySystem.legacyCleanupRollback(actor)`. Until Apply, the template resync leaves affected items alone. Running Apply again changes nothing.
+
 ## [0.9.868] - 2026-11-18
 
 ### Fixed

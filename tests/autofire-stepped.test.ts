@@ -225,10 +225,10 @@ describe('Stepped Autofire — damage', () => {
 
 describe('Stepped Autofire — docs and journals', () => {
   it('Players Guide and actives rules describe the stepped chain', () => {
-    const pg = readFileSync(join(ROOT, 'docs/Rules/players-guide.md'), 'utf8');
+    const pg = readFileSync(join(ROOT, 'docs/Rules/Canonical/Players_Handbook.md'), 'utf8');
     expect(pg).toMatch(/Stepped/i);
-    const actives = readFileSync(join(ROOT, 'docs/Rules/actives.md'), 'utf8');
-    expect(actives).toMatch(/Stepped Attack Chain/);
+    const actives = readFileSync(join(ROOT, 'docs/Rules/Canonical/Actives.md'), 'utf8');
+    expect(actives).toMatch(/attack chain, not AoE/);
     expect(actives).toMatch(/4 × \(i − 1\)/);
     expect(actives).not.toMatch(/cannot appear more than once in the same Autofire chain/);
   });

@@ -29,6 +29,8 @@ export interface ApplySpecialStringsOptions {
     requireChallengeSource?: boolean;
     /** Defer token icon sync / sheet render (region apply during movement). */
     deferVisuals?: boolean;
+    /** Store Ruin stacks without the immediate 4-per-stack damage (state corrections only). */
+    skipRuinImmediateDamage?: boolean;
 }
 /**
  * Apply status effects from specials to a target actor.

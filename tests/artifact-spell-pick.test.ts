@@ -14,8 +14,8 @@ describe('artifact-spell-pick', () => {
   });
 
   it('allows spells only for ranged actives', () => {
-    expect(uiTemplateIdCanBeSpell('active-ranged-aoe-targeted-special')).toBe(true);
-    expect(uiTemplateIdCanBeSpell('active-melee-targeted-special')).toBe(false);
+    expect(uiTemplateIdCanBeSpell('active-ranged-aoe-damage-t3')).toBe(true);
+    expect(uiTemplateIdCanBeSpell('active-melee-aoe-damage-t3')).toBe(false);
     expect(uiTemplateIdCanBeSpell('martial:ranged-aoe')).toBe(true);
     expect(uiTemplateIdCanBeSpell('martial:melee-aoe')).toBe(false);
   });

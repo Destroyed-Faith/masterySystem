@@ -84,7 +84,7 @@ const OFFENSIVE_ACTIVE_BUFFS = new Set([
 
 const OFFENSIVE_SPECIALS = new Set([
     'lacerate', 'ruin', 'challenge', 'blight', 'corrode', 'expose',
-    'sundered', 'penetration', 'precision', 'exorcism', 'requiem', 'crit', 'soulburn',
+    'sundered', 'penetration', 'precision', 'crit', 'soulburn',
 ]);
 
 const CONTROL_SPECIALS = new Set([
@@ -96,7 +96,7 @@ const DEFENSE_SPECIALS = new Set(['brace', 'bulwark', 'immovable']);
 
 const DEFENSE_SUBFAMILIES = new Set(['armor', 'evade', 'damage-reduction', 'phasing', 'awareness', 'ward']);
 const OFFENSE_SUBFAMILIES = new Set(['damage-single', 'damage-aoe', 'weapon-attack', 'damage']);
-const CONTROL_SUBFAMILIES = new Set(['control', 'hard-control', 'persistent-zone', 'illusion', 'barrier']);
+const CONTROL_SUBFAMILIES = new Set(['control', 'persistent-zone', 'illusion', 'barrier']);
 const SUSTAIN_SUBFAMILIES = new Set(['temp-hp', 'regen', 'health', 'recovery']);
 
 type RawScores = Record<RoleAxisKey, number>;

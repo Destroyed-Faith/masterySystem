@@ -12,7 +12,6 @@ import { getSegmentIdForOption } from '../src/radial-menu/options.js';
 import { isLimitedAttackDeclaration, isLimitedPowerTemplateId } from '../src/combat/limited-charge.js';
 import { isHealRadialOption } from '../src/combat/heal-resolution.js';
 import { isCleanseRadialOption } from '../src/combat/cleanse-resolution.js';
-import { isBreathWeaponName } from '../src/utils/breath-weapon.js';
 import { deriveActiveSegment, resolvePowerIdentity } from '../src/utils/power-identity.js';
 import { ECHO_ARTIFACTS } from '../src/utils/echo-artifacts.js';
 import {
@@ -98,7 +97,7 @@ describe('K8 golden baseline (legacy behaviour)', () => {
         },
         {
           id: 'heal-ranged',
-          templateId: 'active-ranged-single-heal',
+          templateId: 'active-ranged-health-level-heal',
           name: 'ZZZ_HEAL',
           description: 'neutral',
           category: 'active',
@@ -203,7 +202,6 @@ describe('K8 golden baseline (legacy behaviour)', () => {
       {
         id: 'breath-name-damage',
         name: 'Damage Breath',
-        isBreathWeaponName: isBreathWeaponName('Damage Breath'),
         legacyModeDefault: 'damage',
         documentedDeviation:
           'C1/C2.d: executor still defaults mode to damage when unstructured; identity would unresolved',
@@ -211,7 +209,6 @@ describe('K8 golden baseline (legacy behaviour)', () => {
       {
         id: 'breath-name-ruin',
         name: 'Ruin Breath',
-        isBreathWeaponName: isBreathWeaponName('Ruin Breath'),
         legacyModeDefault: 'ruin',
       },
       {
@@ -242,7 +239,7 @@ describe('K8 golden baseline (legacy behaviour)', () => {
         type: 'power',
         name: 'ZZZ',
         system: {
-          templateId: 'active-ranged-single-heal',
+          templateId: 'active-ranged-health-level-heal',
           rank: 4,
           category: 'active',
           powerType: 'active',

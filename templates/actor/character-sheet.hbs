@@ -144,11 +144,6 @@
         <i class="fas fa-ellipsis-vertical fa-ellipsis-v" aria-hidden="true"></i>
       </button>
       <div class="sheet-gm-menu-list" hidden>
-        {{#if canStartSkillsRedistribute}}
-        <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and pick 10 skills at 4 each (+ sets 4). Only when the character has no XP yet.">
-          <i class="fas fa-rotate"></i> Redistribute Skills
-        </button>
-        {{/if}}
         {{#unless creationComplete}}
         <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
           <i class="fas fa-unlock"></i> Force Unlock
@@ -1439,7 +1434,7 @@
         <p class="stat-summary-hint specializations-empty">No Professions yet. Starting characters pick four Rank&nbsp;2 Professions. Perception Rank&nbsp;2 is free.</p>
         {{/if}}
 
-        {{#if creationComplete}}{{#unless skillsRedistributing}}
+        {{#if creationComplete}}
         <div class="safe-haven-rest-row">
           <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Vitality save uses and Reroll Points">
             <i class="fas fa-bed"></i> Safe Haven Rest
@@ -1449,16 +1444,13 @@
             <i class="fas fa-heart"></i> Restoration ({{regenerationPassive.remaining}}/{{regenerationPassive.poolMax}})
           </button>
           {{/if}}
-          <button type="button" class="social-combat-btn" title="Run a 3-phase Social Combat encounter">
-            <i class="fas fa-comments"></i> Social Combat
-          </button>
           {{#if (userIsGM)}}
           <button type="button" class="gm-award-faith-fracture" title="Reward playing out disadvantages (+1 Reroll Point, up to maximum)">
             <i class="fas fa-plus-circle"></i> GM: +1 Reroll Point
           </button>
           {{/if}}
         </div>
-        {{/unless}}{{/if}}
+        {{/if}}
       </section>
 
     </div>
@@ -1475,7 +1467,7 @@
             <input type="checkbox" class="radial-maneuver-hide-all" {{#if radialManeuverPrefsPanel.hideAllStandard}}checked{{/if}} {{#unless @root.editable}}disabled{{/unless}}  name="ms-radial-maneuver-hide-all" form="ms-ui-only"/>
             <span>Alle Standard-Manöver im Token-Radial ausblenden</span>
           </label>
-          <p class="radial-maneuver-prefs-hint">Änderungen werden <strong>sofort</strong> am Akteur gespeichert. Pro Eintrag: angehakt = erscheint <strong>nicht</strong> im Radialmenü (Move, Dash, Stances, Reaktionen, …). <strong>Basic Attack</strong> ist standardmäßig ausgeblendet — Haken entfernen, um sie anzuzeigen.</p>
+          <p class="radial-maneuver-prefs-hint">Änderungen werden <strong>sofort</strong> am Akteur gespeichert. Pro Eintrag: angehakt = erscheint <strong>nicht</strong> im Radialmenü (Move, Dash, Stances, Reaktionen, …). Es gibt keinen automatischen <strong>Basic Attack</strong>; Angriffe laufen über erlernte oder gewährte Attack Powers.</p>
           {{#each radialManeuverPrefsPanel.rowsByGroup}}
           <div class="radial-maneuver-prefs-group">
             <span class="radial-maneuver-prefs-group-label">{{this.group}}</span>
@@ -1603,7 +1595,7 @@
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
             <li><strong>Combat Package</strong> — use the wizard for <strong>2 Passive (R4)</strong>, <strong>1 Active Buff (R4)</strong>, <strong>1 Reaction (R4)</strong>, and <strong>2 Active (R2)</strong>. No Movement Power.</li>
-            <li>Choose your <strong>Echo</strong> (ancestry, with sub-choice / Veiled Form if required) and pick your <strong>first Echo Card</strong>.</li>
+            <li>Choose your <strong>Echo</strong> (ancestry, with sub-choice / Veiled Form if required).</li>
           </ul>
         </div>
 
@@ -1623,7 +1615,7 @@
                       <i class="fas fa-star"></i>
                     </label>
                     <input type="text" class="power-display-name-input" data-item-id="{{this.id}}" value="{{this.name}}" title="Display name — rename anytime (sheet &amp; rolls use this label)"  name="ms-power-display-name-input" form="ms-ui-only"/>
-                    <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>
+                    <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>{{#with (lookup this.flags 'mastery-system')}}{{#if this.v0996Retired}}<span class="power-retired-badge" title="{{this.v0996Note}}"><i class="fas fa-ban"></i> Retired (Actives v0.9.9.6)</span>{{/if}}{{#if this.v0996Conflict}}<span class="power-retired-badge" title="{{this.v0996Note}}"><i class="fas fa-triangle-exclamation"></i> v0.9.9.6 conflict</span>{{/if}}{{/with}}
                   </div>
                   <div class="power-info-compact">
                     {{#if (lookup this.system.roll 'damage')}}
@@ -1792,7 +1784,7 @@
                     <i class="fas fa-star"></i>
                   </label>
                   <input type="text" class="power-display-name-input" data-item-id="{{this.id}}" value="{{this.name}}" title="Display name — rename anytime (sheet &amp; rolls use this label)"  name="ms-power-display-name-input" form="ms-ui-only"/>
-                  <span class="power-level-badge" data-item-id="{{this.id}}" title="Power Level {{default this.system.level 1}}"><strong>Level <span class="power-level-badge-num">{{default this.system.level 1}}</span></strong></span>
+                  <span class="power-level-badge" data-item-id="{{this.id}}" title="Power Level {{default this.system.level 1}}"><strong>Level <span class="power-level-badge-num">{{default this.system.level 1}}</span></strong></span>{{#with (lookup this.flags 'mastery-system')}}{{#if this.v0996Retired}}<span class="power-retired-badge" title="{{this.v0996Note}}"><i class="fas fa-ban"></i> Retired (Actives v0.9.9.6)</span>{{/if}}{{#if this.v0996Conflict}}<span class="power-retired-badge" title="{{this.v0996Note}}"><i class="fas fa-triangle-exclamation"></i> v0.9.9.6 conflict</span>{{/if}}{{/with}}
                   <span class="power-level-pending-change" data-item-id="{{this.id}}" style="display:none;">
                     <span class="pending-delta">+0</span>
                   </span>

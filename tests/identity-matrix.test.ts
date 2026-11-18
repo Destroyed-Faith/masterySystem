@@ -437,7 +437,7 @@ describe('identity matrix (all ranks 1–16)', () => {
       const tid = tpl.templateId;
       if (
         tpl.category === 'active' &&
-        /support-heal|health-level-heal|aoe-restoration|single-heal/i.test(String(tpl.subfamily) + tid)
+        /support-heal|health-level-heal|aoe-restoration/i.test(String(tpl.subfamily) + tid)
       ) {
         expect(isHealTemplateId(tid), tid).toBe(true);
       }

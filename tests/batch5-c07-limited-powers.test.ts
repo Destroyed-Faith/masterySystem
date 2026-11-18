@@ -237,8 +237,8 @@ describe('C07 — eligibility + normal attacks', () => {
     const j8 = table.find((r) => Number(r.level) === 8) as any;
     expect(String(j8?.effect || '')).toMatch(/12d8|16d8|32d8/);
     expect(String(j8?.effect || '')).toMatch(/global Limited use/i);
-    // Mending / Shadow unchanged kinds.
-    expect(picks[0].powerTemplateId).toBe('active-ranged-single-heal');
+    // Mending is Stone Power Support; Shadow unchanged.
+    expect(picks[0].kind).toBe('stoneFunction');
     expect(picks[2].powerTemplateId).toBe('ab-sundered-aura');
   });
 

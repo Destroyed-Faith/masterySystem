@@ -16,8 +16,8 @@ describe('K8.e Heal / Cleanse', () => {
     expect(
       isHealRadialOption({
         source: 'power',
-        artifactPowerTemplateId: 'active-ranged-single-heal',
-        name: 'Moonlight Mending I',
+        artifactPowerTemplateId: 'active-ranged-health-level-heal',
+        name: 'Remembered Hands I',
         item: { type: 'artifact', system: {} },
       }),
     ).toBe(true);
@@ -26,14 +26,14 @@ describe('K8.e Heal / Cleanse', () => {
   it('healPowerItemFromRadialOption prefers option.rank over artifact level map', () => {
     const item = healPowerItemFromRadialOption({
       id: 'opt-heal',
-      name: 'Moonlight Mending I',
-      artifactPowerTemplateId: 'active-ranged-single-heal',
+      name: 'Remembered Hands I',
+      artifactPowerTemplateId: 'active-ranged-health-level-heal',
       artifactRowLevel: 1,
       rank: 10,
       item: { type: 'artifact' },
     } as any);
     expect(item?.system?.rank).toBe(10);
-    expect(item?.system?.templateId).toBe('active-ranged-single-heal');
+    expect(item?.system?.templateId).toBe('active-ranged-health-level-heal');
   });
 
   it('cleanse radial option uses templateId identity', () => {

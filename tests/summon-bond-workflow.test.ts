@@ -20,7 +20,6 @@ import {
   syncBodiesFromSpend,
   tokensSummary,
   validateBondRitual,
-  validateBondSkillAlloc,
 } from '../src/stones/summon-bond-bind';
 import {
   buildSummonActorDataFromBond,
@@ -171,7 +170,7 @@ describe('Summon Bond Ritual validation', () => {
     expect(bodyHasPurchasedPower(synced, 'b1', 'ab-armor')).toBe(false);
   });
 
-  it('does not hard-fail Bond Rituals on retired Skill Dice fields', () => {
+  it('flags retired Skill Dice fields until the refund migration clears them', () => {
     const bond = createEmptyBond({
       name: 'Owl',
       ownerActorId: 'Actor.1',
@@ -181,8 +180,9 @@ describe('Summon Bond Ritual validation', () => {
     bond.spend.skillDicePurchases = 2; // legacy pre-migration
     bond.selectedSkills = ['perception', 'stealth'];
     bond.skillDiceAlloc = { perception: 3, stealth: 2 };
-    // Skill Dice validation is retired; migration credits Tokens instead.
-    expect(validateBondSkillAlloc(bond, { perception: 2, stealth: 4 })).toEqual([]);
+    const v = validateBondRitual(bond);
+    expect(v.errors.filter((e) => /Summon Skills and Skill Dice are retired/.test(e))).toHaveLength(1);
+    expect(v.errors.some((e) => /Rating|exceed owner/.test(e))).toBe(false);
   });
 
   it('tracks stone attribute assignments for dissolve credit', () => {
@@ -327,21 +327,21 @@ describe('Summon acceptance — rules, budget, action economy', () => {
     expect(v.errors.some((e) => /at least 1 Bound Stone/.test(e))).toBe(true);
   });
 
-  it('5–6. Ritual redistribute + adding a stone raises tokens; skill slots follow Bound Stones only', () => {
+  it('5–6. Ritual redistribute + adding a stone raises tokens', () => {
     const bond = createEmptyBond({
       name: 'Owl',
       ownerActorId: 'A',
       movementMode: 'flying',
       stoneAttributes: ['wits'],
     });
-    expect(tokensSummary(bond).skillSlots).toBe(2);
+    expect(tokensSummary(bond).available).toBe(8);
     bond.stoneAttributes = ['wits', 'agility'];
     bond.boundStoneCount = 2;
     bond.bonusTokens = 4;
     bond.needsRedistribution = true;
     const tok = tokensSummary(bond);
     expect(tok.available).toBe(20);
-    expect(tok.skillSlots).toBe(3);
+    expect((tok as any).skillSlots).toBeUndefined();
     const v = validateBondRitual(bond);
     expect(v.status).toBe('needsRitual');
   });
@@ -377,25 +377,10 @@ describe('Summon acceptance — rules, budget, action economy', () => {
       stoneAttributes: ['wits', 'wits', 'wits', 'wits'],
     });
     bond.bodies[0].powers = [{ templateId: 'ab-evade', level: 8, tokenCost: 16, category: 'activeBuff' }];
-    const v = validateBondRitual(bond, {}, 1);
+    const v = validateBondRitual(bond, 1);
     expect(v.ok).toBe(false);
     expect(v.status).toBe('invalidUntilFixed');
     expect(v.hardErrors.some((e) => /exceeds owner MR/.test(e))).toBe(true);
-  });
-
-  it('10. Skill dice over owner rating blocks apply', () => {
-    const bond = createEmptyBond({
-      name: 'Owl',
-      ownerActorId: 'A',
-      movementMode: 'flying',
-      stoneAttributes: ['wits'],
-    });
-    bond.spend.skillDicePurchases = 2;
-    bond.selectedSkills = ['perception'];
-    bond.skillDiceAlloc = { perception: 4 };
-    const v = validateBondRitual(bond, { perception: 2 });
-    expect(v.ok).toBe(false);
-    expect(v.errors.some((e) => /perception/.test(e))).toBe(true);
   });
 
   it('11–12. Movement over 16 m blocked for walking and flying', () => {

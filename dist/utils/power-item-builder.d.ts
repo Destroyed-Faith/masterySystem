@@ -24,11 +24,18 @@ export interface PowerSpellOptions {
  *
  * Examples:
  *   Passive: Restoration → Restoration
- *   Ranged Damage — Tier 6 — Hex → Ranged Hex
- *   Melee AoE Damage — Tier 4 — Slow → Melee AoE Slow
+ *   Melee Single Target Special — Ruin → Melee Single Target Special: Ruin
+ *   Ranged AoE Special — Slow → Ranged AoE Special: Slow
+ *   Ranged Damage — Tier 6 — Hex (legacy) → Ranged Hex
  *   Melee Single Attack → Melee Attack
  */
 export declare function defaultPowerItemDisplayName(entry: CatalogEntry): string;
+/**
+ * Level rows of a catalog entry bound to its chosen Special (rank, radius and
+ * effect text as printed for that Special). Used by item creation and by the
+ * picker preview so both show the same values.
+ */
+export declare function catalogEntryBoundLevels(entry: CatalogEntry): Record<string, unknown>;
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export declare function buildPowerItemFromCatalogEntry(entry: CatalogEntry, rank: number, spell?: PowerSpellOptions): Record<string, unknown> | null;
 export declare function resolveGrantSpecEntry(spec: PowerGrantSpec): CatalogEntry | null;

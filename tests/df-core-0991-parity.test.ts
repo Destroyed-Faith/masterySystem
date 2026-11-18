@@ -44,7 +44,6 @@ import {
   type PersistentSpellZone,
 } from '../src/combat/spell-zones.js';
 import { activeBuffDurationRounds } from '../src/utils/active-buffs.js';
-import { getSkillRollDicePool } from '../src/dice/roll-context-build.js';
 import { getMasteryRank as basicAttackMasteryRank } from '../src/combat/basic-combat.js';
 import { actorMasteryRank } from '../src/combat/special-application.js';
 import { critAppliesToAttackRoll } from '../src/combat/critical-resolution.js';
@@ -374,7 +373,6 @@ describe('Stored Mastery Rank is mechanical; Lifetime XP only suggests', () => {
     expect(stoneConcentrationCap(2, 2, 100)).toBe(6);
     expect(permanentColorlessCap(2)).toBe(0);
     expect(activeBuffDurationRounds(mismatched)).toBe(2);
-    expect(getSkillRollDicePool(mismatched as any, 'not-a-skill', 'might').keepDice).toBe(2);
     expect(basicAttackMasteryRank(mismatched)).toBe(2);
     expect(actorMasteryRank(mismatched)).toBe(2);
   });

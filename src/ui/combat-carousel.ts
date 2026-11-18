@@ -509,7 +509,7 @@ export class CombatCarouselApp extends BaseCarousel {
         typeof actor.testUserPermission === 'function' &&
         !!game.user &&
         actor.testUserPermission(game.user, 'OWNER');
-      // Side Health rail: GM only, player characters only. NPCs have no bar.
+      // Side Health rail: GM only (PCs + NPCs). Players never see NPC bars.
       const hideNpcHp = hideCarouselNpcHpBars(actor.type, isGM);
       const showSideHp = showCarouselSideHp(actor.type, isGM);
       if (!showSideHp) {

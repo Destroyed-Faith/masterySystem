@@ -8,9 +8,9 @@ import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-co
 import { getTemplate } from '../src/utils/powers/templates/index.js';
 import { weaponDamageForLevel } from '../src/utils/artifact-base-derive.js';
 import {
-  breathDamageRadiusMeters,
+  breathDamageConeMeters,
   breathPowerDamageDice,
-  breathRuinRadiusMeters,
+  breathRuinConeMeters,
   breathRuinValue,
   damageBreathSharedPoolFormula,
   dragonHeadBiteDamage,
@@ -89,12 +89,12 @@ describe('Dragon Head Bite damage progression L1–10', () => {
     expect(breathRuinValue(1)).toBe(5);
     expect(breathRuinValue(4)).toBe(9);
     expect(breathRuinValue(7)).toBe(10);
-    expect(breathDamageRadiusMeters(1)).toBe(3);
-    expect(breathDamageRadiusMeters(4)).toBe(6);
-    expect(breathDamageRadiusMeters(7)).toBe(8);
-    expect(breathRuinRadiusMeters(1)).toBe(3);
-    expect(breathRuinRadiusMeters(4)).toBe(5);
-    expect(breathRuinRadiusMeters(7)).toBe(7);
+    expect(breathDamageConeMeters(1)).toBe(3);
+    expect(breathDamageConeMeters(4)).toBe(6);
+    expect(breathDamageConeMeters(7)).toBe(8);
+    expect(breathRuinConeMeters(1)).toBe(3);
+    expect(breathRuinConeMeters(4)).toBe(5);
+    expect(breathRuinConeMeters(7)).toBe(7);
   });
 });
 
@@ -268,6 +268,7 @@ describe('Radial emits Damage Breath + Ruin Breath', () => {
             aoe: 'Damage: Cone 6 m / Ruin: Cone 5 m',
             effect: 'Damage or Ruin',
             powerTemplateId: 'active-melee-weapon-aoe',
+            artifactFunctionId: 'dragon-breath',
           },
         ],
       },

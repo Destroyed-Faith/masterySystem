@@ -5,7 +5,6 @@ import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 import { getEffectById } from './special-effects.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
-import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 import { actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, findCatalogEntry, powerHasConfiguredSpecial, } from './power-catalog.js';
 function specialDisplayLabel(key) {
     const hit = getEffectById(key);
@@ -20,12 +19,17 @@ function specialDisplayLabel(key) {
  *
  * Examples:
  *   Passive: Restoration → Restoration
- *   Ranged Damage — Tier 6 — Hex → Ranged Hex
- *   Melee AoE Damage — Tier 4 — Slow → Melee AoE Slow
+ *   Melee Single Target Special — Ruin → Melee Single Target Special: Ruin
+ *   Ranged AoE Special — Slow → Ranged AoE Special: Slow
+ *   Ranged Damage — Tier 6 — Hex (legacy) → Ranged Hex
  *   Melee Single Attack → Melee Attack
  */
 export function defaultPowerItemDisplayName(entry) {
     const specialKey = entry.chosenSpecial?.key?.trim();
+    const catalogTitle = entry.raw?.catalogTitle;
+    if (entry.category === 'active' && specialKey && catalogTitle) {
+        return `${catalogTitle}: ${specialDisplayLabel(specialKey)}`;
+    }
     if (entry.category === 'active' && specialKey) {
         const id = String(entry.templateId || '');
         const delivery = /ranged/i.test(id) ? 'Ranged' : /melee/i.test(id) ? 'Melee' : '';
@@ -49,6 +53,23 @@ export function defaultPowerItemDisplayName(entry) {
     name = name.replace(/\s+Damage\s*$/i, '').trim();
     return name || String(entry.name || 'Power');
 }
+/**
+ * Level rows of a catalog entry bound to its chosen Special (rank, radius and
+ * effect text as printed for that Special). Used by item creation and by the
+ * picker preview so both show the same values.
+ */
+export function catalogEntryBoundLevels(entry) {
+    const template = entry.raw;
+    const levels = (template.levels ?? {});
+    const key = entry.chosenSpecial?.key;
+    if (!key)
+        return levels;
+    const next = {};
+    for (const [k, row] of Object.entries(levels)) {
+        next[k] = bindPoolSpecialsOnRow(row, key, template.templateId, Number(k));
+    }
+    return next;
+}
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: false }) {
     const template = entry.raw;
@@ -60,16 +81,7 @@ export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: f
     if (!levelRow) {
         return null;
     }
-    let levels = template.levels;
-    if (chosenSpecial) {
-        const next = {};
-        for (const [k, row] of Object.entries(template.levels)) {
-            const bound = bindPoolSpecialsOnRow(row, chosenSpecial.key, template.templateId, Number(k));
-            // Weapon AoE (Tail Sweep): catalog specials stay empty — inject Push/etc.
-            next[k] = injectOptionalWeaponAoeChosenSpecial(bound, chosenSpecial.key, template.templateId, Number(k));
-        }
-        levels = next;
-    }
+    const levels = catalogEntryBoundLevels(entry);
     const boundLevelRow = levels[levelKey] ?? levelRow;
     /* PG Spell Design Rule: the `spell` tag marks an actual Spell. Items only
      * carry it when converted (isSpell) or inherently mental (always resolved

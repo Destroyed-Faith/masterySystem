@@ -259,18 +259,6 @@ export async function ensureCanTargetWithPerception(
   return false;
 }
 
-/**
- * @deprecated DF 2026-10-23: Retroactive Stealth Points are retired.
- * Stealth is a setup-first opposition (the Stealth Final Result is the TN); no post-roll spend.
- * Always returns 0 and changes nothing.
- */
-export async function promptRetroactiveStealthSpend(
-  _invisibleActor: any,
-  _observerResult: number,
-  _currentTn: number,
-): Promise<number> {
-  return 0;
-}
 async function promptPerceptionCheck(
   observer: any,
   target: any,
@@ -308,11 +296,6 @@ async function promptPerceptionCheck(
               try {
                 const { masteryRoll } = await import('../dice/roll-handler.js');
                 const {
-                  buildSkillRollContext,
-                  buildSkillRollPoolPreview,
-                  readSkillRating,
-                } = await import('../dice/roll-context-build.js');
-                const {
                   resolveNpcPerceptionSituational,
                   suggestNpcPool,
                 } = await import('../rules/npc-situational-skills.js');
@@ -325,7 +308,6 @@ async function promptPerceptionCheck(
                 let result: any;
                 if (isNpcLike) {
                   const sit = resolveNpcPerceptionSituational(observer?.system);
-                  const legacyRating = readSkillRating(observer?.system, 'perception');
                   if (sit) {
                     const numDice = Math.max(0, Math.floor(Number(sit.poolDice) || 0));
                     const keepDice = numDice <= 0 ? 0 : Math.min(obsMr, numDice);
@@ -345,31 +327,6 @@ async function promptPerceptionCheck(
                       isSkillRoll: true,
                       rollKind: 'skill',
                       applyPoolPenalties: false,
-                      checkContext: { skillKey: 'perception', tags: ['sight'] },
-                      autoFailIntent: 'skill',
-                      skipChat: false,
-                    });
-                  } else if (legacyRating > 0) {
-                    const preview = buildSkillRollPoolPreview(observer, 'perception', 'wits');
-                    const ctx = buildSkillRollContext(observer, 'perception', 'wits', {
-                      baseTN: tn,
-                      raises,
-                    });
-                    if (!ctx) {
-                      resolve({ success: false, total: 0, tn, cancelled: true });
-                      return;
-                    }
-                    const poolNote = `Legacy Perception ${legacyRating} · Wits pool ${preview.rollLabel}${
-                      preview.fullPoolReady ? ' (full)' : ' (half)'
-                    }`;
-                    result = await masteryRoll({
-                      ...ctx.rollOptions,
-                      label: ctx.label,
-                      flavor: `${poolNote}. ${ctx.rollOptions.flavor ?? ''}`.trim(),
-                      actorId: String(observer?.id ?? ''),
-                      skillKey: 'perception',
-                      isSkillRoll: true,
-                      rollKind: 'skill',
                       checkContext: { skillKey: 'perception', tags: ['sight'] },
                       autoFailIntent: 'skill',
                       skipChat: false,
@@ -399,31 +356,31 @@ async function promptPerceptionCheck(
                     });
                   }
                 } else {
-                  const skillRating = readSkillRating(observer?.system, 'perception');
-                  const preview = buildSkillRollPoolPreview(observer, 'perception', 'wits');
-                  const ctx = buildSkillRollContext(observer, 'perception', 'wits', {
-                    baseTN: tn,
-                    raises,
+                  const { executeSkillCheck } = await import('../sheets/skill-check-execute.js');
+                  const exec = await executeSkillCheck({
+                    actor: observer,
+                    draft: {
+                      actorId: String(observer?.id ?? ''),
+                      paidRaises: 0,
+                      skill: { kind: 'perception' },
+                      attributeKey: 'wits',
+                      baseTn: tn,
+                      taskDescription: `Locate ${tgtName}`,
+                      source: {
+                        kind: 'sheet-verbal',
+                        gmVerified: false,
+                        taskDescription: `Locate ${tgtName}`,
+                        attributeKey: 'wits',
+                        baseTn: tn,
+                        skill: { kind: 'perception' },
+                      },
+                    },
                   });
-                  if (!ctx) {
+                  if (!exec.ok || !exec.snapshot) {
                     resolve({ success: false, total: 0, tn, cancelled: true });
                     return;
                   }
-                  const poolNote = `Perception ${skillRating} · Wits pool ${preview.rollLabel}${
-                    preview.fullPoolReady ? ' (full)' : ' (half)'
-                  }`;
-                  result = await masteryRoll({
-                    ...ctx.rollOptions,
-                    label: ctx.label,
-                    flavor: `${poolNote}. ${ctx.rollOptions.flavor ?? ''}`.trim(),
-                    actorId: String(observer?.id ?? ''),
-                    skillKey: 'perception',
-                    isSkillRoll: true,
-                    rollKind: 'skill',
-                    checkContext: { skillKey: 'perception', tags: ['sight'] },
-                    autoFailIntent: 'skill',
-                    skipChat: false,
-                  });
+                  result = { total: exec.snapshot.rollTotal };
                 }
                 const total = Math.max(
                   0,

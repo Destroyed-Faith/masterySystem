@@ -4,10 +4,9 @@
  */
 import { normalizeCreatureTypeValue } from '../utils/creature-type.js';
 import { applySustainedDelta, getActorPoolSpendable, } from './familiar-bind.js';
-import { BASE_SUMMON, BOND_STATUS_LABEL, MAX_ARTIFACT_BONUS_TOKENS, classifyBondStatus, computeSummonBond, emptyBondSpend, legacyMovementTypeToMode, normalizeMovementMode, summonSkillSlots, } from './summon-bond-rules.js';
+import { BASE_SUMMON, BOND_STATUS_LABEL, MAX_ARTIFACT_BONUS_TOKENS, classifyBondStatus, computeSummonBond, emptyBondSpend, legacyMovementTypeToMode, normalizeMovementMode, } from './summon-bond-rules.js';
 import { inspectBondSpend, isIllegalBonusTokens, maxAssignableArtifactBonusTokens, safePurchaseInt, sanitizeBonusTokens, sanitizeSpendNumbers, } from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
-import { normalizeSummonTaskSpecMap, readActorSpecializations, validateSummonTaskSpecMap, } from '../rules/specializations.js';
 export const DISSOLVE_BOND_CONFIRM = 'Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.';
 export const STONE_POOL_ATTRS = [
     'might',
@@ -82,9 +81,6 @@ export function createEmptyBond(opts) {
         summonAttacks: computed.summonAttacks,
         specialKey: null,
         specialValue: 0,
-        selectedSkills: [],
-        skillDiceAlloc: {},
-        taskSpecMap: {},
         spend,
         bodies: [body],
         activationTiming: 'after',
@@ -156,14 +152,6 @@ export function recomputeBondDerived(bond) {
         bodies: bodies.slice(0, Math.max(computed.bodyCount, bodies.length)),
     };
 }
-/**
- * Summon Skill Dice / selected-skill slots are retired.
- * Pre-migration Bonds may still carry legacy fields; those are cleared by
- * `summon-skill-dice-refund-migration` rather than hard-failing Bond Rituals.
- */
-export function validateBondSkillAlloc(_bond, _ownerSkillRatings, _ownerMasteryRank = 1) {
-    return [];
-}
 export async function persistSummonBonds(actor, bonds) {
     await actor.update({ 'system.summonBonds': bonds });
 }
@@ -195,9 +183,7 @@ export function tokensSummary(bond) {
         available: computed.tokensAvailable,
         spent: computed.tokensSpent,
         remaining: computed.tokensRemaining,
-        skillSlots: summonSkillSlots(bond.boundStoneCount),
         bondSpent: computed.bondUpgradeTokens + computed.specialTokens,
-        skillsSpent: computed.skillTokens,
         specialSpent: computed.specialTokens,
         bodySpent: computed.bodyTokens,
         skillDiceTokenCredit: credit,
@@ -264,7 +250,7 @@ export function validateBondPowers(bond, ownerMasteryRank = 1) {
     }
     return errors;
 }
-export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRank = 1, extras) {
+export function validateBondRitual(bond, ownerMasteryRank = 1, extras) {
     const errors = [];
     const warnings = [];
     if (!bond.name?.trim())
@@ -300,7 +286,6 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
         skillDiceTokenCredit: bond.skillDiceTokenCredit,
         movementMode: bond.movementMode,
         selectedSkills: bond.selectedSkills,
-        ownerSkillRatings,
         ownerMasteryRank,
         maxBonusTokens: maxBonus,
         skillDiceAlloc: bond.skillDiceAlloc,
@@ -318,16 +303,9 @@ export function validateBondRitual(bond, ownerSkillRatings = {}, ownerMasteryRan
     errors.push(...computed.errors);
     warnings.push(...computed.warnings);
     errors.push(...inspect.reasons);
-    errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank));
     errors.push(...validateBondPowers(bond, ownerMasteryRank));
     if (bond.taskSpecMap && Object.keys(bond.taskSpecMap).length > 0) {
-        const map = normalizeSummonTaskSpecMap(bond.taskSpecMap);
-        errors.push(...validateSummonTaskSpecMap({
-            map,
-            boundStones: bond.boundStoneCount,
-            // Without owner specs, only the slot limit is checked.
-            ownerSpecs: extras?.ownerSpecs ?? Object.values(map).map((id) => ({ id })),
-        }));
+        errors.push('Summon task mapping is retired; natural tasks use the owner\'s Professions.');
     }
     if (bond.spend.specialAccess && !bond.specialKey) {
         errors.push('Special Access requires selecting an eligible Special.');
@@ -414,7 +392,7 @@ export async function upsertSummonBond(actor, bond) {
  * Apply Bond Ritual: validate spend, sync bodies, clear needsRedistribution,
  * restore dormant bodies to full HP.
  */
-export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) {
+export async function applyBondRitual(actor, bondDraft) {
     const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
     if (!assertProgressionEditable(actor)) {
         return { bond: null, errors: ['Progression locked on unlinked token.'], warnings: [] };
@@ -445,18 +423,13 @@ export async function applyBondRitual(actor, bondDraft, ownerSkillRatings = {}) 
         draft.specialKey = null;
         draft.spend.specialValuePurchases = 0;
     }
-    draft.taskSpecMap = normalizeSummonTaskSpecMap(draft.taskSpecMap);
-    const validation = validateBondRitual(draft, ownerSkillRatings, mr, {
-        maxBonusTokens: maxBonus,
-        ownerSpecs: readActorSpecializations(actor?.system),
-    });
+    const validation = validateBondRitual(draft, mr, { maxBonusTokens: maxBonus });
     const inspect = inspectBondSpend(draft.spend, {
         boundStoneCount: draft.boundStoneCount,
         bonusTokens: draft.bonusTokens,
         skillDiceTokenCredit: draft.skillDiceTokenCredit,
         movementMode: draft.movementMode,
         selectedSkills: draft.selectedSkills,
-        ownerSkillRatings,
         ownerMasteryRank: mr,
         maxBonusTokens: maxBonus,
         skillDiceAlloc: draft.skillDiceAlloc,
@@ -606,17 +579,5 @@ export async function dissolveSummonBond(actor, bondId, deleteActors = async () 
         'system.stonePools': stonePools,
     });
     return { removed, errors: [] };
-}
-/** Owner skill ratings helper for ritual validation. */
-export function ownerSkillRatingsFromActor(actor) {
-    const skills = actor?.system?.skills ?? {};
-    const out = {};
-    for (const [key, val] of Object.entries(skills)) {
-        const rating = typeof val === 'number'
-            ? val
-            : Math.max(0, Math.floor(Number(val?.rating ?? val?.value ?? 0) || 0));
-        out[key] = rating;
-    }
-    return out;
 }
 //# sourceMappingURL=summon-bond-bind.js.map

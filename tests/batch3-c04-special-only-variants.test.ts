@@ -40,17 +40,9 @@ const AOE_SPECIAL_ONLY = [
   'active-ranged-aoe-damage-t5',
   'active-melee-aoe-damage-t6',
   'active-ranged-aoe-damage-t6',
-  'active-melee-aoe-targeted-special',
-  'active-ranged-aoe-targeted-special',
 ] as const;
 
 const DAMAGE_PLUS_SPECIAL = [
-  'active-melee-damage-t3',
-  'active-ranged-damage-t4',
-  'active-melee-damage-t5',
-  'active-ranged-damage-t6',
-  'active-melee-targeted-special',
-  'active-ranged-targeted-special',
   'active-melee-weapon-aoe',
   'active-ranged-weapon-aoe',
 ] as const;

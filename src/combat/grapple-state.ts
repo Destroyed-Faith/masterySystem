@@ -5,7 +5,8 @@
  * `grappled` catalog status (Speed 0 m, see `actor.ts`) and a pair flag
  * pointing at the partner. Grapple is not Root: it never deals damage, never
  * touches Evade, Armor, Attack Pools or Specials. Hurting the held creature
- * is a separate Unarmed Basic Attack; drawing a weapon means letting go.
+ * takes a separate Melee Attack Power with Unarmed delivery; drawing a weapon
+ * means letting go.
  */
 
 export const GRAPPLE_FLAG = 'grapple';
@@ -109,19 +110,21 @@ export function grappleStatusIds(): readonly string[] {
   return [GRAPPLED_STATUS_ID];
 }
 
-function isUnarmedBasicAttackOption(actor: any, option: any, unarmedNow: boolean): boolean {
-  if (!option) return false;
-  const id = str(option.id || option.maneuver?.id);
-  if (id !== 'weapon-attack') return false;
-  if (option.forcedWeaponItemId) return false;
-  return unarmedNow;
+/**
+ * A Melee Attack Power resolved with Unarmed delivery: no weapon in hand and
+ * no forced (artifact / natural) weapon on the option.
+ */
+function isUnarmedMeleePowerOption(option: any, unarmedNow: boolean): boolean {
+  if (!unarmedNow || option.forcedWeaponItemId) return false;
+  const tid = str(option.item?.system?.templateId || option.artifactPowerTemplateId);
+  return /^active-melee-/.test(tid);
 }
 
 /**
  * Attacking with a weapon is not part of the Grapple. When the grappler picks
- * a weapon-based attack the hold has to be released first. The unarmed Basic
- * Attack and spells keep the Grapple. The held creature is never gated here —
- * it does not maintain the hold.
+ * a weapon-based attack the hold has to be released first. A Melee Attack
+ * Power with Unarmed delivery and spells keep the Grapple. The held creature
+ * is never gated here — it does not maintain the hold.
  */
 export function attackRequiresGrappleRelease(
   actor: any,
@@ -130,24 +133,20 @@ export function attackRequiresGrappleRelease(
 ): boolean {
   if (!option || option.slot !== 'attack') return false;
   if (grappleRoleOf(actor) !== 'grappler') return false;
-  if (isUnarmedBasicAttackOption(actor, option, deps.unarmedNow)) return false;
   const source = str(option.source);
-  if (source === 'maneuver') {
-    const id = str(option.id || option.maneuver?.id);
-    // Grapple-family maneuvers and stances are not weapon attacks.
-    if (id !== 'weapon-attack') return false;
-    return true;
-  }
+  // Grapple-family maneuvers and stances are not weapon attacks.
+  if (source === 'maneuver') return false;
   if (source === 'power') {
     const sys = option.item?.system ?? {};
     const isSpell = sys.isSpell === true || option.artifactIsSpell === true;
     if (isSpell) return false;
     const powerType = str(sys.powerType || option.powerType);
     if (powerType && powerType !== 'active') return false;
+    if (isUnarmedMeleePowerOption(option, deps.unarmedNow)) return false;
     return true;
   }
   // NPC sheet attacks (`npc-attack`) are the creature's own claws / bite /
-  // body — NPCs have no separate unarmed Basic Attack, so the GM adjudicates.
+  // body, so the GM adjudicates.
   return false;
 }
 

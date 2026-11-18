@@ -47,24 +47,14 @@ describe('Stone Ability Parry', () => {
 
 describe('pool-reducing Special ranks', () => {
   it('uses the printed Challenge / Disoriented / Soulburn / Weaken tables', () => {
-    expect(boundRank('active-melee-damage-t5', 'challenge', 1)).toBe(1);
-    expect(boundRank('active-melee-damage-t5', 'challenge', 6)).toBe(3);
-    expect(boundRank('active-melee-damage-t5', 'challenge', 16)).toBe(5);
-    expect(boundRank('active-ranged-damage-t5', 'challenge', 3)).toBe(1);
-    expect(boundRank('active-ranged-damage-t5', 'challenge', 16)).toBe(5);
-    expect(boundRank('active-melee-damage-t6', 'disoriented', 2)).toBe(1);
-    expect(boundRank('active-melee-damage-t6', 'soulburn', 11)).toBe(4);
-    expect(boundRank('active-melee-damage-t6', 'weaken', 16)).toBe(5);
-    expect(boundRank('active-ranged-damage-t6', 'weaken', 4)).toBe(1);
-    expect(boundRank('active-ranged-damage-t6', 'disoriented', 16)).toBe(4);
     expect(boundRank('active-melee-aoe-damage-t5', 'challenge', 1)).toBe(1);
-    expect(boundRank('active-melee-aoe-damage-t5', 'challenge', 16)).toBe(4);
+    expect(boundRank('active-melee-aoe-damage-t5', 'challenge', 16)).toBe(3);
     expect(boundRank('active-ranged-aoe-damage-t5', 'challenge', 6)).toBe(2);
-    expect(boundRank('active-ranged-aoe-damage-t5', 'challenge', 16)).toBe(3);
-    expect(boundRank('active-melee-aoe-damage-t6', 'soulburn', 5)).toBe(2);
-    expect(boundRank('active-melee-aoe-damage-t6', 'weaken', 16)).toBe(4);
-    expect(boundRank('active-ranged-aoe-damage-t6', 'disoriented', 7)).toBe(2);
-    expect(boundRank('active-ranged-aoe-damage-t6', 'soulburn', 16)).toBe(3);
+    expect(boundRank('active-ranged-aoe-damage-t5', 'challenge', 16)).toBe(2);
+    expect(boundRank('active-melee-aoe-damage-t6', 'soulburn', 5)).toBe(1);
+    expect(boundRank('active-melee-aoe-damage-t6', 'weaken', 16)).toBe(3);
+    expect(boundRank('active-ranged-aoe-damage-t6', 'disoriented', 7)).toBe(1);
+    expect(boundRank('active-ranged-aoe-damage-t6', 'soulburn', 16)).toBe(2);
     expect(poolSpecialRankOverride('active-ranged-zone-t5', 'challenge', 1)).toBeNull();
     expect(poolSpecialRankOverride('active-ranged-zone-t5', 'challenge', 2)).toBeNull();
     expect(boundRank('active-ranged-zone-t5', 'challenge', 3)).toBe(1);
@@ -76,15 +66,8 @@ describe('pool-reducing Special ranks', () => {
   it('does not halve Expose, Corrode, Hex, or Sundered', () => {
     expect(isPoolReducingSpecial('expose')).toBe(false);
     expect(isPoolReducingSpecial('corrode')).toBe(false);
-    expect(boundRank('active-melee-damage-t5', 'corrode', 1)).toBe(2);
-    expect(boundRank('active-melee-damage-t5', 'hex', 2)).toBe(3);
-    expect(boundRank('active-melee-damage-t5', 'sundered', 16)).toBe(11);
-    expect(boundRank('active-melee-damage-t6', 'expose', 1)).toBe(1);
-    expect(boundRank('active-melee-damage-t6', 'expose', 2)).toBe(3);
-    expect(boundRank('active-ranged-damage-t5', 'corrode', 1)).toBe(1);
-    expect(boundRank('active-ranged-damage-t5', 'root', 1)).toBe(2);
-    expect(boundRank('active-melee-aoe-damage-t6', 'expose', 1)).toBe(2);
-    expect(boundRank('active-ranged-aoe-damage-t6', 'expose', 16)).toBe(7);
+    expect(boundRank('active-melee-aoe-damage-t6', 'expose', 1)).toBe(1);
+    expect(boundRank('active-ranged-aoe-damage-t6', 'expose', 16)).toBe(5);
   });
 });
 

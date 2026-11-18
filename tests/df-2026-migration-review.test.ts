@@ -226,8 +226,8 @@ describe('DF 2026 import shape', () => {
     ]);
     expect(system.echoImprints).toEqual(['mage-hand']);
     expect(system.progression.rulesSchemaVersion).toBe(DF_2026_RULES_SCHEMA_VERSION);
-    // Legacy fields are preserved as-is but are never turned into Specializations.
-    expect(system.skills).toEqual({ stealth: 5 });
+    // Legacy Skills go to the actor flag archive and never become Specializations.
+    expect(system.skills).toBeUndefined();
     expect(system.specializations).toHaveLength(2);
   });
 
@@ -255,7 +255,7 @@ describe('DF 2026 import shape', () => {
       { templateId: 'ab-evade', rank: 4 },
       { templateId: 'reaction-evade', rank: 4 },
       { templateId: 'active-melee-weapon-single', rank: 2 },
-      { templateId: 'active-melee-damage-t4', special: 'ruin', rank: 2 },
+      { templateId: 'active-melee-instant-special-t4', special: 'ruin', rank: 2 },
     ],
   };
   const wrap = (character: Record<string, unknown>) => ({
@@ -341,7 +341,6 @@ describe('DF 2026 print context', () => {
       },
     };
     const ctx = buildCharacterPrintContext(actor) as any;
-    expect(ctx.showSpecializations).toBe(true);
     expect(ctx.specializationGroups[0].label).toBe('Professions');
     expect(ctx.specializationGroups[0].specs[0]).toMatchObject({ name: 'Lockpicking', rank: 3 });
     expect(ctx.specializationGroups[0].specs[0].pips.filter((p: any) => p.filled)).toHaveLength(3);

@@ -137,7 +137,7 @@ export const RULES_EXPECTED_ACTIVE_BUFFS: ReadonlyArray<{ rulesName: string; id:
     { rulesName: 'Parry Recovery', id: 'ab-reinforced-parry' },
     { rulesName: 'Absorption Stone Increase', id: 'ab-intensified-absorption' },
     { rulesName: 'Damage Negation Pool', id: 'ab-reinforced-damage-negation' },
-    // Documented in Rules/actives.md as Active Buff — Immovable + Temporary HP
+    // Documented in docs/Rules/Canonical/Actives.md as Active Buff — Immovable + Temporary HP
     { rulesName: 'Immovable + Temporary HP', id: 'ab-immovable-temp-hp' },
     // Offensive expansion 2026-10-24
     { rulesName: 'Armor Reduction', id: 'ab-armor-reduction' },
@@ -210,16 +210,7 @@ export const RULES_EXPECTED_MOVEMENT: ReadonlyArray<{ rulesName: string; id: str
  * MD parsing alone is ambiguous for Special-slot expansions.
  */
 export const RULES_EXPECTED_ACTIVES: ReadonlyArray<{ rulesName: string; id: string }> = [
-    // Special-first damage single (tier 3–6 = Start PP 3/4/6/8)
-    { rulesName: 'Melee — Damage + Start PP 3 Special', id: 'active-melee-damage-t3' },
-    { rulesName: 'Ranged — Damage + Start PP 3 Special', id: 'active-ranged-damage-t3' },
-    { rulesName: 'Melee — Damage + Start PP 4 Special', id: 'active-melee-damage-t4' },
-    { rulesName: 'Ranged — Damage + Start PP 4 Special', id: 'active-ranged-damage-t4' },
-    { rulesName: 'Melee — Damage + Start PP 6 Special', id: 'active-melee-damage-t5' },
-    { rulesName: 'Ranged — Damage + Start PP 6 Special', id: 'active-ranged-damage-t5' },
-    { rulesName: 'Melee — Damage + Start PP 8 Special', id: 'active-melee-damage-t6' },
-    { rulesName: 'Ranged — Damage + Start PP 8 Special', id: 'active-ranged-damage-t6' },
-    // AoE
+    // AoE Special (tier 3–6 = Start PP 3/4/6/8)
     { rulesName: 'Melee AoE — Damage + Start PP 3 Special', id: 'active-melee-aoe-damage-t3' },
     { rulesName: 'Ranged AoE — Damage + Start PP 3 Special', id: 'active-ranged-aoe-damage-t3' },
     { rulesName: 'Melee AoE — Damage + Start PP 4 Special', id: 'active-melee-aoe-damage-t4' },
@@ -250,26 +241,12 @@ export const RULES_EXPECTED_ACTIVES: ReadonlyArray<{ rulesName: string; id: stri
     // Control
     { rulesName: 'Melee — Control: Push / Pull', id: 'active-melee-control-push-pull' },
     { rulesName: 'Ranged — Control: Push / Pull', id: 'active-ranged-control-push-pull' },
-    { rulesName: 'Melee — Control: Pull + Disarm', id: 'active-melee-control-pull-disarm' },
-    { rulesName: 'Ranged — Control: Pull + Disarm', id: 'active-ranged-control-pull-disarm' },
-    { rulesName: 'Melee — Control: Push + Prone', id: 'active-melee-control-push-prone' },
-    { rulesName: 'Ranged — Control: Push + Prone', id: 'active-ranged-control-push-prone' },
     // Support
     { rulesName: 'Melee Single Target Cleanse', id: 'active-melee-single-cleanse' },
     { rulesName: 'Ranged Single Target Cleanse', id: 'active-ranged-single-cleanse' },
     { rulesName: 'Melee AoE Cleanse', id: 'active-melee-aoe-cleanse' },
     { rulesName: 'Ranged AoE Cleanse', id: 'active-ranged-aoe-cleanse' },
-    { rulesName: 'Melee Single Target Dispel', id: 'active-melee-single-dispel' },
-    { rulesName: 'Ranged Single Target Dispel', id: 'active-ranged-single-dispel' },
-    { rulesName: 'Melee AoE Dispel', id: 'active-melee-aoe-dispel' },
-    { rulesName: 'Ranged AoE Dispel', id: 'active-ranged-aoe-dispel' },
-    { rulesName: 'Melee Cleanse (Mixed)', id: 'active-melee-heal-cleanse-mixed' },
-    { rulesName: 'Ranged Cleanse (Mixed)', id: 'active-ranged-heal-cleanse-mixed' },
-    { rulesName: 'Melee Damage + Dispel', id: 'active-melee-damage-dispel-mixed' },
-    { rulesName: 'Ranged Damage + Dispel', id: 'active-ranged-damage-dispel-mixed' },
     { rulesName: 'Ranged Barrier — 4 Rounds', id: 'active-ranged-barrier' },
-    { rulesName: 'Melee — Damage + Stunned', id: 'active-melee-damage-stunned' },
-    { rulesName: 'Ranged — Damage + Stunned', id: 'active-ranged-damage-stunned' },
     { rulesName: 'Ranged Images — 4 Rounds', id: 'active-ranged-illusion-image' },
     { rulesName: 'Melee Single Attack', id: 'active-melee-weapon-single' },
     { rulesName: 'Ranged Single Attack', id: 'active-ranged-weapon-single' },
@@ -278,18 +255,10 @@ export const RULES_EXPECTED_ACTIVES: ReadonlyArray<{ rulesName: string; id: stri
     { rulesName: 'Melee Split Attack', id: 'active-melee-weapon-split' },
     { rulesName: 'Ranged Split Attack', id: 'active-ranged-weapon-split' },
     { rulesName: 'Ranged Autofire', id: 'active-ranged-weapon-autofire' },
-    { rulesName: 'Melee Targeted Special Attack', id: 'active-melee-targeted-special' },
-    { rulesName: 'Ranged Targeted Special Attack', id: 'active-ranged-targeted-special' },
-    { rulesName: 'Melee AoE Targeted Special Attack', id: 'active-melee-aoe-targeted-special' },
-    { rulesName: 'Ranged AoE Targeted Special Attack', id: 'active-ranged-aoe-targeted-special' },
-    { rulesName: 'Melee Single Target Heal', id: 'active-melee-single-heal' },
-    { rulesName: 'Ranged Single Target Heal', id: 'active-ranged-single-heal' },
     { rulesName: 'Melee Health Level Heal', id: 'active-melee-health-level-heal' },
     { rulesName: 'Ranged Health Level Heal', id: 'active-ranged-health-level-heal' },
     { rulesName: 'Melee AoE Restoration', id: 'active-melee-aoe-restoration' },
     { rulesName: 'Ranged AoE Restoration', id: 'active-ranged-aoe-restoration' },
-    { rulesName: 'Cleanse Absorption', id: 'active-cleanse-absorption' },
-    { rulesName: 'Mental Attack', id: 'active-mental-attack' },
     { rulesName: 'Mind Illusion', id: 'active-mind-illusion' },
     { rulesName: 'Mind Probe', id: 'active-mind-probe' },
     { rulesName: 'Mental Control', id: 'active-mental-control' },
@@ -585,7 +554,10 @@ function loadRulesBook(
     override?: Partial<Record<RulesBook, string>>,
 ): string {
     if (override?.[book] != null) return override[book]!;
-    const path = join(rootDir, 'docs', 'Rules', `${book}.md`);
+    const path =
+        book === 'actives'
+            ? join(rootDir, 'docs', 'Rules', 'Canonical', 'Actives.md')
+            : join(rootDir, 'docs', 'Rules', `${book}.md`);
     if (!existsSync(path)) return '';
     return readFileSync(path, 'utf8');
 }
@@ -983,7 +955,7 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
 
     // ── Actives ────────────────────────────────────────────────────────────
     const acMap = templateCatalogMap(ACTIVE_TEMPLATES);
-    // Seed parsed set from curated names present as substrings in actives.md
+    // Seed parsed set from curated names present as substrings in docs/Rules/Canonical/Actives.md
     const parsedActives = new Set<string>();
     for (const exp of RULES_EXPECTED_ACTIVES) {
         // Special-first families always treated as Rules-expected via manifest

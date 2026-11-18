@@ -2,7 +2,7 @@
  * Ground-truth XP recalculation.
  *
  * Recomputes a character's *invested* XP directly from the current build
- * (attributes, skills, power levels, artifact levels) measured against the
+ * (attributes, Profession ranks, power levels, artifact levels) measured against the
  * immutable post-creation baseline, then redistributes the two XP pools so that
  * `invested = freeSpent + regularSpent` with the **Free pool spent first**
  * (matching the live spend logic), and derives the correct available XP.
@@ -13,7 +13,8 @@
  */
 
 import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
-import { attributeBandCost, skillBandCost } from './constants.js';
+import { attributeBandCost } from './constants.js';
+import { inferProfessionXpInvested, readSpecializations } from '../rules/index.js';
 import { calculatePowerDeletionRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot, type PostCreationProgress } from './xp-post-creation.js';
 
@@ -38,7 +39,7 @@ export interface XpRecalcResult {
   skillSpent: number;
   powerSpent: number;
   artifactSpent: number;
-  /** Total XP invested in the current build (attributes + skills + powers + artifacts). */
+  /** Total XP invested in the current build (attributes + Professions + powers + artifacts). */
   totalInvested: number;
   /** Correct regular spent (after Free pool absorbs as much as possible). */
   regularSpent: number;
@@ -73,7 +74,7 @@ function stepSum(from: number, to: number, costFor: (next: number) => number): n
 /**
  * Recompute the correct XP balance for `actor` from its current build.
  * Returns `ok:false` with an `error` when no post-creation snapshot exists
- * (attributes / skills cannot be measured without a baseline).
+ * (attributes cannot be measured without a baseline).
  */
 export function computeGroundTruthXp(actor: any): XpRecalcResult {
   const system = actor?.system ?? {};
@@ -101,7 +102,7 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
     return {
       ok: false,
       error:
-        'Kein Post-Creation-Snapshot vorhanden. Ohne diese Baseline lassen sich investierte Attribut-/Skill-XP nicht messen.',
+        'Kein Post-Creation-Snapshot vorhanden. Ohne diese Baseline lassen sich investierte Attribut-XP nicht messen.',
       ...base,
       attributeSpent: 0,
       skillSpent: 0,
@@ -126,16 +127,9 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
     if (curVal > baseVal) attributeSpent += stepSum(baseVal, curVal, attributeBandCost);
   }
 
+  // Profession ladder XP (same baseline rules as the build appraisal).
   let skillSpent = 0;
-  const curSkills: Record<string, number> = system.skills ?? {};
-  const snapSkills: Record<string, number> = snap.skills ?? {};
-  // Skill Points are retired — ranks above the post-creation snapshot count as XP.
-  const skillKeys = new Set<string>([...Object.keys(curSkills), ...Object.keys(snapSkills)]);
-  for (const key of skillKeys) {
-    const baseVal = Number(snapSkills[key] ?? 0);
-    const curVal = Number(curSkills[key] ?? 0);
-    if (curVal > baseVal) skillSpent += stepSum(baseVal, curVal, skillBandCost);
-  }
+  for (const spec of readSpecializations(system)) skillSpent += inferProfessionXpInvested(spec);
 
   const powerItems = (actor.items?.filter?.((i: any) => i.type === 'power') ?? []) as any[];
   let powerSpent = 0;
@@ -205,7 +199,7 @@ export function formatXpRecalcHtml(actorName: string, r: XpRecalcResult): string
     `<tbody>` +
     `<tr><td>Verdient gesamt</td><td style="text-align:right;"><strong>${totalEarnedAll}</strong></td></tr>` +
     `<tr><td>− Attribute</td><td style="text-align:right;">${r.attributeSpent}</td></tr>` +
-    `<tr><td>− Skills</td><td style="text-align:right;">${r.skillSpent}</td></tr>` +
+    `<tr><td>− Professions</td><td style="text-align:right;">${r.skillSpent}</td></tr>` +
     `<tr><td>− Powers</td><td style="text-align:right;">${r.powerSpent}</td></tr>` +
     `<tr><td>− Artefakte</td><td style="text-align:right;">${r.artifactSpent}</td></tr>` +
     `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td>= Investiert</td><td style="text-align:right;"><strong>${r.totalInvested}</strong></td></tr>` +

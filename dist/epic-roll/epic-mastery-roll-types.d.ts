@@ -2,15 +2,12 @@
  * Epic Mastery Roll — shared types.
  */
 import type { MasteryRollResult } from '../types/index.js';
+/** Dialog modes. `skill` publishes a chat Training Check and never opens a session. */
 export type EpicRollKind = 'skill' | 'attribute' | 'fear';
 export interface EpicTnConfig {
     challengeMR: number;
     baseTN: number;
     raises: number;
-}
-export interface EpicSkillRollConfig {
-    kind: 'skill';
-    skillKey: string;
 }
 export interface EpicAttributeRollConfig {
     kind: 'attribute';
@@ -20,7 +17,7 @@ export interface EpicAttributeRollConfig {
 export interface EpicFearRollConfig {
     kind: 'fear';
 }
-export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicFearRollConfig;
+export type EpicRollConfig = EpicAttributeRollConfig | EpicFearRollConfig;
 export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 export interface EpicParticipant {
     actorId: string;
@@ -28,10 +25,9 @@ export interface EpicParticipant {
     status: EpicParticipantStatus;
     img?: string;
 }
-/** Serializable roll payload kept while the player chooses skill spend. */
+/** Serializable roll payload kept while the player decides on a reroll. */
 export interface EpicRollPayload {
     rollResult: MasteryRollResult;
-    skillKey?: string;
     isSkillRoll: boolean;
     baseModifier: number;
     raiseTn?: number;
@@ -46,22 +42,14 @@ export interface EpicParticipantResult {
     raises: number;
     diceSummary: string;
     skipped?: boolean;
-    /** True while the owner may still spend skill points or reroll before locking in. */
+    /** True while the owner may still reroll before locking in. */
     awaitingConfirm?: boolean;
-    skillKey?: string;
     /** Attribute used for this check — needed to reroll the same pool. */
     attributeKey?: string;
-    skillSpent?: number;
     raiseTn?: number;
     /** Already spent a Reroll Point on this Epic Roll. */
     rerolled?: boolean;
     rollPayload?: EpicRollPayload;
-    echoCardUsed?: {
-        cardId: string;
-        optionId: string;
-        cardName: string;
-        optionLabel: string;
-    };
     /** Persisted dice breakdown for overlay / summary after rollPayload is cleared. */
     diceFaces?: EpicDiceFace[];
 }
@@ -118,10 +106,8 @@ export declare function skipParticipantInSession(session: EpicMasteryRollSession
 export declare function defaultRollTitleForKind(kind: EpicRollKind): string;
 export declare function rollLabelForConfig(roll: EpicRollConfig): string;
 export declare function participantResultFromRoll(actorId: string, actorName: string, label: string, rollResult: MasteryRollResult, payload: EpicRollPayload, opts?: {
-    skillKey?: string;
     attributeKey?: string;
     awaitingConfirm?: boolean;
-    skillSpent?: number;
     rerolled?: boolean;
 }): EpicParticipantResult;
 //# sourceMappingURL=epic-mastery-roll-types.d.ts.map

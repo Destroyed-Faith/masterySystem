@@ -857,7 +857,7 @@ function findGuidedSpecialCatalogEntry(
 
     const tiers = [4, 3, 5, 6];
     const templateBases = [
-        (t: number) => `active-${delivery}-damage-t${t}`,
+        (t: number) => `active-${delivery}-instant-special-t${t}`,
         (t: number) => `active-${delivery}-aoe-damage-t${t}`,
     ];
 

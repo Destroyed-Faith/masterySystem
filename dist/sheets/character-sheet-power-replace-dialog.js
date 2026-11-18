@@ -6,6 +6,7 @@ import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { renderCatalogSelectionDetailsHtml, renderPowerLevelTable, } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
+import { catalogEntryBoundLevels } from '../utils/power-item-builder.js';
 import { activeTemplateCanBeSpell, catalogSelectOptionLabel, collectOwnedPowerIdentityKeys, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, } from '../utils/power-catalog.js';
 import { ACTIVE_UI_DELIVERIES, ACTIVE_UI_EFFECTS, labelActiveUiDelivery, labelActiveUiEffect, } from '../utils/power-purchase-ui-filters.js';
 import { applyPowerReplace, describePowerReplaceConstraints, isNonReplaceableGrantedPower, } from '../utils/power-replace.js';
@@ -19,10 +20,13 @@ function escapeHtml(value) {
 }
 function renderEntryDetails(entry, $description, $levelTable, selectedLevel = 1) {
     const raw = entry.raw;
-    $description.html(renderCatalogSelectionDetailsHtml(entry, selectedLevel));
-    if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
-        const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l) => l?.trigger);
-        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));
+    const levels = raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)
+        ? catalogEntryBoundLevels(entry)
+        : null;
+    $description.html(renderCatalogSelectionDetailsHtml(levels ? { ...entry, raw: { ...raw, levels } } : entry, selectedLevel));
+    if (levels) {
+        const showTrigger = raw.category === 'reaction' || Object.values(levels).some((l) => l?.trigger);
+        $levelTable.html(renderPowerLevelTable(levels, showTrigger, entry.chosenSpecial?.key));
     }
     else {
         $levelTable.empty();

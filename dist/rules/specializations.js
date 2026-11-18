@@ -263,80 +263,8 @@ export const SUMMON_TASKS = [
     'search',
     'survival',
 ];
-export function summonTaskSlotCount(boundStones) {
-    const n = Math.max(0, Math.floor(Number(boundStones) || 0));
-    if (n <= 0)
-        return 0;
-    if (n === 1)
-        return 2;
-    if (n === 2)
-        return 3;
-    return 4;
-}
-/**
- * Dice cap for a Summon task: Perception uses 2×owner MR; others 2×one mapped Profession Rank.
- * An unrelated Profession (scope does not cover the task) contributes 0.
- */
-export function summonSkillDiceCap(opts) {
-    if (opts.task === 'perception') {
-        return 2 * Math.max(1, Math.floor(Number(opts.ownerMasteryRank) || 1));
-    }
-    if (opts.scopeCoversTask === false)
-        return 0;
-    return 2 * Math.max(0, Math.floor(Number(opts.matchingSpecializationRank) || 0));
-}
 export function isSummonTask(value) {
     return SUMMON_TASKS.includes(value);
-}
-/** Drop unknown tasks / blank ids from a stored map. */
-export function normalizeSummonTaskSpecMap(raw) {
-    const out = {};
-    if (!raw || typeof raw !== 'object')
-        return out;
-    for (const [task, id] of Object.entries(raw)) {
-        const spec = String(id ?? '').trim();
-        if (isSummonTask(task) && spec)
-            out[task] = spec;
-    }
-    return out;
-}
-/** Number of mapped tasks that still need a Spec (Perception uses owner MR, no Spec). */
-function mappedTaskCount(map) {
-    return Object.keys(map).length;
-}
-/**
- * Validate a Summon Bond's task mapping. Summons never receive Free Raises;
- * the task list is capped by `summonTaskSlotCount(boundStones)`.
- */
-export function validateSummonTaskSpecMap(opts) {
-    const errors = [];
-    const map = normalizeSummonTaskSpecMap(opts.map);
-    const slots = summonTaskSlotCount(opts.boundStones);
-    if (mappedTaskCount(map) > slots) {
-        errors.push(`Summon has ${mappedTaskCount(map)} mapped tasks but only ${slots} slot${slots === 1 ? '' : 's'} (Bound Stones).`);
-    }
-    const ids = new Set(opts.ownerSpecs.map((s) => String(s.id ?? '')));
-    for (const [task, specId] of Object.entries(map)) {
-        if (task === 'perception')
-            continue; // uses 2 × owner MR; mapping optional
-        if (!ids.has(String(specId)))
-            errors.push(`Task ${task}: owner Specialization not found.`);
-    }
-    return errors;
-}
-/** Dice cap per mapped task using the mapped owner Spec Rank (Perception: owner MR). */
-export function summonTaskDiceCaps(opts) {
-    const out = {};
-    const map = normalizeSummonTaskSpecMap(opts.map);
-    for (const task of Object.keys(map)) {
-        const spec = opts.ownerSpecs.find((s) => String(s.id ?? '') === map[task]);
-        out[task] = summonSkillDiceCap({
-            task,
-            ownerMasteryRank: opts.ownerMasteryRank,
-            matchingSpecializationRank: spec?.rank ?? 0,
-        });
-    }
-    return out;
 }
 /** Summons never receive Free Raises (DF 2026). */
 export const SUMMON_FREE_RAISES = 0;

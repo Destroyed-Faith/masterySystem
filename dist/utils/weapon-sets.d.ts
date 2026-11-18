@@ -23,7 +23,7 @@ export interface WeaponSetHands {
 export interface WeaponSetsState {
     schemaVersion: number;
     active: WeaponSetIndex;
-    /** Weapons put away. All sets stay stored; Basic Attack is Unarmed. */
+    /** Weapons put away. All sets stay stored; melee attacks use Unarmed delivery. */
     stowed?: boolean;
     /** Number of prepared slots (≥ 2). Extra slots are GM-added. */
     count?: number;
@@ -135,7 +135,7 @@ export interface ActiveWeaponProfile {
     summary: string;
 }
 /**
- * What Basic Attack rolls right now: the active set's main-hand weapon, or
+ * What a weapon-delivered attack rolls right now: the active set's main-hand weapon, or
  * Unarmed 1d8 when that set is empty.
  *
  * Uses Weapon Set assignment — not `system.equipped` — so a two-handed

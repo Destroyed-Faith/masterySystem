@@ -49,7 +49,7 @@ const alarisPayload = {
     { templateId: 'ab-evade', rank: 4 },
     { templateId: 'reaction-evade', rank: 4 },
     { templateId: 'active-melee-weapon-single', rank: 2 },
-    { templateId: 'active-melee-damage-t4', special: 'ruin', rank: 2 },
+    { templateId: 'active-melee-instant-special-t4', special: 'ruin', rank: 2 },
   ],
   artifacts: [{ key: 'moonlightGreatsword', level: 4, activated: true }],
 };
@@ -195,7 +195,9 @@ describe('character-import build', () => {
     expect(system.progression.lifetimeXp).toBeUndefined();
     expect((data.flags as any)['mastery-system'].needsV099LifetimeXp).toBe(true);
     expect(system.mastery.rank).toBe(4);
-    expect(system.skills.acrobatics).toBe(2);
+    expect(system.skills).toBeUndefined();
+    expect((data.flags as any)['mastery-system'].legacySkillsArchive.skills.acrobatics).toBe(2);
+    expect((data.flags as any)['mastery-system'].legacySkillsArchive.xpRefund).toBe(0);
     expect(system.disadvantages).toHaveLength(1);
     expect(system.faithFractures.maximum).toBe(2);
     expect(system.minorExpressions).toEqual(['might-set-your-feet', 'agility-soft-step']);
@@ -219,7 +221,7 @@ describe('character-import build', () => {
     const items = buildPowerItemsFromGrantSpecs(specs);
     expect(items).toHaveLength(6);
     expect(items.every((i) => i.type === 'power')).toBe(true);
-    const ignite = items.find((i) => (i.system as any).templateId === 'active-melee-damage-t4');
+    const ignite = items.find((i) => (i.system as any).templateId === 'active-melee-instant-special-t4');
     expect(ignite).toBeTruthy();
   });
 
@@ -240,7 +242,8 @@ describe('character-import build', () => {
     } as any);
     const system = data.system as any;
     expect(system.echo.key).toBe('dwarfs');
-    expect(system.echo.selectedCardIds).toEqual(['dwarf-start-1']);
+    expect(system.echo.selectedCardIds).toBeUndefined();
+    expect(data.flags['mastery-system'].legacySkillsArchive.echoCards).toEqual({ selectedCardIds: ['dwarf-start-1'] });
     expect(system.bio.echo.length).toBeGreaterThan(0);
     expect(typeof system.echo.traitUses).toBe('object');
     // Echo-locked language is enforced even when the payload omits it.
@@ -275,8 +278,8 @@ describe('character-import build', () => {
         offenseActivePicks: [
           { pickId: 'active-melee-weapon-single', templateId: 'active-melee-weapon-single' },
           {
-            pickId: 'active-melee-damage-t4::ruin',
-            templateId: 'active-melee-damage-t4',
+            pickId: 'active-melee-instant-special-t4::ruin',
+            templateId: 'active-melee-instant-special-t4',
             special: 'ruin',
           },
         ],
@@ -287,7 +290,7 @@ describe('character-import build', () => {
     const system = data.system as any;
     expect(system.echo.unboundShape).toBe('Wolf');
     expect(system.creation.towerWizardPackageId).toBe(
-      'evade__active-melee-weapon-single__active-melee-damage-t4::ruin',
+      'evade__active-melee-weapon-single__active-melee-instant-special-t4::ruin',
     );
   });
 });

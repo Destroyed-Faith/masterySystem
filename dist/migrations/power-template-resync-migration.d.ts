@@ -20,7 +20,20 @@
  *     items created before id/name stamping are still caught.
  *
  * A manual trigger is exposed as `game.masterySystem.resyncPowers()`.
+ *
+ * Exceptions: templates changed by Actives v0.9.9.6 are held (skipped) on every
+ * path until `activesV0996MigrationState` is `applied`; legacy-cleanup candidates
+ * are held until `legacyCleanup2026MigrationState` is `applied`, and items the
+ * legacy cleanup flagged (conflict / retired) are never re-baked.
  */
+import type { PowerLevelKey, PowerLevelRow } from '../types/item.js';
+/** World setting: `''` / `'pending'` until the GM applies the Actives v0.9.9.6 migration, then `'applied'`. */
+export declare const ACTIVES_V0996_MIGRATION_STATE_KEY = "activesV0996MigrationState";
+export declare function isActivesV0996HeldTemplate(templateId: unknown): boolean;
+export declare function getActivesV0996MigrationState(): string;
+/** True while held templates must not be re-baked (migration not yet applied). */
+export declare function isActivesV0996ResyncHeld(): boolean;
+export declare function getLegacyCleanupMigrationState(): string;
 export declare function registerPowerTemplateResyncMigrationSetting(): void;
 /**
  * Resync every template-backed power item on a single actor from its current
@@ -35,8 +48,19 @@ export declare function resyncActorPowerTemplates(actor: any, options?: {
  * Resync one template-backed power item. Returns true when it wrote an update.
  * Throws when the Foundry update itself fails (callers log per item).
  */
+/**
+ * Read-only preview of what the resync would bake for one item (used by the
+ * Actives v0.9.9.6 dry-run report). Ignores the v0.9.9.6 hold.
+ */
+export declare function previewPowerItemResync(item: any): {
+    templateId: string;
+    levels: Record<PowerLevelKey, PowerLevelRow>;
+    changed: boolean;
+} | null;
 export declare function resyncPowerItemFromTemplate(item: any, options?: {
     force?: boolean;
+    ignoreV0996Hold?: boolean;
+    ignoreLegacyCleanupHold?: boolean;
 }): Promise<boolean>;
 /**
  * Resync every template-backed power item from its current template.

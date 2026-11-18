@@ -24,31 +24,6 @@ export interface WireArtifactResult {
   alreadyWired?: boolean;
 }
 
-/** Infer catalog key from item display name (Echo + General artifacts). */
-export function inferArtifactKeyFromName(name: string): string | null {
-  const n = String(name || '').toLowerCase();
-  for (const [key, def] of Object.entries(GENERAL_ARTIFACTS)) {
-    if (n.includes(def.name.toLowerCase())) return key;
-  }
-  if (n.includes('dragon head')) return 'dragonHead';
-  if (n.includes('dragon claw')) return 'dragonClaws';
-  if (n.includes('wyrm scale') && n.includes('light')) return 'wyrmScalesLight';
-  if (n.includes('wyrm scale') && n.includes('heavy')) return 'wyrmScalesHeavy';
-  if (n.includes('serpent scale')) return 'wyrmScalesLight';
-  if (n.includes('wyrm scale')) return 'wyrmScalesHeavy';
-  // Titan Scars variants are all named "Titan Scars"; the affinity isn't in the
-  // name, so default name-based wiring to the Might variant (legacy default).
-  if (n.includes('titan scar')) return 'titanScars';
-  if (n.includes('ringchain')) return 'ringchainOfKeptNames';
-  if (n.includes('stonebound sole')) return 'stoneboundSoles';
-  if (n.includes('elorian stride')) return 'elorianStride';
-  if (n.includes('elven stride')) return 'elorianStride';
-  if (n.includes('sentinel frame')) return 'sentinelFrame';
-  if (n.includes('judicator frame')) return 'judicatorFrame';
-  if (n.includes('oracle frame')) return 'oracleFrame';
-  return null;
-}
-
 function resolveRootForArtifactKey(artifactKey: string): any | null {
   return findEchoArtifactRootInWorld(artifactKey);
 }
@@ -80,8 +55,7 @@ export async function wireEmbeddedArtifactToWorldTree(
   const artifactKey =
     (embeddedItem.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined) ||
     (sourceWorld?.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined) ||
-    inferArtifactKeyFromName(embeddedItem.name) ||
-    (sourceWorld ? inferArtifactKeyFromName(sourceWorld.name) : null);
+    null;
 
   let rootItem: any = artifactKey ? resolveRootForArtifactKey(artifactKey) : null;
   if (!rootItem && sourceWorld) {
@@ -246,9 +220,7 @@ export function listUnwiredEmbeddedArtifacts(actor: Actor): any[] {
   if (!A?.items?.filter) return out;
   for (const emb of Array.from(A.items.filter((i: any) => i.type === 'artifact')) as any[]) {
     if (emb.getFlag?.('mastery-system', 'evolutionRootItemId')) continue;
-    const key =
-      (emb.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined) ||
-      inferArtifactKeyFromName(emb.name);
+    const key = emb.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined;
     if (key || emb.getFlag?.('mastery-system', 'nodeId')) out.push(emb);
   }
   return out;

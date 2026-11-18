@@ -24,7 +24,7 @@ export interface DefenderReactionMitigation {
     reactionEvadeBonus?: number;
     /** Evade TN used for the comparison (base + bonus when negated/applied). */
     effectiveEvade?: number;
-    /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
+    /** @deprecated Legacy Basic Counterattack (retired; no Basic Attack in Actives v0.9.9.6). */
     counterattack?: boolean;
     /** Dive for Cover: left the AoE completely — not affected. */
     escapedByDiveForCover?: boolean;

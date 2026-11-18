@@ -25,12 +25,10 @@ export declare function resolveEchoArtifactImportKeys(payload: CharacterImportPa
 export declare function resolvePowerGrantSpecs(payload: CharacterImportPayload): PowerGrantSpec[] | null;
 export declare function buildPowerItemsFromGrantSpecs(specs: PowerGrantSpec[]): Record<string, unknown>[];
 export declare function buildGearItemData(gear: CharacterImportGearItem): Record<string, unknown>;
-export declare function isKnownSkillKey(key: string): boolean;
 export declare function isKnownMinorExpressionId(id: string): boolean;
 /** Turn homepage disadvantage shorthand into actor `system.disadvantages` rows. */
 export declare function normalizeDisadvantageEntries(raw: Array<string | CharacterImportDisadvantage> | undefined): Record<string, unknown>[];
 export declare function disadvantagePointsTotal(disadvantages: Record<string, unknown>[]): number;
-export declare function normalizeSkillRanks(raw: Record<string, number> | undefined): Record<string, number>;
 export declare function normalizeMinorExpressionIds(raw: string[] | undefined, masteryRank: number): string[];
 /** Normalize import Specializations (identity id, valid Field, clamped Rank, de-duplicated). */
 export declare function normalizeImportSpecializations(raw: CharacterImportSpecialization[] | undefined): SpecializationRecord[];

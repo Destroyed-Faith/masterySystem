@@ -11,8 +11,8 @@ export type SpendClampContext = {
     /** Retired Skill Dice Token credit — counts toward remaining upgrade budget. */
     skillDiceTokenCredit?: number;
     movementMode: SummonMovementMode | string;
+    /** Retired Summon Skill fields; any content makes the spend illegal until migrated. */
     selectedSkills?: string[];
-    ownerSkillRatings?: Record<string, number>;
     ownerMasteryRank?: number;
     /** Detected Artifact Summon Stone bonus cap (multiple of 4). */
     maxBonusTokens?: number;
@@ -27,12 +27,9 @@ export declare function isIllegalBonusTokens(raw: unknown, maxBonus: number, bou
 export declare function cloneSpend(spend: SummonBondUpgradeSpend): SummonBondUpgradeSpend;
 export declare function sanitizeSpendNumbers(spend: SummonBondUpgradeSpend): SummonBondUpgradeSpend;
 export declare function maxAffordablePurchases(remainingTokens: number, costPer: number, hardCap: number): number;
-/** Max Skill Dice purchases from remaining tokens and selected-skill owner ratings. */
-export declare function skillDicePurchaseCap(selectedSkills: string[], ratings: Record<string, number> | undefined, remainingIfSkillPurchasesZero: number, ownerMasteryRank?: number): number;
 export declare function ruleMaxForBondField(field: BondSpendField, ctx: SpendClampContext): number;
 export declare function applyBondFieldDelta(spend: SummonBondUpgradeSpend, field: BondSpendField, delta: number, ctx: SpendClampContext): SummonBondUpgradeSpend | null;
 export declare function applyBodyFieldDelta(spend: SummonBondUpgradeSpend, bodyIndex: number, field: BodySpendField, delta: number, ctx: SpendClampContext): SummonBondUpgradeSpend | null;
-export declare function applySkillDiceAllocDelta(alloc: Record<string, number>, skill: string, delta: number, ownerRating: number, purchasedTotal: number): Record<string, number> | null;
 export declare function applyBonusTokenDelta(currentBonus: number, deltaStones: number, maxBonus: number, boundStoneCount: number): number | null;
 export type IllegalSpendReport = {
     illegal: boolean;

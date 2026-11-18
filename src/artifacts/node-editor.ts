@@ -128,7 +128,7 @@ const STONE_FN_ATTR_LABELS: Record<string, string> = {
 
 /**
  * Catalog Power templates the GM can assign to a progression pick, grouped by
- * category. Martial Special Damage delivery forms live in the Active list
+ * category. Martial Single Target / AoE Special delivery forms live in the Active list
  * (`martial:melee-single`, etc.) with a Special picker — no separate mode.
  */
 const POWER_PICK_MODE_OPTIONS = [
@@ -148,7 +148,8 @@ function tplOpts(list: ReadonlyArray<{ templateId: string; templateName: string 
 function buildPowerCatalogOptions(): Record<string, { id: string; name: string }[]> {
   const actives = [
     ...martialDeliveryCatalogOptions(),
-    ...tplOpts((ACTIVE_TEMPLATES as any[]).filter((t) => !isMartialDamageTemplateId(t.templateId))),
+    ...tplOpts((ACTIVE_TEMPLATES as any[]).filter((t) =>
+      !isMartialDamageTemplateId(t.templateId))),
   ].sort((a, b) => a.name.localeCompare(b.name));
   return {
     active: actives,

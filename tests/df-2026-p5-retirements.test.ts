@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildRestHealthBarUpdates, buildSafeHavenRestUpdates } from '../src/utils/safe-haven-rest';
-import {
-  medicineSpecializationRank,
-  summonTaskDiceCaps,
-  validateSummonTaskSpecMap,
-} from '../src/rules/specializations';
+import { medicineSpecializationRank } from '../src/rules/specializations';
+import { createEmptyBond, validateBondRitual } from '../src/stones/summon-bond-bind';
 import { finalizeRolledPool } from '../src/dice/pool-finalize';
 import { emergencyMedicineTnForPatient } from '../src/combat/death-check';
 
@@ -56,26 +53,19 @@ describe('DF 2026 P5 — Fear pool floor', () => {
   });
 });
 
-describe('DF 2026 P5 — Summon task mapping', () => {
-  const ownerSpecs = [
-    { id: 'a', name: 'Tracker', field: 'survival' as const, scope: 'x', rank: 3 },
-    { id: 'b', name: 'Sneak', field: 'finesse' as const, scope: 'x', rank: 2 },
-  ];
-
-  it('limits mapped tasks to the slot count', () => {
-    const map = { tracking: 'a', stealth: 'b', search: 'a' } as const;
-    expect(validateSummonTaskSpecMap({ map, boundStones: 1, ownerSpecs }).length).toBeGreaterThan(0);
-    expect(validateSummonTaskSpecMap({ map, boundStones: 2, ownerSpecs })).toEqual([]);
-  });
-
-  it('caps dice at 2 × Spec Rank, Perception at 2 × MR', () => {
-    const caps = summonTaskDiceCaps({
-      map: { tracking: 'a', perception: 'owner-mr' },
-      ownerSpecs,
-      ownerMasteryRank: 4,
+describe('DF 2026 P5 — Summon task mapping is retired', () => {
+  it('blocks Apply while a legacy task mapping is stored', () => {
+    const bond = createEmptyBond({
+      name: 'Owl',
+      ownerActorId: 'Actor.1',
+      movementMode: 'flying',
+      stoneAttributes: ['vitality'],
     });
-    expect(caps.tracking).toBe(6);
-    expect(caps.perception).toBe(8);
+    expect('taskSpecMap' in bond).toBe(false);
+    bond.taskSpecMap = { tracking: 'a' };
+    expect(validateBondRitual(bond, 2).errors).toContain(
+      'Summon task mapping is retired; natural tasks use the owner\'s Professions.',
+    );
   });
 });
 

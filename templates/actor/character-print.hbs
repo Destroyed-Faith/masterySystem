@@ -196,7 +196,7 @@
     {{/if}}
     {{/if}}
 
-    {{!-- Perception elevated: Spec-style R·paid + pips when Specs are on; legacy skill chips otherwise. --}}
+    {{!-- Perception elevated above the Professions (same R·paid + pips row). --}}
     {{#if perceptionSpecialization}}
     <div class="cp-block cp-perception-block">
       <h3 class="cp-block-title">Perception</h3>
@@ -210,24 +210,8 @@
         </li>
       </ul>
     </div>
-    {{else if perceptionSkill}}
-    <div class="cp-block cp-perception-block">
-      <h3 class="cp-block-title">Perception <span class="cp-subtle">Rank {{perceptionSkill.rank}} · free</span></h3>
-      <div class="cp-perception-skill">
-        <span class="cp-perception-name">{{perceptionSkill.name}}</span>
-        <span class="cp-perception-chips">
-          {{#each perceptionSkill.poolChips}}
-          <span class="cp-pool-chip{{#if halfPool}} is-half-pool{{/if}}" title="{{attributeLabel}}">{{rollLabel}}</span>
-          {{/each}}
-        </span>
-        <span class="cp-sk-boxes">
-          {{#each perceptionSkill.boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
-        </span>
-      </div>
-    </div>
     {{/if}}
 
-    {{#if showSpecializations}}
     <div class="cp-block cp-learned-skills cp-learned-skills-full cp-specializations">
       <h3 class="cp-block-title">Professions</h3>
       {{#each specializationGroups}}
@@ -254,35 +238,6 @@
       {{/unless}}
       <p class="cp-skill-reminder">Pool = Attribute dice, keep Mastery Rank. Base TN = Task Level × 4; each Raise +4 TN. Untrained rolls have Disadvantage and no Raises. Perception is separate.</p>
     </div>
-    {{else}}
-    <div class="cp-block cp-learned-skills cp-learned-skills-full">
-      <h3 class="cp-block-title">Skills</h3>
-
-      {{#each skillCategories}}
-      <div class="cp-skill-category">
-        <h4 class="cp-skill-cat-title">{{label}}</h4>
-        <ul class="cp-learned-list">
-          {{#each skills}}
-          <li>
-            <span class="cp-sk-name">{{name}} <span class="cp-sk-attrs">({{attrs}})</span></span>
-            <span class="cp-sk-keep{{#if halfPool}} is-half-pool{{/if}}"{{#if halfPool}} title="Half attribute pool — skill rating below 2× Mastery Rank"{{/if}}>{{#if halfPool}}½ {{/if}}{{poolLabel}}</span>
-            <span class="cp-sk-boxes">
-              {{#each boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
-            </span>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/each}}
-
-      {{#unless skillCategories.length}}
-      {{#unless perceptionSkill}}
-      <p class="cp-learned-empty">No trained skills yet.</p>
-      {{/unless}}
-      {{/unless}}
-      <p class="cp-skill-reminder">Unlearned Skills use half the relevant Attribute. Full pool requires skill rating ≥ 2× Mastery Rank.</p>
-    </div>
-    {{/if}}
   </div>
 
   <div class="cp-page-footer">Character Sheet · 1 of 3</div>

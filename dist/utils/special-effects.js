@@ -184,32 +184,6 @@ export const DIMINISHING_EFFECTS = [
         startPP: 4
     },
     {
-        id: 'exorcism',
-        name: 'Exorcism(X)',
-        category: 'diminishing',
-        description: 'Can be applied only to a creature with the Fiend tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
-        duration: 'Diminishing (X→0)',
-        stacking: 'Yes',
-        removal: 'Cleanse.',
-        hasValue: true,
-        dispellable: true,
-        pricing: '2 × T(X)',
-        startPP: 2
-    },
-    {
-        id: 'requiem',
-        name: 'Requiem(X)',
-        category: 'diminishing',
-        description: 'Can be applied only to a creature with the Deathless tag. At the start of the affected creature\'s turn, take X damage (ignores Armor unless a rule says otherwise), then reduce X by 1. Cleanse: Yes.',
-        duration: 'Diminishing (X→0)',
-        stacking: 'Yes',
-        removal: 'Cleanse.',
-        hasValue: true,
-        dispellable: true,
-        pricing: '2 × T(X)',
-        startPP: 2
-    },
-    {
         id: 'soulburn',
         name: 'Soulburn(X)',
         category: 'diminishing',
@@ -486,18 +460,6 @@ export const SUPPORT_EFFECTS = [
         hasValue: true,
         dispellable: false,
         pricing: '4 × T(X)'
-    },
-    {
-        id: 'dispel-magic',
-        name: 'Dispel Magic',
-        category: 'support',
-        description: 'End one ongoing effect with the Spell tag immediately.',
-        duration: 'Instant',
-        stacking: 'No',
-        removal: '—',
-        hasValue: false,
-        dispellable: false,
-        pricing: 'special / spell-specific'
     }
 ];
 /**

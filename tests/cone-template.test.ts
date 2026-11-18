@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   breathConeMeters,
   breathWeaponRowDisplay,
-  isBreathWeaponName,
   progressionRowRangeAoe,
 } from '../src/utils/breath-weapon.js';
 import {
@@ -95,21 +94,19 @@ describe('breath weapon catalogue cones (Dragon Head specialty)', () => {
     expect(breathConeMeters(4)).toBe(6);
     expect(breathConeMeters(7)).toBe(8);
     expect(breathConeMeters(4, 'ruin')).toBe(5);
-    expect(isBreathWeaponName('Breath Weapon II')).toBe(true);
     expect(breathWeaponRowDisplay(1)).toEqual({
       range: 'Self',
       aoe: 'Damage: Cone 3 m / Ruin: Cone 3 m',
     });
     expect(
-      progressionRowRangeAoe({ level: 4, name: 'Breath Weapon II', range: '20m', aoe: 'Radius 5m' }),
+      progressionRowRangeAoe({ level: 4, name: 'Breath Weapon II', artifactFunctionId: 'dragon-breath', range: '20m', aoe: 'Radius 5m' }),
     ).toEqual({ range: 'Self', aoe: 'Damage: Cone 6 m / Ruin: Cone 5 m' });
     expect(
-      progressionRowRangeAoe({ level: 7, name: 'Breath Weapon III', range: 'Self', aoe: 'x' }),
+      progressionRowRangeAoe({ level: 7, name: 'Breath Weapon III', artifactFunctionId: 'dragon-breath', range: 'Self', aoe: 'x' }),
     ).toEqual({ range: 'Self', aoe: 'Damage: Cone 8 m / Ruin: Cone 7 m' });
     expect(progressionRowRangeAoe({ level: 2, name: 'Draconic Roar I', range: 'Self', aoe: 'Aura 8m' })).toEqual({
       range: 'Self',
       aoe: 'Aura 8m',
     });
-    expect(isBreathWeaponName('Bite')).toBe(false);
   });
 });

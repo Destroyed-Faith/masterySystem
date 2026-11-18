@@ -5,7 +5,7 @@
  * Expose, Root, and the rest). These overrides apply only when the chosen
  * Special is Challenge, Disoriented, Soulburn, or Weaken.
  *
- * Source: docs/Rules/actives.md, active-buffs.md, reactions.md. Do not halve
+ * Source: docs/Rules/Canonical/Actives.md, active-buffs.md, reactions.md. Do not halve
  * a rank at runtime — the arrays below are the catalogue.
  */
 export declare const POOL_REDUCING_SPECIAL_KEYS: readonly ["challenge", "disoriented", "soulburn", "weaken"];
@@ -31,11 +31,10 @@ type SpecialRow = {
     note?: string;
 };
 /**
- * Bind a `SPECIAL` placeholder and, when the chosen Special is pool-reducing
- * or this is an Instant Single-Special / Instant AoE Root / Instant AoE Lacerate
- * / Instant AoE Slow template, replace the shared-table rank with the printed
- * catalogue rank. Root still cannot print below Root(2). Instant AoE Root /
- * Lacerate / Slow also apply the printed Radius from Actives.md.
+ * Bind a `SPECIAL` placeholder and replace the shared-table rank with the
+ * printed rank of the chosen Special (Single Target Special, AoE Special,
+ * Persistent Zone, or a pool-reducing override). AoE Special and Zone rows also take the printed Radius. Root
+ * still cannot print below Root(2).
  */
 export declare function bindPoolSpecialsOnRow<T extends {
     specials?: SpecialRow[];

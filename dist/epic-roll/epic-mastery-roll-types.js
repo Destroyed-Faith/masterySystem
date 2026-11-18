@@ -1,7 +1,6 @@
 /**
  * Epic Mastery Roll — shared types.
  */
-import { SKILLS } from '../utils/skills.js';
 export function formatDiceSummary(kept) {
     if (!kept?.length)
         return '—';
@@ -83,8 +82,6 @@ export function defaultRollTitleForKind(kind) {
 }
 export function rollLabelForConfig(roll) {
     switch (roll.kind) {
-        case 'skill':
-            return SKILLS[roll.skillKey]?.name ?? roll.skillKey;
         case 'attribute':
             return roll.attributeKey.charAt(0).toUpperCase() + roll.attributeKey.slice(1);
         case 'fear':
@@ -105,9 +102,7 @@ export function participantResultFromRoll(actorId, actorName, label, rollResult,
         diceSummary: formatEpicRollDiceSummary(rollResult),
         diceFaces: buildEpicDiceFaces(rollResult),
         awaitingConfirm: opts.awaitingConfirm,
-        skillKey: opts.skillKey,
         attributeKey: opts.attributeKey,
-        skillSpent: opts.skillSpent ?? 0,
         rerolled: opts.rerolled === true,
         raiseTn: payload.raiseTn,
         rollPayload: payload,

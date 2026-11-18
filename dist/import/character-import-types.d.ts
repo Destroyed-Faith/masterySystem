@@ -20,6 +20,7 @@ export interface CharacterImportEcho {
     key: string;
     subChoiceKey?: string;
     veiledFormKey?: string;
+    /** Retired Echo Card picks from older exports; archived only. */
     selectedCardIds?: string[];
     /** Unbound Beast: free-text predator shape (e.g. `Wolf`). */
     unboundShape?: string;

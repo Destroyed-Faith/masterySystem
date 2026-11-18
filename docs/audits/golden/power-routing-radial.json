@@ -17,7 +17,7 @@
     },
     {
       "id": "heal-ranged",
-      "templateId": "active-ranged-single-heal",
+      "templateId": "active-ranged-health-level-heal",
       "legacySegment": "utility",
       "identitySegment": "utility",
       "documentedDeviation": null

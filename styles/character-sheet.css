@@ -2382,75 +2382,6 @@
 }
 
 /* Echo Deck block */
-.mastery-system.sheet.actor.character .echo-deck-block {
-  background: var(--df-bg-panel, #2a3136);
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  border-radius: 8px;
-  padding: 14px 16px;
-  box-shadow: 0 2px 6px var(--df-shadow, rgba(0,0,0,0.4));
-}
-
-.mastery-system.sheet.actor.character .echo-deck-block > label {
-  display: block;
-  margin: 0 0 10px 0;
-  color: var(--df-text-primary, #d0d0d0);
-  font-family: var(--df-font-head);
-  font-weight: bold;
-  font-size: 15px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-summary {
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--df-border-subtle, rgba(255,255,255,0.08));
-  margin-bottom: 10px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-title {
-  color: var(--df-text-primary, #d0d0d0);
-  font-family: var(--df-font-head);
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-title strong {
-  color: var(--df-text-primary, #f0f0f0);
-}
-
-.mastery-system.sheet.actor.character .echo-deck-details {
-  margin-top: 2px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-details > summary {
-  cursor: pointer;
-  color: var(--df-text-secondary, #a0a0a0);
-  font-size: 12px;
-  font-family: 'Cormorant Garamond', serif;
-  user-select: none;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-details > summary:hover {
-  color: var(--df-text-primary, #d0d0d0);
-}
-
-.mastery-system.sheet.actor.character .echo-deck-meta {
-  color: var(--df-text-secondary, #a0a0a0);
-  font-size: 13px;
-  font-family: 'Cormorant Garamond', serif;
-  line-height: 1.5;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-type-meta {
-  font-size: 12px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-meta em {
-  color: var(--df-text-primary, #d0d0d0);
-  font-style: italic;
-}
 
 .mastery-system.sheet.actor.character .echo-veiled-callout {
   margin-top: 8px;
@@ -2463,21 +2394,6 @@
 }
 
 /* Traits list */
-.mastery-system.sheet.actor.character .echo-deck-traits {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-traits > h4,
-.mastery-system.sheet.actor.character .echo-deck-traits > label,
-.mastery-system.sheet.actor.character .echo-deck-traits > strong {
-  color: var(--df-text-primary, #d0d0d0);
-  font-family: var(--df-font-head);
-  font-size: 14px;
-  margin: 0 0 2px 0;
-}
 
 .mastery-system.sheet.actor.character .echo-trait-row {
   background: var(--df-bg-primary, #20272B);
@@ -2536,210 +2452,6 @@
   font-size: 12px;
   margin-top: 4px;
   font-style: italic;
-}
-
-/* Cards block */
-.mastery-system.sheet.actor.character .echo-deck-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: min(62vh, 720px);
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-cards-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 2px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-cards-header h4 {
-  margin: 0;
-  color: var(--df-text-primary, #d0d0d0);
-  font-family: var(--df-font-head);
-  font-size: 14px;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-slots {
-  color: var(--df-text-secondary, #a0a0a0);
-  font-weight: 400;
-  font-size: 12px;
-}
-
-.mastery-system.sheet.actor.character .add-echo-card-btn {
-  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.mastery-system.sheet.actor.character .add-echo-card-btn:hover {
-  background: var(--df-accent, rgba(255,255,255,0.2));
-}
-
-/* Individual card */
-.mastery-system.sheet.actor.character .echo-card {
-  background: var(--df-bg-primary, #20272B);
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  border-radius: 6px;
-  padding: 14px 16px;
-  color: var(--df-text-primary, #d0d0d0);
-}
-
-.mastery-system.sheet.actor.character .echo-card.echo-card-used {
-  opacity: 0.55;
-  border-style: dashed;
-}
-
-.mastery-system.sheet.actor.character .echo-deck-overflow-hint {
-  margin: 0 0 4px 0;
-  color: #e8c48a;
-  font-size: 12px;
-  line-height: 1.35;
-}
-
-.mastery-system.sheet.actor.character .echo-card.echo-card-overflow {
-  border-style: dashed;
-  border-color: rgba(200, 150, 70, 0.55);
-  opacity: 0.78;
-}
-
-.mastery-system.sheet.actor.character .echo-card-overflow-label {
-  font-size: 10px;
-  padding: 2px 7px;
-  border-radius: 10px;
-  background: rgba(180, 120, 40, 0.28);
-  color: #ffd8a0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.mastery-system.sheet.actor.character .echo-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.mastery-system.sheet.actor.character .echo-card-name strong {
-  color: var(--df-text-primary, #e8e8e8);
-  font-family: var(--df-font-head);
-  font-size: 16px;
-}
-
-.mastery-system.sheet.actor.character .echo-card-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.mastery-system.sheet.actor.character .remove-echo-card-btn {
-  background: rgba(140, 40, 40, 0.28);
-  border: 1px solid rgba(180, 70, 70, 0.45);
-  color: #f0c8c8;
-  padding: 3px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.mastery-system.sheet.actor.character .remove-echo-card-btn:hover {
-  background: rgba(170, 50, 50, 0.45);
-}
-
-.mastery-system.sheet.actor.character .echo-card-used-label {
-  font-size: 10px;
-  padding: 2px 7px;
-  border-radius: 10px;
-  background: rgba(180, 80, 40, 0.25);
-  color: #ffd0a0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.mastery-system.sheet.actor.character .echo-card-trigger,
-.mastery-system.sheet.actor.character .echo-card-blurb {
-  color: var(--df-text-secondary, #a0a0a0);
-  font-size: 13px;
-  font-family: 'Cormorant Garamond', serif;
-  margin-bottom: 8px;
-  line-height: 1.45;
-}
-
-.mastery-system.sheet.actor.character .echo-card-blurb {
-  color: var(--df-text-primary, #c8c8c8);
-  font-style: italic;
-}
-
-.mastery-system.sheet.actor.character .echo-card-trigger em {
-  color: var(--df-text-primary, #d0d0d0);
-  font-weight: 500;
-  font-style: normal;
-}
-
-.mastery-system.sheet.actor.character .echo-card-options {
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.mastery-system.sheet.actor.character .echo-card-option {
-  color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.mastery-system.sheet.actor.character .echo-card-option-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 4px;
-  min-height: 1.6em;
-}
-
-.mastery-system.sheet.actor.character .echo-card-option-skill {
-  color: var(--df-text-secondary, #a0a0a0);
-  font-size: 12px;
-}
-
-.mastery-system.sheet.actor.character .echo-card-use-btn {
-  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-size: 11px;
-  cursor: pointer;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.mastery-system.sheet.actor.character .echo-card-use-btn:hover:not(:disabled) {
-  background: var(--df-accent, rgba(255,255,255,0.22));
-}
-
-.mastery-system.sheet.actor.character .echo-card-use-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.mastery-system.sheet.actor.character .echo-card-option-desc {
-  color: var(--df-text-primary, #c8c8c8);
-  line-height: 1.55;
-  font-size: 13px;
 }
 
 /* Biography fields integrated into Echo tab (Blood / Concept / Appearance / Notes) */
@@ -3382,6 +3094,17 @@
   display: inline-block;
   min-width: 50px;
   text-align: center;
+}
+
+.mastery-system.sheet.actor.character .power-retired-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  margin-left: 8px;
+  border: 1px solid rgba(255, 190, 90, 0.7);
+  border-radius: 6px;
+  background: rgba(90, 55, 0, 0.55);
+  color: #ffd99a;
+  white-space: nowrap;
 }
 
 .mastery-system.sheet.actor.character .power-info-compact {
@@ -12785,9 +12508,7 @@ aside#tooltip,
 
 /* Echo creation / card-pick dialogs — match character-sheet rulebook chrome */
 .window-app.dialog.mastery-system.echo-creation-dialog,
-.window-app.dialog.mastery-system.echo-card-pick-dialog,
-.application.mastery-system.echo-creation-dialog,
-.application.mastery-system.echo-card-pick-dialog {
+.application.mastery-system.echo-creation-dialog {
   background: #161a1d;
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
@@ -12796,15 +12517,13 @@ aside#tooltip,
   font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-.mastery-system.echo-creation-dialog .window-header,
-.mastery-system.echo-card-pick-dialog .window-header {
+.mastery-system.echo-creation-dialog .window-header {
   background: linear-gradient(to bottom, var(--df-bg-panel, #2a3136), var(--df-bg-primary, #20272B));
   border-bottom: 2px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
 }
 
-.mastery-system.echo-creation-dialog .window-title,
-.mastery-system.echo-card-pick-dialog .window-title {
+.mastery-system.echo-creation-dialog .window-title {
   color: var(--df-text-primary, #f0f0f0);
   font-family: var(--df-font-head, 'Laviossa', serif);
   font-size: 15px;
@@ -12812,24 +12531,21 @@ aside#tooltip,
   letter-spacing: 0.05em;
 }
 
-.mastery-system.echo-creation-dialog .window-content,
-.mastery-system.echo-card-pick-dialog .window-content {
+.mastery-system.echo-creation-dialog .window-content {
   overflow-y: auto;
   background: #161a1d;
   color: var(--df-text-primary, #d0d0d0);
   padding: 14px 16px 10px;
 }
 
-.mastery-system.echo-creation-form,
-.mastery-system.echo-card-pick-form {
+.mastery-system.echo-creation-form {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   color: var(--df-text-primary, #d0d0d0);
 }
 
-.mastery-system.echo-creation-dialog .echo-form-group,
-.mastery-system.echo-card-pick-dialog .echo-form-group {
+.mastery-system.echo-creation-dialog .echo-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -12840,8 +12556,7 @@ aside#tooltip,
   box-shadow: 0 2px 6px var(--df-shadow, rgba(0, 0, 0, 0.4));
 }
 
-.mastery-system.echo-creation-dialog .echo-form-label,
-.mastery-system.echo-card-pick-dialog .echo-form-label {
+.mastery-system.echo-creation-dialog .echo-form-label {
   font-family: var(--df-font-head, 'Laviossa', serif);
   font-weight: 700;
   font-size: 13px;
@@ -12850,8 +12565,7 @@ aside#tooltip,
   color: var(--df-text-primary, #d0d0d0);
 }
 
-.mastery-system.echo-creation-dialog .echo-form-hint,
-.mastery-system.echo-card-pick-dialog .echo-form-hint {
+.mastery-system.echo-creation-dialog .echo-form-hint {
   font-weight: 400;
   font-family: 'Cormorant Garamond', serif;
   text-transform: none;
@@ -12859,8 +12573,7 @@ aside#tooltip,
   color: var(--df-text-secondary, #a0a0a0);
 }
 
-.mastery-system.echo-creation-dialog .echo-form-select,
-.mastery-system.echo-card-pick-dialog .echo-form-select {
+.mastery-system.echo-creation-dialog .echo-form-select {
   width: 100%;
   color-scheme: dark;
   background: var(--df-bg-header, #1b2124);
@@ -12873,28 +12586,23 @@ aside#tooltip,
   cursor: pointer;
 }
 
-.mastery-system.echo-creation-dialog .echo-form-select option,
-.mastery-system.echo-card-pick-dialog .echo-form-select option {
+.mastery-system.echo-creation-dialog .echo-form-select option {
   background: #1b2124;
   color: #f2f2f2;
 }
 
-.mastery-system.echo-creation-dialog .echo-form-select:hover,
-.mastery-system.echo-card-pick-dialog .echo-form-select:hover {
+.mastery-system.echo-creation-dialog .echo-form-select:hover {
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.25));
   background: #14181b;
 }
 
-.mastery-system.echo-creation-dialog .echo-form-select:focus,
-.mastery-system.echo-card-pick-dialog .echo-form-select:focus {
+.mastery-system.echo-creation-dialog .echo-form-select:focus {
   outline: none;
   border-color: #c9a227;
   box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.28);
 }
 
 .mastery-system.echo-creation-dialog .echo-traits-preview,
-.mastery-system.echo-creation-dialog .echo-card-preview,
-.mastery-system.echo-card-pick-dialog .echo-card-preview,
 .mastery-system.echo-creation-dialog .echo-artifact-card {
   display: flex;
   flex-direction: column;
@@ -12921,8 +12629,7 @@ aside#tooltip,
   color: var(--df-text-primary, #d0d0d0);
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-list,
-.mastery-system.echo-card-pick-dialog .echo-pick-list {
+.mastery-system.echo-creation-dialog .echo-pick-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -12931,8 +12638,7 @@ aside#tooltip,
   padding-right: 4px;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-row,
-.mastery-system.echo-card-pick-dialog .echo-pick-row {
+.mastery-system.echo-creation-dialog .echo-pick-row {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
@@ -12945,103 +12651,57 @@ aside#tooltip,
   cursor: pointer;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-row:hover,
-.mastery-system.echo-card-pick-dialog .echo-pick-row:hover {
+.mastery-system.echo-creation-dialog .echo-pick-row:hover {
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.25));
   background: #252c31;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-row:has(input:checked),
-.mastery-system.echo-card-pick-dialog .echo-pick-row:has(input:checked) {
+.mastery-system.echo-creation-dialog .echo-pick-row:has(input:checked) {
   border-color: #c9a227;
   background: rgba(201, 162, 39, 0.1);
   box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.2);
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-row input,
-.mastery-system.echo-card-pick-dialog .echo-pick-row input {
+.mastery-system.echo-creation-dialog .echo-pick-row input {
   margin-top: 0.25rem;
   flex: 0 0 auto;
   accent-color: #c9a227;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-body,
-.mastery-system.echo-card-pick-dialog .echo-pick-body {
+.mastery-system.echo-creation-dialog .echo-pick-body {
   display: flex;
   flex-direction: column;
   gap: 0.22rem;
   min-width: 0;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-name,
-.mastery-system.echo-card-pick-dialog .echo-pick-name {
+.mastery-system.echo-creation-dialog .echo-pick-name {
   font-family: var(--df-font-head, 'Laviossa', serif);
   font-size: 14px;
   color: #f0f0f0;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-slot,
-.mastery-system.echo-card-pick-dialog .echo-pick-slot {
+.mastery-system.echo-creation-dialog .echo-pick-slot {
   font-size: 11px;
   color: #c9a227;
   letter-spacing: 0.03em;
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-flavor,
-.mastery-system.echo-card-pick-dialog .echo-pick-flavor {
+.mastery-system.echo-creation-dialog .echo-pick-flavor {
   font-style: italic;
   color: var(--df-text-secondary, #a0a0a0);
   font-size: 13px;
 }
 
 .mastery-system.echo-creation-dialog .echo-pick-effect,
-.mastery-system.echo-card-pick-dialog .echo-pick-effect,
-.mastery-system.echo-creation-dialog .echo-pick-restriction,
-.mastery-system.echo-card-pick-dialog .echo-pick-restriction,
-.mastery-system.echo-creation-dialog .echo-card-blurb,
-.mastery-system.echo-card-pick-dialog .echo-card-blurb {
+.mastery-system.echo-creation-dialog .echo-pick-restriction {
   line-height: 1.45;
   font-size: 13px;
   color: var(--df-text-primary, #c8c8c8);
 }
 
-.mastery-system.echo-creation-dialog .echo-pick-restriction,
-.mastery-system.echo-card-pick-dialog .echo-pick-restriction {
+.mastery-system.echo-creation-dialog .echo-pick-restriction {
   color: #e8c48a;
-}
-
-.mastery-system.echo-creation-dialog .echo-card-preview,
-.mastery-system.echo-card-pick-dialog .echo-card-preview {
-  margin-top: 0.35rem;
-}
-
-.mastery-system.echo-creation-dialog .echo-card-preview .echo-card-options,
-.mastery-system.echo-card-pick-dialog .echo-card-preview .echo-card-options {
-  margin: 0.2rem 0 0;
-  padding-left: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.mastery-system.echo-creation-dialog .echo-card-preview .echo-card-option-head,
-.mastery-system.echo-card-pick-dialog .echo-card-preview .echo-card-option-head {
-  font-family: var(--df-font-head, 'Laviossa', serif);
-  color: #f0f0f0;
-}
-
-.mastery-system.echo-creation-dialog .echo-card-preview .echo-card-option-head em,
-.mastery-system.echo-card-pick-dialog .echo-card-preview .echo-card-option-head em {
-  font-family: 'Cormorant Garamond', serif;
-  color: var(--df-text-secondary, #a0a0a0);
-  font-style: normal;
-  font-size: 12px;
-}
-
-.mastery-system.echo-creation-dialog .echo-card-preview .echo-card-option-desc,
-.mastery-system.echo-card-pick-dialog .echo-card-preview .echo-card-option-desc {
-  line-height: 1.45;
-  color: var(--df-text-primary, #c8c8c8);
 }
 
 .mastery-system.echo-creation-dialog .echo-artifact-name {
@@ -13054,16 +12714,14 @@ aside#tooltip,
   color: var(--df-text-secondary, #a8a8a8);
 }
 
-.mastery-system.echo-creation-dialog .dialog-buttons,
-.mastery-system.echo-card-pick-dialog .dialog-buttons {
+.mastery-system.echo-creation-dialog .dialog-buttons {
   border-top: 1px solid var(--df-border-primary, #3a3f44);
   background: var(--df-bg-header, #1b2124);
   padding: 10px 14px;
   gap: 8px;
 }
 
-.mastery-system.echo-creation-dialog .dialog-button,
-.mastery-system.echo-card-pick-dialog .dialog-button {
+.mastery-system.echo-creation-dialog .dialog-button {
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
@@ -13073,21 +12731,18 @@ aside#tooltip,
   padding: 6px 14px;
 }
 
-.mastery-system.echo-creation-dialog .dialog-button.default,
-.mastery-system.echo-card-pick-dialog .dialog-button.default {
+.mastery-system.echo-creation-dialog .dialog-button.default {
   background: rgba(201, 162, 39, 0.16);
   border-color: #c9a227;
   color: #f6e7b0;
 }
 
-.mastery-system.echo-creation-dialog .dialog-button:hover,
-.mastery-system.echo-card-pick-dialog .dialog-button:hover {
+.mastery-system.echo-creation-dialog .dialog-button:hover {
   border-color: #c9a227;
   background: #252c31;
 }
 
-.mastery-system.echo-creation-dialog .dialog-button.default:hover,
-.mastery-system.echo-card-pick-dialog .dialog-button.default:hover {
+.mastery-system.echo-creation-dialog .dialog-button.default:hover {
   background: rgba(201, 162, 39, 0.28);
 }
 

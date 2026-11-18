@@ -684,46 +684,20 @@ function findPowerForActor(entry: ReactionWindowActorEntry | undefined, powerId:
   return entry.powers.find((p) => String((p as any).id) === powerId) ?? null;
 }
 
+/**
+ * Legacy Basic Counterattack / Opportunity Attack. Actives v0.9.9.6 has no
+ * automatic Basic Attack, so no attack card is spawned; legacy reaction items
+ * that still reach this path only get a notice.
+ */
 async function launchBasicCounterattack(
-  defender: Actor,
-  attacker: Actor,
+  _defender: Actor,
+  _attacker: Actor,
   opts?: { awaitResolution?: boolean; label?: string },
 ): Promise<void> {
-  const awaitResolution = opts?.awaitResolution !== false;
   const label = opts?.label || 'Counterattack';
-  const defTok = getPrimaryTokenForActor(defender);
-  const atkTok = getPrimaryTokenForActor(attacker);
-  if (!defTok || !atkTok) {
-    throw new Error(`Missing tokens for ${label}`);
-  }
-  const { createMeleeAttackCard } = await import('./attack-executor.js');
-  const option = {
-    id: 'weapon-attack',
-    name: `${label} (Basic Attack)`,
-    description: 'Basic Attack — Weapon Damage + MR × 2d8. No Active Power effects.',
-    slot: 'attack' as const,
-    source: 'maneuver' as const,
-    tags: ['attack', 'basic', 'counterattack'],
-    selectedPowerId: null,
-    costsAction: false,
-  };
-  const messageId = await createMeleeAttackCard(defTok, atkTok, option as any);
-  if (!messageId) {
-    throw new Error(`${label} attack card was not created`);
-  }
-  if (!awaitResolution) {
-    (globalThis as any).ui?.notifications?.info?.(
-      `${label}: attack card opened — roll when ready (original attack already finished).`,
-    );
-    return;
-  }
-  const { waitForAttackResolution } = await import('./attack-resolution-wait.js');
-  (globalThis as any).ui?.notifications?.info?.(
-    `${label}: Roll this attack now. Original damage is paused until it finishes (or you Skip).`,
+  (globalThis as any).ui?.notifications?.warn?.(
+    `${label}: there is no Basic Attack in Actives v0.9.9.6 — no attack card is created.`,
   );
-  // Block the original attack pipeline until this Counterattack is rolled +
-  // resolved (or skipped). Otherwise Dummy damage continues immediately.
-  await waitForAttackResolution(messageId);
 }
 
 /**

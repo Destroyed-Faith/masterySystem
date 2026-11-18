@@ -44,8 +44,7 @@ export function isCleansePowerItem(item: any): boolean {
   const tid = String(sys.templateId || '');
   const sub = String(sys.subfamily || '');
   if (/support-cleanse/i.test(sub)) return true;
-  if (/\bcleanse\b/i.test(tid) && !/heal-cleanse/i.test(tid)) return true;
-  if (/heal-cleanse-mixed/i.test(tid)) return true;
+  if (/\bcleanse\b/i.test(tid)) return true;
   const rank = getCleanseRankFromPower(item);
   return rank > 0;
 }
@@ -62,35 +61,21 @@ export function isCleanseRadialOption(
 ): boolean {
   if (!option || option.source !== 'power') return false;
 
-  // C2.e / K8.e: structured ids win; text blob only when no template id (pre-migration).
-  // Legacy thunk (A1) skips text work when identity resolves.
-  const hasStructuredId = !!(
-    option.artifactPowerTemplateId ||
-    option.item?.system?.templateId
-  );
   return compareIdentityDecision(
     'cleanse.isCleanseRadialOption',
     () => {
       if (option.aoePlacementProfile === 'heal') return false;
       if (option.aoePlacementProfile === 'cleanse') return true;
       const tid = String(option.artifactPowerTemplateId || '');
-      if (tid && isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid)) return true;
-      if (option.item?.type === 'power') {
-        const ptid = String(option.item.system?.templateId || '');
-        if (/heal-cleanse/i.test(ptid)) return false;
-        return isCleansePowerItem(option.item);
-      }
-      if (!hasStructuredId && option.item?.type === 'artifact') {
-        const blob = `${option.name || ''} ${option.description || ''}`;
-        return /\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob);
-      }
+      if (tid && isCleanseTemplateId(tid)) return true;
+      if (option.item?.type === 'power') return isCleansePowerItem(option.item);
       return false;
     },
     () => {
       const id = resolvePowerIdentity({ kind: 'radial-option', option });
       if (!id.ok) return { kind: 'unresolved', reason: id.reason || 'missing-identity' };
       const tid = id.templateId || '';
-      return isCleanseTemplateId(tid) && !/heal-cleanse/i.test(tid);
+      return isCleanseTemplateId(tid);
     },
     { name: option.name },
     { prefer: 'identity' },

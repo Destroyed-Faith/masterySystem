@@ -52,7 +52,7 @@ describe('build value at current rules', () => {
     }).xp).toBe(16);
   });
 
-  it('excludes the creation Skill budget and counts later Skill ranks', () => {
+  it('never prices legacy system.skills (Professions only)', () => {
     const actor = {
       type: 'character',
       system: {
@@ -72,11 +72,11 @@ describe('build value at current rules', () => {
     };
     const value = appraiseBuild(actor);
     expect(value.attributes).toBe(0);
-    expect(value.skills).toBe(4);
+    expect(value.skills).toBe(0);
     expect(value.powers).toBe(0);
     expect(value.artifacts).toBe(0);
     expect(value.artifactActivation).toBe(0);
-    expect(value.net).toBe(4);
+    expect(value.net).toBe(0);
     expect(value.unspentXp).toBe(30);
     expect(value.unspentFreeXp).toBe(8);
     expect(value.skillBasis).toBe('creation-cap');

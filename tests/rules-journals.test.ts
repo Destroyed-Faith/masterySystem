@@ -10,7 +10,7 @@ import { cleanHomebreweryMarkdown, isEffectivelyEmpty } from '../scripts/rules-j
 import { markdownToJournalHtml } from '../scripts/rules-journals/md-to-html.mjs';
 
 const ROOT = join(__dirname, '..');
-const SOURCE = join(ROOT, 'docs', 'Rules', 'players-guide.md');
+const SOURCE = join(ROOT, 'docs', 'Rules', 'Canonical', 'Players_Handbook.md');
 
 describe('Rules Journals — source corrections', () => {
   it('Player\'s Guide includes Oct-21 Active Buff / Passive corrections', () => {

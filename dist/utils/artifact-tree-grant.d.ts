@@ -6,8 +6,6 @@ export interface WireArtifactResult {
     reason?: string;
     alreadyWired?: boolean;
 }
-/** Infer catalog key from item display name (Echo + General artifacts). */
-export declare function inferArtifactKeyFromName(name: string): string | null;
 /**
  * Wire an embedded artifact to its world evolution tree.
  * Idempotent when already wired to the same tree.

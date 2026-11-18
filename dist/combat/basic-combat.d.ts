@@ -1,15 +1,14 @@
 /**
  * Basic Combat Maneuvers helpers (universal options for every combatant).
  *
- * Basic Attack damage: Weapon Damage + MR × 2d8.
+ * There is no automatic Basic Attack (Actives v0.9.9.6): damage attacks come
+ * from learned or granted Attack Powers.
  * Basic Reactions: Guard (+MR×2 Armor), Evade (+MR×2 Evade), Dive for Cover (AoE).
- * Counterattack is no longer a universal Basic Reaction (NPC config / powers only).
+ * Counterattack is not a Basic Reaction; legacy Counterattack items are never offered.
  */
 export declare function getMasteryRank(actor: any): number;
-/** MR × 2 — used for Basic Attack bonus dice and Guard/Evade bonuses. */
+/** MR × 2 — Guard / Evade bonuses and Dive for Cover distance. */
 export declare function basicCombatMrTimesTwo(actor: any): number;
-/** Dice formula for the Basic Attack MR bonus pool, e.g. `"8d8"`. */
-export declare function basicAttackMrDamageFormula(actor: any): string;
 export declare const BASIC_REACTION_IDS: {
     readonly guard: "basic-reaction-guard";
     readonly evade: "basic-reaction-evade";
@@ -20,9 +19,9 @@ export declare const BASIC_REACTION_IDS: {
 /** Synthetic power-like items injected into the Reaction Window. */
 export declare function buildBasicReactionItems(actor: any): any[];
 /**
- * Counterattack item for NPC reaction config / legacy callers.
- * Not included in {@link buildBasicReactionItems}.
+ * @deprecated Legacy Counterattack item (old NPC configs / chat cards). Never
+ * offered: reaction eligibility hides every `basicReaction: 'counterattack'`.
  */
-export declare function buildCounterattackReactionItem(actor: any): any;
+export declare function buildCounterattackReactionItem(_actor: any): any;
 export declare function isBasicReactionItem(item: any): boolean;
 //# sourceMappingURL=basic-combat.d.ts.map

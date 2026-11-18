@@ -3,10 +3,10 @@
  *
  * Values come from the same aggregation live Foundry combat uses
  * (`getTargetEvade`, `getTargetArmor`, `getTargetSpellResistance`,
- * mechanics breakdown, Basic Attack = weapon + MR×2d8).
+ * mechanics breakdown, no Basic Attack in Actives v0.9.9.6).
  *
  * Three bands:
- *   Baseline  — always-on equipment/passives-in-totals, Basic Attack, 1 action
+ *   Baseline  — always-on equipment/passives-in-totals, weapon-only baseline, 1 action
  *   Sustained — Baseline + currently active buffs; legal repeatable attacks
  *   Burst     — Sustained + stone extras / limited powers
  *

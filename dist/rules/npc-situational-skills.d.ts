@@ -34,9 +34,8 @@ export declare function ensureNpcHasPerception(system: any, masteryRank?: number
 };
 /**
  * Resolve an NPC Perception pool for combat gates.
- * 1) Situational skill named Perception
- * 2) null → caller may use legacy system.skills
- * Returns pool dice + skill rank when found.
+ * Uses the situational skill named Perception (seeded on every NPC).
+ * Returns pool dice + skill rank, or null when none can be resolved.
  */
 export declare function resolveNpcPerceptionSituational(system: any): {
     poolDice: number;

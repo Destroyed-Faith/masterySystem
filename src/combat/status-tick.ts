@@ -5,8 +5,6 @@
  * resolves its Tick (if any) and then decays by 1 (removed at 0), per the
  * Special Effects Reference:
  *   - Ruin(X)         : take 4 × X damage (ignores Armor; eligible DR still applies)
- *   - Exorcism(X)     : take X damage (ignores Armor)
- *   - Requiem(X)      : take X damage (ignores Armor)
  *   - Blight(X)       : take X Stress (ignores Stress Armor)
  *   - Regeneration(X) : heal X HP
  *
@@ -143,14 +141,6 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
           notes.push(`Ruin(${value}) → ${tick} damage (4 × ${value})`);
           break;
         }
-        case 'exorcism':
-          ruinDamage += value;
-          notes.push(`Exorcism(${value}) → ${value} damage`);
-          break;
-        case 'requiem':
-          ruinDamage += value;
-          notes.push(`Requiem(${value}) → ${value} damage`);
-          break;
         case 'blight':
           blightStress += value;
           blightHealReduction += value;
@@ -255,7 +245,7 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
     regenHeal = reducedHeal;
   }
 
-  // Apply HP damage (Ruin/Exorcism/Requiem ignore Armor; eligible DR still applies)
+  // Apply HP damage (Ruin ignores Armor; eligible DR still applies)
   // then Regeneration heal to health bars.
   if ((ruinDamage > 0 || regenHeal > 0) && Array.isArray(system?.health?.bars) && system.health.bars.length > 0) {
     const bars = foundry.utils.duplicate(system.health.bars);

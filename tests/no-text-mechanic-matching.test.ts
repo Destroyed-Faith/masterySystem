@@ -146,6 +146,10 @@ describe('no-text-mechanic-matching (fail-closed guard)', () => {
       );
     }
     expect(hits.length).toBeGreaterThan(0);
+
+    // Removed text sites must leave the allowlist too (no silent exemptions).
+    const stale = allow.entries.filter((e) => !hits.some((h) => isAllowlisted(h, [e])));
+    expect(stale.map((e) => `${norm(e.file)}:${e.line} ${e.match}`)).toEqual([]);
   });
 
   it('combat modules must not import mapping tables (import guard)', () => {

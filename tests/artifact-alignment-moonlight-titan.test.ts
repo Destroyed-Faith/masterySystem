@@ -49,13 +49,18 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
     expect(l10?.name).not.toMatch(/True Moonlight/i);
   });
 
-  it('Mending / Judgment / Shadow use canonical templates at PL 4/10/16', () => {
-    expect(picks[0].powerTemplateId).toBe('active-ranged-single-heal');
+  it('Mending is Healing Stone Power Support; Judgment / Shadow use canonical templates at PL 4/10/16', () => {
+    expect(picks[0].kind).toBe('stoneFunction');
+    expect(picks[0].stoneFunction).toMatchObject({
+      kind: 'stonePowerSupport',
+      attribute: 'resolve',
+      stonePowerId: 'resolve.healing',
+      supportStages: [1, 4, 7],
+    });
+    expect(picks[0].powerTemplateId).toBeUndefined();
+    expect(getTemplate('active-ranged-single-heal')).toBeFalsy();
     expect(picks[1].powerTemplateId).toBe('active-ranged-limited-aoe');
     expect(picks[2].powerTemplateId).toBe('ab-sundered-aura');
-    expect(getTemplate('active-ranged-single-heal')?.levels?.['4']?.effect?.dice).toMatch(/5d8/);
-    expect(getTemplate('active-ranged-single-heal')?.levels?.['10']?.effect?.dice).toMatch(/12d8/);
-    expect(getTemplate('active-ranged-single-heal')?.levels?.['16']?.effect?.dice).toMatch(/20d8/);
     const aoe4 = getTemplate('active-ranged-limited-aoe')?.levels?.['4'];
     const aoe10 = getTemplate('active-ranged-limited-aoe')?.levels?.['10'];
     const aoe16 = getTemplate('active-ranged-limited-aoe')?.levels?.['16'];

@@ -23,9 +23,6 @@ export declare const SHARED_SENSE_GROUPS: {
     value: SharedSenseGroup;
     label: string;
 }[];
-/** Approved Summon Skills only (PG). */
-export declare const SUMMON_SKILL_IDS: readonly ["perception", "investigation", "tracking", "survival", "navigation", "weatherSense", "stealth", "concealment", "athletics", "acrobatics"];
-export type SummonSkillId = (typeof SUMMON_SKILL_IDS)[number];
 export declare const BASE_SUMMON: {
     readonly hp: 10;
     readonly armor: 0;
@@ -98,17 +95,6 @@ export type SummonBondUpgradeSpend = {
     bodies: SummonBodyUpgradeSpend[];
 };
 export declare function summonTokensFromStones(boundStoneCount: number, bonusTokens?: number): number;
-/**
- * PG "Buying and Distributing Skill Dice": the only floor is owner Rating ≥ 1
- * ("If the owner has Rating 0 in a Skill, the Bond cannot assign dice").
- */
-export declare function summonSkillMinRating(_ownerMasteryRank: number): number;
-/** Owner skill cap: MR × 4. */
-export declare function summonSkillMaxRating(ownerMasteryRank: number): number;
-/** A skill is eligible when the owner has any Rating in it (≥ 1). */
-export declare function isSummonSkillEligible(ownerRating: number, ownerMasteryRank: number): boolean;
-/** Selected skill slots by Bound Stones (bonus tokens do not increase this). */
-export declare function summonSkillSlots(boundStoneCount: number): number;
 /** Max Power Level by owner Mastery Rank. */
 export declare function maxSummonPowerLevel(ownerMasteryRank: number): number;
 /** Power Token Cost = ceil(PP / 10). Purchased powers have a minimum of 1 Token. */

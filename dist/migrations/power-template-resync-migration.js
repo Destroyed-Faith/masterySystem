@@ -20,16 +20,79 @@
  *     items created before id/name stamping are still caught.
  *
  * A manual trigger is exposed as `game.masterySystem.resyncPowers()`.
+ *
+ * Exceptions: templates changed by Actives v0.9.9.6 are held (skipped) on every
+ * path until `activesV0996MigrationState` is `applied`; legacy-cleanup candidates
+ * are held until `legacyCleanup2026MigrationState` is `applied`, and items the
+ * legacy cleanup flagged (conflict / retired) are never re-baked.
  */
 import { findTemplateById } from '../utils/power-catalog.js';
 import { ALL_POWER_TEMPLATES } from '../utils/powers/templates/index.js';
 import { renderRange, renderAoe, renderDuration } from '../utils/power-rendering.js';
 import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
+import { LEGACY_CLEANUP_STATE_KEY, isLegacyCleanupResyncHeld } from './legacy-cleanup-2026-mapping.js';
 const SETTING_NAMESPACE = 'mastery-system';
 // Retained only so old worlds that registered this world-setting don't error on
 // `settings.get`. The flag is no longer used to gate the migration.
 const LEGACY_SETTING_KEY = 'powerTemplateResyncV0_9_136Run';
+/** World setting: `''` / `'pending'` until the GM applies the Actives v0.9.9.6 migration, then `'applied'`. */
+export const ACTIVES_V0996_MIGRATION_STATE_KEY = 'activesV0996MigrationState';
+/**
+ * Templates whose baked values change with Actives v0.9.9.6. Owned items of
+ * these templates keep their stored values until the GM has reviewed and
+ * applied the v0.9.9.6 migration; new purchases bake the new values directly.
+ */
+const ACTIVES_V0996_HELD_TEMPLATE_RE = /^active-(?:(?:melee|ranged)-(?:damage|aoe-damage)-t[3-6]|melee-instant-special-t6|ranged-zone-t[3-6]|(?:melee|ranged)-aoe-(?:cleanse|restoration)|mental-attack)$/;
+export function isActivesV0996HeldTemplate(templateId) {
+    return ACTIVES_V0996_HELD_TEMPLATE_RE.test(String(templateId ?? '').trim().toLowerCase());
+}
+export function getActivesV0996MigrationState() {
+    try {
+        return String(game.settings.get(SETTING_NAMESPACE, ACTIVES_V0996_MIGRATION_STATE_KEY) ?? '');
+    }
+    catch {
+        return '';
+    }
+}
+/** True while held templates must not be re-baked (migration not yet applied). */
+export function isActivesV0996ResyncHeld() {
+    return getActivesV0996MigrationState() !== 'applied';
+}
+export function getLegacyCleanupMigrationState() {
+    try {
+        return String(game.settings.get(SETTING_NAMESPACE, LEGACY_CLEANUP_STATE_KEY) ?? '');
+    }
+    catch {
+        return '';
+    }
+}
 export function registerPowerTemplateResyncMigrationSetting() {
+    try {
+        game.settings.register(SETTING_NAMESPACE, ACTIVES_V0996_MIGRATION_STATE_KEY, {
+            name: 'Actives v0.9.9.6 Migration State',
+            hint: 'Internal: "applied" once the GM confirmed the Actives v0.9.9.6 migration. Until then the template resync keeps the stored values of affected powers.',
+            scope: 'world',
+            config: false,
+            type: String,
+            default: 'pending',
+        });
+    }
+    catch (err) {
+        console.warn('Mastery System | power-resync migration: v0.9.9.6 state register failed', err);
+    }
+    try {
+        game.settings.register(SETTING_NAMESPACE, LEGACY_CLEANUP_STATE_KEY, {
+            name: 'Legacy Cleanup 2026 Migration State',
+            hint: 'Internal: "applied" once the GM confirmed the legacy-cleanup migration. Until then the template resync keeps the stored values of cleanup candidates.',
+            scope: 'world',
+            config: false,
+            type: String,
+            default: 'pending',
+        });
+    }
+    catch (err) {
+        console.warn('Mastery System | power-resync migration: legacy-cleanup state register failed', err);
+    }
     try {
         game.settings.register(SETTING_NAMESPACE, LEGACY_SETTING_KEY, {
             name: 'Power Template Resync (Actives audit) Ran',
@@ -128,11 +191,40 @@ export async function resyncActorPowerTemplates(actor, options = {}) {
  * Resync one template-backed power item. Returns true when it wrote an update.
  * Throws when the Foundry update itself fails (callers log per item).
  */
+/**
+ * Read-only preview of what the resync would bake for one item (used by the
+ * Actives v0.9.9.6 dry-run report). Ignores the v0.9.9.6 hold.
+ */
+export function previewPowerItemResync(item) {
+    const sys = item?.system ?? {};
+    const template = resolveTemplateForItem(item);
+    if (!template?.levels)
+        return null;
+    const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
+    const levels = bindLevels(template, chosenSpecialKey);
+    return {
+        templateId: String(template.templateId ?? ''),
+        levels,
+        changed: levelsSignature(sys.levels) !== levelsSignature(levels),
+    };
+}
 export async function resyncPowerItemFromTemplate(item, options = {}) {
     const sys = item?.system ?? {};
     const template = resolveTemplateForItem(item);
     if (!template?.levels)
         return false;
+    const msFlags = item?.flags?.[SETTING_NAMESPACE] ?? {};
+    if (msFlags.v0996Conflict || msFlags.v0996Retired === true)
+        return false;
+    if (options.ignoreLegacyCleanupHold !== true &&
+        isLegacyCleanupResyncHeld(item, getLegacyCleanupMigrationState() === 'applied')) {
+        return false;
+    }
+    if (options.ignoreV0996Hold !== true &&
+        isActivesV0996ResyncHeld() &&
+        isActivesV0996HeldTemplate(template.templateId)) {
+        return false;
+    }
     const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
     const levels = bindLevels(template, chosenSpecialKey);
     const rank = Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1)));

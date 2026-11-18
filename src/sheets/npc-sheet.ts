@@ -37,7 +37,6 @@ import {
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
-import { SKILLS } from '../utils/skills.js';
 import {
   invisibilityTokenEffectEnabled,
   isInvisibleStatusId,
@@ -66,35 +65,6 @@ const NPC_SHEET_ATTRIBUTES = [
   'wits',
 ] as const;
 
-function coerceNpcSkillsRecord(
-  submitted: unknown,
-  existing: unknown,
-): Record<string, number> {
-  const out: Record<string, number> = {};
-  const ex =
-    existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
-  const sub =
-    submitted && typeof submitted === 'object' ? (submitted as Record<string, unknown>) : {};
-  const keys = new Set([...Object.keys(ex), ...Object.keys(sub), ...Object.keys(SKILLS)]);
-  for (const key of keys) {
-    const raw = Object.prototype.hasOwnProperty.call(sub, key) ? sub[key] : ex[key];
-    if (raw == null || raw === '') {
-      if (Object.prototype.hasOwnProperty.call(ex, key)) {
-        out[key] = Math.max(0, Math.floor(Number(ex[key]) || 0));
-      }
-      continue;
-    }
-    if (typeof raw === 'object') {
-      out[key] = Math.max(
-        0,
-        Math.floor(Number((raw as any).value ?? (raw as any).rank ?? 0) || 0),
-      );
-      continue;
-    }
-    out[key] = Math.max(0, Math.floor(Number(raw) || 0));
-  }
-  return out;
-}
 import {
   clampNpcInitiativeModifier,
   splitNpcInitiativeModifier,
@@ -625,9 +595,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         1,
         Math.floor(Number(context.system.mastery?.rank) || 2),
       );
-      if (!context.system.skills || typeof context.system.skills !== 'object') {
-        context.system.skills = {};
-      }
       if (!context.system.attributes || typeof context.system.attributes !== 'object') {
         context.system.attributes = {};
       }
@@ -674,7 +641,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       )}d8 · Specialist ≈ ${suggestNpcPool(
         mr,
         'specialist',
-      )}d8 (Guide MR1–3). Rank 0 = no Raises. Legacy system.skills remains data-only fallback.`;
+      )}d8 (Guide MR1–3). Rank 0 = no Raises.`;
     }
 
     if (isNpcLike && context.system) {
@@ -1098,10 +1065,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       delete data.system.statusEffects;
     }
 
-    // Skills / attributes must stay numeric on token ActorDelta (string "4" from
+    // Attributes must stay numeric on token ActorDelta (string "4" from
     // form fields without dtype used to look fine on the sheet but still fail
-    // some comparisons; coerce every submit so Perception pool unlocks stick).
-    data.system.skills = coerceNpcSkillsRecord(data.system.skills, existingSystem.skills);
+    // some comparisons; coerce every submit).
     if (data.system.attributes && typeof data.system.attributes === 'object') {
       const attrs = { ...(existingSystem.attributes || {}), ...data.system.attributes };
       for (const key of NPC_SHEET_ATTRIBUTES) {

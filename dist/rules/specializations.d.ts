@@ -84,37 +84,7 @@ export declare function medicineSpecializationRank(system: any): number;
 /** Closed Summon task list (owner mapping). */
 export declare const SUMMON_TASKS: readonly ["perception", "tracking", "navigation", "weather-sense", "stealth", "concealment", "athletics", "acrobatics", "search", "survival"];
 export type SummonTask = (typeof SUMMON_TASKS)[number];
-export declare function summonTaskSlotCount(boundStones: number): number;
-/**
- * Dice cap for a Summon task: Perception uses 2×owner MR; others 2×one mapped Profession Rank.
- * An unrelated Profession (scope does not cover the task) contributes 0.
- */
-export declare function summonSkillDiceCap(opts: {
-    task: SummonTask;
-    ownerMasteryRank: number;
-    matchingSpecializationRank?: number;
-    scopeCoversTask?: boolean;
-}): number;
-/** Task → owner Specialization id mapping stored on a Summon Bond. */
-export type SummonTaskSpecMap = Partial<Record<SummonTask, string>>;
 export declare function isSummonTask(value: string): value is SummonTask;
-/** Drop unknown tasks / blank ids from a stored map. */
-export declare function normalizeSummonTaskSpecMap(raw: unknown): SummonTaskSpecMap;
-/**
- * Validate a Summon Bond's task mapping. Summons never receive Free Raises;
- * the task list is capped by `summonTaskSlotCount(boundStones)`.
- */
-export declare function validateSummonTaskSpecMap(opts: {
-    map: SummonTaskSpecMap;
-    boundStones: number;
-    ownerSpecs: Array<Partial<SpecializationRecord>>;
-}): string[];
-/** Dice cap per mapped task using the mapped owner Spec Rank (Perception: owner MR). */
-export declare function summonTaskDiceCaps(opts: {
-    map: SummonTaskSpecMap;
-    ownerSpecs: Array<Partial<SpecializationRecord>>;
-    ownerMasteryRank: number;
-}): Partial<Record<SummonTask, number>>;
 /** Summons never receive Free Raises (DF 2026). */
 export declare const SUMMON_FREE_RAISES = 0;
 //# sourceMappingURL=specializations.d.ts.map

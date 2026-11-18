@@ -52,7 +52,6 @@ import { answerAttributeContest, startAttributeContest, ATTRIBUTE_CONTEST_FLAG }
 import { readGrappleState, grappleRoleOf } from '../src/combat/grapple-state.js';
 import { hasActiveSpecial } from '../src/system/active-specials.js';
 import { describeActiveWeaponProfile } from '../src/utils/weapon-sets.js';
-import { basicAttackMrDamageFormula } from '../src/combat/basic-combat.js';
 
 function applyDotted(target: any, patch: Record<string, unknown>) {
   for (const [k, v] of Object.entries(patch)) {
@@ -114,7 +113,7 @@ describe('Grapple combat maneuver definition', () => {
   it('deals no damage, is not Root and does not touch Evade / Armor / pools / Specials', () => {
     expect(grapple.effect).toMatch(/no damage/i);
     expect(grapple.effect).toMatch(/not Root/);
-    expect(grapple.effect).toMatch(/Unarmed Basic Attack/);
+    expect(grapple.effect).toMatch(/Melee Attack Power with Unarmed delivery/);
     expect(grapple.effect).not.toMatch(/Mastery Rank damage|ignores Armor|Pressure/i);
     expect(grapple.effect).toMatch(/does not change Evade, Armor, Attack Pools or Specials/);
   });
@@ -144,14 +143,14 @@ describe('Grapple combat maneuver definition', () => {
     }
   });
 
-  it('radial attack segment exposes the Grapple family next to Basic Attack', () => {
+  it('radial attack segment exposes the Grapple family', () => {
     expect(RADIAL_ATTACK_MANEUVER_IDS).toContain('grapple');
     expect(RADIAL_ATTACK_MANEUVER_IDS).toContain('grapple-escape');
     expect(RADIAL_ATTACK_MANEUVER_IDS).toContain('grapple-release');
     expect(GRAPPLE_MANEUVER_IDS).toEqual(['grapple', 'grapple-escape', 'grapple-release']);
   });
 
-  it('puts Basic Attack and Grapple in the blue MAN. segment', () => {
+  it('puts Grapple and Parry in the blue MAN. segment', () => {
     const maneuver = (id: string) =>
       getSegmentIdForOption({
         id,
@@ -160,7 +159,6 @@ describe('Grapple combat maneuver definition', () => {
         source: 'maneuver',
         maneuver: { id, name: id, slot: 'attack', category: 'combat-action' },
       } as any);
-    expect(maneuver('weapon-attack')).toBe('utility');
     expect(maneuver('grapple')).toBe('utility');
     expect(maneuver('grapple-escape')).toBe('utility');
     expect(maneuver('grapple-release')).toBe('utility');
@@ -186,18 +184,18 @@ describe('Grapple maneuver availability by state', () => {
     expect(ids).not.toContain('grapple-release');
   });
 
-  it('grappler: Release yes, Grapple / Escape no; Basic Attack stays available', () => {
+  it('grappler: Release yes, Grapple / Escape no; Unarmed delivery stays available', () => {
     const a = mockActor('a', 'A', { might: 5 });
     a.flags['mastery-system'].grapple = { role: 'grappler', partnerActorId: 'b', partnerName: 'B' };
     const ids = getAvailableManeuvers(a).map((m) => m.id);
     expect(ids).toContain('grapple-release');
     expect(ids).not.toContain('grapple');
     expect(ids).not.toContain('grapple-escape');
-    // The unarmed Basic Attack is the existing weapon-set profile, untouched by Grapple.
+    // Unarmed delivery is the existing weapon-set profile, untouched by Grapple.
     const profile = describeActiveWeaponProfile(a);
     expect(profile.unarmed).toBe(true);
-    expect(profile.summary).toMatch(/1d8 \+ MR × 2d8/);
-    expect(basicAttackMrDamageFormula(a)).toBe('4d8');
+    expect(profile.damage).toBe('1d8');
+    expect(profile.summary).not.toMatch(/MR × 2d8/);
   });
 });
 
@@ -332,7 +330,7 @@ describe('Grapple contest flow (mocked dice + action economy)', () => {
     expect(wolf.system.health.value).toBe(30);
     expect(bjorn.system.health.value).toBe(30);
     expect(msg.content).toContain('Bjorn wins the contest.');
-    expect(msg.content).toMatch(/Unarmed Basic Attack/);
+    expect(msg.content).toMatch(/Melee Attack Power with Unarmed delivery/);
     // Second answer is ignored — the card is already resolved.
     expect(await answerAttributeContest(msg.id, 'might')).toBe(false);
     expect(rolls).toHaveLength(2);
@@ -450,7 +448,7 @@ describe('Grapple never carries an attack payload (source contract)', () => {
   });
 
   it('the rules text no longer grants Pressure damage', () => {
-    const guide = src('docs/Rules/players-guide.md');
+    const guide = src('docs/Rules/Canonical/Players_Handbook.md');
     expect(guide).not.toMatch(/\*\*Pressure:\*\*/);
     expect(guide).toMatch(/## Opposed Attribute Contests/);
     expect(guide).toMatch(/Grapple itself never deals damage/);

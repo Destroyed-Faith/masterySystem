@@ -100,7 +100,7 @@ describe('planHistoryRefund', () => {
     expect(planHistoryRefund(attrActor(8, 8), row).reason).toMatch(/no longer in effect/i);
   });
 
-  it('plans a skill cascade with the banded table', () => {
+  it('does not refund legacy Skill rows from history (migration-only)', () => {
     const plan = planHistoryRefund(attrActor(8), {
       kind: 'spend',
       category: 'skill',
@@ -109,10 +109,8 @@ describe('planHistoryRefund', () => {
       to: 3,
       what: 'Athletics 2 → 3',
     });
-    expect(plan.refundable).toBe(true);
-    expect(plan.current).toBe(4);
-    expect(plan.target).toBe(2);
-    expect(plan.refundXp).toBe(liveRefundXp('skill', 4, 2));
+    expect(plan.refundable).toBe(false);
+    expect(plan.reason).toMatch(/cannot be refunded/i);
   });
 
   it('plans a power cascade using power level costs', () => {

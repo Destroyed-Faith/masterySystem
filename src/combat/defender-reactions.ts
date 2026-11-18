@@ -43,7 +43,7 @@ export interface DefenderReactionMitigation {
   reactionEvadeBonus?: number;
   /** Evade TN used for the comparison (base + bonus when negated/applied). */
   effectiveEvade?: number;
-  /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
+  /** @deprecated Legacy Basic Counterattack (retired; no Basic Attack in Actives v0.9.9.6). */
   counterattack?: boolean;
   /** Dive for Cover: left the AoE completely — not affected. */
   escapedByDiveForCover?: boolean;
@@ -289,7 +289,7 @@ export function buildOpportunityAttackReactionItem(actor: any): any {
     system: {
       powerType: 'reaction',
       templateId: 'basic-opportunity-attack',
-      description: `Spend 1 Reaction to make a Basic Attack (Weapon + ${mr2}d8) against the creature that provoked you.`,
+      description: `Retired: no universal Opportunity Attack and no Basic Attack (Actives v0.9.9.6; legacy MR × 2 = ${mr2}).`,
     },
     basicReaction: 'counterattack',
     mechanics: {},

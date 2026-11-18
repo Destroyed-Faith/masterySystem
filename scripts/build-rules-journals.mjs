@@ -3,7 +3,7 @@
  * Build Destroyed Faith Rules Journal Compendium Packs from the Player's Guide.
  *
  * Pipeline:
- *   docs/Rules/players-guide.md
+ *   docs/Rules/Canonical/Players_Handbook.md
  *     → chapter extraction (chapter-map.mjs)
  *     → Homebrewery cleanup + Markdown→HTML
  *     → src/packs/{rules-core,rules-world,rules-quickref}/*.json
@@ -24,7 +24,7 @@ import { stableId, slugify } from './rules-journals/stable-id.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const SOURCE = path.join(ROOT, 'docs', 'Rules', 'players-guide.md');
+const SOURCE = path.join(ROOT, 'docs', 'Rules', 'Canonical', 'Players_Handbook.md');
 const REPORT_PATH = path.join(ROOT, 'reports', 'rules-journals-report.json');
 
 const TEXT_FORMAT_HTML = 1; // CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML
@@ -42,7 +42,7 @@ function journalDoc(id, name, sort, ownershipDefault, pages = []) {
     flags: {
       'mastery-system': {
         rulesJournal: true,
-        generatedFrom: 'docs/Rules/players-guide.md',
+        generatedFrom: 'docs/Rules/Canonical/Players_Handbook.md',
       },
     },
     _key: `!journal!${id}`,

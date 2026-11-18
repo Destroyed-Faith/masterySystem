@@ -37,7 +37,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     showTn = true;
     tn = defaultTnConfig();
     rollKind = 'skill';
-    skillKey = 'athletics';
     attributeKey = 'might';
     selectedIds = [];
     preset = null;
@@ -75,8 +74,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         this.showTn = preset.showTn;
         this.tn = { ...preset.tn, challengeMR: clampChallengeMR(preset.tn.challengeMR) };
         this.rollKind = preset.roll.kind;
-        if (preset.roll.kind === 'skill')
-            this.skillKey = preset.roll.skillKey;
         if (preset.roll.kind === 'attribute')
             this.attributeKey = preset.roll.attributeKey;
         if (preset.roll.kind === 'fear') {
@@ -140,7 +137,6 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             })),
             isFearRoll: this.rollKind === 'fear',
             rollKind: this.rollKind,
-            skillKey: this.skillKey,
             attributeKey: this.attributeKey,
             attributes: ATTRIBUTES,
             availableActors: allActors.filter((a) => !selectedSet.has(a.id)).map(mapActorRow),
@@ -312,10 +308,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     buildRollConfig() {
         if (this.rollKind === 'fear')
             return { kind: 'fear' };
-        if (this.rollKind === 'attribute') {
-            return { kind: 'attribute', attributeKey: this.attributeKey };
-        }
-        return { kind: 'skill', skillKey: this.skillKey };
+        return { kind: 'attribute', attributeKey: this.attributeKey };
     }
     readCustomTnFromDom() {
         if (this.rollKind === 'fear') {

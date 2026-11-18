@@ -14,7 +14,6 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     private _powersListDetailsOpen?;
     private _pendingAttributeChanges;
     private _pendingPowerLevelChanges;
-    private _pendingSkillRankChanges;
     /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
     activeTab?: string;
     openRitualWorkshop(ritualId?: string): Promise<void>;

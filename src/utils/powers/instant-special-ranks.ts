@@ -1,8 +1,20 @@
 /**
- * Instant Single-Special printed ranks (docs/Rules/actives.md).
- * Each Special has its own Melee / Ranged single-target progression.
- * Used by active-*-instant-special-t* templates via bindPoolSpecialsOnRow.
+ * Printed Special ranks (docs/Rules/Canonical/Actives.md, via the generated table module).
+ * Each Special has its own Melee / Ranged Single Target and AoE progression.
+ * Used by active-*-instant-special-t*, active-*-aoe-damage-t* and zone templates
+ * via bindPoolSpecialsOnRow.
  */
+
+import {
+  ZONE_CANON_ID_BY_TIER,
+  aoeSpecialCanonId,
+  canonicalRadiusM,
+  canonicalRadiusSeries,
+  canonicalSpecialRank,
+  canonicalSpecialSeries,
+  singleTargetSpecialCanonId,
+  type ActiveFlavour,
+} from './canonical-active-lookup.js';
 
 export type InstantSpecialKey =
   | 'blight'
@@ -20,82 +32,86 @@ export type InstantSpecialKey =
   | 'sundered'
   | 'weaken';
 
-export const MELEE_INSTANT_SPECIAL_RANKS: Readonly<
-  Record<InstantSpecialKey, readonly number[]>
-> = {
-  blight: [4, 5, 7, 8, 9, 10, 11, 12, 12, 13, 14, 15, 15, 16, 16, 17],
-  challenge: [1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 6],
-  corrode: [2, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11, 12],
-  disoriented: [1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5],
-  expose: [2, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10],
-  hex: [2, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11, 12],
-  lacerate: [3, 5, 6, 7, 8, 9, 9, 10, 11, 11, 12, 12, 13, 14, 14, 15],
-  mark: [3, 5, 6, 7, 8, 9, 9, 10, 11, 11, 12, 12, 13, 14, 14, 15],
-  root: [2, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11, 12],
-  ruin: [3, 5, 6, 7, 8, 9, 9, 10, 11, 11, 12, 12, 13, 14, 14, 15],
-  slow: [3, 5, 6, 7, 8, 9, 9, 10, 11, 11, 12, 12, 13, 14, 14, 15],
-  soulburn: [1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5],
-  sundered: [2, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11, 12],
-  weaken: [2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11],
-};
+const INSTANT_SPECIAL_KEYS: readonly InstantSpecialKey[] = [
+  'blight', 'challenge', 'corrode', 'disoriented', 'expose', 'hex', 'lacerate',
+  'mark', 'root', 'ruin', 'slow', 'soulburn', 'sundered', 'weaken',
+];
 
-export const RANGED_INSTANT_SPECIAL_RANKS: Readonly<
-  Record<InstantSpecialKey, readonly number[]>
-> = {
-  blight: [4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 13, 14, 14, 15, 15],
-  challenge: [1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5],
-  corrode: [2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11],
-  disoriented: [1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-  expose: [2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9],
-  hex: [2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11],
-  lacerate: [3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
-  mark: [3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
-  root: [2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11],
-  ruin: [3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
-  slow: [3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
-  soulburn: [1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-  sundered: [2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11],
-  // Canonical Actives.md — Ranged Single Target Special: Weaken (PL1–16).
-  weaken: [1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-};
+function singleTargetTable(flavour: ActiveFlavour): Record<InstantSpecialKey, readonly number[]> {
+  const out = {} as Record<InstantSpecialKey, readonly number[]>;
+  for (const key of INSTANT_SPECIAL_KEYS) {
+    out[key] = canonicalSpecialSeries(singleTargetSpecialCanonId(flavour, key), key);
+  }
+  return out;
+}
+
+export const MELEE_INSTANT_SPECIAL_RANKS: Readonly<Record<InstantSpecialKey, readonly number[]>> =
+  singleTargetTable('melee');
+
+export const RANGED_INSTANT_SPECIAL_RANKS: Readonly<Record<InstantSpecialKey, readonly number[]>> =
+  singleTargetTable('ranged');
+
+export const RANGED_AOE_INSTANT_ROOT_RANKS: readonly number[] = canonicalSpecialSeries(
+  aoeSpecialCanonId('ranged', 'root'),
+  'root',
+);
+export const RANGED_AOE_INSTANT_ROOT_RADIUS_M: readonly number[] = canonicalRadiusSeries(
+  aoeSpecialCanonId('ranged', 'root'),
+);
+export const MELEE_AOE_INSTANT_LACERATE_RANKS: readonly number[] = canonicalSpecialSeries(
+  aoeSpecialCanonId('melee', 'lacerate'),
+  'lacerate',
+);
+export const MELEE_AOE_INSTANT_LACERATE_RADIUS_M: readonly number[] = canonicalRadiusSeries(
+  aoeSpecialCanonId('melee', 'lacerate'),
+);
+export const MELEE_AOE_INSTANT_SLOW_RANKS: readonly number[] = canonicalSpecialSeries(
+  aoeSpecialCanonId('melee', 'slow'),
+  'slow',
+);
+export const MELEE_AOE_INSTANT_SLOW_RADIUS_M: readonly number[] = canonicalRadiusSeries(
+  aoeSpecialCanonId('melee', 'slow'),
+);
+
+/** Printed AoE Special rank (Melee/Ranged AoE Special: X) for a Power Level. */
+export function aoeSpecialRank(
+  flavour: ActiveFlavour,
+  specialKey: string | null | undefined,
+  level: number,
+): number | undefined {
+  const key = String(specialKey ?? '').trim().toLowerCase();
+  if (!isInstantSpecialKey(key)) return undefined;
+  return canonicalSpecialRank(aoeSpecialCanonId(flavour, key), key, level);
+}
+
+/** Printed AoE Special radius (m) for a Power Level. */
+export function aoeSpecialRadiusM(
+  flavour: ActiveFlavour,
+  specialKey: string | null | undefined,
+  level: number,
+): number | undefined {
+  const key = String(specialKey ?? '').trim().toLowerCase();
+  if (!isInstantSpecialKey(key)) return undefined;
+  return canonicalRadiusM(aoeSpecialCanonId(flavour, key), level);
+}
 
 /**
- * Canonical Actives.md — Ranged AoE Special: Root (named Instant AoE identity).
- * Used when Binding Circle / Instant AoE Root binds onto `active-ranged-aoe-damage-t*`.
+ * Printed Ranged Persistent Special Zone rank. `undefined` when the Special is
+ * not printed for that Zone tier (e.g. Root) or the PL is unavailable.
  */
-export const RANGED_AOE_INSTANT_ROOT_RANKS: readonly number[] = [
-  2, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 7,
-];
+export function zoneSpecialRank(
+  tier: 3 | 4 | 5 | 6,
+  specialKey: string | null | undefined,
+  level: number,
+): number | undefined {
+  const key = String(specialKey ?? '').trim().toLowerCase();
+  return canonicalSpecialRank(ZONE_CANON_ID_BY_TIER[tier], key, level);
+}
 
-export const RANGED_AOE_INSTANT_ROOT_RADIUS_M: readonly number[] = [
-  1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7,
-];
-
-/**
- * Canonical Actives.md — Melee AoE Special: Lacerate (Instant AoE identity).
- * Used when Rending Spiral / Instant AoE Lacerate binds onto `active-melee-aoe-damage-t*`.
- */
-export const MELEE_AOE_INSTANT_LACERATE_RANKS: readonly number[] = [
-  1, 4, 4, 5, 5, 6, 6, 7, 8, 9, 9, 9, 10, 10, 10, 10,
-];
-
-export const MELEE_AOE_INSTANT_LACERATE_RADIUS_M: readonly number[] = [
-  2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7,
-];
-
-/**
- * Canonical Actives.md — Melee AoE Special: Slow (Instant AoE identity).
- * Used when Heart of Winter Frostwave / Instant AoE Slow binds onto
- * `active-melee-aoe-damage-t*` (dice remain 0; special-only).
- */
-export const MELEE_AOE_INSTANT_SLOW_RANKS: readonly number[] = [
-  1, 4, 4, 5, 5, 6, 6, 7, 8, 9, 9, 9, 10, 10, 10, 10,
-];
-
-export const MELEE_AOE_INSTANT_SLOW_RADIUS_M: readonly number[] = [
-  2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7,
-];
-
+/** Printed Ranged Persistent Special Zone radius (m); 0 when unavailable. */
+export function zoneRadiusM(tier: 3 | 4 | 5 | 6, level: number): number {
+  return canonicalRadiusM(ZONE_CANON_ID_BY_TIER[tier], level) ?? 0;
+}
 /** Printed Instant AoE Root rank for a Power Level (Ranged). */
 export function rangedAoeInstantRootRank(level: number): number | undefined {
   const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 0)));
@@ -138,7 +154,7 @@ export function meleeAoeInstantSlowRadiusM(level: number): number | undefined {
   return typeof r === 'number' ? r : undefined;
 }
 
-const VALID = new Set<string>(Object.keys(MELEE_INSTANT_SPECIAL_RANKS));
+const VALID = new Set<string>(INSTANT_SPECIAL_KEYS);
 
 export function isInstantSpecialKey(key: string | null | undefined): key is InstantSpecialKey {
   return VALID.has(String(key ?? '').trim().toLowerCase());

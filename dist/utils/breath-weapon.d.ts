@@ -12,20 +12,15 @@
  * Do not add Dragon Claws or other weapons to Damage Breath.
  */
 export type DragonBreathMode = 'damage' | 'ruin';
-export declare function isBreathWeaponName(name: string | null | undefined): boolean;
-export declare function isDragonBreathDamageMode(name: string | null | undefined): boolean;
-export declare function isDragonBreathRuinMode(name: string | null | undefined): boolean;
-/** Damage Breath cone length (m) at artifact stages → PL 4 / 10 / 16. */
+/** Breath Weapon stage I / II / III (Artifact Level 1–3 / 4–6 / 7–10) → Power Level 4 / 10 / 16. */
+export declare function breathPowerLevel(artifactLevel: number): 4 | 10 | 16;
+/** Damage Breath cone length (m): Melee AoE Attack radius at the stage Power Level. */
 export declare function breathDamageConeMeters(artifactLevel: number): number;
-/** Ruin Breath cone length (m) at artifact stages → PL 4 / 10 / 16. */
+/** Ruin Breath cone length (m): Melee AoE Special: Ruin radius at the stage Power Level. */
 export declare function breathRuinConeMeters(artifactLevel: number): number;
-/** @deprecated Prefer `breathDamageConeMeters` (Breath is Cone, not a radius burst). */
-export declare function breathDamageRadiusMeters(artifactLevel: number): number;
-/** @deprecated Prefer `breathRuinConeMeters`. */
-export declare function breathRuinRadiusMeters(artifactLevel: number): number;
-/** Printed Melee AoE Attack Power Dice at Breath stages (PL 4 / 10 / 16). */
+/** Melee AoE Attack Power Dice (d8 count) at the stage Power Level. */
 export declare function breathPowerDamageDice(artifactLevel: number): number;
-/** Printed Melee AoE Special: Ruin(X) at Breath stages (PL 4 / 10 / 16). */
+/** Melee AoE Special: Ruin(X) at the stage Power Level. */
 export declare function breathRuinValue(artifactLevel: number): number;
 /** Dragon Head Bite Weapon Damage at Artifact Level (1d8…10d8). */
 export declare function dragonHeadBiteDamage(artifactLevel: number): string;

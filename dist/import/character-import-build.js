@@ -14,7 +14,7 @@ import { getUnboundIdentity, resolveUnboundArtifactKey, } from '../utils/echos/u
 import { normalizeKnownLanguages } from '../utils/languages.js';
 import { calculateDisadvantagePoints, getDisadvantageDefinition, } from '../system/disadvantages.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
-import { SKILLS } from '../utils/skills.js';
+import { LEGACY_SKILLS_ARCHIVE_FLAG } from '../utils/legacy-skill-write-guard.js';
 import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { DF_2026_RULES_SCHEMA_VERSION, SPECIALIZATION_MAX_RANK, ensureCharacterHasPerceptionSpec, findEchoImprint, isSkillField, professionIdentityKey, specializationIdentityKey, } from '../rules/index.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS } from './character-import-types.js';
@@ -123,9 +123,6 @@ export function buildGearItemData(gear) {
         },
     };
 }
-export function isKnownSkillKey(key) {
-    return key in SKILLS;
-}
 export function isKnownMinorExpressionId(id) {
     return !!getMinorExpressionDefinition(id);
 }
@@ -173,19 +170,6 @@ export function normalizeDisadvantageEntries(raw) {
 }
 export function disadvantagePointsTotal(disadvantages) {
     return disadvantages.reduce((sum, d) => sum + Math.max(0, Math.floor(Number(d.points) || 0)), 0);
-}
-export function normalizeSkillRanks(raw) {
-    const out = {};
-    if (!raw || typeof raw !== 'object')
-        return out;
-    for (const [key, value] of Object.entries(raw)) {
-        if (!isKnownSkillKey(key))
-            continue;
-        const rank = Math.max(0, Math.floor(Number(value) || 0));
-        if (rank > 0)
-            out[key] = rank;
-    }
-    return out;
 }
 export function normalizeMinorExpressionIds(raw, masteryRank) {
     if (!Array.isArray(raw))
@@ -263,12 +247,10 @@ export function buildActorSystemFromPayload(payload) {
         { value: attrs[key], stones: stoneAssignments[key] },
     ]));
     const stonePools = Object.fromEntries(CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [key, { current: 0, max: 0, sustained: 0 }]));
-    const skills = normalizeSkillRanks(payload.skills);
-    const skillsSpent = normalizeSkillRanks(payload.skillsSpent);
     const disadvantages = normalizeDisadvantageEntries(payload.disadvantages);
     const minorExpressions = normalizeMinorExpressionIds(payload.minorExpressions, masteryRank);
-    // DF 2026 data model. Legacy `skills` / `minorExpressions` above remain
-    // archive-only fields and are never converted into Specialization Ranks.
+    // DF 2026 data model. Legacy `minorExpressions` above remain archive-only;
+    // legacy `skills` go to the actor flag archive and are never converted into Ranks.
     const echoImprints = normalizeImportEchoImprintIds(payload.echoImprints, masteryRank);
     const isDf2026Payload = Array.isArray(payload.specializations) || Array.isArray(payload.echoImprints);
     const normalizedSpecs = normalizeImportSpecializations(payload.specializations);
@@ -304,8 +286,6 @@ export function buildActorSystemFromPayload(payload) {
             key: echoKey,
             subChoiceKey: String(echo.subChoiceKey ?? ''),
             veiledFormKey: String(echo.veiledFormKey ?? ''),
-            selectedCardIds: Array.isArray(echo.selectedCardIds) ? [...echo.selectedCardIds] : [],
-            cardUses: {},
             traitUses,
             unboundShape: String(echo.unboundShape ?? ''),
         },
@@ -324,9 +304,6 @@ export function buildActorSystemFromPayload(payload) {
         mastery: { rank: masteryRank, points: 0, experience: 0 },
         specializations,
         echoImprints,
-        // Legacy archive fields (optional input; not used by DF 2026 rules).
-        skills,
-        skillsSpent,
         disadvantages,
         minorExpressions,
         languages: {
@@ -370,7 +347,32 @@ export function buildActorCreateDataFromPayload(payload) {
                 importSource: 'homepage',
                 importSchemaVersion: 1,
                 needsV099LifetimeXp: true,
+                ...legacySkillsImportArchive(payload),
             },
+        },
+    };
+}
+function hasEntries(value) {
+    return !!value && typeof value === 'object' && Object.keys(value).length > 0;
+}
+/**
+ * Legacy `skills` / `skillsSpent` and retired Echo Card picks from older homepage
+ * exports, archived unchanged (every key, no catalogue filter).
+ */
+function legacySkillsImportArchive(payload) {
+    const cardIds = payload.echo?.selectedCardIds;
+    const hasCards = Array.isArray(cardIds) && cardIds.length > 0;
+    if (!hasEntries(payload.skills) && !hasEntries(payload.skillsSpent) && !hasCards)
+        return {};
+    return {
+        [LEGACY_SKILLS_ARCHIVE_FLAG]: {
+            source: 'homepage-import',
+            archivedAt: new Date().toISOString(),
+            skills: hasEntries(payload.skills) ? { ...payload.skills } : {},
+            skillsSpent: hasEntries(payload.skillsSpent) ? { ...payload.skillsSpent } : {},
+            ...(hasCards ? { echoCards: { selectedCardIds: [...cardIds] } } : {}),
+            xpRefund: 0,
+            note: 'Imported legacy Skill ranks are archive-only; Professions are not derived from them.',
         },
     };
 }

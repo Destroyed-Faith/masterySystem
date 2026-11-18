@@ -45,7 +45,7 @@ export const RANGE_STEP_M = 4;
 /** PP per additional `+4 m` of ranged distance. */
 export const PP_PER_RANGE_STEP = 5;
 
-/** Default Diminishing Special start-PP per Tier (Rules/actives.md groups). */
+/** Default Diminishing Special start-PP per Tier (docs/Rules/Canonical/Actives.md groups). */
 export const TIER_START_PP: Record<ActiveTier, number> = {
   3: 3,
   4: 4,

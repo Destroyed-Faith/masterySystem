@@ -23,6 +23,8 @@
 import type { RadialCombatOption } from './types.js';
 import { getStoneAreaBonusMeters } from '../combat/action-economy.js';
 import { isSpecialOnlyTemplateId } from '../combat/damage-transfer.js';
+import { isCleanseTemplateId } from '../combat/cleanse-resolution.js';
+import { isScarredRestorationTemplateId } from '../combat/r05-restoration.js';
 import {
   isLimitedChargeAvailable,
   isLimitedPowerTemplateId,
@@ -42,7 +44,6 @@ import {
   breathRuinConeMeters,
   breathRuinValue,
   damageBreathSharedPoolFormula,
-  isBreathWeaponName,
 } from '../utils/breath-weapon.js';
 import { ARTIFACT_FUNCTION_CONTRACT, isArtifactFunctionId } from '../utils/artifact-functions.js';
 import { enrichArtifactRowIdentity } from '../utils/artifact-row-identity.js';
@@ -233,25 +234,13 @@ function rowDescription(row: ArtifactLevelProgressionRow): string {
     return segs.join(' · ');
 }
 
-/** Heal / Cleanse support actives on artifacts (Moonlight Mending, …). */
+/** Restoration / Cleanse support actives on artifacts, by template id only. */
 function artifactRowSupportProfile(
     row: ArtifactLevelProgressionRow,
 ): 'heal' | 'cleanse' | null {
     const tid = String(row.powerTemplateId || '');
-    if (
-        /heal-cleanse/i.test(tid) ||
-        /aoe-restoration/i.test(tid) ||
-        (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))
-    ) {
-        return 'heal';
-    }
-    if (/\bcleanse\b/i.test(tid) && !/heal/i.test(tid)) return 'cleanse';
-    const blob = `${row.name || ''} ${row.effect || ''} ${row.special || ''}`;
-    // R-05: authored Restoration rows (Hearth Circle, Remembered Hands, …) have no template id.
-    if (/\b(?:single target|aoe)\s+restoration\b/i.test(blob)) return 'heal';
-    if (/\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob)) return 'cleanse';
-    if (/\bheal\b/i.test(blob) && !/\b(requiem|exorcism|damage)\b/i.test(blob)) return 'heal';
-    if (/\bheal\b/i.test(blob) && /\d+\s*d\s*8/i.test(blob)) return 'heal';
+    if (isScarredRestorationTemplateId(tid)) return 'heal';
+    if (isCleanseTemplateId(tid)) return 'cleanse';
     return null;
 }
 
@@ -331,14 +320,6 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             // Prefer structured identity (Batch C2); fall back to type-text for
             // rows that still lack catalog identity (migration debt).
             let category = categoryFromIdentityOrType(row);
-            if (
-              category === 'passive' &&
-              !row.artifactFunctionId &&
-              !row.powerTemplateId &&
-              isBreathWeaponName(name)
-            ) {
-                category = 'attack';
-            }
             // Passives are descriptive only; Reactions are surfaced via the
             // defender-reactions pipeline; Stone Power Supports have no action
             // at all. None of them belong in the active radial.
@@ -564,11 +545,7 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 option.defaultTargetGroup = 'enemy';
             }
             // Dragon Head Breath: Damage + Ruin (shared use).
-            // K8.d: artifactFunctionId decides; isBreathWeaponName only when afid absent.
-            if (
-              row.artifactFunctionId === 'dragon-breath' ||
-              (!row.artifactFunctionId && isBreathWeaponName(name))
-            ) {
+            if (row.artifactFunctionId === 'dragon-breath') {
                 const dmgL = breathDamageConeMeters(currentLevel);
                 const ruinL = breathRuinConeMeters(currentLevel);
                 const ruinV = breathRuinValue(currentLevel);

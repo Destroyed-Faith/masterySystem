@@ -109,13 +109,6 @@ describe('Pure Special AoE templates deal no Power damage', () => {
     }
   });
 
-  it('Targeted Special AoE (Instant AoE) does not promise weapon damage', () => {
-    for (const id of ['active-melee-aoe-targeted-special', 'active-ranged-aoe-targeted-special']) {
-      const text: string = (getTemplate(id)!.levels as any)['1'].effect.text;
-      expect(text).not.toMatch(/takes weapon damage/i);
-      expect(text).toContain('no Power damage');
-    }
-  });
 });
 
 describe('martialWeaponDamageApplies / spellFocusDamageApplies', () => {

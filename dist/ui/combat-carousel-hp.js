@@ -14,10 +14,11 @@ export function hideCarouselNpcHpBars(actorType, isGM) {
 }
 /**
  * Vertical Health rail beside a carousel portrait.
- * GM only, and only on player characters — NPCs stay without a bar.
+ * GM only — on player characters and NPCs so the GM can track combat without
+ * opening sheets. Players never get a side rail on NPCs (`hideCarouselNpcHpBars`).
  */
 export function showCarouselSideHp(actorType, isGM) {
-    return isGM && actorType === 'character';
+    return isGM && (actorType === 'character' || actorType === 'npc');
 }
 const SHORT_BAR_NAMES = {
     healthy: 'H',

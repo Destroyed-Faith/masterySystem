@@ -4,7 +4,6 @@
  */
 
 import { MasteryActor } from '../documents/actor';
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills';
 import {
   buildSpecializationSheetRows,
   canShowProfessionDelete,
@@ -21,14 +20,6 @@ import {
   STARTING_SPECIALIZATION_RANK,
   validateSpecializationList,
 } from '../rules/index.js';
-import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
-import {
-  buildSkillRollPoolPreview,
-  getSkillRollDicePool,
-  isSkillFullPoolReady,
-  reducedSkillAttributePool,
-  skillFullPoolThreshold,
-} from '../dice/roll-context-build.js';
 import {
   bindCheckContestMode,
   buildCheckContestSwitchHtml,
@@ -50,17 +41,12 @@ import {
   detailsForPhysicalScarsDialog
 } from '../system/disadvantages';
 import { getAllSchticks } from '../utils/schticks';
-import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
+import { showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
 import { isPowerFavorited, togglePowerFavorite } from '../ui/power-favorites.js';
 import {
-  getCardOption,
   getEcho,
-  getEchoCard,
   getEchoSubChoice,
-  getUnlockedCardSlots,
-  isEchoCardLicensed,
-  removeSelectedEchoCard
 } from '../utils/echos/index.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, creationPowerRequirementsForMasteryRank, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
@@ -123,13 +109,7 @@ import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { creationGuideFlags } from '../utils/creation-tab-guide.js';
 import { findLegacyDialogRoot, scheduleCenterLegacyDialog } from '../utils/legacy-dialog-resize.js';
-import { masteryLocalize } from '../utils/mastery-localize.js';
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
-import {
-  buildCancelSkillsRedistributeUpdates,
-  buildFinishSkillsRedistributeUpdates,
-  isSkillsRedistributing,
-} from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
@@ -157,7 +137,7 @@ import {
   requiresAmmunition,
   validateHandEquip,
 } from '../utils/ammunition.js';
-import { XP_COSTS, attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants';
+import { XP_COSTS, attributeBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
   ATTRIBUTE_KEYS,
@@ -183,8 +163,7 @@ import {
   stoneSlotProgress,
   unblockStonePoolsUpdate,
 } from '../progression/v099-respec-flow.js';
-import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
-import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
+import { attributeScalingEnabled, calculateMaxPowerLevel } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { resolvePowerSheetLevelDisplay } from '../utils/power-rendering.js';
 import {
@@ -202,14 +181,10 @@ import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
 import {
   applyAttributePendingChanges,
-  allocateActorSkillPending,
   applyPowerPendingChanges,
-  applySkillPendingChanges,
-  buildSkillStepHistoryEntries,
   calculateAttributePendingNetCost,
   calculatePowerPendingNetCost,
 } from '../progression/progression-hub-actions.js';
-import { readSkillPointPool, skillPointPoolUpdate } from '../progression/skill-point-pool.js';
 import { appendXpHistory, buildBandedStepEntries, currentXpUser } from '../utils/xp-history.js';
 import type { EchoImprintAttribute } from '../rules/echo-imprints.js';
 import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
@@ -294,7 +269,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   #actorDisplayNameAbort: AbortController | null = null;
   private _pendingAttributeChanges: Record<string, number> = {}; // Signed pending attribute deltas (XP mode)
   private _pendingPowerLevelChanges: Record<string, number> = {}; // Track pending power level increases
-  private _pendingSkillRankChanges: Record<string, number> = {}; // Track pending skill rank changes (signed)
 
   #setHeaderXpDisplay(value: number) {
     const html = $(this.element);
@@ -671,55 +645,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Open the Echo Card Pick Dialog (add one more card from the selected Echo's deck).
-   */
-  async #onEchoCardAdd(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    try {
-      await showEchoCardPickDialog(this.actor);
-      this.render();
-    } catch (error) {
-      console.error('Mastery System | Failed to open Echo card pick dialog', error);
-      ui.notifications?.error('Failed to open Echo card picker');
-    }
-  }
-
-  /**
-   * GM only: take an Echo Card off the character at any time.
-   * The slot becomes free; the daily-use flag for that card is cleared.
-   */
-  async #onEchoCardRemove(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!(game as any).user?.isGM) {
-      ui.notifications?.warn((game as any).i18n.localize('MASTERY.echo.gmOnlyRemove'));
-      return;
-    }
-    const cardId = String((event.currentTarget as HTMLElement)?.dataset?.cardId || '').trim();
-    const system = (this.actor as any).system;
-    const echo = system?.echo || {};
-    const selectedCardIds: string[] = Array.isArray(echo.selectedCardIds) ? echo.selectedCardIds : [];
-    const cardUses = (echo.cardUses && typeof echo.cardUses === 'object') ? echo.cardUses : {};
-    const card = getEchoCard(echo.key, cardId);
-    const cardName = card?.name || cardId;
-    const next = removeSelectedEchoCard(selectedCardIds, cardUses, cardId);
-    if (!next.removed) {
-      ui.notifications?.warn((game as any).i18n.localize('MASTERY.echo.notFound'));
-      return;
-    }
-    const confirmed = await Dialog.confirm({
-      title: (game as any).i18n.localize('MASTERY.echo.removeCardTitle'),
-      content: (game as any).i18n.format('MASTERY.echo.removeCardConfirm', { name: cardName })
-    });
-    if (!confirmed) return;
-    await this.actor.update({
-      'system.echo.selectedCardIds': next.selectedCardIds,
-      'system.echo.cardUses': next.cardUses
-    });
-    ui.notifications?.info((game as any).i18n.format('MASTERY.echo.removed', { name: cardName }));
-  }
-
-  /**
    * Combat Senses — manual grants and darkvision (explicit update; avoids form sync loops).
    */
   async #onCombatSenseGrantToggle(event: JQuery.ChangeEvent) {
@@ -774,7 +699,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (el.disabled) return;
     const id = el.dataset.maneuverId;
     if (!id) return;
-    // Opt-in maneuvers (Basic Attack): shown only via showIds; checkbox remains "ausblenden".
+    // Opt-in maneuvers: shown only via showIds; checkbox remains "ausblenden".
     if (isOptInRadialManeuverId(id)) {
       if (el.checked) {
         await this.actor.update({
@@ -1036,7 +961,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!xpTouched || !this.rendered) return;
     try {
       this.#updateAttributeXPUI();
-      this.#updateSkillXPUI();
       this.#updatePowerLevelUI();
     } catch {
       // Sheet may be mid-render; a full render is still safer than stale locks.
@@ -1232,34 +1156,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const veiledDef = echoDef?.veiledForm && rawEcho.veiledFormKey
       ? getEcho(rawEcho.veiledFormKey)
       : undefined;
-    const selectedCardIds: string[] = Array.isArray(rawEcho.selectedCardIds)
-      ? rawEcho.selectedCardIds.filter((id: any) => typeof id === 'string')
-      : [];
-    const cardUses: Record<string, boolean> = (rawEcho.cardUses && typeof rawEcho.cardUses === 'object')
-      ? { ...rawEcho.cardUses }
-      : {};
-
-    const unlockedCardSlots = echoDef ? getUnlockedCardSlots(masteryRank) : 0;
-    const overflowCardCount = Math.max(0, selectedCardIds.length - unlockedCardSlots);
-    const canAddCard = !!echoDef && selectedCardIds.length < unlockedCardSlots;
-
-    const deckView = echoDef
-      ? echoDef.deck.map(c => {
-          const selected = selectedCardIds.includes(c.id);
-          const licensed = selected && isEchoCardLicensed(selectedCardIds, masteryRank, c.id);
-          return {
-            id: c.id,
-            name: c.name,
-            trigger: c.trigger,
-            options: c.options,
-            selected,
-            licensed,
-            overflow: selected && !licensed,
-            used: cardUses[c.id] === true
-          };
-        })
-      : [];
-
     // DF 2026: Echo Cards / Writer retired from the sheet — ancestry + artifacts only.
     const echoCreationValid = !!echoDef
       && (!echoDef.subChoices?.length || !!rawEcho.subChoiceKey)
@@ -1271,11 +1167,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           def: echoDef,
           subChoice: echoSubChoice || null,
           veiled: veiledDef || null,
-          deck: deckView,
-          selectedCardIds,
-          unlockedCardSlots,
-          overflowCardCount,
-          canAddCard,
           creationValid: echoCreationValid
         }
       : null;
@@ -1409,14 +1300,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
     context.attributeScaling = attributeScalingEnabled();
 
-    // Legacy skill redistribute retired for DF 2026 (Specializations replace 40-pt skills).
-    const skillsRedistributing = isSkillsRedistributing(this.actor);
-    context.skillsRedistributing = skillsRedistributing;
-    context.skillsAllocationMode = false;
-    context.canStartSkillsRedistribute = false;
-    context.canFinishSkillsRedistribute =
-      skillsRedistributing && (!!this.actor.isOwner || context.isGM);
-
     // Add configuration data
     context.config = (CONFIG as any).MASTERY;
     
@@ -1436,11 +1319,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Note: armorTotal and evadeTotal are now calculated in actor.prepareDerivedData()
     // No need to calculate here - just use the derived values from system.combat
     
-    // Add skills list (sorted alphabetically)
-    // Legacy fixed Skills are retired — Specializations are the only Skills UI.
-    context.skills = [];
-
-    // DF 2026 Specializations (live path); legacy fixed Skills stay as archive.
+    // Professions (`system.specializations`) are the only skill structure.
     this.#prepareSpecializations(context);
 
     // Prepare disadvantages (named-card layout for physical / mental limitations)
@@ -2592,87 +2471,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Prepare skills for display
-   */
-  #prepareSkills(skillValues: Record<string, number> = {}, skillsSpent: Record<string, number> = {}) {
-    const skillsByCategory: Record<string, any[]> = {};
-    const masteryRank = Math.max(
-      1,
-      Math.floor(Number((this.actor as any).system?.mastery?.rank) || 2)
-    );
-    
-    // Group skills by category
-    for (const [key, definition] of Object.entries(SKILLS)) {
-      const category = definition.category;
-      if (!skillsByCategory[category]) {
-        skillsByCategory[category] = [];
-      }
-      
-      const value = skillValues[key] || 0;
-      const spent = skillsSpent[key] || 0;
-      const remaining = Math.max(0, value - spent);
-      const useBoxes = buildSkillUseBoxes(value, spent, masteryRank);
-      
-      const rollPools = definition.attributes.map((attributeKey: string) =>
-        buildSkillRollPoolPreview(this.actor as Actor, key, attributeKey, value),
-      );
-
-      skillsByCategory[category].push({
-        key,
-        name: definition.name,
-        category: definition.category,
-        attributes: definition.attributes,
-        description: definition.description ?? '',
-        multiAttributeRoll: definition.attributes.length > 1 && key !== 'perception',
-        rollPools,
-        value,
-        spent,
-        remaining,
-        useBoxes,
-        pointsPerUse: masteryRank,
-      });
-    }
-    
-    // Sort skills within each category by name
-    for (const category in skillsByCategory) {
-      skillsByCategory[category].sort((a: any, b: any) => a.name.localeCompare(b.name));
-    }
-    
-    // Convert to array of category objects.
-    // Category labels come from SKILL_CATEGORIES (Awareness key → "Perception").
-    const categoryOrder = [
-      SKILL_CATEGORIES.AWARENESS,
-      SKILL_CATEGORIES.PHYSICAL,
-      SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
-      SKILL_CATEGORIES.SOCIAL,
-      SKILL_CATEGORIES.SURVIVAL,
-    ];
-    const groupedSkills: any[] = [];
-    const seen = new Set<string>();
-    
-    for (const category of categoryOrder) {
-      if (skillsByCategory[category] && skillsByCategory[category].length > 0) {
-        groupedSkills.push({
-          category,
-          skills: skillsByCategory[category]
-        });
-        seen.add(category);
-      }
-    }
-    // Don't drop categories if labels drift again.
-    for (const category of Object.keys(skillsByCategory)) {
-      if (!seen.has(category) && skillsByCategory[category].length > 0) {
-        groupedSkills.push({
-          category,
-          skills: skillsByCategory[category],
-        });
-      }
-    }
-    
-    return groupedSkills;
-  }
-
-  /**
    * MR dropdown for GM (any time) and actor owner during character creation.
    */
   #bindMasteryRankSelect(html: JQuery): void {
@@ -2823,31 +2621,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       void this.#onGmRefreshXp();
     });
 
-    html
-      .find('.start-skills-redistribute')
-      .off('click.skills-redistribute')
-      .on('click.skills-redistribute', (e: JQuery.ClickEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        void this.#onStartSkillsRedistribute();
-      });
-    html
-      .find('.finish-skills-redistribute')
-      .off('click.skills-redistribute')
-      .on('click.skills-redistribute', (e: JQuery.ClickEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        void this.#onFinishSkillsRedistribute();
-      });
-    html
-      .find('.cancel-skills-redistribute')
-      .off('click.skills-redistribute')
-      .on('click.skills-redistribute', (e: JQuery.ClickEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        void this.#onCancelSkillsRedistribute();
-      });
-
     // Passive slotting is handled exclusively by the in-combat dialog; the
     // character-sheet passive-slot manager (and its handlers) were removed.
 
@@ -2893,7 +2666,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     // Roll buttons work for everyone
     bindReliableControlClick(html, '.attribute-roll', this.#onAttributeRoll.bind(this));
-    bindReliableControlClick(html, '.skill-roll, .skill-roll-compact', this.#onSkillRoll.bind(this));
     bindReliableControlClick(html, '.spec-roll', this.#onSpecializationRoll.bind(this));
     bindReliableControlClick(html, '.spec-add', this.#onSpecializationAdd.bind(this));
     bindReliableControlClick(html, '.spec-add-learn', this.#onSpecializationLearn.bind(this));
@@ -2910,7 +2682,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     bindReliableControlClick(html, '.gm-restore-health-bar', this.#onGmRestoreHealthBar.bind(this));
     bindReliableControlClick(html, '.gm-toggle-scar-health-bar', this.#onGmToggleScarHealthBar.bind(this));
     bindReliableControlClick(html, '.gm-restore-stress-bar', this.#onGmRestoreStressBar.bind(this));
-    bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
     bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
     bindReliableControlClick(html, '.gm-reset-reroll-points', this.#onGmResetRerollPoints.bind(this));
     bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
@@ -2923,20 +2694,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
     // the only attribute spend path is now the pending/confirm flow via
     // `.attr-increase-xp` (consecutive increases in one Upgrade Step are legal).
-    // DF 2026: Skill Spend / XP skill buttons retired — Spec Ranks advance in the Progression Hub.
-
-    html.find('.skill-spend-point, .skill-refund-point').on('click', (ev: JQuery.ClickEvent) => {
-      ev.preventDefault();
-      ui.notifications?.info(
-        masteryLocalize(
-          'MASTERY.df2026.archive.skillSpendRetired',
-          'Skill Spend is retired (DF 2026). Raise Specializations in Progression.',
-        ),
-      );
-    });
-    html.find('.confirm-skill-changes').on('click', this.#onConfirmSkillChanges.bind(this));
-    html.find('.cancel-skill-changes').on('click', this.#onCancelSkillChanges.bind(this));
-    
     // New attribute XP distribution system (with confirmation)
     const increaseButtons = html.find('.attr-increase-xp');
     const decreaseButtons = html.find('.attr-decrease-xp');
@@ -2954,7 +2711,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     // Initialize UI state for attribute XP distribution
     this.#updateAttributeXPUI();
-    this.#updateSkillXPUI();
     
     // Character Creation mode buttons
     html.find('.attr-creation-select').on('change', this.#onCreationAttributeChange.bind(this));
@@ -2972,8 +2728,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ev.preventDefault();
       (ev.currentTarget as HTMLElement).click();
     });
-    bindReliableControlClick(html, '.skill-increase', this.#onCreationSkillIncrease.bind(this));
-    bindReliableControlClick(html, '.skill-decrease', this.#onCreationSkillDecrease.bind(this));
     bindReliableControlClick(html, '.finalize-creation', this.#onFinalizeCreation.bind(this));
     bindReliableControlClick(html, '.reset-creation-attributes', this.#onResetCreationAttributes.bind(this));
     
@@ -3371,9 +3125,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
     
-    // Add skill
-    html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
-
     // Add power
     // Power/Spell creation buttons (always visible)
     bindReliableControlClick(html, '.open-tower-wizard-btn', this.#onOpenTowerWizard.bind(this));
@@ -3809,9 +3560,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Add spell
     // Removed add-spell-btn handler - using add-spell-creation-btn instead
-    
-    // Delete skill
-    html.find('.skill-delete').on('click', this.#onSkillDelete.bind(this));
     
     // Power use
     html.find('.power-use').on('click', this.#onPowerUse.bind(this));
@@ -4918,536 +4666,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Handle skill roll
-   */
-  async #onSkillRoll(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const element = event.currentTarget;
-    const skillKey = element.dataset.skill;
-    const forcedAttribute = (element.dataset.attribute || '').trim().toLowerCase() || undefined;
-
-    if (!skillKey) return;
-
-    // Get skill definition from SKILLS
-    const skillDef = SKILLS[skillKey];
-    if (!skillDef) {
-      ui.notifications?.error(`Skill "${skillKey}" not found in skill definitions.`);
-      return;
-    }
-
-    if (
-      forcedAttribute &&
-      !skillDef.attributes.map((a: string) => a.toLowerCase()).includes(forcedAttribute)
-    ) {
-      ui.notifications?.error(`Invalid attribute for ${skillDef.name}.`);
-      return;
-    }
-
-    // Prompt for roll options (attribute, base TN, raises)
-    const rollOptions = await this.#promptForSkillRollOptions(skillKey, skillDef, forcedAttribute);
-    if (!rollOptions) return; // User cancelled
-
-    // Check / Contest — Attribute Contest mode leaves the Skill out entirely.
-    if (rollOptions.mode === 'contest') {
-      if (!rollOptions.contest) {
-        ui.notifications?.warn('Pick an opponent for the contest.');
-        return;
-      }
-      await runSheetAttributeContest(this.actor, rollOptions.contest, rollOptions.contestOpponents);
-      return;
-    }
-    
-    // Perform the roll
-    const system = (this.actor as any).system;
-    const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
-    const masteryRank = system.mastery?.rank || 2;
-
-    // Players Guide skill pool (~1964–1999): full attribute pool when skill ≥
-    // 2×MR; otherwise round(attr/2) (minimum MR dice). Skill points may still be
-    // spent after the roll in either mode.
-    const skillRating = Number(system?.skills?.[skillKey] ?? 0);
-    const poolThreshold = skillFullPoolThreshold(masteryRank);
-    const pool = getSkillRollDicePool(this.actor as Actor, skillKey, rollOptions.attributeKey);
-
-    let reducedPoolFlavor = '';
-    if (pool.halfPool) {
-      const reduced = reducedSkillAttributePool(attributeValue);
-      reducedPoolFlavor = ` Reduced pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → round(${attributeValue}/2) = ${reduced}d8.`;
-    }
-    const numDice = pool.numDice;
-    let equipPenaltyFlavor = '';
-    if (pool.equipPenalty > 0) {
-      equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8 (rolling ${numDice} dice).`;
-    }
-    const finalizeFlavor = (pool.finalizeNotes ?? [])
-      .map((n) => ` ${n}.`)
-      .join('');
-
-    const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
-    const stoneBonusRaises = Math.max(0, Math.floor(Number(rollOptions.freeRaises) || 0));
-
-    const { masteryRoll } = await import('../dice/roll-handler.js');
-    await masteryRoll({
-      numDice,
-      keepDice: masteryRank,
-      skill: 0,
-      tn: rollOptions.baseTN,
-      normalTn: rollOptions.baseTN,
-      raiseTn,
-      declaredRaiseSlots: rollOptions.raises,
-      stoneBonusRaises,
-      raiseModel: 'skill',
-      label: `${skillDef.name} Check`,
-      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${finalizeFlavor}${reducedPoolFlavor}`,
-      actorId: (this.actor as any).id,
-      skillKey,
-      isSkillRoll: true,
-      baseModifier: 0,
-      rollKind: 'skill',
-      autoFailIntent: 'skill',
-      checkContext: { skillKey },
-    });
-    
-    // Skill point spending is now handled via chat buttons (no modal dialog)
-  }
-  
-  /**
-   * Prompt for skill roll options (attribute, base TN, raises).
-   *
-   * Used by normal skill rolls as well as Echo card rolls. Echo rolls call this
-   * directly after resolving the card's skill (so the dialog picks the right
-   * attribute list).
-   */
-  async #promptForSkillRollOptions(
-    _skillKey: string,
-    skillDef: any,
-    forcedAttribute?: string,
-    opts?: { marginOnly?: boolean },
-  ): Promise<{
-    mode?: 'check' | 'contest';
-    attributeKey: string;
-    baseTN: number;
-    raises: number;
-    freeRaises?: number;
-    finalTN: number;
-    contest?: ContestDialogChoice;
-    contestOpponents?: ContestOpponentChoice[];
-  } | null> {
-    const system = (this.actor as any).system;
-    const masteryRank = system.mastery?.rank || 2;
-    const { freeRaisePool } = await import('../combat/action-economy.js');
-    const freePool = freeRaisePool(this.actor as any);
-    // Echo card rolls (marginOnly) stay pure Skill Checks.
-    const allowContest = !opts?.marginOnly;
-    const contestOpponents = allowContest ? listContestOpponents(this.actor) : [];
-
-    // Standard TN = (8 × Challenge MR) − 2. The character's MR affects Keep, not the TN.
-    // We default the Challenge to the actor's own MR so a self-test starts
-    // at the familiar TN, but expose a 1–16 picker so any GM challenge MR
-    // can be selected directly.
-    const buildDifficulties = (challengeMR: number) => {
-      const std = standardTnForMasteryRank(challengeMR);
-      return {
-        trivial: Math.max(0, std - 8),
-        easy: Math.max(0, std - 4),
-        standard: std,
-        challenging: std + 4,
-        hard: std + 8,
-        veryHard: std + 12,
-        heroic: std + 16,
-      };
-    };
-    const challengeMR = Math.max(1, Math.min(16, masteryRank));
-    const difficulties = buildDifficulties(challengeMR);
-
-    const attrList: string[] = skillDef.attributes || [];
-    const lockedAttr =
-      forcedAttribute && attrList.map((a: string) => a.toLowerCase()).includes(forcedAttribute)
-        ? attrList.find((a: string) => a.toLowerCase() === forcedAttribute) || forcedAttribute
-        : null;
-    const hasMultipleAttributes = attrList.length > 1 && !lockedAttr;
-    const defaultAttribute = lockedAttr || attrList[0];
-
-    // Players Guide full-pool / minimum-pool rules (~1964–1999).
-    const skillRating = Number(system?.skills?.[_skillKey] ?? 0);
-    const skillsSpent = Number(system?.skillsSpent?.[_skillKey] ?? 0);
-    const remainingPool = Math.max(0, skillRating - skillsSpent);
-    const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
-    const poolThreshold = skillFullPoolThreshold(masteryRank);
-    const buildPoolPreview = (attr: string) => {
-      const attrValue = Number(system?.attributes?.[attr]?.value ?? 0);
-      const usableAttr = fullPoolReady ? attrValue : Math.max(1, Math.floor(attrValue / 2));
-      const floored = Math.max(usableAttr, masteryRank);
-      return { attrValue, usableAttr, floored };
-    };
-    const initialPreview = buildPoolPreview(defaultAttribute);
-    const marginOnly = !!opts?.marginOnly;
-
-    const skillContestSection = allowContest
-      ? buildContestSectionHtml(this.actor, {
-          defaultAttribute: isContestAttributeKey(defaultAttribute) ? defaultAttribute : 'might',
-          opponents: contestOpponents,
-        })
-      : '';
-
-    const content = `
-      <form class="mastery-dialog-form">
-        ${allowContest ? buildCheckContestSwitchHtml('Skill Check') : ''}
-        <div class="ms-check-only">
-        ${hasMultipleAttributes ? `
-          <div class="md-group">
-            <label class="md-label">Attribute</label>
-            <select name="attribute" id="skill-roll-attribute" class="md-select">
-              ${skillDef.attributes.map((attr: string) => `
-                <option value="${attr}" ${attr === defaultAttribute ? 'selected' : ''}>
-                  ${attr.charAt(0).toUpperCase() + attr.slice(1)} (${system.attributes?.[attr]?.value || 0})
-                </option>
-              `).join('')}
-            </select>
-          </div>
-        ` : `
-          <input type="hidden" name="attribute" value="${defaultAttribute}" />
-          <div class="md-group">
-            <label class="md-label">Attribute</label>
-            <div class="md-attr-display">
-              ${defaultAttribute.charAt(0).toUpperCase() + defaultAttribute.slice(1)} (${system.attributes?.[defaultAttribute]?.value || 0})
-            </div>
-          </div>
-        `}
-
-        <div class="md-group">
-          <label class="md-label">Skill Pool <span class="md-sublabel">(rating ${skillRating} / pool left ${remainingPool}; ≥ ${poolThreshold} for full pool)</span></label>
-          <div class="md-attr-display" id="skill-pool-status">
-            ${fullPoolReady
-              ? `Full pool — rolling ${initialPreview.floored}d8 (attribute ${initialPreview.attrValue}, MR floor ${masteryRank}).`
-              : `Half pool — skill rating ${skillRating} &lt; ${poolThreshold} (2×MR); rolling ${initialPreview.floored}d8 (⌊${initialPreview.attrValue}/2⌋ = ${initialPreview.usableAttr}, MR floor ${masteryRank}).`}
-          </div>
-        </div>
-
-        <div class="md-group">
-          <label class="md-label">Challenge MR <span class="md-sublabel">(GM difficulty — Standard TN = (8 × Challenge MR) − 2)</span></label>
-          <select name="challengeMR" id="skill-roll-challengeMR" class="md-select">
-            ${Array.from({ length: 16 }, (_, i) => i + 1)
-              .map(
-                (mr) =>
-                  `<option value="${mr}" ${mr === challengeMR ? 'selected' : ''}>MR ${mr} (Standard ${standardTnForMasteryRank(mr)})</option>`,
-              )
-              .join('')}
-          </select>
-        </div>
-
-        <div class="md-group md-group-difficulty">
-          <label class="md-label">Difficulty</label>
-          <select name="baseTN" id="skill-roll-baseTN" class="md-select md-select-difficulty">
-            <option value="trivial">Trivial (<span data-bucket="trivial">${difficulties.trivial}</span>)</option>
-            <option value="easy">Easy (<span data-bucket="easy">${difficulties.easy}</span>)</option>
-            <option value="standard" selected>Standard (<span data-bucket="standard">${difficulties.standard}</span>)</option>
-            <option value="challenging">Challenging (<span data-bucket="challenging">${difficulties.challenging}</span>)</option>
-            <option value="hard">Hard (<span data-bucket="hard">${difficulties.hard}</span>)</option>
-            <option value="veryHard">Very Hard (<span data-bucket="veryHard">${difficulties.veryHard}</span>)</option>
-            <option value="heroic">Heroic (<span data-bucket="heroic">${difficulties.heroic}</span>)</option>
-            <option value="custom">Custom…</option>
-          </select>
-        </div>
-        
-        <div class="md-group" id="custom-tn-group" style="display: none;">
-          <label class="md-label">Custom TN</label>
-          <input type="number" name="customTN" id="skill-roll-customTN" value="${difficulties.standard}" min="0" step="1" class="md-input" />
-        </div>
-        
-        ${
-          marginOnly
-            ? `<div class="md-group"><p class="md-sublabel">Raises are counted after the roll (+4 over TN each).</p></div>`
-            : `
-        <div class="md-group">
-          <label class="md-label">Raises <span class="md-sublabel">(+4 Raise TN each; Normal TN unchanged)</span></label>
-          <input type="number" name="raises" id="skill-roll-raises" value="0" min="0" step="1" class="md-input" />
-          <div class="md-final-tn">
-            Normal TN: <strong><span id="normal-tn-display">${difficulties.standard}</span></strong>
-            · Raise TN: <strong><span id="final-tn-display">${difficulties.standard}</span></strong>
-          </div>
-        </div>`
-        }
-        <div class="md-group">
-          <label class="md-label">Free Raises <span class="md-sublabel">(no TN, no Raise Cost, ${freePool} left this Round)</span></label>
-          <input type="number" name="freeRaises" value="0" min="0" max="${freePool}" step="1" class="md-input" ${freePool > 0 ? '' : 'disabled'} />
-        </div>
-        </div>
-        ${skillContestSection}
-      </form>
-    `;
-    
-    return new Promise((resolve) => {
-      const dialog = new Dialog(
-        {
-        title: allowContest ? `Check / Contest — ${skillDef.name}` : `Roll ${skillDef.name}`,
-        content,
-        buttons: {
-          roll: {
-            label: '<i class="fas fa-dice-d20"></i> Roll',
-            callback: (html: JQuery) => {
-              if (allowContest && readCheckContestMode(html) === 'contest') {
-                const contest = readContestDialogChoice(html);
-                resolve({
-                  mode: 'contest',
-                  attributeKey: contest?.attributeKey ?? defaultAttribute,
-                  baseTN: 0,
-                  raises: 0,
-                  freeRaises: 0,
-                  finalTN: 0,
-                  ...(contest ? { contest } : {}),
-                  contestOpponents,
-                });
-                return;
-              }
-              const attributeKey = html.find('[name="attribute"]').val() as string;
-              const challengeMRVal = Math.max(
-                1,
-                Math.min(16, parseInt(html.find('[name="challengeMR"]').val() as string) || challengeMR),
-              );
-              const challengeBuckets = buildDifficulties(challengeMRVal);
-              const bucket = html.find('[name="baseTN"]').val() as string;
-              let baseTN: number;
-              if (bucket === 'custom') {
-                baseTN = parseInt(html.find('[name="customTN"]').val() as string) || 0;
-              } else {
-                baseTN =
-                  challengeBuckets[bucket as keyof typeof challengeBuckets] ?? challengeBuckets.standard;
-              }
-
-              const raises = marginOnly
-                ? 0
-                : parseInt(html.find('[name="raises"]').val() as string) || 0;
-              const freeRaises = Math.max(0, Math.min(freePool, parseInt(html.find('[name="freeRaises"]').val() as string) || 0));
-              const finalTN = baseTN + raises * 4;
-
-              resolve({
-                mode: 'check',
-                attributeKey,
-                baseTN,
-                raises,
-                freeRaises,
-                finalTN,
-              });
-            }
-          },
-          cancel: {
-            label: 'Cancel',
-            callback: () => resolve(null)
-          }
-        },
-        default: 'roll',
-        render: (html: JQuery) => {
-          const $html = (html instanceof HTMLElement) ? $(html) : $(html as any);
-          
-          // Apply dialog class
-          setTimeout(() => {
-            $html
-              .closest('.window-app.dialog')
-              .addClass('mastery-system mastery-roll-dialog mastery-skill-roll-dialog');
-          }, 0);
-
-          if (allowContest) bindCheckContestMode($html);
-
-          $html.find('[name="baseTN"]').on('change', function() {
-            const isCustom = $(this).val() === 'custom';
-            $html.find('#custom-tn-group').toggle(isCustom);
-          });
-
-          const refreshDifficultyLabels = () => {
-            const mr = Math.max(
-              1,
-              Math.min(
-                16,
-                parseInt($html.find('[name="challengeMR"]').val() as string) || challengeMR,
-              ),
-            );
-            const buckets = buildDifficulties(mr);
-            for (const key of Object.keys(buckets) as Array<keyof typeof buckets>) {
-              $html.find(`[data-bucket="${key}"]`).text(String(buckets[key]));
-            }
-            const customField = $html.find('[name="customTN"]');
-            if (!customField.is(':focus')) customField.val(String(buckets.standard));
-          };
-
-          const updateFinalTN = () => {
-            const mr = Math.max(
-              1,
-              Math.min(
-                16,
-                parseInt($html.find('[name="challengeMR"]').val() as string) || challengeMR,
-              ),
-            );
-            const buckets = buildDifficulties(mr);
-            const bucket = $html.find('[name="baseTN"]').val() as string;
-            let baseTN: number;
-            if (bucket === 'custom') {
-              baseTN = parseInt($html.find('[name="customTN"]').val() as string) || 0;
-            } else {
-              baseTN = buckets[bucket as keyof typeof buckets] ?? buckets.standard;
-            }
-            const raises = parseInt($html.find('[name="raises"]').val() as string) || 0;
-            const raiseTn = baseTN + raises * 4;
-            $html.find('#normal-tn-display').text(String(baseTN));
-            $html.find('#final-tn-display').text(String(raiseTn));
-          };
-
-          const updatePoolStatus = () => {
-            const attr = (
-              $html.find('[name="attribute"]').val() as string
-            ) || defaultAttribute;
-            const preview = buildPoolPreview(attr);
-            $html.find('#skill-pool-status').text(
-              fullPoolReady
-                ? `Full pool — rolling ${preview.floored}d8 (attribute ${preview.attrValue}, MR floor ${masteryRank}).`
-                : `Half pool — skill rating ${skillRating} < ${poolThreshold} (2×MR); rolling ${preview.floored}d8 (⌊${preview.attrValue}/2⌋ = ${preview.usableAttr}, MR floor ${masteryRank}).`,
-            );
-          };
-
-          $html
-            .find('[name="baseTN"], [name="customTN"], [name="challengeMR"]')
-            .on('change input', () => {
-              refreshDifficultyLabels();
-              if (!marginOnly) updateFinalTN();
-            });
-          if (!marginOnly) {
-            $html.find('[name="raises"]').on('change input', updateFinalTN);
-            updateFinalTN();
-          }
-          $html.find('[name="attribute"]').on('change input', updatePoolStatus);
-          refreshDifficultyLabels();
-          updatePoolStatus();
-        }
-        } as any,
-        {
-          width: 600,
-          height: 500,
-          resizable: true
-        } as any
-      );
-
-      dialog.render(true);
-    });
-  }
-
-  /**
-   * Handle Echo Card "Use" button.
-   *
-   * - Validates that the card is currently selected and not already used today.
-   * - Posts a narrative ChatMessage (with optional flashback).
-   * - Opens the standard Skill Roll dialog pre-tuned to the card option's skill.
-   * - On a completed (non-cancelled) roll, marks the card as used for today.
-   */
-  async #onEchoRoll(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const el = event.currentTarget as HTMLButtonElement;
-    const cardId = el?.dataset?.cardId || '';
-    const optionId = el?.dataset?.optionId || '';
-    if (!cardId || !optionId) {
-      ui.notifications?.error('Missing card or option id on Echo roll.');
-      return;
-    }
-
-    const system = (this.actor as any).system;
-    const echo = system?.echo || {};
-    const echoKey = echo.key as string | undefined;
-    if (!echoKey) {
-      ui.notifications?.warn('No Echo selected for this character.');
-      return;
-    }
-    const selectedCardIds: string[] = Array.isArray(echo.selectedCardIds) ? echo.selectedCardIds : [];
-    if (!selectedCardIds.includes(cardId)) {
-      ui.notifications?.error('That Echo card is not part of your deck.');
-      return;
-    }
-    const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
-    if (!isEchoCardLicensed(selectedCardIds, masteryRank, cardId)) {
-      ui.notifications?.warn((game as any).i18n.localize('MASTERY.echo.unlicensedUse'));
-      return;
-    }
-    const cardUses = (echo.cardUses || {}) as Record<string, boolean>;
-    if (cardUses[cardId] === true) {
-      ui.notifications?.warn('Card already used today. It restores on the next Safe Haven Rest.');
-      return;
-    }
-
-    const card = getEchoCard(echoKey, cardId);
-    const option = getCardOption(echoKey, cardId, optionId);
-    if (!card || !option) {
-      ui.notifications?.error('Echo card option not found.');
-      return;
-    }
-
-    const skillDef = SKILLS[option.skill];
-    if (!skillDef) {
-      ui.notifications?.error(`Skill "${option.skill}" for Echo card is not defined.`);
-      return;
-    }
-
-    // Narrative flashback: post a chat message before the roll.
-    const def = getEcho(echoKey);
-    const echoName = def?.name || echoKey;
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: `
-        <div class="echo-roll-flavor">
-          <div><strong>${echoName} \u2014 ${card.name}</strong></div>
-          <div><em>${option.label}</em></div>
-          <div class="echo-roll-desc">${option.description}</div>
-        </div>
-      `
-    } as any);
-
-    const rollOptions = await this.#promptForSkillRollOptions(option.skill, skillDef, undefined, {
-      marginOnly: true,
-    });
-    if (!rollOptions) return;
-
-    const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
-
-    let numDice = attributeValue;
-    let equipPenaltyFlavor = '';
-    if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
-      const penDice = getEquippedPhysicalSkillPenaltyDice(this.actor);
-      if (penDice > 0) {
-        numDice = Math.max(1, numDice - penDice);
-        equipPenaltyFlavor = ` Equipped armor/shield physical penalty: \u2212${penDice}d8 (rolling ${numDice} dice).`;
-      }
-    }
-
-    const { masteryRoll } = await import('../dice/roll-handler.js');
-    await masteryRoll({
-      numDice,
-      keepDice: masteryRank,
-      skill: 0,
-      tn: rollOptions.baseTN,
-      normalTn: rollOptions.baseTN,
-      label: `Echo: ${card.name} \u2014 ${option.label}`,
-      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}. Skill: ${skillDef.name}. Raises counted after roll (+4 over TN).${equipPenaltyFlavor}`,
-      actorId: (this.actor as any).id,
-      skillKey: option.skill,
-      isSkillRoll: true,
-      baseModifier: 0,
-      rollKind: 'skill',
-      raiseModel: 'margin',
-      autoFailIntent: 'skill',
-      checkContext: { skillKey: option.skill },
-    });
-
-    await (this.actor as any).update({
-      [`system.echo.cardUses.${cardId}`]: true
-    });
-    this.render();
-  }
-
-  async #onSocialCombat(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const party: Actor[] = [this.actor as Actor];
-    const { showSocialCombatDialog } = await import('../ui/social-combat-dialog.js');
-    await showSocialCombatDialog(party);
-  }
-
-  /**
    * GM: restore this health bar and all more-severe bars below it
    * (e.g. Bruised → also Injured…Incapacitated).
    */
@@ -5607,7 +4825,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Handle Safe Haven Rest - reset all skillsSpent to 0
+   * Handle Safe Haven Rest
    */
   async #onSafeHavenRest(event: JQuery.ClickEvent) {
     event.preventDefault();
@@ -5963,331 +5181,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Handle spending XP on skills.
-   *
-   * New spec: Skills use the same banded XP table as Attributes
-   * (1 / 2 / … / 10 XP per +1, by band). Each Skill may be increased by
-   * at most +1 per Upgrade Step.
-   */
-  async #onSkillSpendPoint(event: JQuery.ClickEvent) {
-    event.preventDefault();
-
-    if (isSkillsRedistributing(this.actor)) {
-      (ui as any).notifications?.warn('Finish or cancel skill redistribution before spending XP on skills.');
-      return;
-    }
-    
-    // Check if user is owner
-    if (!this.actor.isOwner) {
-      (ui as any).notifications?.warn('Only the owner can spend XP.');
-      return;
-    }
-    
-    const element = event.currentTarget;
-    const skillKey = element.dataset.skill;
-    
-    if (!skillKey) return;
-
-    const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
-    const current = Number(currentRaw) || 0;
-    const pending = this._pendingSkillRankChanges[skillKey] || 0;
-    const effective = current + pending;
-
-    const masteryRank = this.actor.system.mastery?.rank || 2;
-    const maxSkill = calculateMaxSkillRank(masteryRank);
-    if (effective >= maxSkill) {
-      (ui as any).notifications?.warn(
-        `${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
-      );
-      return;
-    }
-
-    const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
-    const allocation = allocateActorSkillPending(this.actor, simulateMap);
-    const xpSteps = allocation.perSkill[skillKey]?.xpSteps ?? 0;
-
-    // Consecutive Skill / Specialization ranks in one Upgrade Step are legal
-    // when each intermediate rank is paid (net cost checked below).
-
-    const netCost = allocation.xpNet;
-    // Combined spendable XP (Free pool is spent first, then regular).
-    const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
-    if (netCost > availableXP) {
-      const nextCost = skillBandCost(effective + 1);
-      (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
-      return;
-    }
-
-    this._pendingSkillRankChanges[skillKey] = pending + 1;
-    if (this._pendingSkillRankChanges[skillKey] === 0) delete this._pendingSkillRankChanges[skillKey];
-    this.#updateSkillXPUI();
-  }
-
-  /**
-   * Decrease a skill rank and refund XP
-   * Refund model: dropping from rank R -> R-1 refunds the banded XP cost of R (reverse of buy cost).
-   */
-  async #onSkillRefundPoint(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (isSkillsRedistributing(this.actor)) {
-      (ui as any).notifications?.warn('Finish or cancel skill redistribution before adjusting skills with XP.');
-      return;
-    }
-    
-    // Check if user is owner
-    if (!this.actor.isOwner) {
-      (ui as any).notifications?.warn('Only the owner can adjust skills.');
-      return;
-    }
-    
-    const element = event.currentTarget as HTMLElement;
-    const skillKey = (element as any).dataset?.skill as string | undefined;
-    if (!skillKey) return;
-    
-    const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
-    const current = Number(currentRaw) || 0;
-    const pending = this._pendingSkillRankChanges[skillKey] || 0;
-    const effective = current + pending;
-    if (effective <= 0) return;
-    
-    this._pendingSkillRankChanges[skillKey] = pending - 1;
-    if (this._pendingSkillRankChanges[skillKey] === 0) delete this._pendingSkillRankChanges[skillKey];
-    this.#updateSkillXPUI();
-  }
-
-  /**
-   * Update the skill XP distribution UI (pending/remaining + enable/disable buttons)
-   */
-  #updateSkillXPUI() {
-    const html = $(this.element);
-    // Combined spendable XP (Free pool is spent first, then regular).
-    const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
-    const allocation = allocateActorSkillPending(this.actor, this._pendingSkillRankChanges);
-    const netPendingCost = allocation.xpNet;
-    const remainingXP = availableXP - netPendingCost;
-    this.#setHeaderXpDisplay(remainingXP);
-    const totalPendingChanges = Object.values(this._pendingSkillRankChanges).reduce((sum, v) => sum + Math.abs(v), 0);
-
-    html.find('#pending-skill-changes-count').text(String(totalPendingChanges));
-    html.find('#remaining-skill-xp').text(String(Math.max(0, remainingXP)));
-    html.find('#remaining-skill-points').text('0');
-
-    const netSummary = html.find('#pending-skill-xp-net');
-    if (netSummary.length) {
-      if (netPendingCost === 0) {
-        netSummary.text('0');
-      } else if (netPendingCost > 0) {
-        netSummary.text(`−${netPendingCost} spend`);
-      } else {
-        netSummary.text(`+${Math.abs(netPendingCost)} refund`);
-      }
-    }
-
-    // Enable/disable confirm/cancel
-    const confirmBtn = html.find('#confirm-skill-changes-btn');
-    const cancelBtn = html.find('#cancel-skill-changes-btn');
-    confirmBtn.prop('disabled', totalPendingChanges <= 0);
-    cancelBtn.prop('disabled', totalPendingChanges <= 0);
-
-    // Enable/disable per-skill +/- buttons + per-row pending labels
-    const masteryRank = this.actor.system.mastery?.rank || 2;
-    const maxSkill = calculateMaxSkillRank(masteryRank);
-    for (const skillKey of Object.keys(SKILLS)) {
-      const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
-      const current = Number(currentRaw) || 0;
-      const pending = this._pendingSkillRankChanges[skillKey] || 0;
-      const effective = current + pending;
-
-      const minusBtn = html.find(`.skill-refund-point[data-skill="${skillKey}"]`);
-      minusBtn.prop('disabled', effective <= 0);
-
-      const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
-      const nextPending = pending + 1;
-      const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: nextPending };
-      const simulated = allocateActorSkillPending(this.actor, simulateMap);
-      const nextXpSteps = simulated.perSkill[skillKey]?.xpSteps ?? 0;
-      // Consecutive ranks in one Upgrade Step are legal; only MR×4 / XP gates "+".
-      if (effective >= maxSkill) {
-        plusBtn.prop('disabled', true);
-        plusBtn.removeAttr('title');
-      } else {
-        plusBtn.removeAttr('title');
-        if (this.#hasFreeXp()) {
-          plusBtn.attr('title', 'Free XP aktiv — frei verteilbar.');
-        }
-        plusBtn.prop('disabled', simulated.xpNet > availableXP);
-      }
-
-      const pendingLine = html.find(`.skill-pending-xp[data-skill="${skillKey}"]`);
-      const rankBadge = html.find(`.skill-rank-pending-badge[data-skill="${skillKey}"]`);
-      if (pending === 0) {
-        pendingLine.text('').removeClass('has-pending').attr('title', 'XP reserved on this skill until Confirm');
-        rankBadge.text('');
-      } else {
-        const entry = allocation.perSkill[skillKey];
-        const xpNet = entry?.xpNet ?? 0;
-        const rankLabel =
-          pending > 0
-            ? `+${pending} rank${pending === 1 ? '' : 's'}`
-            : `${pending} rank${pending === -1 ? '' : 's'}`;
-        const parts: string[] = [];
-        if (xpNet > 0) {
-          parts.push(`${xpNet} XP`);
-        } else if (xpNet < 0) {
-          parts.push(`+${Math.abs(xpNet)} XP back`);
-        }
-        const costLabel = parts.length ? ` · ${parts.join(' · ')}` : '';
-        pendingLine.text(`${rankLabel}${costLabel}`).addClass('has-pending');
-        rankBadge.text(`→${effective}`);
-      }
-
-      this.#applySkillDicePoolPreview(skillKey, effective, pending !== 0);
-    }
-  }
-
-  /** Update dice-pool labels beside skill roll buttons (respects pending rank changes). */
-  #applySkillDicePoolPreview(skillKey: string, skillRating: number, pending = false): void {
-    const definition = SKILLS[skillKey];
-    if (!definition) return;
-
-    for (const attributeKey of definition.attributes) {
-      const preview = buildSkillRollPoolPreview(
-        this.actor as Actor,
-        skillKey,
-        attributeKey,
-        skillRating,
-      );
-      const el = $(this.element).find(
-        `.skill-roll-pool-btn[data-skill="${skillKey}"][data-attribute="${attributeKey}"]`,
-      );
-      if (!el.length) continue;
-      el.text(preview.rollLabel);
-      el.attr('title', preview.tooltip);
-      el.toggleClass('half-pool', preview.halfPool);
-      el.toggleClass('full-pool', preview.fullPoolReady);
-      el.toggleClass('pending-pool', pending);
-    }
-  }
-
-  /**
-   * Confirm and apply pending skill rank changes
-   */
-  async #onConfirmSkillChanges(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    if (!this.actor.isOwner) {
-      (ui as any).notifications?.warn('Only the owner can confirm Skill changes.');
-      return;
-    }
-    
-    const xpState = this.#getXpState(this.actor);
-    const availableXP = xpState.available; // combined Free + regular
-    // Legacy Skill ranks are XP-only (Skill Points retired).
-    const allocation = allocateActorSkillPending(this.actor, this._pendingSkillRankChanges);
-    const netCost = allocation.xpNet;
-    
-    if (netCost > availableXP) {
-      (ui as any).notifications?.error(`Not enough XP! Net cost: ${netCost}, Available: ${availableXP}`);
-      return;
-    }
-    
-    const masteryRank = this.actor.system.mastery?.rank || 2;
-    const maxSkill = calculateMaxSkillRank(masteryRank);
-
-    const updates: any = {};
-    const changes: Array<{ skillKey: string; from: number; to: number; delta: number; xpSteps: number }> = [];
-
-    for (const [skillKey, pending] of Object.entries(this._pendingSkillRankChanges)) {
-      if (!pending) continue;
-      const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
-      const current = Number(currentRaw) || 0;
-      const desired = current + pending;
-      if (pending > 0 && desired > maxSkill) {
-        (ui as any).notifications?.error(
-          `${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
-        );
-        return;
-      }
-      const target = Math.max(0, Math.min(maxSkill, desired));
-      if (target === current) continue;
-      updates[`system.skills.${skillKey}`] = target;
-      changes.push({
-        skillKey,
-        from: current,
-        to: target,
-        delta: pending,
-        xpSteps: allocation.perSkill[skillKey]?.xpSteps ?? 0,
-      });
-    }
-
-    // Record touched Skills for step history; consecutive XP ranks remain legal.
-    const stepRuleSk = await import('../utils/xp-step-rule.js');
-    let stepAfterSk = stepRuleSk.readStep(this.actor);
-    for (const change of changes) {
-      if (change.delta > 0 && change.xpSteps > 0) {
-        stepAfterSk = stepRuleSk.recordBump(stepAfterSk, 'skill', change.skillKey);
-      } else if (change.delta < 0) {
-        stepAfterSk = stepRuleSk.undoBump(stepAfterSk, 'skill', change.skillKey);
-      }
-    }
-    // Two-pool accounting: Free XP is spent before regular XP.
-    const acctSk = this.#applyXpCost(xpState, netCost);
-    updates['system.points.xp'] = acctSk.pointsXp;
-    updates['system.points.xpFree'] = acctSk.pointsXpFree;
-    updates['system.xp.totalSpent'] = acctSk.totalSpent;
-    updates['system.xp.freeSpent'] = acctSk.freeSpent;
-    updates['system.xp.currentStep.attributes'] = [...stepAfterSk.attributes];
-    updates['system.xp.currentStep.skills'] = [...stepAfterSk.skills];
-    updates['system.xp.currentStep.powers'] = [...stepAfterSk.powers];
-    updates['system.xp.currentStep.artifacts'] = [...stepAfterSk.artifacts];
-    Object.assign(updates, skillPointPoolUpdate(readSkillPointPool(this.actor.system), allocation));
-
-    if (!this.actor.system.xp) {
-      updates['system.xp.totalEarned'] = xpState.totalEarned;
-      updates['system.xp.history'] = [];
-    }
-
-    const beforeState = {
-      available: xpState.available,
-      totalEarned: xpState.totalEarned,
-      totalSpent: xpState.totalSpent,
-    };
-
-    const skillHistory = buildSkillStepHistoryEntries({
-      actor: this.actor,
-      allocation,
-      before: beforeState,
-      after: {
-        available: availableXP - netCost,
-        totalEarned: xpState.totalEarned,
-        totalSpent: acctSk.totalSpent,
-      },
-    });
-    if (skillHistory.length) {
-      updates['system.xp.history'] = appendXpHistory(this.actor, skillHistory);
-    }
-
-    await this.actor.update(updates);
-    
-    this._pendingSkillRankChanges = {};
-    await this.render();
-  }
-
-  /**
-   * Cancel pending skill rank changes
-   */
-  #onCancelSkillChanges(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    this._pendingSkillRankChanges = {};
-    this.#updateSkillXPUI();
-    (ui as any).notifications?.info('Pending skill changes cancelled.');
-  }
-
-  /**
    * Prompt for Target Number
    */
   async #promptForTN(): Promise<{ tn: number; raises: number } | null> {
@@ -6629,75 +5522,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     if (!result.ok) {
       ui.notifications?.warn(result.error || 'Invalid Skill Check.');
-    }
-  }
-
-  /**
-   * Add a new skill
-   */
-  async #onSkillAdd(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    
-    const skillName = await this.#promptForSkillName();
-    if (!skillName) return;
-    
-    await this.actor.update({
-      [`system.skills.${skillName}`]: 0
-    });
-  }
-
-  /**
-   * Prompt for skill name
-   */
-  async #promptForSkillName(): Promise<string | null> {
-    return new Promise((resolve) => {
-      new Dialog({
-        title: 'Add Skill',
-        content: `
-          <form>
-            <div class="form-group">
-              <label>Skill Name:</label>
-              <input type="text" name="skillName" placeholder="Enter skill name"/>
-            </div>
-          </form>
-        `,
-        buttons: {
-          add: {
-            label: 'Add',
-            callback: (html: JQuery) => {
-              const name = html.find('[name="skillName"]').val() as string;
-              resolve(name.trim() || null);
-            }
-          },
-          cancel: {
-            label: 'Cancel',
-            callback: () => resolve(null)
-          }
-        },
-        default: 'add'
-      }).render(true);
-    });
-  }
-
-  /**
-   * Delete a skill
-   */
-  async #onSkillDelete(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const element = event.currentTarget;
-    const skill = element.dataset.skill;
-    
-    if (!skill) return;
-    
-    const confirmed = await Dialog.confirm({
-      title: 'Delete Skill',
-      content: `<p>Are you sure you want to delete the <strong>${skill}</strong> skill?</p>`
-    });
-    
-    if (confirmed) {
-      const skills = foundry.utils.deepClone(this.actor.system.skills) as any;
-      delete skills[skill];
-      await this.actor.update({ 'system.skills': skills });
     }
   }
 
@@ -7455,11 +6279,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // `.spec-respec` is listed with the other Spec controls so the lock selectors stay
     // complete; the button itself only renders when `canBetaRespec` is true, which
     // requires creationComplete — unfinished characters never see a usable Respec control.
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.spec-add):not(.spec-edit):not(.spec-respec):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.spec-add):not(.spec-edit):not(.spec-respec):not(.spec-delete):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
 
     // Ensure creation buttons are enabled
-    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .spec-add, .spec-edit, .spec-respec, .spec-delete, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .spec-add, .spec-edit, .spec-respec, .spec-delete, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .open-languages-btn');
     creationButtons.prop('disabled', false);
     
     // Also enable power rank selects (they're select elements, not buttons)
@@ -8030,69 +6854,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       [`system.attributes.${attribute}.value`]: newValue
     });
 
-    this.render();
-  }
-
-  /**
-   * Character Creation / Redistribute: raise a skill by 4 (0 → 4).
-   * One click spends the full creation cap; leftover 1/2/3 ranks are not allowed.
-   */
-  async #onCreationSkillIncrease(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    ui.notifications?.info(
-      masteryLocalize(
-        'MASTERY.df2026.creation.legacySkillsRetired',
-        'Legacy skill allocation is retired. Use Professions (four at Rank 2 at creation).',
-      ),
-    );
-  }
-
-  /**
-   * Character Creation / Redistribute: clear skill chunk back to 0.
-   */
-  async #onCreationSkillDecrease(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    ui.notifications?.info(
-      masteryLocalize(
-        'MASTERY.df2026.creation.legacySkillsRetired',
-        'Legacy skill allocation is retired. Use Professions (four at Rank 2 at creation).',
-      ),
-    );
-  }
-
-  async #onStartSkillsRedistribute(): Promise<void> {
-    ui.notifications?.info(
-      masteryLocalize(
-        'MASTERY.df2026.creation.legacyRedistributeRetired',
-        'Legacy skill redistribute is retired. Raise Specializations with XP (4 XP per Rank).',
-      ),
-    );
-  }
-
-  async #onFinishSkillsRedistribute(): Promise<void> {
-    if (!this.actor.isOwner && !(game as any).user?.isGM) {
-      ui.notifications?.warn('Only the owner or GM can finish skill redistribution.');
-      return;
-    }
-    if (!isSkillsRedistributing(this.actor)) return;
-    const result = buildFinishSkillsRedistributeUpdates(this.actor);
-    if (!result.ok || !result.updates) {
-      ui.notifications?.warn(result.reason || 'Cannot finish skill redistribution.');
-      return;
-    }
-    await this.actor.update(result.updates);
-    ui.notifications?.info('Skill redistribution complete.');
-    this.render();
-  }
-
-  async #onCancelSkillsRedistribute(): Promise<void> {
-    if (!this.actor.isOwner && !(game as any).user?.isGM) {
-      ui.notifications?.warn('Only the owner or GM can cancel skill redistribution.');
-      return;
-    }
-    if (!isSkillsRedistributing(this.actor)) return;
-    await this.actor.update(buildCancelSkillsRedistributeUpdates(this.actor));
-    ui.notifications?.info('Skill redistribution cancelled — previous skills restored.');
     this.render();
   }
 
@@ -8804,10 +7565,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const sourceNodeId = sourceWorld?.getFlag?.('mastery-system', 'nodeId');
     const embeddedNodeId = embedded.getFlag?.('mastery-system', 'nodeId');
-    if (!sourceNodeId && !embeddedNodeId) {
-      const { inferArtifactKeyFromName } = await import('../utils/artifact-tree-grant.js');
-      if (!inferArtifactKeyFromName(embedded.name) && !sourceWorld) return;
-    }
+    if (!sourceNodeId && !embeddedNodeId && !embedded.getFlag?.('mastery-system', 'echoArtifactKey') && !sourceWorld) return;
 
     const { wireEmbeddedArtifactToWorldTree } = await import('../utils/artifact-tree-grant.js');
     await wireEmbeddedArtifactToWorldTree(this.actor, embedded, { sourceWorldItem: sourceWorld });

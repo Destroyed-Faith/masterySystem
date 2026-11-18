@@ -5,7 +5,8 @@
  * `grappled` catalog status (Speed 0 m, see `actor.ts`) and a pair flag
  * pointing at the partner. Grapple is not Root: it never deals damage, never
  * touches Evade, Armor, Attack Pools or Specials. Hurting the held creature
- * is a separate Unarmed Basic Attack; drawing a weapon means letting go.
+ * takes a separate Melee Attack Power with Unarmed delivery; drawing a weapon
+ * means letting go.
  */
 export declare const GRAPPLE_FLAG = "grapple";
 export declare const GRAPPLED_STATUS_ID = "grappled";
@@ -46,9 +47,9 @@ export declare function grappleDamage(): 0;
 export declare function grappleStatusIds(): readonly string[];
 /**
  * Attacking with a weapon is not part of the Grapple. When the grappler picks
- * a weapon-based attack the hold has to be released first. The unarmed Basic
- * Attack and spells keep the Grapple. The held creature is never gated here —
- * it does not maintain the hold.
+ * a weapon-based attack the hold has to be released first. A Melee Attack
+ * Power with Unarmed delivery and spells keep the Grapple. The held creature
+ * is never gated here — it does not maintain the hold.
  */
 export declare function attackRequiresGrappleRelease(actor: any, option: any, deps: {
     unarmedNow: boolean;

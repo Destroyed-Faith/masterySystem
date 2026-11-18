@@ -266,15 +266,12 @@ export interface ResourcesData {
  * Echo data attached to a character.
  * `key` identifies the chosen Echo (e.g. 'humans'); sub-choices (Elves lineage,
  * Sentinels order) go into `subChoiceKey`. `veiledFormKey` is Dragonborn-only.
- * Cards and trait uses are tracked as plain dictionaries so daily reset is
- * just `actor.update({ 'system.echo.cardUses': {}, 'system.echo.traitUses': ... })`.
+ * Trait uses are a plain dictionary so the rest reset is one `system.echo.traitUses` write.
  */
 export interface CharacterEchoData {
   key: string;
   subChoiceKey?: string;
   veiledFormKey?: string;
-  selectedCardIds: string[];
-  cardUses: Record<string, boolean>;
   traitUses: Record<string, number>;
 }
 
@@ -318,18 +315,8 @@ export interface CharacterData {
   fear?: number;
   combatSenses?: CombatSensesData;
   resources: ResourcesData;
-  skills: Record<string, number>;
-  skillsSpent: Record<string, number>;
   /** DF 2026 free-named Specializations (replaces fixed purchasable Skills). */
   specializations?: SpecializationRecord[];
-  /**
-   * @deprecated Skill Points are retired (Professions). Cleared on load; leftover
-   * unspent values convert to Free XP once via retirement migration.
-   */
-  skillPoints?: {
-    unspent?: number;
-    placed?: Record<string, number>;
-  };
   /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 2 */
   /** @deprecated Replaced by `echoImprints` (DF 2026); kept for legacy data / migration. */
   minorExpressions?: string[];
@@ -365,17 +352,13 @@ export interface CharacterData {
     freeSpent?: number;
     /** Post-creation floor per attribute (set at finalize; used for XP refunds). */
     attributeBaselines?: Record<string, number>;
-    /** Immutable snapshot after creation (attributes, skills, powers); used for GM progression reset. */
+    /** Immutable snapshot after creation (attributes, powers); used for GM progression reset. */
     postCreationProgress?: {
       attributes: Record<string, number>;
-      skills: Record<string, number>;
-      skillsSpent: Record<string, number>;
       powerLevels: Record<string, number>;
-      /** @deprecated Skill Points retired. */
-      skillPointsUnspent?: number;
     };
     /**
-     * New spec — Upgrade Step state. Each individual Attribute / Skill /
+     * New spec — Upgrade Step state. Each individual Attribute / Profession /
      * Power / Artifact can be bumped at most once per Upgrade Step.
      * Cleared when the GM (or owner) ends the step.
      */
@@ -591,7 +574,6 @@ export interface NpcData {
   fear?: number;
   combatSenses?: CombatSensesData;
   resources: ResourcesData;
-  skills: Record<string, number>;
   /**
    * DF 2026 situational noncombat pools (Nd8 keep MR).
    * Not full PC Specializations — only scene-relevant skills.

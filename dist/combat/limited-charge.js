@@ -30,8 +30,6 @@ export function isForbiddenLimitedTemplateId(templateId) {
         return true;
     if (/aoe-damage-t[3-6]$/i.test(id))
         return true; // Special-only Instant AoE
-    if (/targeted-special/i.test(id))
-        return true;
     if (/damage-transfer/i.test(id))
         return true;
     if (/weapon-split|weapon-autofire/i.test(id))

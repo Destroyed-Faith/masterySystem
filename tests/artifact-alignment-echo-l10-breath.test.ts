@@ -10,8 +10,8 @@ import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-co
 import { resolveFullLevelProgression } from '../src/utils/artifact-visible-abilities.js';
 import { getTemplate } from '../src/utils/powers/templates/index.js';
 import {
-  breathDamageRadiusMeters,
-  breathRuinRadiusMeters,
+  breathDamageConeMeters,
+  breathRuinConeMeters,
   breathWeaponRowDisplay,
 } from '../src/utils/breath-weapon.js';
 import {
@@ -164,9 +164,9 @@ describe('Dragon Head Breath Weapon — Core Melee AoE', () => {
     expect(breathWeaponRowDisplay(1).aoe).toBe('Damage: Cone 3 m / Ruin: Cone 3 m');
     expect(breathWeaponRowDisplay(4).aoe).toBe('Damage: Cone 6 m / Ruin: Cone 5 m');
     expect(breathWeaponRowDisplay(7).aoe).toBe('Damage: Cone 8 m / Ruin: Cone 7 m');
-    expect(breathDamageRadiusMeters(1)).toBe(3);
-    expect(breathRuinRadiusMeters(4)).toBe(5);
-    expect(breathRuinRadiusMeters(7)).toBe(7);
+    expect(breathDamageConeMeters(1)).toBe(3);
+    expect(breathRuinConeMeters(4)).toBe(5);
+    expect(breathRuinConeMeters(7)).toBe(7);
   });
 
   it('L10 is Artifact Awakening', () => {

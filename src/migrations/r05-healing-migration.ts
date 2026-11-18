@@ -13,17 +13,25 @@
  * some low AoE levels have none). Illegal conversions are NOT forced: the item keeps its data and
  * is flagged `r05Retired` with `r05MigrationNote` so a GM/player can re-buy at a legal level.
  *
+ * Artifact-sourced `active-*-single-heal` items (old Moonlight Mending grants)
+ * are skipped here; the legacy-cleanup migration retires them.
+ *
  * Idempotent: converted items carry the new template id, flagged items carry the flag, so a
  * second run writes nothing. Pure planning (`planR05HealingItem`) is separated from the
  * Foundry writes so it can be unit-tested.
  */
 
-import {
-  R05_HEAL_TO_RESTORATION_TEMPLATE,
-  R05_RETIRED_HEALING_BUFF_IDS,
-} from '../combat/r05-restoration.js';
+import { R05_RETIRED_HEALING_BUFF_IDS } from '../combat/r05-restoration.js';
 import { findTemplateById } from '../utils/power-catalog.js';
 import { resyncPowerItemFromTemplate } from './power-template-resync-migration.js';
+
+/** Map retired heal Active → Restoration template id. */
+const R05_HEAL_TO_RESTORATION_TEMPLATE: Record<string, string> = {
+  'active-melee-single-heal': 'active-melee-health-level-heal',
+  'active-ranged-single-heal': 'active-ranged-health-level-heal',
+  'active-melee-aoe-heal': 'active-melee-aoe-restoration',
+  'active-ranged-aoe-heal': 'active-ranged-aoe-restoration',
+};
 
 export const R05_RETIRED_FLAG = 'r05Retired';
 export const R05_MIGRATION_NOTE_FLAG = 'r05MigrationNote';
@@ -97,6 +105,20 @@ export function restorationPoolAtRank(templateId: string, rank: number): number 
   return Math.max(0, Math.floor(Number(row?.mechanics?.healthLevelRecovery) || 0));
 }
 
+/**
+ * True when the item came from an Artifact / Echo grant. Artifact-bound
+ * `active-*-single-heal` (old Moonlight Mending) is handled by the
+ * legacy-cleanup migration, not converted by R-05.
+ */
+export function isArtifactSourcedPowerItem(item: any): boolean {
+  if (!item) return false;
+  if (readFlag(item, 'echoBound') || readFlag(item, 'fromArtifact') || readFlag(item, 'artifactGranted')) {
+    return true;
+  }
+  const sys = item.system ?? {};
+  return sys.echoBound === true || sys.fromArtifact === true || sys.artifactGranted === true || item.type === 'artifact';
+}
+
 /** Decide what (if anything) to do to one owned power/passive item. Pure. */
 export function planR05HealingItem(item: any): R05ItemPlan {
   if (!item) return { kind: 'none' };
@@ -107,6 +129,7 @@ export function planR05HealingItem(item: any): R05ItemPlan {
   if (readFlag(item, R05_RETIRED_FLAG) === true) return { kind: 'none' };
 
   const mapped = R05_HEAL_TO_RESTORATION_TEMPLATE[tid];
+  if (mapped && /single-heal$/.test(tid) && isArtifactSourcedPowerItem(item)) return { kind: 'none' };
   if (mapped) {
     const template: any = findTemplateById(mapped);
     if (!template) return { kind: 'retire', reason: `Restoration template ${mapped} is missing.` };

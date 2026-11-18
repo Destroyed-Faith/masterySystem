@@ -19,10 +19,6 @@ export declare function rangedRangeCostPp(pl: number): number;
 export declare function meleeAoePoolFromBudget(pl: number): number;
 export declare function rangedAoePoolFromBudget(pl: number): number;
 export declare function passiveRegenPoolFromBudget(pl: number): number;
-/** Retired ordinary HP-heal Active template ids (R-05). */
-export declare const R05_RETIRED_HEAL_ACTIVE_IDS: Set<string>;
-/** Map legacy heal Active → Restoration template id. */
-export declare const R05_HEAL_TO_RESTORATION_TEMPLATE: Record<string, string>;
 export declare const R05_RETIRED_HEALING_BUFF_IDS: Set<string>;
 export declare const R05_AOE_RESTORATION_IDS: Set<string>;
 export declare function isScarredRestorationTemplateId(templateId: string | null | undefined): boolean;

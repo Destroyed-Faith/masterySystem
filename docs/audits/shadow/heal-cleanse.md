@@ -2,7 +2,7 @@
 
 Source: **unit-test fixtures** (catalog template ids + neutral ZZZ_* names). Not a Foundry reference world. Legacy path decides.
 
-Generated: 2026-11-05T11:06:02.206Z
+Generated: 2026-11-18T13:38:26.017Z
 
 ## Summary
 
@@ -16,7 +16,7 @@ Generated: 2026-11-05T11:06:02.206Z
 
 ## Shadow log clusters
 
-- `heal`: total=2, mismatches=0, sites=heal.isHealRadialOption
+- `heal`: total=0, mismatches=0, sites=(none)
 - `cleanse`: total=2, mismatches=0, sites=cleanse.isCleanseRadialOption
 
 ## Cases

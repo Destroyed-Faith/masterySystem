@@ -81,12 +81,25 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
     },
   ],
   // Catalogue Technical References (Artifacts_FULL_Moonlight_Sundered 2026-11-04):
-  //   L1/4/7 Moonlight Mending  → Ranged Single Target Heal (PL 4/10/16)
+  //   L1/4/7 Moonlight Mending  → Resolve Ability: Healing (Stone Power Support, Rank 2/3/4; PH)
   //   L2/5/8 Moonlight Judgment → Limited Ranged AoE Attack (Spell; PL 4/10/16)
   //   L3/6/9 Moonlight Shadow   → Active Buff: Sundered Aura (PL 4/10/16)
-  //   L10 Artifact Awakening (universal; no True Moonlight Ultimate, no Requiem)
+  //   L10 Artifact Awakening (universal; no True Moonlight Ultimate)
   progressionPickSpecs: {
-    1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
+    1: {
+      name: 'Moonlight Mending',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'resolve',
+        stonePowerId: 'resolve.healing',
+        supportStages: [1, 4, 7],
+      },
+      stageEffectTexts: [
+        'Pre-fill **Rank 2** of Healing. Rank 1 must still be paid.',
+        'Pre-fill **Rank 3** of Healing. Ranks 1 and 2 must still be paid. This replaces Moonlight Mending I.',
+        'Pre-fill **Rank 4** of Healing. Ranks 1, 2, and 3 must still be paid. This replaces Moonlight Mending II.',
+      ],
+    },
     2: {
       templateId: 'active-ranged-limited-aoe',
       name: 'Moonlight Judgment',
@@ -474,7 +487,7 @@ const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
     },
   ],
   progressionPickSpecs: {
-    1: { delivery: 'melee-single', special: 'challenge', name: 'Giant Shock Strike' },
+    1: { templateId: 'active-melee-instant-special-t5', special: 'challenge', name: 'Giant Shock Strike' },
     2: { templateId: 'reaction-armor', name: 'Ancestral Guard' },
   },
   levelProgression: [artifactAwakeningRow("Lor-Keth's Staff")],

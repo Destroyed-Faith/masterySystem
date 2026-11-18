@@ -143,7 +143,7 @@ describe('identity shadow compare', () => {
         type: 'power',
         name: 'ZZZ_E2E_HEAL',
         system: {
-          templateId: 'active-ranged-single-heal',
+          templateId: 'active-ranged-health-level-heal',
           powerType: 'active',
           category: 'active',
           rank: 3,
@@ -151,7 +151,7 @@ describe('identity shadow compare', () => {
         },
       },
     };
-    // radial.* + heal.* + cleanse.*
+    // radial.* + cleanse.* (heal detection is identity-only, no shadow site)
     const seg = getSegmentIdForOption(powerOption);
     const heal = isHealRadialOption(powerOption);
     const cleanse = isCleanseRadialOption(powerOption);
@@ -173,7 +173,8 @@ describe('identity shadow compare', () => {
     expect(mech).toBeNull();
 
     const clusters = exportIdentityShadowClusterReports();
-    for (const c of ['radial', 'heal', 'cleanse', 'limited', 'mechanics']) {
+    expect(clusters.heal).toBeUndefined();
+    for (const c of ['radial', 'cleanse', 'limited', 'mechanics']) {
       expect(clusters[c], `cluster ${c} missing`).toBeDefined();
       expect(clusters[c].total, `cluster ${c} empty`).toBeGreaterThan(0);
       expect(clusters[c].entries.every((e) => e.siteId.startsWith(`${c}.`))).toBe(true);

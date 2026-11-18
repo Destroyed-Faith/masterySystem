@@ -9,19 +9,15 @@
  */
 
 import { getArtifactBindingKind } from './artifact-actor-rules.js';
-import { inferArtifactKeyFromName } from './artifact-tree-grant.js';
 import { inferArtifactEquipSlots, normalizeSlotKey } from './equip-slots.js';
 
 export function getEchoArtifactKey(item: any): string | null {
   if (!item || item.type !== 'artifact') return null;
   const flagged = item.getFlag?.('mastery-system', 'echoArtifactKey');
   if (typeof flagged === 'string' && flagged.trim()) return flagged.trim();
-  if (getArtifactBindingKind(item) === 'echo') {
-    return inferArtifactKeyFromName(item.name);
-  }
   const bound = item.getFlag?.('mastery-system', 'echoBound');
   if (bound && typeof bound === 'string' && bound.trim()) return bound.trim();
-  return inferArtifactKeyFromName(item.name);
+  return null;
 }
 
 /** True for Echo-bound artifacts (locked to the character). */

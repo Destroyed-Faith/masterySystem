@@ -11,7 +11,6 @@ import { clampAtZero, formatD8Count, parseD8Count } from '../utils/dice-formula.
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
-import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 function cloneSnapshot(s) {
     return {
         ...s,
@@ -469,9 +468,6 @@ export function bindChosenSpecialIntoLevelData(levelData, chosenSpecialKey, temp
     if (!levelData || !chosenSpecialKey)
         return levelData;
     const pl = Number(level) || 1;
-    const injected = injectOptionalWeaponAoeChosenSpecial(levelData, chosenSpecialKey, templateId, pl);
-    if (injected && injected !== levelData)
-        return injected;
     if (!Array.isArray(levelData.specials))
         return levelData;
     if (!levelData.specials.some((s) => s?.key === 'SPECIAL'))
@@ -504,24 +500,11 @@ export function snapshotToSpecialStrings(snapshot) {
         return `${name}(${sp.rank})`;
     });
 }
-/**
- * Older Dragon Claws rows stored Rending Spiral as a plain weapon AoE
- * (`active-melee-weapon-aoe`), which adds bonus dice and never applies Lacerate.
- * The printed profile is Melee AoE Attack + Lacerate.
- */
-export function canonicalArtifactAttackTemplateId(option) {
-    const stored = String(option.artifactPowerTemplateId || '');
-    const key = String(option.artifactChosenSpecialKey || '').trim().toLowerCase();
-    if (stored === 'active-melee-weapon-aoe' && key === 'lacerate') {
-        return 'active-melee-aoe-damage-t4';
-    }
-    return stored;
-}
 /** Load catalog level data for an artifact Active (Frost Throw, spells, …). */
 export async function loadPowerSnapshotForArtifactOption(option) {
     if (!option.artifactPowerTemplateId)
         return null;
-    const templateId = canonicalArtifactAttackTemplateId(option);
+    const templateId = option.artifactPowerTemplateId;
     const pl = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
     const chosenKey = option.artifactChosenSpecialKey;
     let levelData = null;

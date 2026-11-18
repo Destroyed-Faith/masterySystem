@@ -16,17 +16,13 @@ import {
   classifyBondStatus,
   computeSummonBond,
   emptyBondSpend,
-  isSummonSkillEligible,
   legacyMovementTypeToMode,
   normalizeMovementMode,
-  summonSkillMinRating,
-  summonSkillSlots,
   summonTokensFromStones,
   type BondValidityStatus,
   type SharedSenseGroup,
   type SummonBondUpgradeSpend,
   type SummonMovementMode,
-  type SummonSkillId,
 } from './summon-bond-rules.js';
 import {
   inspectBondSpend,
@@ -37,12 +33,6 @@ import {
   sanitizeSpendNumbers,
 } from './summon-bond-spend.js';
 import { evaluateSummonPower } from './summon-power-allowlist.js';
-import {
-  normalizeSummonTaskSpecMap,
-  readActorSpecializations,
-  validateSummonTaskSpecMap,
-  type SummonTaskSpecMap,
-} from '../rules/specializations.js';
 
 export const DISSOLVE_BOND_CONFIRM =
   'Dissolve this Summon Bond? Bound Stones return to the owner. Existing summon tokens will be removed. Body actors may be archived or deleted according to system settings.';
@@ -107,10 +97,10 @@ export type SummonBondRecord = {
   summonAttacks: number;
   specialKey?: string | null;
   specialValue: number;
-  /** @deprecated Retired — cleared by Skill Dice Token credit migration. */
-  selectedSkills: SummonSkillId[];
-  /** @deprecated Retired — cleared by Skill Dice Token credit migration. */
-  skillDiceAlloc: Partial<Record<SummonSkillId, number>>;
+  /** @deprecated Retired Summon Skills; archived and removed by the legacy-cleanup migration. */
+  selectedSkills?: string[];
+  /** @deprecated Retired Summon Skill Dice; archived and removed by the legacy-cleanup migration. */
+  skillDiceAlloc?: Record<string, number>;
   /**
    * Unspent Tokens credited when Skill Dice purchases were retired.
    * Added to available budget; not Artifact bonus.
@@ -123,7 +113,7 @@ export type SummonBondRecord = {
   /**
    * @deprecated Retired with Summon Skill Dice. Natural tasks use owner Professions.
    */
-  taskSpecMap?: SummonTaskSpecMap;
+  taskSpecMap?: Record<string, string>;
   spend: SummonBondUpgradeSpend;
   bodies: SummonBodyRecord[];
   activationTiming: 'before' | 'after';
@@ -205,9 +195,6 @@ export function createEmptyBond(opts: {
     summonAttacks: computed.summonAttacks,
     specialKey: null,
     specialValue: 0,
-    selectedSkills: [],
-    skillDiceAlloc: {},
-    taskSpecMap: {},
     spend,
     bodies: [body],
     activationTiming: 'after',
@@ -281,19 +268,6 @@ export function recomputeBondDerived(bond: SummonBondRecord): SummonBondRecord {
   };
 }
 
-/**
- * Summon Skill Dice / selected-skill slots are retired.
- * Pre-migration Bonds may still carry legacy fields; those are cleared by
- * `summon-skill-dice-refund-migration` rather than hard-failing Bond Rituals.
- */
-export function validateBondSkillAlloc(
-  _bond: SummonBondRecord,
-  _ownerSkillRatings: Record<string, number>,
-  _ownerMasteryRank = 1,
-): string[] {
-  return [];
-}
-
 export async function persistSummonBonds(actor: any, bonds: SummonBondRecord[]): Promise<void> {
   await actor.update({ 'system.summonBonds': bonds });
 }
@@ -318,9 +292,7 @@ export function tokensSummary(bond: SummonBondRecord): {
   available: number;
   spent: number;
   remaining: number;
-  skillSlots: number;
   bondSpent: number;
-  skillsSpent: number;
   specialSpent: number;
   bodySpent: number[];
   /** Retired Skill Dice Token credit included in `available`. */
@@ -338,9 +310,7 @@ export function tokensSummary(bond: SummonBondRecord): {
     available: computed.tokensAvailable,
     spent: computed.tokensSpent,
     remaining: computed.tokensRemaining,
-    skillSlots: summonSkillSlots(bond.boundStoneCount),
     bondSpent: computed.bondUpgradeTokens + computed.specialTokens,
-    skillsSpent: computed.skillTokens,
     specialSpent: computed.specialTokens,
     bodySpent: computed.bodyTokens,
     skillDiceTokenCredit: credit,
@@ -428,12 +398,9 @@ export function validateBondPowers(
 
 export function validateBondRitual(
   bond: SummonBondRecord,
-  ownerSkillRatings: Record<string, number> = {},
   ownerMasteryRank = 1,
   extras?: {
     maxBonusTokens?: number;
-    /** Owner Specializations (DF 2026 task mapping). When omitted, mapping ids are not cross-checked. */
-    ownerSpecs?: ReturnType<typeof readActorSpecializations>;
   },
 ): BondRitualValidation {
   const errors: string[] = [];
@@ -471,7 +438,6 @@ export function validateBondRitual(
     skillDiceTokenCredit: bond.skillDiceTokenCredit,
     movementMode: bond.movementMode,
     selectedSkills: bond.selectedSkills,
-    ownerSkillRatings,
     ownerMasteryRank,
     maxBonusTokens: maxBonus,
     skillDiceAlloc: bond.skillDiceAlloc,
@@ -490,18 +456,9 @@ export function validateBondRitual(
   errors.push(...computed.errors);
   warnings.push(...computed.warnings);
   errors.push(...inspect.reasons);
-  errors.push(...validateBondSkillAlloc(bond, ownerSkillRatings, ownerMasteryRank));
   errors.push(...validateBondPowers(bond, ownerMasteryRank));
   if (bond.taskSpecMap && Object.keys(bond.taskSpecMap).length > 0) {
-    const map = normalizeSummonTaskSpecMap(bond.taskSpecMap);
-    errors.push(
-      ...validateSummonTaskSpecMap({
-        map,
-        boundStones: bond.boundStoneCount,
-        // Without owner specs, only the slot limit is checked.
-        ownerSpecs: extras?.ownerSpecs ?? Object.values(map).map((id) => ({ id })),
-      }),
-    );
+    errors.push('Summon task mapping is retired; natural tasks use the owner\'s Professions.');
   }
 
   if (bond.spend.specialAccess && !bond.specialKey) {
@@ -611,7 +568,6 @@ export async function upsertSummonBond(actor: any, bond: SummonBondRecord): Prom
 export async function applyBondRitual(
   actor: any,
   bondDraft: SummonBondRecord,
-  ownerSkillRatings: Record<string, number> = {},
 ): Promise<{ bond: SummonBondRecord | null; errors: string[]; warnings: string[] }> {
   const { assertProgressionEditable } = await import('../sheets/actor-sheet-identity.js');
   if (!assertProgressionEditable(actor)) {
@@ -641,18 +597,13 @@ export async function applyBondRitual(
     draft.specialKey = null;
     draft.spend.specialValuePurchases = 0;
   }
-  draft.taskSpecMap = normalizeSummonTaskSpecMap(draft.taskSpecMap);
-  const validation = validateBondRitual(draft, ownerSkillRatings, mr, {
-    maxBonusTokens: maxBonus,
-    ownerSpecs: readActorSpecializations(actor?.system),
-  });
+  const validation = validateBondRitual(draft, mr, { maxBonusTokens: maxBonus });
   const inspect = inspectBondSpend(draft.spend, {
     boundStoneCount: draft.boundStoneCount,
     bonusTokens: draft.bonusTokens,
     skillDiceTokenCredit: draft.skillDiceTokenCredit,
     movementMode: draft.movementMode,
     selectedSkills: draft.selectedSkills,
-    ownerSkillRatings,
     ownerMasteryRank: mr,
     maxBonusTokens: maxBonus,
     skillDiceAlloc: draft.skillDiceAlloc,
@@ -817,18 +768,4 @@ export async function dissolveSummonBond(
     'system.stonePools': stonePools,
   });
   return { removed, errors: [] };
-}
-
-/** Owner skill ratings helper for ritual validation. */
-export function ownerSkillRatingsFromActor(actor: any): Record<string, number> {
-  const skills = actor?.system?.skills ?? {};
-  const out: Record<string, number> = {};
-  for (const [key, val] of Object.entries(skills)) {
-    const rating =
-      typeof val === 'number'
-        ? val
-        : Math.max(0, Math.floor(Number((val as any)?.rating ?? (val as any)?.value ?? 0) || 0));
-    out[key] = rating;
-  }
-  return out;
 }

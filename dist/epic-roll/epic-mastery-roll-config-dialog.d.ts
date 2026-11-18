@@ -13,7 +13,6 @@ export declare class EpicMasteryRollConfigDialog extends BaseDialog {
     private showTn;
     private tn;
     private rollKind;
-    private skillKey;
     private attributeKey;
     private selectedIds;
     private preset;

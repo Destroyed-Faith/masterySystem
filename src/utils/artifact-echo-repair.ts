@@ -3,7 +3,7 @@
  */
 
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
-import { wireEmbeddedArtifactToWorldTree, inferArtifactKeyFromName } from './artifact-tree-grant.js';
+import { wireEmbeddedArtifactToWorldTree } from './artifact-tree-grant.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
 import {
   dragonHeadBreathProgressionBroken,
@@ -61,9 +61,7 @@ export async function syncEmbeddedArtifactFromWorldNode(emb: any, actor: any): P
 export async function repairArtifactEvolutionLink(actor: any, emb: any): Promise<boolean> {
   if (emb.getFlag?.('mastery-system', 'evolutionRootItemId')) return false;
 
-  const artifactKey =
-    (emb.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined) ||
-    inferArtifactKeyFromName(emb.name);
+  const artifactKey = emb.getFlag?.('mastery-system', 'echoArtifactKey') as string | undefined;
 
   if (artifactKey && !findEchoArtifactRootInWorld(artifactKey)) {
     return false;

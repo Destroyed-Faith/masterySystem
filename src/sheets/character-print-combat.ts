@@ -25,6 +25,7 @@ import {
 } from '../utils/weapon-sets.js';
 import { addD8Formulas, parseD8Count } from '../utils/dice-formula.js';
 import { formatEffectReference } from '../utils/special-effects.js';
+import { isSpecialOnlyTemplateId } from '../combat/damage-transfer.js';
 
 export interface PrintCombatPreview {
   attackKind?: string;
@@ -205,16 +206,17 @@ function powerTemplateKey(sys: any): string {
 
 /** Martial weapon-attack templates always stack weapon damage (even if mis-tagged as Spell). */
 function isWeaponAttackPower(sys: any): boolean {
-  return /weapon-attack|weapon-aoe|weapon-single|targeted-special|active-(melee|ranged)-weapon-|active-(melee|ranged)-(aoe-)?targeted-special/i.test(
+  return /weapon-attack|weapon-aoe|weapon-single|active-(melee|ranged)-weapon-/i.test(
     powerTemplateKey(sys),
   );
 }
 
 function usesWeaponDamage(sys: any, rank: number): boolean {
   const sub = powerTemplateKey(sys);
-  if (/weapon-attack|weapon-aoe|weapon-single|targeted-special|active-(melee|ranged)-weapon-|active-(melee|ranged)-(aoe-)?targeted-special/i.test(sub)) {
+  if (/weapon-attack|weapon-aoe|weapon-single|active-(melee|ranged)-weapon-/i.test(sub)) {
     return true;
   }
+  if (isSpecialOnlyTemplateId(sys?.templateId)) return false;
   if (isAttackPower(sys) && !isSpellPowerSys(sys) && !isHealPower(sys, rank)) return true;
   const row = levelRow(sys, rank);
   if (row?.mechanics?.damageRider && !isHealPower(sys, rank)) return true;
@@ -340,43 +342,6 @@ function resolveWeaponBaseDamageString(weapon: any | null): string {
     sys.roll?.damage ??
     '1d8';
   return cleanPowerDamage(raw);
-}
-
-/**
- * Prepared set / equipped weapons available for Basic Attack, split by kind.
- * A ranged set weapon appears here even when the character has no Ranged
- * Single Attack power (that weapon is then Basic Attack only).
- */
-export function listPreparedWeaponsByAttackType(
-  actor: any,
-  items: any[],
-): { melee: any | null; ranged: any | null } {
-  return {
-    melee: resolveWeaponForPrint(actor, items, 'melee'),
-    ranged: resolveWeaponForPrint(actor, items, 'ranged'),
-  };
-}
-
-/** Compact Basic Attack damage lines: one per prepared weapon kind. */
-export function buildBasicAttackCompactDamageLines(
-  actor: any,
-  items: any[],
-  mrBonusFormula: string,
-): string[] {
-  const { melee, ranged } = listPreparedWeaponsByAttackType(actor, items);
-  const lines: string[] = [];
-  if (melee) {
-    const wd = resolveWeaponBaseDamageString(melee);
-    if (parseD8Count(wd) > 0) lines.push(`Melee: WD ${wd} + ${mrBonusFormula}`);
-  }
-  if (ranged) {
-    const wd = resolveWeaponBaseDamageString(ranged);
-    if (parseD8Count(wd) > 0) lines.push(`Ranged: WD ${wd} + ${mrBonusFormula}`);
-  }
-  if (lines.length === 0) {
-    lines.push(`Melee: WD 1d8 + ${mrBonusFormula}`);
-  }
-  return lines;
 }
 
 function equippedWeaponSpecialsLabels(items: any[]): string[] {

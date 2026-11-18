@@ -25,6 +25,7 @@ import {
     type SecondPassiveBucket,
 } from './tower-wizard-passive-categories.js';
 import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
+import { tierFromSpecialKey } from '../../utils/artifact-power-pick.js';
 import {
     buildGuidedBuildSummary,
     getGuidedFirstPassiveIntentGroups,
@@ -165,8 +166,13 @@ function def(templateId: string, rank: number, extra: Partial<PowerGrantSpec> = 
     return { templateId, rank, ...extra };
 }
 
+/**
+ * Single Target Special (special-only Attack). The tier follows the Special's
+ * printed Start PP group, so each Special maps to exactly one template.
+ */
 function dmg(flavour: 'melee' | 'ranged', tier: 3 | 4 | 5 | 6, special?: string): PowerGrantSpec {
-    return def(`active-${flavour}-damage-t${tier}`, OFF_RANK, special ? { special } : {});
+    const t = (special && tierFromSpecialKey(special)) || tier;
+    return def(`active-${flavour}-instant-special-t${t}`, OFF_RANK, special ? { special } : {});
 }
 
 function weapon(flavour: 'melee' | 'ranged'): PowerGrantSpec {
@@ -185,8 +191,12 @@ function controlPushPull(flavour: 'melee' | 'ranged'): PowerGrantSpec {
     return def(`active-${flavour}-control-push-pull`, OFF_RANK);
 }
 
+/**
+ * Ranged Spell attack. With a Special it is a Single Target Special Spell;
+ * without one it is the damaging Ranged Single Target Attack with Spell delivery.
+ */
 function spellDamage(flavour: 'melee' | 'ranged', tier: 3 | 4 | 5 | 6, special?: string): PowerGrantSpec {
-    const base = dmg(flavour, tier, special);
+    const base = special ? dmg(flavour, tier, special) : weapon(flavour);
     if (flavour !== 'ranged') return base;
     return {
         ...base,
@@ -313,9 +323,8 @@ const ACTIVE_SUBFAMILY_LABELS: Record<string, string> = {
     'damage-aoe': 'Area Special Attacks',
     'weapon-attack': 'Weapon Attacks',
     control: 'Control & Movement',
-    'hard-control': 'Hard Control',
     'persistent-zone': 'Zones & Persistent Effects',
-    mixed: 'Mixed Effects',
+    support: 'Restoration & Cleanse',
     barrier: 'Barriers',
     illusion: 'Illusion',
 };
@@ -325,9 +334,8 @@ const ACTIVE_GROUP_ORDER = [
     'damage-aoe',
     'weapon-attack',
     'control',
-    'hard-control',
     'persistent-zone',
-    'mixed',
+    'support',
     'barrier',
     'illusion',
 ] as const;
@@ -338,7 +346,7 @@ function catalogEntryHasRank(entry: CatalogEntry, rank: number): boolean {
 }
 
 function normalizeActiveSubfamily(subfamily: string): string {
-    if (subfamily.startsWith('support-')) return 'mixed';
+    if (subfamily.startsWith('support-')) return 'support';
     return subfamily || 'other';
 }
 
@@ -384,17 +392,15 @@ const OFFENSE_GROUP_ORDER = [
 
 const NORMAL_ATTACK_PATTERN_ORDER = ['weapon-single', 'weapon-split', 'weapon-aoe', 'weapon-autofire'];
 
-// Catalogue: Single Target Heal (HP) + Scarred Bar Restoration + Cleanse.
+// Catalogue: Scarred Bar Restoration + Cleanse.
 const HEAL_PATTERN_ORDER = [
-    'single-heal',
     'health-level-heal',
     'aoe-restoration',
     'single-cleanse',
     'aoe-cleanse',
-    'heal-cleanse-mixed',
 ];
 
-const CONTROL_PATTERN_ORDER = ['damage-stunned'];
+const CONTROL_PATTERN_ORDER = ['control-push-pull'];
 
 function isNormalWeaponAttack(entry: CatalogEntry): boolean {
     return /active-(?:melee|ranged)-weapon-(single|aoe|split)$/.test(entry.templateId)
@@ -402,12 +408,11 @@ function isNormalWeaponAttack(entry: CatalogEntry): boolean {
 }
 
 function isControlActive(entry: CatalogEntry): boolean {
-    return entry.subfamily === 'control' || entry.subfamily === 'hard-control';
+    return entry.subfamily === 'control';
 }
 
 function isHealSupportActive(entry: CatalogEntry): boolean {
-    if (entry.subfamily === 'support-heal' || entry.subfamily === 'support-cleanse') return true;
-    return entry.templateId.includes('heal-cleanse-mixed');
+    return entry.subfamily === 'support-heal' || entry.subfamily === 'support-cleanse';
 }
 
 function offenseCatalogGroupKey(entry: CatalogEntry): string {
@@ -470,10 +475,10 @@ function offenseSpecialGroupTooltip(groupKey: string, specialKey: string | null)
         return 'Pure weapon attacks with no Special on hit: Single, Split, and AoE modes.';
     }
     if (groupKey === OFFENSE_GROUP_CONTROL) {
-        return 'Positioning, disables, and hard control: push, pull, prone, disarm, stun, and similar effects.';
+        return 'Positioning: push and pull.';
     }
     if (groupKey === OFFENSE_GROUP_HEAL) {
-        return 'Single Target Heal restores HP; Scarred Bar Restoration reopens Scarred bars; Cleanse removes afflictions.';
+        return 'Scarred Bar Restoration reopens Scarred bars; Cleanse removes afflictions.';
     }
     if (groupKey === OFFENSE_UTILITY_GROUP_KEY) {
         return 'Barriers, illusion, zones, and other Actives that do not fit the categories above.';

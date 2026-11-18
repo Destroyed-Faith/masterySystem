@@ -2,7 +2,7 @@
  * Actor preferences for which standard combat maneuvers appear in the token radial menu.
  */
 
-/** Maneuver IDs the radial menu can show (subset of COMBAT_MANEUVERS + weapon-attack). */
+/** Maneuver IDs the radial menu can show (subset of COMBAT_MANEUVERS). */
 export const RADIAL_STANDARD_MANEUVER_IDS: readonly string[] = [
   'move',
   'dash',
@@ -11,7 +11,6 @@ export const RADIAL_STANDARD_MANEUVER_IDS: readonly string[] = [
   'flee',
   'quick-load',
   'weapon-swap',
-  'weapon-attack',
   'parry-stance',
   'grapple',
 ];
@@ -32,7 +31,7 @@ export function isManeuverHiddenFromActorRadial(actor: any, maneuverId: string):
   if (prefs?.hideAllStandard === true && isStandardRadialManeuverId(maneuverId)) {
     return true;
   }
-  // Basic Attack (and any other opt-in): hidden unless explicitly shown.
+  // Opt-in maneuvers: hidden unless explicitly shown.
   if (isOptInRadialManeuverId(maneuverId)) {
     return prefs?.showIds?.[maneuverId] !== true;
   }
@@ -59,7 +58,6 @@ const RADIAL_PREFS_ROWS: Array<{ id: string; name: string; group: string }> = [
   { id: 'flee', name: 'Flee', group: 'Bewegung' },
   { id: 'quick-load', name: 'Quick Load', group: 'Bewegung' },
   { id: 'weapon-swap', name: 'Weapon Swap', group: 'Bewegung' },
-  { id: 'weapon-attack', name: 'Basic Attack', group: 'Angriff' },
   { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
   { id: 'grapple', name: 'Grapple', group: 'Angriff' },
 ];

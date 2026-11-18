@@ -12,10 +12,9 @@ import {
   actorHasProgressionArtifacts,
   listUnwiredEmbeddedArtifacts,
 } from '../utils/artifact-tree-grant.js';
-import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE } from '../utils/constants.js';
+import { attributeBandCost, powerLevelCost, MAX_ATTRIBUTE } from '../utils/constants.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
-import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
-import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import {
   SKILL_FIELD_LABELS,
   SPECIALIZATION_MAX_RANK,
@@ -35,12 +34,6 @@ import {
   type XpHistoryBalances,
   type XpHistoryEntry,
 } from '../utils/xp-history.js';
-import {
-  allocateSkillPending,
-  readSkillPointPool,
-  skillPointPoolUpdate,
-  type SkillPendingAllocation,
-} from './skill-point-pool.js';
 
 export const ATTRIBUTE_KEYS = [
   'might',
@@ -153,80 +146,6 @@ export function calculateAttributePendingNetCost(
   return net;
 }
 
-/** Pending legacy Skill rank changes are XP-only (Skill Points retired). */
-export function allocateActorSkillPending(
-  actor: any,
-  pendingMap: Record<string, number>,
-): SkillPendingAllocation {
-  return allocateSkillPending({
-    pendingMap,
-    currentRank: (key) => Number(actor?.system?.skills?.[key] ?? 0) || 0,
-    skillBandCost,
-  });
-}
-
-/** Net XP (positive = spend) for pending legacy Skill changes. */
-export function calculateSkillPendingNetCost(
-  actor: any,
-  pendingMap: Record<string, number>,
-): number {
-  return allocateActorSkillPending(actor, pendingMap).xpNet;
-}
-
-/** XP history rows for a confirmed legacy Skill batch. */
-export function buildSkillStepHistoryEntries(opts: {
-  actor: any;
-  allocation: SkillPendingAllocation;
-  before: XpHistoryBalances;
-  after: XpHistoryBalances;
-}): XpHistoryEntry[] {
-  const user = currentXpUser();
-  const ts = Date.now();
-  const entries: XpHistoryEntry[] = [];
-  for (const entry of Object.values(opts.allocation.perSkill)) {
-    const current = Number(opts.actor?.system?.skills?.[entry.key] ?? 0) || 0;
-    const label = SKILLS[entry.key]?.name || entry.key;
-    if (entry.pending > 0) {
-      for (let i = 0; i < entry.pending; i += 1) {
-        const from = current + i;
-        const to = from + 1;
-        const cost = skillBandCost(to);
-        entries.push({
-          ts: ts + entries.length,
-          userId: user.userId,
-          userName: user.userName,
-          kind: 'spend',
-          category: 'skill',
-          amount: cost,
-          note: `${label} ${from} → ${to}`,
-          details: { key: entry.key, name: label, from, to, cost },
-          before: opts.before,
-          after: opts.after,
-        });
-      }
-    } else {
-      for (let i = 0; i < entry.xpRefundSteps; i += 1) {
-        const from = current - i;
-        const to = from - 1;
-        const cost = skillBandCost(from);
-        entries.push({
-          ts: ts + entries.length,
-          userId: user.userId,
-          userName: user.userName,
-          kind: 'adjust',
-          category: 'skill',
-          amount: cost,
-          note: `refund: ${label} ${from} → ${to}`,
-          details: { key: entry.key, name: label, from, to, cost },
-          before: opts.before,
-          after: opts.after,
-        });
-      }
-    }
-  }
-  return entries;
-}
-
 export function getPowerMinLevel(item: any): number {
   // Delegate to the shared baseline (floored at the category creation rank) so
   // downgrade limits and refunds stay consistent even with corrupt minLevel.
@@ -269,10 +188,6 @@ export interface ProgressionHubContext {
   hasFreeXpPhase: boolean;
   artifactCapacity: { bound: number; max: number; full: boolean };
   attributes: Array<{ key: string; label: string; value: number; baseline: number }>;
-  skillGroups: Array<{
-    category: string;
-    skills: Array<{ key: string; name: string; value: number }>;
-  }>;
   /** Specializations — Rank-up uses the Skill XP ladder (cost to reach next Rank). */
   specializations: Array<{
     id: string;
@@ -306,7 +221,6 @@ const ATTR_LABELS: Record<string, string> = {
 export function buildProgressionHubContext(actor: Actor): ProgressionHubContext {
   const xp = getXpState(actor);
   const masteryRank = (actor.system as any)?.mastery?.rank ?? 2;
-  const maxSkill = calculateMaxSkillRank(masteryRank);
   const maxPower = getMaxPurchasablePowerLevel(actor);
 
   const attributes = ATTRIBUTE_KEYS.map((key) => ({
@@ -315,30 +229,6 @@ export function buildProgressionHubContext(actor: Actor): ProgressionHubContext 
     value: Number((actor.system as any).attributes?.[key]?.value ?? 2) || 2,
     baseline: getAttributeXpBaseline(actor, key),
   }));
-
-  const skillsByCategory: Record<string, Array<{ key: string; name: string; value: number }>> = {};
-  for (const [key, def] of Object.entries(SKILLS)) {
-    const category = def.category;
-    if (!skillsByCategory[category]) skillsByCategory[category] = [];
-    skillsByCategory[category].push({
-      key,
-      name: def.name,
-      value: Number((actor.system as any).skills?.[key] ?? 0) || 0,
-    });
-  }
-  const categoryOrder = [
-    SKILL_CATEGORIES.AWARENESS,
-    SKILL_CATEGORIES.PHYSICAL,
-    SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
-    SKILL_CATEGORIES.SOCIAL,
-    SKILL_CATEGORIES.SURVIVAL,
-  ];
-  const skillGroups = categoryOrder
-    .filter((c) => skillsByCategory[c]?.length)
-    .map((category) => ({
-      category,
-      skills: skillsByCategory[category].sort((a, b) => a.name.localeCompare(b.name)),
-    }));
 
   const powers = Array.from((actor as any).items.filter((i: any) => i.type === 'power')).map((p: any) => ({
     id: p.id,
@@ -361,7 +251,6 @@ export function buildProgressionHubContext(actor: Actor): ProgressionHubContext 
       full: boundCount >= ARTIFACT_CAPACITY_DEFAULT,
     },
     attributes,
-    skillGroups,
     specializations: readSpecializations((actor as any).system).map((s) => ({
       id: s.id,
       name: s.name,
@@ -442,79 +331,6 @@ export async function applyAttributePendingChanges(
       totalSpent: acct.totalSpent,
     },
     user: currentXpUser(),
-  });
-  if (historyEntries.length) {
-    updates['system.xp.history'] = appendXpHistory(actor, historyEntries);
-  }
-
-  await actor.update(updates);
-  return { ok: true };
-}
-
-export async function applySkillPendingChanges(
-  actor: Actor,
-  pendingMap: Record<string, number>,
-): Promise<{ ok: boolean; error?: string }> {
-  if (!assertProgressionEditable(actor)) {
-    return { ok: false, error: 'Progression locked on unlinked token.' };
-  }
-  const xpState = getXpState(actor);
-  const allocation = allocateActorSkillPending(actor, pendingMap);
-  const netCost = allocation.xpNet;
-  if (netCost > xpState.available) {
-    return { ok: false, error: `Not enough XP (need ${netCost}, have ${xpState.available}).` };
-  }
-
-  const masteryRank = actor.system.mastery?.rank || 2;
-  const maxSkill = calculateMaxSkillRank(masteryRank);
-  const updates: Record<string, unknown> = {};
-  let stepAfter = stepRule.readStep(actor);
-
-  for (const [skillKey, pending] of Object.entries(pendingMap)) {
-    if (!pending) continue;
-    const current = Number(actor.system.skills?.[skillKey] ?? 0) || 0;
-    const desired = current + pending;
-    if (pending > 0 && desired > maxSkill) {
-      return {
-        ok: false,
-        error: `${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
-      };
-    }
-    const target = Math.max(0, Math.min(maxSkill, desired));
-    if (target === current) continue;
-    const xpSteps = allocation.perSkill[skillKey]?.xpSteps ?? 0;
-    if (pending > 0 && xpSteps > 0) {
-      stepAfter = stepRule.recordBump(stepAfter, 'skill', skillKey);
-    } else if (pending < 0) {
-      stepAfter = stepRule.undoBump(stepAfter, 'skill', skillKey);
-    }
-    updates[`system.skills.${skillKey}`] = target;
-  }
-
-  const acct = applyXpCost(xpState, netCost);
-  updates['system.points.xp'] = acct.pointsXp;
-  updates['system.points.xpFree'] = acct.pointsXpFree;
-  updates['system.xp.totalSpent'] = acct.totalSpent;
-  updates['system.xp.freeSpent'] = acct.freeSpent;
-  updates['system.xp.currentStep.attributes'] = [...stepAfter.attributes];
-  updates['system.xp.currentStep.skills'] = [...stepAfter.skills];
-  updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
-  updates['system.xp.currentStep.artifacts'] = [...stepAfter.artifacts];
-  Object.assign(updates, skillPointPoolUpdate(readSkillPointPool(actor.system), allocation));
-
-  const historyEntries = buildSkillStepHistoryEntries({
-    actor,
-    allocation,
-    before: {
-      available: xpState.available,
-      totalEarned: xpState.totalEarned,
-      totalSpent: xpState.totalSpent,
-    },
-    after: {
-      available: acct.pointsXp + acct.pointsXpFree,
-      totalEarned: xpState.totalEarned,
-      totalSpent: acct.totalSpent,
-    },
   });
   if (historyEntries.length) {
     updates['system.xp.history'] = appendXpHistory(actor, historyEntries);

@@ -607,8 +607,7 @@ const HUNTERS_SCOURGE = {
     description: "Demon Hunter / Relic Hunter Echo Artifact: a two-handed chain-whip. Keeps Finesse and Reach from the Whip base. Scourge Strike is Limited Melee Single Target Attack. Maximization Support is Vitality: Maximization. Unmask the Prey is Melee Single Target Special: Expose.",
     restriction: "Hunter's Scourge occupies both hand Slots. A Relic Hunter cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.",
     // Core (2026-11-04): L1/4/7 Scourge Strike (Limited); L2/5/8 Maximization Support;
-    // L3/6/9 Unmask the Prey (Expose). Replaces the prior Exorcism Lash / Snap Chain /
-    // Whirling Scourge pick set.
+    // L3/6/9 Unmask the Prey (Expose).
     progressionPickSpecs: {
         1: {
             name: 'Scourge Strike',

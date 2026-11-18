@@ -38,9 +38,6 @@ export const SYSTEM_MANAGED_STATUS_IDS = [
     'surprise',
     'regeneration',
     'crit',
-    /** Fiend / Deathless power Specials — applied by Powers, not the generic picker. */
-    'exorcism',
-    'requiem',
 ];
 const SELECTABLE_SET = new Set(SELECTABLE_STATUS_IDS);
 const SYSTEM_MANAGED_SET = new Set(SYSTEM_MANAGED_STATUS_IDS);
@@ -83,8 +80,6 @@ export const MASTERY_STATUS_EFFECTS = [
     { id: 'surprise', name: 'Surprise', img: ICON('terror'), hud: false },
     { id: 'regeneration', name: 'Regeneration', img: ICON('regen'), hud: false },
     { id: 'crit', name: 'Crit', img: ICON('explosion'), hud: false },
-    { id: 'exorcism', name: 'Exorcism', img: ICON('holy-shield'), hud: false },
-    { id: 'requiem', name: 'Requiem', img: ICON('skull'), hud: false },
     /** Presentation for live Passive/Buff Invisibility (not a cleansable Special). */
     { id: 'invisible', name: 'Invisible', img: ICON('invisible'), hud: false },
 ];

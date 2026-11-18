@@ -152,7 +152,6 @@ import {
   runEchoArtifactDedupeMigration,
 } from './migrations/echo-artifact-dedupe-migration.js';
 import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
-import { runMartialSkillsRefundMigration } from './migrations/martial-skills-refund-migration.js';
 import { buildValueTableHtml } from './progression/build-value.js';
 import { DF_CORE_RULES_VERSION, nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
@@ -1924,6 +1923,41 @@ function exposeMasterySystemApi(): void {
     // Force-rebuild every template-backed Power's baked level table from the
     // current catalog templates (use after editing/auditing power templates).
     resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),
+    /** Actives v0.9.9.6: open the GM migration review (dry-run report; Apply after confirmation). */
+    activesV0996Review: async () => {
+      const { openActivesV0996Review } = await import('./migrations/actives-v0996-review-dialog.js');
+      return openActivesV0996Review();
+    },
+    /** Actives v0.9.9.6: read-only report object (for macros / verification). */
+    activesV0996Report: async () => {
+      const { buildActivesV0996Report } = await import('./migrations/actives-v0996-migration.js');
+      return buildActivesV0996Report();
+    },
+    /** Actives v0.9.9.6: restore one actor from its item backups (state returns to pending). */
+    activesV0996Rollback: async (actor: any) => {
+      const { rollbackActorV0996 } = await import('./migrations/actives-v0996-migration.js');
+      return rollbackActorV0996(actor);
+    },
+    /** Legacy cleanup 2026: open the GM migration review (dry-run report; Apply after confirmation). */
+    legacyCleanupReview: async () => {
+      const { openLegacyCleanupReview } = await import('./migrations/legacy-cleanup-2026-review-dialog.js');
+      return openLegacyCleanupReview();
+    },
+    /** Legacy cleanup 2026: read-only report object (for macros / verification). */
+    legacyCleanupReport: async () => {
+      const { buildLegacyCleanupReport } = await import('./migrations/legacy-cleanup-2026-migration.js');
+      return buildLegacyCleanupReport();
+    },
+    /** Legacy cleanup 2026: restore one actor and its items from the backups (state returns to pending). */
+    legacyCleanupRollback: async (actor: any) => {
+      const { rollbackActorLegacyCleanup } = await import('./migrations/legacy-cleanup-2026-migration.js');
+      return rollbackActorLegacyCleanup(actor);
+    },
+    /** Legacy cleanup 2026: GM decision for a Skill conflict (Free XP refund; 0 = archive only). */
+    legacyCleanupResolveSkills: async (actor: any, decision: { xpRefund: number; note?: string }) => {
+      const { resolveLegacySkillConflict } = await import('./migrations/legacy-cleanup-2026-migration.js');
+      return resolveLegacySkillConflict(actor, decision);
+    },
     /** Artifact alignment (seed bump + world library refresh). Default dry-run. */
     runArtifactAlignmentMigration: async (opts?: { dryRun?: boolean }) => {
       const { runArtifactAlignmentMigration } = await import(
@@ -3107,7 +3141,6 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
 /**
  * Migration hook - set creationComplete=true for existing characters without the flag
  * Also migrate old stone system to new per-attribute stone pools
- * Also migrate skillsSpent for new consumable skill system
  */
 Hooks.once('ready', async function() {
   installTooltipPassthrough();
@@ -3122,7 +3155,6 @@ Hooks.once('ready', async function() {
   const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
   let migratedCreation = 0;
   let migratedStones = 0;
-  let migratedSkillsSpent = 0;
   
   for (const actor of characters) {
     const system = (actor as any).system;
@@ -3131,94 +3163,6 @@ Hooks.once('ready', async function() {
     if (system?.creation?.complete === undefined || system?.creation?.complete === null) {
       await actor.update({ 'system.creation.complete': true });
       migratedCreation++;
-    }
-    
-    // Migration: Rename old skill keys -> new skill keys
-    const skillKeyRenames: Record<string, string> = {
-      herbalismAlchemy: 'alchemy',
-      foraging: 'herbalism'
-    };
-    const newSkillKeys = ['negotiation', 'seduction', 'investigation', 'etiquette', 'artisanry'];
-
-    if (system?.skills && typeof system.skills === 'object') {
-      const updates: Record<string, any> = {};
-      let needsSkillKeyMigration = false;
-
-      for (const [oldKey, newKey] of Object.entries(skillKeyRenames)) {
-        if (system.skills[oldKey] !== undefined) {
-          updates[`system.skills.${newKey}`] = system.skills[oldKey];
-          updates[`system.skills.-=${oldKey}`] = null;
-          if (system.skillsSpent?.[oldKey] !== undefined) {
-            updates[`system.skillsSpent.${newKey}`] = system.skillsSpent[oldKey];
-            updates[`system.skillsSpent.-=${oldKey}`] = null;
-          }
-          needsSkillKeyMigration = true;
-        }
-      }
-
-      for (const key of newSkillKeys) {
-        if (system.skills[key] === undefined) {
-          updates[`system.skills.${key}`] = 0;
-          needsSkillKeyMigration = true;
-        }
-        if (system.skillsSpent && system.skillsSpent[key] === undefined) {
-          updates[`system.skillsSpent.${key}`] = 0;
-        }
-      }
-
-      if (needsSkillKeyMigration) {
-        await actor.update(updates);
-      }
-    }
-
-    // Migration: skillsSpent initialization
-    if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
-      const { SKILLS } = await import('./utils/skills.js');
-      const skillsSpent: Record<string, number> = {};
-      
-      // Initialize all skills from SKILLS with 0 spent
-      for (const skillKey of Object.keys(SKILLS)) {
-        skillsSpent[skillKey] = 0;
-      }
-      
-      // Also ensure any existing skills in actor.system.skills have entries
-      if (system.skills && typeof system.skills === 'object') {
-        for (const skillKey of Object.keys(system.skills)) {
-          if (!skillsSpent.hasOwnProperty(skillKey)) {
-            skillsSpent[skillKey] = 0;
-          }
-        }
-      }
-      
-      await actor.update({ 'system.skillsSpent': skillsSpent });
-      migratedSkillsSpent++;
-    } else {
-      // Ensure all skills from SKILLS exist in skillsSpent
-      const { SKILLS } = await import('./utils/skills.js');
-      const skillsSpent = { ...(system.skillsSpent || {}) };
-      let needsUpdate = false;
-      
-      for (const skillKey of Object.keys(SKILLS)) {
-        if (!skillsSpent.hasOwnProperty(skillKey)) {
-          skillsSpent[skillKey] = 0;
-          needsUpdate = true;
-        }
-        // Clamp: 0 <= skillsSpent[skillKey] <= skills[skillKey]
-        const skillRating = system.skills?.[skillKey] || 0;
-        if (skillsSpent[skillKey] < 0) {
-          skillsSpent[skillKey] = 0;
-          needsUpdate = true;
-        }
-        if (skillsSpent[skillKey] > skillRating) {
-          skillsSpent[skillKey] = skillRating;
-          needsUpdate = true;
-        }
-      }
-      
-      if (needsUpdate) {
-        await actor.update({ 'system.skillsSpent': skillsSpent });
-        migratedSkillsSpent++;
-      }
     }
     
     // Migration 2: Old stone system -> new stonePools
@@ -3611,6 +3555,21 @@ Hooks.once('ready', async function() {
   // Actives.md / Active Buffs.md templates (damage anchors, special curves,
   // healing, ranges, radii). Fixes characters whose powers were baked before
   // the audit shipped.
+  // Actives v0.9.9.6: dry-run report first (reads only); the resync keeps the
+  // stored values of changed templates until the GM applies the migration.
+  try {
+    const { runActivesV0996DryRunOnReady } = await import('./migrations/actives-v0996-migration.js');
+    await runActivesV0996DryRunOnReady();
+  } catch (error) {
+    console.warn('Mastery System | Actives v0.9.9.6 dry-run failed', error);
+  }
+  // Legacy cleanup 2026: dry-run report (reads only); Apply needs v0.9.9.6 first.
+  try {
+    const { runLegacyCleanupDryRunOnReady } = await import('./migrations/legacy-cleanup-2026-migration.js');
+    await runLegacyCleanupDryRunOnReady();
+  } catch (error) {
+    console.warn('Mastery System | legacy cleanup dry-run failed', error);
+  }
   try {
     await runPowerTemplateResyncMigration();
   } catch (error) {
@@ -3690,9 +3649,6 @@ Hooks.once('ready', async function() {
   const { registerIdentityPreflightHooks } = await import('./utils/identity-preflight-hooks.js');
   registerIdentityPreflightHooks();
 
-  // Register skill spend click handler
-  const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
-  registerSkillSpendClickHandler();
   const { registerAidReactionClickHandler } = await import('./chat/aid-reaction-handler.js');
   registerAidReactionClickHandler();
   const { registerWeaponSwapChatHandler } = await import('./chat/weapon-swap-card.js');
@@ -3815,42 +3771,6 @@ Hooks.once('ready', async function() {
     }
   } catch (error) {
     console.warn('Mastery System | DF 2026 rules migration failed', error);
-  }
-
-  // Migration: removed combat Skills — historical refund path (then retired below).
-  try {
-    const refunded = await runMartialSkillsRefundMigration(migrationActors);
-    if (refunded > 0) {
-      ui.notifications?.info(
-        `Skill refund: ${refunded} character${refunded === 1 ? '' : 's'} — removed combat Skills returned XP purchases as Free XP.`,
-      );
-    }
-  } catch (error) {
-    console.warn('Mastery System | Skill refund migration failed', error);
-  }
-
-  // Retire leftover Skill Point pools: convert unspent to Free XP, clear placed tracking.
-  try {
-    const { planSkillPointRetirement } = await import('./progression/skill-point-pool.js');
-    let retired = 0;
-    let converted = 0;
-    for (const actor of migrationActors) {
-      if (actor?.type !== 'character') continue;
-      const plan = planSkillPointRetirement(actor.system);
-      if (!plan.needed) continue;
-      await actor.update(plan.updates);
-      retired += 1;
-      converted += plan.convertedXp;
-    }
-    if (retired > 0) {
-      ui.notifications?.info(
-        converted > 0
-          ? `Skill Points retired on ${retired} character${retired === 1 ? '' : 's'} — ${converted} converted to Free XP.`
-          : `Skill Points retired on ${retired} character${retired === 1 ? '' : 's'}.`,
-      );
-    }
-  } catch (error) {
-    console.warn('Mastery System | Skill Point retirement failed', error);
   }
 
   // Player prototype tokens: initialize missing Foundry vision (60 m / 360° / Basic);

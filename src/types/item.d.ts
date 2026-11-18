@@ -677,7 +677,7 @@ export interface EmbeddedPowerData {
   category: PowerCategory;
   tags: string[]; // e.g. "spell", "charged", etc
 
-  /** Template identifier in kebab-case (e.g. "movement-teleport", "active-melee-damage-t3"). */
+  /** Template identifier in kebab-case (e.g. "movement-teleport", "active-melee-instant-special-t3"). */
   templateId?: string;
   /** Display name of the template without the category prefix (e.g. "Teleport"). */
   templateName?: string;

@@ -3,7 +3,6 @@
  * Players Guide: one night rest in a Safe Haven (secure + comfortable).
  */
 
-import { SKILLS } from './skills.js';
 import { buildFreshTraitUses } from './echos/index.js';
 import { beginMinorMagicRest } from './minor-magic-items.js';
 import { clearLastBreathOnRest } from '../stones/last-breath.js';
@@ -122,18 +121,6 @@ export function buildSafeHavenRestUpdates(
     medicineRank?: number | null;
   },
 ): Record<string, unknown> {
-  const skillsSpent: Record<string, number> = {};
-  for (const skillKey of Object.keys(SKILLS)) {
-    skillsSpent[skillKey] = 0;
-  }
-  if (system?.skills && typeof system.skills === 'object') {
-    for (const skillKey of Object.keys(system.skills)) {
-      if (!Object.prototype.hasOwnProperty.call(skillsSpent, skillKey)) {
-        skillsSpent[skillKey] = 0;
-      }
-    }
-  }
-
   // Reroll Points: restore to Disadvantage total (source of truth). Also sync
   // faithFractures.maximum when it drifted (e.g. still 0/8 while disadvantages
   // grant 5) — otherwise current stays spent and the print sheet looks empty.
@@ -142,7 +129,6 @@ export function buildSafeHavenRestUpdates(
   const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
   const echoUpdates: Record<string, unknown> = {};
   if (echo && echo.key) {
-    echoUpdates['system.echo.cardUses'] = {};
     echoUpdates['system.echo.traitUses'] = buildFreshTraitUses(
       echo.key,
       echo.subChoiceKey || null,
@@ -151,7 +137,6 @@ export function buildSafeHavenRestUpdates(
   }
 
   const updates: Record<string, unknown> = {
-    'system.skillsSpent': skillsSpent,
     'system.fear': 0,
     ...echoUpdates,
   };

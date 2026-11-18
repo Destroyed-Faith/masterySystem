@@ -17,7 +17,6 @@
 
 import { DEFAULT_MANUAL_ADJUSTMENTS } from './manual-adjustments.js';
 import { getWorldDefaultMasteryRank } from './mastery-rank-sync.js';
-import { SKILLS } from './skills.js';
 import { getArtifactBindingKind, isArtifactEquippedOnActor } from './artifact-actor-rules.js';
 import { resetGeneralArtifactForRecreation } from './artifact-tree-grant.js';
 
@@ -30,38 +29,6 @@ const ATTRIBUTE_KEYS = [
     'influence',
     'wits',
 ] as const;
-
-/**
- * Foundry merges nested objects on update — assigning `{}` does not remove
- * existing skill keys. The full character reset uses `diff: false`, which
- * does not apply `-=` deletion operators; zero every catalog skill explicitly
- * and `-=` any legacy/orphan keys.
- */
-/** @internal Exported for tests — skill bucket reset batch keys. */
-export function clearSkillBucketsInUpdateBatch(updates: Record<string, unknown>, system: any): void {
-    const catalogKeys = Object.keys(SKILLS);
-    for (const key of catalogKeys) {
-        updates[`system.skills.${key}`] = 0;
-        updates[`system.skillsSpent.${key}`] = 0;
-    }
-
-    const skills = system?.skills;
-    if (skills && typeof skills === 'object') {
-        for (const key of Object.keys(skills)) {
-            if (!catalogKeys.includes(key)) {
-                updates[`system.skills.-=${key}`] = null;
-            }
-        }
-    }
-    const spent = system?.skillsSpent;
-    if (spent && typeof spent === 'object') {
-        for (const key of Object.keys(spent)) {
-            if (!catalogKeys.includes(key)) {
-                updates[`system.skillsSpent.-=${key}`] = null;
-            }
-        }
-    }
-}
 
 export interface ResetCharacterResult {
     ok: boolean;
@@ -228,11 +195,6 @@ export async function resetCharacterForRecreation(
         updates[`system.attributes.${k}.stones`] = 0;
     }
 
-    // Skills & session spend fully cleared (creation points + roll pool).
-    clearSkillBucketsInUpdateBatch(updates, system);
-    // Creation hands out the full Skill budget again; no refunded pool survives.
-    updates['system.skillPoints'] = { unspent: 0, placed: {} };
-
     // Mastery defaults (rank 2, points 0, experience 0) per template.json.
     updates['system.mastery.rank'] = getWorldDefaultMasteryRank();
     updates['system.mastery.points'] = 0;
@@ -247,8 +209,8 @@ export async function resetCharacterForRecreation(
     updates['system.echo.key'] = '';
     updates['system.echo.subChoiceKey'] = '';
     updates['system.echo.veiledFormKey'] = '';
-    updates['system.echo.selectedCardIds'] = [];
-    updates['system.echo.cardUses'] = {};
+    updates['system.echo.-=selectedCardIds'] = null;
+    updates['system.echo.-=cardUses'] = null;
     updates['system.echo.traitUses'] = {};
     updates['system.echo.unboundShape'] = '';
 

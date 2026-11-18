@@ -1,5 +1,5 @@
 /**
- * Unified Progression Hub — Attributes, Skills, Powers, and Artifacts in one dialog.
+ * Unified Progression Hub — Attributes, Professions, Powers, and Artifacts in one dialog.
  */
 
 import {
@@ -11,7 +11,6 @@ import {
 } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
 import {
-  allocateActorSkillPending,
   applyAttributePendingChanges,
   applyPowerPendingChanges,
   applySpecializationRankUp,
@@ -21,7 +20,6 @@ import {
   getAttributeXpBaseline,
   hasFreeXp,
 } from '../progression/progression-hub-actions.js';
-import { calculateMaxSkillRank } from '../utils/calculations.js';
 import {
   buildArtifactEvolutionCards,
   linkArtifactForActor,
@@ -41,7 +39,6 @@ export class ProgressionHubDialog extends BaseDialog {
   private openSections = new Set<ProgressionHubSection>();
   private scrollTop = 0;
   private pendingAttributes: Record<string, number> = {};
-  private pendingSkills: Record<string, number> = {};
   private pendingPowers: Record<string, number> = {};
 
   static DEFAULT_OPTIONS = {
@@ -71,10 +68,8 @@ export class ProgressionHubDialog extends BaseDialog {
     const hub = buildProgressionHubContext(this.actor);
     const stonePools = listArtifactSpendableStonePools(this.actor);
     const attrNet = calculateAttributePendingNetCost(this.actor, this.pendingAttributes);
-    const skillAllocation = allocateActorSkillPending(this.actor, this.pendingSkills);
-    const skillNet = skillAllocation.xpNet;
     const powerNet = calculatePowerPendingNetCost(this.actor, this.pendingPowers);
-    const remainingAfterPending = hub.xp.available - attrNet - skillNet - powerNet;
+    const remainingAfterPending = hub.xp.available - attrNet - powerNet;
 
     return {
       actor: this.actor,
@@ -88,13 +83,10 @@ export class ProgressionHubDialog extends BaseDialog {
       usesStonePools: usesStonePoolEconomy(this.actor),
       isGM: game.user?.isGM === true,
       pendingAttributes: this.pendingAttributes,
-      pendingSkills: this.pendingSkills,
       pendingPowers: this.pendingPowers,
       hasPendingAttributes: Object.keys(this.pendingAttributes).length > 0,
-      hasPendingSkills: Object.keys(this.pendingSkills).length > 0,
       hasPendingPowers: Object.keys(this.pendingPowers).length > 0,
       attrNet,
-      skillNet,
       powerNet,
       remainingAfterPending,
       hasFreeXpPhase: hasFreeXp(this.actor),

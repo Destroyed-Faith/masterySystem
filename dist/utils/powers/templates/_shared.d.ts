@@ -18,6 +18,11 @@ export interface PowerTemplate extends EmbeddedPowerData {
     levels: Record<PowerLevelKey, PowerLevelRow>;
     spellHints?: SpellHints;
     specialSlot?: ActiveSpecialSlot;
+    /**
+     * Printed Actives heading before the chosen Special, e.g.
+     * `Melee Single Target Special` → "Melee Single Target Special: Ruin".
+     */
+    catalogTitle?: string;
 }
 /** Build a fully-populated 16-level levels record from a factory callback. */
 export declare function buildLevels(factory: (level: number) => PowerLevelRow): Record<PowerLevelKey, PowerLevelRow>;

@@ -75,7 +75,7 @@ export function explainXpAccount(actor: any): XpConsistencyReport {
     `Spent counters: regular ${spentRegular} + free ${spentFree} = ${spent}`,
     'Known history spending:',
     `Attributes: ${historySpend.attribute}`,
-    `Skills: ${historySpend.skill}`,
+    `Professions / legacy Skills: ${historySpend.skill}`,
     `Powers: ${historySpend.power}`,
     `Artifacts: ${historySpend.artifact}`,
     `Other: ${historySpend.other}`,

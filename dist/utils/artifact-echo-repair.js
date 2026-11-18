@@ -2,7 +2,7 @@
  * Repair / sync embedded artifacts against the world Builder-Tree.
  */
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
-import { wireEmbeddedArtifactToWorldTree, inferArtifactKeyFromName } from './artifact-tree-grant.js';
+import { wireEmbeddedArtifactToWorldTree } from './artifact-tree-grant.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
 import { dragonHeadBreathProgressionBroken, isDragonHeadArtifactKey, } from './dragon-head-breath-repair.js';
 /** True when the embedded copy looks stale (missing progression data). */
@@ -53,8 +53,7 @@ export async function syncEmbeddedArtifactFromWorldNode(emb, actor) {
 export async function repairArtifactEvolutionLink(actor, emb) {
     if (emb.getFlag?.('mastery-system', 'evolutionRootItemId'))
         return false;
-    const artifactKey = emb.getFlag?.('mastery-system', 'echoArtifactKey') ||
-        inferArtifactKeyFromName(emb.name);
+    const artifactKey = emb.getFlag?.('mastery-system', 'echoArtifactKey');
     if (artifactKey && !findEchoArtifactRootInWorld(artifactKey)) {
         return false;
     }
