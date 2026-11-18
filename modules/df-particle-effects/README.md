@@ -1,12 +1,12 @@
 # Destroyed Faith – Particle Effects
 
-Eigenständiges Foundry-VTT-Modul für **visuelles Feuer innerhalb von Szenenregionen**. Es gehört zum Destroyed-Faith-Projekt, greift aber nicht in die Regeln des Mastery-Systems ein und kann allein installiert werden.
+Eigenständiges Foundry-VTT-Modul für **visuelles Feuer und Eis innerhalb von Szenenregionen**. Es gehört zum Destroyed-Faith-Projekt, greift aber nicht in die Regeln des Mastery-Systems ein und kann allein installiert werden.
 
 - Modul-ID: `df-particle-effects`
 - Anzeigename: **Destroyed Faith – Particle Effects**
 - Behavior in der Regionenliste: **DF: Particle Effects**
 - Zielversion: **Foundry VTT 14** (`compatibility.minimum` und `verified` sind 14). V13 wurde nicht geprüft und wird nicht behauptet.
-- Einziger Effekt in dieser Version: **Fire** / Feuer, mit den Stilen **Area Fire** und **Ball Of Fire**
+- Effekte: **Fire** / Feuer (Stile **Area Fire** und **Ball Of Fire**) und **Ice** / Eis
 
 Die Lizenz ist die Destroyed-Faith-Lizenz aus dem Repository (`LICENSE.md` im Projektroot). Die Flammenbilder sind projekteigene Standbilder, keine FXMaster+-Assets.
 
@@ -19,7 +19,7 @@ Es gibt **kein Symbol in der linken Toolbar**. Der Effekt hängt an der normalen
 3. Die Region doppelklicken.
 4. Reiter **Behaviors** öffnen und **Create / Add Behavior** wählen.
 5. In der Liste **DF: Particle Effects** wählen (Feuer-Icon).
-6. **Effect Type** auf **Fire** lassen, unter **Fire Style** den Stil wählen, Dichte und Größe nach Bedarf setzen, dann speichern.
+6. **Effect Type** wählen (**Fire** oder **Ice**), die passenden Felder einstellen, dann speichern. Der Dialog zeigt nur die Felder, die der gewählte Effekt nutzt.
 
 Das Feuer erscheint nur in dieser Region, auf der Karte und unter Token. Die Hintergrundkarte wird nicht abgedunkelt. Klicks auf Token und Regionen gehen durch den Effekt hindurch.
 
@@ -32,7 +32,7 @@ GM und Spieler sehen dieselben Flächen, weil Foundry die Behavior-Daten synchro
 | Feld | Standard | Bedeutung |
 | --- | --- | --- |
 | Enabled | an | Schaltet nur diesen Effekt aus. |
-| Effect Type | Fire | None oder Fire. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
+| Effect Type | Fire | None, Fire oder Ice. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
 | Fire Style | Area Fire | Area Fire füllt die Region mit Bodenfeuer. Ball Of Fire zeigt einen runden Feuerball in der Mitte der Region; Density und Ember Amount wirken dort nicht. |
 | Density | 40 | Feuerstellen relativ zur Regionsfläche in Rasterzellen, nicht zur Fenstergröße. 0 blendet Flammen aus. |
 | Flame Scale | 1 | Größe relativ zum Szenenraster. Die Basis bleibt am Boden. Bereich 0,25–2. |
@@ -45,6 +45,23 @@ GM und Spieler sehen dieselben Flächen, weil Foundry die Behavior-Daten synchro
 Unter **Configure Settings → Destroyed Faith – Particle Effects → Fire quality** gibt es Low / Medium / High. Das ist eine lokale Obergrenze und ändert die gespeicherte Region nicht. Standard ist Medium.
 
 Nicht enthalten: Rauch, Lichtquellen, Brandausbreitung, Schaden, Zustände, Hex-Automaten.
+
+### Eis
+
+Frost kriecht vom Regionsrand (und von Löchern) nach innen, dahinter wird er zu einer bläulichen Eisplatte mit Rissen, Kristallflächen, langsam wanderndem Glanz und Glitzerpunkten. Das Szenen-Hintergrundbild scheint verzerrt durch das Eis.
+
+| Feld | Standard | Bedeutung |
+| --- | --- | --- |
+| Freeze Mode | Freeze once | **Freeze once**: friert beim Anlegen oder Einschalten zu und bleibt gefroren; nach dem Neuladen ist die Fläche schon gefroren. **Already frozen**: ohne Animation. **Loop**: zufrieren, halten, neu beginnen. |
+| Freeze Duration | 2 s | Dauer vom freien Boden bis zur gefrorenen Fläche. 0,2–20 s. |
+| Hold Time | 2,5 s | Nur Loop: wie lange die Fläche gefroren bleibt. 0–30 s. |
+| Loop Reset | Thaw | Nur Loop: **Thaw** taut zum Rand zurück, **Fade** blendet die Fläche aus. |
+| Edge Bias | 70 | Wie stark das Eis vom Rand her wächst. 0 friert fleckig über die ganze Region zu. |
+| Crystal Size | 1 | Größe von Platten, Rissen und Frostadern relativ zum Raster. 0,25–3. |
+| Refraction | 40 | Verzerrung und Unschärfe des Hintergrundbilds unter dem Eis. |
+| Opacity | 0,9 | Deckkraft. |
+
+Grenzen: Gebrochen wird nur das Szenen-Hintergrundbild, keine Tiles oder Zeichnungen; Tiles auf derselben Ebene können vom Eis verdeckt werden. Ohne geladenes Hintergrundbild ist das Eis ein durchscheinender Schleier. Die Schleife läuft nach der Systemuhr, damit alle Clients ungefähr denselben Takt sehen.
 
 ### Shader-Stile
 

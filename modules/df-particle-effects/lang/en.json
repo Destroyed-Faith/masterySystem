@@ -7,10 +7,11 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visual natural fire clipped to this region. It does not deal damage or change tokens.",
+    "TypeHint": "Visual fire or ice clipped to this region. It does not deal damage or change tokens.",
     "EFFECTS": {
       "none": "None",
-      "naturalFire": "Fire"
+      "naturalFire": "Fire",
+      "ice": "Ice"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -24,14 +25,23 @@
       "field": "Field",
       "single": "Single flame"
     },
+    "FREEZE_MODE": {
+      "once": "Freeze once",
+      "instant": "Already frozen",
+      "loop": "Loop"
+    },
+    "LOOP_RESET": {
+      "thaw": "Thaw back to the edges",
+      "fade": "Fade out"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Enabled",
-        "hint": "Turn this fire on or off without deleting the behavior. The region's own Disabled checkbox also hides it. While this window is open, the map previews your changes. Close it without saving and the preview goes away."
+        "hint": "Turn this effect on or off without deleting the behavior. The region's own Disabled checkbox also hides it. While this window is open, the map previews your changes. Close it without saving and the preview goes away."
       },
       "effectType": {
         "label": "Effect Type",
-        "hint": "None keeps the settings but draws nothing. Fire is the only implemented effect; other effects will be added here without a new behavior type."
+        "hint": "None keeps the settings but draws nothing. Fire and Ice show only the fields they use."
       },
       "fireStyle": {
         "label": "Fire Style",
@@ -55,7 +65,7 @@
       },
       "opacity": {
         "label": "Opacity",
-        "hint": "Overall opacity of the fire surface and embers. Keep this below 1 so the map stays visible."
+        "hint": "Overall opacity of the effect. Keep this below 1 so the map stays visible."
       },
       "emberAmount": {
         "label": "Ember Amount",
@@ -64,6 +74,34 @@
       "edgeFade": {
         "label": "Edge Fade",
         "hint": "0 keeps a hard edge. Higher values fade legacy flame bases and ember origins near the boundary. The region mask always clips the fire, including holes."
+      },
+      "freezeMode": {
+        "label": "Freeze Mode",
+        "hint": "Freeze once: the surface freezes over when the behavior is created or enabled, then stays frozen (after a reload it is already frozen). Already frozen: no animation. Loop: freeze, hold, start over."
+      },
+      "freezeDuration": {
+        "label": "Freeze Duration",
+        "hint": "Seconds from clear ground to a fully frozen surface."
+      },
+      "holdTime": {
+        "label": "Hold Time",
+        "hint": "Loop only: seconds the surface stays fully frozen before it starts over."
+      },
+      "loopReset": {
+        "label": "Loop Reset",
+        "hint": "Loop only: how the ice clears before it freezes again. Thaw retreats toward the region edges; Fade dissolves the whole surface."
+      },
+      "edgeBias": {
+        "label": "Edge Bias",
+        "hint": "How strongly the ice grows in from the region edge (and from holes). 0 freezes in patches across the whole region."
+      },
+      "crystalSize": {
+        "label": "Crystal Size",
+        "hint": "Size of ice plates, cracks and frost veins relative to the scene grid."
+      },
+      "refraction": {
+        "label": "Refraction",
+        "hint": "How much the scene background is distorted and blurred under the ice. Only the background image is refracted, not tiles or drawings. Without a background image the ice is a translucent tint."
       },
       "randomSeed": {
         "label": "Random Seed",

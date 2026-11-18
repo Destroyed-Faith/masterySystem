@@ -9,6 +9,19 @@ export const SYSTEM_BEHAVIOR_TYPE = "particleEffects";
 
 export const EFFECT_NONE = "none";
 export const EFFECT_NATURAL_FIRE = "naturalFire";
+export const EFFECT_ICE = "ice";
+
+/** How an ice surface freezes over. */
+export const FREEZE_INSTANT = "instant";
+export const FREEZE_ONCE = "once";
+export const FREEZE_LOOP = "loop";
+
+/** How a looping ice surface starts over after the hold time. */
+export const LOOP_RESET_THAW = "thaw";
+export const LOOP_RESET_FADE = "fade";
+
+/** Longest side of the edge-distance map, in texels. */
+export const ICE_DEPTH_MAP_SIZE = 160;
 
 /** Visual styles for Natural Fire. Only implemented styles may appear here. */
 export const FIRE_STYLE_AREA = "areaFire";

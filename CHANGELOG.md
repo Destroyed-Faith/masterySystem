@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.859] - 2026-11-18
+
+### Added
+
+- **DF: Particle Effects:** New Effect Type **Ice**. Frost creeps in from the region edge (and holes) using an edge-distance map, then thickens into a tinted, cracked ice plate with faceted crystals, a slow sheen and glitter. The scene background image is refracted and blurred under the ice; without one the ice is a translucent tint. Freeze Mode **Freeze once** (plays when the behavior is created or enabled; already frozen after a reload), **Already frozen**, or **Loop** with Freeze Duration, Hold Time and Loop Reset (thaw back to the edges or fade out). Also Edge Bias, Crystal Size and Refraction. The behavior sheet now shows only the fields the chosen effect uses. Module `df-particle-effects` **1.1.9**.
+
+### Changed
+
+- **DF: Particle Effects:** Area Fire uses the module's own lattice hash instead of a common one-line hash; the look is unchanged, the exact flame pattern differs.
+
 ## [0.9.858] - 2026-11-18
 
 ### Changed

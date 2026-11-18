@@ -1,4 +1,6 @@
-import { behaviorTypeId, EFFECT_NATURAL_FIRE, FIRE_STYLE_AREA } from "./constants.mjs";
+import { behaviorTypeId, EFFECT_NATURAL_FIRE, FIRE_STYLE_AREA, FREEZE_ONCE, LOOP_RESET_THAW } from "./constants.mjs";
+import { applyFieldVisibility } from "./field-visibility.mjs";
+
 /**
  * While the behavior sheet is open, mirror its fields onto the map.
  * Nothing is written. Closing the sheet drops the preview.
@@ -13,6 +15,13 @@ export function registerPreview(renderer) {
     const form = findForm(app);
     if (!form) return;
     const apply = () => renderer.setPreview(behavior, readDraft(form));
+    const showFields = () => {
+      try {
+        applyFieldVisibility(form);
+      } catch (error) {
+        console.warn("df-particle-effects | field visibility failed.", error);
+      }
+    };
     if (form.dataset.dfFirePreview !== "1") {
       form.dataset.dfFirePreview = "1";
       let timer = 0;
@@ -21,8 +30,12 @@ export function registerPreview(renderer) {
         timer = globalThis.setTimeout(apply, 70);
       };
       form.addEventListener("input", schedule);
-      form.addEventListener("change", schedule);
+      form.addEventListener("change", () => {
+        showFields();
+        schedule();
+      });
     }
+    showFields();
     apply();
   });
 
@@ -59,6 +72,13 @@ export function readDraft(form) {
       opacity: numberValue(form, "system.opacity", 0.9),
       emberAmount: numberValue(form, "system.emberAmount", 20),
       edgeFade: numberValue(form, "system.edgeFade", 5),
+      freezeMode: text(form, "system.freezeMode") || FREEZE_ONCE,
+      freezeDuration: numberValue(form, "system.freezeDuration", 2),
+      holdTime: numberValue(form, "system.holdTime", 2.5),
+      loopReset: text(form, "system.loopReset") || LOOP_RESET_THAW,
+      edgeBias: numberValue(form, "system.edgeBias", 70),
+      crystalSize: numberValue(form, "system.crystalSize", 1),
+      refraction: numberValue(form, "system.refraction", 40),
       randomSeed: text(form, "system.randomSeed"),
     },
   };

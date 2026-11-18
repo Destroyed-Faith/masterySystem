@@ -1,4 +1,5 @@
 import { FIRE_STYLE_AREA, FIRE_STYLE_BALL, LOG_PREFIX } from "./constants.mjs";
+import { LATTICE_HASH, PLANE_NOISE } from "./shader-noise.mjs";
 
 /**
  * Top-down area fire for Arrangement: Field.
@@ -9,34 +10,7 @@ import { FIRE_STYLE_AREA, FIRE_STYLE_BALL, LOG_PREFIX } from "./constants.mjs";
  */
 
 const FIRE_BODY = /* glsl */ `
-float hash21(vec2 p) {
-  p = fract(p * vec2(123.34, 345.45));
-  p += dot(p, p + 34.345);
-  return fract(p.x * p.y);
-}
-
-float valueNoise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
-
-float fbm(vec2 p) {
-  float v = 0.0;
-  float a = 0.5;
-  mat2 m = mat2(0.80, -0.60, 0.60, 0.80);
-  for (int i = 0; i < 5; i++) {
-    v += a * valueNoise(p);
-    p = m * p * 2.02;
-    a *= 0.5;
-  }
-  return v;
-}
+${PLANE_NOISE}
 
 // Ridged turbulence: thin bright creases instead of soft blobs.
 float turbulence(vec2 p) {
@@ -151,13 +125,7 @@ uniform float uOpacity;
 uniform float uSeed;
 
 const float TAU = 6.28318530718;
-
-float latticeHash(vec3 c) {
-  vec3 q = fract(c * vec3(0.0873, 0.1271, 0.1559) + 0.37);
-  q = fract(q * (q.yzx * 47.0 + 11.3));
-  return fract((q.x + q.z) * (q.y + 0.61) * 7.13);
-}
-
+${LATTICE_HASH}
 float wrappedNoise(vec3 q, float period) {
   vec3 i0 = floor(q);
   vec3 f = fract(q);

@@ -1,5 +1,6 @@
 import {
   ARRANGEMENT_SINGLE,
+  EFFECT_ICE,
   FIELD_EMBERS_PER_CELL_AT_FULL,
   FIELD_RENDER_SHADER,
   FIRE_STYLE_BALL,
@@ -28,7 +29,7 @@ export function desiredFieldEmberCount(area, cellArea, emberAmount) {
 }
 
 export function wantedFlameCount(config, area, cellArea) {
-  if (config?.fireStyle === FIRE_STYLE_BALL) return 0;
+  if (config?.effectType === EFFECT_ICE || config?.fireStyle === FIRE_STYLE_BALL) return 0;
   if (config?.arrangement === ARRANGEMENT_SINGLE) return 1;
   if (config?.fieldRenderer === FIELD_RENDER_SHADER) return 0;
   return desiredFlameCount(area, cellArea, config?.density ?? 0);
@@ -36,7 +37,7 @@ export function wantedFlameCount(config, area, cellArea) {
 
 export function wantedEmberCount(config, flameCount, area = 0, cellArea = 1) {
   const amount = clamp(config?.emberAmount ?? 0, 0, 100);
-  if (!(amount > 0) || config?.fireStyle === FIRE_STYLE_BALL) return 0;
+  if (!(amount > 0) || config?.effectType === EFFECT_ICE || config?.fireStyle === FIRE_STYLE_BALL) return 0;
   if (config?.arrangement === ARRANGEMENT_SINGLE) return Math.max(1, Math.round((amount / 100) * 12));
   if (config?.fieldRenderer === FIELD_RENDER_SHADER) return desiredFieldEmberCount(area, cellArea, amount);
   return desiredEmberCount(flameCount, amount);

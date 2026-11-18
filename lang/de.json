@@ -755,10 +755,11 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visuelles natürliches Feuer, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
+    "TypeHint": "Visuelles Feuer oder Eis, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
     "EFFECTS": {
       "none": "Keiner",
-      "naturalFire": "Feuer"
+      "naturalFire": "Feuer",
+      "ice": "Eis"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -772,14 +773,23 @@
       "field": "Feld",
       "single": "Eine Flamme"
     },
+    "FREEZE_MODE": {
+      "once": "Einmal zufrieren",
+      "instant": "Sofort gefroren",
+      "loop": "Schleife"
+    },
+    "LOOP_RESET": {
+      "thaw": "Zum Rand zurücktauen",
+      "fade": "Ausblenden"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Aktiv",
-        "hint": "Schaltet dieses Feuer aus, ohne das Behavior zu löschen. Die eingebaute Option „Deaktiviert“ der Region blendet es ebenfalls aus. Solange dieses Fenster offen ist, zeigt die Karte eine Vorschau. Ohne Speichern verschwindet sie wieder."
+        "hint": "Schaltet diesen Effekt aus, ohne das Behavior zu löschen. Die eingebaute Option „Deaktiviert“ der Region blendet ihn ebenfalls aus. Solange dieses Fenster offen ist, zeigt die Karte eine Vorschau. Ohne Speichern verschwindet sie wieder."
       },
       "effectType": {
         "label": "Effekttyp",
-        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer ist der einzige umgesetzte Effekt; weitere Effekte kommen hier dazu, ohne einen neuen Behavior-Typ."
+        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer und Eis zeigen nur die Felder, die sie nutzen."
       },
       "fireStyle": {
         "label": "Feuerstil",
@@ -803,7 +813,7 @@
       },
       "opacity": {
         "label": "Deckkraft",
-        "hint": "Gesamtdeckkraft von Feuerfläche und Funken. Unter 1 halten, damit die Karte sichtbar bleibt."
+        "hint": "Gesamtdeckkraft des Effekts. Unter 1 halten, damit die Karte sichtbar bleibt."
       },
       "emberAmount": {
         "label": "Glutmenge",
@@ -812,6 +822,34 @@
       "edgeFade": {
         "label": "Randausblendung",
         "hint": "0 lässt den Rand hart. Höhere Werte blenden Legacy-Flammenbasen und Funkenursprünge nahe der Grenze aus. Die Regionsmaske schneidet das Feuer immer zu, inklusive Löcher."
+      },
+      "freezeMode": {
+        "label": "Zufriermodus",
+        "hint": "Einmal zufrieren: Die Fläche friert zu, wenn das Behavior angelegt oder eingeschaltet wird, und bleibt dann gefroren (nach dem Neuladen ist sie schon gefroren). Sofort gefroren: keine Animation. Schleife: zufrieren, halten, neu beginnen."
+      },
+      "freezeDuration": {
+        "label": "Zufrierdauer",
+        "hint": "Sekunden vom freien Boden bis zur komplett gefrorenen Fläche."
+      },
+      "holdTime": {
+        "label": "Haltezeit",
+        "hint": "Nur Schleife: Sekunden, die die Fläche komplett gefroren bleibt, bevor es neu losgeht."
+      },
+      "loopReset": {
+        "label": "Schleifen-Neustart",
+        "hint": "Nur Schleife: wie das Eis verschwindet, bevor es neu zufriert. Zurücktauen zieht sich zu den Regionsrändern zurück; Ausblenden lässt die ganze Fläche verblassen."
+      },
+      "edgeBias": {
+        "label": "Randwachstum",
+        "hint": "Wie stark das Eis vom Regionsrand (und von Löchern) nach innen wächst. 0 friert fleckig über die ganze Region zu."
+      },
+      "crystalSize": {
+        "label": "Kristallgröße",
+        "hint": "Größe von Eisplatten, Rissen und Frostadern relativ zum Szenenraster."
+      },
+      "refraction": {
+        "label": "Lichtbrechung",
+        "hint": "Wie stark das Szenen-Hintergrundbild unter dem Eis verzerrt und verwischt wird. Nur das Hintergrundbild wird gebrochen, keine Tiles oder Zeichnungen. Ohne Hintergrundbild ist das Eis ein durchscheinender Schleier."
       },
       "randomSeed": {
         "label": "Zufallsseed",

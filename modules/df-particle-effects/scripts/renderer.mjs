@@ -3,9 +3,15 @@ import {
   ARRANGEMENT_FIELD,
   ARRANGEMENT_SINGLE,
   behaviorTypeId,
+  EFFECT_ICE,
   EFFECT_NATURAL_FIRE,
   EFFECT_NONE,
   FIELD_RENDER_LEGACY,
+  FREEZE_INSTANT,
+  FREEZE_LOOP,
+  FREEZE_ONCE,
+  LOOP_RESET_FADE,
+  LOOP_RESET_THAW,
   FIELD_RENDER_SHADER,
   fieldRendererSettingKey,
   LOG_PREFIX,
@@ -16,6 +22,10 @@ import {
 } from "./constants.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
 import { NaturalFireEffect, usesBallOfFire, usesShaderField } from "./fire-effect.mjs";
+import { computeEdgeDepth } from "./ice-depth.mjs";
+import { IceEffect, wallSeconds } from "./ice-effect.mjs";
+import { freezeTimingSignature } from "./ice-timeline.mjs";
+import { resolveSceneBackground } from "./scene-background.mjs";
 import { resolveFireStyle } from "./styles.mjs";
 import {
   allocateBudget,
@@ -34,6 +44,10 @@ export class ParticleRenderer {
   #time = 0;
   /** @type {null | { key: string, behavior: object, config: object, layout: string }} */
   #preview = null;
+  /** Wall-clock second each ice surface started freezing; -Infinity = already frozen. */
+  #freezeStarts = new Map();
+  /** The first draw after a canvas load shows existing ice already frozen. */
+  #sceneLoaded = false;
 
   syncScene() {
     this.#syncScene().catch((error) => {
@@ -44,6 +58,8 @@ export class ParticleRenderer {
   clear() {
     this.#generation += 1;
     this.#disposeInstances();
+    this.#freezeStarts.clear();
+    this.#sceneLoaded = false;
   }
 
   onBehaviorUpsert(behavior) {
@@ -78,8 +94,13 @@ export class ParticleRenderer {
     const key = behaviorKey(behavior);
     const layout = fireLayoutSignature(config);
     const effect = this.#instances.get(key);
+    const previous = this.#preview?.key === key ? this.#preview.config : null;
+    if (config.effectType === EFFECT_ICE && previous && freezeTimingSignature(previous) !== freezeTimingSignature(config)) {
+      this.#freezeStarts.set(key, wallSeconds());
+    }
     if (this.#preview?.key === key && this.#preview.layout === layout && effect && config.enabled) {
       effect.config = config;
+      if (effect instanceof IceEffect) effect.restart(this.#freezeStarts.get(key) ?? effect.startedAt);
       this.#preview = { key, behavior, config, layout };
       return;
     }
@@ -115,6 +136,7 @@ export class ParticleRenderer {
     const grid = readGrid();
     const limits = readQualityLimits();
     const active = collectActiveBehaviors(scene, this.#preview);
+    this.#assignFreezeStarts(active);
     const flameBudget = allocateBudget(
       active.map((entry) =>
         Math.min(limits.perRegionFlames, wantedFlameCount(entry.config, entry.area, grid.cellArea)),
@@ -154,6 +176,27 @@ export class ParticleRenderer {
       return;
     }
     if (this.#instances.size) this.#attachTicker();
+  }
+
+  /**
+   * Ice that exists when the scene loads is already frozen. Ice that appears later
+   * (created, enabled, or switched to ice) freezes in. Dropped surfaces forget their start.
+   */
+  #assignFreezeStarts(active) {
+    const now = wallSeconds();
+    const iceKeys = new Set();
+    for (const entry of active) {
+      if (entry.config.effectType !== EFFECT_ICE) continue;
+      iceKeys.add(entry.key);
+      if (!this.#freezeStarts.has(entry.key)) {
+        this.#freezeStarts.set(entry.key, this.#sceneLoaded ? now : -Infinity);
+      }
+      entry.freezeStart = this.#freezeStarts.get(entry.key);
+    }
+    for (const key of [...this.#freezeStarts.keys()]) {
+      if (!iceKeys.has(key)) this.#freezeStarts.delete(key);
+    }
+    this.#sceneLoaded = true;
   }
 
   #attachTicker() {
@@ -243,7 +286,7 @@ function describeBehavior(scene, region, behavior, configOverride) {
   try {
     const config = configOverride ?? readConfig(behavior);
     if (!config.enabled || config.effectType === EFFECT_NONE) return null;
-    if (config.effectType !== EFFECT_NATURAL_FIRE) {
+    if (config.effectType !== EFFECT_NATURAL_FIRE && config.effectType !== EFFECT_ICE) {
       if (!configOverride) {
         console.warn(
           `${LOG_PREFIX} effect type "${config.effectType}" is not implemented. That behavior was skipped.`,
@@ -298,6 +341,7 @@ function behaviorKey(behavior, region = behavior?.parent) {
 }
 
 function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
+  if (entry.config.effectType === EFFECT_ICE) return createIce(entry, grid);
   if (usesBallOfFire(entry.config)) return createBallOfFire(entry, assets, grid);
 
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
@@ -414,6 +458,32 @@ function createBallOfFire(entry, assets, grid) {
     bounds: entry.bounds,
     surfaceStyle: entry.config.fireStyle,
   });
+}
+
+/** Shader-only ice surface. Without a loaded background it still draws, as a tint. */
+function createIce(entry, grid) {
+  const mask = buildRegionMask(entry.tree);
+  if (!mask) {
+    console.warn(`${LOG_PREFIX} region mask could not be built. Ice was skipped so it cannot spill outside.`);
+    return null;
+  }
+  const depth = computeEdgeDepth(entry.bounds, (x, y) => entry.tree.testPoint({ x, y }));
+  const background = resolveSceneBackground();
+  try {
+    return new IceEffect({
+      config: entry.config,
+      bounds: entry.bounds,
+      mask,
+      gridSize: grid.size,
+      seed: entry.seed,
+      depth,
+      background,
+      startedAt: entry.freezeStart,
+    });
+  } catch (error) {
+    if (!mask.destroyed) mask.destroy?.();
+    throw error;
+  }
 }
 
 /**
@@ -577,8 +647,20 @@ export function readConfig(behavior) {
     opacity: clampNumber(system.opacity ?? 0.9, 0, 1),
     emberAmount: clampNumber(system.emberAmount ?? 20, 0, 100),
     edgeFade: clampNumber(system.edgeFade ?? 5, 0, 100),
+    freezeMode: oneOf(system.freezeMode, [FREEZE_ONCE, FREEZE_INSTANT, FREEZE_LOOP]),
+    freezeDuration: clampNumber(system.freezeDuration ?? 2, 0.2, 20),
+    holdTime: clampNumber(system.holdTime ?? 2.5, 0, 30),
+    loopReset: oneOf(system.loopReset, [LOOP_RESET_THAW, LOOP_RESET_FADE]),
+    edgeBias: clampNumber(system.edgeBias ?? 70, 0, 100),
+    crystalSize: clampNumber(system.crystalSize ?? 1, 0.25, 3),
+    refraction: clampNumber(system.refraction ?? 40, 0, 100),
     randomSeed,
   };
+}
+
+/** The value if it is allowed, otherwise the first (default) choice. */
+function oneOf(value, allowed) {
+  return allowed.includes(value) ? value : allowed[0];
 }
 
 function readFieldRenderer() {
