@@ -174,13 +174,13 @@ describe('Moonlight Greatsword', () => {
     );
   });
 
-  it('builds its three signature lines (Healing Stone Power Support + standard catalog Powers)', () => {
+  it('builds its three signature lines (standard catalog Powers)', () => {
     const def = getGeneralArtifact('moonlightGreatsword')!;
-    // PH: Mending = Resolve Ability: Healing (Stone Power Support); Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
+    // PH: Mending = Ranged Scarred Bar Restoration; Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
     const picks = buildEchoProgressionPicks(def) as any[];
-    expect(picks.map((p) => p.kind)).toEqual(['stoneFunction', 'power', 'power']);
-    expect(picks[0].stoneFunction).toMatchObject({ attribute: 'resolve', stonePowerId: 'resolve.healing', supportStages: [1, 4, 7] });
-    expect(picks.slice(1).map((p) => p.powerTemplateId)).toEqual([
+    expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
+    expect(picks.map((p) => p.powerTemplateId)).toEqual([
+      'active-ranged-health-level-heal',
       'active-ranged-limited-aoe',
       'ab-sundered-aura',
     ]);
@@ -196,12 +196,13 @@ describe('Moonlight Greatsword', () => {
     const mendingRows = resolvedProgression(def).filter((r: any) => /Moonlight Mending/.test(r.name)) as any[];
     expect(mendingRows.map((r) => r.level)).toEqual([1, 4, 7]);
     for (const r of mendingRows) {
-      expect(r.powerTemplateId).toBeFalsy();
-      expect(r.effect).not.toMatch(/\d+d8 HP/);
+      expect(r.powerTemplateId).toBe('active-ranged-health-level-heal');
+      expect(r.effect).not.toMatch(/\d+d8 HP|Rank \d of Healing/);
     }
-    expect(mendingRows[0].effect).toMatch(/Rank 2/);
-    expect(mendingRows[1].effect).toMatch(/Rank 3/);
-    expect(mendingRows[2].effect).toMatch(/Rank 4/);
+    expect(mendingRows.map((r) => String(r.powerLevel ?? r.rank))).toEqual(['4', '10', '16']);
+    expect(mendingRows[0].effect).toMatch(/2 Scarred Bars at full HP.*20 m/);
+    expect(mendingRows[1].effect).toMatch(/6 Scarred Bars at full HP.*44 m/);
+    expect(mendingRows[2].effect).toMatch(/10 Scarred Bars at full HP.*68 m/);
     const shadow = sysAt(tree, 6).powers.find((p: any) => /Moonlight Shadow/.test(p.name));
     expect(shadow.category).toBe('activeBuff');
   });

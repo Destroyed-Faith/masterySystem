@@ -81,23 +81,18 @@ const MOONLIGHT_GREATSWORD: GeneralArtifactDefinition = {
     },
   ],
   // Catalogue Technical References (Artifacts_FULL_Moonlight_Sundered 2026-11-04):
-  //   L1/4/7 Moonlight Mending  → Resolve Ability: Healing (Stone Power Support, Rank 2/3/4; PH)
+  //   L1/4/7 Moonlight Mending  → Ranged Scarred Bar Restoration (PL 4/10/16; PH)
   //   L2/5/8 Moonlight Judgment → Limited Ranged AoE Attack (Spell; PL 4/10/16)
   //   L3/6/9 Moonlight Shadow   → Active Buff: Sundered Aura (PL 4/10/16)
   //   L10 Artifact Awakening (universal; no True Moonlight Ultimate)
   progressionPickSpecs: {
     1: {
+      templateId: 'active-ranged-health-level-heal',
       name: 'Moonlight Mending',
-      stoneFunction: {
-        kind: 'stonePowerSupport',
-        attribute: 'resolve',
-        stonePowerId: 'resolve.healing',
-        supportStages: [1, 4, 7],
-      },
       stageEffectTexts: [
-        'Pre-fill **Rank 2** of Healing. Rank 1 must still be paid.',
-        'Pre-fill **Rank 3** of Healing. Ranks 1 and 2 must still be paid. This replaces Moonlight Mending I.',
-        'Pre-fill **Rank 4** of Healing. Ranks 1, 2, and 3 must still be paid. This replaces Moonlight Mending II.',
+        'Use **Ranged Scarred Bar Restoration (PL 4)**: restore up to **2 Scarred Bars at full HP** to one creature within **20 m**, from this Power\'s shared recovery pool per Safe Haven Rest.',
+        'Use **Ranged Scarred Bar Restoration (PL 10)**: restore up to **6 Scarred Bars at full HP** to one creature within **44 m**, from this Power\'s shared recovery pool per Safe Haven Rest. This replaces Moonlight Mending I.',
+        'Use **Ranged Scarred Bar Restoration (PL 16)**: restore up to **10 Scarred Bars at full HP** to one creature within **68 m**, from this Power\'s shared recovery pool per Safe Haven Rest. This replaces Moonlight Mending II.',
       ],
     },
     2: {

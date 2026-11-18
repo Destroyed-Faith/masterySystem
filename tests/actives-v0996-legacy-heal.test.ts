@@ -24,17 +24,12 @@ function singleHealItem(flags: Record<string, unknown> = {}): any {
 }
 
 describe('Moonlight Mending / removed single-target heals', () => {
-  it('Moonlight Mending is Healing Stone Power Support (Rank 2/3/4 at L1/4/7)', () => {
+  it('Moonlight Mending is Ranged Scarred Bar Restoration (no Healing support)', () => {
     const picks = buildEchoProgressionPicks(GENERAL_ARTIFACTS.moonlightGreatsword as any);
     const mending = picks.find((p: any) => p.level === 1) as any;
-    expect(mending?.kind).toBe('stoneFunction');
-    expect(mending?.powerTemplateId).toBeUndefined();
-    expect(mending?.stoneFunction).toMatchObject({
-      kind: 'stonePowerSupport',
-      attribute: 'resolve',
-      stonePowerId: 'resolve.healing',
-      supportStages: [1, 4, 7],
-    });
+    expect(mending?.kind).toBe('power');
+    expect(mending?.powerTemplateId).toBe('active-ranged-health-level-heal');
+    expect(mending?.stoneFunction).toBeUndefined();
   });
 
   it('single-heal templates are gone from the catalog', () => {

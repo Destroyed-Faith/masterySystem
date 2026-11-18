@@ -43,7 +43,7 @@ export const LEGACY_CLEANUP_CONFLICT_TEMPLATES: ReadonlySet<string> = new Set([
 /** Removed with Actives v0.9.9.6; that migration remaps or flags these. */
 export const V0996_OWNED_TEMPLATE_RE = /^active-(?:(?:melee|ranged)-damage-t[3-6]|mental-attack)$/;
 
-/** Old Moonlight Mending grant: now Resolve Ability: Healing (Stone Power Support). */
+/** Old Moonlight Mending grant: now Ranged Scarred Bar Restoration on the Artifact. */
 export const ARTIFACT_SINGLE_HEAL_RE = /^active-(?:melee|ranged)-single-heal$/;
 
 /** Zone T5 Root (D5): not printed in Actives v0.9.9.6. */
@@ -101,7 +101,7 @@ export function classifyLegacyPower(
     if (!artifactSourced) return null;
     return {
       kind: 'retire',
-      reason: 'Old Moonlight Mending Heal Active. Moonlight Mending is now Resolve Ability: Healing (Stone Power Support, D1).',
+      reason: 'Old Moonlight Mending Heal Active. Moonlight Mending is now Ranged Scarred Bar Restoration from the Artifact (D1).',
     };
   }
   if (WEAPON_AOE_TEMPLATE_RE.test(tid) && special) {

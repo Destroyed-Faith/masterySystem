@@ -49,15 +49,10 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
     expect(l10?.name).not.toMatch(/True Moonlight/i);
   });
 
-  it('Mending is Healing Stone Power Support; Judgment / Shadow use canonical templates at PL 4/10/16', () => {
-    expect(picks[0].kind).toBe('stoneFunction');
-    expect(picks[0].stoneFunction).toMatchObject({
-      kind: 'stonePowerSupport',
-      attribute: 'resolve',
-      stonePowerId: 'resolve.healing',
-      supportStages: [1, 4, 7],
-    });
-    expect(picks[0].powerTemplateId).toBeUndefined();
+  it('Mending is Ranged Scarred Bar Restoration; Judgment / Shadow use canonical templates at PL 4/10/16', () => {
+    expect(picks[0].kind).toBe('power');
+    expect(picks[0].powerTemplateId).toBe('active-ranged-health-level-heal');
+    expect(picks[0].stoneFunction).toBeUndefined();
     expect(getTemplate('active-ranged-single-heal')).toBeFalsy();
     expect(picks[1].powerTemplateId).toBe('active-ranged-limited-aoe');
     expect(picks[2].powerTemplateId).toBe('ab-sundered-aura');

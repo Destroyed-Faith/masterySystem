@@ -469,7 +469,7 @@ describe('Artifact picks', () => {
     return JSON.parse(JSON.stringify(buildEchoProgressionPicks(lookupArtifactDefinition(key)!)));
   }
 
-  it('Moonlight Greatsword L1 Heal → Resolve Ability: Healing support (D1); other rows untouched', async () => {
+  it('Moonlight Greatsword L1 Heal → Ranged Scarred Bar Restoration (D1); other rows untouched', async () => {
     const picks = defPicks('moonlightGreatsword');
     picks[0] = { level: 1, kind: 'power', powerTemplateId: 'active-melee-single-heal', displayName: 'Moonlight Mending' };
     const art = artifact('moonlightGreatsword', picks);
@@ -478,14 +478,29 @@ describe('Artifact picks', () => {
     expect(plan.picks).toEqual([expect.objectContaining({ level: 1, kind: 'realign' })]);
     const g = installGame([], [art]);
     await applyLegacyCleanupReport(buildLegacyCleanupReport(g), g);
-    expect(art.system.progressionPicks[0].kind).toBe('stoneFunction');
-    expect(art.system.progressionPicks[0].stoneFunction.stonePowerId).toBe('resolve.healing');
+    expect(art.system.progressionPicks[0].powerTemplateId).toBe('active-ranged-health-level-heal');
     const rows = art.system.levelProgression as any[];
-    for (const lvl of [1, 4, 7]) expect(rows.find((r) => r.level === lvl)?.powerTemplateId).not.toBe('active-melee-single-heal');
+    for (const lvl of [1, 4, 7]) expect(rows.find((r) => r.level === lvl)?.powerTemplateId).toBe('active-ranged-health-level-heal');
     for (const lvl of [2, 3, 5, 6, 8, 9, 10]) {
       expect(rows.find((r) => r.level === lvl)).toEqual(before.find((r: any) => r.level === lvl));
     }
     expect(planArtifactLegacyCleanup(art, null)).toBeNull();
+  });
+
+  it('a Moonlight Mending Healing-support pick (v0.9.869) is realigned; other Healing supports are untouched', () => {
+    const picks = defPicks('moonlightGreatsword');
+    picks[0] = {
+      level: 1,
+      kind: 'stoneFunction',
+      displayName: 'Moonlight Mending',
+      stoneFunction: { kind: 'stonePowerSupport', attribute: 'resolve', stonePowerId: 'resolve.healing', supportStages: [1, 4, 7] },
+    };
+    const plan = planArtifactLegacyCleanup(artifact('moonlightGreatsword', picks), null)!;
+    expect(plan.picks).toEqual([expect.objectContaining({ level: 1, kind: 'realign', to: 'active-ranged-health-level-heal' })]);
+    for (const key of ['judicatorFrame']) {
+      if (!lookupArtifactDefinition(key)) continue;
+      expect(planArtifactLegacyCleanup(artifact(key, defPicks(key)), null)).toBeNull();
+    }
   });
 
   it("Lor-Keth's Staff L1 → Melee Single Target Special: Challenge (D2); Dragon Claws → AoE Special: Lacerate", () => {

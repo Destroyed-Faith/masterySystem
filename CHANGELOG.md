@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.870] - 2026-11-18
+
+### Changed
+
+- **Moonlight Mending** is now **Ranged Scarred Bar Restoration** instead of Resolve Ability: Healing support. Artifact Level 1 / 4 / 7 grant Power Level 4 / 10 / 16: 2 / 6 / 10 Scarred Bars restored at full HP per Safe Haven Rest, range 20 / 44 / 68 m. The legacy-cleanup migration realigns old Moonlight Greatsword picks, including the Healing-support pick from 0.9.869.
+
 ## [0.9.869] - 2026-11-18
 
 ### Changed

@@ -4617,7 +4617,7 @@ The final character should read as one connected plan rather than a collection o
 
 **Moonlight Greatsword - Inherent Finesse:** This named Artifact retains the normal Greatsword's **4d8 starting weapon damage** and **Precision(2)**, while its own Inherent Ability: **Finesse** permits Agility for the Attack Roll (not for damage). At Artifact Level 1 its +1d8 Artifact Weapon Damage produces **5d8 total Weapon Damage**. Inherent Finesse is not an additional Power, a purchased Special, or a fourth Artifact Base Value.
 
-**Moonlight Greatsword - Moonlight Mending:** Moonlight Mending is **Resolve Ability: Healing (Stone Power Support)**, not an Active Power. Artifact Level 1 pre-fills **Rank 2** (Rank 1 must still be paid). Artifact Level 4 pre-fills **Rank 3** (Ranks 1 and 2 must still be paid) and replaces the Level 1 value. Artifact Level 7 pre-fills **Rank 4** (Ranks 1, 2, and 3 must still be paid) and replaces the Level 4 value. The support is not limited to yourself: targets and every other effect follow Resolve Ability: Healing. It does not restore Scarred Bars and grants no separate Heal Active.
+**Moonlight Greatsword - Moonlight Mending:** Moonlight Mending is **Ranged Scarred Bar Restoration**. Artifact Level 1 grants it at **Power Level 4**, Artifact Level 4 at **Power Level 10** and Artifact Level 7 at **Power Level 16**; each stage replaces the previous one. Range, the number of Scarred Bars restored at full HP, and the shared recovery pool per Safe Haven Rest follow the Ranged Scarred Bar Restoration table in the Actives rules. It grants no Healing support and no separate Heal Active.
 
 ### Her combat rhythm
 

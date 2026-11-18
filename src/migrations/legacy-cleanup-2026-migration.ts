@@ -776,6 +776,15 @@ function pickSignature(pick: any): string {
   });
 }
 
+/** Moonlight Mending as Healing support (v0.9.869 definition), replaced by Ranged Scarred Bar Restoration. */
+function isRetiredMoonlightSupportPick(artifactKey: string | null, pick: any): boolean {
+  return (
+    artifactKey === 'moonlightGreatsword' &&
+    pick?.kind === 'stoneFunction' &&
+    pick?.stoneFunction?.stonePowerId === 'resolve.healing'
+  );
+}
+
 function isLegacyPick(pick: any): boolean {
   if (pick?.kind !== 'power') return false;
   const tid = String(pick.powerTemplateId ?? '');
@@ -835,7 +844,7 @@ export function planArtifactLegacyCleanup(item: any, owner: any | null): LcArtif
     const tid = String(pick?.powerTemplateId ?? '');
     const special = pick?.chosenSpecial?.key ? String(pick.chosenSpecial.key) : null;
     const staged = legacyStageTemplates(pick);
-    if (!isLegacyPick(pick) && !staged.length) continue;
+    if (!isLegacyPick(pick) && !staged.length && !isRetiredMoonlightSupportPick(artifactKey, pick)) continue;
     const from = tid || staged.join(', ');
     const defPick = defPicks.find((p) => Number(p?.level) === level);
     if (authored) {
