@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.865] - 2026-11-18
+
+### Fixed
+
+- **CI:** Skill Point apply tests updated for retired Skill Points (Free XP conversion + XP-only skill ranks).
+
 ## [0.9.864] - 2026-11-18
 
 ### Fixed
