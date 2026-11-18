@@ -7,12 +7,14 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visuelles Feuer, Eis oder Rauch, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
+    "TypeHint": "Visuelles Feuer, Eis, Rauch, Bodenrisse oder zähe Flüssigkeit, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
     "EFFECTS": {
       "none": "Keiner",
       "naturalFire": "Feuer",
       "ice": "Eis",
-      "smoke": "Rauch / Nebel"
+      "smoke": "Rauch / Nebel",
+      "groundCracks": "Bodenrisse",
+      "viscous": "Zähe Flüssigkeit"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -35,6 +37,26 @@
       "thaw": "Zum Rand zurücktauen",
       "fade": "Ausblenden"
     },
+    "CRACK_MODE": {
+      "once": "Einmal aufbrechen",
+      "instant": "Schon aufgebrochen",
+      "loop": "Schleife"
+    },
+    "CRACK_RESET": {
+      "close": "Zur Mitte schließen",
+      "fade": "Ausblenden"
+    },
+    "CRACK_ORIGIN": {
+      "center": "Epizentrum (Regionsmitte)",
+      "scattered": "Verstreut"
+    },
+    "LIQUID_STYLE": {
+      "tar": "Teer / Öl",
+      "lava": "Lava",
+      "acid": "Säure",
+      "slime": "Schleim / Glibber",
+      "arcane": "Arkaner Glibber"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Aktiv",
@@ -42,7 +64,7 @@
       },
       "effectType": {
         "label": "Effekttyp",
-        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer, Eis und Rauch / Nebel zeigen nur die Felder, die sie nutzen."
+        "hint": "Keiner behält die Einstellungen, zeichnet aber nichts. Feuer, Eis, Rauch / Nebel, Bodenrisse und Zähe Flüssigkeit zeigen nur die Felder, die sie nutzen."
       },
       "fireStyle": {
         "label": "Feuerstil",
@@ -127,6 +149,86 @@
       "edgeSoftness": {
         "label": "Randweichheit",
         "hint": "Rasterfelder, über die der Rauch zum Regionsrand hin ausdünnt. 0 lässt den Rand hart."
+      },
+      "crackMode": {
+        "label": "Aufbruchmodus",
+        "hint": "Einmal aufbrechen: Der Boden reißt auf, wenn das Behavior angelegt oder eingeschaltet wird, und bleibt dann aufgebrochen (nach dem Neuladen ist er schon aufgebrochen). Schon aufgebrochen: keine Animation. Schleife: aufbrechen, halten, neu beginnen."
+      },
+      "crackDuration": {
+        "label": "Aufbruchdauer",
+        "hint": "Sekunden vom heilen Boden bis zu komplett geöffneten Rissen."
+      },
+      "crackHold": {
+        "label": "Haltezeit",
+        "hint": "Nur Schleife: Sekunden, die die Risse offen bleiben, bevor es neu losgeht."
+      },
+      "crackReset": {
+        "label": "Schleifen-Neustart",
+        "hint": "Nur Schleife: wie die Risse verschwinden, bevor der Boden wieder aufbricht. Schließen zieht sie zur Mitte zurück; Ausblenden lässt sie verblassen."
+      },
+      "crackOrigin": {
+        "label": "Rissursprung",
+        "hint": "Epizentrum öffnet einen Krater in der Regionsmitte mit Spalten, die nach außen laufen, und die Risse wandern von der Mitte zum Rand. Verstreut bricht den Boden fleckig auf."
+      },
+      "crackScale": {
+        "label": "Plattengröße",
+        "hint": "Größe der aufgebrochenen Bodenplatten relativ zum Szenenraster."
+      },
+      "crackWidth": {
+        "label": "Rissbreite",
+        "hint": "Wie weit sich die Risse öffnen. Bestimmt auch, wie stark sich die Platten verschieben."
+      },
+      "glowColor": {
+        "label": "Glühfarbe",
+        "hint": "Farbe, die aus den Rissen leuchtet: Orange für Magma, Blau oder Grün für Magie, Lila für Leere."
+      },
+      "glowStrength": {
+        "label": "Glühstärke",
+        "hint": "Wie stark die Risse glühen. 0 lässt schlichte dunkle Risse in der Erde."
+      },
+      "shake": {
+        "label": "Beben",
+        "hint": "Wie stark der Boden bebt, während er aufbricht. Das Beben endet kurz nachdem die Risse ganz offen sind."
+      },
+      "dust": {
+        "label": "Staub",
+        "hint": "Staub, der beim Öffnen aus frischen Rissen aufsteigt. 0 schaltet ihn ab."
+      },
+      "liquidStyle": {
+        "label": "Oberflächenstil",
+        "hint": "Teer / Öl: sehr dunkel, langsam und schwer, wenige große Blasen, öliger Glanz. Lava: glühende Fugen zwischen dunklen Krustenplatten. Säure: giftig gelbgrün, leicht durchsichtig, blubbernd und schwach leuchtend. Schleim / Glibber: halbtransparent, dickflüssig, stark verzerrend, große Blasen. Arkaner Glibber: knallige weiche Farbverläufe, langsames Fließen, starke Lichtbrechung und Glanz. Die Regler darunter passen den Stil an."
+      },
+      "liquidFlow": {
+        "label": "Fließgeschwindigkeit",
+        "hint": "Prozent des Fließtempos des Stils. 100 ist der Stil-Standard."
+      },
+      "liquidViscosity": {
+        "label": "Zähigkeit",
+        "hint": "Prozent der Dickflüssigkeit des Stils. Höhere Werte geben größere, weichere und trägere Wellen."
+      },
+      "liquidBubbles": {
+        "label": "Blasenmenge",
+        "hint": "Prozent der Blasen des Stils. 0 schaltet sie ab."
+      },
+      "liquidGlow": {
+        "label": "Leuchtstärke",
+        "hint": "Prozent des Lichts, das die Flüssigkeit abgibt. 0 schaltet das Leuchten ab."
+      },
+      "liquidDistortion": {
+        "label": "Verzerrung",
+        "hint": "Prozent, wie stark das Szenen-Hintergrundbild unter der Flüssigkeit gebrochen wird. Nur das Hintergrundbild wird verzerrt, keine Tiles oder Zeichnungen."
+      },
+      "liquidCrust": {
+        "label": "Randkruste",
+        "hint": "Prozent des Kruste- oder Schaumrands an der Regionsgrenze. 0 entfernt ihn."
+      },
+      "liquidCustomColor": {
+        "label": "Eigene Farbe",
+        "hint": "Aus nutzt die Farben des Stils. An färbt die Flüssigkeit mit der Farbe darunter; bei Lava färbt sie das Glühen."
+      },
+      "liquidColor": {
+        "label": "Farbe",
+        "hint": "Farbe der Flüssigkeit, wenn Eigene Farbe an ist."
       },
       "randomSeed": {
         "label": "Zufallsseed",

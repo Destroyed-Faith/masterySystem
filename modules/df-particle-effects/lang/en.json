@@ -7,12 +7,14 @@
     }
   },
   "DF_PARTICLE_EFFECTS": {
-    "TypeHint": "Visual fire, ice or smoke clipped to this region. It does not deal damage or change tokens.",
+    "TypeHint": "Visual fire, ice, smoke, ground cracks or viscous liquid clipped to this region. It does not deal damage or change tokens.",
     "EFFECTS": {
       "none": "None",
       "naturalFire": "Fire",
       "ice": "Ice",
-      "smoke": "Smoke / Fog"
+      "smoke": "Smoke / Fog",
+      "groundCracks": "Ground Cracks",
+      "viscous": "Viscous Surface"
     },
     "FIRE_STYLE": {
       "areaFire": {
@@ -35,6 +37,26 @@
       "thaw": "Thaw back to the edges",
       "fade": "Fade out"
     },
+    "CRACK_MODE": {
+      "once": "Break open once",
+      "instant": "Already broken",
+      "loop": "Loop"
+    },
+    "CRACK_RESET": {
+      "close": "Close back to the middle",
+      "fade": "Fade out"
+    },
+    "CRACK_ORIGIN": {
+      "center": "Epicenter (region middle)",
+      "scattered": "Scattered"
+    },
+    "LIQUID_STYLE": {
+      "tar": "Tar / Oil",
+      "lava": "Lava",
+      "acid": "Acid",
+      "slime": "Slime / Goo",
+      "arcane": "Arcane Goo"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Enabled",
@@ -42,7 +64,7 @@
       },
       "effectType": {
         "label": "Effect Type",
-        "hint": "None keeps the settings but draws nothing. Fire, Ice and Smoke / Fog show only the fields they use."
+        "hint": "None keeps the settings but draws nothing. Fire, Ice, Smoke / Fog, Ground Cracks and Viscous Surface show only the fields they use."
       },
       "fireStyle": {
         "label": "Fire Style",
@@ -127,6 +149,86 @@
       "edgeSoftness": {
         "label": "Edge Softness",
         "hint": "Grid cells over which the smoke thins out toward the region edge. 0 keeps a hard edge."
+      },
+      "crackMode": {
+        "label": "Break Mode",
+        "hint": "Break open once: the ground cracks open when the behavior is created or enabled, then stays broken (after a reload it is already broken). Already broken: no animation. Loop: break open, hold, start over."
+      },
+      "crackDuration": {
+        "label": "Break Duration",
+        "hint": "Seconds from whole ground to fully opened cracks."
+      },
+      "crackHold": {
+        "label": "Hold Time",
+        "hint": "Loop only: seconds the cracks stay open before it starts over."
+      },
+      "crackReset": {
+        "label": "Loop Reset",
+        "hint": "Loop only: how the cracks clear before the ground breaks again. Close pulls them back toward the middle; Fade dissolves them."
+      },
+      "crackOrigin": {
+        "label": "Crack Origin",
+        "hint": "Epicenter opens a pit in the region middle with fissures running outward, and the cracks travel from the middle to the edge. Scattered breaks the ground open in patches."
+      },
+      "crackScale": {
+        "label": "Plate Size",
+        "hint": "Size of the broken ground plates relative to the scene grid."
+      },
+      "crackWidth": {
+        "label": "Crack Width",
+        "hint": "How wide the cracks open. It also scales how far the plates shift."
+      },
+      "glowColor": {
+        "label": "Glow Color",
+        "hint": "Color shining out of the cracks: orange for magma, blue or green for magic, purple for void."
+      },
+      "glowStrength": {
+        "label": "Glow Strength",
+        "hint": "How strongly the cracks glow. 0 leaves plain dark cracks in the earth."
+      },
+      "shake": {
+        "label": "Shake",
+        "hint": "How hard the ground shakes while it breaks open. The shake stops shortly after the cracks are fully open."
+      },
+      "dust": {
+        "label": "Dust",
+        "hint": "Dust thrown up from fresh cracks while they open. 0 disables it."
+      },
+      "liquidStyle": {
+        "label": "Surface Style",
+        "hint": "Tar / Oil: very dark, slow and heavy with a few big bubbles and an oily sheen. Lava: glowing seams between dark crust plates. Acid: toxic yellow-green, slightly clear, bubbling and faintly glowing. Slime / Goo: translucent, thick and strongly distorting with big bubbles. Arcane Goo: vivid soft color gradients, slow flow, strong refraction and gloss. The sliders below adjust the style."
+      },
+      "liquidFlow": {
+        "label": "Flow Speed",
+        "hint": "Percent of the style's flow tempo. 100 is the style default."
+      },
+      "liquidViscosity": {
+        "label": "Viscosity",
+        "hint": "Percent of the style's thickness. Higher values make bigger, smoother and slower swells."
+      },
+      "liquidBubbles": {
+        "label": "Bubble Amount",
+        "hint": "Percent of the style's bubbles. 0 disables them."
+      },
+      "liquidGlow": {
+        "label": "Glow Strength",
+        "hint": "Percent of the light the liquid gives off. 0 turns the glow off."
+      },
+      "liquidDistortion": {
+        "label": "Distortion",
+        "hint": "Percent of how strongly the scene background is bent under the liquid. Only the background image is distorted, not tiles or drawings."
+      },
+      "liquidCrust": {
+        "label": "Edge Crust",
+        "hint": "Percent of the crust or foam band along the region edge. 0 removes it."
+      },
+      "liquidCustomColor": {
+        "label": "Custom Color",
+        "hint": "Off uses the style's own colors. On tints the liquid with the color below; for Lava it colors the glow."
+      },
+      "liquidColor": {
+        "label": "Color",
+        "hint": "Color of the liquid when Custom Color is on."
       },
       "randomSeed": {
         "label": "Random Seed",

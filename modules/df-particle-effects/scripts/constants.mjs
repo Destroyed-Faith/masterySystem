@@ -12,9 +12,28 @@ export const EFFECT_NATURAL_FIRE = "naturalFire";
 export const EFFECT_ICE = "ice";
 export const EFFECT_SMOKE = "smoke";
 
-export const SMOKE_DEFAULT_COLOR = "#b8bcc2";
+export const EFFECT_CRACKS = "groundCracks";
+export const EFFECT_LIQUID = "viscous";
 
-/** How an ice surface freezes over. */
+/** Viscous Surface styles. Each is a preset in liquid-presets.mjs. */
+export const LIQUID_TAR = "tar";
+export const LIQUID_LAVA = "lava";
+export const LIQUID_ACID = "acid";
+export const LIQUID_SLIME = "slime";
+export const LIQUID_ARCANE = "arcane";
+export const LIQUID_DEFAULT_COLOR = "#3fbf4a";
+
+export const SMOKE_DEFAULT_COLOR = "#b8bcc2";
+export const CRACK_DEFAULT_GLOW = "#ff7a1f";
+
+/** Where ground cracks start: one epicenter in the region middle, or all over. */
+export const CRACK_ORIGIN_CENTER = "center";
+export const CRACK_ORIGIN_SCATTERED = "scattered";
+
+/** Looping cracks close back toward the epicenter before they break open again. */
+export const CRACK_RESET_CLOSE = "close";
+
+/** How an ice surface freezes over (ground cracks use the same modes). */
 export const FREEZE_INSTANT = "instant";
 export const FREEZE_ONCE = "once";
 export const FREEZE_LOOP = "loop";

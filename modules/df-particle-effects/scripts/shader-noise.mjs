@@ -44,3 +44,48 @@ float fbm(vec2 p) {
   return v;
 }
 `;
+
+/**
+ * Voronoi plates with a true distance to the nearest border, so lines drawn on it
+ * keep an even width. Needs PLANE_NOISE before it.
+ */
+export const PLATE_BORDER = /* glsl */ `
+vec2 plateSite(vec2 cell) {
+  return 0.1 + 0.8 * planeHash2(cell);
+}
+
+// x: distance to the nearest plate border, y: stable id of the plate.
+vec2 plateBorder(vec2 p) {
+  vec2 cell = floor(p);
+  vec2 f = fract(p);
+  vec2 ownSite = vec2(0.0);
+  vec2 ownCell = cell;
+  float best = 8.0;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 o = vec2(float(i), float(j));
+      vec2 site = o + plateSite(cell + o);
+      vec2 d = site - f;
+      float dd = dot(d, d);
+      if (dd < best) {
+        best = dd;
+        ownSite = site;
+        ownCell = cell + o;
+      }
+    }
+  }
+  float border = 8.0;
+  for (int j = -2; j <= 2; j++) {
+    for (int i = -2; i <= 2; i++) {
+      vec2 o = vec2(float(i), float(j));
+      vec2 site = o + plateSite(cell + o);
+      vec2 between = site - ownSite;
+      float len2 = dot(between, between);
+      if (len2 > 0.00001) {
+        border = min(border, dot(0.5 * (ownSite + site) - f, between / sqrt(len2)));
+      }
+    }
+  }
+  return vec2(border, planeHash(ownCell + 13.0));
+}
+`;

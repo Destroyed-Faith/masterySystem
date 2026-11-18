@@ -1,6 +1,6 @@
 import { clamp } from "./geometry.mjs";
 import { createIceSurface } from "./ice-surface-shader.mjs";
-import { freezeTimeline } from "./ice-timeline.mjs";
+import { freezeTimeline } from "./timeline.mjs";
 import { RegionShaderEffect } from "./region-effect.mjs";
 
 /**

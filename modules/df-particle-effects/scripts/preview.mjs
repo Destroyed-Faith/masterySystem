@@ -1,4 +1,16 @@
-import { behaviorTypeId, EFFECT_NATURAL_FIRE, FIRE_STYLE_AREA, FREEZE_ONCE, LOOP_RESET_THAW, SMOKE_DEFAULT_COLOR } from "./constants.mjs";
+import {
+  behaviorTypeId,
+  CRACK_DEFAULT_GLOW,
+  CRACK_ORIGIN_CENTER,
+  CRACK_RESET_CLOSE,
+  EFFECT_NATURAL_FIRE,
+  FIRE_STYLE_AREA,
+  FREEZE_ONCE,
+  LIQUID_DEFAULT_COLOR,
+  LIQUID_LAVA,
+  LOOP_RESET_THAW,
+  SMOKE_DEFAULT_COLOR,
+} from "./constants.mjs";
 import { applyFieldVisibility } from "./field-visibility.mjs";
 
 /**
@@ -85,6 +97,26 @@ export function readDraft(form) {
       driftSpeed: numberValue(form, "system.driftSpeed", 0.5),
       driftDirection: numberValue(form, "system.driftDirection", 90),
       edgeSoftness: numberValue(form, "system.edgeSoftness", 1),
+      crackMode: text(form, "system.crackMode") || FREEZE_ONCE,
+      crackDuration: numberValue(form, "system.crackDuration", 1.5),
+      crackHold: numberValue(form, "system.crackHold", 3),
+      crackReset: text(form, "system.crackReset") || CRACK_RESET_CLOSE,
+      crackOrigin: text(form, "system.crackOrigin") || CRACK_ORIGIN_CENTER,
+      crackScale: numberValue(form, "system.crackScale", 1),
+      crackWidth: numberValue(form, "system.crackWidth", 1),
+      glowColor: text(form, "system.glowColor") || CRACK_DEFAULT_GLOW,
+      glowStrength: numberValue(form, "system.glowStrength", 60),
+      shake: numberValue(form, "system.shake", 30),
+      dust: numberValue(form, "system.dust", 40),
+      liquidStyle: text(form, "system.liquidStyle") || LIQUID_LAVA,
+      liquidFlow: numberValue(form, "system.liquidFlow", 100),
+      liquidViscosity: numberValue(form, "system.liquidViscosity", 100),
+      liquidBubbles: numberValue(form, "system.liquidBubbles", 100),
+      liquidGlow: numberValue(form, "system.liquidGlow", 100),
+      liquidDistortion: numberValue(form, "system.liquidDistortion", 100),
+      liquidCrust: numberValue(form, "system.liquidCrust", 100),
+      liquidCustomColor: checked(form, "system.liquidCustomColor"),
+      liquidColor: text(form, "system.liquidColor") || LIQUID_DEFAULT_COLOR,
       randomSeed: text(form, "system.randomSeed"),
     },
   };

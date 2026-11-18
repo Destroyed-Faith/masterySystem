@@ -1,6 +1,12 @@
 import {
   behaviorTypeId,
+  CRACK_DEFAULT_GLOW,
+  CRACK_ORIGIN_CENTER,
+  CRACK_ORIGIN_SCATTERED,
+  CRACK_RESET_CLOSE,
+  EFFECT_CRACKS,
   EFFECT_ICE,
+  EFFECT_LIQUID,
   EFFECT_NATURAL_FIRE,
   EFFECT_NONE,
   EFFECT_SMOKE,
@@ -11,10 +17,13 @@ import {
   FREEZE_LOOP,
   FREEZE_ONCE,
   LOOP_RESET_FADE,
+  LIQUID_DEFAULT_COLOR,
+  LIQUID_LAVA,
   LOOP_RESET_THAW,
   SMOKE_DEFAULT_COLOR,
   typeLabelKey,
 } from "./constants.mjs";
+import { LIQUID_STYLES } from "./liquid-presets.mjs";
 import { fireStyleChoices } from "./styles.mjs";
 
 /**
@@ -43,6 +52,8 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
           [EFFECT_NATURAL_FIRE]: "DF_PARTICLE_EFFECTS.EFFECTS.naturalFire",
           [EFFECT_ICE]: "DF_PARTICLE_EFFECTS.EFFECTS.ice",
           [EFFECT_SMOKE]: "DF_PARTICLE_EFFECTS.EFFECTS.smoke",
+          [EFFECT_CRACKS]: "DF_PARTICLE_EFFECTS.EFFECTS.groundCracks",
+          [EFFECT_LIQUID]: "DF_PARTICLE_EFFECTS.EFFECTS.viscous",
         },
         label: "DF_PARTICLE_EFFECTS.FIELDS.effectType.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.effectType.hint",
@@ -247,6 +258,140 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
         label: "DF_PARTICLE_EFFECTS.FIELDS.edgeSoftness.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.edgeSoftness.hint",
       }),
+      crackMode: new fields.StringField({
+        required: true,
+        blank: false,
+        initial: FREEZE_ONCE,
+        choices: {
+          [FREEZE_ONCE]: "DF_PARTICLE_EFFECTS.CRACK_MODE.once",
+          [FREEZE_INSTANT]: "DF_PARTICLE_EFFECTS.CRACK_MODE.instant",
+          [FREEZE_LOOP]: "DF_PARTICLE_EFFECTS.CRACK_MODE.loop",
+        },
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackMode.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackMode.hint",
+      }),
+      crackDuration: new fields.NumberField({
+        required: true,
+        initial: 1.5,
+        min: 0.2,
+        max: 20,
+        step: 0.1,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackDuration.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackDuration.hint",
+      }),
+      crackHold: new fields.NumberField({
+        required: true,
+        initial: 3,
+        min: 0,
+        max: 30,
+        step: 0.1,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackHold.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackHold.hint",
+      }),
+      crackReset: new fields.StringField({
+        required: true,
+        blank: false,
+        initial: CRACK_RESET_CLOSE,
+        choices: {
+          [CRACK_RESET_CLOSE]: "DF_PARTICLE_EFFECTS.CRACK_RESET.close",
+          [LOOP_RESET_FADE]: "DF_PARTICLE_EFFECTS.CRACK_RESET.fade",
+        },
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackReset.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackReset.hint",
+      }),
+      crackOrigin: new fields.StringField({
+        required: true,
+        blank: false,
+        initial: CRACK_ORIGIN_CENTER,
+        choices: {
+          [CRACK_ORIGIN_CENTER]: "DF_PARTICLE_EFFECTS.CRACK_ORIGIN.center",
+          [CRACK_ORIGIN_SCATTERED]: "DF_PARTICLE_EFFECTS.CRACK_ORIGIN.scattered",
+        },
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackOrigin.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackOrigin.hint",
+      }),
+      crackScale: new fields.NumberField({
+        required: true,
+        initial: 1,
+        min: 0.25,
+        max: 3,
+        step: 0.05,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackScale.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackScale.hint",
+      }),
+      crackWidth: new fields.NumberField({
+        required: true,
+        initial: 1,
+        min: 0.25,
+        max: 3,
+        step: 0.05,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.crackWidth.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.crackWidth.hint",
+      }),
+      glowColor: new fields.ColorField({
+        required: true,
+        nullable: false,
+        initial: CRACK_DEFAULT_GLOW,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.glowColor.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.glowColor.hint",
+      }),
+      glowStrength: new fields.NumberField({
+        required: true,
+        integer: true,
+        initial: 60,
+        min: 0,
+        max: 100,
+        step: 1,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.glowStrength.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.glowStrength.hint",
+      }),
+      shake: new fields.NumberField({
+        required: true,
+        integer: true,
+        initial: 30,
+        min: 0,
+        max: 100,
+        step: 1,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.shake.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.shake.hint",
+      }),
+      dust: new fields.NumberField({
+        required: true,
+        integer: true,
+        initial: 40,
+        min: 0,
+        max: 100,
+        step: 1,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.dust.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.dust.hint",
+      }),
+      liquidStyle: new fields.StringField({
+        required: true,
+        blank: false,
+        initial: LIQUID_LAVA,
+        choices: Object.fromEntries(LIQUID_STYLES.map((style) => [style, `DF_PARTICLE_EFFECTS.LIQUID_STYLE.${style}`])),
+        label: "DF_PARTICLE_EFFECTS.FIELDS.liquidStyle.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.liquidStyle.hint",
+      }),
+      liquidFlow: percentField(fields, "liquidFlow"),
+      liquidViscosity: percentField(fields, "liquidViscosity"),
+      liquidBubbles: percentField(fields, "liquidBubbles"),
+      liquidGlow: percentField(fields, "liquidGlow"),
+      liquidDistortion: percentField(fields, "liquidDistortion"),
+      liquidCrust: percentField(fields, "liquidCrust"),
+      liquidCustomColor: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.liquidCustomColor.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.liquidCustomColor.hint",
+      }),
+      liquidColor: new fields.ColorField({
+        required: true,
+        nullable: false,
+        initial: LIQUID_DEFAULT_COLOR,
+        label: "DF_PARTICLE_EFFECTS.FIELDS.liquidColor.label",
+        hint: "DF_PARTICLE_EFFECTS.FIELDS.liquidColor.hint",
+      }),
       randomSeed: new fields.StringField({
         required: false,
         nullable: true,
@@ -258,6 +403,20 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
       }),
     };
   }
+}
+
+/** Viscous Surface slider relative to the style preset: 100 % is the preset value. */
+function percentField(fields, name) {
+  return new fields.NumberField({
+    required: true,
+    integer: true,
+    initial: 100,
+    min: 0,
+    max: 300,
+    step: 5,
+    label: `DF_PARTICLE_EFFECTS.FIELDS.${name}.label`,
+    hint: `DF_PARTICLE_EFFECTS.FIELDS.${name}.hint`,
+  });
 }
 
 export function registerBehaviorType() {

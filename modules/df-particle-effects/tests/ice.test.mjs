@@ -15,7 +15,7 @@ import {
 import { applyFieldVisibility, visibleFields } from "../scripts/field-visibility.mjs";
 import { computeEdgeDepth, edgeDepthToRgba } from "../scripts/ice-depth.mjs";
 import { createIceSurface, ICE_FRAGMENT, textureFrameUv } from "../scripts/ice-surface-shader.mjs";
-import { freezeTimeline, freezeTimingSignature, resetDuration } from "../scripts/ice-timeline.mjs";
+import { freezeTimeline, freezeTimingSignature, resetDuration } from "../scripts/timeline.mjs";
 import { wantedEmberCount, wantedFlameCount } from "../scripts/placement.mjs";
 import { readDraft } from "../scripts/preview.mjs";
 import { readConfig } from "../scripts/renderer.mjs";

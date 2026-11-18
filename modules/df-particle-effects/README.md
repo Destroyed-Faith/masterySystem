@@ -1,12 +1,12 @@
 # Destroyed Faith – Particle Effects
 
-Eigenständiges Foundry-VTT-Modul für **visuelles Feuer, Eis und Rauch innerhalb von Szenenregionen**. Es gehört zum Destroyed-Faith-Projekt, greift aber nicht in die Regeln des Mastery-Systems ein und kann allein installiert werden.
+Eigenständiges Foundry-VTT-Modul für **visuelles Feuer, Eis, Rauch, Bodenrisse und zähe Flüssigkeiten innerhalb von Szenenregionen**. Es gehört zum Destroyed-Faith-Projekt, greift aber nicht in die Regeln des Mastery-Systems ein und kann allein installiert werden.
 
 - Modul-ID: `df-particle-effects`
 - Anzeigename: **Destroyed Faith – Particle Effects**
 - Behavior in der Regionenliste: **DF: Particle Effects**
 - Zielversion: **Foundry VTT 14** (`compatibility.minimum` und `verified` sind 14). V13 wurde nicht geprüft und wird nicht behauptet.
-- Effekte: **Fire** / Feuer (Stile **Area Fire** und **Ball Of Fire**), **Ice** / Eis und **Smoke / Fog** / Rauch / Nebel
+- Effekte: **Fire** / Feuer (Stile **Area Fire** und **Ball Of Fire**), **Ice** / Eis, **Smoke / Fog** / Rauch / Nebel, **Ground Cracks** / Bodenrisse und **Viscous Surface** / Zähe Flüssigkeit (Teer, Lava, Säure, Schleim, Arkaner Glibber)
 
 Die Lizenz ist die Destroyed-Faith-Lizenz aus dem Repository (`LICENSE.md` im Projektroot). Die Flammenbilder sind projekteigene Standbilder, keine FXMaster+-Assets.
 
@@ -19,7 +19,7 @@ Es gibt **kein Symbol in der linken Toolbar**. Der Effekt hängt an der normalen
 3. Die Region doppelklicken.
 4. Reiter **Behaviors** öffnen und **Create / Add Behavior** wählen.
 5. In der Liste **DF: Particle Effects** wählen (Feuer-Icon).
-6. **Effect Type** wählen (**Fire**, **Ice** oder **Smoke / Fog**), die passenden Felder einstellen, dann speichern. Der Dialog zeigt nur die Felder, die der gewählte Effekt nutzt.
+6. **Effect Type** wählen (**Fire**, **Ice**, **Smoke / Fog**, **Ground Cracks** oder **Viscous Surface**), die passenden Felder einstellen, dann speichern. Der Dialog zeigt nur die Felder, die der gewählte Effekt nutzt.
 
 Das Feuer erscheint nur in dieser Region, auf der Karte und unter Token. Die Hintergrundkarte wird nicht abgedunkelt. Klicks auf Token und Regionen gehen durch den Effekt hindurch.
 
@@ -32,7 +32,7 @@ GM und Spieler sehen dieselben Flächen, weil Foundry die Behavior-Daten synchro
 | Feld | Standard | Bedeutung |
 | --- | --- | --- |
 | Enabled | an | Schaltet nur diesen Effekt aus. |
-| Effect Type | Fire | None, Fire, Ice oder Smoke / Fog. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
+| Effect Type | Fire | None, Fire, Ice, Smoke / Fog, Ground Cracks oder Viscous Surface. Weitere Typen erscheinen erst, wenn sie umgesetzt sind. |
 | Fire Style | Area Fire | Area Fire füllt die Region mit Bodenfeuer. Ball Of Fire zeigt einen runden Feuerball in der Mitte der Region; Density und Ember Amount wirken dort nicht. |
 | Density | 40 | Feuerstellen relativ zur Regionsfläche in Rasterzellen, nicht zur Fenstergröße. 0 blendet Flammen aus. |
 | Flame Scale | 1 | Größe relativ zum Szenenraster. Die Basis bleibt am Boden. Bereich 0,25–2. |
@@ -76,6 +76,54 @@ Zwei verwirbelte Rauchschichten ziehen unterschiedlich schnell über die Region,
 | Drift Direction | 90 | Zugrichtung in Grad: 0 hoch, 90 rechts, 180 runter, 270 links. |
 | Edge Softness | 1 | Rasterfelder, über die der Rauch zum Rand ausdünnt; höchstens die halbe Regionstiefe. 0 lässt den Rand hart. |
 | Opacity | 0,9 | Deckkraft. |
+
+### Bodenrisse
+
+Der Boden bricht in Platten auf, etwa für Erdbeben- oder Erdzauber. Die Risse öffnen sich dünn und werden breiter, frische Risse glühen heller und werfen Staub auf. Solange der Boden aufbricht, bebt er. Mit Szenen-Hintergrundbild verschieben sich die Platten leicht gegeneinander.
+
+| Feld | Standard | Bedeutung |
+| --- | --- | --- |
+| Break Mode | Break open once | **Break open once**: bricht beim Anlegen oder Einschalten auf und bleibt offen; nach dem Neuladen ist der Boden schon aufgebrochen. **Already broken**: ohne Animation. **Loop**: aufbrechen, halten, neu beginnen. |
+| Break Duration | 1,5 s | Dauer vom heilen Boden bis zu offenen Rissen. 0,2–20 s. |
+| Hold Time | 3 s | Nur Loop: wie lange die Risse offen bleiben. 0–30 s. |
+| Loop Reset | Close | Nur Loop: **Close** zieht die Risse zur Mitte zurück, **Fade** blendet sie aus. |
+| Crack Origin | Epicenter | **Epicenter**: Krater in der Regionsmitte, Spalten laufen nach außen, die Risse wandern von der Mitte zum Rand. **Scattered**: fleckig über die ganze Region. |
+| Plate Size | 1 | Größe der Bodenplatten relativ zum Raster. 0,25–3. |
+| Crack Width | 1 | Wie weit sich die Risse öffnen und wie stark sich die Platten verschieben. 0,25–3. |
+| Glow Color | #ff7a1f | Orange für Magma, Blau oder Grün für Magie, Lila für Leere. |
+| Glow Strength | 60 | Leuchten aus den Rissen. 0 lässt schlichte dunkle Erdrisse. |
+| Shake | 30 | Beben beim Aufbrechen; endet kurz nachdem die Risse offen sind. |
+| Dust | 40 | Staub aus frischen Rissen. 0 schaltet ihn ab. |
+| Opacity | 0,9 | Deckkraft. |
+
+Grenzen: Verschoben wird nur das Szenen-Hintergrundbild, keine Tiles oder Zeichnungen. Ohne geladenes Hintergrundbild werden Risse, Kanten und Glühen über die Karte gelegt, und das Beben bewegt nur die Risse.
+
+### Zähe Flüssigkeit (Viscous Surface)
+
+Eine zähe Flüssigkeit von oben: langsam fließende Wellen mit Glanzlichtern, Blasen, die anschwellen und als Ring platzen, und ein Kruste- oder Schaumrand an der Regionsgrenze. Mit Szenen-Hintergrundbild scheint der Boden verzerrt durch durchsichtige Stile.
+
+| Stil | Aussehen |
+| --- | --- |
+| Tar / Oil | Sehr dunkel, langsam, hohe Viskosität, wenige schwere Blasen, öliger Glanz, kaum Glow. |
+| Lava | Dunkle Krustenplatten und Inseln mit glühenden Fugen, langsam bis mittel, starkes Leuchten. |
+| Acid | Giftig gelbgrün, leicht durchsichtig, mittleres Tempo, viel Blubbern, Schaumrand, leichtes Leuchten. |
+| Slime / Goo | Halbtransparent, dickflüssig, stark verzerrend, große Blasen; Farbe frei wählbar. |
+| Arcane Goo | Knallige weiche Farbverläufe, halbtransparent, langsam, starke Lichtbrechung und Glanz. |
+
+| Feld | Standard | Bedeutung |
+| --- | --- | --- |
+| Surface Style | Lava | Einer der fünf Stile oben. |
+| Flow Speed | 100 % | Prozent des Fließtempos des Stils. 0–300 %. |
+| Viscosity | 100 % | Prozent der Zähigkeit: größere, weichere, trägere Wellen. 0–300 %. |
+| Bubble Amount | 100 % | Prozent der Blasen. 0 schaltet sie ab. |
+| Glow Strength | 100 % | Prozent des Leuchtens. 0 schaltet es ab. |
+| Distortion | 100 % | Prozent der Lichtbrechung des Hintergrundbilds. |
+| Edge Crust | 100 % | Prozent des Kruste- oder Schaumrands. 0 entfernt ihn. |
+| Custom Color | aus | Aus: Farben des Stils. An: eigene Farbe; bei Lava färbt sie das Glühen. |
+| Color | #3fbf4a | Nur mit Custom Color. |
+| Opacity | 0,9 | Deckkraft. |
+
+Alle Regler sind relativ zum Stil: 100 % ist der Stil-Standard, ein Stilwechsel übernimmt automatisch dessen Werte. Grenzen wie beim Eis: Gebrochen wird nur das Szenen-Hintergrundbild; ohne Hintergrundbild wird die Flüssigkeit halbdeckend über die Karte gelegt.
 
 ### Shader-Stile
 

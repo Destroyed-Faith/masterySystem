@@ -3,11 +3,19 @@ import {
   ARRANGEMENT_FIELD,
   ARRANGEMENT_SINGLE,
   behaviorTypeId,
+  CRACK_DEFAULT_GLOW,
+  CRACK_ORIGIN_CENTER,
+  CRACK_ORIGIN_SCATTERED,
+  CRACK_RESET_CLOSE,
+  EFFECT_CRACKS,
   EFFECT_ICE,
+  EFFECT_LIQUID,
   EFFECT_NATURAL_FIRE,
   EFFECT_NONE,
   EFFECT_SMOKE,
   FIELD_RENDER_LEGACY,
+  LIQUID_DEFAULT_COLOR,
+  LIQUID_LAVA,
   FREEZE_INSTANT,
   FREEZE_LOOP,
   FREEZE_ONCE,
@@ -22,11 +30,14 @@ import {
   settingsNamespace,
   SMOKE_DEFAULT_COLOR,
 } from "./constants.mjs";
+import { CrackEffect } from "./crack-effect.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
 import { NaturalFireEffect, usesBallOfFire, usesShaderField } from "./fire-effect.mjs";
 import { computeEdgeDepth } from "./ice-depth.mjs";
 import { IceEffect, wallSeconds } from "./ice-effect.mjs";
-import { freezeTimingSignature } from "./ice-timeline.mjs";
+import { LiquidEffect } from "./liquid-effect.mjs";
+import { LIQUID_STYLES } from "./liquid-presets.mjs";
+import { crackTimingSignature, freezeTimingSignature } from "./timeline.mjs";
 import { resolveSceneBackground } from "./scene-background.mjs";
 import { SmokeEffect } from "./smoke-effect.mjs";
 import { resolveFireStyle } from "./styles.mjs";
@@ -40,6 +51,12 @@ import {
 } from "./placement.mjs";
 import { deriveSeed } from "./random.mjs";
 
+/** Effects that build up over time, with the fields that replay the build-up. */
+const TIMING_SIGNATURES = {
+  [EFFECT_ICE]: freezeTimingSignature,
+  [EFFECT_CRACKS]: crackTimingSignature,
+};
+
 export class ParticleRenderer {
   #generation = 0;
   #instances = new Map();
@@ -47,9 +64,9 @@ export class ParticleRenderer {
   #time = 0;
   /** @type {null | { key: string, behavior: object, config: object, layout: string }} */
   #preview = null;
-  /** Wall-clock second each ice surface started freezing; -Infinity = already frozen. */
+  /** Wall-clock second each timed surface (ice, cracks) started building; -Infinity = already built. */
   #freezeStarts = new Map();
-  /** The first draw after a canvas load shows existing ice already frozen. */
+  /** The first draw after a canvas load shows existing ice and cracks already built. */
   #sceneLoaded = false;
 
   syncScene() {
@@ -98,12 +115,15 @@ export class ParticleRenderer {
     const layout = fireLayoutSignature(config);
     const effect = this.#instances.get(key);
     const previous = this.#preview?.key === key ? this.#preview.config : null;
-    if (config.effectType === EFFECT_ICE && previous && freezeTimingSignature(previous) !== freezeTimingSignature(config)) {
+    const timing = TIMING_SIGNATURES[config.effectType];
+    if (timing && previous && timing(previous) !== timing(config)) {
       this.#freezeStarts.set(key, wallSeconds());
     }
     if (this.#preview?.key === key && this.#preview.layout === layout && effect && config.enabled) {
       effect.config = config;
-      if (effect instanceof IceEffect) effect.restart(this.#freezeStarts.get(key) ?? effect.startedAt);
+      if (effect instanceof IceEffect || effect instanceof CrackEffect) {
+        effect.restart(this.#freezeStarts.get(key) ?? effect.startedAt);
+      }
       this.#preview = { key, behavior, config, layout };
       return;
     }
@@ -182,22 +202,22 @@ export class ParticleRenderer {
   }
 
   /**
-   * Ice that exists when the scene loads is already frozen. Ice that appears later
-   * (created, enabled, or switched to ice) freezes in. Dropped surfaces forget their start.
+   * Ice and cracks that exist when the scene loads are already built. Ones that appear
+   * later (created, enabled, or switched type) build up. Dropped surfaces forget their start.
    */
   #assignFreezeStarts(active) {
     const now = wallSeconds();
-    const iceKeys = new Set();
+    const timedKeys = new Set();
     for (const entry of active) {
-      if (entry.config.effectType !== EFFECT_ICE) continue;
-      iceKeys.add(entry.key);
+      if (!TIMING_SIGNATURES[entry.config.effectType]) continue;
+      timedKeys.add(entry.key);
       if (!this.#freezeStarts.has(entry.key)) {
         this.#freezeStarts.set(entry.key, this.#sceneLoaded ? now : -Infinity);
       }
       entry.freezeStart = this.#freezeStarts.get(entry.key);
     }
     for (const key of [...this.#freezeStarts.keys()]) {
-      if (!iceKeys.has(key)) this.#freezeStarts.delete(key);
+      if (!timedKeys.has(key)) this.#freezeStarts.delete(key);
     }
     this.#sceneLoaded = true;
   }
@@ -289,7 +309,7 @@ function describeBehavior(scene, region, behavior, configOverride) {
   try {
     const config = configOverride ?? readConfig(behavior);
     if (!config.enabled || config.effectType === EFFECT_NONE) return null;
-    if (![EFFECT_NATURAL_FIRE, EFFECT_ICE, EFFECT_SMOKE].includes(config.effectType)) {
+    if (![EFFECT_NATURAL_FIRE, EFFECT_ICE, EFFECT_SMOKE, EFFECT_CRACKS, EFFECT_LIQUID].includes(config.effectType)) {
       if (!configOverride) {
         console.warn(
           `${LOG_PREFIX} effect type "${config.effectType}" is not implemented. That behavior was skipped.`,
@@ -346,6 +366,8 @@ function behaviorKey(behavior, region = behavior?.parent) {
 function createEffect(entry, assets, grid, maxFlames, maxEmbers, limits) {
   if (entry.config.effectType === EFFECT_ICE) return createIce(entry, grid);
   if (entry.config.effectType === EFFECT_SMOKE) return createSmoke(entry, grid);
+  if (entry.config.effectType === EFFECT_CRACKS) return createCracks(entry, grid);
+  if (entry.config.effectType === EFFECT_LIQUID) return createLiquid(entry, grid);
   if (usesBallOfFire(entry.config)) return createBallOfFire(entry, assets, grid);
 
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
@@ -505,6 +527,53 @@ function createSmoke(entry, grid) {
       gridSize: grid.size,
       seed: entry.seed,
       depth: computeEdgeDepth(entry.bounds, (x, y) => entry.tree.testPoint({ x, y })),
+    });
+  } catch (error) {
+    if (!mask.destroyed) mask.destroy?.();
+    throw error;
+  }
+}
+
+/** Shader-only ground cracks. Without a loaded background the plates do not shift. */
+function createCracks(entry, grid) {
+  const mask = buildRegionMask(entry.tree);
+  if (!mask) {
+    console.warn(`${LOG_PREFIX} region mask could not be built. Ground cracks were skipped so they cannot spill outside.`);
+    return null;
+  }
+  try {
+    return new CrackEffect({
+      config: entry.config,
+      bounds: entry.bounds,
+      mask,
+      gridSize: grid.size,
+      seed: entry.seed,
+      depth: computeEdgeDepth(entry.bounds, (x, y) => entry.tree.testPoint({ x, y })),
+      background: resolveSceneBackground(),
+      startedAt: entry.freezeStart,
+    });
+  } catch (error) {
+    if (!mask.destroyed) mask.destroy?.();
+    throw error;
+  }
+}
+
+/** Shader-only viscous liquid. Without a loaded background it is drawn as a translucent overlay. */
+function createLiquid(entry, grid) {
+  const mask = buildRegionMask(entry.tree);
+  if (!mask) {
+    console.warn(`${LOG_PREFIX} region mask could not be built. The liquid was skipped so it cannot spill outside.`);
+    return null;
+  }
+  try {
+    return new LiquidEffect({
+      config: entry.config,
+      bounds: entry.bounds,
+      mask,
+      gridSize: grid.size,
+      seed: entry.seed,
+      depth: computeEdgeDepth(entry.bounds, (x, y) => entry.tree.testPoint({ x, y })),
+      background: resolveSceneBackground(),
     });
   } catch (error) {
     if (!mask.destroyed) mask.destroy?.();
@@ -686,6 +755,26 @@ export function readConfig(behavior) {
     driftSpeed: clampNumber(system.driftSpeed ?? 0.5, 0, 3),
     driftDirection: clampNumber(system.driftDirection ?? 90, 0, 360),
     edgeSoftness: clampNumber(system.edgeSoftness ?? 1, 0, 5),
+    crackMode: oneOf(system.crackMode, [FREEZE_ONCE, FREEZE_INSTANT, FREEZE_LOOP]),
+    crackDuration: clampNumber(system.crackDuration ?? 1.5, 0.2, 20),
+    crackHold: clampNumber(system.crackHold ?? 3, 0, 30),
+    crackReset: oneOf(system.crackReset, [CRACK_RESET_CLOSE, LOOP_RESET_FADE]),
+    crackOrigin: oneOf(system.crackOrigin, [CRACK_ORIGIN_CENTER, CRACK_ORIGIN_SCATTERED]),
+    crackScale: clampNumber(system.crackScale ?? 1, 0.25, 3),
+    crackWidth: clampNumber(system.crackWidth ?? 1, 0.25, 3),
+    glowColor: readColor(system.glowColor, CRACK_DEFAULT_GLOW),
+    glowStrength: clampNumber(system.glowStrength ?? 60, 0, 100),
+    shake: clampNumber(system.shake ?? 30, 0, 100),
+    dust: clampNumber(system.dust ?? 40, 0, 100),
+    liquidStyle: LIQUID_STYLES.includes(system.liquidStyle) ? system.liquidStyle : LIQUID_LAVA,
+    liquidFlow: clampNumber(system.liquidFlow ?? 100, 0, 300),
+    liquidViscosity: clampNumber(system.liquidViscosity ?? 100, 0, 300),
+    liquidBubbles: clampNumber(system.liquidBubbles ?? 100, 0, 300),
+    liquidGlow: clampNumber(system.liquidGlow ?? 100, 0, 300),
+    liquidDistortion: clampNumber(system.liquidDistortion ?? 100, 0, 300),
+    liquidCrust: clampNumber(system.liquidCrust ?? 100, 0, 300),
+    liquidCustomColor: system.liquidCustomColor === true,
+    liquidColor: readColor(system.liquidColor, LIQUID_DEFAULT_COLOR),
     randomSeed,
   };
 }

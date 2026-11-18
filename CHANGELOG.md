@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.862] - 2026-11-18
+
+### Added
+
+- **DF: Particle Effects:** New Effect Type **Ground Cracks** for earthquake and earth spells. The ground breaks into plates whose cracks open thin and widen; fresh cracks glow hotter and throw up dust, and the ground shakes while it breaks. Epicenter opens a pit in the region middle with fissures running outward; Scattered breaks the ground in patches. Break Mode once / already broken / loop (close back or fade), plus Plate Size, Crack Width, Glow Color, Glow Strength (0 = plain earth cracks), Shake and Dust. With a scene background the plates shift slightly against each other.
+- **DF: Particle Effects:** New Effect Type **Viscous Surface** with five styles: **Tar / Oil**, **Lava** (dark crust plates with glowing seams), **Acid**, **Slime / Goo** and **Arcane Goo**. Flowing swells with highlights, bubbles that swell and pop as a ring, an edge crust or foam band, and floor refraction for the translucent styles. Flow Speed, Viscosity, Bubble Amount, Glow Strength, Distortion and Edge Crust are percentages of the style preset (100 % = style default); Custom Color replaces the style colors (for Lava it colors the glow).
+
+### Changed
+
+- **DF: Particle Effects:** Ice and Ground Cracks share one build-up timeline module; the crack plate helper is shared with Lava. Module `df-particle-effects` **1.1.11**.
+
 ## [0.9.861] - 2026-11-18
 
 ### Added
