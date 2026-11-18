@@ -11884,12 +11884,19 @@ aside#tooltip,
   background: rgba(255, 255, 255, 0.08);
 }
 
-.df-equip-slot-fill-menu__item img {
+.df-equip-slot-fill-menu__item img,
+.df-equip-slot-fill-menu__item > i {
   width: 22px;
   height: 22px;
   flex: 0 0 22px;
   object-fit: contain;
   border-radius: 3px;
+}
+
+.df-equip-slot-fill-menu__item > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .df-equip-slot-fill-menu__item span {

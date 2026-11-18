@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.868] - 2026-11-18
+
+### Fixed
+
+- **Character Sheet / Equipment:** Right-click on a filled equip/consumable slot (label or item) opens Unequip / Delete. Removed duplicate Equip entries (`Equip (Body)` vs `Equip: Body`).
+
 ## [0.9.867] - 2026-11-18
 
 ### Added

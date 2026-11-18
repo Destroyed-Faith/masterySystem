@@ -9165,11 +9165,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const slotEl = target?.closest?.('.df-equip-slot, .df-consumable-slot') as HTMLElement | null;
     const root = this.element as HTMLElement | null;
     if (!slotEl || !root?.contains(slotEl)) return;
-    const filledTile = target?.closest?.('.df-draggable-item') as HTMLElement | null;
-    if (filledTile && slotEl.contains(filledTile)) return;
     ev.preventDefault();
     ev.stopPropagation();
     ev.stopImmediatePropagation();
+    const occupiedTile = slotEl.querySelector('.df-draggable-item') as HTMLElement | null;
+    if (occupiedTile) {
+      this.#openEquipSlotOccupiedMenu(ev, occupiedTile);
+      return;
+    }
     this.#openEquipSlotFillMenu(ev, slotEl);
   };
 
@@ -9177,6 +9180,92 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     document.getElementById(EQUIP_SLOT_FILL_MENU_ID)?.remove();
     this.#equipSlotFillMenuAbort?.abort();
     this.#equipSlotFillMenuAbort = null;
+  }
+
+  /** Right-click on a filled paperdoll / consumable slot: Unequip or Delete. */
+  #openEquipSlotOccupiedMenu(event: MouseEvent, tileEl: HTMLElement): void {
+    this.#closeEquipSlotFillMenu();
+
+    const itemId = String(tileEl.dataset.itemId || '').trim();
+    const item = itemId ? this.actor.items.get(itemId) : null;
+    if (!item || item.parent?.id !== this.actor.id) return;
+
+    const echoLocked = isEchoLockedItem(item);
+    const canUnequip = this.#isItemCurrentlyEquipped(item) && !echoLocked;
+    const canDelete = !echoLocked;
+    if (!canUnequip && !canDelete) {
+      ui.notifications?.warn(`${item.name} is Echo-bound and cannot be unequipped or deleted.`);
+      return;
+    }
+
+    const menu = document.createElement('div');
+    menu.id = EQUIP_SLOT_FILL_MENU_ID;
+    menu.className = 'df-equip-slot-fill-menu';
+    menu.setAttribute('role', 'menu');
+    const title = String(item.name || 'Item');
+    const actions: string[] = [];
+    if (canUnequip) {
+      actions.push(
+        `<button type="button" class="df-equip-slot-fill-menu__item" role="menuitem" data-equip-action="unequip">
+          <i class="fas fa-inbox" aria-hidden="true"></i>
+          <span>${escapeSheetHtml(localizeSheet('MASTERY.inventory.unequip', 'Unequip'))}</span>
+        </button>`,
+      );
+    }
+    if (canDelete) {
+      actions.push(
+        `<button type="button" class="df-equip-slot-fill-menu__item" role="menuitem" data-equip-action="delete">
+          <i class="fas fa-trash" aria-hidden="true"></i>
+          <span>${escapeSheetHtml(localizeSheet('MASTERY.inventory.delete', 'Delete'))}</span>
+        </button>`,
+      );
+    }
+    menu.innerHTML = `<div class="df-equip-slot-fill-menu__title">${escapeSheetHtml(title)}</div>${actions.join('')}`;
+
+    const pad = 8;
+    const left = Math.max(pad, event.clientX);
+    const top = Math.max(pad, event.clientY);
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    document.body.appendChild(menu);
+
+    const rect = menu.getBoundingClientRect();
+    const maxLeft = Math.max(pad, window.innerWidth - rect.width - pad);
+    const maxTop = Math.max(pad, window.innerHeight - rect.height - pad);
+    menu.style.left = `${Math.min(left, maxLeft)}px`;
+    menu.style.top = `${Math.min(top, maxTop)}px`;
+
+    menu.addEventListener('click', async (clickEv) => {
+      const button = (clickEv.target as HTMLElement | null)?.closest?.('[data-equip-action]') as HTMLElement | null;
+      if (!button) return;
+      clickEv.preventDefault();
+      clickEv.stopPropagation();
+      const action = String(button.dataset.equipAction || '');
+      this.#closeEquipSlotFillMenu();
+      if (action === 'unequip') {
+        if (await this.#unequipItemToInventory(item)) {
+          await this.render(true, { focus: false });
+        }
+        return;
+      }
+      if (action === 'delete') {
+        if (await this.#deleteEquipmentItem(item)) {
+          await this.render(true, { focus: false });
+        }
+      }
+    });
+
+    const abort = new AbortController();
+    this.#equipSlotFillMenuAbort = abort;
+    const dismiss = (ev: Event) => {
+      if (ev.type === 'keydown' && (ev as KeyboardEvent).key !== 'Escape') return;
+      if (ev.type === 'pointerdown' && menu.contains(ev.target as Node)) return;
+      this.#closeEquipSlotFillMenu();
+    };
+    document.addEventListener('pointerdown', dismiss, { capture: true, signal: abort.signal });
+    document.addEventListener('keydown', dismiss, { signal: abort.signal });
+    window.addEventListener('resize', dismiss, { signal: abort.signal });
+    window.addEventListener('blur', dismiss, { signal: abort.signal });
   }
 
   #openEquipSlotFillMenu(event: MouseEvent, slotEl: HTMLElement): void {
@@ -9500,63 +9589,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             await this.render(true, { focus: false });
           }
         },
-      },
-      {
-        name: 'Equip (main hand)',
-        icon: '<i class="fas fa-hand-fist"></i>',
-        group: 'quick',
-        condition: (target: unknown) => {
-          const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
-          return !!getNormalizedEquipSlots(item)?.includes('mainhand');
-        },
-        callback: async (target: unknown) => {
-          const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item) return;
-          if (await this.#applyEquipToSlot(item, 'mainhand')) {
-            await this.render(true, { focus: false });
-          }
-        }
-      },
-      {
-        name: 'Equip (off hand)',
-        icon: '<i class="fas fa-shield-alt"></i>',
-        group: 'quick',
-        condition: (target: unknown) => {
-          const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
-          if (!getNormalizedEquipSlots(item)?.includes('offhand')) return false;
-          if (item.type === 'weapon' && !requiresAmmunition(item)) {
-            // Light weapons may be wielded in the off-hand (PG Weapon Properties).
-            const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
-            return innates.some((a: unknown) => /^light\b/i.test(String(a).trim()));
-          }
-          return true;
-        },
-        callback: async (target: unknown) => {
-          const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item) return;
-          if (await this.#applyEquipToSlot(item, 'offhand')) {
-            await this.render(true, { focus: false });
-          }
-        }
-      },
-      {
-        name: 'Equip (body)',
-        icon: '<i class="fas fa-tshirt"></i>',
-        group: 'quick',
-        condition: (target: unknown) => {
-          const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item || this.#isItemCurrentlyEquipped(item)) return false;
-          return !!getNormalizedEquipSlots(item)?.includes('body');
-        },
-        callback: async (target: unknown) => {
-          const item = this.#itemFromInventoryTileContextTarget(target);
-          if (!item) return;
-          if (await this.#applyEquipToSlot(item, 'body')) {
-            await this.render(true, { focus: false });
-          }
-        }
       },
       {
         // PG "Item Rotation": rotate 90° — width × height becomes height × width.
