@@ -762,22 +762,11 @@
     },
     "FIRE_STYLE": {
       "areaFire": {
-        "label": "Flächenfeuer",
-        "description": "Unregelmäßig brodelnder, brennender Boden über die ganze Region, mit Bodenlücken zwischen den Brandnestern.",
-        "limitations": "Die Shader-Fläche braucht PixiJS 7 (Foundry 13/14), sonst werden Legacy-Sprites genutzt. Eine Flamme und Legacy-Feld nutzen Sprite-Grafiken."
+        "label": "Flächenfeuer"
       },
       "ballOfFire": {
-        "label": "Feuerball (Shadertoy)",
-        "description": "Ein radialer Feuerball mit weißglühendem Kern und nach außen strömenden Flammen, nach der Shadertoy-Vorlage.",
-        "limitations": "Immer rund und in der Regionsmitte; die Regionsform schneidet ihn nur zu. Die Größe folgt der kürzeren Regionsseite und der Flammengröße. Ignoriert Anordnung, Dichte, Glutmenge und Randausblendung. Kein Sprite-Ersatz; braucht PixiJS 7 und hochpräzise Fragment-Shader."
+        "label": "Feuerball"
       }
-    },
-    "STYLE_INFO": {
-      "heading": "Stil-Details",
-      "source": "Original",
-      "license": "Lizenz",
-      "independent": "Es wird kein Shadertoy-Code mitgeliefert; dieser Shader ist eigenständig geschrieben und bildet den Look der Vorlage nach.",
-      "limitations": "Einschränkungen"
     },
     "ARRANGEMENT": {
       "field": "Feld",

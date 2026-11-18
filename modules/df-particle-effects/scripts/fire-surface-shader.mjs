@@ -134,14 +134,10 @@ void main() {
 `;
 
 /**
- * Ball Of Fire. Visual reference: "Ball Of Fire" by Trisomie21,
- * https://www.shadertoy.com/view/lsf3RH (CC BY-NC-SA 3.0, no code copied).
- * Independently written from the same idea, which goes back to Ken Perlin's
- * noise talk: fBm sampled in polar coordinates with the radius compressed, so
+ * Ball Of Fire: fBm sampled in polar coordinates with the radius compressed, so
  * structures streak outward from a white-hot core; the radius coordinate scrolls
  * so flames stream outward. The lattice wraps on every axis, which removes the
  * angular seam and lets time loop every 100 units without a jump.
- * hash13 is "Hash without Sine" by Dave Hoskins (MIT).
  *
  * Quad space: |p| = 0.5 is the edge of the core, the quad reaches |p| = 0.8.
  */
@@ -156,10 +152,10 @@ uniform float uSeed;
 
 const float TAU = 6.28318530718;
 
-float hash13(vec3 p) {
-  p = fract(p * 0.1031);
-  p += dot(p, p.zyx + 31.32);
-  return fract((p.x + p.y) * p.z);
+float latticeHash(vec3 c) {
+  vec3 q = fract(c * vec3(0.0873, 0.1271, 0.1559) + 0.37);
+  q = fract(q * (q.yzx * 47.0 + 11.3));
+  return fract((q.x + q.z) * (q.y + 0.61) * 7.13);
 }
 
 float wrappedNoise(vec3 q, float period) {
@@ -168,10 +164,10 @@ float wrappedNoise(vec3 q, float period) {
   vec3 u = f * f * (3.0 - 2.0 * f);
   vec3 a = mod(i0, period);
   vec3 b = mod(i0 + 1.0, period);
-  float x00 = mix(hash13(vec3(a.x, a.y, a.z)), hash13(vec3(b.x, a.y, a.z)), u.x);
-  float x10 = mix(hash13(vec3(a.x, b.y, a.z)), hash13(vec3(b.x, b.y, a.z)), u.x);
-  float x01 = mix(hash13(vec3(a.x, a.y, b.z)), hash13(vec3(b.x, a.y, b.z)), u.x);
-  float x11 = mix(hash13(vec3(a.x, b.y, b.z)), hash13(vec3(b.x, b.y, b.z)), u.x);
+  float x00 = mix(latticeHash(vec3(a.x, a.y, a.z)), latticeHash(vec3(b.x, a.y, a.z)), u.x);
+  float x10 = mix(latticeHash(vec3(a.x, b.y, a.z)), latticeHash(vec3(b.x, b.y, a.z)), u.x);
+  float x01 = mix(latticeHash(vec3(a.x, a.y, b.z)), latticeHash(vec3(b.x, a.y, b.z)), u.x);
+  float x11 = mix(latticeHash(vec3(a.x, b.y, b.z)), latticeHash(vec3(b.x, b.y, b.z)), u.x);
   return mix(mix(x00, x10, u.y), mix(x01, x11, u.y), u.z) * 2.0 - 1.0;
 }
 

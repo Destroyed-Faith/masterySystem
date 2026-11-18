@@ -17,3 +17,7 @@ Do not invent powers, power levels, stone abilities, artifact abilities, costs, 
 If the rulebooks contain conflicting or incomplete definitions, report the conflict instead of creating a new rule.
 
 Explicitly approved subsequent rule changes must be incorporated into the corresponding authoritative rulebook.
+
+### Visual Effects and Shaders
+
+Third-party shaders (for example from Shadertoy) are only a rough visual reference. Never copy or adapt their code, including helper functions such as hashes or noise; write every shader from scratch. Do not add source links, author credits or license notes for such references to the UI, docs or code.

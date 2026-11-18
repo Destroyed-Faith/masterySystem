@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.858] - 2026-11-18
+
+### Changed
+
+- **DF: Particle Effects:** Removed the style details panel (source link, license, limitations) from the behavior dialog; the style is labelled just **Ball Of Fire**. The Ball Of Fire shader now uses its own lattice hash, so every shader in the module is written from scratch. Module `df-particle-effects` **1.1.8**.
+
 ## [0.9.857] - 2026-11-17
 
 ### Added

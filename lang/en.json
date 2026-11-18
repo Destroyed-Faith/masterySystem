@@ -762,22 +762,11 @@
     },
     "FIRE_STYLE": {
       "areaFire": {
-        "label": "Area Fire",
-        "description": "Irregular, boiling burning ground that fills the region, with floor gaps between burning patches.",
-        "limitations": "Needs PixiJS 7 (Foundry 13/14) for the shader surface; otherwise legacy sprites are used. Single flame and legacy Field use sprite art."
+        "label": "Area Fire"
       },
       "ballOfFire": {
-        "label": "Ball Of Fire (Shadertoy)",
-        "description": "One radial fireball with a white-hot core and flames streaming outward, modeled on the Shadertoy reference.",
-        "limitations": "Always round and centered on the region; the region shape only clips it. Size follows the region's shorter side and Flame Scale. Ignores Arrangement, Density, Ember Amount and Edge Fade. No sprite fallback; needs PixiJS 7 and high-precision fragment shaders."
+        "label": "Ball Of Fire"
       }
-    },
-    "STYLE_INFO": {
-      "heading": "Style Details",
-      "source": "Original",
-      "license": "License",
-      "independent": "No Shadertoy code is shipped; this shader is independently written to match the reference's look.",
-      "limitations": "Limitations"
     },
     "ARRANGEMENT": {
       "field": "Field",

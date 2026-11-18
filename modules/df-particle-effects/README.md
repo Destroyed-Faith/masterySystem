@@ -46,20 +46,9 @@ Unter **Configure Settings → Destroyed Faith – Particle Effects → Fire qua
 
 Nicht enthalten: Rauch, Lichtquellen, Brandausbreitung, Schaden, Zustände, Hex-Automaten.
 
-### Shader-Stile und Referenzen
+### Shader-Stile
 
-Shadertoy-Shader stehen ohne eigene Angabe unter **CC BY-NC-SA 3.0**. Das verbietet kommerzielle Weitergabe und verlangt dieselbe Lizenz für Ableitungen. Keine der geprüften Seiten nennt eine freiere Lizenz. Deshalb liefert das Modul **keinen Shadertoy-Code** aus. Ball Of Fire ist eine selbst geschriebene Entsprechung, die sich am Aussehen der Referenz orientiert. Die einzige fremde Funktion ist `hash13` aus „Hash without Sine“ von Dave Hoskins (MIT).
-
-| Referenz | Autor | Ergebnis |
-| --- | --- | --- |
-| [Ball Of Fire (lsf3RH)](https://www.shadertoy.com/view/lsf3RH) | Trisomie21 | Umgesetzt als eigener Shader, Stil **Ball Of Fire** |
-| [MtcGD7](https://www.shadertoy.com/view/MtcGD7) (Great Fire) | – | Geprüft. Seitenansicht einer Feuerwand, passt nicht zur Draufsicht. Nicht umgesetzt. |
-| [ltlyz4](https://www.shadertoy.com/view/ltlyz4) (Eis) | – | Geprüft. 3D-Raymarching, nicht als Bodeneffekt nutzbar. |
-| [tfGSzz](https://www.shadertoy.com/view/tfGSzz) (Gas) | – | Geprüft. 3D-Raymarching, nicht als Bodeneffekt nutzbar. |
-| [tt2GRR](https://www.shadertoy.com/view/tt2GRR) (Holy) | – | Seite nicht erreichbar (404). |
-| [Smoke Screen (4t2SRz)](https://www.shadertoy.com/view/4t2SRz) (Gas) | jackdavenport | Geprüft. Einzelner Pass, als Vorlage für Gas geeignet. Noch nicht umgesetzt. |
-| [Light rays (lljGDt)](https://www.shadertoy.com/view/lljGDt) (Holy) | ElusivePete | Geprüft. Einzelner Pass, als Vorlage für Holy geeignet. Noch nicht umgesetzt. |
-| [Experiment: Frosted Glass (MtsSWs)](https://www.shadertoy.com/view/MtsSWs) (Frost) | jackdavenport | Geprüft. Ein Unschärfefilter über einem Video-Eingang, kein eigenes Frostbild. Braucht das Kartenbild unter der Region als Textur. Noch nicht umgesetzt. |
+Alle Shader sind komplett selbst geschrieben. Fremde Shader (zum Beispiel von Shadertoy) dienen höchstens als grobe Vorlage für das Aussehen; es wird kein fremder Code kopiert oder angepasst.
 
 Nicht umgesetzte Stile und Typen erscheinen nicht in der Auswahl.
 
