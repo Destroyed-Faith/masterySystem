@@ -199,33 +199,54 @@
   {{/if}}
 
   {{#if tacticalPrep.show}}
-  <div class="initiative-exchange-bar tactical-prep-bar{{#if tacticalPrep.locked}} is-locked{{/if}}">
-    <div class="initiative-exchange-row">
-      <div class="initiative-exchange-copy">
-        <strong>Tactical Choices (Playtest)</strong>
-        <span class="initiative-exchange-note">{{tacticalPrep.summary}}</span>
-      </div>
-      <div class="initiative-exchange-actions">
-        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-armor" {{#if tacticalPrep.locked}}disabled{{/if}} title="All-Out Attack: +1d8 Damage, −4 Armor this Round">
-          All-Out (−4 Armor)
-        </button>
-        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-evade" {{#if tacticalPrep.locked}}disabled{{/if}} title="All-Out Attack: +1d8 Damage, −2 Evade this Round">
-          All-Out (−2 Evade)
-        </button>
-        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" {{#if tacticalPrep.locked}}disabled{{/if}} title="Clear All-Out Attack">
-          Clear All-Out
-        </button>
-        <button type="button" class="dialog-btn initiative-inline-btn js-transfer-attack" {{#if tacticalPrep.locked}}disabled{{/if}} title="Give your regular base Attack Action to an ally (they spend it on their Turn)">
-          Transfer Attack…
-        </button>
-        {{#if tacticalPrep.canShareRaises}}
-        <button type="button" class="dialog-btn initiative-inline-btn js-share-free-raises" title="Assign part of your Intellect Free Raises ({{tacticalPrep.raisePool}} left) to an ally within 20 m">
-          Share Free Raises…
-        </button>
+  <details class="initiative-exchange-bar tactical-prep-bar{{#if tacticalPrep.locked}} is-locked{{/if}}" data-section="tactical" {{#if tacticalPrep.open}}open{{/if}}>
+    <summary class="tactical-prep-summary">
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      <strong>Tactical Choices (Playtest)</strong>
+      <span class="initiative-exchange-note">{{tacticalPrep.summary}}</span>
+    </summary>
+
+    <div class="tactical-prep-row">
+      <span class="tactical-prep-label">Transfer Attack Action</span>
+      <span class="tactical-prep-hint">Give your basic Attack Action to another player. They spend it on their own Turn this Round; bonus Attack Actions stay with you.</span>
+      <span class="tactical-prep-controls">
+        {{#if tacticalPrep.transferred}}
+        <span class="tactical-prep-status">Given away this Round.</span>
+        {{else if tacticalPrep.recipients.length}}
+        <select class="js-transfer-recipient" {{#if tacticalPrep.locked}}disabled{{/if}} aria-label="Player who receives your basic Attack Action">
+          {{#each tacticalPrep.recipients}}<option value="{{id}}">{{name}}</option>{{/each}}
+        </select>
+        <button type="button" class="dialog-btn initiative-inline-btn js-transfer-attack" {{#if tacticalPrep.locked}}disabled{{/if}}>Give</button>
+        {{else}}
+        <span class="tactical-prep-status">No other player in this combat.</span>
         {{/if}}
-      </div>
+      </span>
     </div>
-  </div>
+
+    <div class="tactical-prep-row">
+      <span class="tactical-prep-label">All-Out Attack</span>
+      <span class="tactical-prep-hint">Each step: +1d8 Damage on your direct attacks this Round. Armor and Evade steps can be combined; a defense never drops below 0.</span>
+      <span class="tactical-prep-controls">
+        <span class="tactical-defense-value" title="Armor now (before All-Out: {{tacticalPrep.allOut.armorBase}})">Armor {{tacticalPrep.allOut.armorNow}}</span>
+        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-armor" {{#if tacticalPrep.armorAddDisabled}}disabled{{/if}} title="One more step: −4 Armor, +1d8 Damage (needs at least 4 Armor left)">−4 Armor{{#if tacticalPrep.allOut.armorSteps}} ×{{tacticalPrep.allOut.armorSteps}}{{/if}}</button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" data-which="armor" {{#if tacticalPrep.armorClearDisabled}}disabled{{/if}} title="Clear All-Out Armor steps">Clear</button>
+        <span class="tactical-defense-value" title="Evade now (before All-Out: {{tacticalPrep.allOut.evadeBase}})">Evade {{tacticalPrep.allOut.evadeNow}}</span>
+        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-evade" {{#if tacticalPrep.evadeAddDisabled}}disabled{{/if}} title="One more step: −2 Evade, +1d8 Damage (needs at least 2 Evade left)">−2 Evade{{#if tacticalPrep.allOut.evadeSteps}} ×{{tacticalPrep.allOut.evadeSteps}}{{/if}}</button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" data-which="evade" {{#if tacticalPrep.evadeClearDisabled}}disabled{{/if}} title="Clear All-Out Evade steps">Clear</button>
+        {{#if tacticalPrep.allOut.damageDice}}<span class="tactical-prep-status">+{{tacticalPrep.allOut.damageDice}}d8 Damage</span>{{/if}}
+      </span>
+    </div>
+
+    {{#if tacticalPrep.canShareRaises}}
+    <div class="tactical-prep-row">
+      <span class="tactical-prep-label">Shared Free Raises</span>
+      <span class="tactical-prep-hint">Assign part of your Intellect Free Raises ({{tacticalPrep.raisePool}} left) to an ally within 20 m.</span>
+      <span class="tactical-prep-controls">
+        <button type="button" class="dialog-btn initiative-inline-btn js-share-free-raises">Share Free Raises…</button>
+      </span>
+    </div>
+    {{/if}}
+  </details>
   {{/if}}
 
   {{#if naturalRecovery.show}}

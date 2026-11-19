@@ -26,6 +26,7 @@ import { askGmForResult } from './gm-relay.js';
 import {
   actorsWithinCoordinationRange,
   areTeamworkAllies,
+  isPlayerCharacter,
   canPerceiveAlly,
   type AttackActionTransferState,
 } from './tactical-options.js';
@@ -34,6 +35,7 @@ export type TeamworkFailure =
   | 'missing-actor'
   | 'self'
   | 'not-ally'
+  | 'not-player'
   | 'range'
   | 'perception'
   | 'permission'
@@ -100,8 +102,9 @@ function coordinationFailure(
   return null;
 }
 
-function transferStateFailure(donor: any, combat: Combat | null): TeamworkFailure | null {
+function transferStateFailure(donor: any, recipient: any, combat: Combat | null): TeamworkFailure | null {
   if (!combat) return 'not-in-combat';
+  if (!isPlayerCharacter(economyOwner(recipient))) return 'not-player';
   if (!isActiveBuffPreparationWindow(donor, combat)) return 'not-preparation';
   const rs = getRoundState(donor, combat);
   if (rs.baseAttackTransferred || rs.prepBaseAttackCommitted || rs.baseAttackLocked) {
@@ -159,7 +162,7 @@ export async function applyAttackActionTransfer(
 ): Promise<TeamworkResult> {
   const coordination = coordinationFailure(donor, recipient, ctx);
   if (coordination) return fail(coordination);
-  const state = transferStateFailure(donor, combat);
+  const state = transferStateFailure(donor, recipient, combat);
   if (state) return fail(state);
 
   const donorOwner = economyOwner(donor);
@@ -257,7 +260,7 @@ async function requestTeamwork(
   const coordination = coordinationFailure(donor, recipient, ctx);
   if (coordination) return fail(coordination);
   const state =
-    kind === 'transfer' ? transferStateFailure(donor, combat) : raisePoolFailure(donor, amount, combat);
+    kind === 'transfer' ? transferStateFailure(donor, recipient, combat) : raisePoolFailure(donor, amount, combat);
   if (state) return fail(state);
 
   const donorOwner = economyOwner(donor);
@@ -389,6 +392,8 @@ export function teamworkFailureMessage(reason: TeamworkFailure, what: 'transfer'
   switch (reason) {
     case 'not-ally':
       return `${label}: only allies can receive this.`;
+    case 'not-player':
+      return `${label}: only another player's character can receive this.`;
     case 'range':
       return `${label}: the ally must be within 20 m.`;
     case 'perception':

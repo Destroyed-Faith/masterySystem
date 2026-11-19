@@ -10,17 +10,36 @@
 import { getActionEconomyActor, getAvailableAttackActions, getRoundState, setRoundState, } from './action-economy.js';
 /** Provisional playtest coordination range (meters). */
 export const TACTICAL_COORDINATION_RANGE_M = 20;
-/** Core: the Armor drawback may only be chosen with at least this much effective Armor. */
-export const ALL_OUT_ARMOR_MIN = 4;
+/** Armor lost per All-Out Armor step; a step needs at least this much Armor left. */
+export const ALL_OUT_ARMOR_STEP = 4;
+/** Evade lost per All-Out Evade step; a step needs at least this much Evade left. */
+export const ALL_OUT_EVADE_STEP = 2;
+/** @deprecated Use ALL_OUT_ARMOR_STEP. */
+export const ALL_OUT_ARMOR_MIN = ALL_OUT_ARMOR_STEP;
+function stepCount(v) {
+    return Math.max(0, Math.floor(Number(v) || 0));
+}
+/** All-Out steps for the Round. A stored single declaration (`penalty`) reads as one step. */
 export function readAllOutAttack(rs) {
     const raw = rs?.allOutAttack;
     if (!raw || raw.active !== true)
         return null;
-    const penalty = raw.penalty === 'evade' ? 'evade' : 'armor';
-    return { active: true, penalty };
+    let armorSteps = stepCount(raw.armorSteps);
+    let evadeSteps = stepCount(raw.evadeSteps);
+    if (raw.armorSteps === undefined && raw.evadeSteps === undefined) {
+        if (raw.penalty === 'evade')
+            evadeSteps = 1;
+        else
+            armorSteps = 1;
+    }
+    if (armorSteps + evadeSteps <= 0)
+        return null;
+    return { active: true, armorSteps, evadeSteps };
 }
+/** One +1d8 per declared step. */
 export function allOutDamageBonusDice(rs) {
-    return readAllOutAttack(rs) ? 1 : 0;
+    const ao = readAllOutAttack(rs);
+    return ao ? ao.armorSteps + ao.evadeSteps : 0;
 }
 /**
  * All-Out dice for one Damage Roll. An explicit count from the damage card or a
@@ -34,19 +53,15 @@ export function resolveAllOutDamageDice(explicit, specialOnly, liveRs) {
         return Math.max(0, Math.floor(Number(explicit) || 0));
     return allOutDamageBonusDice(liveRs);
 }
-/** Effective Armor after All-Out −4 (floor 0). */
+/** Effective Armor after All-Out −4 per Armor step (floor 0). */
 export function applyAllOutArmorPenalty(armor, rs) {
-    const ao = readAllOutAttack(rs);
-    if (!ao || ao.penalty !== 'armor')
-        return Math.max(0, Math.floor(Number(armor) || 0));
-    return Math.max(0, Math.floor(Number(armor) || 0) - 4);
+    const steps = readAllOutAttack(rs)?.armorSteps ?? 0;
+    return Math.max(0, Math.floor(Number(armor) || 0) - ALL_OUT_ARMOR_STEP * steps);
 }
-/** Effective Evade after All-Out −2 (floor 0). */
+/** Effective Evade after All-Out −2 per Evade step (floor 0). */
 export function applyAllOutEvadePenalty(evade, rs) {
-    const ao = readAllOutAttack(rs);
-    if (!ao || ao.penalty !== 'evade')
-        return Math.max(0, Math.floor(Number(evade) || 0));
-    return Math.max(0, Math.floor(Number(evade) || 0) - 2);
+    const steps = readAllOutAttack(rs)?.evadeSteps ?? 0;
+    return Math.max(0, Math.floor(Number(evade) || 0) - ALL_OUT_EVADE_STEP * steps);
 }
 /**
  * Round state of the actor's economy owner, only when it belongs to the live
@@ -74,27 +89,63 @@ export function currentCombatRoundState(actor) {
         return null;
     return rs;
 }
+/**
+ * The declaring character's own defenses, read from the same economy owner
+ * whose Round state later lowers them when that character is hit.
+ */
+export async function allOutDefenseView(actor, rs) {
+    const { getTargetArmorBeforeAllOut, getTargetEvadeBeforeAllOut } = await import('./target-defenses.js');
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const ao = readAllOutAttack(rs);
+    const armorSteps = ao?.armorSteps ?? 0;
+    const evadeSteps = ao?.evadeSteps ?? 0;
+    const armorBase = getTargetArmorBeforeAllOut(owner);
+    const evadeBase = getTargetEvadeBeforeAllOut(owner);
+    const armorNow = applyAllOutArmorPenalty(armorBase, rs);
+    const evadeNow = applyAllOutEvadePenalty(evadeBase, rs);
+    return {
+        armorSteps,
+        evadeSteps,
+        armorBase,
+        evadeBase,
+        armorNow,
+        evadeNow,
+        canAddArmor: armorBase - ALL_OUT_ARMOR_STEP * armorSteps >= ALL_OUT_ARMOR_STEP,
+        canAddEvade: evadeBase - ALL_OUT_EVADE_STEP * evadeSteps >= ALL_OUT_EVADE_STEP,
+        damageDice: armorSteps + evadeSteps,
+    };
+}
+/** Add one All-Out step (−4 Armor or −2 Evade, +1d8 Damage) for this Round. */
 export async function declareAllOutAttack(actor, combat, penalty) {
     const choice = penalty === 'evade' ? 'evade' : 'armor';
-    if (choice === 'armor') {
-        // The declaring character's own Armor, read from the same economy owner
-        // whose Round state later lowers it when that character is hit.
-        const { getTargetArmorBeforeAllOut } = await import('./target-defenses.js');
-        const effectiveArmor = getTargetArmorBeforeAllOut(getActionEconomyActor(actor) ?? actor);
-        if (effectiveArmor < ALL_OUT_ARMOR_MIN) {
-            return { ok: false, reason: 'armor-below-minimum', effectiveArmor };
-        }
-    }
     const rs = getRoundState(actor, combat);
-    rs.allOutAttack = { active: true, penalty: choice };
+    const view = await allOutDefenseView(actor, rs);
+    if (choice === 'armor' && !view.canAddArmor) {
+        return { ok: false, reason: 'armor-below-minimum', effectiveArmor: view.armorNow };
+    }
+    if (choice === 'evade' && !view.canAddEvade) {
+        return { ok: false, reason: 'evade-below-minimum', effectiveEvade: view.evadeNow };
+    }
+    rs.allOutAttack = {
+        active: true,
+        armorSteps: view.armorSteps + (choice === 'armor' ? 1 : 0),
+        evadeSteps: view.evadeSteps + (choice === 'evade' ? 1 : 0),
+    };
     await setRoundState(actor, rs);
     return { ok: true, state: rs };
 }
-export async function clearAllOutAttack(actor, combat) {
+/** Clear the All-Out steps of one defense, or all of them. */
+export async function clearAllOutAttack(actor, combat, which = 'all') {
     const rs = getRoundState(actor, combat);
+    const ao = readAllOutAttack(rs);
     if (!rs.allOutAttack)
         return;
-    delete rs.allOutAttack;
+    const armorSteps = which === 'armor' || which === 'all' ? 0 : (ao?.armorSteps ?? 0);
+    const evadeSteps = which === 'evade' || which === 'all' ? 0 : (ao?.evadeSteps ?? 0);
+    if (armorSteps + evadeSteps > 0)
+        rs.allOutAttack = { active: true, armorSteps, evadeSteps };
+    else
+        delete rs.allOutAttack;
     await setRoundState(actor, rs);
 }
 function tokenCenter(token) {
@@ -174,6 +225,10 @@ export function areTeamworkAllies(a, b, tokens) {
     if (da != null && db != null)
         return da === db;
     return a.type === 'character' && b.type === 'character';
+}
+/** Attack Action Transfer recipients are player characters, never NPCs or Summons. */
+export function isPlayerCharacter(actor) {
+    return actor?.type === 'character' && actor.hasPlayerOwner !== false;
 }
 /**
  * Prep: donor gives base Attack Action to recipient.

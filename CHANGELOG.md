@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.874] - 2026-11-19
+
+### Changed
+
+- **All-Out Attack (Playtest rule change):** declared in steps. Each step gives +1d8 Damage and −4 Armor or −2 Evade; Armor and Evade steps combine and repeat while the full drawback still fits (9 Armor → 5 → 1). Players Handbook updated.
+- **Tactical Choices panel:** collapsible. First row: Transfer Attack Action with an inline player dropdown and a clearer explanation. Second row: current Armor and Evade with a step button and a Clear button each.
+- **Attack Action Transfer:** only other player characters can receive the Action; NPCs and Summons are refused, also by the GM relay.
+
 ## [0.9.873] - 2026-11-19
 
 ### Fixed

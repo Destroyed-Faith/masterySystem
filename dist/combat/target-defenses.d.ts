@@ -9,6 +9,8 @@
  */
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
 export declare function getTargetEvade(targetActor: any, attacker?: any): number;
+/** Evade (evadeTotal + Active Buffs) before attacker reductions and All-Out drawbacks. */
+export declare function getTargetEvadeBeforeAllOut(targetActor: any): number;
 /** Effective Armor (armorTotal + Active Buffs) before any All-Out drawback. */
 export declare function getTargetArmorBeforeAllOut(targetActor: any): number;
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */

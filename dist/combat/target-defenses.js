@@ -13,11 +13,7 @@ import { applyAllOutArmorPenalty, applyAllOutEvadePenalty, currentCombatRoundSta
 export function getTargetEvade(targetActor, attacker) {
     if (!targetActor || !targetActor.system)
         return 6;
-    const system = targetActor.system;
-    const combat = system.combat || {};
-    const base = combat.evadeTotal ?? combat.evade ?? 6;
-    const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
-    let evade = Math.max(0, Math.floor(Number(base) + Number(buffBonus) || 0));
+    let evade = getTargetEvadeBeforeAllOut(targetActor);
     if (attacker) {
         try {
             const rs = attacker.getFlag?.('mastery-system', 'roundState');
@@ -39,6 +35,15 @@ export function getTargetEvade(targetActor, attacker) {
         /* ignore */
     }
     return evade;
+}
+/** Evade (evadeTotal + Active Buffs) before attacker reductions and All-Out drawbacks. */
+export function getTargetEvadeBeforeAllOut(targetActor) {
+    if (!targetActor?.system)
+        return 6;
+    const combat = targetActor.system.combat || {};
+    const base = combat.evadeTotal ?? combat.evade ?? 6;
+    const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
+    return Math.max(0, Math.floor(Number(base) + Number(buffBonus) || 0));
 }
 /** Effective Armor (armorTotal + Active Buffs) before any All-Out drawback. */
 export function getTargetArmorBeforeAllOut(targetActor) {

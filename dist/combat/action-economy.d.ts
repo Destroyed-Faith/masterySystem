@@ -137,7 +137,12 @@ export interface RoundState {
      */
     allOutAttack?: {
         active: true;
-        penalty: 'armor' | 'evade';
+        /** Each step: −4 Armor and +1d8 Damage. */
+        armorSteps?: number;
+        /** Each step: −2 Evade and +1d8 Damage. */
+        evadeSteps?: number;
+        /** Older single declaration; reads as one step. */
+        penalty?: 'armor' | 'evade';
     };
     /** Shared Free Raises (playtest): Raises allies assigned to this actor this Round. */
     sharedFreeRaisesReceived?: SharedFreeRaiseGrant[];

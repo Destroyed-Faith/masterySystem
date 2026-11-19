@@ -10,12 +10,17 @@
 import { type RoundState } from './action-economy.js';
 /** Provisional playtest coordination range (meters). */
 export declare const TACTICAL_COORDINATION_RANGE_M = 20;
-/** Core: the Armor drawback may only be chosen with at least this much effective Armor. */
+/** Armor lost per All-Out Armor step; a step needs at least this much Armor left. */
+export declare const ALL_OUT_ARMOR_STEP = 4;
+/** Evade lost per All-Out Evade step; a step needs at least this much Evade left. */
+export declare const ALL_OUT_EVADE_STEP = 2;
+/** @deprecated Use ALL_OUT_ARMOR_STEP. */
 export declare const ALL_OUT_ARMOR_MIN = 4;
 export type AllOutDefensePenalty = 'armor' | 'evade';
 export type AllOutAttackState = {
     active: true;
-    penalty: AllOutDefensePenalty;
+    armorSteps: number;
+    evadeSteps: number;
 };
 export type AttackActionTransferState = {
     /** Donor actor id (owner of the surrendered base Action). */
@@ -25,7 +30,9 @@ export type AttackActionTransferState = {
     /** Prep grant recorded; recipient spends on their own Turn. */
     status: 'granted' | 'spent' | 'expired';
 };
+/** All-Out steps for the Round. A stored single declaration (`penalty`) reads as one step. */
 export declare function readAllOutAttack(rs: RoundState | null | undefined): AllOutAttackState | null;
+/** One +1d8 per declared step. */
 export declare function allOutDamageBonusDice(rs: RoundState | null | undefined): number;
 /**
  * All-Out dice for one Damage Roll. An explicit count from the damage card or a
@@ -33,9 +40,9 @@ export declare function allOutDamageBonusDice(rs: RoundState | null | undefined)
  * missing count falls back to the live Round declaration.
  */
 export declare function resolveAllOutDamageDice(explicit: unknown, specialOnly: boolean, liveRs: RoundState | null | undefined): number;
-/** Effective Armor after All-Out −4 (floor 0). */
+/** Effective Armor after All-Out −4 per Armor step (floor 0). */
 export declare function applyAllOutArmorPenalty(armor: number, rs: RoundState | null | undefined): number;
-/** Effective Evade after All-Out −2 (floor 0). */
+/** Effective Evade after All-Out −2 per Evade step (floor 0). */
 export declare function applyAllOutEvadePenalty(evade: number, rs: RoundState | null | undefined): number;
 /**
  * Round state of the actor's economy owner, only when it belongs to the live
@@ -43,6 +50,24 @@ export declare function applyAllOutEvadePenalty(evade: number, rs: RoundState | 
  * an expired All-Out drawback never lowers defenses.
  */
 export declare function currentCombatRoundState(actor: any): RoundState | null;
+export type AllOutDefenseView = {
+    armorSteps: number;
+    evadeSteps: number;
+    /** Defense before any All-Out step. */
+    armorBase: number;
+    evadeBase: number;
+    /** Defense after the declared steps. */
+    armorNow: number;
+    evadeNow: number;
+    canAddArmor: boolean;
+    canAddEvade: boolean;
+    damageDice: number;
+};
+/**
+ * The declaring character's own defenses, read from the same economy owner
+ * whose Round state later lowers them when that character is hit.
+ */
+export declare function allOutDefenseView(actor: any, rs: RoundState | null | undefined): Promise<AllOutDefenseView>;
 export type AllOutDeclareResult = {
     ok: true;
     state: RoundState;
@@ -50,9 +75,15 @@ export type AllOutDeclareResult = {
     ok: false;
     reason: 'armor-below-minimum';
     effectiveArmor: number;
+} | {
+    ok: false;
+    reason: 'evade-below-minimum';
+    effectiveEvade: number;
 };
+/** Add one All-Out step (−4 Armor or −2 Evade, +1d8 Damage) for this Round. */
 export declare function declareAllOutAttack(actor: any, combat: Combat | null, penalty: AllOutDefensePenalty): Promise<AllOutDeclareResult>;
-export declare function clearAllOutAttack(actor: any, combat: Combat | null): Promise<void>;
+/** Clear the All-Out steps of one defense, or all of them. */
+export declare function clearAllOutAttack(actor: any, combat: Combat | null, which?: AllOutDefensePenalty | 'all'): Promise<void>;
 /** Distance in meters between two placed tokens (grid-aware when possible). */
 export declare function tokenDistanceMeters(a: any, b: any): number | null;
 export declare function actorsWithinCoordinationRange(donorToken: any, recipientToken: any, rangeM?: number): boolean;
@@ -66,6 +97,8 @@ export declare function areTeamworkAllies(a: any, b: any, tokens?: {
     aToken?: any;
     bToken?: any;
 }): boolean;
+/** Attack Action Transfer recipients are player characters, never NPCs or Summons. */
+export declare function isPlayerCharacter(actor: any): boolean;
 /**
  * Prep: donor gives base Attack Action to recipient.
  * Recipient gains +1 donatedAttackActions (additive); donor locks base.

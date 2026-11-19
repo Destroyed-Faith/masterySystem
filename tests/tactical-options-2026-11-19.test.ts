@@ -78,7 +78,15 @@ describe('All-Out Attack (playtest)', () => {
     expect(applyAllOutArmorPenalty(3, rsArmor as any)).toBe(0);
     expect(applyAllOutArmorPenalty(0, rsArmor as any)).toBe(0);
     expect(applyAllOutEvadePenalty(5, rsEvade as any)).toBe(3);
-    expect(readAllOutAttack(rsArmor as any)?.penalty).toBe('armor');
+    expect(readAllOutAttack(rsArmor as any)).toEqual({ active: true, armorSteps: 1, evadeSteps: 0 });
+  });
+
+  it('stacks Armor and Evade steps: +1d8 and −4 Armor / −2 Evade per step', () => {
+    const rs = { allOutAttack: { active: true as const, armorSteps: 2, evadeSteps: 3 } };
+    expect(allOutDamageBonusDice(rs as any)).toBe(5);
+    expect(applyAllOutArmorPenalty(9, rs as any)).toBe(1);
+    expect(applyAllOutEvadePenalty(8, rs as any)).toBe(2);
+    expect(readAllOutAttack({ allOutAttack: { active: true, armorSteps: 0, evadeSteps: 0 } } as any)).toBeNull();
   });
 
   it('wires into getTargetArmor / getTargetEvade', () => {

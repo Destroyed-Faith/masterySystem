@@ -10,7 +10,7 @@
  * Transactions run one at a time per client, write the recipient first and
  * restore it when the donor write fails, so nothing is lost or granted twice.
  */
-export type TeamworkFailure = 'missing-actor' | 'self' | 'not-ally' | 'range' | 'perception' | 'permission' | 'not-in-combat' | 'stale-round' | 'not-preparation' | 'donor-base-unavailable' | 'donor-already-spent' | 'invalid-amount' | 'no-raises' | 'write-failed' | 'gm-unavailable' | 'gm-timeout' | 'gm-rejected';
+export type TeamworkFailure = 'missing-actor' | 'self' | 'not-ally' | 'not-player' | 'range' | 'perception' | 'permission' | 'not-in-combat' | 'stale-round' | 'not-preparation' | 'donor-base-unavailable' | 'donor-already-spent' | 'invalid-amount' | 'no-raises' | 'write-failed' | 'gm-unavailable' | 'gm-timeout' | 'gm-rejected';
 export type TeamworkResult = {
     ok: true;
 } | {

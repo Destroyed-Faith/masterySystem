@@ -26,8 +26,11 @@ afterEach(() => {
 
 import {
   ALL_OUT_ARMOR_MIN,
+  allOutDamageBonusDice,
+  clearAllOutAttack,
   declareAllOutAttack,
   grantRegularAttackActionTransfer,
+  readAllOutAttack,
   resolveAllOutDamageDice,
 } from '../src/combat/tactical-options.js';
 import { getAvailableAttackActions, getRoundState, type RoundState } from '../src/combat/action-economy.js';
@@ -133,6 +136,33 @@ describe('All-Out Attack — drawback is real, Round-scoped and Armor-gated', ()
     expect(getTargetArmor(enough)).toBe(0);
   });
 
+  it('stacks steps while the full drawback still fits: 9 Armor → 5 → 1, then refused', async () => {
+    const a = mockActor('stack', { armor: 9, evade: 5, rs: {} });
+    expect((await declareAllOutAttack(a, g.game.combat, 'armor')).ok).toBe(true);
+    expect((await declareAllOutAttack(a, g.game.combat, 'armor')).ok).toBe(true);
+    expect(getTargetArmor(a)).toBe(1);
+    expect(await declareAllOutAttack(a, g.game.combat, 'armor')).toMatchObject({ ok: false, effectiveArmor: 1 });
+
+    expect((await declareAllOutAttack(a, g.game.combat, 'evade')).ok).toBe(true);
+    expect((await declareAllOutAttack(a, g.game.combat, 'evade')).ok).toBe(true);
+    expect(getTargetEvade(a)).toBe(1);
+    expect(await declareAllOutAttack(a, g.game.combat, 'evade')).toMatchObject({ ok: false, reason: 'evade-below-minimum', effectiveEvade: 1 });
+
+    const rs = getRoundState(a as any, g.game.combat);
+    expect(allOutDamageBonusDice(rs)).toBe(4);
+  });
+
+  it('clears one defense at a time, or everything', async () => {
+    const a = mockActor('clear', { armor: 9, evade: 12, rs: {} });
+    await declareAllOutAttack(a, g.game.combat, 'armor');
+    await declareAllOutAttack(a, g.game.combat, 'evade');
+    await clearAllOutAttack(a, g.game.combat, 'armor');
+    expect(readAllOutAttack(getRoundState(a as any, g.game.combat))).toEqual({ active: true, armorSteps: 0, evadeSteps: 1 });
+    expect(getTargetArmor(a)).toBe(9);
+    await clearAllOutAttack(a, g.game.combat, 'evade');
+    expect(getRoundState(a as any, g.game.combat).allOutAttack).toBeUndefined();
+  });
+
   it('an explicit 0 die (Special-only card / Negation-stripped reroll) is never re-read', () => {
     const live = { allOutAttack: { active: true, penalty: 'armor' } } as any;
     expect(resolveAllOutDamageDice(undefined, false, live)).toBe(1);
@@ -195,11 +225,20 @@ describe('Regular Attack Action Transfer — allies, atomic writes, recipient Tu
     expect(getAvailableAttackActions(donor as any, g.game.combat)).toBe(1);
   });
 
-  it('keeps the gifted Action for NPC allies through slot reconciliation', async () => {
+  it('only player characters can receive the Action; NPCs and GM-only characters are refused', async () => {
     const donor = mockActor('donor', { rs: {} });
     const npc = mockActor('npc', { type: 'npc', rs: {}, npcAttacks: 1 });
-    await grantRegularAttackActionTransfer(donor, npc, g.game.combat, { skipRangeCheck: true });
-    expect(getRoundState(npc as any, g.game.combat).attackActions.total).toBe(2);
+    expect(await grantRegularAttackActionTransfer(donor, npc, g.game.combat, { skipRangeCheck: true })).toMatchObject({
+      ok: false,
+      reason: 'not-player',
+    });
+    expect(getRoundState(npc as any, g.game.combat).attackActions.total).toBe(1);
+    const gmOnly = Object.assign(mockActor('gmOnly', { rs: {} }), { hasPlayerOwner: false });
+    expect(await grantRegularAttackActionTransfer(donor, gmOnly, g.game.combat, { skipRangeCheck: true })).toMatchObject({
+      ok: false,
+      reason: 'not-player',
+    });
+    expect(getRoundState(donor as any, g.game.combat).baseAttackTransferred).not.toBe(true);
   });
 
   it('survives the recipient undoing their Stone plan in Preparation', async () => {

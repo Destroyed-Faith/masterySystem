@@ -63,11 +63,15 @@ import {
   getActionEconomyActor
 } from '../combat/action-economy.js';
 import {
+  ALL_OUT_ARMOR_STEP,
+  ALL_OUT_EVADE_STEP,
+  allOutDefenseView,
   areTeamworkAllies,
   clearAllOutAttack,
   declareAllOutAttack,
   grantRegularAttackActionTransfer,
-  readAllOutAttack,
+  isPlayerCharacter,
+  type AllOutDefenseView,
 } from '../combat/tactical-options.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
@@ -1537,26 +1541,29 @@ export class StonePowersDialog extends BaseDialog {
       canSavePrefs,
       combatLabel: combat ? `Round ${combat.round}` : '',
       naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
-      tacticalPrep: this.#tacticalPrepContext(combat, stonePlanLocked),
+      tacticalPrep: await this.#tacticalPrepContext(combat, stonePlanLocked),
       helpScreens: STONE_POWERS_HELP_SCREENS,
       helpScreenCount: STONE_POWERS_HELP_COUNT,
     };
   }
 
-  #tacticalPrepContext(combat: Combat | null, locked: boolean) {
+  async #tacticalPrepContext(combat: Combat | null, locked: boolean) {
     const show = !!this.combatant && (this.actor as any).type === 'character' && !!combat;
-    let summary = 'Optional: All-Out Attack or Transfer your regular Attack Action.';
+    let summary = 'Optional: Transfer your Attack Action or declare All-Out Attack.';
     let raisePool = 0;
+    let transferred = false;
+    let allOut: AllOutDefenseView | null = null;
     try {
       const rs = getRoundState(this.actor as any, combat);
-      const ao = readAllOutAttack(rs);
-      if (ao) {
-        summary =
-          ao.penalty === 'evade'
-            ? 'All-Out active: +1d8 Damage, −2 Evade this Round.'
-            : 'All-Out active: +1d8 Damage, −4 Armor this Round.';
+      allOut = await allOutDefenseView(this.actor as any, rs);
+      if (allOut.damageDice > 0) {
+        const parts: string[] = [];
+        if (allOut.armorSteps) parts.push(`−${ALL_OUT_ARMOR_STEP * allOut.armorSteps} Armor`);
+        if (allOut.evadeSteps) parts.push(`−${ALL_OUT_EVADE_STEP * allOut.evadeSteps} Evade`);
+        summary = `All-Out active: +${allOut.damageDice}d8 Damage, ${parts.join(', ')} this Round.`;
       }
-      if (rs.baseAttackTransferred) {
+      transferred = rs.baseAttackTransferred === true;
+      if (transferred) {
         summary += ' Base Attack Action transferred to an ally.';
       }
       const given = (rs.sharedFreeRaisesGiven ?? []).filter((g) => g.amount > 0);
@@ -1571,8 +1578,34 @@ export class StonePowersDialog extends BaseDialog {
     } catch {
       /* ignore */
     }
-    // Sharing is not a Stone plan change, so it stays available after confirmation.
-    return { show, locked, summary, raisePool, canShareRaises: show && raisePool > 0 };
+    const recipients = show && combat
+      ? this.#transferRecipients(combat).map((a: any) => ({ id: String(a.id), name: String(a.name || a.id) }))
+      : [];
+    const armorSteps = allOut?.armorSteps ?? 0;
+    const evadeSteps = allOut?.evadeSteps ?? 0;
+    return {
+      show,
+      locked,
+      open: this._sectionOpenOverride.tactical ?? !locked,
+      summary,
+      transferred,
+      recipients,
+      allOut,
+      armorAddDisabled: locked || !allOut?.canAddArmor,
+      evadeAddDisabled: locked || !allOut?.canAddEvade,
+      armorClearDisabled: locked || armorSteps === 0,
+      evadeClearDisabled: locked || evadeSteps === 0,
+      raisePool,
+      // Sharing is not a Stone plan change, so it stays available after confirmation.
+      canShareRaises: show && raisePool > 0,
+    };
+  }
+
+  /** Transfer recipients: allied player characters only, never NPCs or Summons. */
+  #transferRecipients(combat: Combat): any[] {
+    return this.#alliedCombatants(combat)
+      .map((c: any) => c.actor)
+      .filter((a: any) => isPlayerCharacter(a));
   }
 
   async #setAllOutPenalty(penalty: 'armor' | 'evade'): Promise<void> {
@@ -1580,69 +1613,33 @@ export class StonePowersDialog extends BaseDialog {
     const result = await declareAllOutAttack(this.actor as any, game.combat ?? null, penalty);
     if (!result.ok) {
       ui.notifications?.warn(
-        `All-Out −4 Armor needs at least 4 effective Armor (current ${result.effectiveArmor}). Choose −2 Evade instead.`,
+        result.reason === 'armor-below-minimum'
+          ? `Another All-Out Armor step needs at least ${ALL_OUT_ARMOR_STEP} Armor left (current ${result.effectiveArmor}).`
+          : `Another All-Out Evade step needs at least ${ALL_OUT_EVADE_STEP} Evade left (current ${result.effectiveEvade}).`,
       );
       return;
     }
     await this.#renderKeepingScroll();
   }
 
-  async #clearAllOut(): Promise<void> {
+  async #clearAllOut(which: 'armor' | 'evade' | 'all'): Promise<void> {
     if (this.#isStoneDialogLocked()) return;
-    await clearAllOutAttack(this.actor as any, game.combat ?? null);
+    await clearAllOutAttack(this.actor as any, game.combat ?? null, which);
     await this.#renderKeepingScroll();
   }
 
-  async #promptTransferAttackAction(): Promise<void> {
+  async #transferAttackActionTo(recipientId: string): Promise<void> {
     if (this.#isStoneDialogLocked()) return;
     const combat = game.combat;
     if (!combat) {
       ui.notifications?.warn('Transfer Attack Action needs an active combat.');
       return;
     }
-    const allies = this.#alliedCombatants(combat).map((c: any) => c.actor);
-    if (!allies.length) {
-      ui.notifications?.warn('No allied combatants available.');
+    const recipient = this.#transferRecipients(combat).find((a: any) => String(a.id) === String(recipientId));
+    if (!recipient) {
+      ui.notifications?.warn('Choose another player character in this combat.');
       return;
     }
-    const esc = (s: string) =>
-      String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    const options = allies
-      .map((a: any) => `<option value="${String(a.id)}">${esc(String(a.name || a.id))}</option>`)
-      .join('');
-    const content = `<p>Give your <strong>regular base Attack Action</strong> to an ally. They spend it on <em>their</em> Turn (playtest 20&nbsp;m).</p>
-      <p><label>Recipient <select name="recipientId" style="width:100%">${options}</select></label></p>`;
-    const choice = await new Promise<string | null>((resolve) => {
-      new Dialog({
-        title: 'Transfer Attack Action',
-        content,
-        buttons: {
-          transfer: {
-            label: 'Transfer',
-            callback: (html: any) => {
-              const root = html?.jquery ? html[0] : html;
-              const sel =
-                (root as HTMLElement)?.querySelector?.('[name="recipientId"]') ??
-                html?.find?.('[name="recipientId"]')?.[0];
-              resolve(String((sel as HTMLSelectElement)?.value || ''));
-            },
-          },
-          cancel: {
-            label: 'Cancel',
-            callback: () => resolve(null),
-          },
-        },
-        default: 'transfer',
-        close: () => resolve(null),
-      }).render(true);
-    });
-    if (!choice) return;
-    const recipient = allies.find((a: any) => String(a.id) === String(choice));
-    if (!recipient) return;
     const donorCombatant: any = this.combatant;
     const donorTok = donorCombatant?.token?.object ?? donorCombatant?.token;
     const recipientCombatant: any = Array.from((combat as any).combatants ?? []).find(
@@ -3035,18 +3032,25 @@ export class StonePowersDialog extends BaseDialog {
         void this.#setAllOutPenalty('evade');
       },
     );
-    (root.querySelector('.js-clear-all-out') as HTMLButtonElement | null)?.addEventListener(
-      'click',
-      (ev) => {
+    root.querySelectorAll<HTMLButtonElement>('.js-clear-all-out').forEach((el) => {
+      el.addEventListener('click', (ev) => {
         ev.preventDefault();
-        void this.#clearAllOut();
-      },
-    );
+        const which = el.dataset.which === 'armor' || el.dataset.which === 'evade' ? el.dataset.which : 'all';
+        void this.#clearAllOut(which);
+      });
+    });
     (root.querySelector('.js-transfer-attack') as HTMLButtonElement | null)?.addEventListener(
       'click',
       (ev) => {
         ev.preventDefault();
-        void this.#promptTransferAttackAction();
+        const sel = root.querySelector<HTMLSelectElement>('.js-transfer-recipient');
+        void this.#transferAttackActionTo(String(sel?.value || ''));
+      },
+    );
+    root.querySelector<HTMLDetailsElement>('details.tactical-prep-bar[data-section]')?.addEventListener(
+      'toggle',
+      (ev) => {
+        this._sectionOpenOverride.tactical = (ev.currentTarget as HTMLDetailsElement).open;
       },
     );
     (root.querySelector('.js-share-free-raises') as HTMLButtonElement | null)?.addEventListener(

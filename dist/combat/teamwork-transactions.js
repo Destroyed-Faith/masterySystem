@@ -14,7 +14,7 @@ import { getActionEconomyActor, getRoundState, setRoundState, syncPcExtraAttackT
 import { isActiveBuffPreparationWindow } from './active-buff-lifecycle.js';
 import { resolveLiveCombat, userMayPersistActor } from './combat-permissions.js';
 import { askGmForResult } from './gm-relay.js';
-import { actorsWithinCoordinationRange, areTeamworkAllies, canPerceiveAlly, } from './tactical-options.js';
+import { actorsWithinCoordinationRange, areTeamworkAllies, isPlayerCharacter, canPerceiveAlly, } from './tactical-options.js';
 const fail = (reason) => ({ ok: false, reason });
 let queue = Promise.resolve();
 /** Run transactions one after another so two requests never read the same stale state. */
@@ -51,9 +51,11 @@ function coordinationFailure(donor, recipient, ctx) {
         return 'perception';
     return null;
 }
-function transferStateFailure(donor, combat) {
+function transferStateFailure(donor, recipient, combat) {
     if (!combat)
         return 'not-in-combat';
+    if (!isPlayerCharacter(economyOwner(recipient)))
+        return 'not-player';
     if (!isActiveBuffPreparationWindow(donor, combat))
         return 'not-preparation';
     const rs = getRoundState(donor, combat);
@@ -106,7 +108,7 @@ export async function applyAttackActionTransfer(donor, recipient, combat, ctx = 
     const coordination = coordinationFailure(donor, recipient, ctx);
     if (coordination)
         return fail(coordination);
-    const state = transferStateFailure(donor, combat);
+    const state = transferStateFailure(donor, recipient, combat);
     if (state)
         return fail(state);
     const donorOwner = economyOwner(donor);
@@ -186,7 +188,7 @@ async function requestTeamwork(kind, donor, recipient, combat, ctx, amount = 0) 
     const coordination = coordinationFailure(donor, recipient, ctx);
     if (coordination)
         return fail(coordination);
-    const state = kind === 'transfer' ? transferStateFailure(donor, combat) : raisePoolFailure(donor, amount, combat);
+    const state = kind === 'transfer' ? transferStateFailure(donor, recipient, combat) : raisePoolFailure(donor, amount, combat);
     if (state)
         return fail(state);
     const donorOwner = economyOwner(donor);
@@ -300,6 +302,8 @@ export function teamworkFailureMessage(reason, what) {
     switch (reason) {
         case 'not-ally':
             return `${label}: only allies can receive this.`;
+        case 'not-player':
+            return `${label}: only another player's character can receive this.`;
         case 'range':
             return `${label}: the ally must be within 20 m.`;
         case 'perception':
