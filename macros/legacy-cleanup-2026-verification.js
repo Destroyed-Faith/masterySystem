@@ -28,9 +28,9 @@
  *      game.masterySystem.legacyCleanupResolveSkills(actor, { xpRefund: 0, note: '...' }).
  *   4. Rollback one actor (game.masterySystem.legacyCleanupRollback(actor)) and
  *      confirm Skills, Free XP, Echo Card picks and Powers return to the backup.
- *   5. Moonlight Greatsword L1: Resolve Ability: Healing (Stone Power Support)
- *      Rank 2 on any legal target; the old Heal Active no longer appears in the radial.
- *   6. Lor-Keth's Staff L1: Melee Single Target Special: Challenge.
+ *   5. Moonlight Greatsword L1: Ranged Single Target Restoration PL4 (20 m, 2 Scarred Bars);
+ *      no Heal Active / Healing support in the radial.
+ *   6. Lor-Keth's Titanstorm Staff L1: Melee Single Target Special: Expose PL4 (Expose(5)).
  *   7. Import an old homepage export with Skills / Echo Cards: the actor has no
  *      Skill or card fields, the values sit in the legacySkillsArchive flag.
  * Forge only after separate approval.

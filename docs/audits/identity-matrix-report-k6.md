@@ -1,6 +1,6 @@
 # Identity-Matrix Report (K6 final — all ranks 1–16)
 
-Generated: 2026-11-18T14:21:18.661Z
+Generated: 2026-11-19T10:41:50.024Z
 
 ## Coverage
 

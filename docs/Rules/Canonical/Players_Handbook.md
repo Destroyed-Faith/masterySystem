@@ -7,8 +7,8 @@
 {{wide
 ---
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-<div class="title-sub">
-A Dark Fantasy Setting of Broken Gods and Doomed Inheritance
+<div class="title-sub" style="width:100%; display:flex; justify-content:center;">
+  <span>A Dark Fantasy Setting of Broken Gods and Doomed Inheritance</span>
 </div>
 
 }}
@@ -116,7 +116,7 @@ A Dark Fantasy Setting of Broken Gods and Doomed Inheritance
 ---
 - #### [{{ Magic}}{{ 193}}](#p193)
 ---
-- #### [{{ Mentalist Option / Telepathy}}{{ 57}}](#p57)
+- #### [{{ Mind Effects and Telepathy}}{{ 57}}](#p57)
 ---
 - #### [{{ Powers}}{{ 198}}](#p198)
 ---
@@ -164,9 +164,36 @@ A Dark Fantasy Setting of Broken Gods and Doomed Inheritance
 - #### [{{ Appendix — Special Descriptions}}{{ 254}}](#p254)
 ---
 - #### [{{ Limited Damage Powers — Playtest}}{{ 263}}](#p263)
+---
+- #### [{{ Character Concepts — Thirteen Builds}}{{ 264}}](#p264)
+---
+
 }}
 \page
 {{pageNumber,auto}}
+
+
+<style>
+/* Editorial typography for continuous rulebook prose. */
+.page p {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* Table of contents remains left-aligned. */
+.page .toc p {
+  text-align: left;
+  hyphens: none;
+}
+
+/* Homebrewery credits and version information remain centered. */
+.page .homebreweryCredits p {
+  text-align: center;
+  hyphens: none;
+}
+</style>
+
+
 {{wide
 © 2025 Daniel Rodrigo Navarro Melendo. All rights reserved. This work is the intellectual property of the author and may not be copied, distributed, or published in whole or in part without explicit permission. Use in private, non-commercial gaming sessions is expressly permitted. All artwork included in this document is either the original property of the author or used with proper license and permission from the respective artists. Unauthorized reproduction or commercial use is strictly prohibited. Commercial distribution of this product (digital or physical) is not permitted without explicit written permission by the author and all involved rights holders.
 
@@ -197,7 +224,8 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — DF Core Version: v0.9.9.5 (2026-10-15)  
+Destroyed Faith — DF Core Version: v0.9.9.6 (2026-11-08)  
+*Editorial playtest working copy — 2026-11-19; teamwork Range and All-Out AR guard provisional.*  
 
 }}
 
@@ -205,22 +233,61 @@ Destroyed Faith — DF Core Version: v0.9.9.5 (2026-10-15)
 \page
 {{pageNumber,auto}}
 
+
+
+# Is Destroyed Faith for You?
+
+**Destroyed Faith is a rules-heavy, classless, tactical dark fantasy roleplaying game for players who love challenging combat, detailed character progression, an unforgiving world, and character-driven campaigns shaped by their own decisions.** There are no predefined classes or progression paths: you choose your Powers, discover how they work together, and learn the mechanics needed to bring your character concept to life. **The rules define what a Power does, not what it looks like.** You decide how your abilities manifest, what they mean to your character, and who that character becomes in a world that responds to your choices.
+
+:
+### Your Character. Your Powers. Your Vision.
+
+A defensive Power might manifest as hardened skin, spectral armor, a shimmering barrier of light, or something entirely different. The mechanical effects, costs, and limitations remain the same, but their appearance and meaning are entirely yours to define. Two characters can use identical Powers and still be completely different.
+:
+### Tactical Combat 
+
+Combat emphasizes positioning, timing, resource management, and the interaction of Powers, Stones, Specials, and defenses. Understanding these mechanics and making effective choices is an important part of the game. **Every roll uses pools of eight-sided dice (d8s), and sometimes those pools can become quite large. No other dice types are used.** If you prefer rules-light storytelling or quick, abstract combat, Destroyed Faith may not be the game for you.
+
+
+:
+
+
+
+### How Your Character Works
+
+Your **Attributes** determine your base dice pools. These pools do not increase spontaneously during combat; they decrease only when your character is heavily wounded, while the Attributes themselves can still improve through XP. Outside combat, you rely on **Professions and Perception** in combination with your Attributes. When using a Profession, you explain how it applies to the situation at hand and finding creative ways to do so is part of the fun.
+
+In combat, **Passives** provide permanent benefits, **Powers** give you tactical options, and evolving **Artifacts** strengthen and expand your abilities. Your **Stones** allow you to gain additional actions and activate powerful Stone Abilities, such as reducing enemy Armor, healing yourself, or healing others.
+
+**Round by round, you decide which Stone Abilities to activate and how to allocate your Stones, shaping your role in combat as you see fit.**
+
+
+
+
+
+
+
+
+
+
+\page
+{{pageNumber,auto}}
 ## Tyhra
 :
 ![world map](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/World%20Assets/Lands%20of%20Tyhra%20v1Small.jpg) {width:700px}
 
 :
 
-{{wide
+
 ### Orrondar – The center of order
 At the heart of the continent lay Orrondar a well-ordered land, crisscrossed by roads, fields, and cities where all peoples had once been represented equally. From above, it appeared like a finely drawn pattern: geometric, clear, symmetrical. Thyrros, the god of truth and law, was revered there. His paladins and judges safeguarded justice and the well-being of the community. After the War of the Gods, Orrondar became the model for what the Eight called *safety through order*. The gods had issued the **Sentinel Mandate** holy detachments dispatched into towns and even remote villages, tasked with guarding the people against the lingering **monsters of the old world**. Truth be told, such creatures had grown rarer with every passing decade. Yet they remained *common enough in rumor* and *real enough in the deep woods and forgotten grottos* that fear never fully left the hearthfires. The Sentinels were the answer the gods provided: protection, patrol, and the comforting weight of authority at every gate.
 Equilara, also known as “The City of Law,” served as the center of justice and communal life in Orrondar a place where the values of Thyrros were deeply woven into both architecture and daily life. The city lay at the confluence of two rivers, known as the River of Clarity and the River of Protection, symbolizing the core principles of Orrondarian society: transparency and care. All buildings in Equilara had been arranged symmetrically, and the city was divided into meticulously planned districts, each serving the greater purpose of harmony and structured coexistence. At the heart of the city stood the Temple of Truth, a grand structure of pale stone that housed the High Court and the Council of Paladins. The temple was adorned with symbols of Thyrros’ protection and wisdom and contained the Great Scale a ceremonial artifact representing the balance of truth and justice. It was overseen by the priests and paladins of Thyrros, known as the “Guardians of Truth,” who had been devoted to upholding the law with fairness and shielding society from deceit and injustice.
 
-}}
+
 \page
 {{pageNumber,auto}}
 
-{{wide
+
 ###  Athera – The living cycle
 To the west lay Athera, a land of rolling hills, roaring coasts, and fire-spewing mountains. Halflings and humans had been the dominant peoples there, though elves and dwarves had also called this land home. The region was both fertile and perilous shaped by constant change. It was there that Thronos, the Warden of the Natural Cycle, had been worshipped. His signs had manifested in animal traits and in the whispering of the woods.
 
@@ -242,11 +309,11 @@ Directly to the east lay Astravar a tranquil land of knowledge and compassion. C
 Illumara, also known as “The City of the Sacred Flame,” had been the heart of Astravar and a center for the study and practice of healing arts and magic. The city rested upon a gentle plateau and had been known for its white stone buildings, which gleamed in the sunlight and were adorned with healing symbols and arcane runes. The streets of Illumara had been spacious and paved with mosaics depicting Valkath’s symbols healing hands, crystals, and radiant flames representing the flow of magical and restorative energy.
 
 :
-}}
+
 \page
 {{pageNumber,auto}}
 
-{{wide
+
 
 At the center of the city stood the Temple of Enlightenment, a magnificent structure crowned by a great glass dome that captured the sunlight and scattered it across the city in vibrant colors. Within the temple burned Valkath’s Heart, an eternal flame revered as a sacred symbol of the goddess’s healing power and arcane wisdom. The temple’s priests and priestesses known as the “Keepers of the Flame” had tended to the fire and offered healing rituals and blessings to all who had sought comfort or protection. The flame had been considered a living manifestation of Valkath’s blessing and had drawn pilgrims from across the world, seeking both spiritual and physical healing within its radiant glow.
 
@@ -272,7 +339,7 @@ At the center of Draemir had risen the Obsidian Tower of Ithkor, an imposing str
 
 :
 
-}}
+
 \page
 {{pageNumber,auto}}
 {{wide
@@ -1182,7 +1249,7 @@ alt="The Mark of Flauros"
 
 #### **Flauros in Morrdrak**
 
-The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**. He moves unseen among lich-kings and necromancers, spreading doubt and false memory. Where others conquer with armies, Flauros conquers with questions — and beneath his influence, the living rot faster than the dead. Few have heard his name spoken aloud, and fewer still remember it correctly.
+The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**. He moves unseen among lich-kings and necromancers, spreading doubt and false memory. Where others conquer with armies, Flauros conquers with questions and beneath his influence, the living rot faster than the dead. Few have heard his name spoken aloud, and fewer still remember it correctly.
 
 <div class="df-realm-clear"></div>
 
@@ -1321,7 +1388,7 @@ Stones are gained through **Lifetime Experience** and may be assigned to Attribu
 You may always meet the Target Number for a normal success, but by risking more, by *raising the stakes*, you unlock special effects, crushing blows, and cinematic moments. Each Raise is a gamble and a story beat.
 
 - **Actions and Reactions Matter**  
-Every round is a choice: attack, defend, maneuver, or risk everything. Reactions keep you engaged even when it’s not your turn — parries, dodges, counterstrikes, and warnings make combat feel alive.
+Every round is a choice: activate a Power, defend, maneuver, or risk everything. Reactions keep you engaged even when it is not your turn — parries, dodges, protective interventions, and warnings make combat feel alive.
 
 - **Simple Dice, Big Moments**  
 Rolls explode. Success is clear. The math is fast, but the outcomes are cinematic. You will know when you land a decisive strike — and when fate turns against you.
@@ -1365,7 +1432,7 @@ The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allie
 > **Pool & Keep:** Use only eight-sided dice (**d8**). Roll your Pool (X d8), keep the best Y.  
 > **Exploding Dice:** On a natural **8**, **reroll that die** and **add** the new result. Repeat on further 8s. An attack designated for **Critical** explodes on natural **7s and 8s** instead.
 
-> **Critical(X):** Before an eligible Martial Attack Pool or damaging Spell Casting Pool is rolled, designate **one source**: **Passive: Critical** (PL 4-7: 1, PL 8-14: 2, PL 15-16: 3 free uses per Combat), **Active Buff: Critical** (printed per-Combat quota while maintained), or **Agility Ability: Crit** (Rank 1/2/3/4: 1/2/3/4 uses in the current Round). The designated Pool explodes on natural **7s and 8s**, including subsequent qualifying rerolls; **Damage Dice are unchanged**. One Pool, including a shared AoE Pool, spends only one use of the chosen source. Unused Passive charges never refresh during Combat; reactivating the Buff does not refill its Combat quota. Disadvantage still permits only one exploding die.
+> **Critical(X):** Before an eligible Martial Attack Pool or damaging Spell Casting Pool is rolled, designate **one source**: **Passive: Critical** (PL 4-7: 1, PL 8-14: 2, PL 15-16: 3 free uses per Combat), **Active Buff: Critical** (printed per-Combat quota while maintained), or **Agility Ability: Crit** (Rank 1/2/3/4: 1/2/3/4 uses in the current Round). The designated Pool explodes on natural **7s and 8s**, including subsequent qualifying rerolls; **Damage Dice are unchanged**. One Pool, including a shared AoE Pool, spends only one use of the chosen source. Spent Passive Critical uses remain spent until Combat End; each Active Buff has one activation per Combat. Disadvantage still permits only one exploding die.
 
 > **Guaranteed Eight:** Before rolling, you may exchange **8 dice from your final dice Pool** for **1 Guaranteed Eight**. Each exchange removes eight dice and adds one Guaranteed Eight to the final Pool. A Guaranteed Eight is treated as a natural **8**: reroll it and add the new result, repeating on further 8s as normal. It remains a normal die result for **Pool & Keep** and is not automatically kept.
 
@@ -1373,9 +1440,9 @@ The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allie
 
 > **Evade:** The TN an Attack must reach to hit a creature. For an AoE Attack, one roll is compared separately against the defense of each valid creature in the area.
 
-> **AoE Attack:** Roll once for the area; compare separately against each creature's Evade (Martial) or Final Spell TN (Spell), with Dive for Cover when legal. **Instant AoE Attacks may exclude any creature; allies are automatically excluded by default. This exception never applies to Persistent Zones or Special Auras.** A **Damage AoE** deals the full printed Power Damage **plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell)** in one shared Damage Roll. A **Special-only Attack (Single Target or AoE)** applies only its printed Special and deals **zero direct Attack Damage**, including from Weapon Damage, Spell Focus, bonuses or Damage Raises; no Damage Roll occurs. No Primary Target or splitting. Later Special-generated damage resolves under that Special's rules.
+> **AoE Attack:** Roll once for the area; compare separately against each creature's Evade (Martial) or Final Spell TN (Spell), with Dive for Cover when legal. **Instant AoE Attacks may exclude any creature; allies are automatically excluded by default. This exception never applies to Persistent Zones or Special Auras.** A **Damage AoE** deals its printed Power Damage plus the applicable **mundane** Weapon Damage (Martial) or Spell Focus Damage (Spell), **or one eligible Artifact Damage contribution**, in one shared Damage Roll. A **Special-only Attack (Single Target or AoE)** applies only its printed Special and deals **zero direct Attack Damage**, including from Weapon Damage, Spell Focus, bonuses or Damage Raises; no Damage Roll occurs. No Primary Target or splitting. Later Special-generated damage resolves under that Special's rules.
 
-> **Autofire:** Declare an ordered series of attacks up to the Power's printed capacity; the same target may appear repeatedly. Make **one** Attack or Casting Roll. Attack number 1 uses the target's normal TN; each later attack adds a cumulative **+4** to its own target TN. The first miss or resistance ends the chain. Roll the complete matching Weapon/Spell Focus plus Power Damage Pool **once** and reuse it for each successful hit; defend against each hit separately.
+> **Autofire:** Declare an ordered series of attacks up to the Power's printed capacity; the same target may appear repeatedly. Make **one** Attack or Casting Roll. Attack number 1 uses the target's normal TN; each later attack adds a cumulative **+4** to its own target TN. The first miss or resistance ends the chain. Roll the complete eligible mundane Weapon/Spell Focus or single chosen Artifact Damage plus Power Damage Pool **once** and reuse it for each successful hit; defend against each hit separately.
 
 > **Combat Raises:** **Before rolling**, declare the **number** of Paid Raises (+4 TN each) and commit the **number** of eligible Intellect Free Raises (+0 TN). **After the Attack/Casting Roll and hit checks**, choose how to allocate those declared Raises between Damage and an existing numeric Special; the number of Raises cannot be changed. **Special-only Attacks (Single Target or AoE)** may allocate Raises only to their printed Special and cannot gain Damage Raises. On a successful hit, each Damage Raise adds +MR d8 (AoE: +ceil(MR/2) d8), or each Special Raise adds +MR to that Special. An AoE, Split Attack or Autofire Power use makes **one shared after-roll allocation** for all its successful targets or hits.
 
@@ -1385,9 +1452,9 @@ The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allie
 
 > **Damage Reduction (DR):** Reduces all incoming damage of the listed type.
  
-> **Action:** You may take 1 Attack Action per turn (Attack, Cast, etc.).
+> **Attack Action:** You normally have one per Turn. Spend it to activate an eligible Active Power (including a Martial Attack or Spell) or perform an available Combat Maneuver. An Attack Action does not itself provide a free weapon strike or damage.
 
-> **Reaction:** Special defense actions you may take outside your turn (Guard, Evade, Dive for Cover, Reaction Powers, etc.).  
+> **Reaction:** Trigger-based responses outside your Turn, such as Guard, Evade, Dive for Cover, or an eligible Reaction Power.  
 \page
 {{pageNumber,auto}}
 
@@ -1399,7 +1466,7 @@ Create your hero in a consistent order: decide what kind of Echo you are before 
 
 ---
 
-#### Step 1 - Choose Your Echo and Echo Artifact Structure
+#### Step 1 - Choose Your Echo
 
 > Choose your **Echo** first. Record its origin, traits, any required or optional starting **Echo Artifacts**, their occupied equipment slots, and any other structural limitations. Resolve the Echo's starting choices before planning incompatible equipment or Powers. Note any language fixed by the Echo.
 
@@ -1419,7 +1486,7 @@ Create your hero in a consistent order: decide what kind of Echo you are before 
 
 #### Step 4 - Choose Four Professions
 
-> Choose **exactly four distinct Professions**, each at **Rank 2**. A Profession is a concrete occupation, apprenticeship, or formative life path, not a narrow named skill. Give each one a name and a short scope sentence; agree the scope with the GM. **Perception Rank 2 is granted to everyone for free** as a separate universal trained check, not as a fifth Profession slot. No separate creation-point pool is used. Additional Professions can be learned later through the existing XP advancement costs, or granted free by the GM. See *Professions and Training*.
+> Choose **exactly four distinct Professions**, each at **Rank 2**. A Profession is a concrete occupation, apprenticeship, or formative life path, not a narrow named skill. Give each one a name and a short description of how the character acquired it and what experience it covers; agree the scope with the GM. **Perception Rank 2 is granted to everyone for free** as a separate universal trained check, not as a fifth Profession slot. No separate creation-point pool is used. Additional Professions can be learned later through the existing XP advancement costs. See *Professions and Training*.
 
 ---
 
@@ -1572,7 +1639,7 @@ Start with the character's intended playstyle, then place the fixed values where
 
 *"Your past tells us what you might know. Your method tells us which Attribute you use."*
 
-A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow player Skills.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
+A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow player Professions.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
 
 A player describes their method and explains how a Profession helps. The GM decides whether that link is credible and selects a relevant **Attribute**; professions never prescribe fixed Attributes. A broad title must have an agreed concrete scope: *Assassin - worked as a quiet contract killer in Karaveth* is useful; *Good at Everything* is not.
 
@@ -1593,7 +1660,7 @@ Choose **Standard** if no capable active opponent contests the task. Choose **Co
 
 ### Training Rank Progression
 
-| Rank | Training | Training Advantage | Training Crit (per Tyhran Day) |
+| Rank | Training | Training Advantage | Training Crit (per Safe Haven Rest) |
 |:--:|---|---|:--:|
 | **0** | Untrained | **Disadvantage**; no Training Advantage | - |
 | **1** | Novice | May reroll initial **1s** | - |
@@ -1605,28 +1672,77 @@ Choose **Standard** if no capable active opponent contests the task. Choose **Co
 | **7** | Grandmaster | May reroll initial **1s-6s** | **1 use** |
 | **8** | Legendary | May reroll initial **1s-6s** | **2 uses** |
 
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 **Training Advantage:** On a Training Roll using one relevant learned Profession, or Perception, you may reroll **any or all initial Pool dice** within the Rank's listed range. **Each die can be rerolled only once**, and the new result must be kept. Apply Training Advantage **before resolving natural explosions and Keep**; explosion-only dice cannot be rerolled by Training Advantage. Other ordinary Advantage sources do not permit a second reroll of a die already rerolled this way. Natural **8s** explode normally.
 
-**Training Crit:** At Rank 7 or higher, designate a Training Roll using that learned Profession or Perception for **Critical before rolling**. Natural **7s and 8s explode** on that roll, including qualifying explosions. Rank 7 provides **one use** and Rank 8 **two uses per Tyhran Day per Profession or Perception**; no carry-over. Training Crit modifies the Training Roll, not Damage Dice, and cannot stack with another Critical source on the same roll. Separately imposed Disadvantage still limits eligible exploding dice. In a Comparative Training Check, both sides declare Training Crit before either result is revealed.
+**Training Crit:** Training Crit becomes available at **Rank 7**. Before rolling a Training Check with that learned Profession or Perception, you may spend one of its Training Crit uses: natural **7s and 8s explode** on that roll, including qualifying explosion rerolls. **Rank 7 grants one use and Rank 8 grants two uses per Safe Haven Rest, separately for each Profession and for Perception.** Unused uses do not carry over. Ranks 1–6 grant Training Advantage but **no Training Crit**. Ranks 7–8 retain Training Advantage for initial **1s–6s** in addition to their limited Training Crit uses. Training Crit modifies only the Training Roll, not Damage Dice, and cannot stack with another Critical source on the same roll. Separately imposed Disadvantage still limits eligible exploding dice. In a Comparative Training Check, both sides declare Training Crit before either result is revealed.
 
 **Untrained:** If no Profession or Perception applies, roll full **Attribute k MR** with **Disadvantage** (only one eligible die may explode), **no Training Advantage, no Training Crit, and no Raises**. Untrained attempts are not prohibited merely for lacking a named occupation.
 
-### Profession Respec and Removal
 
-**During creation**, a player may clear and re-pick starting Professions. That never grants XP.
+### Standard Training Checks and Raises
 
-**After creation**, the four free starting Professions cannot be deleted for XP. At **Rank 2 with no invested XP**, the GM may **replace** a starting Profession in place (same Rank, no XP change) or **clear** it and restore the free slot with a Rank 2 Grant. Players may self-respec those same uninvested Rank 2 starting slots only when the World Setting **Allow Profession Respec (Beta)** is enabled. Perception is never replaced or removed.
+1. **Describe the task:** The player explains the intended outcome and method. The GM chooses a fitting Attribute, the relevant Profession (if any), and the **Base TN = Task Level x 4** based on the task, not the actor's MR.
+2. **Declare Raises (optional):** The player declares additional feasible effects **before rolling**. Each Raise increases the Task TN by **+4**. Profession Rank grants **no Free Raises**, and there is no Rank-based Raise allowance or cap.
+3. **Roll:** Use **Attribute k MR** with any applicable Training Advantage and declared Training Crit. Meet or exceed **Final TN = Base TN + (4 x declared Raises)**.
+4. **Resolve:** On success, apply the basic outcome plus exactly the declared feasible additional effects. On failure, none of those effects is achieved. A high roll never grants undeclared Raises.
 
-**Once XP is invested** into a starting Profession (or its Rank rises past 2), that starting choice is **locked** — no respec and no clear of the free slot. XP-learned Professions (bought after creation) may still be removed; only invested XP is refunded. Pure GM grants refund nothing unless later Ranks were bought with XP.
+| Task Level | Difficulty | Base TN | Example |
+|:--:|---|:--:|---|
+| **1** | Simple | **4** | Hammer a nail into prepared wood |
+| **2** | Easy | **8** | Forge ordinary nails; follow obvious tracks |
+| **3** | Moderate | **12** | Repair an ordinary tool |
+| **4** | Demanding | **16** | Forge a reliable sword; treat illness under pressure |
+| **5** | Difficult | **20** | Diagnose a complex illness quickly |
+| **6** | Very difficult | **24** | Forge an unusual alloy blade |
+| **7** | Exceptional | **28** | Solve a rare professional problem |
+| **8+** | Extraordinary | **32+** | Accomplish an unprecedented feat |
 
+**Raise effects (one Raise each)**
+
+| Effect | Benefit |
+|---|---|
+| **Scope** | Double similar eligible units or coverage (2 Raises = x4; 3 = x8) |
+| **Speed** | Halve feasible work time (2 Raises = one quarter) |
+| **Quality** | Improve workmanship, durability, clarity, or persuasiveness by one suitable step |
+| **Efficiency** | Reduce avoidable waste or effort by one practical step |
+| **Insight** | Gain one additional fact, inference, or clue supported by the evidence |
+| **Safety** | Prevent or reduce one foreseeable secondary complication |
+
+Raises improve an outcome already possible with the character's method, tools, and circumstances. They create no supernatural ability, free attack, or guaranteed control. **Comparative Training Checks never use Raises.** Combat and Ritual Raises retain their separate rules.
 
 }}
+\page
+{{pageNumber,auto}}
+{{wide
 
+### Defining and Advancing Professions
 
-## Profession Examples (Approved Catalogue)
+**Write each Profession as:** a concrete name, where or how it was learned, and a **one-sentence agreed scope**. "Woodcutter (Kalgrad forest camps) - trees, axes as work tools, timber hauling, and mountain trails" is a Profession. "Everything Outdoors" is too broad. A player may propose any credible profession or formative life background; an example catalogue is **inspirational, not a closed selection list**.
 
-The following ninety examples are suggestions only — never a whitelist. Characters may always invent a custom Profession with an agreed scope.
+**One Profession per check.** When more than one of your Professions could apply, use **one fitting Rank**, never add Ranks or combine rerolls. The player may propose an unexpected application, explain their history, and let the GM judge it. An actor can try a possible task without relevant training using the untrained rule. The GM should not arbitrarily increase the TN merely because the selected background has a different title than an expected narrow skill; genuine differences in method, risk, or circumstances may affect the task's difficulty.
 
+**Non-combat boundary:** Professions never replace a weapon's Attack Pool, an Attack roll, a Spell Casting roll, a Power, or a Combat Sense. They can plausibly support preparation, specialized knowledge, climbing, concealment, investigation, social leverage, or other noncombat tasks. A purported 'Assassin' must define which kinds of professional experience they possess; it does not make every combat roll trained.
+
+**Routine work:** A trained character can complete familiar work within the competence of their Profession when appropriate tools, time, and conditions are available. This grants only the basic outcome, never undeclared Raise effects. **Passive Training Value = 2 x relevant Attribute** may settle calm eligible **Standard Training Checks**, even with predeclared Raises, if it meets the Final TN. It never applies to Comparative Checks, urgent danger, or instability; Training Advantage and Training Crit require a roll.
+
+**Perception:** Every character separately receives **Perception Rank 2 for free**; it is **not a Profession slot**. Perception follows the same Rank 0-8, Training Advantage, Training Crit, and XP progression. It is used to detect present movement, sound, concealment, creatures, and other sensory information. A relevant Profession may interpret evidence (*Tracker reads old footprints*, *Investigator reconstructs a scene*) but **does not replace or stack with Perception when the task is simply detecting a present target**. A Special Combat Sense determines *what* can be sensed, not whether perception succeeds.
+
+| Attribute | Typical Perception method |
+|---|---|
+| **Wits** | Movement, sound, hidden presence, and ambush cues |
+| **Intellect** | Visible anomalies, spatial clues, and technical inconsistencies |
+| **Resolve** | Occult/spiritual pressure, if a valid active Sense supports it |
+
+**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases.
+
+**Armor and Shields:** Printed Physical Training dice penalties instead apply to physical Profession attempts, and to other physically impeded trained tasks, whichever Attribute is chosen. These penalties do not change the normal Combat Pools.
+}}
+\page
+{{pageNumber,auto}}
 ### Trades
 
 Professions are lived experience, not a closed skill list. Choose four at Rank 2, plus Perception at Rank 2 for free. 
@@ -1992,73 +2108,13 @@ You know the records, formulas, and terminology used by Red Priest scribes, and 
 
 }}
 
-}}
 
 \page
 {{pageNumber,auto}}
 {{wide
-
-### Standard Training Checks and Raises
-
-1. **Describe the task:** The player explains the intended outcome and method. The GM chooses a fitting Attribute, the relevant Profession (if any), and the **Base TN = Task Level x 4** based on the task, not the actor's MR.
-2. **Declare Raises (optional):** The player declares additional feasible effects **before rolling**. Each Raise increases the Task TN by **+4**. Profession Rank grants **no Free Raises**, and there is no Rank-based Raise allowance or cap.
-3. **Roll:** Use **Attribute k MR** with any applicable Training Advantage and declared Training Crit. Meet or exceed **Final TN = Base TN + (4 x declared Raises)**.
-4. **Resolve:** On success, apply the basic outcome plus exactly the declared feasible additional effects. On failure, none of those effects is achieved. A high roll never grants undeclared Raises.
-
-| Task Level | Difficulty | Base TN | Example |
-|:--:|---|:--:|---|
-| **1** | Simple | **4** | Hammer a nail into prepared wood |
-| **2** | Easy | **8** | Forge ordinary nails; follow obvious tracks |
-| **3** | Moderate | **12** | Repair an ordinary tool |
-| **4** | Demanding | **16** | Forge a reliable sword; treat illness under pressure |
-| **5** | Difficult | **20** | Diagnose a complex illness quickly |
-| **6** | Very difficult | **24** | Forge an unusual alloy blade |
-| **7** | Exceptional | **28** | Solve a rare professional problem |
-| **8+** | Extraordinary | **32+** | Accomplish an unprecedented feat |
-
-**Raise effects (one Raise each)**
-
-| Effect | Benefit |
-|---|---|
-| **Scope** | Double similar eligible units or coverage (2 Raises = x4; 3 = x8) |
-| **Speed** | Halve feasible work time (2 Raises = one quarter) |
-| **Quality** | Improve workmanship, durability, clarity, or persuasiveness by one suitable step |
-| **Efficiency** | Reduce avoidable waste or effort by one practical step |
-| **Insight** | Gain one additional fact, inference, or clue supported by the evidence |
-| **Safety** | Prevent or reduce one foreseeable secondary complication |
-
-Raises improve an outcome already possible with the character's method, tools, and circumstances. They create no supernatural ability, free attack, or guaranteed control. **Comparative Training Checks never use Raises.** Combat and Ritual Raises retain their separate rules.
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-### Defining and Advancing Professions
-
-**Write each Profession as:** a concrete name, where or how it was learned, and a **one-sentence agreed scope**. "Woodcutter (Kalgrad forest camps) - trees, axes as work tools, timber hauling, and mountain trails" is a Profession. "Everything Outdoors" is too broad. A player may propose any credible profession or formative life background; an example catalogue is **inspirational, not a closed selection list**.
-
-**One Profession per check.** When more than one of your Professions could apply, use **one fitting Rank**, never add Ranks or combine rerolls. The player may propose an unexpected application, explain their history, and let the GM judge it. An actor can try a possible task without relevant training using the untrained rule. The GM should not arbitrarily increase the TN merely because the selected background has a different title than an expected narrow skill; genuine differences in method, risk, or circumstances may affect the task's difficulty.
-
-**Non-combat boundary:** Professions never replace a weapon's Attack Pool, an Attack roll, a Spell Casting roll, a Power, or a Combat Sense. They can plausibly support preparation, specialized knowledge, climbing, concealment, investigation, social leverage, or other noncombat tasks. A purported 'Assassin' must define which kinds of professional experience they possess; it does not make every combat roll trained.
-
-**Routine work:** A trained character can complete familiar work within the competence of their Profession when appropriate tools, time, and conditions are available. This grants only the basic outcome, never undeclared Raise effects. **Passive Training Value = 2 x relevant Attribute** may settle calm eligible **Standard Training Checks**, even with predeclared Raises, if it meets the Final TN. It never applies to Comparative Checks, urgent danger, or instability; Training Advantage and Training Crit require a roll.
-
-**Perception:** Every character separately receives **Perception Rank 2 for free**; it is **not a Profession slot**. Perception follows the same Rank 0-8, Training Advantage, Training Crit, and XP progression. It is used to detect present movement, sound, concealment, creatures, and other sensory information. A relevant Profession may interpret evidence (*Tracker reads old footprints*, *Investigator reconstructs a scene*) but **does not replace or stack with Perception when the task is simply detecting a present target**. A Special Combat Sense determines *what* can be sensed, not whether perception succeeds.
-
-| Attribute | Typical Perception method |
-|---|---|
-| **Wits** | Movement, sound, hidden presence, and ambush cues |
-| **Intellect** | Visible anomalies, spatial clues, and technical inconsistencies |
-| **Resolve** | Occult/spiritual pressure, if a valid active Sense supports it |
-
-**Creation:** Choose **four distinct Professions at Rank 2**, plus free **Perception Rank 2**. There is no separate creation-point pool. **Advancement:** A new Rank 1 Profession costs **4 XP**. Rank 2 also costs **4 XP**; each later Rank costs 2 XP more than the preceding one. The costs for **Ranks 1-8 are 4 / 4 / 6 / 8 / 10 / 12 / 14 / 16 XP**, including Perception. Going from Rank 0 to 8 costs **74 XP**; advancing an initial Rank 2 Profession to Rank 8 costs **66 XP**. Consecutive ranks require the full cost of intermediate steps. Learning a new Profession or broadening an existing one's agreed scope needs credible events or training in the story; expanding the scope does not happen automatically from Rank increases. The GM may grant a Profession (any Rank) without XP when the table warrants it. Starting Professions are never cashed out for XP. At Rank 2 with no invested XP, the GM may replace or clear a starting Profession; once XP is invested, that starting choice is locked. Removing an XP-learned Profession refunds only invested XP (pure GM grants refund nothing unless later Ranks were bought with XP).
-
-**Armor and Shields:** Printed Physical Training dice penalties instead apply to physical Profession attempts, and to other physically impeded trained tasks, whichever Attribute is chosen. These penalties do not change the normal Combat Pools.
-
 ### Worked Examples
 
-1. **Blacksmith 4 - Standard:** Craft ordinary nails at Base TN **8**. Declare two Scope Raises (Final TN **16**) for four batches. Use Training Advantage to reroll initial 1s-4s.
+1. **Blacksmith 4 - Standard:** Craft ordinary nails at Base TN **8**. Declare two Scope Raises (Final TN **16**) for four batches. Use Training Advantage to reroll initial 1s–4s.
 2. **Field Medic 4 - Standard:** With **Intellect 4, MR 2**, treat illness at TN **16**. Declare one Safety Raise (Final TN **20**). Roll **4k2** with Training Advantage.
 3. **Burglar vs. Perception - Comparative:** A trained Burglar achieves **24** while a guard gets **21** on Perception. The Burglar's concealed approach succeeds; no other Task TN or Raises apply.
 4. **Forensic Examiner 5 - Standard:** Investigate a disturbed room at TN **16** with two Insight Raises (Final TN **24**), potentially revealing two more supported clues.
@@ -2068,12 +2124,12 @@ Raises improve an outcome already possible with the character's method, tools, a
 
 **Example catalogue:** See the separate *Destroyed Faith - Profession Inspiration Catalogue*. The professions and categories listed there are optional ideas; players and GMs may create their own.
 
+:::
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-
-### Group Ambush — Coordinated Stealth
+## Ambush
 
 A group may attempt **one coordinated Comparative concealment Check** to approach or occupy plausible ambush positions without being detected. The designated specialist uses a fitting Profession (such as Burglar, Wilderness Scout, or Assassin with an appropriate scope) or the untrained rules; all observers use Perception. There are **no Raises, separate setup TN, bonus attacks, or extra combat Rounds**.
 
@@ -2081,9 +2137,9 @@ A group may attempt **one coordinated Comparative concealment Check** to approac
 2. **Include every participant's equipment penalty.** Add together **all Physical Training dice penalties from armor and equipped shields worn by every participating ambusher, including the specialist**. Subtract that total from the specialist's Attribute Pool **before rolling**, using the normal two-rolled-dice floor on legal standard rolls. **Medium Armor: -1d8; Heavy Armor: -2d8; Parry Shield: -1d8; Medium/Tower Shield: -2d8.** Light Armor has no such penalty. Do not add the other characters' Attributes or Training Ranks to the Pool.
 3. **Roll once for the group.** Apply the specialist's Training Advantage and optional Training Crit to the reduced Pool. The result represents coordinated concealment for every eligible participant. Members do **not** make additional individual rolls or contribute Raises. The group needs a credible method, route, cover, and opportunity; even a high Profession Rank cannot conceal an impossible position.
 4. **Oppose with Perception.** Every observer with a plausible detection cue may make **one Perception Training Roll** using their own Attribute, MR, Training Advantage, and optional Training Crit. Compare it directly to the group's concealment result; a tie favors the observer. Detection remains observer-specific; warnings travel only as the fiction permits.
-5. **Resolve Surprise normally.** When combat begins, participating ambushers gain **Surprise Priority only against enemies who remain unaware of them**, following the existing Surprise rule. Roll Initiative and Initiative Exchange normally. Surprise Priority applies during the first Round only and grants no extra turn or automatic damage bonus.
+5. **Resolve Surprise normally.** When combat begins, participating ambushers gain **Surprise Priority only against enemies who remain unaware of them**, following the existing Surprise rule. Determine Initiative by each creature's chosen method and resolve Initiative Exchange normally. Surprise Priority applies during the first Round only and grants no extra turn or automatic damage bonus.
 
-**Example:** A specialist has **12d8**. Three group members wear Heavy Armor (**-6d8**) and one Medium Armor (**-1d8**), so the group rolls **5k3** at MR 3. If the specialist has **Burglar 6** with a fitting concealment scope, reroll initial 1s-6s through Training Advantage. Training Crit is unavailable below Rank 7. Compare the result to each eligible guard's Perception roll.
+**Example:** A specialist has **12d8**. Three group members wear Heavy Armor (**-6d8**) and one Medium Armor (**-1d8**), so the group rolls **5k3** at MR 3. If the specialist has **Burglar 6** with a fitting concealment scope, reroll initial 1s–6s through Training Advantage; Rank 6 does not yet grant Training Crit. Compare the result to each eligible guard's Perception roll.
 
 **Limits:** Only characters actually following the same feasible coordinated plan are covered. Characters taking an independent route or revealing themselves require separate resolution. A group ambush roll covers the agreed approach and coherent, careful movement along that plan. **There is no fixed distance limit on Stealth.** Overt hostile actions or abandoning the agreed concealment can end ordinary Stealth; a material change of circumstances may require a new attempt. Do not demand repeated rolls merely for continued movement or against unchanged opposition.
 
@@ -2145,15 +2201,15 @@ Use the Power Catalogues when you need to know:
 {{wide
 
 {{note
-##### Mentalist Option
-A character may build around Mental Powers by choosing **Telepathy** as a Passive. Telepathy grants Telepathic Access and includes voluntary Mind Links at no additional Power cost. The character may then choose Mind Illusion, Mind Probe, or Mental Control as Active Powers. A Mental Power's Power Level cannot normally exceed the character's **Passive: Telepathy** Power Level.
+##### Mind Effects and Telepathy
+A character may focus on mind-affecting magic through **Passive: Telepathy**. Telepathy provides Telepathic Access and voluntary Mind Links at no additional Power cost. **Mind Illusion, Mind Probe, and Mental Control** are distinct Active effects with their printed Telepathic Access requirements, Casting Rolls, and Power Level limits; their Power Level cannot normally exceed **Passive: Telepathy** unless a specific rule allows it. **No extra psychic attack template, psionic damage type, or Mental/Psionic delivery exists.** A psychic lance, mental pressure, curse, or other psychic description can be the appearance of an existing legal **Spell-delivered Active Attack**. Flavor changes neither Power Damage nor Spell delivery or resistance.
 }}
 
 ---
 :
 ### Spells
 
-A Spell is not a separate Power type. **Spell is a delivery method** for an eligible Ranged Active Power. The underlying Power keeps its Power Level, Range, Damage, AoE, Duration, Specials, action type, and base Technical Reference. Spell delivery changes how the Power is rolled and resisted. A Ranged Active with Specials may use Spell delivery normally. A character may also have a number of **Special-less Spell Powers equal to Mastery Rank**. A Spell uses **Intellect**, **Resolve**, or **Influence** as its fixed casting source. See the Magic rules for Casting Rolls, Spell TN, Spell Resistance, and the full Special-less Spell limit.
+A Spell is not a separate Power type. **Spell is the magical delivery method** for an eligible Ranged Active Power. It also covers powers described as psychic, psionic, mental, divine, or arcane; those descriptions do not create a new delivery or damage type. The underlying Power keeps its Power Level, Range, Damage, AoE, Duration, Specials, action type, and base Technical Reference. Spell delivery changes how the Power is rolled and resisted. A Ranged Active with Specials may use Spell delivery normally. A character may also have a number of **Special-less Spell Powers equal to Mastery Rank**. A Spell uses **Intellect**, **Resolve**, or **Influence** as its fixed casting source. See the Magic rules for Casting Rolls, Spell TN, Spell Resistance, and the full Special-less Spell limit.
 
 ---
 
@@ -2725,13 +2781,13 @@ Stonebound Soles grant **Tremor Sense** as an available Special Sense Slot optio
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Anchoring Stance I**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 4)**: gain **32 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. |
 | **2** | **Stone-Sure Step I**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 4)</span> | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path without provoking movement-triggered Reactions. |
-| **3** | **Stoneweave Guard I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+1 PL, +1 round)</span> | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
+| **3** | **Stoneweave Guard I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+1 Complete Round)</span> | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may extend its duration by **+1 complete Round**. Its Power Level remains unchanged. Uses per Safe Haven Rest: half MR, rounded up. |
 | **4** | **Anchoring Stance II**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 10)**: gain **77 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance I. |
 | **5** | **Stone-Sure Step II**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 10)</span> | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step I. |
-| **6** | **Stoneweave Guard II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+2 PL, +2 rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
+| **6** | **Stoneweave Guard II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+2 Complete Rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 complete Rounds** of duration only; Power Level remains unchanged. Uses per Safe Haven Rest: half MR, rounded up. |
 | **7** | **Anchoring Stance III**<span class="artifactTechnicalReference">Active Buff: Temporary HP (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 16)**: gain **122 Temporary HP** in the activation Preparation Phase; refresh this Buff's buffer once each later active Preparation Phase. Duration: MR complete Rounds; no real HP. This replaces Anchoring Stance II. |
 | **8** | **Stone-Sure Step III**<span class="artifactTechnicalReference">Movement: Safe Movement (PL 16)</span> | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step II. |
-| **9** | **Stoneweave Guard III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+3 PL, +3 rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. |
+| **9** | **Stoneweave Guard III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment (+3 Complete Rounds)</span> | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 complete Rounds** of duration only; Power Level remains unchanged. Uses per Safe Haven Rest: half MR, rounded up. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Stonebound Soles)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 }}
 \page
@@ -2932,17 +2988,16 @@ Sentinel armor is Light Echo Armor. It grants Armor, but it does not represent a
 {{wide
 ### Oracle Frame Level Progression
 
-The Oracle Frame channels **Influence** through protective fields, coordination, and Enemy Evade Reduction support.
+Only the currently available Artifact Functions are listed below. Unlisted Artifact Levels grant no additional Power from this progression; the Artifact can still advance in Level and use its normal Base Values.
+
+The Oracle Frame channels **Influence** through coordination, Stone Pool storage, and Enemy Evade Reduction support. Its Level Progression lists only currently granted effects; Artifact Levels without a listed Power still advance its Base Values as normal.
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
-| **1** | **Oracle Field I**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 1)</span> | Retired - redesign pending | Self | Radius 2 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+4 Armor**. |
 | **2** | **Oracle Evade Reduction I**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **3** | **Influence Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (2)</span> | Stone Pool | Self | — | Passive | Store **2 Influence Stones** after each Safe Haven Rest. They may be spent only on Oracle Frame's listed Influence Stone functions. |
-| **4** | **Oracle Field III**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 3)</span> | Retired - redesign pending | Self | Radius 6 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+9 Armor**. This replaces Oracle Field I. |
 | **5** | **Oracle Evade Reduction II**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **6** | **Influence Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Influence Stones**. |
-| **7** | **Oracle Field V**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 5)</span> | Retired - redesign pending | Self | Radius 10 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+14 Armor**. This replaces Oracle Field III. |
 | **8** | **Oracle Evade Reduction III**<span class="artifactTechnicalReference">Influence Ability: Enemy Evade Reduction (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **9** | **Influence Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Influence (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Influence Stones**. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Oracle Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -2984,13 +3039,13 @@ The Judicator Frame channels **Wits** through armor protocols and stored Stones.
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
-| **1** | **Armor Hasten I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment I</span> | Artifact Function | Self | — | Passive | When you activate an Armor-granting Active Buff, increase its effective PL by **+1** and its duration by **+1 round**, to a maximum of PL 16. |
+| **1** | **Armor Hasten I**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment I</span> | Artifact Function | Self | — | Passive | When you activate an Armor-granting Active Buff, extend its duration by **+1 complete Round**. Its Power Level remains unchanged. |
 | **2** | **Wits Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Wits (2)</span> | Stone Pool | Self | — | Passive | Store **2 Wits Stones** after each Safe Haven Rest. They may be spent only on Judicator Frame's listed Wits Stone functions. |
 | **3** | **Self Healing Support I**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 2; Self only)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of Healing for yourself only. Rank 1 must still be paid normally. |
-| **4** | **Armor Hasten II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment II</span> | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+2 PL** and **+2 rounds**, to a maximum of PL 16. |
+| **4** | **Armor Hasten II**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment II</span> | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+2 complete Rounds** of duration only; Power Level remains unchanged. |
 | **5** | **Wits Core II**<span class="artifactTechnicalReference">Artifact Stone Pool: Wits (4)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **4 Wits Stones**. |
 | **6** | **Self Healing Support II**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 3; Self only)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of Healing for yourself only. Ranks 1 and 2 must still be paid normally. This replaces Self Healing Support I. |
-| **7** | **Armor Hasten III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment III</span> | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+3 PL** and **+3 rounds**, to a maximum of PL 16. |
+| **7** | **Armor Hasten III**<span class="artifactTechnicalReference">Artifact Function: Armor Active Buff Empowerment III</span> | Artifact Function | Self | — | Passive | Armor Active Buff Empowerment improves to **+3 complete Rounds** of duration only; Power Level remains unchanged. |
 | **8** | **Wits Core III**<span class="artifactTechnicalReference">Artifact Stone Pool: Wits (8)</span> | Stone Pool | Self | — | Passive | The stored pool increases to **8 Wits Stones**. |
 | **9** | **Self Healing Support III**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 4; Self only)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of Healing for yourself only. Ranks 1, 2, and 3 must still be paid normally. This replaces Self Healing Support II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Judicator Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -3059,7 +3114,7 @@ Titan Scars are a Titanborn Echo Artifact. They are not worn armor, but ancient 
 |---|---|---|---|
 | Body | Medium Echo Armor | Medium Armor / Titan Growth / Damage Stone Power Support / Remove Scar Stone Power Support | Echo-bound |
 
-Titan Scars occupy the Body Slot. **Titan Growth:** Titan Scars grant **Growth 1 / 2 / 3** at Artifact Levels **1 / 4 / 7**, respectively. Use the universal Transformation/Growth rules below. This is an Artifact-exclusive size-changing function; its retired combined Active Buff is no longer used. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
+Titan Scars occupy the Body Slot. **Titan Growth:** Titan Scars grant **Growth 1 / 2 / 3** at Artifact Levels **1 / 4 / 7**, respectively. Use the universal Transformation/Growth rules below. This is an Artifact-exclusive size-changing function, not an Active Buff. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
 
 </div>
 
@@ -3179,13 +3234,13 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
 | **1** | **Dragon Wings I**<span class="artifactTechnicalReference">Movement: Flight (PL 4)</span> | Movement | Self | — | Instant | Fly up to **6 m**. |
-| **2** | **Wyrm Scales I**<span class="artifactTechnicalReference">Active Buff: Armor (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 4)**: gain **+17 Armor** for Mastery Rank Rounds. |
+| **2** | **Wyrm Scales I**<span class="artifactTechnicalReference">Active Buff: Armor (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 4)**: gain **+8 Armor** for Mastery Rank Rounds. |
 | **3** | **Armor Stone Support I**<span class="artifactTechnicalReference">Might Ability: Armor (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **4** | **Dragon Wings II**<span class="artifactTechnicalReference">Movement: Flight (PL 10)</span> | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. |
-| **5** | **Wyrm Scales II**<span class="artifactTechnicalReference">Active Buff: Armor (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 10)**: gain **+41 Armor** for Mastery Rank Rounds. This replaces Wyrm Scales I. |
+| **5** | **Wyrm Scales II**<span class="artifactTechnicalReference">Active Buff: Armor (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 10)**: gain **+20 Armor** for Mastery Rank Rounds. This replaces Wyrm Scales I. |
 | **6** | **Armor Stone Support II**<span class="artifactTechnicalReference">Might Ability: Armor (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **7** | **Dragon Wings III**<span class="artifactTechnicalReference">Movement: Flight (PL 16)</span> | Movement | Self | — | Instant | Fly up to **24 m**. This replaces Dragon Wings II. |
-| **8** | **Wyrm Scales III**<span class="artifactTechnicalReference">Active Buff: Armor (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 16)**: gain **+65 Armor** for Mastery Rank Rounds. This replaces Wyrm Scales II. |
+| **8** | **Wyrm Scales III**<span class="artifactTechnicalReference">Active Buff: Armor (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Armor (PL 16)**: gain **+32 Armor** for Mastery Rank Rounds. This replaces Wyrm Scales II. |
 | **9** | **Armor Stone Support III**<span class="artifactTechnicalReference">Might Ability: Armor (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Wyrm Scales)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 }}
@@ -3285,7 +3340,7 @@ Dragon Head grants **Predator Sense** as an available Special Sense Slot option.
 
 #### Breath Weapon Rules
 
-Breath Weapon grants **two alternative catalogue modes** at the same Artifact Level: **Damage Breath = Melee AoE Attack** and **Ruin Breath = Melee AoE Special: Ruin**, both at the listed Power Level. Choose exactly one mode on each use. These are not a combined Power and use the same Breath Weapon use counter. Both modes are **self-centered Martial AoE Powers** using their exact catalogue radii. No Cone/Line geometry or separate dragon-specific damage is granted. **Damage Breath** deals the printed Melee AoE Attack Power Damage Dice **plus the Dragon Head's matching Bite Weapon Damage** in one shared Damage Roll, as a damaging Martial AoE. **Ruin Breath** applies its printed Ruin(X) only, with **no direct Attack Damage**, Weapon Damage or Spell Focus Damage.
+Breath Weapon grants **two alternative catalogue modes** at the same Artifact Level: **Damage Breath = Melee AoE Attack** and **Ruin Breath = Melee AoE Special: Ruin**, both at the listed Power Level. Choose exactly one mode on each use. These are not a combined Power and use the same Breath Weapon use counter. Both modes are **self-centered Martial AoE Powers** using their exact catalogue radii. No Cone/Line geometry or separate dragon-specific damage is granted. **Damage Breath** deals the printed Melee AoE Attack Power Damage Dice **plus the Dragon Head's matching Bite Weapon Damage** in one shared Damage Roll, as a damaging Martial AoE. **Ruin Breath** applies its printed Ruin(X) without **direct Attack Damage**, Weapon Damage or Spell Focus Damage. Successfully added Ruin stacks nevertheless deal the normal **immediate Special-generated Ruin damage**.
 
 Make one Martial AoE Attack Roll, compare it separately to each affected creature's Evade, and use the normal Dive for Cover and other defenses. Neither mode creates additional attacks or special riders. Damage Breath uses **one shared Power Damage + Bite Weapon Damage Roll** for all hit creatures; delivery dice are added once to that shared roll, not separately multiplied per target. It has no additional Bite Special by default.
 
@@ -3312,16 +3367,15 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 
 #### Level Progression
 
+Only currently granted Dragon Head effects are listed. Artifact Levels without a listed effect grant no additional Power in this progression; the Artifact still advances normally.
+
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **4d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage). Use one AoE attack and the shared Breath Weapon counter. |
-| **2** | **Draconic Roar I**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 4)</span> | Retired - redesign pending | Self | Radius 8 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+12 Armor**. |
+| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **4d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. |
 | **3** | **Draconic Recovery I**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 4)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. |
-| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
-| **5** | **Draconic Roar II**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 10)</span> | Retired - redesign pending | Self | Radius 20 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+28 Armor**. This replaces Draconic Roar I. |
+| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
 | **6** | **Draconic Recovery II**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 10)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. |
-| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (plus matching Bite Weapon Damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
-| **8** | **Draconic Roar III**<span class="artifactTechnicalReference">Legacy Aura - replacement pending (formerly PL 16)</span> | Retired - redesign pending | Self | Radius 32 m | Mastery Rank Rounds | Retired for playtest; formerly you and allies in the area gained **+44 Armor**. This replaces Draconic Roar II. |
+| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (plus matching Bite Weapon Damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
 | **9** | **Draconic Recovery III**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 16)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Dragon Head)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
@@ -3380,13 +3434,13 @@ Claw / Tail Damage is Weapon Damage. Penetration and Brutal Impact apply to Claw
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Damage Support I**<span class="artifactTechnicalReference">Might Ability: Damage (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
-| **2** | **Rending Spiral I**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 4)</span> | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(5)** to each hit creature; **no damage**. |
+| **2** | **Rending Spiral I**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 4)</span> | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(5)** to each hit creature; **no direct Attack Damage**. |
 | **3** | **Tail Sweep I**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 4)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 8 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. |
 | **4** | **Damage Support II**<span class="artifactTechnicalReference">Might Ability: Damage (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
-| **5** | **Rending Spiral II**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 10)</span> | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I. |
+| **5** | **Rending Spiral II**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 10)</span> | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to each hit creature; **no direct Attack Damage**. This replaces Rending Spiral I. |
 | **6** | **Tail Sweep II**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 10)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. |
 | **7** | **Damage Support III**<span class="artifactTechnicalReference">Might Ability: Damage (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
-| **8** | **Rending Spiral III**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 16)</span> | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to each hit creature; **no damage**. This replaces Rending Spiral II. |
+| **8** | **Rending Spiral III**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 16)</span> | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to each hit creature; **no direct Attack Damage**. This replaces Rending Spiral II. |
 | **9** | **Tail Sweep III**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 16)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 32 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Dragon Claws)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
@@ -3593,9 +3647,9 @@ The chosen tradition determines the Staff’s Tradition Special, Main Spell, and
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Arcane Staff | Weapon Damage / Spell Focus / Tradition Special / Raises Stone Power Support / Binding Circle (Ranged AoE Root Active) / Tradition Main Spell | Echo-bound |
+| Main Hand + Off Hand | Two-Handed Arcane Staff | Shared Staff Damage (Martial or Spell) / Tradition Special / Raises Stone Power Support / Binding Circle (Ranged AoE Root Active) / Tradition Main Spell | Echo-bound |
 
-Witch Staff occupies both hand Slots. A Witch with Witch Staff cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Witch Staff is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound. Witch Staff counts as a **Spell Focus** from Level 1. Witch Staff may be used with **Intellect**.
+Witch Staff occupies both hand Slots. A Witch with Witch Staff cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Witch Staff is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound. Like any bound Artifact, Witch Staff may support each Delivery the wielder already possesses; its Staff Damage is one shared contribution, not separate Weapon and Spell Focus dice. Witch Staff may be used with **Intellect**.
 
 ---
 
@@ -3646,7 +3700,7 @@ A Blight Staff is swollen with fungus, rust, sour water, corpse-bloom, mold, and
 | Level 10 | 14d8 | Tradition Special(5) |
 
 ---
-The Staff is a Spell Focus Weapon. Tradition Special is determined by the chosen Witch Tradition. The Tradition Special applies only when the Staff is used for a legal attack or Power that allows the Staff’s Weapon Special to apply. The retired Covenant Overdrive Active Buff: Special Increase is replaced by **Binding Circle**: **Ranged AoE Special: Root** at PL 4/10/16 for Artifact Levels 2/5/8. The **single Stone Function** remains Witch Stone: Intellect Ability: Raises (Support Rank 2/3/4). No Special Boost Stone Support is granted by this Artifact.
+The Staff is a Spell Focus Weapon. Tradition Special is determined by the chosen Witch Tradition. The Tradition Special applies only when the Staff is used for a legal attack or Power that allows the Staff’s Weapon Special to apply. The Artifact grants **Binding Circle**: **Ranged AoE Special: Root** at PL 4/10/16 for Artifact Levels 2/5/8. The **single Stone Function** remains Witch Stone: Intellect Ability: Raises (Support Rank 2/3/4). No Special Boost Stone Support is granted by this Artifact.
 
 ![KristinTheHealer](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/KristinTheHealer.png){position:absolute,top:400px,right:160px,width:500px}
 
@@ -3741,7 +3795,7 @@ Alchemist Coat uses the normal Medium Armor drawbacks unless another rule explic
 
 #### Alchemist Potions
 
-Alchemist Potions are normal **Active Buffs** and follow the universal free Preparation Phase activation, one-activation-per-Combat limit and MR-Round duration. Only one may be active at a time. Activating a second Potion or replacing a Potion with another Buff in the same Combat is not allowed without an explicit exception. The Potion name is only the Artifact's flavour name; the mechanical Power is the listed existing Active Buff.
+Alchemist Potions use their listed **Active Buffs**. You may activate **each Potion once per Combat** during a Preparation Phase, without an Attack Action or Stone cost. End an active Potion at any time. During Preparation, you may switch to another Potion or Buff whose activation is still available. Maintain **one Active Buff at a time**; its duration is **Mastery Rank complete Rounds**.
 
 ---
 
@@ -3759,9 +3813,9 @@ Black Potion sharpens the senses until every pulse, blink, tendon, and weak poin
 
 #### Alchemist Stone
 
-Alchemist Stone is a dedicated **Artifact Function** of the Alchemist Coat, not an Attribute Stone Ability. It improves one **Red Potion** or **Black Potion** Active Buff when that Potion is activated. At Artifact Level 2, 5, or 8, the effect is respectively **+1 / +2 / +3 effective Power Levels** and **+1 / +2 / +3 Rounds**. These values replace earlier Alchemist Stone values; they do not add together.
+Alchemist Stone is a dedicated **Artifact Function** of the Alchemist Coat, not an Attribute Stone Ability. It extends one **Red Potion** or **Black Potion** Active Buff when that Potion is activated. At Artifact Level 2, 5, or 8, the effect is respectively **+1 / +2 / +3 complete Rounds** of duration; the Potion retains its original **Power Level** and all its other values. These duration increases replace earlier Alchemist Stone values; they do not add together.
 
-The normal Active Buff rules still apply. The effective Power Level cannot exceed the applicable Power Level cap, and Alchemist Stone does not allow a second Active Buff to be maintained. If another source empowers the same Buff, use only the highest applicable increase unless an explicit rule permits stacking.
+The normal Active Buff rules still apply. Alchemist Stone does not allow a second Active Buff to be maintained. If another source extends the same Buff, use only the highest applicable duration increase unless an explicit rule permits stacking.
 
 }}
 \page
@@ -3771,14 +3825,14 @@ The normal Active Buff rules still apply. The effective Power Level cannot excee
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|
-| **1** | **Red Potion I**<span class="artifactTechnicalReference">Active Buff: Damage (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. Alchemist Stone may enhance both its PL and duration. |
-| **2** | **Alchemist Stone I**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+1 PL, +1 Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, increase its effective PL by **+1** and duration by **+1 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value. |
-| **3** | **Black Potion I**<span class="artifactTechnicalReference">Active Buff: Critical (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 4. Alchemist Stone may enhance both its PL and duration. |
+| **1** | **Red Potion I**<span class="artifactTechnicalReference">Active Buff: Damage (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. Alchemist Stone may extend its duration, but never its PL. |
+| **2** | **Alchemist Stone I**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+1 Complete Round)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, extend its duration by **+1 complete Round**. Its Power Level remains unchanged. This replaces any earlier Alchemist Stone value. |
+| **3** | **Black Potion I**<span class="artifactTechnicalReference">Active Buff: Critical (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 4. Alchemist Stone may extend its duration, but never its PL. |
 | **4** | **Red Potion II**<span class="artifactTechnicalReference">Active Buff: Damage (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Potion I. |
-| **5** | **Alchemist Stone II**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+2 PL, +2 Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, increase its effective PL by **+2** and duration by **+2 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value. |
+| **5** | **Alchemist Stone II**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+2 Complete Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, extend its duration by **+2 complete Rounds**. Its Power Level remains unchanged. This replaces any earlier Alchemist Stone value. |
 | **6** | **Black Potion II**<span class="artifactTechnicalReference">Active Buff: Critical (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 10. This replaces Black Potion I. |
 | **7** | **Red Potion III**<span class="artifactTechnicalReference">Active Buff: Damage (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Potion II. |
-| **8** | **Alchemist Stone III**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+3 PL, +3 Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, increase its effective PL by **+3** and duration by **+3 Rounds** (within the Power Level cap). This replaces any earlier Alchemist Stone value. |
+| **8** | **Alchemist Stone III**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+3 Complete Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, extend its duration by **+3 complete Rounds**. Its Power Level remains unchanged. This replaces any earlier Alchemist Stone value. |
 | **9** | **Black Potion III**<span class="artifactTechnicalReference">Active Buff: Critical (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 16. This replaces Black Potion II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Alchemist Coat)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
@@ -3928,7 +3982,7 @@ Scourge Damage is Weapon Damage. Hunter's Scourge keeps the **Finesse** quality.
 
 ### Level Progression
 
-**Limited source:** Scourge Strike is a granted variant of the normal **Melee Single Target Attack**. It inherits that catalogue Power's full Attack Roll, action, delivery, and other rules. The base Power's printed Damage Dice are **quadrupled** by the universal Limited rule; the weapon's Base Damage is not multiplied. This granted version uses the character's **single shared Limited charge per Safe Haven Rest**, not a PL-based per-Power use counter. It grants no free additional Attack Actions, and the Artifact's copy does not bypass duplicate-source restrictions.
+**Limited source:** Scourge Strike is a granted variant of the normal **Melee Single Target Attack**. It inherits that catalogue Power's full Attack Roll, action, delivery, and other rules. The base Power's printed Damage Dice are **quadrupled** by the universal Limited rule; the weapon's Base Damage is not multiplied. This granted version uses the character's **single shared Limited charge per Safe Haven Rest**, not a PL-based per-Power use counter. It grants no free additional Attack Actions, and the Artifact's granted instance does not provide another globally shared Limited charge or bypass any explicit global restriction.
 
 **Hunter's Scourge Stone Support exception:** Although Hand Artifacts normally grant Might/Agility-oriented Stone support, Hunter's Scourge is an explicitly approved Echo Artifact exception supporting **Vitality: Maximization**. This grants no Vitality Stones or automatic access to locked Vitality Stone Abilities: the wielder still needs the Ability legally unlocked and must pay its required lower Ranks. This exception applies only to the named Hunter's Scourge support, not to Hand Artifacts generally.
 
@@ -4615,9 +4669,7 @@ The final character should read as one connected plan rather than a collection o
 | **Assigned Stones** | Agility 1 and Vitality 1 |
 | **Echo Imprints** | Catfall (Agility), Living Warmth (Vitality) |
 
-**Moonlight Greatsword - Inherent Finesse:** This named Artifact retains the normal Greatsword's **4d8 starting weapon damage** and **Precision(2)**, while its own Inherent Ability: **Finesse** permits Agility for the Attack Roll (not for damage). At Artifact Level 1 its +1d8 Artifact Weapon Damage produces **5d8 total Weapon Damage**. Inherent Finesse is not an additional Power, a purchased Special, or a fourth Artifact Base Value.
-
-**Moonlight Greatsword - Moonlight Mending:** Moonlight Mending is **Ranged Scarred Bar Restoration**. Artifact Level 1 grants it at **Power Level 4**, Artifact Level 4 at **Power Level 10** and Artifact Level 7 at **Power Level 16**; each stage replaces the previous one. Range, the number of Scarred Bars restored at full HP, and the shared recovery pool per Safe Haven Rest follow the Ranged Scarred Bar Restoration table in the Actives rules. It grants no Healing support and no separate Heal Active.
+**Moonlight Greatsword - Inherent Finesse:** This named Artifact retains the normal Greatsword's **4d8 starting weapon damage** and **Precision(2)**, while its own Inherent Ability: **Finesse** permits Agility for the Attack Roll (not for damage). At Artifact Level 1 its +1d8 Artifact Weapon Damage produces **5d8 total Artifact damage**. Those same **5d8** may support an eligible damaging Martial Attack or a legal damaging Spell if the wielder already has that Delivery; never add the 5d8 twice. This does not grant Spell delivery. Inherent Finesse is not an additional Power, a purchased Special, or a fourth Artifact Base Value.
 
 ### Her combat rhythm
 
@@ -4835,7 +4887,7 @@ For Healing, apply the current active-Bar HP cap. **Resolve: Healing** qualifies
 | **Special Boost** | **+2 Special(X)** | **+4 Special(X)** | **+8 Special(X)** | **+12 Special(X)** |
 | **Spell Resistance** | **+4 Spell Resistance** | **+8 Spell Resistance** | **+12 Spell Resistance** | **+16 Spell Resistance** |
 
-**Raises:** These are **Combat Free Raises**, a shared allowance for the current Round on eligible Martial and Spell Attack/Casting Rolls made with any Attribute; they are **not ordinary Training or Ritual Raises**. **Before rolling, commit only how many Free Raises to use** alongside the number of Paid Raises; do not yet choose Damage or Special effects. **After the roll and hit checks**, allocate the committed Raises among eligible Damage and existing numeric Special effects, using the universal Combat Raises rules. Committed Free Raises are consumed even on failure, add **no TN or Raise Cost**, and do not bypass a prohibition on Raises. **Paid Raises add +4 TN each** and have no Raise Cost. Unused Free Raises expire at Round End.
+**Raises (including Shared Free Raises — Playtest):** The Intellect Stone Ability grants **one shared Free Raise allowance of 2 / 4 / 6 / 8 per Round** at Ranks 1–4. The user may spend this pool on their own eligible Martial or Spell Attack/Casting Rolls **or allocate unused Raises to willing allies**. This does not multiply the allowance or transfer Stones. The activating character pays and exhausts their own Stones as normal. **Provisional sharing Range: 20 m**; the ally must be able to perceive a signal or coordination from the donor during the Round. A recipient commits the donated count **before** their qualifying Attack/Casting Roll, just as they would commit their own Free Raises; committed Raises are consumed on a miss or failed casting. **After** hit checks, the recipient makes the normal shared Damage / existing numeric Special allocation. Free Raises increase neither hit dice nor the TN, and cannot be used for Profession/Perception Training Checks, Ritual Checks, or separate Training Raises. Unspent Raise allowance expires at Round End. If several legal sources participate, each source's expenditure is tracked independently; no Raise may be allocated twice. This is a provisional playtest addition; it does not change the existing 2 / 4 / 6 / 8 values. All other Combat Raise restrictions remain in force.
 
 **Range & AoE Boost:** During the current Round, improve only delivery components an eligible Attack or Power **already possesses**: Range, Melee Reach, and/or an existing AoE radius. This grants no new delivery mode, AoE, target, or attack. The temporary bonus may exceed the Power's purchased radius cap without changing its base profile.
 
@@ -4851,14 +4903,14 @@ For Healing, apply the current active-Bar HP cap. **Resolve: Healing** qualifies
 |:--|:--|:--|:--|:--|
 | **Damage Reduction** | **+10% DR** | **+20% DR** | **+30% DR** | **+40% DR** |
 | **Healing** | **4d8 HP**, within **2 m** | **8d8 HP**, within **4 m** | **12d8 HP**, within **8 m** | **16d8 HP**, within **16 m** |
-| **Active Buff Empowerment** | **+1 Round** | **+2 Rounds** | **+3 Rounds** | **+4 Rounds** |
+| **Active Buff Empowerment** | **+1 Complete Round** | **+2 Complete Rounds** | **+3 Complete Rounds** | **+4 Complete Rounds** |
 | **Special Negation** | **+2 Special Negation** | **+4 Special Negation** | **+8 Special Negation** | **+12 Special Negation** |
 
 **Damage Reduction / Special Negation:** Round-based defensive bonuses expire at Round End. Special Negation reduces incoming eligible hostile numeric **Special(X)**; if reduced to **0 or less**, it is not applied.
 
 **Healing:** During Preparation, pay the normal cumulative Stone cost for **one Healing application**. Trigger it later in the current Round at a legal action boundary, targeting **yourself or one ally** within the listed Range. You may also trigger it **before incoming HP damage**; heal first, then resolve the hit's damage. Triggering uses **no additional Stones, Attack Action, or Reaction**. Roll once, then expend the prepared application. Unused Healing expires at Round End; Stones remain spent. Apply the cap of the target's **currently available active Health Bar**. If every Bar is Scarred, HP Healing has no eligible Bar and **cannot end Incapacitated**, even when an ally prepared and triggered it. Only Scarred-Bar recovery, such as an eligible **Restoration Active**, can reopen a Bar. Eligible **Maximization** may enhance a legal HP Healing Roll.
 
-**Active Buff Empowerment:** Once per Combat, during the Preparation Phase, while you are already maintaining an Active Buff, extend that Buff's duration by the listed complete Rounds. You cannot use Empowerment unless a Buff is currently maintained — activate the Buff first, then spend Stones on Empowerment. Empowerment does not change Power Level. The allowance does not refresh when the Buff expires, is replaced, or is reactivated.
+**Active Buff Empowerment:** Once per Combat, during the Preparation Phase, when activating an Active Buff, you may extend that Buff by the listed number of additional **complete Rounds** (**+1 / +2 / +3 / +4** at Ranks 1–4). The Buff keeps its **original Power Level** and all its normal values; Empowerment changes **duration only**. For example, an MR 3 Buff with Rank 2 Empowerment lasts **5 complete Rounds** instead of 3. Choose Empowerment when you activate the Buff. The Empowerment allowance remains spent for that Combat even if the Buff ends.
 
 }}
 \page
@@ -4944,7 +4996,7 @@ Any Power that interacts with the **Veil** the boundary between matter and will 
 {{wide
 ## Combat Core
 
-Combat is divided into **Rounds** and **Turns**. A **Round** is one full cycle in which every combatant gets one Turn. A **Turn** is one combatant’s moment to act. Initiative is rolled once at the start of combat. Initiative Order is established at the start of each Round and remains fixed for that Round. Initiative is not rolled again at the start of each Round unless a rule explicitly allows it.
+Combat is divided into **Rounds** and **Turns**. A **Round** is one full cycle in which every combatant gets one Turn. A **Turn** is one combatant’s moment to act. Each combatant determines their initial Initiative once at the start of combat, choosing either Risky (rolled) or Controlled (fixed) Initiative. Initiative Order is established at the start of each Round and remains fixed for that Round. The initial Initiative is not determined again at the start of each Round unless a rule explicitly allows it.
 
 ---
 
@@ -5037,15 +5089,17 @@ Multiple Raises may be assigned to the same option. **Range, Melee Reach, AoE si
 
 **Autofire:** Declare the ordered attack slots and **one shared count of Paid and committed Free Raises** before the shared roll. For attack number *i*, its TN is that target's applicable defense **+4 × (i − 1)** plus **+4 per Paid Raise** for this Power use. This positional increase is **not a Paid Raise**, grants no Raise effect and cannot be canceled with Intellect Free Raises. **After the shared roll and sequential hit checks**, choose **one shared Damage/Special Raise allocation** for all successful slots; stop on the first failed slot. Autofire uses one Attack/Casting Roll and one common Damage Roll, not one roll per slot.
 
-**Intellect Free Raises:** Commit how many of the current Round's allowance are used **before rolling**; choose how to allocate them between eligible Damage and existing numeric Special effects **after seeing the roll**. Free Raises add no TN and are consumed even on failure. For Split Attack, commit them once for the Power use and choose the shared allocation after both split rolls.
+**Intellect Free Raises (including Shared Free Raises):** The available pool may be spent by its Stone user or distributed to willing allies under *Intellect Stone Abilities — Raises*. Every recipient commits their allotted count **before rolling**; only the Damage / existing numeric Special allocation is chosen **after the roll and hit checks**. Free Raises add no TN, are consumed on failure, and do not apply to Training Checks. For Split Attack, commit them once for the Power use and choose the shared allocation after both split rolls. No Stones or additional Actions are transferred.
 
-**Example:** At MR 3, a character faces a target with **TN 22** (for example, a Martial target with Evade 22). **Before rolling**, the player declares **one Paid Raise**, increasing TN to **26**, but does **not** choose its effect yet. A roll of 25 fails and grants no Raise effect. A roll of 28 succeeds, **then** the player chooses **either +3d8 Damage** on a direct damaging attack (**+2d8 on an AoE**) **or +3 to an existing numeric Special**. If the attack has no eligible Damage Pool, only the Special option is legal. Spells start from **4 × the used PL**, not caster MR.
-
----
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+
+**Example:** At MR 3, a character faces a target with **TN 22** (for example, a Martial target with Evade 22). **Before rolling**, the player declares **one Paid Raise**, increasing TN to **26**, but does **not** choose its effect yet. A roll of 25 fails and grants no Raise effect. A roll of 28 succeeds, **then** the player chooses **either +3d8 Damage** on a direct damaging attack (**+2d8 on an AoE**) **or +3 to an existing numeric Special**. If the attack has no eligible Damage Pool, only the Special option is legal. Spells start from **4 × the used PL**, not caster MR.
+
+---
+:::
 
 ## Combat Senses
 
@@ -5055,7 +5109,7 @@ Combat Senses define how a creature can locate and read the battlefield. Every c
 
 ### Special Sense Slot
 
-Every creature has one **Special Sense Slot**. A creature with no Special Combat Sense simply leaves this Slot empty. An Echo, Artifact, Species, Power, or story feature may grant **Sense Options**. Before the first Perception roll of a scene, choose one known Special Combat Sense to place in the Slot. In combat, choose it before Initiative is rolled. The chosen Special Sense remains active for that scene or combat unless a rule explicitly allows it to change. Normal Combat Awareness remains active at the same time. **Darkvision** is an upgrade to Normal Combat Awareness and never uses the Special Sense Slot.
+Every creature has one **Special Sense Slot**. A creature with no Special Combat Sense simply leaves this Slot empty. An Echo, Artifact, Species, Power, or story feature may grant **Sense Options**. Before the first Perception roll of a scene, choose one known Special Combat Sense to place in the Slot. In combat, choose it before initial Initiative is determined. The chosen Special Sense remains active for that scene or combat unless a rule explicitly allows it to change. Normal Combat Awareness remains active at the same time. **Darkvision** is an upgrade to Normal Combat Awareness and never uses the Special Sense Slot.
 
 Learning several Special Combat Senses gives more choices between scenes; it does not allow several Special Combat Senses to operate at once.
 
@@ -5115,7 +5169,9 @@ A creature must have a meaningful opportunity and a credible method to conceal i
 **Group Ambush:** A coordinated group may use the **Group Ambush — Coordinated Stealth** rule in the **Professions** chapter: one selected specialist's concealment result, reduced by every participating member's armor and shield Physical Training penalties, versus eligible observers' Perception results. There are no group Raises or extra setup TNs.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
 ### Invisibility and Combat Senses
 
 Invisibility does not automatically defeat every Combat Sense. Each Invisibility Power specifies which Combat Senses it **Obscures**. Only those Senses are affected. **Passive: Invisibility** always Obscures **Normal Combat Awareness**, including **Darkvision**.
@@ -5128,9 +5184,7 @@ At higher Power Levels, the character may select additional Special Combat Sense
 - **Predator Sense**
 
 Passive: Invisibility grants one additional Special Combat Sense selection at Power Levels **4, 8, 12, and 15**. Each selection must be different.
-}}
-\page
-{{pageNumber,auto}}
+
 #### Covered and Uncovered Senses
 
 **Covered Sense — Obscured**
@@ -5161,7 +5215,9 @@ Multiply the invisible creature's Mastery Rank by 4.
 #### Step 2 — Invisibility Bonus
 
 Add the creature's current Invisibility Bonus. For **Passive: Invisibility**, the Bonus equals its Power Level.
-
+}}
+\page
+{{pageNumber,auto}}
 #### Step 3 — Health Penalty
 
 For each lost Health Bar, reduce the TN by the creature's Mastery Rank.
@@ -5181,15 +5237,14 @@ These reductions use the number of lost Health Bars, not the percentage value of
 > **Invisibility Perception TN = (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR)**
 
 This is a **specific combat detection defense**, not a mundane Task TN and not a consumable Profession bonus. The Health Penalty is applied once, even when multiple Invisibility effects are combined.
-\page
-{{pageNumber,auto}}
+
 ### Stealth While Invisible
 
 **Declare a credible Stealth approach before resolving detection.** The player may describe moving carefully past guards, using shadows, timing, terrain, disguise, or other plausible cover. Use one fitting Profession's Training Roll or an untrained attempt. Against Senses affected by Invisibility, when a detection attempt is possible, use the higher existing **Stealth roll result** or **Invisibility TN**, without summing them. Active opposition uses a direct **Comparative Training Check** (fitting Profession or untrained approach versus Perception), without an added setup Task TN or Raises. **Continuous stealthy movement has no fixed distance limit.** Ordinary untrained hiding uses Disadvantage. Training Advantage and any available Training Crit apply to actual Training Rolls; neither changes the separate Invisibility Bonus.
 
 **Round-by-round visibility:** At the start of each Round, observer-specific locations found by Perception expire as described below. This does not create a visual cue where none exists: a wholly still, quiet invisible creature cannot be detected by ordinary sight alone. The Invisibility TN remains based on MR, Invisibility Bonus, and lost Health Bars only. Ordinary Stealth must follow its normal end conditions, without a movement-distance cutoff. Detection through a Clear, uncovered Combat Sense is unaffected by Invisibility.
 
----
+
 
 ### Targeting Through Concealment
 
@@ -5198,6 +5253,8 @@ Before directly targeting a Hidden or invisible creature with an Attack, Spell, 
 - **Clear:** If an active Sense can clearly locate the creature, it may be targeted normally. An uncovered Special Combat Sense ignores Invisibility entirely.
 - **Obscured:** If Invisibility or another effect Obscures a valid Sense, make a Perception Check against the appropriate TN.
 - **Blocked:** A Blocked Sense cannot locate the creature and cannot make a Perception Check.
+\page
+{{pageNumber,auto}}
 
 **Successful Perception**
 
@@ -5220,7 +5277,7 @@ Invisibility becomes progressively weaker as the creature loses Health Bars. Eac
 {{pageNumber,auto}}
 ### Surprise
 
-If a creature initiates combat against an enemy that is unaware of it, the attacker gains **Surprise Priority**. Roll Initiative and resolve Initiative Exchange normally. During the first Round, a creature with Surprise Priority acts before creatures it surprised, regardless of Initiative Score; the Score itself does not change. After the first Round, Surprise Priority ends. If an unaware creature is drawn into an **Opposed Attribute Contest**, the initiator instead also gains **Advantage** and the unaware creature has **Disadvantage** for that initial Contest only.
+If a creature initiates combat against an enemy that is unaware of it, the attacker gains **Surprise Priority**. Determine initial Initiative using each creature's chosen method and resolve Initiative Exchange normally. During the first Round, a creature with Surprise Priority acts before creatures it surprised, regardless of Initiative Score; the Score itself does not change. After the first Round, Surprise Priority ends. If an unaware creature is drawn into an **Opposed Attribute Contest**, the initiator instead also gains **Advantage** and the unaware creature has **Disadvantage** for that initial Contest only.
 
 ---
 
@@ -5241,17 +5298,18 @@ If a creature initiates combat against an enemy that is unaware of it, the attac
 Each combat follows this structure:
 
 1. **Preparation Phase**
-The Preparation Phase takes place before the Round begins. Creatures prepare Stone Abilities and may activate or replace their **one simultaneously maintained Active Buff** before any Turn. There is no general once-per-Combat Buff activation limit. Round-based benefits apply throughout the upcoming Round, regardless of Initiative Order.
+The Preparation Phase takes place before the Round begins. Prepare Stone Abilities and activate **each named Active Buff once per Combat**, before any Turn. Maintain **one Active Buff at a time**; during Preparation you may switch to another unused Buff. Benefits apply to the upcoming Round, regardless of Initiative.
 
    - At the start of this Phase, first receive Ready Absorption Stones earned through eligible Scarred Health Bars since the previous Preparation Phase.
-   - On the first Round only, roll Initiative.
+   - On the first Round only, choose Risky or Controlled Initiative and determine the initial Initiative Score.
    - Before any creature moves, acts, or begins its Turn, all creatures prepare their Stone use for the Round.
    - Resolve **Initiative Boost** first. Any Stones used for Initiative Boost are committed and spent immediately.
    - Resolve **Initiative Exchange** and convert Initiative into Initiative Colorless Stones.
    - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Initiative Colorless Stones on their other Stone Abilities for the Round.
    - Defensive and passive Stone values that apply during the Round become active immediately.
    - Stone Abilities with a Turn timing or trigger are prepared now but resolve at their specified time.
-   - During this Phase, freely activate or replace **one maintained Active Buff** for **no Attack Action or Stone cost**, including after confirming Stones while still in Preparation. End the prior Buff completely before applying the new one; preserve the confirmed Stone plan. **Active Buff Empowerment** keeps its independent once-per-Combat allowance. Do not replenish spent Critical/Maximization or duplicate Round-based resources when switching.
+   - During this Phase, activate a Buff whose **one activation per Combat** remains available, for **no Attack Action or Stone cost**, including after Stone Confirmation. To switch, end the current Buff before the new one starts; the confirmed Stone plan remains unchanged. **Active Buff Empowerment** retains its separate once-per-Combat use. Spent Critical/Maximization charges remain spent.
+   - Resolve the optional **All-Out Attack** declaration and any voluntary **Regular Attack Action Transfer** for this Round before Initiative Order is locked. These choices grant no extra Actions or Stones. See *Tactical Choices (Playtest)*.
    - Once Preparation choices are complete, determine Initiative Order and lock it for this Round.
 
 2. **Resolve Turns**
@@ -5266,7 +5324,7 @@ The Preparation Phase takes place before the Round begins. Creatures prepare Sto
 4. **Start a New Round**
    - Keep all remaining Initiative Scores.
    - Begin a new Preparation Phase.
-   - Do not roll Initiative again unless a rule explicitly allows it.
+   - Do not recalculate or reroll initial Initiative unless a rule explicitly allows it.
 ---
 
 ### Basic Action Kit
@@ -5277,7 +5335,7 @@ At the start of each Round, each character normally has:
 - **1 Attack Action**
 - **1 Reaction**
 
-Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. **Activating an Active Buff commits no Attack Action**. The character retains the normal base Attack Action plus any separately legal additional Attack Actions.
+Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. **Activating an Active Buff commits no Attack Action**. The character retains the normal base Attack Action plus any separately legal additional Attack Actions. **Only the single regular Attack Action may be voluntarily transferred to an ally during Preparation** under the optional playtest rule; personal extra Actions from Stones or other grants are not transferable.
 
 ---
 ::
@@ -5320,7 +5378,7 @@ A **Persistent Zone** automatically applies its printed Special to **every creat
 
 Example:
 
-`Ruin(4)` resolves its Tick, may be reduced by Natural Special Recovery, and then decays by **1**. Diminishing Specials cannot decay below 0.
+`Ruin(4)` already on a creature at Turn start resolves a **16-damage Tick**, may be reduced by Natural Special Recovery, and then decays by **1**. **Newly applied Ruin** instead deals its **4 × newly added stack** immediate damage when it is applied; it does not retroactively add a Tick for existing stacks. Diminishing Specials cannot decay below 0.
 
 ---
 
@@ -5332,15 +5390,15 @@ During your Turn, you may use:
 - **1 Attack Action**
 
 You may use them in either order unless a rule says otherwise. A Movement may be normal Movement or a Movement Power.
-An available Attack Action may be used to:
+An available **Attack Action** may be spent to:
 
-- make a weapon attack,
-- use an Active Power,
-- cast a Spell,
-- use an item,
-- or perform another action that costs an Attack Action.
+- activate a **purchased or granted Active Power** from the Actives Catalogue (including a Martial Attack, Spell, Special, Restoration, Support, or placed effect),
+- perform an **available Combat Maneuver** that costs an Attack Action (such as Grapple or Stand Up), or
+- activate an **item or Artifact effect** whose printed rules require an Attack Action.
 
-**Active Buffs activate only in Preparation**, never through a Turn Attack Action.
+**An Attack Action is a resource, not an automatic weapon attack.** It deals no damage by itself. To make a normal damaging Martial or Spell attack, use an eligible acquired or granted Attack Power. **NPCs and Summons may instead use their expressly defined NPC/Summon attack profiles**, which do not grant a free player-character attack. Universal Combat Maneuvers remain available without a Power purchase.
+
+**Active Buffs activate only in Preparation**, never through a Turn Attack Action. An **Attack Action transferred during Preparation** belongs to its recipient for this Round and follows the normal Active Power and Combat Maneuver choices; it cannot be transferred again.
 
 ---
 }}
@@ -5374,18 +5432,22 @@ At the end of your Turn, resolve effects that trigger at the end of your Turn.
 {{wide
 ## Initiative
 
-Initiative represents combat tempo, reaction speed, and the ability to seize openings. Initiative is determined once at the **start of combat**. Each creature chooses one method:
+Initiative represents combat tempo, reaction speed, and the ability to seize openings. **At the start of combat, before any Initiative roll, each creature chooses one of two methods** to determine its initial Initiative. The choice applies to this combat only and is not repeated each Round.
 
-- **Risky (default).** Roll a number of d8s equal to your **Mastery Rank**. Keep all dice and 8s explode.
-- **Controlled.** Take the **fixed maximum** of your **Agility Pool** or **Wits Pool** (whichever is higher). Do **not** multiply by Mastery Rank and do not roll dice for this base.
+### Choosing Your Initiative
 
-Apply normal Initiative modifiers **once** to either method (equipment, Passives, Wits scaling, manual bonuses, sheet NPC Ini, and any legal Stone bonuses such as Initiative Boost). **Initiative Boost**, **Initiative Exchange**, **Surprise Priority**, and **Initiative Colorless Stones** are unchanged. Automated NPC / Summon flows use **Risky** unless a rule or GM choice says otherwise.
+| Method | Initial Initiative before modifiers | Tradeoff |
+|---|---|---|
+| **Risky** | Roll **Mastery Rank d8**, keep **all** dice; natural **8s explode**. | A variable result with a chance of exceptional Initiative. |
+| **Controlled** | Take the **higher current Attribute value of Agility or Wits** as a fixed score. **Do not roll or multiply by Mastery Rank.** | A reliable score that reflects the character's development. |
 
-Your Initiative Score is:
+**Both methods apply all existing Initiative bonuses and penalties exactly once**, including equipment penalties and Initiative Boost where its normal timing permits. Controlled Initiative uses the **Attribute value itself**, not an Attribute dice roll or a dice Pool after Health, Fear, or other Pool penalties. Determine it at combat start; later changes to the Attribute do not recalculate the initial score unless another rule explicitly says so.
 
-`Initial Initiative Score = Initiative Base (Risky roll or Controlled fixed value) + all Initiative modifiers`
+`Initial Initiative Score = (Risky dice total OR max(Agility, Wits)) + all initial Initiative modifiers`
 
-The Initial Initiative Score can never be lower than **0**. The resulting Initiative Score remains in play until it is spent or another rule changes it. It is not reset or determined again at the start of each Round unless a rule explicitly says so.
+**Example:** At MR 3, a character with Agility 13 and Wits 9 may take **13 Controlled Initiative** before modifiers, or risk **3 exploding d8**. An Initiative bonus of +4 would raise the fixed option to **17**; a -10 Heavy weapon penalty would lower it to **3**. The same modifiers affect the Risky result.
+
+The Initial Initiative Score can never be lower than **0**. The resulting Initiative Score remains in play until it is spent or another rule changes it. It is not reset, recalculated, or rolled again at the start of each Round unless a rule explicitly says so.
 
 ---
 
@@ -5393,7 +5455,7 @@ The Initial Initiative Score can never be lower than **0**. The resulting Initia
 
 At the start of every Round, before any creature has moved, acted, or begun its Turn, resolve Initiative Exchange in this order:
 
-1. On the first Round only, roll Initiative.
+1. On the first Round only, determine each creature's initial Initiative using its selected Risky or Controlled method.
 2. Any creature that has not used **Initiative Boost** this combat may activate it now.
 3. Each creature may convert any amount of its Initiative into **Initiative Colorless Stones**.
 4. After all conversions are complete, determine Initiative Order from the remaining Initiative Scores.
@@ -5413,6 +5475,8 @@ The cost of one Initiative Colorless Stone is:
 | **MR8** | **32** |
 
 You may buy more than one Stone during the same Initiative Exchange if you can pay the full cost of each Stone. Subtract the cost immediately. Initiative can never drop below **0**.
+\page
+{{pageNumber,auto}}
 
 An **Initiative Colorless Stone** is gained Ready and joins your Colorless Pool for the current combat. It may pay any part of the normal Stone cost of an unlocked Stone Ability. When spent, it becomes **Exhausted**; it can return through normal Stone Recovery **only if selected by Influence Stone Ability: Colorless Recovery**. It remains part of your Colorless Pool for the rest of the combat and disappears when combat ends, whether Ready or Exhausted. Initiative Colorless Stones cannot be burned, Sealed, or Bound. They do not count against an Attribute Stone limit, do not count as permanent Stone progression, and never affect Mastery Rank.
 
@@ -5431,7 +5495,7 @@ At the start of the next Round, before anyone moves or acts, resolve Initiative 
 {{wide
 ## Attacks
 
-An attack is any action that tries to hit a target through an attack roll. This includes weapon attacks and attack-based Active Powers. A successful hostile Martial Damage Attack adds matching Weapon Damage; a legal damaging Spell Attack adds matching Spell Focus Damage instead. An **instant Damage AoE** includes that matching delivery damage in its **one shared Damage Roll** for all hit creatures. **Any Special-only Attack (Single Target or AoE)** has no direct Damage Roll, no Weapon/Spell Focus Damage, and no direct Attack Damage from external bonuses or Damage Raises. Non-attack Support Powers gain no delivery damage. Spells retain normal Casting Rolls and defenses.
+An attack is any action that tries to hit a target through an attack roll. This includes weapon attacks and attack-based Active Powers. A successful Martial Damage Attack normally adds eligible **mundane Weapon Damage**; a legal damaging Spell Attack normally adds eligible **mundane Spell Focus Damage** instead. **Only for an equipped Artifact with printed Damage, its one complete Artifact Damage value may be selected for either legal Delivery, without stacking a second equipment damage source; see Artifact Delivery Support.** An **instant Damage AoE** includes that matching delivery damage in its **one shared Damage Roll** for all hit creatures. **Any Special-only Attack (Single Target or AoE)** has no direct Damage Roll, no Weapon/Spell Focus Damage, and no direct Attack Damage from external bonuses or Damage Raises. Non-attack Support Powers gain no delivery damage. Spells retain normal Casting Rolls and defenses.
 
 ---
 :
@@ -5512,12 +5576,12 @@ Build the appropriate dice pool from the relevant Attribute, weapon, Power, and 
 
 - **Martial Parry:** before an eligible direct Martial Attack targeting you is rolled, spend Parry. Each point removes **1 Attack Die** from the Attack Pool assigned to you.
 - **Spell Parry:** when you are a target of, or a valid creature inside, a hostile Spell whose source is within **22 m** and whose casting you can perceive, spend Parry before the Casting Roll. Each point removes **1 Casting Die** from that Spell's Casting Pool.
-
-If the remaining Pool contains fewer dice than its normal Keep value, roll and keep all remaining dice. If the eligible Pool is reduced to **0 dice**, a Martial Attack is **Fully Parried** and a Spell is **Fully Countered**. No Attack Roll or Casting Roll is made; the effect does not hit or successfully cast, deals no damage, applies no Specials, and resolves no hit- or success-dependent effects. **Attack-Trigger Reactions** are declared and resolved in this pre-roll window. Apply their defensive modifiers to each affected creature's relevant defense before rolling.
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+If the remaining Pool contains fewer dice than its normal Keep value, roll and keep all remaining dice. If the eligible Pool is reduced to **0 dice**, a Martial Attack is **Fully Parried** and a Spell is **Fully Countered**. No Attack Roll or Casting Roll is made; the effect does not hit or successfully cast, deals no damage, applies no Specials, and resolves no hit- or success-dependent effects. **Attack-Trigger Reactions** are declared and resolved in this pre-roll window. Apply their defensive modifiers to each affected creature's relevant defense before rolling.
+
 #### 6. Make the Roll
 
 Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. A Martial result below its defense misses. For a Spell, a result below Spell Base TN fizzles; a result that reaches Spell Base TN but not a creature's Final Spell TN is cast successfully but resisted by that creature. For an **AoE Attack**, use the same final roll for every valid creature in the area and compare it separately against that creature's defense. A miss against one creature does not affect any other creature. After the comparison, a creature that would be hit may use **Dive for Cover** at its specifically listed pre-payload window. For **Autofire**, use that one shared Attack or Casting Roll against each successive, cumulatively raised slot TN; **stop on the first miss or resistance**. Dive for Cover does not apply to Autofire.
@@ -5536,31 +5600,34 @@ Calculate each incoming numeric Special as **printed Special(X) + successful Rai
 
 #### 9. Resolve Hit Effects
 
-Apply the remaining Specials, forced movement, control effects, conditions, and other hit effects according to their individual rules. A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. A later Attribute Check occurs only if the effect explicitly grants a break attempt, disbelief attempt, or another separately timed response.
-
+Apply the remaining Specials, forced movement, control effects, conditions, and other hit effects according to their individual rules. **When Ruin is successfully added, resolve its immediate Special-generated damage: 4 × the number of new Ruin points actually applied after Special Negation and other applicable Special defenses.** Existing Ruin points do not trigger extra immediate damage. This ignores Armor but uses the normal applicable Damage Reduction, Temporary HP buffers, and Health damage sequence. It creates **no direct Attack Damage Roll** and cannot receive Attack Damage bonuses, Damage Raises or Limited multiplication. A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. A later Attribute Check occurs only if the effect explicitly grants a break attempt, disbelief attempt, or another separately timed response.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### 10. Build the Damage Pool
 
-Build the eligible Damage Pool only for an eligible **damaging attack**: a successful Martial Damage Attack or Autofire hit adds matching Weapon Damage; a corresponding Spell Damage Attack adds matching Spell Focus Damage. **A Special-only Attack (Single Target or AoE) or pure forced-movement Power adds neither Weapon Damage nor Spell Focus Damage and never builds a direct Damage Pool.** **Instant Damage AoEs** add matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once to the full common Pool together with printed Power Damage, legal Raise damage and other eligible bonuses; the same complete roll applies to all hit targets. **Special-only Attacks (Single Target and AoE)** have no direct Damage Pool: Weapon/Focus, Power Damage, Damage Buffs, Stone Attack Damage bonuses, Damage Raises and triggered Attack Damage bonuses cannot turn them into damaging Powers. Their printed Specials still apply normally, and any later Special Tick damage is independent. Non-attacking Support/placement Powers gain no delivery damage. **Hex and Sundered bonus dice use only stacks present before an eligible damaging hit; new stacks benefit later hits.**
+Build the eligible Damage Pool only for a legal **damaging attack**. Without Artifact Damage, a successful Martial Damage Attack or Autofire hit uses eligible **mundane Weapon Damage**; a Spell Damage Attack uses eligible **mundane Spell Focus Damage**. **An equipped Artifact with printed Damage may instead contribute its one complete Damage value to either legal Delivery; it replaces, rather than stacks with, a second mundane or Artifact Damage source. See Artifact Delivery Support.** **A Special-only Attack (Single Target or AoE) or pure forced-movement Power adds neither Weapon Damage nor Spell Focus Damage and never builds a direct Damage Pool.** **Instant Damage AoEs** add matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once to the full common Pool together with printed Power Damage, legal Raise damage and other eligible bonuses; the same complete roll applies to all hit targets. **Special-only Attacks (Single Target and AoE)** have no direct Damage Pool: Weapon/Focus, Power Damage, Damage Buffs, Stone Attack Damage bonuses, Damage Raises and triggered Attack Damage bonuses cannot turn them into damaging Powers. Their printed Specials still apply normally, and any later Special Tick damage is independent. Non-attacking Support/placement Powers gain no delivery damage. **Hex and Sundered bonus dice use only stacks present before an eligible damaging hit; new stacks benefit later hits.**
 
 #### 11. Apply Damage Negation
 
 Before the Damage Pool is rolled, the target chooses how many of its assigned Damage Dice to remove, from **0 up to the full number of incoming Damage Dice**, limited only by its **total available Damage Negation** from legal sources. Each point spent removes **1 Damage Die**. The defender may remove the entire Damage Pool (for example, 8d8 becomes 0d8 by spending 8 points), in which case no Damage Dice are rolled. Spend temporary Damage Negation before the Passive Reserve; **choose the order among separate temporary pools**, track each independently, and apply its own expiry. 
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 
 For a shared **AoE or Autofire** Damage Roll, each defender declares Negation before rolling, **separately for each eligible hit** (including repeated hits against one creature); omit that many dice from the same ordered shared roll **for that hit only**, without rolling a new base pool. The resource is spent for each hit that uses it. Negation does not change the hit, Specials or other effects.
 
 #### 12. Roll Damage
 
-Normally roll the remaining Damage Dice; they do not explode unless stated. For a damaging **AoE or Autofire**, roll the common eligible Damage Pool **once**; reuse those recorded die results for every successful AoE target or Autofire hit. For Autofire **and instant Damage AoEs**, that common Pool includes eligible Weapon or Spell Focus Damage. Each hit applies its declared Damage Negation and other defenses separately; target-specific dice are resolved only for that hit. **After Damage Negation, before rolling**, you may spend one eligible use of **Passive: Maximization** or **Vitality Stone Ability: Maximization** to make every remaining die in the complete roll an **artificial 8**, with no natural-8 effects. Choose **one source per roll**, never both.
+Normally roll the remaining Damage Dice; they do not explode unless stated. For a damaging **AoE or Autofire**, roll the common eligible Damage Pool **once**; reuse those recorded die results for every successful AoE target or Autofire hit. For Autofire **and instant Damage AoEs**, that common Pool includes the eligible mundane Weapon or Spell Focus Damage **or one selected Artifact Damage contribution**, never multiple equipment Damage sources. Each hit applies its declared Damage Negation and other defenses separately; target-specific dice are resolved only for that hit. **After Damage Negation, before rolling**, you may spend one eligible use of **Passive: Maximization** or **Vitality Stone Ability: Maximization** to make every remaining die in the complete roll an **artificial 8**, with no natural-8 effects. Choose **one source per roll**, never both.
 
 The slotted Passive grants **1 / 2 / 3 free uses per Combat** at PL 4-7 / 8-14 / 15-16. Vitality Maximization grants **1 / 2 / 3 / 4 shared Combat uses** if paid for in the first Preparation Phase. Track them separately. One shared AoE roll costs one use; separate rolls cost separate uses. Either source may maximize a legal **Limited Power** or eligible **Healing Roll**, but adds no attack or dice. Resolve Armor, DR and other mitigation normally. **Damage Transfer** has no separate Healing Roll.
 
 After determining the Damage Roll result, the attacker may spend any **Mark already on the target before this hit began** to set that Damage Roll's floor. Decide the amount **after viewing Damage Dice but before Damage-Trigger Reactions**; change qualifying die results and reduce the target's stored Mark immediately. Mark newly applied by this hit becomes available for **later hits**, not this hit. Then resolve eligible **Damage-Trigger Reactions** against the resulting Damage Roll before Armor and other damage mitigation. A Reaction requiring a later event, such as Scarring, resolves at that specifically stated event.
 
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### 13. Apply Corrode, Armor Reduction, Weapon Penetration, and Armor
 
 Start with the target's **current Armor** for this hit. Apply **Corrode(X)** present at Step 13 (including Corrode just applied by this hit), then subtract eligible attacker-specific **Passive: Armor Reduction**, **Might Stone Ability: Armor Reduction** (Rank 1/2/3/4 = 4/8/16/32), and any applicable **Weapon Special: Penetration(X)**. These stack additively against this attack only; Effective Armor cannot go below zero. `Effective Armor = max(0, Current Armor - Corrode - Passive Armor Reduction - Might Stone Armor Reduction - Weapon Penetration)`
@@ -5568,10 +5635,7 @@ Start with the target's **current Armor** for this hit. Apply **Corrode(X)** pre
 **Corrode newly applied at Step 9 already reduces Armor for the current hit's Step 13**, because Specials resolve before Armor. Hex and Sundered keep their expressly separate prior-hit snapshot rule. For example, a target with Armor **20**, affected by **Corrode(3)**, is hit by a character with **Stone Armor Reduction 8**, **no Passive Armor Reduction**, and weapon **Penetration(4)**: `20 - 3 - 8 - 4 = 5 Effective Armor`. Only **5 Armor** is subtracted from this hit's rolled damage. Another character without Armor Reduction or weapon Penetration still encounters the target's remaining **17 Armor** after Corrode, assuming no other modifiers. Any excess reduction past zero provides no additional damage. Passive Armor Reduction applies to its owner's eligible damaging attacks while slotted; Stone Armor Reduction applies for its active Round; weapon Penetration applies only to eligible weapon hits.
 
 Subtract effective Armor from the rolled damage using `Damage after Armor = Rolled Damage - Effective Armor`. Armor does not normally reduce Specials, conditions, or ongoing Special damage unless a rule explicitly states otherwise.
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 #### 14. Apply Damage Reduction
 
 Apply percentage-based **Damage Reduction (DR)** to damage remaining after Armor. Start with the character's **Passive DR**. Add eligible **Active Buff DR** up to that Buff's printed total-DR cap; then add eligible **Reaction DR** up to that Reaction's own printed total-DR cap. Each cap limits how much that particular bonus can increase the current non-Stone DR subtotal; applying a lower cap never removes DR already present. Both Buff and Reaction require the underlying Passive DR when their entries say so. Then add **Resolve Stone Ability: Damage Reduction** outside those printed Buff/Reaction caps. The final total DR cannot exceed **100%**.
@@ -5589,10 +5653,13 @@ Apply remaining damage to legal Temporary HP buffers before real HP, keeping dis
 #### 17. Apply Damage to Health
 
 Apply all remaining damage to the target's current Health Bar according to the normal Health and Health Level rules.
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### 18. Resolve Damage Transfer (Vampyr)
 
-For a successful **Melee Single Target Damage Transfer** or **Ranged Single Target Damage Transfer** attack or Spell, heal the attacker by the **real HP actually lost by the target from this attack** after all mitigation, Temporary HP, and other buffers. Martial Weapon Damage counts in the same damage instance; Spell delivery does not add Weapon Damage. Never count prevented damage, unused overkill, earlier damage, or HP loss from other sources. The self-healing is limited to missing HP in the attacker's **current active Health Bar**; it cannot restore Scarred bars or grant Temporary HP. No separate Healing Dice are rolled; zero real HP lost means zero healing. Limited and Maximization may modify the eligible Damage Dice, but transferred healing still equals actual real HP lost and has **no separate Healing Roll to maximize**. This fixed, single-target Transfer is not the Deathless Echo's Life Absorption Stone mechanic.
+For a successful **Melee Single Target Damage Transfer** or **Ranged Single Target Damage Transfer** attack or Spell, heal the attacker by the **real HP actually lost by the target from this attack** after all mitigation, Temporary HP, and other buffers. Martial Weapon Damage counts in the same damage instance; Spell delivery does not add mundane Weapon Damage (an equipped Artifact's complete Artifact Damage still applies once, see *Artifact Delivery Support*). Never count prevented damage, unused overkill, earlier damage, or HP loss from other sources. The self-healing is limited to missing HP in the attacker's **current active Health Bar**; it cannot restore Scarred bars or grant Temporary HP. No separate Healing Dice are rolled; zero real HP lost means zero healing. Limited and Maximization may modify the eligible Damage Dice, but transferred healing still equals actual real HP lost and has **no separate Healing Roll to maximize**. This fixed, single-target Transfer is not the Deathless Echo's Life Absorption Stone mechanic.
 
 #### 19. Resolve Absorption
 
@@ -5695,7 +5762,7 @@ If a creature begins an Opposed Attribute Contest against another creature that 
 {{wide
 ### Grapple
 
-Grapple is a Basic Combat Maneuver that spends 1 Attack Action and an application of an Opposed Attribute Contest.
+Grapple is a universal **Combat Maneuver** that spends **one Attack Action** and uses an Opposed Attribute Contest. No Active Power purchase is required to attempt it.
 
 **Cost:** 1 Attack Action
 **Range:** Melee Reach
@@ -5710,7 +5777,7 @@ A Grapple is a **shared physical hold**:
 - Grapple is **not Root** and does not count as Root,
 - Grapple by itself gives no Attack, Evade, Armor, Damage, or other numeric modifier.
 
-**Grapple itself never deals damage.** The creature maintaining the Grapple may use a **Melee Attack Power with Unarmed delivery** without releasing it. If that creature makes a **weapon Attack** (an Attack Power delivered with a weapon), it must release the Grapple first; the weapon Attack is a separate Attack, not part of Grapple. The creature that established the Grapple may release it freely on its Turn without spending an action. A creature trying to break free spends **1 Attack Action** and starts another physical Opposed Attribute Contest. If it wins, the Grapple ends. On a tie, the existing Grapple remains.
+**Grapple itself never deals damage and grants no free attack.** While maintaining the hold, a creature may spend another legal Attack Action to use a suitable **Melee Active Attack Power with Unarmed delivery** without releasing the Grapple. To use a weapon-dependent or otherwise incompatible attack, it must release the Grapple first. An attack is always a separate Power use, never part of the Grapple maneuver. The creature maintaining the Grapple may release it freely on its Turn without spending an action. A creature trying to break free spends **1 Attack Action** and starts another physical Opposed Attribute Contest. If it wins, the Grapple ends. On a tie, the existing Grapple remains.
 
 The Grapple also ends if the creatures are forcibly separated beyond Melee Reach, if one participant is teleported or otherwise removed from the hold, or if the creature maintaining the hold becomes unable to physically maintain it.
 
@@ -5972,7 +6039,6 @@ Healing has two distinct jobs: **restore HP in the current active Health Bar** o
 - **Recovery order:** Recover the lowest eligible Scarred Bar first, progressing toward Healthy. Recover **Broken** first when an Incapacitated character needs an available Bar. A specific recovery rule, such as a hidden Growth Bar rule, may specify a different eligible choice. Recalculate the highest available Bar and all applicable Health penalties after recovery.
 - **Medical aftercare eligibility:** The caregiver must have a Profession with a concrete scope of direct medical treatment (for example Physician, Field Medic, or Surgeon); a title unrelated to practical patient care does not qualify. **Resource cycles:** Each Restoration Power has one finite pool per **Safe Haven Rest**; several uses draw from that same pool. **Regeneration** spends its own Self-only allowance per **Tyhran Day**. A Safe Haven Rest naturally returns **one Scarred Bar**, plus up to **one or two extra** if qualified medical Profession Rank 4/8 aftercare applies. It spends no Restoration Points.
 
-Restoration works with whole Bars and their full HP capacity; Resolve Healing works with rolled HP and the current Bar. Consult *Actives* and *Passives* for the level tables, legal targets and action timing.
 }}
 \page
 {{pageNumber,auto}}
@@ -6093,15 +6159,7 @@ Continue this progression for greater distances.
 {{wide
 ### Combat Maneuvers
 
-Combat Maneuvers are the universal combat options available to **all player characters and NPCs**. They do not need to be learned, purchased, or gained through a Power.
-
-Every combatant knows how to:
-
-* move,
-* use Basic Combat Maneuvers such as Grapple, Dash, Disengage, Quick Load and Stand Up,
-* and use Basic Reactions.
-
-There is **no automatic Basic Attack**. Damage attacks are made with a learned or granted **Attack Power** (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special). Every player character therefore learns at least one Attack Power during Character Creation. An Attack Power may be used repeatedly in the same Round as long as an Attack Action is available for each use (see Power Use Limit).
+Combat Maneuvers are the universal combat options available to **all player characters and NPCs**. They do not need to be learned, purchased, or granted by a Power. Examples include **Grapple, breaking a Grapple, Stand Up, Dash, Disengage, and Flee**, with their individual Action and Movement costs.
 
 Every character normally has:
 
@@ -6109,19 +6167,9 @@ Every character normally has:
 * **1 Attack Action**
 * **1 Reaction**
 
-per round, unless another rule grants additional uses. Additional Movements, Attack Actions, and Reactions may be gained through Stones, Powers, or other explicit effects. Basic Combat Maneuvers are **not Powers**. They do not become spent after use. If a character gains additional uses of the appropriate action type, the same Basic Combat Maneuver may be used again.
+per Round, unless another rule grants additional uses. An **Attack Action** may be spent on a legal Combat Maneuver or on an eligible **learned or granted Active Power**, including a Martial or Spell Attack. A weapon, an Attack Action, or an available Attack Roll does not grant a free damage attack. **An Attack Action never supplies automatic attack damage.** NPCs and Summons may use their own expressly printed attack profiles under their dedicated rules.
 
----
-:
-### Attacking
-
-Every damage attack uses an **Attack Power**. Each use spends **1 Attack Action**. Weapon Damage (Martial) or Spell Focus Damage (Spell) is added as described by the Power's template.
-
-**Weapon Properties Apply:**
-Normal properties and effects belonging to the weapon itself still apply when appropriate.
-
-**Extra Attacks:**
-If you gain additional Attack Actions through Stones, Powers, or another effect, you may use them to use the same or another Attack Power again. Limited charges and other explicit limits still apply.
+Universal Combat Maneuvers are not Powers and have no per-Power use counter. With sufficient legal Actions or Movements, the same maneuver may be performed again, unless its own rules prohibit it. **Basic Reactions** are also available without buying a Reaction Power and follow the normal Reaction economy.
 
 ---
 }}
@@ -6130,7 +6178,7 @@ If you gain additional Attack Actions through Stones, Powers, or another effect,
 {{wide
 ### Threatened Ranged Attacks
 
-When you declare a Ranged Attack or Ranged Power using a bow, crossbow, thrown weapon, or similar ranged weapon **while you are within an enemy's Melee Reach**, the attack is **Threatened**. Make this Ranged Attack with **Disadvantage**. **Threatened Spellcasting:** Declare a legal Spell Casting Roll while within an enemy's **Melee Reach**: the Casting Roll has **Disadvantage**. This applies regardless of the Spell's effect or eligible delivery: damage, healing (including self-healing), Cleanse, Restoration, support, control, AoE, persistent zones, and any otherwise permitted melee- or touch-range Spell. The restriction applies to the **Casting Roll**, not to subsequent Damage or Healing Dice. It does not forbid casting, alter Spell TNs, or permit otherwise illegal Spell delivery.
+When you declare a Ranged Attack or Ranged Power using a bow, crossbow, thrown weapon, or similar ranged weapon **while you are within an enemy's Melee Reach**, the attack is **Threatened**. Make this Ranged Attack with **Disadvantage**. **Threatened Spellcasting:** Declare a legal Spell Casting Roll while within an enemy's **Melee Reach**: the Casting Roll has **Disadvantage**. This applies regardless of the Spell's effect or eligible delivery: damage, Cleanse, Restoration, support, control, AoE, persistent zones, and any otherwise permitted melee- or touch-range Spell. The restriction applies to the **Casting Roll**, not to subsequent Damage or Healing Dice. It does not forbid casting, alter Spell TNs, or permit otherwise illegal Spell delivery.
 
 Determine the threat when the Attack or Spell is **declared**, using the enemy's actual Melee Reach. Several threatening enemies still impose **one Disadvantage**, not additional stacking penalties. A persistent Spell effect does not make a new Casting Roll or receive a new threatened check merely because it ticks or affects a new creature. After declaration, each enemy **whose Melee Reach includes you** may use an available **legal Reaction** if its printed trigger and other requirements are satisfied. Threatened status creates no new Reaction type, waives no requirements, and does not change the normal rules for Reactions on Reactions. Normal Melee Martial Attacks do not gain this Disadvantage merely for being within reach.
 
@@ -6194,14 +6242,36 @@ Recover from Prone by spending **1 Attack Action**. Until you stand, your normal
 {{pageNumber,auto}}
 {{wide
 
-### Basic Combat Maneuver Actions
+### Attack Actions and Available Maneuvers
 
-Basic Combat Maneuvers that spend an Attack Action (such as Grapple and Stand Up) do not require an Active Power. They are not Powers and do not become spent after use. There is no Basic Attack maneuver; damage attacks use an Attack Power.
+An **Attack Action** can activate an eligible **Active Power** (including an Attack, Spell, Special, Support, or other catalogue Active) or pay for a universal Combat Maneuver. If an item or Artifact requires an Attack Action, it uses that same economy. A weapon provides its printed properties only when a legal Power or other explicit rule uses that weapon; equipping one never creates an additional attack or free damage. Repeat a Power or maneuver if you have enough Attack Actions, except where an explicit resource, duration, trigger, or usage restriction applies.
+
+**Do not add any default weapon-damage attack or MR-based attack damage without a Power.**
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+### Tactical Choices (Playtest)
+
+The following choices are **universal combat options**, not Powers or Stone Abilities. They grant no free attacks, charges, Powers, or additional overall Actions. **The 20 m teamwork Range is provisional for playtesting**, not a finalized balance value.
+
+#### All-Out Attack
+
+During the **Preparation Phase**, announce **All-Out Attack** for the coming Round. Gain **+1d8 Damage on each of your own direct, damaging Martial or Spell Attack Damage Rolls** during that Round. Add the die to the actual Damage Roll, never to the Attack/Casting Pool; with AoE or Autofire, add it **once to the shared Damage Roll**, not separately for each target or hit. The bonus also works on your own eligible attacks made with additional Attack Actions. It does not generate Damage for Special-only Attacks, and does not apply to Ruin, other Special-generated ticks, Auras, Zones, Summons, traps, or an ally's attacks.
+
+Choose **one drawback** for the entire Round: **−4 Armor** or **−2 Evade**. Choose Armor only if you have at least **4 effective Armor** when declaring this option; otherwise choose Evade. A drawback can reduce a defense to its normal minimum but never grants a benefit by choosing a nonexistent defense. The chosen drawback and damage bonus apply from the start of the Round through **Round End**, including when the character is attacked. No Action or Stone cost; not stackable with itself.
+
+#### Give Your Regular Attack Action to an Ally
+
+During the **Preparation Phase**, you may **give your one regular Attack Action for this Round** to a willing ally instead of keeping it. **Provisional Range: 20 m**; the ally must be able to perceive your coordination. The ally receives **one additional Attack Action to spend on their own Turn this Round**, on any legal Active Power or Combat Maneuver. The donor loses that one regular Attack Action, but retains any separately granted personal Attack Actions. The recipient gains no extra Turn, Stones, Movement, Reactions, or Powers. **Stone-granted and other bonus Attack Actions cannot be transferred. A donated Attack Action cannot be donated again**, and any unused donated Action expires at Round End. The option is free and needs no purchased Power.
+
+#### Shared Free Raises
+
+The existing **Intellect Stone Ability: Raises** can distribute its **unchanged 2 / 4 / 6 / 8 shared Free Raises** among the Stone user and willing allies for eligible Martial/Spell Attack or Casting Rolls this Round, within the same **provisional 20 m coordination Range**. Each recipient commits its allocated Raises **before rolling**, using normal Combat Raise timing and legal Damage/Special allocation; failed uses still consume them. No hit bonus, Training Raises, Profession/Perception Check benefit, Stone transfer, new Stones, or added Actions. Track the donor's shared total; a Free Raise can be spent only once.
+
+---
+:
 ### Basic Reactions
 
 Every character can use Basic Reactions without purchasing a Reaction Power. Using a Basic Reaction spends **1 Reaction**. Basic Reactions are not Powers and do not become spent after use. If a character gains additional Reactions through Stones, Powers, or another effect, they may use Basic Reactions again whenever their Trigger occurs. Reaction Powers provide stronger, more specialized, or more tactical responses, but they are not required to react in combat.
@@ -6299,7 +6369,7 @@ When combat ends, all remaining Specials end.
 
 - **Bars and Scars:** Normal Health Bars progress through Healthy, Bruised, Injured, Wounded and Broken; a depleted Bar becomes **Scarred**. Scarred-Bar recovery makes that Bar available again at **full HP**.
 - **Ordinary HP:** **Resolve Healing** rolls 4/8/12/16d8 according to Rank. **Damage Transfer** provides its dedicated damage-linked self-heal. These effects need an already available active Bar and cannot reopen a Scarred Bar. Combat-end and rest effects refill the available active Bar at the times stated below.
-- **Restoration Actives:** Each Power has a finite pool refreshed once per **Safe Haven Rest**; spend **1 point per Scarred Bar restored to full HP**. Single Target Restoration restores Bars on one eligible recipient; AoE Restoration divides **one shared pool** among selected eligible recipients. The applicable delivery, action cost, Casting Roll and once-per-Round power-use rules govern each activation.
+- **Restoration Actives:** Each Power has a finite pool refreshed once per **Safe Haven Rest**; spend **1 point per Scarred Bar restored to full HP**. Single Target Restoration restores Bars on one eligible recipient; AoE Restoration divides **one shared pool** among selected eligible recipients. Each activation spends its normal Attack Action, follows any applicable Casting Roll, and draws from the remaining shared Power-specific pool. It may be activated again with another legal Attack Action while pool points remain.
 - **Regeneration:** This Self-only Passive supplies **floor(PL / 2)** Scarred-Bar points per **Tyhran Day** (first available at PL 2). The character consciously activates it at a legal action boundary, spending no Attack Action, Reaction or Casting Roll. A capable character may distribute uses throughout the day. An Incapacitated character receives recovery from an external legal source.
 - **Other Scar recovery:** **Vitality: Remove Scar** and printed Natural, Ritual and Artifact recovery preserve their own costs and limits and restore the selected eligible Bar at full HP.
 - **Safe Haven Rest:** The rest naturally restores **one** Scarred Bar, **plus +1 with a qualified medical Profession at Rank 4-7 providing aftercare or +2 with a qualified medical Profession at Rank 8 providing aftercare** for that patient. It refills the current active Bar, clears Fear and renews resources with a Safe-Haven cycle. Renewing a Restoration pool makes its points available for later deliberate use; the rest itself spends none of them.
@@ -6452,7 +6522,7 @@ Attributes retain the compressed **1–40** scale. Professions use **Training Ra
 | **7** | **14 XP** | **58 XP** |
 | **8** | **16 XP** | **74 XP** |
 
-**Character creation:** Choose **four free Professions at Rank 2**, plus **Perception Rank 2 for free**. There is no Profession Creation Point pool. Additional Professions are learned later through XP. Creation budgets and earned XP remain separate.
+**Character creation is unchanged:** Four Professions start at Rank 2; Perception starts at Rank 2 for free.
 
 | **New Attribute Value** | **Attribute Cost / +1** |
 |:--:|:--:|
@@ -6467,13 +6537,16 @@ Attributes retain the compressed **1–40** scale. Professions use **Training Ra
 | **33–36** | **18 XP** |
 | **37–40** | **20 XP** |
 
-Attributes determine the number of dice in the Pool; Mastery Rank determines Keep. Profession Ranks never add dice or flat bonuses: they improve Training Rolls through **Training Advantage** (Rank 1: reroll initial 1s; Rank 2: 1s-2s; Rank 3: 1s-3s; Rank 4: 1s-4s; Rank 5: 1s-5s; Rank 6-8: 1s-6s) and **Training Crit** (one use per Tyhran Day at Rank 7, two at Rank 8). Training Rank grants no Free Raises. Optional Raises are available on Standard Training Checks at +4 TN each; Comparative Training Checks allow no Raises. 
+Attributes determine the number of dice in the Pool; Mastery Rank determines Keep. Profession and Perception Ranks never add dice or flat bonuses. **Training Advantage:** Rank 1 rerolls initial 1s; Rank 2, 1s–2s; Rank 3, 1s–3s; Rank 4, 1s–4s; Rank 5, 1s–5s; Rank 6–8, 1s–6s (each eligible initial die may be rerolled once). **Training Crit:** Rank 7 has one use and Rank 8 two uses **per Safe Haven Rest per Profession or Perception**; Ranks 1–6 have none. Training Rank grants no Free Raises. Optional Raises are available on Standard Training Checks at +4 TN each; Comparative Training Checks allow no Raises. 
 
 *Example:* Blacksmith Rank 4→6 costs **22 XP** (**10 XP** for Rank 5 and **12 XP** for Rank 6). A new Alchemist Rank 1 costs **4 XP**. Raising Perception Rank 2→4 costs **14 XP** (**6 XP** for Rank 3 and **8 XP** for Rank 4). Intellect 8→10 costs **12 XP**.
 
 ---
 
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 No Attribute can normally exceed **40**. The cap limits dice-pool growth only; it does **not** determine Stone assignment. Stones follow Lifetime Experience and the **Mastery Rank × 2** per-Attribute concentration limit.
 
 ---
@@ -6747,7 +6820,7 @@ Choose one creature. Remove up to **X total points** from one or more ongoing ne
 | **Hex(X)** | When hit by a **Spell**, take **+1d8 bonus damage for every 2 Hex**, rounded up, counting stacks **already present before this hit**. | Yes | Yes |
 | **Lacerate(X)** | Every separate **Movement Event** that changes your position deals **X damage once**. Move, Dash, Reposition, a Movement Power, Push, Pull, and Teleport all count. Distance and whether the movement is voluntary do not change the damage. | Yes | Yes |
 | **Mark(X)** | For a later hit against a marked target, after rolling Damage Dice but before Damage-Trigger Reactions, spend any amount of Mark present **before that hit** as the Damage Floor of each die; then reduce stored Mark by that amount. Mark applied by this same hit becomes usable on the next hit. | Yes | Yes |
-| **Ruin(X)** | On application, take **4** damage per newly applied stack; at Tick, take **4 × X** damage; both ignore Armor. | Yes | Yes |
+| **Ruin(X)** | **Immediately on successful application**, take **4 × the newly added Ruin points** in damage; at each later start-of-Turn Tick, take **4 × current Ruin(X)**. Both ignore Armor. | Yes | Yes |
 | **Slow(X)** | Each point reduces Speed by 1 m, minimum 0 m. At the start-of-Turn Tick, if Speed is 0 m or voluntary movement is prevented by another effect, take X damage, ignoring Armor. Otherwise, Slow deals no damage. Resolve before Natural Special Recovery and decay. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X** (floor 2 rolled dice on legal standard rolls). | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up, counting stacks **already present before this hit**. | Yes | Yes |
@@ -7039,8 +7112,8 @@ Examples:
 | **Light** | May be wielded in the **off-hand**. |
 | **Versatile** | When wielded **two-handed**, gain **+2d8 weapon damage** (you lose your shield / off-hand). |
 | **Reach (+1 m / +2 m)** | Your melee reach is **2 m** by default; this increases it. Measure from the attacker’s token center for a single-Hex creature, or from the nearest edge of its occupied footprint for a multi-Hex creature using Growth. |
-| **Heavy** | You get **–10 to your Initiative roll**. |
-| **Balanced** | If a weapon has **Heavy + Balanced**, reduce the Heavy penalty to **–5 Initiative**. |
+| **Heavy** | Apply **-10 to your initial Initiative Score**, whether Risky or Controlled. |
+| **Balanced** | If a weapon has **Heavy + Balanced**, reduce the Heavy penalty to **-5 Initiative** for either method. |
 | **Ranged (X m)** | You may make a ranged weapon attack up to **X m**. |
 | **Set** | If you **did not move** this round: gain **+1d8 weapon damage**. |
 | **Thrown (X m)** | You may make a ranged attack by throwing the weapon up to **X m** (you must retrieve it afterward unless a rule says otherwise). |
@@ -7067,7 +7140,7 @@ A Spell keeps the Power's:
 - action type
 - base Technical Reference
 
-Only the delivery changes. A Martial delivery uses a weapon, body, tool, physical technique, or another non-Spell method and normally resolves through an **Attack Roll** where applicable. A Spell delivery gains the **Spell** tag, uses a fixed **Casting Attribute**, and resolves through the **Casting Roll** and **Spell TN** rules below. Its casting difficulty is based on the **Power Level being used**, not on the caster's Mastery Rank. Changing delivery does **not** create a second Power for duplicate selection or the once-per-Round Power Use Limit. A Martial and Spell version with the same base Technical Reference are still the same Power for those rules.
+Only the delivery changes. A Martial delivery uses a weapon, body, tool, physical technique, or another non-Spell method and normally resolves through an **Attack Roll** where applicable. A Spell delivery gains the **Spell** tag, uses a fixed **Casting Attribute**, and resolves through the **Casting Roll** and **Spell TN** rules below. Its casting difficulty is based on the **Power Level being used**, not on the caster's Mastery Rank. **Changing from Martial to eligible Spell delivery does not create an additional Power, Attack Action, or usage charge.** With sufficient Attack Actions, the same eligible Active can be used again under its chosen legal delivery; all printed delivery and resource restrictions still apply.
 
 ---
 
@@ -7090,8 +7163,8 @@ Ranged Active catalogue entries may be written using a **Martial baseline** even
 - a printed **Ranged Weapon or Thrown Weapon** requirement applies only to the Martial version and is replaced by the normal Spell delivery requirements,
 - **Attack Pool / Attack Roll** becomes **Casting Pool / Casting Roll**,
 - **Evade** becomes the affected creature's **Final Spell TN**,
-- **Weapon Damage** is omitted and replaced by eligible **Spell Focus Damage** on an eligible damaging single-target or Autofire Spell hit; **Special-only Attacks do not add either damage source**. For Artifacts, that Spell Focus Damage is the Artifact's unified delivery contribution (printed Spell Focus, or Weapon Damage dice when the Artifact has no Focus Base Value) — never both from the same Artifact on one attack,
-- **instant Damage AoEs** add the matching Spell Focus Damage in their shared Damage Roll (instead of Martial Weapon Damage), while **Special-only AoEs** add neither Focus nor any other direct Attack Damage,
+- for **mundane equipment**, **Weapon Damage** is omitted and replaced by eligible **Spell Focus Damage** on an eligible damaging single-target or Autofire Spell hit; **an Artifact instead uses its shared eligible Artifact damage contribution under Artifact Delivery Support**; Special-only Attacks add no direct damage from either source,
+- **instant Damage AoEs** include the eligible Spell Focus Damage (mundane focus) **or shared Artifact damage** in their single common Damage Roll, not both from the same source; **Special-only AoEs** add no direct Attack Damage,
 - printed **Power Damage**, Specials, Range, AoE, Duration, target count, split structure, control, and other non-delivery effects remain unchanged,
 - non-attacking Support, placement and persistent-zone effects gain no damage from delivery.
 
@@ -7107,13 +7180,13 @@ Examples:
 
 - **Critical** may apply to a Martial Attack or damaging Spell.
 - **Special Boost** may increase Specials applied through Martial or Spell delivery.
-- **Raises (Intellect Stone Ability)** grants one shared allowance of **2 / 4 / 6 / 8** at Ranks 1–4 for the current Round. **Before each eligible Attack/Casting Roll, commit only how many Free Raises are used**; **after the roll and hit checks**, allocate them to eligible Damage and/or an existing numeric Special. **Special-only Attacks (Single Target or AoE) cannot select Damage Raises.** These Free Raises neither increase TN nor require Raise Cost; they are consumed on failure without effect.
-- **Extra Attack** grants additional Attack Actions that may be used with any otherwise legal unused Active, including Spells.
+- **Raises (Intellect Stone Ability)** grants one shared allowance of **2 / 4 / 6 / 8** at Ranks 1–4 for the current Round. Under **Shared Free Raises (Playtest)**, this fixed pool may be distributed to willing allies within the provisional 20 m coordination Range; **no Stones are transferred**. **Before each eligible Attack/Casting Roll**, the recipient commits the chosen count; **after the roll and hit checks**, they allocate committed Raises to eligible Damage and/or an existing numeric Special. Special-only Attacks cannot select Damage Raises. These Free Raises neither increase TN nor require Raise Cost; they are consumed on failure without effect. They never improve Training Checks.
+- **Extra Attack** grants additional Attack Actions. Each can be spent on another use of any eligible **Active Power** (including the same Power, whether Martial or Spell-delivered) or an available Combat Maneuver. Printed Action and resource costs still apply.
 
 Delivery-specific rules remain delivery-specific:
 
-- **Weapon Damage**, **Damage (Might Stone Ability)**, and effects that explicitly require a weapon or Martial Attack do not become Spell effects.
-- **Spell Focus** applies only to eligible single-target attack-delivered Spells and **Spell Autofire hits**; **Spell Resistance** applies to Spells as normally specified.
+- **Mundane Weapon Damage**, **Damage (Might Stone Ability)**, and effects that explicitly require a weapon or Martial Attack do not become Spell effects. The **shared Artifact damage contribution** is the exception described under *Artifact Delivery Support*.
+- **Mundane Spell Focus Damage** follows its normal Spell restrictions; **Spell Resistance** applies to Spells as normally specified.
 - A rule that explicitly refers to an **Attack Roll** does not automatically modify a Casting Roll, and vice versa, unless that rule says it works with both.
 
 ---
@@ -7190,7 +7263,7 @@ For a directly delivered Spell, the **Spell Base TN** determines whether the cas
 
 A Spell normally uses the **Power Level the character has purchased or the source explicitly grants**. At declaration, a caster may voluntarily choose a **lower Power Level** if the complete lower-level entry is available and legal for that Power and source. Choose the used PL **before** the Casting Roll, target resolution and Raise declaration; the Base TN is **4 × that used PL**. Downcasting is optional, costs no extra XP and does not give another use of the Power.
 
-Use the **entire** lower-PL Power profile for that casting: Damage, Specials, Range, Area, Duration, number of targets and any other PL-dependent effects or limits. Never combine a lower casting TN with higher-level effects, guess a missing profile, or scale printed numbers by approximation. If the complete lower-level profile cannot be consulted, use the recorded PL. One declared PL applies to the **whole Power use**, including every target, AoE application, Split Attack roll, Autofire slot and later application of a persistent zone. Downcasting does not change the Casting Attribute, Attribute Pool, MR Keep, Technical Reference, or once-per-Round Power Use Limit.
+Use the **entire** lower-PL Power profile for that casting: Damage, Specials, Range, Area, Duration, number of targets and any other PL-dependent effects or limits. Never combine a lower casting TN with higher-level effects, guess a missing profile, or scale printed numbers by approximation. If the complete lower-level profile cannot be consulted, use the recorded PL. One declared PL applies to the **whole Power use**, including every target, AoE application, Split Attack roll, Autofire slot and later application of a persistent zone. Downcasting does not change the Casting Attribute, Attribute Pool, MR Keep, Technical Reference, available Attack Actions, or any explicit resource and activation limits. It creates no separate Power or additional Action.
 
 **At-table recommendation:** Record the PL you actually intend to use most often. You do **not** need to maintain separate sheets for all weaker versions; consult a lower profile only when you deliberately choose to cast it. A stored Power in a Minor Magic Item is fixed at the PL recorded **when that item was created** and cannot be downcast at activation.
 
@@ -7198,7 +7271,7 @@ Use the **entire** lower-PL Power profile for that casting: Damage, Specials, Ra
 
 ### Willing Spell Targets
 
-A creature that is aware of a Spell and willingly accepts it may choose to treat its **Spell Resistance as 0** against that Spell. The choice is made before the Casting Roll. Spell Base TN is never reduced this way. This allows willing healing, support, and beneficial Spells to function without making Spell Resistance a penalty to their intended recipient.
+A creature that is aware of a Spell and willingly accepts it may choose to treat its **Spell Resistance as 0** against that Spell. The choice is made before the Casting Roll. Spell Base TN is never reduced this way. This allows willing Restoration, support, and other beneficial Spells to function without making Spell Resistance a penalty to their intended recipient.
 }}
 \page
 {{pageNumber,auto}}
@@ -7211,13 +7284,13 @@ The creator must spend **one Attack Action per maintained Zone at the start of e
 
 ### Special Auras
 
-A Special Aura is **not a placed Zone**. It is an **Active Buff** with **Self range and a radius centered on its caster**; the radius moves with them. It is a self-centered melee-radius area, **not a Melee Attack or an attack-delivery roll**. It is activated freely in the Preparation Phase, uses the normal one-Active-Buff-per-Combat restriction, lasts **MR complete Rounds**, and costs no Attack Actions to sustain. It applies its printed Special automatically with the same **one application per Aura/creature/Combat Round** rule. **The Aura caster alone is immune to their own Aura; every other creature in the radius, including allies and Summons, is affected**, without target selection or further exceptions. Special Auras make no Attack/Casting/Damage Roll and grant no Weapon or Spell Focus Damage. See the new Special Aura Active Buff entries for Power-Level values.
+A Special Aura is a **moving, caster-centered Active Buff** with Self range and its printed radius. Activate **each named Special Aura once per Combat** during Preparation at no Attack Action or Stone cost; it occupies your **one maintained Active Buff slot** and lasts **MR complete Rounds**. You may end it at any time and switch to another unused Buff during Preparation. The Aura applies its printed Special automatically, **once per Aura/creature/Combat Round**. **The caster is immune to their own Aura; every other creature in range, including allies and Summons, is affected.** Special Auras follow Special application rules and make no Attack, Casting or direct Damage Roll. See the Special Aura Active Buff entries for Power Level values.
 
 ---
 :
 ### Spell Conversion Summary
 
-A Spell is an eligible Power using magical delivery. The Spell tag changes **how the Power is delivered and resisted**. It does not replace the Power's underlying effect structure or create a second copy of the Power. A Spell may therefore be damage-only, healing-only, utility-oriented, or Special-based if the underlying Ranged Active is legal. **Casting Base TN = used PL × 4**, while **MR sets Keep and the Power Level cap**. Special-less Spells are limited to a number equal to the character's Mastery Rank; Spells that already contain Specials do not count against that limit.
+A Spell is an eligible Power using magical delivery. The Spell tag changes **how the Power is delivered and resisted**. It does not replace the Power's underlying effect structure or create a second copy of the Power. A Spell may therefore be damage-only, Restoration/Support-oriented, utility-oriented, or Special-based if the underlying Active and its Spell delivery are legal. **Casting Base TN = used PL × 4**, while **MR sets Keep and the Power Level cap**. Special-less Spells are limited to a number equal to the character's Mastery Rank; Spells that already contain Specials do not count against that limit.
 
 ---
 
@@ -7226,47 +7299,26 @@ A Spell is an eligible Power using magical delivery. The Spell tag changes **how
 {{pageNumber,auto}}
 {{wide
 
-## Powers
 
-Powers are the mechanical building blocks of character abilities. This chapter does not explain every Special again. Specials are defined in their own rules chapter. Instead, this chapter explains the main Power types and points to the dedicated Power catalogues.
+### Power Use and Action Economy
 
-A Power belongs to one of the following categories:
+**Spend your available Actions as you choose.** An **Attack Action** can be used for an eligible **acquired or granted Active Power** from the Actives Catalogue, for a universal **Combat Maneuver** that costs an Attack Action, or for an expressly defined NPC/Summon attack profile. These are alternatives paid from the same Action economy. An Attack Action is not itself an attack, does not deal damage, and does not grant an automatic weapon strike.
 
-- **Actives**
-- **Passives**
-- **Active Buffs**
-- **Reactions**
-- **Movement Powers**
+**Every Active Power can be used again during the same Round if the character has another available Attack Action and the Power is otherwise legal to activate.** This includes damaging attacks, Special-only attacks, Support, Restoration, Barriers, Images, mind-affecting effects, and Persistent Zones. Each activation is a separate Power use with its own normal resolution, Action cost and applicable restrictions. **No Active Power is marked spent for the Round merely because it has been used.** Buying or receiving duplicate Powers is unnecessary for repeated use. A Power never grants additional Attack Actions simply by being known or granted by an Artifact.
 
-Each category has its own design rules, limits, timing, and pricing logic.
+The other categories follow their own economies:
 
-### Power Use Limit
+- **Active Buffs:** Activate during Preparation only; each named Active Buff may be activated **once per Combat**, and a character may maintain **one Active Buff at a time**, regardless of source.
+- **Reactions:** Each use requires its printed Trigger and an available Reaction unless a specific exception says otherwise.
+- **Movement Powers:** Spend the required Movement and follow the Power's individual movement restrictions.
+- **Passives:** Apply continuously or under their printed conditions; duplicate Passives do not override stacking restrictions.
 
-**Attack Powers are repeatable:** An Attack Power (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special) may be used repeatedly in the same Round as long as an Attack Action is available for each use. Limited charges, printed use limits and Stone limits still apply.
+**Specific usage and resource limits always apply.** Examples include the **one shared Limited charge per Safe Haven Rest**, Breath Weapon uses, Wits Stone Phasing (once per Combat across sources), Summon Bond rules, Artifact resources, Restoration pools, duration and maintenance requirements, printed charges, and other explicit limits. The **once-per-creature-per-Round application rule for each Persistent Zone or Special Aura** limits that effect's application to a target; it does not create a blanket once-per-Round activation limit on Actives. Additional Attack Action grants do not stack if their own rules say to use only the highest grant.
 
-Every other Power (including Support Actives such as Restoration and Cleanse, Barriers, Power Images, Mental Powers, Persistent Special Zones, Active Buffs, Reactions and Movement Powers) can be used only **once per Round**. After you use such a Power, that **independently acquired or granted Power instance** is considered **spent** until the start of the next Round. Track usage by a stable **instance ID** for that grant (the learned Power item, or one Artifact grant lineage), **not** only by Technical Reference.
+The same Technical Reference may be learned or granted through more than one source, but **Power instances do not create separate once-per-Round entitlements**. Different names, delivery descriptions, lower Power Levels, or Artifact upgrades do not generate Actions, charges, or bypass shared limits. An Artifact upgrade replaces the former profile of its grant unless explicitly stated otherwise.
 
-A learned Power and an Artifact-granted Power with the same Technical Reference (for example a learned Ranged Hex and a staff-granted Ranged Hex) may **each** be used once per Round if you still have the Attack Actions (or other Actions) required. Renaming a Power, downcasting it, changing Martial/Spell delivery, or upgrading one grant does **not** create another instance. Global **Limited** charges, Stone Ability restrictions, the one maintained Active Buff rule, Action economy, and other shared resources still apply across instances.
+**The rule is the Action economy plus the printed ability restrictions — not an artificial use counter for every Power.**
 
-The once-per-Round limit applies to all Power Types except Attack Powers:
-
-- Actives other than Attack Powers
-- Active Buffs
-- Reactions
-- Movement Powers
-- other named Power effects
-
-Passive Powers are not “used” each round unless they contain a specific activated or triggered effect. If you gain extra Attack Actions, you may use them with the same or another Attack Power, or with other Powers that have not already been used this round. Extra Reactions or extra Movement may be used only with Powers that have not already been used this round. Additional Attack Actions from multiple sources do **not** stack unless a rule explicitly says otherwise; use the highest single grant of additional Attack Actions. You cannot use the same non-Attack Active Power multiple times in the same round. You cannot use the same Reaction multiple times in the same round unless that Reaction explicitly allows repeated uses. Each repeated use still costs **1 Reaction** and does not grant additional Reactions. You cannot use the same Active Buff multiple times in the same round. To react multiple times in the same round, you need multiple different valid Reactions and enough Reaction uses. To move with multiple Movement Powers in the same round, you need multiple different Movement Powers and enough Movement uses.
-
-### Power Categories
-
-| **Power Type** | **Purpose** | **Primary Use** | **Catalogue** |
-|---|---|---|---|
-| **Actives** | Direct actions, attacks, effects, zones, barriers, and Special delivery. | Your main action-based tools. | <a href="https://homebrewery.naturalcrit.com/share/Xlht6xfyn5br" target="_blank" rel="noopener noreferrer">Actives</a> |
-| **Passives** | Always-on character identity and reliable baseline benefits. | Permanent or pre-selected character traits. | <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_blank" rel="noopener noreferrer">Passives</a> |
-| **Active Buffs** | Temporary combat states that enhance the user or allies for a limited time. | Stances, short-term boosts, protection, escalation. | <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs</a> |
-| **Reactions** | Immediate answers to a specific trigger. | One-hit defense, interception, emergency protection, counters. | <a href="https://homebrewery.naturalcrit.com/share/mnNMj2Jj--vp" target="_blank" rel="noopener noreferrer">Reactions</a> |
-| **Movement Powers** | Alternative movement modes. | Dash, leap, teleport, flight, safe movement, burrow, phase passage. | <a href="http://homebrewery.naturalcrit.com/share/pyfkMUFdD_C7" target="_blank" rel="noopener noreferrer">Movement</a> |
 
 ---
 
@@ -7284,9 +7336,9 @@ Examples:
 
 - A **Ranged Single Target Attack** may be an arrow, a thrown knife, a lightning bolt, a shard of glass, a beam of moonlight, a dragon spark, or a poisonous thorn.
 - A **Melee Push / Pull** may be a shield bash, a hammer blow, a gravity pulse, a burst of wind, or a spectral beast strike.
-- A **Mental Control** may be a whispered command, a hypnotic gaze, a puppeteer's thread, or a pressure wave of fear.
+- A **Spell-delivered Ranged Single Target Attack** may look like a psychic lance, whispered curse, memory spike, bolt of force, or silent scream. These are descriptions of the same magical delivery, not new Power templates.
 - A **Mind Illusion** may be a nightmare image, a false wall, a phantom voice, a distorted reflection, a veil of insects, or a hallucinated enemy.
-- A **Heal** may be divine light, blood magic, herbal restoration, ancestral warmth, repairing nanogrowth, or stolen life returned.
+- A **Restoration Active** may appear as divine light, blood magic, ancestral warmth, repairing nanogrowth, or a returned spark of life; it restores the Scarred Health Bars allowed by its printed rules, not ordinary HP.
 
 The mechanics stay the same. The fiction belongs to the player.
 
@@ -7298,7 +7350,7 @@ When a player chooses a Power, they may give it a character-facing name. The tec
 
 Example:
 
-Technical Power: **Mind Probe** Character Power Name: **Memory Spike**
+Technical Power: **Ranged Single Target Attack** (Spell delivery) Character Power Name: **Psychic Lance**
 
 Technical Power: **Ranged Single Target Special: Ruin** Character Power Name: **Blackfire Arrow**
 
@@ -7306,7 +7358,7 @@ Technical Power: **Mind Illusion** Character Power Name: **The Wall That Was Nev
 
 Technical Power: **Melee Push / Pull** Character Power Name: **Titanbreaker Blow**
 
-A character-facing Power name does not change the Power's mechanics. Power identity follows the technical name across every source, including purchases, Echo Artifacts, other Artifacts, Trees, and granted abilities. Two character-facing names with the same Technical Reference are the same Power for **duplicate selection**. The once-per-Round **Power Use Limit** for non-Attack Powers tracks independently acquired or granted **instances** (see Power Use Limit): a learned Power and an Artifact grant with the same Technical Reference remain separate uses. Changing between Martial and Spell delivery does not create a new Power identity or a new instance. If a player describes a Power in a way that sounds stronger than its rules text, use the rules text.
+A character-facing Power name does not change the Power's mechanics. The **Technical Reference** identifies the rules used by a Power, whatever it is called in the fiction. The same eligible Active Power may be activated repeatedly with sufficient Attack Actions; **a duplicate acquisition is never needed to unlock another same-Round use**. Naming, changing a description, using a legal Spell delivery, downcasting, or upgrading an Artifact grant never creates additional Actions, charges, or effects. A Power always follows its printed mechanics and any explicit shared resource limits.
 
 If a player describes a Power in a way that sounds weaker, stranger, or more personal, the description is allowed as long as the mechanics remain clear.
 
@@ -7321,7 +7373,7 @@ Actives are action-based Powers. They are used to attack, apply Specials, create
 Actives may include:
 
 - damage,
-- healing,
+- Scarred-Bar Restoration and other printed Support,
 - Specials,
 - AoE,
 - persistent zones,
@@ -7342,7 +7394,7 @@ See: <a href="https://homebrewery.naturalcrit.com/share/Xlht6xfyn5br" target="_b
 
 The cumulative +4 steps are **hit thresholds, not Paid Raises**; they grant no additional Damage or Special effect and are not removed by Intellect Free Raises. **The first unsuccessful slot ends the chain**; successful earlier slots remain hits. A Spell below Spell Base TN fizzles as normal. Reaction: Evade works against Martial Autofire; legal Spell defenses apply to Spell Autofire. **Dive for Cover is not available.**
 
-Every successful slot is a **separate hit**, even against the same creature. Roll matching **Weapon Damage (Martial)** or **Spell Focus Damage (Spell)** together with the Power's eligible Damage Dice **once**; reuse the same die results for all successful hits. Resolve Armor, Damage Reduction, Damage Negation, Temporary HP, Special Negation and other legal defenses **per hit**; do not combine repeated hits before mitigation. **Declare the Paid and committed Free Raise counts before the shared roll; choose one Damage/Special Raise allocation after the roll and sequential hit checks**, applying it to every successful hit according to the normal rules.
+Every successful slot is a **separate hit**, even against the same creature. Roll eligible **mundane Weapon Damage (Martial)** or **mundane Spell Focus Damage (Spell)**, **or a single selected Artifact Damage contribution for either legal Delivery**, together with the Power's Damage Dice **once**; reuse the same die results for all successful hits. Resolve Armor, Damage Reduction, Damage Negation, Temporary HP, Special Negation and other legal defenses **per hit**; do not combine repeated hits before mitigation. **Declare the Paid and committed Free Raise counts before the shared roll; choose one Damage/Special Raise allocation after the roll and sequential hit checks**, applying it to every successful hit according to the normal rules.
 
 *Example:* Three attacks against Evade 10 require **10 / 14 / 18** before ordinary Paid Raises. An Attack Roll of **16** hits the first two; the third misses. All damage dice are rolled just once. The Power's existing PP costs, range, Attack Capacity and PL damage progression remain unchanged.
 
@@ -7364,19 +7416,22 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 **Aura classification:** **Special Auras are Active Buffs**: Self-range, caster-centered and moving, automatically applying only their printed Special to every creature in radius **except the Aura caster**; allies are not exempt. They occupy the single simultaneously maintained Active Buff slot and last MR complete Rounds per activation. **Persistent Special Zones remain stationary Actives**, placed with one Attack Action and sustained with one Attack Action per Zone each subsequent creator Turn; overlapping Zones are allowed.
 
-**Playtest compatibility notice:** The six old generic damage/armor/support Aura Buffs remain retired. Their Artifact/Echo references (Oracle Field, Draconic Roar and Moonlight Shadow) remain pending deliberate replacement. The new Special Aura Active Buffs do **not** automatically replace those effects or alter their Artifact progression.
+**Special Aura availability:** The fourteen named Special Auras follow their printed Active Buff rules. **Moonlight Shadow** grants **Active Buff: Sundered Aura** as printed in the Artifact catalogue. An Artifact grants only the Powers and Functions explicitly listed in its current progression.
 
 Active Buffs are temporary combat enhancements that are activated during the **Preparation Phase**, before the Combat Round begins. **Activation Cost:** Activating an Active Buff during the Preparation Phase costs **no Attack Action and no Stones**. It does not remove or commit the character's base Attack Action for the upcoming Round.
 
-**Activation and Duration:** The Active Buff becomes effective at the beginning of the upcoming Round, before any creature takes its Turn. It normally lasts **Mastery Rank complete Rounds**. The activation Round counts as the first Round. At **Round End** of the final Round, the Buff expires. Its duration is independent of the activating character's Initiative or Turn. **Maintenance and Replacement:** A character may maintain **only one Active Buff at a time**; the active Buff can be ended voluntarily at any time and freely replaced or reactivated in a Preparation Phase, even after Stone Confirmation. End the old Buff and its modifiers before the new Buff starts; each activation has a fresh MR-complete-Round duration, but spent per-Combat resources never refresh. A Buff never stacks with itself. All individual Buff mechanics, including Maximization's printed combat-wide allowances, remain unchanged.
+**Activation and Duration:** Each **named Active Buff** may be activated **once per Combat**, during Preparation. It is effective before the first Turn of that Round and lasts **Mastery Rank complete Rounds**, counting the activation Round as the first. It expires at **Round End** of its final Round. **Maintenance and Switching:** Maintain **one Active Buff at a time**. You may end it at any time. During Preparation, even after Stone Confirmation, you may switch to another Buff whose activation remains available, ending the previous Buff first. The confirmed Stone plan stays unchanged. Spent combat-wide uses remain spent; all maintained Active Buffs end at Combat End.
 
 **Round-Based Resources:** Resources granted by an Active Buff for each Round become available during the activation Preparation Phase and refresh once during each subsequent Preparation Phase while the Buff remains active. Unused Round-based resources expire at Round End. Other effects with explicitly defined triggers, such as Start of Turn or End of Turn, retain those triggers unless the specific Buff states otherwise. Active Buffs cannot be activated or replaced during a creature's Turn or through an ordinary Attack Action. Explicit exceptions must be stated in their own rules.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Active Buff Limits
 
-Apply the **Preparation Phase activation rules above**: free activation or replacement in Preparation, a maximum of **one concurrently maintained Active Buff**, free voluntary ending at any time, and no self-stacking. Per-Combat limits on particular Buff effects remain in force. Only an explicit written exception overrides a limit.
+Activate **each named Active Buff once per Combat**, during Preparation. Maintain **one Active Buff at a time**; end it at any time, and switch during Preparation to another unused Buff. This includes Special Auras and Alchemist Potions. The Buff retains its printed effect limits and duration.
 
 ---
 
@@ -7386,15 +7441,12 @@ Active Buffs may be:
 - single-focus offensive buffs,
 - or dedicated premium subsystem buffs.
 
-Combined Active Buffs are not selectable in this beta release. The **six former generic damage/armor/support Aura Buffs stay retired**, but the **fourteen catalogued Special Auras** (Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken) are explicitly permitted Active Buffs. Other Active Buffs do not apply Specials by default. Persistent Special Zones remain Actives with ongoing Action maintenance. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
+Combined Active Buffs are not selectable in this beta release. The **fourteen catalogued Special Auras** (Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken) are explicitly permitted Active Buffs. Other Active Buffs do not apply Specials by default. Persistent Special Zones remain Actives with ongoing Action maintenance. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
 
 See: <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs</a>
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Reactions
 
 Reactions are immediate answers to a specific trigger. A Reaction is not a second turn. A Reaction is not a hidden Attack Action. A Reaction is not a way to add free offensive pressure outside your turn. A Reaction costs your **Reaction for the round**. You may normally use only **one Reaction per round**.
@@ -7425,7 +7477,10 @@ They are used to change:
 - or what kind of path you may take.
 
 A Movement Power is not an Attack Action. A Movement Power is not an Active Buff. A Movement Power is not a Reaction. A Movement Power is not a Special-delivery system. When you use a Movement Power, the listed distance is your **total Movement for that Movement Power**. It is not added on top of your normal Movement unless the entry explicitly says otherwise.
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 Movement Powers may include movement types such as:
 
 - Ground Dash,
@@ -7459,7 +7514,7 @@ See: <a href="http://homebrewery.naturalcrit.com/share/pyfkMUFdD_C7" target="_bl
 - **Size direction:** Transformation expands the original footprint; the character may return to their original footprint outside combat. The original footprint is the minimum size.
 - **Space:** The entire larger footprint must fit in free, traversable Hexes. Occupied or blocked Hexes prevent Growth; creatures and obstacles keep their positions.
 
-Growth grants its explicitly defined, purchased mechanical benefits. The character retains all other purchased abilities; its appearance determines none of their values.
+Growth grants its explicitly defined, purchased mechanical benefits. The character retains all other purchased abilities; its appearance determines none of their values. **A tiny bird, mouse or other scouting appearance does not change the character's mechanical size, occupied Hexes, movement mode, senses, stealth ability, or access permissions.** A small independent scout uses a legal **Summon** (for example, *Scout Owl*) and, when purchased, **Shared Sight / Shared Hearing**. There is no separate free Druid or psionic Power family.
 
 #### Growth Geometry and Combat Effects
 
@@ -8987,7 +9042,7 @@ A purchased Power is assigned to one specific Body. The Body must meet every req
 ### Power Action Economy
 
 - **Active:** uses one available Summon Attack.
-- **Active Buff:** uses one available Summon Attack to activate. A Summon Bond may maintain only one Active Buff of its own at a time.
+- **Active Buff:** activates free in Preparation, **once per named Buff per Combat**. A Summon Bond maintains **one** at a time.
 - **Passive:** affects only the Body to which it is assigned.
 - **Reaction:** a Summon Bond may use no more than one Reaction per Round, regardless of Bodies or purchased Reactions.
 - **Movement Power:** replaces the using Body's normal Movement for that Turn and does not add a second permanent Movement Mode.
@@ -9022,9 +9077,9 @@ A Body reduced to 0 HP becomes **Dormant** and leaves play. Its upgrades and ass
 
 ---
 
-### Summon Aura Active Buffs (Retired)
+### Summon Powers and Auras
 
-The former **Active Buff: Summon Damage Aura** and **Active Buff: Summon Armor Aura** have been removed from the Active Buff catalogue. They cannot currently be selected, acquired, assigned to a Summon Bond, or activated. Existing Summon Bonds and all other Summon rules remain unchanged. No replacement Powers have been defined.
+Summon Bonds may grant only current canonical Power Catalogue entries and their explicitly listed Bond benefits. No additional Aura Power is implied.
 
 ---
 }}
@@ -9189,13 +9244,13 @@ Minor Magic Items allow characters to store their own eligible Active Powers in 
 
 ### Creating Minor Magic Items
 
-During a Safe Haven Rest, a character may create, replace, or dismiss Minor Magic Items. A character may maintain a number of Minor Magic Items equal to their **Mastery Rank**. Each Minor Magic Item stores one use of a single eligible Active Power and counts against this limit until it is used, triggered, destroyed, or dismissed. An **eligible Active Power** is an Active Power the creator currently has access to when the item is created. This includes the character's own Active Powers and Active Powers granted by an equipped Item or Artifact.
+During a **Safe Haven Rest**, a character may create up to **Mastery Rank Minor Magic Items** for the coming rest cycle. Each Minor Magic Item is a **single-use consumable** storing one activation of an eligible Active Power. It counts toward the creator's MR limit until consumed, destroyed, dismissed, or automatically expired at the **start of that creator's next Safe Haven Rest**. Items do **not** carry forward across Safe Haven Rests, even if given to another creature or left as an armed Trap. An unused item then loses its magic, spoils, breaks, disappears, or becomes permanently inert as appropriate to its form; it cannot be activated afterward. New items may be made during that next rest, subject to the new cycle's MR limit. An **eligible Active Power** is an Active Power the creator currently has access to when the item is created. This includes the character's own Active Powers and Active Powers granted by an equipped Item or Artifact.
 
 A Power belonging only to another creature cannot be copied. Only Active Powers may be stored. Active Buffs, Passives, Reactions, Movement Powers, Rituals, Stone Abilities, Artifact Functions, and other Power types are not eligible. If the stored Power is granted by an Item or Artifact, use the values currently granted by that Item or Artifact, but never values above the **Artifact Level 4–6 / Power Level 10** band. If the source currently grants lower values, use those lower values. Values from Artifact Level 7 or higher, Power Level 16, or Ultimate progression cannot be stored in a Minor Magic Item.
 
 The stored Active Power must have an **Instant** duration. A Power with a persistent or duration-based effect cannot be stored, including a persistent zone, barrier, construct, terrain effect, image, aura, or similar ongoing effect. Minor Magic Items cannot store or reproduce **Restoration of Scarred Health Bars**, Health Level Recovery, Stone Refresh, Safe Haven Rest resources or uses, or any other resource recovery tied to a Safe Haven Rest. Restoration instead follows its dedicated Safe Haven recovery resource. If an otherwise eligible Active Power includes both an allowed immediate effect and one of these excluded effects, the excluded effect is not stored.
 
-Creating a Minor Magic Item requires no Stones, currency, or special materials. Any object or weapon included in its description must be present, but provides no mechanical benefits. An empty place within this limit can only be filled during a Safe Haven Rest. Existing Minor Magic Items may be retained and continue to count against the creator’s limit, even if they are carried by another character.
+Creating a Minor Magic Item requires no Stones, currency, or special materials. Any object or weapon included in its description must be present, but provides no mechanical benefits. **New items can be created only during a Safe Haven Rest.** A used or expired item may be recreated during a later Safe Haven Rest, but the new item is a new consumable within that rest cycle's limit. **No stockpiling:** unspent items created during the previous cycle all expire when the creator begins the next Safe Haven Rest, wherever they are, before new items are made.
 
 ### Stored Values
 
@@ -9223,9 +9278,9 @@ An offensive Minor Magic Item deals only the Damage of the stored Power. It neve
 
 A Minor Magic Item may be activated directly or prepared as a Trap. Activating or arming it requires the same type of Action as the stored Power. When prepared as a Trap, the character determines its location, orientation, affected area, and one simple trigger. When that trigger occurs, the stored Power resolves from the Trap’s location using its recorded values. If several prepared Traps share a trigger and that trigger occurs, all of them trigger. Resolve each Trap separately using its own recorded values. There is no once-per-Round limit on the number of Traps that can trigger at the same time.
 
-Minor Magic Items are an explicit exception to the normal Power Use Limit. Each item is one independent stored use. Using or triggering one item does not mark the creator's or activator's own copy of the Power as used, and it does not spend or prevent the use of another item with the same Technical Reference. Any number of items with the same or different Technical References may therefore be used in the same Round if their Actions or triggers allow it.
+**Each Minor Magic Item can resolve only once.** When activated or triggered, its stored Power is expended. Activating an item does not spend the creator's learned Power, lock any other item, or prevent further legal Power uses during the Round. Multiple different consumables may activate in the same Round if the required Actions or Triggers allow it. **All unspent items expire at the creator's next Safe Haven Rest, regardless of their holder or location.**
 
-After the Power has resolved, the Minor Magic Item loses its magic and no longer counts against the creator’s limit.
+Immediately after the stored Power resolves, the Minor Magic Item is **consumed**: it breaks, burns out, spoils, disappears, or otherwise becomes unusable. It cannot be recharged or activated again. Unused items expire automatically at the start of the creator's next Safe Haven Rest; replacements must be freshly created during a Safe Haven Rest.
 
 > ##### Example: Prepared Crossbow
 >
@@ -9271,16 +9326,19 @@ A newly acquired ordinary Artifact is initially dormant until the character choo
 
 **Artifact Level 1 is free.** No XP is required for the first awakening. A bound Artifact counts against Artifact Capacity and occupies its required Equipment Slots as normal. Later Artifact Levels are purchased through XP progression. **Echo Artifacts granted at character creation begin already bound at Artifact Level 1**, subject to their normal capacity and slot rules; they never require a separate binding procedure.
 
-**Artifact Delivery Unification:** An Artifact may support any Delivery its wielder already has. Artifacts are not restricted to Martial or Spell delivery because of physical form, equipment slot, weapon classification, or Spell Focus classification. An Artifact never grants a new Delivery — the character must already have access to the chosen Delivery, and that Delivery's Attack or Casting rules apply. When an Artifact provides eligible delivery damage, that contribution applies once for the selected Delivery (preferring Weapon Damage for Martial and Spell Focus for Spell when both are printed on the same Artifact; otherwise the available contribution backs the chosen Delivery). The same Artifact damage is never double-counted through Weapon and Spell Focus paths on one attack. Artifacts that grant no delivery damage invent none. Mundane equipment keeps its ordinary Delivery restrictions.
-
-**Artifact-granted Powers use their ordinary catalogue rules.** An Artifact-granted Active, Active Buff, Reaction, or Movement Power follows the matching Power Catalogue entry and its explicitly printed modifiers; it is not a separate Power type. **Artifact-granted Special-only Attacks (Single Target or AoE) deal no direct Attack Damage and add neither Weapon Damage nor Spell Focus Damage, even when delivered through an Artifact.** Only a legal Damage Attack uses matching delivery damage; Specials never create a Damage Roll merely by being granted from an Artifact.
-
-**Fixed Artifact-granted Powers:** Once an Artifact's own Level unlocks a printed Power profile, the bearer uses the printed PL even if it exceeds the ordinary **MR x 2 Power Level cap**. For example, a legal MR 3 wielder may use a PL 10 Power granted at Artifact Level 4, although their directly purchased Powers remain capped at PL 6. The wielder must still obey the Artifact Level cap, slot/Capacity requirements, activation limits, and the printed Power's target rules. Artifact-granted Spells use their actual printed PL for casting TN (**4 x printed PL**).
-
+**Artifact-granted Powers use their ordinary catalogue rules.** An Artifact-granted Active, Active Buff, Reaction, or Movement Power follows the matching Power Catalogue entry and its explicitly printed modifiers; it is not a separate Power type. **Artifact-granted Special-only Attacks (Single Target or AoE) deal no direct Attack Damage and add neither Weapon Damage nor Spell Focus Damage, even when delivered through an Artifact Weapon or Focus.** Only a legal Damage Attack uses matching delivery damage; Specials never create a Damage Roll merely by being granted from an Artifact.
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+### Artifact Delivery Support
+
+**Artifacts only:** A bound, equipped and usable Artifact with printed Damage may support **any legal direct damaging Martial or Spell Delivery already available to its wielder**, regardless of the Artifact's form or a Weapon/Spell Focus label. The Power still determines Delivery, Attack/Casting Roll, defenses, Range, targets and other requirements. **This does not apply to mundane weapons or mundane Spell Foci**, which retain all their existing restrictions. An Artifact grants no additional Powers, Deliveries, Actions or targeting permissions.
+
+For each eligible direct Damage Roll, select **one applicable equipped Artifact** with printed Damage. Add its **complete current Artifact Damage** once, independent of Martial or Spell Delivery; if its total already contains ordinary weapon dice, do not add them again. A second Artifact's Damage, mundane Weapon Damage or mundane Spell Focus Damage does **not** stack with the selected Artifact contribution. The Power's own Damage and legal modifiers apply normally. For an instant Damage AoE or Autofire, include the selected Artifact's Damage **once** in the shared roll. **Limited** multiplies only printed Power Damage, never Artifact Damage. Special-only Attacks, Ruin ticks, Auras, Zones, forced movement, Restoration, Cleanse and other non-Damage effects gain **no direct Attack Damage** from an Artifact. Artifacts without a printed direct Damage contribution grant no Damage dice. See the *Artifacts Catalogue — Unified Artifact Damage* section for details.
+
+**Fixed Artifact-granted Powers:** Once an Artifact's own Level unlocks a printed Power profile, the bearer uses the printed PL even if it exceeds the ordinary **MR x 2 Power Level cap**. For example, a legal MR 3 wielder may use a PL 10 Power granted at Artifact Level 4, although their directly purchased Powers remain capped at PL 6. The wielder must still obey the Artifact Level cap, slot/Capacity requirements, activation limits, and the printed Power's target rules. Artifact-granted Spells use their actual printed PL for casting TN (**4 x printed PL**).
+
 
 #### Echo Artifacts
 
@@ -9299,6 +9357,10 @@ Unlike ordinary Artifacts, Echo Artifacts are part of the character’s origin a
 #### Artifact Progression
 
 Artifacts have **10 Artifact Levels**. As an Artifact grows, it may improve its Base Profile, unlock new Powers, or strengthen existing functions. At Artifact Level 10, the Artifact gains **Artifact Awakening**. It uses its existing Powers, Stone Abilities and resource functions; no individual Level-10 Ultimate Power is required. The normal MR 6+ Level cap and 64 XP advancement cost apply. Existing printed Base Values continue to use their own progression; the Awakening rule creates no new Base Value. Players do not freely purchase arbitrary effects for an Artifact. Each Artifact has a fixed mechanical structure that represents its identity, history, and supernatural nature.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 ### Artifact Awakening (Artifact Level 10)
 
@@ -9306,7 +9368,7 @@ Artifacts have **10 Artifact Levels**. As an Artifact grows, it may improve its 
 
 At Artifact Level 10, the wielder may awaken the highest unlocked version of each distinct ability granted by that Artifact:
 
-- **Active Powers, Active Buffs, Reactions, and Movement Powers:** Each may be used once without spending its normal Action or Reaction use. An awakened **Reaction costs 0 Reactions from the Round allowance**, effectively leaving one additional Reaction available that Round. It still requires its regular Trigger. All awakened Powers use their highest granted Power Level (up to PL 16), with their normal targets, Range, per-Round Power-use limits, other costs, and maintained-state rules. Only one action-free Artifact Awakening Power may be used per Round.
+- **Active Powers, Active Buffs, Reactions, and Movement Powers:** Each may be used once without spending its normal Action or Reaction use. An awakened **Reaction costs 0 Reactions from the Round allowance**, effectively leaving one additional Reaction available that Round. It still requires its regular Trigger. All awakened Powers use their highest granted Power Level (up to PL 16), with their normal targets, Range, specific charges and resources, and maintained-state rules. An Action-free Awakening use does not impose a new per-Round lock on the underlying Active Power. Only one action-free Artifact Awakening Power may be used per Round.
 - **Stone Power Support:** Each supported Stone Ability may be activated once at the highest Rank supported by that Artifact without paying Stones for that Rank or any prerequisite lower Ranks. **For Remove Scar, this also waives Vitality Stone Sealing for the included Ranks.** The ability must be unlocked, and its normal timing, effects, and use restrictions apply.
 - **Stone Pools, Stone Batteries, and similar stored Stone resources:** Each reservoir may be refilled once to its currently listed capacity at the start of a combat without obtaining or spending Stones from another source. The refill cannot exceed capacity. Stones supplied by this one-combat refill that remain unused at the end of combat expire; previously stored Stones retain their normal source rules.
 - **Other activated Artifact Functions:** Where a function has a usable activation, its highest granted profile may be used once without a normally required Action, but it gains no additional output or uses beyond its printed limits.
@@ -9361,7 +9423,7 @@ can be found in the separate **Artifacts Catalogue**:
 \page
 {{pageNumber,auto}}
 {{wide
-<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:1.1em; line-height:1.1;">
+<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:1em; line-height:1.1;">
 
 #### **Player Cheat Sheet: Core Flow**
 
@@ -9374,7 +9436,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **2) Training Checks**
 
-**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **One universal Training Roll:** **Attribute k MR** with the relevant **Training Advantage** (Rank 1: reroll 1; 2: 1-2; 3: 1-3; 4: 1-4; 5: 1-5; 6-8: 1-6, once per eligible initial die). **Training Crit** at Rank 7: once per Tyhran Day; Rank 8: twice per day, per Profession or Perception; declare before rolling, exploding on natural 7-8. **Standard Check:** against Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects on success, with no Training Rank Raise cap. **Comparative Check:** both parties roll; higher wins, defending/observing side wins ties; **no Task TN or Raises**. Rank 0 uses Disadvantage and no Raises. Familiar safe work may succeed routinely.
+**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **Training Roll = Attribute k MR. Training Advantage:** Rank 1 rerolls initial 1s; Rank 2, 1s–2s; Rank 3, 1s–3s; Rank 4, 1s–4s; Rank 5, 1s–5s; Rank 6–8, 1s–6s (once per eligible initial die). **Training Crit:** Rank 7 grants one use and Rank 8 two uses **per Safe Haven Rest**, separately for each Profession or Perception; declare before rolling to explode on natural 7s and 8s. **Standard Check:** Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects, with no Rank-based Raise cap. **Comparative Check:** higher roll wins; defender/observer wins ties; **no Task TN or Raises**. Rank 0 has Disadvantage and no Raises. Familiar safe work may succeed routinely.
 
 **Echo Imprints:** Immediately after starting Attributes, choose up to MR free Imprints tied to Attributes **4+**; they express small magic and Echo Memories.
 
@@ -9389,19 +9451,19 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **4) Round & Turn**
 
-Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 1 Reaction** per Round. Movement and available Attack Actions can be used in either order. **Activating an Active Buff during Preparation is free and does not consume an Attack Action.** Reactions follow their printed trigger.
+Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 1 Reaction** per Round. Movement and available Attack Actions can be used in either order. **Playtest:** During Preparation, you may choose All-Out Attack or transfer only your regular Attack Action to an ally; Intellect Free Raises may be shared without multiplying their allowance. **Activating an Active Buff during Preparation is free and does not consume an Attack Action.** Reactions follow their printed trigger.
 
-#### **5) Power Use Limit**
+#### **5) Power Use and Attack Actions**
 
-An **Attack Power** may be used repeatedly in the same Round while an Attack Action is available for each use; Limited charges and other explicit limits still apply. Every other Power may be used **once per Round** per **independently acquired or granted instance**. Learned Powers and Artifact grants are separate instances even when they share a Technical Reference. Extra actions permit further Attack Power uses, different legal Powers or other instances — not a second use of the same non-Attack Power instance. Reactions with explicit repeat permission follow their text. Competing additional Attack Action grants use the highest single grant unless expressly stackable. Global Limited charges and other shared resources still bind across instances.
+Spend each available **Attack Action** on a valid Combat Maneuver or a learned/granted **Active Power**. **All Actives may be used again with another available Attack Action**, including the same Power; no duplicate purchase and no per-instance once-per-Round counter. The Attack Action itself provides **no automatic attack** or damage. Printed resource, duration, trigger and maintenance rules still apply: global Limited charge, Restoration pools, one maintained Active Buff, each named Buff once per Combat, Reaction and Movement economy, and Artifact/Summon quotas. Competing additional Attack Action grants use the highest single grant unless expressly stackable.
 
 #### **6) Initiative**
 
-At combat start, each creature chooses **Risky** (MR exploding d8, keep all) or **Controlled** (fixed max of Agility or Wits, no MR multiplier). Apply Initiative modifiers once. The resulting score persists across Rounds unless spent or changed by a rule.
+At combat start, choose **Risky: roll MR d8, keep all, exploding 8s**, or **Controlled: take max(Agility, Wits) as a fixed score** (no MR multiplier, no roll). Apply all normal Initiative bonuses and penalties once to either method, minimum 0. The score persists across Rounds unless spent or changed by a rule.
 
 #### **7) Initiative Exchange**
 
-At Round start, before actions: apply first-round Initiative rolls, resolve any once-per-combat Initiative Boost, optionally convert Initiative to **Initiative Colorless Stones at 4 × MR score per Stone**, then lock turn order from remaining scores.
+At Round start, before actions: determine Initiative only on the first Round, resolve any once-per-Combat Initiative Boost, optionally convert Initiative to **Initiative Colorless Stones at 4 × MR score per Stone**, then lock turn order from remaining scores.
 
 | MR | Initiative cost / Stone |
 |:--:|:--:|
@@ -9422,7 +9484,7 @@ Initiative stays at or above 0. Initiative Colorless Stones pay ordinary unlocke
 \page
 {{pageNumber,auto}}
 {{wide
-<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:1.0em; line-height:1.12;">
+<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.9em; line-height:1.12;">
 
 #### **Player Cheat Sheet: Defense & Resources**
 
@@ -9438,6 +9500,8 @@ Initiative stays at or above 0. Initiative Colorless Stones pay ordinary unlocke
 **Special value:** printed + eligible **after-roll allocated Special Raises** + Stone Boost + eligible Passive Amplification + Vulnerability − Special Negation. **There is no per-Round 4 × MR Special Application cap.** A direct Spell below Base TN fizzles; otherwise each target compares its own Final TN. Other placed Spells use Creation TN as applicable. **Persistent Special Zones and Special Auras apply automatically without rolls and cannot use Raises.**
 
 #### **9) Damage**
+
+**Artifact delivery:** A bound Artifact may support any legal Delivery its wielder already possesses. Its eligible damage dice apply **once** to a damaging Martial or Spell hit, not both; no separate Focus purchase is needed. Special-only Attacks deal no direct Attack Damage. Mundane equipment keeps its normal delivery restrictions.
 
 Damage dice explode only when their own rule allows it. Apply **Armor**, then combined **Damage Reduction (max. 100%)**.
 
@@ -9460,7 +9524,7 @@ If this yields zero, the natural-8 minimum still deals **1 damage per natural 8 
 
 #### **12) Active Buffs**
 
-Maintain **one Active Buff at a time**. Activate or replace it freely during **Preparation**, including after Stone Confirmation, for **no Attack Action or Stone cost**; voluntary ending is possible at any time. Each activation lasts **MR full Rounds**, counting the activation Round. There is no general per-Combat activation limit, but spent individual per-Combat uses cannot be restored by replacing the Buff. Round-based Temporary HP/Damage Negation pools obey their printed refresh rules and cannot be duplicated by switching.
+Maintain **one Active Buff at a time**. Activate **each named Buff once per Combat** during **Preparation**, even after Stone Confirmation, at **no Attack Action or Stone cost**. End it at any time; during Preparation you may switch to another Buff whose activation is still available. This includes Special Auras and Alchemist Potions. A Buff lasts **MR complete Rounds**, counting the activation Round. Round-based Temporary HP and Damage Negation refresh once per Round while the Buff remains active.
 
 #### **13) Stones**
 
@@ -9766,9 +9830,9 @@ On a success, reduce Root by **exactly 1**. The amount does not increase with th
 **Cleanse:** Yes
 
 ---
-**Effect:** Ruin deals ongoing damage. At each Ruin Tick, take **4 × the current Ruin(X) value** in damage (for example, Ruin(6) deals 24). This damage ignores Armor unless a specific rule says otherwise. The Tick is Special-generated ongoing damage, not direct Attack Damage, and is not eligible for Attack Damage bonuses, Damage Raises or Limited. At the start of your turn, after the Tick and normal Natural Special Recovery timing, Ruin also decays by **1**. If Ruin reaches **0**, it ends. Any Natural Special Recovery occurs after the Tick as usual.
+**Effect:** Ruin causes **immediate damage when new stacks are applied**, and ongoing damage on later Ticks. Once the incoming Ruin value has been modified by applicable Vulnerability, Special Negation, and other legal Special defenses, **each new Ruin point successfully added causes 4 damage immediately**. For example, applying Ruin(6) to a creature with no Ruin causes **24 immediate damage**; adding Ruin(3) to an existing Ruin(6) stack causes **12 immediate damage**, not 36. Existing Ruin points never cause an additional immediate payment simply because more Ruin is applied.
 
-**Immediate damage:** Whenever Ruin stacks are newly applied, the creature immediately takes **4 damage per newly applied stack**, ignoring Armor. Only stacks actually added after Special Negation and other Special defenses count. This damage is Special-generated, not Attack Damage, and otherwise follows the same protection rules as the Ruin Tick. Printed Ruin values are unchanged; **Balance Review: open**.
+At each start-of-Turn Ruin Tick, take **4 × the current total Ruin(X)** (for example, Ruin(6) deals 24), then apply normal Natural Special Recovery and reduce Ruin by **1** through Diminishing Decay. If Ruin reaches **0**, it ends. Both the immediate damage and the Tick **ignore Armor** but use applicable Damage Reduction, Temporary HP buffers, and normal Health processing. Both are **Special-generated damage**, not direct Attack Damage or a Damage Dice roll; they receive no Weapon/Spell Focus Damage, Attack Damage bonuses, Damage Raises, Limited multiplication, or natural-8 minimum damage. **New Ruin applied by a Zone or Special Aura also causes its immediate damage** when the application is legal; the normal per-source/per-creature Round application rule remains in effect.
 
 ---
 
@@ -10066,7 +10130,7 @@ The Cleanse value cannot be transferred to another creature.
 \page
 {{pageNumber,auto}}
 {{wide
-## Limited Damage Powers — Playtest Revision (2026-11-04)
+### Limited Damage Powers
 
 **Limited is a separately acquired Instant Damage Active Power, never a freely enabled rider.** A character may learn both a normal attack and its Limited counterpart, but each is its own canonical Technical Reference, has its **own Power Level and XP advancement**, and must be acquired independently. Learning Limited never grants a free normal attack, and learning the normal attack never grants a free Limited version. There is no separate limit on how many different Limited Powers may be learned.
 
@@ -10079,20 +10143,498 @@ The Cleanse value cannot be transferred to another creature.
 | **Limited Melee AoE Attack** | Melee AoE Attack |
 | **Limited Ranged AoE Attack** | Ranged AoE Attack (Martial or legal Spell delivery) |
 
-Each Limited attack uses the base template's same printed Power Level, XP costs, PP budget, Range, Radius, target rules, action cost and Attack/Casting Roll. Its identity is independent from the normal version; changing Martial/Ranged Spell delivery does **not** create yet another identity. A granted Artifact version of one of these four types obeys the same global resource rule. Older references written as `Melee Single Target Attack (Limited)` or `Ranged AoE Attack (Limited)` are legacy aliases for the corresponding **Limited ...** technical name; they do not create second Powers or resources.
+Each Limited attack uses the base template's same printed Power Level, XP costs, PP budget, Range, Radius, target rules, action cost and Attack/Casting Roll. Its identity is independent from the normal version; changing Martial/Ranged Spell delivery does **not** create yet another identity. A granted Artifact version of one of these four types obeys the same global resource rule. Only the four printed **Limited ...** Technical References are valid Limited Power identities; alternate names do not create additional Powers or charges.
 
 **Damage effect:** On a successful hit, multiply **only the base attack's own printed purchased Power Damage Dice by four**. Do not multiply Weapon Damage, Spell Focus Damage, successful Raise Damage, external Attack Damage bonuses, Special(X), duration, Range, Radius or number of targets. Include matching Weapon Damage on eligible damaging Martial Attacks, or matching Spell Focus Damage on eligible damaging Spells, **once** in the final Damage Pool. An AoE uses one shared Damage Roll and applies it separately to each hit creature after target-specific defenses. A Limited Attack adds no Special by itself.
 
-**Shared charge — one per character, not one per Power:** Each character has **one single global Limited use per Safe Haven Rest**. All learned and Artifact-granted Limited Powers share it. Declare which Limited Power is used and spend the character's charge **before** its Attack/Casting Roll. A miss, Spell resistance, total prevention or canceled attack does not refund the charge after legal declaration. One AoE consumes only one charge irrespective of targets. When it is spent, **none** of that character's Limited Powers can be used until the next Safe Haven Rest. Learning additional Limited Powers adds options, **never extra charges**.
 
-**Action and duplicate rules:** Limited uses the base Power's normal Attack Action and the current legal delivery. Its separate Technical Reference allows the normal and Limited version to coexist if both are known. The normal version is a repeatable Attack Power; the Limited version is bound by the single global Limited charge. Additional attack actions still require legal sources.
-
-**Ineligible templates:** All Special-only Powers (including AoE Ruin, Hex, Sundered and Expose), Damage Transfer, Split Attacks, Autofire, Healing, Restoration, Cleanse, utility/defense, Active Buffs, Passives, Reactions, Movement Powers, persistent Zones, Auras, Summons, Barriers, Walls, Rituals and Stone Abilities are **not** generic Limited attacks. Limited never quadruples a numeric Special(X), including Ruin's ongoing tick damage. No Limited Special-only version exists.
+**Action and shared resource rules:** Each Limited attack uses the base Power's normal Attack Action and legal delivery. Its separate Technical Reference allows a normal Attack and a Limited counterpart to coexist when both are acquired. There is **no per-instance once-per-Round limit**: if an effect ever explicitly provides another legal Limited use, it still requires another available Attack Action. Under the normal rules, however, **all Limited Powers and all of their sources share one total Limited charge per character per Safe Haven Rest**; having multiple Limited templates does not grant extra charges. Additional Attack Actions must come from legal sources.
 
 **Maximization — unchanged:** A Limited attack may use an eligible Maximization source under the normal restrictions. First quadruple only eligible Power Damage Dice, build the full legal Damage Pool including one matching Weapon/Spell Focus contribution, resolve Damage Negation, and then maximize the surviving Damage Dice to artificial 8s **before Armor**. This consumes the global Limited charge and one legal Maximization use; it grants no extra damage roll or use. The Maximization mechanic, costs and usage allowances are otherwise unchanged.
 
-**PP pricing:** Limited is not a PP discount or extra PP expenditure; the permitted Limited template uses the **same base purchased Power Dice and 30 PP x PL delivery budget** as its normal equivalent. The extra output is the price paid through separate learning and the one-character-wide Safe Haven Rest charge. Weapon/Spell Focus Damage is normal equipment delivery damage and is never multiplied.
 
 **Example:** A PL4 Limited Melee AoE Attack purchases 4d8 Power Damage and radius 3 m. Its use deals **16d8 Power Damage + matching Weapon Damage** per hit target from **one shared roll** and consumes the character's global Limited use. A PL16 Limited Melee Single Target Attack purchases 32d8 Power Damage; when used it deals **128d8 Power Damage + matching Weapon Damage** to its one target. No Special-only AoE may use Limited.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+## Character Concepts — Build Your Own Legend
+
+*Thirteen ready-to-build starting characters, not thirteen classes.*
+
+### How to Turn an Idea into a Build
+
+**1. Define the fantasy in one sentence.** What do you actually do in combat and outside it? A title or illustration is not a rule. A character image may suggest weapons, armor, a familiar, wings or animal form; **only purchased Powers, legal equipment, Echoes, Stones and Artifacts make those features mechanical.**
+
+**2. Choose your Echo before equipment.** Respect its required Echo Artifact, occupied Slots, Burden and remaining Artifact Capacity. For the thirteen examples below, the Echo and any mandatory starting Artifact are printed explicitly. *Human* is a valid choice for supernatural concepts too.
+
+**3. Follow the MR 2 starting package exactly.** Assign **4 / 4 / 3 / 3 / 2 / 2 / 2** across the seven Attributes. Assign **two permanent Attribute Stones** (not Colorless). Take **four distinct Rank-2 Professions**, with concrete histories/scopes, plus **Perception Rank 2 for free**. Choose **two eligible Echo Imprints** from Attributes **4+**; they are narrative/exploration effects, not free combat Powers. All sixteen Core Rituals are already known.
+
+**4. Choose exactly the starting Power slots.** **Two Actives at PL 2**, **two Passives at PL 4**, **one Reaction at PL 4**, and **one Active Buff at PL 4**. These are real catalogue technical names, not examples of free class features. One Buff may be maintained; Reactions use their normal trigger and economy. No character is required to take an attack Power if the concept calls for two support Actives.
+
+**5. Plan the first Round, then your progression.** Identify the Preparation choice, Movement, how you spend your legal Attack Actions and when your Reaction triggers. The optional **All-Out Attack**, **Shared Intellect Free Raises** and **Regular Attack Action Transfer** are marked **Playtest** in the Core. They create no new Powers or Stones. Two development directions illustrate different future XP purchases, not entitlements at MR 2. A learned Power upgraded from **PL 2 to PL 3 costs 6 XP**; PL 4 to PL 5 requires **MR 3** and costs **10 XP**. Purchase new Powers and any missing intermediate Levels normally.
+
+**6. Describe freely; resolve by catalogue.** A spell can look like prayer, blood, song, psychic force or technology; it remains the **same Spell delivery**. A wolf Form is not a free combat transformation. Growth and Summons—including animal scouting through purchased Shared Senses—use their own existing mechanics. Restoration repairs **Scarred Bars**; ordinary HP Healing comes from **Resolve Stones** or other expressly printed effects. A **Special-only Attack** does no direct Attack Damage.
+
+{{note
+##### Reading the Examples
+Every build below is a reproducible **MR 2 starting selection**, assuming the named ordinary weapon or legal delivery and the standard starting package. The chosen Echo Artifact, if any, is the Echo's ordinary creation selection—not an extra reward. Profession labels give the agreed background scope, never attack bonuses. The two future paths are optional alternatives; later purchases must satisfy XP, Mastery Rank, equipment and catalogue requirements. The seven additional Pathfinder-inspired examples are reserved for a separate future collection.
+}}
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 1. The Berserker <span style="font-size:0.65em;">(Barbarian reference)</span>
+
+*Relentless melee pressure.* A survivor of Titan blood who accepts the danger of being exposed in exchange for decisive strikes.
+
+**Mastery Rank:** 2 · **Echo:** Titanborn  
+**Echo Artifact / slot:** Titan Scars — required Body Echo Artifact, occupying Body; no additional Body Armor.
+
+**Attributes:** **Might 4** · **Vitality 4** · **Agility 3** · **Wits 3** · **Resolve 2** · **Influence 2** · **Intellect 2**.  
+**Starting Stones:** 1 Might Stone, 1 Vitality Stone.  
+**Echo Imprints:** Anchor Touch (Might), Living Warmth (Vitality).
+
+**Four Professions (Rank 2 each):** Pit Fighter (arena routines and opponents); Hunter (stalking and dressing game); Caravan Guard (routes, camps and security); Field Medic (wound triage). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Melee Single Target Attack** — Martial, melee weapon or Unarmed; direct damage. |
+| Active 2, **PL 2** | **Melee Single Target Special: Ruin** — Martial melee; Special-only, no Attack Damage. |
+| Passive 1, **PL 4** | **Passive: Damage** |
+| Passive 2, **PL 4** | **Passive: Health** |
+| Reaction, **PL 4** | **Reaction: Armor** |
+| Active Buff, **PL 4** | **Active Buff: Damage** |
+
+**Equipment / slot check:** An appropriate melee weapon. Titan Scars occupy Body; do not equip mundane Body Armor.
+
+**Typical Round:** Choose Damage Buff or an All-Out Attack declaration in Preparation. Close distance, then spend the normal Attack Action on direct damage or Ruin. All-Out adds only to the direct damaging attack, never to Ruin tick damage.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Destroyer:** Raise Melee Single Target Attack PL2 → PL3 (6 XP), then learn Melee AoE Attack at its legal PL through normal purchases.
+- **Survivor:** Raise the Ruin Active PL2 → PL3 (6 XP), then improve Reaction: Armor beyond PL4 only after MR3 unlocks PL5 (10 XP).
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 2. The Skald <span style="font-size:0.65em;">(Bard reference)</span>
+
+*Songs, debuffs and protection.* A travelling chronicler who makes others stronger through well-timed warnings and disciplined battlefield support.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Influence 4** · **Resolve 4** · **Intellect 3** · **Wits 3** · **Vitality 2** · **Agility 2** · **Might 2**.  
+**Starting Stones:** 1 Intellect Stone, 1 Resolve Stone.  
+**Echo Imprints:** Emotional Hue (Influence), Oath Ember (Resolve).
+
+**Four Professions (Rank 2 each):** Travelling Performer (songs, audiences and itineraries); Court Envoy (protocol and negotiation); Field Medic (triage and basic care); Chronicler (history and eyewitness records). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Single Target Special: Expose** — Spell delivery, Influence; Special-only, reduces Evade. |
+| Active 2, **PL 2** | **Ranged Single Target Restoration** — Spell delivery, Influence; PL2 restores one Scarred Bar per Safe Haven Rest. |
+| Passive 1, **PL 4** | **Passive: Evade** |
+| Passive 2, **PL 4** | **Passive: Health** |
+| Reaction, **PL 4** | **Reaction: Ally Armor** |
+| Active Buff, **PL 4** | **Active Buff: Armor Aura** |
+
+**Equipment / slot check:** No weapon is required by the two starting Spell-delivery Actives; a lute or songbook is purely descriptive.
+
+**Typical Round:** Spend the Intellect Stone on Raises when appropriate and prepare an Armor Aura when protection matters. On the Turn, apply Expose or spend Restoration from its finite pool. Resolve: Healing can restore ordinary HP only when the Resolve Stone Ability is activated under its rules. Protect a nearby ally with Ally Armor.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Battlefield caller:** Upgrade Expose PL2 → PL3 (6 XP); later acquire Ranged AoE Special: Expose, using its printed PL and XP progression.
+- **Warden of the wounded:** Upgrade Restoration PL2 → PL3 (6 XP), then acquire Ranged Single Target Cleanse at its legal level; keep Scarred-Bar and ordinary HP healing separate.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 3. The Faith Warden <span style="font-size:0.65em;">(Cleric reference)</span>
+
+*Recovery, Cleanse and protection.* A keeper of forbidden rites who sustains injured companions and removes hostile Specials.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Resolve 4** · **Intellect 4** · **Vitality 3** · **Influence 3** · **Wits 2** · **Agility 2** · **Might 2**.  
+**Starting Stones:** 1 Resolve Stone, 1 Intellect Stone.  
+**Echo Imprints:** Sense Taint (Resolve), Arcane Spark (Intellect).
+
+**Four Professions (Rank 2 each):** Theologian (doctrine and forbidden faith); Field Medic (wound treatment); Archivist (religious records); Refugee Organizer (shelters and supply networks). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Single Target Restoration** — Spell delivery, Resolve; finite Scarred-Bar pool. |
+| Active 2, **PL 2** | **Ranged Single Target Cleanse** — Spell delivery, Resolve; removes printed negative Special value. |
+| Passive 1, **PL 4** | **Passive: Health** |
+| Passive 2, **PL 4** | **Passive: Spell Resistance** |
+| Reaction, **PL 4** | **Reaction: Ally Armor** |
+| Active Buff, **PL 4** | **Active Buff: Armor Aura** |
+
+**Equipment / slot check:** Prayer token, herbs and records are narrative tools; neither faith nor these objects grant extra magic.
+
+**Typical Round:** Use Resolve: Healing for ordinary HP if available and paid. Spend an Attack Action on Restoration only when a Bar is Scarred, or Cleanse to remove a hostile Special. Keep the Armor Aura and Ally Armor Reaction for immediate protection.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Purifier:** Improve Ranged Single Target Cleanse PL2 → PL3 (6 XP); acquire Ranged AoE Cleanse at its first legal PL.
+- **Restorer:** Improve Ranged Single Target Restoration PL2 → PL3 (6 XP); raise Ally Armor Reaction above PL4 only at MR3 or higher.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 4. The Nature Shifter <span style="font-size:0.65em;">(Druid reference)</span>
+
+*Roots, animal imagery and eventual summons.* A voice of the Wyld who manifests animal traits and controls terrain without acquiring free animal statistics.
+
+**Mastery Rank:** 2 · **Echo:** Unbound — Beast  
+**Echo Artifact / slot:** Predator Crown — chosen Head Echo Artifact (Wolf form); occupies Head. Does not grant free Flight, stealth or combat transformations.
+
+**Attributes:** **Vitality 4** · **Resolve 4** · **Wits 3** · **Agility 3** · **Might 2** · **Intellect 2** · **Influence 2**.  
+**Starting Stones:** 1 Vitality Stone, 1 Resolve Stone.  
+**Echo Imprints:** Seed Whisper (Vitality), Sense Taint (Resolve).
+
+**Four Professions (Rank 2 each):** Herbalist (wild plants and remedies); Wilderness Scout (terrain, routes and concealed camps); Beast Handler (animal care and warning signs); Trapper (traps and animal habits). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Single Target Special: Root** — Spell delivery, Resolve; Special-only battlefield control. |
+| Active 2, **PL 2** | **Ranged Single Target Special: Mark** — Spell delivery, Resolve; Special-only enemy marking. |
+| Passive 1, **PL 4** | **Passive: Health** |
+| Passive 2, **PL 4** | **Passive: Speed** |
+| Reaction, **PL 4** | **Reaction: Armor** |
+| Active Buff, **PL 4** | **Active Buff: Temporary HP** |
+
+**Equipment / slot check:** Predator Crown occupies Head. A staff or furs may express the concept but do not supply Powers. Predator Crown natural-weapon benefits remain exactly as printed.
+
+**Typical Round:** Declare Temporary HP Buff if threatened, then place Root on a dangerous enemy or Mark a priority target. Wolf, bear or bird appearance never provides free scale, attacks, flying or new Senses.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Forest controller:** Upgrade Root PL2 → PL3 (6 XP), then acquire Ranged AoE Special: Root at its printed starting PL.
+- **Keeper of beasts:** Later acquire and fund Summon Bond and suitable Summon Tokens; purchase Shared Senses for a scout rather than using cosmetic Form as free remote vision.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 5. The Weapon Master <span style="font-size:0.65em;">(Fighter reference)</span>
+
+*Reliable offense and durable defense.* A disciplined front-line combatant whose skill comes from purchased Powers and preparation, not a class chassis.
+
+**Mastery Rank:** 2 · **Echo:** Dwarf  
+**Echo Artifact / slot:** Stonebound Soles — required Feet Echo Artifact, occupies Feet; does not take a hand slot.
+
+**Attributes:** **Might 4** · **Vitality 4** · **Wits 3** · **Agility 3** · **Resolve 2** · **Intellect 2** · **Influence 2**.  
+**Starting Stones:** 1 Might Stone, 1 Vitality Stone.  
+**Echo Imprints:** Stoneprint (Might), Preserve (Vitality).
+
+**Four Professions (Rank 2 each):** Mercenary (campaign routine and contracts); Sentry (watch patterns and fortifications); Armorer (armor design and repair); Quartermaster (equipment and supplies). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Melee Single Target Attack** — Martial melee weapon; Power Damage plus weapon. |
+| Active 2, **PL 2** | **Melee Single Target Special: Sundered** — Martial melee; Special-only, no weapon Damage Roll. |
+| Passive 1, **PL 4** | **Passive: Armor** |
+| Passive 2, **PL 4** | **Passive: Health** |
+| Reaction, **PL 4** | **Reaction: Armor** |
+| Active Buff, **PL 4** | **Active Buff: Armor** |
+
+**Equipment / slot check:** A suitable melee weapon and Body Armor; Stonebound Soles already occupy Feet and provide their own printed Base Values.
+
+**Typical Round:** Hold the front line, pick Armor Buff during Preparation and choose direct damage or Sundered for group setup. Spend the Reaction when a dangerous hit lands; never treat Sundered as a free damage attack.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Breaker:** Improve Melee Attack PL2 → PL3 (6 XP) and learn Melee AoE Attack at its legal PL.
+- **Shield to others:** Improve Reaction: Armor at MR3 (PL4 → PL5, 10 XP) or purchase Reaction: Ally Armor as an alternative, respecting the normal Reaction economy.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 6. The Martial Adept <span style="font-size:0.65em;">(Monk reference)</span>
+
+*Unarmed precision and mobility.* A fast unarmed fighter who survives by choosing when to engage and when to vanish from reach.
+
+**Mastery Rank:** 2 · **Echo:** Elorian (Elf)  
+**Echo Artifact / slot:** Elorian Stride — required Feet Echo Artifact, occupies Feet; no free extra Movement Power beyond its printed progression.
+
+**Attributes:** **Agility 4** · **Wits 4** · **Might 3** · **Vitality 3** · **Resolve 2** · **Intellect 2** · **Influence 2**.  
+**Starting Stones:** 1 Agility Stone, 1 Wits Stone.  
+**Echo Imprints:** Feather Step (Agility), Second Glance (Wits).
+
+**Four Professions (Rank 2 each):** Juggler (timing and hand coordination); Acrobat (controlled physical movement); Temple Custodian (discipline and institutional routines); Wilderness Scout (routes and concealed travel). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Melee Single Target Attack** — Unarmed Martial delivery; real purchased strike. |
+| Active 2, **PL 2** | **Melee Single Target Special: Expose** — Unarmed Martial delivery; Special-only pressure. |
+| Passive 1, **PL 4** | **Passive: Evade** |
+| Passive 2, **PL 4** | **Passive: Speed** |
+| Reaction, **PL 4** | **Reaction: Evade** |
+| Active Buff, **PL 4** | **Active Buff: Damage** |
+
+**Equipment / slot check:** Use normal Unarmed delivery. Elorian Stride blocks Feet gear but does not replace the chosen Attack Powers.
+
+**Typical Round:** Use ordinary Movement or a legally unlocked Movement option to choose position. Spend the Attack Action on the Unarmed Power or Expose. If under pressure, react with Evade.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Whirlwind:** Improve Unarmed Melee Attack PL2 → PL3 (6 XP); later buy Movement: Safe Movement through its own catalogue.
+- **Defensive duelist:** Improve Expose PL2 → PL3 (6 XP); at MR3 improve Evade Reaction PL4 → PL5 (10 XP).
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 7. The Oath Guardian <span style="font-size:0.65em;">(Paladin reference)</span>
+
+*Melee, cleansing and ally shielding.* A sworn protector who expresses sanctity through ordinary purchased Powers and a Resolve Stone.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Might 4** · **Resolve 4** · **Vitality 3** · **Influence 3** · **Wits 2** · **Intellect 2** · **Agility 2**.  
+**Starting Stones:** 1 Might Stone, 1 Resolve Stone.  
+**Echo Imprints:** Burden's Mercy (Might), Oath Ember (Resolve).
+
+**Four Professions (Rank 2 each):** Bodyguard (escort and threat assessment); Theologian (vows and holy law); Captain (morale and command routines); Field Medic (triage). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Melee Single Target Attack** — Martial melee; bought weapon attack. |
+| Active 2, **PL 2** | **Melee Single Target Cleanse** — Touch/Melee Reach; removes negative Specials. |
+| Passive 1, **PL 4** | **Passive: Armor** |
+| Passive 2, **PL 4** | **Passive: Health** |
+| Reaction, **PL 4** | **Reaction: Ally Armor** |
+| Active Buff, **PL 4** | **Active Buff: Armor Aura** |
+
+**Equipment / slot check:** A melee weapon and armor chosen normally. An oath, insignia or shield illustration does not create Extra Attack or divine resistance.
+
+**Typical Round:** Hold a protective position, attack with your purchased Active, or spend the same Attack Action to Cleanse a nearby ally. Resolve Healing is a separately paid Stone use.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Oath of justice:** Improve Melee Attack PL2 → PL3 (6 XP), then learn Melee Single Target Special: Sundered at legal PL.
+- **Oath of mercy:** Improve Cleanse PL2 → PL3 (6 XP), then buy Melee Single Target Restoration to reopen Scarred Bars.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 8. The Hunter <span style="font-size:0.65em;">(Ranger reference)</span>
+
+*Tracking, marking and ranged fire.* A wary scout who makes the first shot count and understands the wilderness better than anyone else.
+
+**Mastery Rank:** 2 · **Echo:** Halfling  
+**Echo Artifact / slot:** No Ringchain selected; Halfling may legally begin with zero Echo Artifacts and retains full Artifact Capacity.
+
+**Attributes:** **Agility 4** · **Wits 4** · **Might 3** · **Vitality 3** · **Resolve 2** · **Intellect 2** · **Influence 2**.  
+**Starting Stones:** 1 Agility Stone, 1 Wits Stone.  
+**Echo Imprints:** Catfall (Agility), Waymark (Wits).
+
+**Four Professions (Rank 2 each):** Hunter (stalking and quarry selection); Tracker (tracks and sign reading); Forest Guide (woods and trails); Falconer (bird care and training). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Single Target Attack** — Martial ranged weapon; direct shot. |
+| Active 2, **PL 2** | **Ranged Single Target Special: Mark** — Martial ranged; Special-only targeting mark. |
+| Passive 1, **PL 4** | **Passive: Evade** |
+| Passive 2, **PL 4** | **Passive: Speed** |
+| Reaction, **PL 4** | **Reaction: Reposition** |
+| Active Buff, **PL 4** | **Active Buff: Critical** |
+
+**Equipment / slot check:** A legal ranged weapon and ammunition. No Ringchain was selected; the optional Echo Artifact does not appear for free.
+
+**Typical Round:** Use Perception (separate universal Rank 2) for live detection and Hunter/Tracker to interpret signs. On the Turn, shoot or apply Mark; select Critical before an eligible damaging Attack Roll, not as a permanent 7–8 explosion.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Sniper:** Improve Ranged Attack PL2 → PL3 (6 XP), then later acquire Ranged Split Attack or Autofire.
+- **Beast scout:** Bind one legally available Stone to a Summon Bond (8 Tokens per Bound Stone), then buy its Shared Senses with Tokens; any new permanent Stone still follows the Lifetime XP progression.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 9. The Shadowblade <span style="font-size:0.65em;">(Rogue reference)</span>
+
+*Invisibility and precise melee pressure.* An infiltrator who survives by controlling when an opponent gets to see and engage them.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Agility 4** · **Wits 4** · **Influence 3** · **Intellect 3** · **Vitality 2** · **Resolve 2** · **Might 2**.  
+**Starting Stones:** 1 Agility Stone, 1 Wits Stone.  
+**Echo Imprints:** Dancing Thread (Agility), Ghost Sound (Wits).
+
+**Four Professions (Rank 2 each):** Burglar (doors, windows and entry routes); Spy (cover identities and informants); Pickpocket (crowds and sleight of hand); Disguise Artist (visual identities and mannerisms). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Melee Single Target Attack** — Martial finesse weapon or legal Unarmed. |
+| Active 2, **PL 2** | **Melee Single Target Special: Expose** — Martial melee; Special-only pressure. |
+| Passive 1, **PL 4** | **Passive: Invisibility** |
+| Passive 2, **PL 4** | **Passive: Evade** |
+| Reaction, **PL 4** | **Reaction: Reposition** |
+| Active Buff, **PL 4** | **Active Buff: Invisibility** |
+
+**Equipment / slot check:** A legal melee weapon; cloak, mask and clothing are narrative unless bought as equipment or Artifacts.
+
+**Typical Round:** Choose concealment and position first, then spend the Attack Action on damage or Expose. Invisibility is not automatic surprise, and it still follows Combat Sense, Perception and targeting rules.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Assassin:** Upgrade Melee Attack PL2 → PL3 (6 XP); add Ranged Single Target Attack as a paid second attack mode later.
+- **Phantom scout:** Upgrade Expose PL2 → PL3 (6 XP); later buy Movement: Safe Movement or Teleport and pay its normal XP cost.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 10. The Blood Mage <span style="font-size:0.65em;">(Sorcerer reference)</span>
+
+*Raw damaging Spells.* A caster whose power comes from inner inheritance, expressed as fire, lightning, blood or sound.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Intellect 4** · **Resolve 4** · **Influence 3** · **Vitality 3** · **Wits 2** · **Agility 2** · **Might 2**.  
+**Starting Stones:** 1 Intellect Stone, 1 Resolve Stone.  
+**Echo Imprints:** Arcane Spark (Intellect), Oath Ember (Resolve).
+
+**Four Professions (Rank 2 each):** Ritual Assistant (prepared rites and components); Scholar (magical lore research); Red Priest Scribe (infernal records and formulas); Field Medic (physiology and blood loss). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Single Target Attack** — Spell delivery, Intellect; first Special-less Spell. |
+| Active 2, **PL 2** | **Ranged AoE Attack** — Spell delivery, Intellect; second Special-less Spell, MR2 cap reached. |
+| Passive 1, **PL 4** | **Passive: Damage** |
+| Passive 2, **PL 4** | **Passive: Spell Resistance** |
+| Reaction, **PL 4** | **Reaction: Evade** |
+| Active Buff, **PL 4** | **Active Buff: Damage** |
+
+**Equipment / slot check:** A decorative focus or blood mark is not a free Artifact. Both Spells use the one chosen casting Attribute, Intellect.
+
+**Typical Round:** Choose the Damage Buff during Preparation. Use the same underlying Ranged Spell rules for lightning or fire, deciding between one target and the printed AoE. Two Special-less Spells reach the MR2 allowance.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Stormfront:** Improve Ranged AoE Attack PL2 → PL3 (6 XP) and later purchase a Special-bearing Ranged AoE Power.
+- **Blood duelist:** Improve Ranged Single Target Attack PL2 → PL3 (6 XP), then acquire a defensive Ranged Barrier at legal PL.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 11. The Pactbound <span style="font-size:0.65em;">(Warlock reference)</span>
+
+*Hexes and deceptive magical influence.* A bargain-maker whose unsettling voice and rituals are only the outward appearance of standard magic.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Resolve 4** · **Influence 4** · **Intellect 3** · **Wits 3** · **Vitality 2** · **Agility 2** · **Might 2**.  
+**Starting Stones:** 1 Resolve Stone, 1 Influence Stone.  
+**Echo Imprints:** Echo Whisper (Resolve), Borrowed Voice (Influence).
+
+**Four Professions (Rank 2 each):** Pact Broker (deals, clauses and leverage); Ritual Assistant (circle and component practice); Spy (secrets and cover); Theologian (forbidden faith and cult rites). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Single Target Special: Hex** — Spell delivery, Resolve; Special-only curse. |
+| Active 2, **PL 2** | **Ranged Single Target Attack** — Spell delivery, Resolve; Special-less damage Spell. |
+| Passive 1, **PL 4** | **Passive: Telepathy** |
+| Passive 2, **PL 4** | **Passive: Spell Resistance** |
+| Reaction, **PL 4** | **Reaction: Reactive Cleanse** |
+| Active Buff, **PL 4** | **Active Buff: Spell Resistance** |
+
+**Equipment / slot check:** Pact contract, sigils and familiar imagery are descriptive. Telepathy is a purchased starting Passive, not a new psionic Delivery.
+
+**Typical Round:** Use a legal Spell Attack for damage, or Hex to impose the printed Special. Use telepathy only within its current printed limits; any later Mind Illusion or Probe still needs a separately purchased Active.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Mind binder:** Purchase Mind Illusion at PL2 (normal cumulative purchase and Telepathy access), then upgrade it; mental effects still resolve through Spell delivery.
+- **Demon summoner:** Improve Hex PL2 → PL3 (6 XP), later acquire the appropriate Summon Bond Stones, Tokens and Powers through normal progression.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 12. The Arcanist <span style="font-size:0.65em;">(Wizard reference)</span>
+
+*Barriers, direct casting and control.* A patient scholar who studies how best to obstruct a battlefield before casting a decisive spell.
+
+**Mastery Rank:** 2 · **Echo:** Human  
+**Echo Artifact / slot:** No mandatory Echo Artifact; all four Artifact Capacity slots remain available.
+
+**Attributes:** **Intellect 4** · **Wits 4** · **Resolve 3** · **Influence 3** · **Vitality 2** · **Agility 2** · **Might 2**.  
+**Starting Stones:** 1 Intellect Stone, 1 Wits Stone.  
+**Echo Imprints:** Mage Hand (Intellect), Second Glance (Wits).
+
+**Four Professions (Rank 2 each):** Scholar (books and theories); Archivist (record systems and archives); Astronomer (celestial observation); Architect (plans and structures). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Barrier** — Spell delivery, Intellect; four-round cover, PL2 grants 10 HP. |
+| Active 2, **PL 2** | **Ranged Single Target Attack** — Spell delivery, Intellect; direct damage. |
+| Passive 1, **PL 4** | **Passive: Spell Resistance** |
+| Passive 2, **PL 4** | **Passive: Evade** |
+| Reaction, **PL 4** | **Reaction: Armor** |
+| Active Buff, **PL 4** | **Active Buff: Spell Resistance** |
+
+**Equipment / slot check:** Casting may be described with a wand, diagram or staff; none grants a separate Power without a legal purchase or Artifact.
+
+**Typical Round:** Place a Barrier (12 m range, 2 m radius, 10 HP at PL2) or cast the direct attack. Maintain awareness with normal Perception; Barrier is not a free Reaction.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Battlefield architect:** Upgrade Ranged Barrier PL2 → PL3 (6 XP) and add Ranged Power Image at its first legal PL.
+- **Evoker:** Upgrade Ranged Single Target Attack PL2 → PL3 (6 XP) and learn Ranged AoE Attack through normal progression.
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### 13. The Relic Smith <span style="font-size:0.65em;">(Artificer reference)</span>
+
+*Artifact craft and practical support.* A smith who uses carefully prepared devices to express purchased Powers and treats Artifacts as a progression path.
+
+**Mastery Rank:** 2 · **Echo:** Dwarf  
+**Echo Artifact / slot:** Stonebound Soles — required Feet Echo Artifact, occupies Feet; other slots remain available for later legal Artifacts.
+
+**Attributes:** **Intellect 4** · **Vitality 4** · **Might 3** · **Wits 3** · **Resolve 2** · **Agility 2** · **Influence 2**.  
+**Starting Stones:** 1 Intellect Stone, 1 Vitality Stone.  
+**Echo Imprints:** Mage Hand (Intellect), Preserve (Vitality).
+
+**Four Professions (Rank 2 each):** Blacksmith (forging and metal repair); Locksmith (mechanisms and keys); Apothecary (ingredients and preparations); Archivist (old plans and parts catalogues). **Perception Rank 2** is free.
+
+| Starting Power Slot | Canonical choice |
+|---|---|
+| Active 1, **PL 2** | **Ranged Barrier** — Spell delivery, Intellect, described as a deployed ward. |
+| Active 2, **PL 2** | **Ranged Single Target Cleanse** — Spell delivery, Intellect, described as a prepared reagent. |
+| Passive 1, **PL 4** | **Passive: Armor** |
+| Passive 2, **PL 4** | **Passive: Health** |
+| Reaction, **PL 4** | **Reaction: Ally Armor** |
+| Active Buff, **PL 4** | **Active Buff: Armor** |
+
+**Equipment / slot check:** Tools are ordinary items. Stonebound Soles occupy Feet. There is no free crafting charge, construct, magic item, Artifact or Summon from the title Artificer.
+
+**Typical Round:** Position a purchased Barrier or remove an active negative Special with Cleanse. Respond to a nearby ally hit with Ally Armor, and use the normal Training engine for crafting outside combat.
+
+**Two development directions** (paid choices, not automatic unlocks):
+
+- **Ward engineer:** Upgrade Ranged Barrier PL2 → PL3 (6 XP), then pursue higher PLs within the MR cap.
+- **Relic inventor:** Upgrade Cleanse PL2 → PL3 (6 XP), then craft legal Minor Magic Items and advance bound Artifacts by their printed requirements and XP costs; no stockpiled expired consumables.
 
 }}

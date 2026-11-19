@@ -305,8 +305,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // Free Raises were already spent on the original roll — do not consume again.
             if (!isFaithReroll && freeRaiseSlots > 0 && freshAttacker) {
                 try {
-                    const { consumeFreeRaises } = await import('../combat/action-economy.js');
-                    const spent = await consumeFreeRaises(freshAttacker, freeRaiseSlots);
+                    const { consumeFreeRaisesPreferSelfThenDonors } = await import('../combat/shared-free-raises.js');
+                    const combat = game.combat ?? null;
+                    const { spent } = await consumeFreeRaisesPreferSelfThenDonors(freshAttacker, freeRaiseSlots, combat);
                     freeRaiseSlots = spent;
                 }
                 catch (err) {

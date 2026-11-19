@@ -36,7 +36,7 @@
  *      (no release prompt), then with a drawn weapon (release prompt).
  *   9. Ranged Persistent Special Zone: Ruin over two Rounds — immediate damage
  *      on each new application, Tick unchanged.
- *  10. Moonlight Greatsword L1: Moonlight Mending heals HP.
+ *  10. Moonlight Greatsword L1: Moonlight Mending = Ranged Single Target Restoration PL4 (20 m, 2 Scarred Bars).
  * Forge only after separate approval.
  */
 /* ===== execute (Script macro body) ===== */

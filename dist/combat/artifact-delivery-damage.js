@@ -86,6 +86,11 @@ function isArtifactEquipped(item) {
 /**
  * One Artifact → one delivery contribution for the selected Delivery.
  * Returns null when the Artifact grants no delivery damage.
+ *
+ * Artifact Damage Only (2026-11-19): a printed Artifact Damage / Weapon Damage
+ * value is the complete contribution for Martial or Spell. Prefer that over a
+ * separate Spell Focus row on the same Artifact so WD+SF never stack. Focus-only
+ * Artifacts still contribute their Focus dice to either Delivery.
  */
 export function resolveArtifactItemDeliveryContribution(item, delivery) {
     if (!item || item.type !== 'artifact')
@@ -96,23 +101,25 @@ export function resolveArtifactItemDeliveryContribution(item, delivery) {
     const sfDice = spellFocusDiceFromSystem(sys);
     const name = String(item.name || 'Artifact').trim() || 'Artifact';
     const itemId = item.id != null ? String(item.id) : undefined;
-    if (delivery === 'spell') {
-        if (sfDice > 0) {
-            return { name, dice: sfDice, formula: `${sfDice}d8`, kind: 'spellFocus', itemId };
-        }
-        if (wdDice > 0) {
-            return { name, dice: wdDice, formula: wdFormula || `${wdDice}d8`, kind: 'weaponDamage', itemId };
-        }
-        return null;
-    }
-    // Martial
+    // Complete printed Artifact Damage wins for both Deliveries.
     if (wdDice > 0) {
         return { name, dice: wdDice, formula: wdFormula || `${wdDice}d8`, kind: 'weaponDamage', itemId };
     }
     if (sfDice > 0) {
         return { name, dice: sfDice, formula: `${sfDice}d8`, kind: 'spellFocus', itemId };
     }
+    void delivery;
     return null;
+}
+/**
+ * Pick at most one Artifact Damage source for a Damage Roll (highest dice).
+ * Callers must not sum multiple Artifact contributions onto one roll.
+ */
+export function selectPrimaryArtifactDeliverySource(actor, delivery) {
+    const all = listArtifactDeliveryDamageSources(actor, delivery);
+    if (!all.length)
+        return null;
+    return all.reduce((best, cur) => (cur.dice > best.dice ? cur : best), all[0]);
 }
 /**
  * Martial formula for a resolved Artifact weapon (including Focus-only fallback).
@@ -161,11 +168,17 @@ export function sumArtifactDeliveryDice(actor, delivery) {
     return listArtifactDeliveryDamageSources(actor, delivery).reduce((n, s) => n + s.dice, 0);
 }
 /**
- * Spell delivery damage sources: unified Artifact contributions plus mundane
+ * Spell delivery damage sources: at most one Artifact contribution, else mundane
  * weapons that print a Spell Focus (+Xd8) innate (unchanged mundane path).
+ * Artifact Damage never stacks with a second Artifact or mundane Focus on the
+ * same roll.
  */
 export function listSpellDeliveryDamageSources(actor) {
-    const sources = listArtifactDeliveryDamageSources(actor, 'spell').map((s) => ({ name: s.name, dice: s.dice }));
+    const primary = selectPrimaryArtifactDeliverySource(actor, 'spell');
+    if (primary && primary.dice > 0) {
+        return [{ name: primary.name, dice: primary.dice }];
+    }
+    const sources = [];
     const items = actor?.items ? Array.from(actor.items) : [];
     for (const it of items) {
         if (it?.type !== 'weapon' || it?.system?.equipped !== true)

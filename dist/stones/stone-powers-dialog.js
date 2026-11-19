@@ -11,7 +11,8 @@ import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGene
 import { STONE_RESOLUTION_QUEUE_FLAG, enqueueStoneResolutions, markStoneResolutionResolved, pendingStoneResolutions, readStoneResolutionQueue, stoneResolutionKind, } from './stone-resolution.js';
 import { presentStoneResolution } from './stone-resolution-ui.js';
 import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, isPremiumStonePower, isRetiredStonePower, RETIRED_STONE_POWER_MESSAGE, effectiveStoneSupportPrefillTier, stonePowerRankCost, stonePowerSegmentSizes, stonePaymentLaneCount, stonePaymentLanesForTier, stoneSupportPrefillLanes, completeStoneRankPayment, partitionStoneLanesByCompleteRanks, orderWitsDialogColumn, } from './stone-powers.js';
-import { getStoneUsageCount, getGenericStonePowerUsageCount, getStonePool, setStonePool, isStonePowersConfigurationLocked, clearStonePowersConfigurationLock, clearCombatStoneTurnBonusesForActor, getActionEconomyActor } from '../combat/action-economy.js';
+import { getStoneUsageCount, getGenericStonePowerUsageCount, getStonePool, setStonePool, getRoundState, isStonePowersConfigurationLocked, clearStonePowersConfigurationLock, clearCombatStoneTurnBonusesForActor, freeRaisePool, getActionEconomyActor } from '../combat/action-economy.js';
+import { areTeamworkAllies, clearAllOutAttack, declareAllOutAttack, grantRegularAttackActionTransfer, readAllOutAttack, } from '../combat/tactical-options.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
 import { INITIATIVE_ROLLED_FLAG, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
@@ -1149,9 +1150,200 @@ export class StonePowersDialog extends BaseDialog {
             canSavePrefs,
             combatLabel: combat ? `Round ${combat.round}` : '',
             naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
+            tacticalPrep: this.#tacticalPrepContext(combat, stonePlanLocked),
             helpScreens: STONE_POWERS_HELP_SCREENS,
             helpScreenCount: STONE_POWERS_HELP_COUNT,
         };
+    }
+    #tacticalPrepContext(combat, locked) {
+        const show = !!this.combatant && this.actor.type === 'character' && !!combat;
+        let summary = 'Optional: All-Out Attack or Transfer your regular Attack Action.';
+        let raisePool = 0;
+        try {
+            const rs = getRoundState(this.actor, combat);
+            const ao = readAllOutAttack(rs);
+            if (ao) {
+                summary =
+                    ao.penalty === 'evade'
+                        ? 'All-Out active: +1d8 Damage, −2 Evade this Round.'
+                        : 'All-Out active: +1d8 Damage, −4 Armor this Round.';
+            }
+            if (rs.baseAttackTransferred) {
+                summary += ' Base Attack Action transferred to an ally.';
+            }
+            const given = (rs.sharedFreeRaisesGiven ?? []).filter((g) => g.amount > 0);
+            if (given.length) {
+                summary += ` Free Raises assigned: ${given.map((g) => `${g.toName} ${g.amount}`).join(', ')}.`;
+            }
+            const received = (rs.sharedFreeRaisesReceived ?? []).filter((g) => g.remaining > 0);
+            if (received.length) {
+                summary += ` Free Raises received: ${received.map((g) => `${g.fromName} ${g.remaining}`).join(', ')}.`;
+            }
+            raisePool = freeRaisePool(this.actor);
+        }
+        catch {
+            /* ignore */
+        }
+        // Sharing is not a Stone plan change, so it stays available after confirmation.
+        return { show, locked, summary, raisePool, canShareRaises: show && raisePool > 0 };
+    }
+    async #setAllOutPenalty(penalty) {
+        if (this.#isStoneDialogLocked())
+            return;
+        const result = await declareAllOutAttack(this.actor, game.combat ?? null, penalty);
+        if (!result.ok) {
+            ui.notifications?.warn(`All-Out −4 Armor needs at least 4 effective Armor (current ${result.effectiveArmor}). Choose −2 Evade instead.`);
+            return;
+        }
+        await this.#renderKeepingScroll();
+    }
+    async #clearAllOut() {
+        if (this.#isStoneDialogLocked())
+            return;
+        await clearAllOutAttack(this.actor, game.combat ?? null);
+        await this.#renderKeepingScroll();
+    }
+    async #promptTransferAttackAction() {
+        if (this.#isStoneDialogLocked())
+            return;
+        const combat = game.combat;
+        if (!combat) {
+            ui.notifications?.warn('Transfer Attack Action needs an active combat.');
+            return;
+        }
+        const allies = this.#alliedCombatants(combat).map((c) => c.actor);
+        if (!allies.length) {
+            ui.notifications?.warn('No allied combatants available.');
+            return;
+        }
+        const esc = (s) => String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        const options = allies
+            .map((a) => `<option value="${String(a.id)}">${esc(String(a.name || a.id))}</option>`)
+            .join('');
+        const content = `<p>Give your <strong>regular base Attack Action</strong> to an ally. They spend it on <em>their</em> Turn (playtest 20&nbsp;m).</p>
+      <p><label>Recipient <select name="recipientId" style="width:100%">${options}</select></label></p>`;
+        const choice = await new Promise((resolve) => {
+            new Dialog({
+                title: 'Transfer Attack Action',
+                content,
+                buttons: {
+                    transfer: {
+                        label: 'Transfer',
+                        callback: (html) => {
+                            const root = html?.jquery ? html[0] : html;
+                            const sel = root?.querySelector?.('[name="recipientId"]') ??
+                                html?.find?.('[name="recipientId"]')?.[0];
+                            resolve(String(sel?.value || ''));
+                        },
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        callback: () => resolve(null),
+                    },
+                },
+                default: 'transfer',
+                close: () => resolve(null),
+            }).render(true);
+        });
+        if (!choice)
+            return;
+        const recipient = allies.find((a) => String(a.id) === String(choice));
+        if (!recipient)
+            return;
+        const donorCombatant = this.combatant;
+        const donorTok = donorCombatant?.token?.object ?? donorCombatant?.token;
+        const recipientCombatant = Array.from(combat.combatants ?? []).find((c) => String(c?.actor?.id || c?.actorId || '') === String(recipient.id));
+        const recipientTok = recipientCombatant?.token?.object ?? recipientCombatant?.token;
+        const result = await grantRegularAttackActionTransfer(this.actor, recipient, combat, { donorToken: donorTok, recipientToken: recipientTok });
+        if (!result.ok) {
+            const { teamworkFailureMessage } = await import('../combat/teamwork-transactions.js');
+            ui.notifications?.warn(teamworkFailureMessage(result.reason, 'transfer'));
+            return;
+        }
+        ui.notifications?.info(`${recipient.name} receives your base Attack Action for their Turn.`);
+        await this.#renderKeepingScroll();
+    }
+    /** Allied combatants (token disposition) other than this actor. */
+    #alliedCombatants(combat) {
+        const own = this.combatant;
+        const ownTok = own?.token?.object ?? own?.token;
+        return Array.from(combat.combatants ?? []).filter((c) => {
+            const a = c?.actor;
+            if (!a?.id || String(a.id) === String(this.actor.id))
+                return false;
+            if (a.type !== 'character' && a.type !== 'npc' && a.type !== 'summon')
+                return false;
+            return areTeamworkAllies(this.actor, a, { aToken: ownTok, bToken: c?.token?.object ?? c?.token });
+        });
+    }
+    async #promptShareFreeRaises() {
+        const combat = game.combat;
+        if (!combat) {
+            ui.notifications?.warn('Sharing Free Raises needs an active combat.');
+            return;
+        }
+        const pool = freeRaisePool(this.actor);
+        if (pool <= 0) {
+            ui.notifications?.warn('No unused Intellect Free Raises left this Round.');
+            return;
+        }
+        const allies = this.#alliedCombatants(combat);
+        if (!allies.length) {
+            ui.notifications?.warn('No allied combatants available.');
+            return;
+        }
+        const esc = (s) => String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        const options = allies
+            .map((c) => `<option value="${esc(String(c.id))}">${esc(String(c.actor?.name || c.actor?.id))}</option>`)
+            .join('');
+        const content = `<p>Assign Free Raises from your Intellect pool (<strong>${pool}</strong> left) to an ally within 20&nbsp;m. They commit them on their own rolls this Round; the pool is not increased.</p>
+      <p><label>Ally <select name="combatantId" style="width:100%">${options}</select></label></p>
+      <p><label>Raises <input type="number" name="amount" min="1" max="${pool}" value="1" style="width:5em"></label></p>`;
+        const choice = await new Promise((resolve) => {
+            new Dialog({
+                title: 'Share Free Raises',
+                content,
+                buttons: {
+                    share: {
+                        label: 'Assign',
+                        callback: (html) => {
+                            const root = (html?.jquery ? html[0] : html);
+                            const sel = root?.querySelector?.('[name="combatantId"]');
+                            const num = root?.querySelector?.('[name="amount"]');
+                            resolve({ combatantId: String(sel?.value || ''), amount: Math.floor(Number(num?.value) || 0) });
+                        },
+                    },
+                    cancel: { label: 'Cancel', callback: () => resolve(null) },
+                },
+                default: 'share',
+                close: () => resolve(null),
+            }).render(true);
+        });
+        if (!choice)
+            return;
+        const target = allies.find((c) => String(c.id) === choice.combatantId);
+        if (!target?.actor)
+            return;
+        const own = this.combatant;
+        const { requestFreeRaiseAllocation, teamworkFailureMessage } = await import('../combat/teamwork-transactions.js');
+        const result = await requestFreeRaiseAllocation(this.actor, target.actor, choice.amount, combat, {
+            donorToken: own?.token?.object ?? own?.token,
+            recipientToken: target.token?.object ?? target.token,
+        });
+        if (!result.ok) {
+            ui.notifications?.warn(teamworkFailureMessage(result.reason, 'raises'));
+            return;
+        }
+        ui.notifications?.info(`${target.actor.name} receives ${choice.amount} Free Raise(s) for this Round.`);
+        await this.#renderKeepingScroll();
     }
     #naturalRecoveryContext(combat, locked) {
         const options = listNaturalRecoveryOptions(this.actor, combat);
@@ -2340,6 +2532,26 @@ export class StonePowersDialog extends BaseDialog {
                 void this.#activateInitiativeBoost(tier);
             });
         }
+        root.querySelector('.js-all-out-armor')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void this.#setAllOutPenalty('armor');
+        });
+        root.querySelector('.js-all-out-evade')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void this.#setAllOutPenalty('evade');
+        });
+        root.querySelector('.js-clear-all-out')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void this.#clearAllOut();
+        });
+        root.querySelector('.js-transfer-attack')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void this.#promptTransferAttackAction();
+        });
+        root.querySelector('.js-share-free-raises')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void this.#promptShareFreeRaises();
+        });
         const confirmBtn = root.querySelector('.js-confirm-stones');
         if (confirmBtn) {
             confirmBtn.onclick = (ev) => {

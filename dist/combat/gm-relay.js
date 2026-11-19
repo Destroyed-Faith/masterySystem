@@ -4,12 +4,12 @@
  */
 import { ENCOUNTER_SOCKET, canCurrentUserUpdateDocument, hasActiveGm } from './combat-permissions.js';
 const pending = new Map();
-export function settleGmRelay(requestId, ok) {
+export function settleGmRelay(requestId, ok, reason) {
     const fn = pending.get(requestId);
     if (!fn)
         return;
     pending.delete(requestId);
-    fn(!!ok);
+    fn(!!ok, reason ? String(reason) : undefined);
 }
 function newRequestId() {
     return `gm-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
@@ -36,6 +36,42 @@ async function askGm(payload) {
         g.ui?.notifications?.warn?.('Kein GM verbunden — Änderung nicht möglich.');
     }
     return ok;
+}
+/**
+ * Like `askGm`, but keeps the GM's rejection reason. `gm-unavailable` means no
+ * GM is connected; `gm-timeout` means the GM did not answer in time (the write
+ * may still have happened — callers re-read state instead of retrying blindly).
+ */
+export async function askGmForResult(payload, timeoutMs = 8000) {
+    const g = globalThis;
+    if (!g.game?.socket)
+        return { ok: false, reason: 'gm-unavailable' };
+    if (!hasActiveGm())
+        return { ok: false, reason: 'gm-unavailable' };
+    const requestId = newRequestId();
+    const replyTo = String(g.game.user?.id || '');
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => {
+            pending.delete(requestId);
+            resolve({ ok: false, reason: 'gm-timeout' });
+        }, timeoutMs);
+        pending.set(requestId, (ok, reason) => {
+            clearTimeout(timer);
+            resolve(ok ? { ok: true } : { ok: false, reason: reason ?? 'gm-rejected' });
+        });
+        g.game.socket.emit(ENCOUNTER_SOCKET, { ...payload, requestId, replyTo });
+    });
+}
+/** With several GMs connected only Foundry's active GM answers, so a request is applied once. */
+export function isResponsibleGm() {
+    const g = globalThis;
+    const user = g.game?.user;
+    if (!user?.isGM)
+        return false;
+    const active = g.game?.users?.activeGM;
+    if (active?.id)
+        return String(active.id) === String(user.id);
+    return true;
 }
 /**
  * Ask a specific connected user (owner or GM) for a yes/no decision — e.g. the

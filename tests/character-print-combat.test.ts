@@ -283,12 +283,15 @@ describe('buildPrintCombatPreview', () => {
     expect(preview?.damage).not.toMatch(/\bWD\b/);
   });
 
-  it('adds spell focus bonus to spell damage only', () => {
+  it('uses complete Artifact Damage for spell when WD and Focus both exist', () => {
     const weapon = meleeArtifact(4, true);
     const actor = mockActor({ intellect: 18 }, [weapon]);
     const preview = buildPrintCombatPreview(actor, rangedSpellPower(), [weapon]);
-    expect(preview?.damage).toMatch(/10d8/);
+    // Artifact Damage Only: one-handed L4 derived WD is 6d8 + Power 8d8;
+    // never stacks the separate Spell Focus BV (2d8) on top.
+    expect(preview?.damage).toMatch(/14d8/);
     expect(preview?.damage).toMatch(/Spell Focus/i);
+    expect(preview?.damage).not.toMatch(/16d8/);
   });
 
   it('keeps melee WD for hybrid artifacts that also have Spell Focus', () => {

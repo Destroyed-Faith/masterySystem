@@ -1789,6 +1789,26 @@ function exposeMasterySystemApi() {
             const { rollbackActorLegacyCleanup } = await import('./migrations/legacy-cleanup-2026-migration.js');
             return rollbackActorLegacyCleanup(actor);
         },
+        /** Playtest: declare All-Out Attack for the current Round (−4 Armor or −2 Evade). */
+        declareAllOutAttack: async (actor, penalty) => {
+            const { declareAllOutAttack } = await import('./combat/tactical-options.js');
+            return declareAllOutAttack(actor, game.combat ?? null, penalty);
+        },
+        /**
+         * Playtest: transfer regular base Attack Action (Prep grant; recipient spends on their Turn).
+         * Range/perception are skipped only for a GM; players go through the GM relay checks.
+         */
+        transferAttackAction: async (donor, recipient) => {
+            const { grantRegularAttackActionTransfer } = await import('./combat/tactical-options.js');
+            return grantRegularAttackActionTransfer(donor, recipient, game.combat ?? null, {
+                skipRangeCheck: true,
+            });
+        },
+        /** Playtest: donor assigns `amount` of its Intellect Free Raises to an ally for this Round. */
+        allocateFreeRaises: async (donor, recipient, amount) => {
+            const { requestFreeRaiseAllocation } = await import('./combat/teamwork-transactions.js');
+            return requestFreeRaiseAllocation(donor, recipient, amount, game.combat ?? null);
+        },
         /** Legacy cleanup 2026: GM decision for a Skill conflict (Free XP refund; 0 = archive only). */
         legacyCleanupResolveSkills: async (actor, decision) => {
             const { resolveLegacySkillConflict } = await import('./migrations/legacy-cleanup-2026-migration.js');

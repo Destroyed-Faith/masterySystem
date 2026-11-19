@@ -330,9 +330,9 @@ describe('K8 catalogue vs reconciled Player Guide', () => {
       resolve('docs/Rules/Canonical/Players_Handbook.md'),
       'utf8',
     );
-    expect(guide).toContain('Profession Respec and Removal');
+    // Authorized Core v0.9.9.6 omits the former "Profession Respec and Removal" heading.
     expect(guide).toMatch(/May reroll initial \*\*1s-6s\*\*/);
-    expect(guide).toContain('At Rank 7 or higher');
+    expect(guide).toMatch(/Training Crit becomes available at \*\*Rank 7\*\*/);
     expect(guide).not.toContain('Five Professions start at Rank 2 using **20 Profession Creation Points**');
 
     const mismatches: string[] = [];

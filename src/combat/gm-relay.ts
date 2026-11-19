@@ -5,13 +5,13 @@
 
 import { ENCOUNTER_SOCKET, canCurrentUserUpdateDocument, hasActiveGm } from './combat-permissions.js';
 
-const pending = new Map<string, (ok: boolean) => void>();
+const pending = new Map<string, (ok: boolean, reason?: string) => void>();
 
-export function settleGmRelay(requestId: string, ok: boolean): void {
+export function settleGmRelay(requestId: string, ok: boolean, reason?: string): void {
   const fn = pending.get(requestId);
   if (!fn) return;
   pending.delete(requestId);
-  fn(!!ok);
+  fn(!!ok, reason ? String(reason) : undefined);
 }
 
 function newRequestId(): string {
@@ -39,6 +39,43 @@ async function askGm(payload: Record<string, unknown>): Promise<boolean> {
     g.ui?.notifications?.warn?.('Kein GM verbunden — Änderung nicht möglich.');
   }
   return ok;
+}
+
+/**
+ * Like `askGm`, but keeps the GM's rejection reason. `gm-unavailable` means no
+ * GM is connected; `gm-timeout` means the GM did not answer in time (the write
+ * may still have happened — callers re-read state instead of retrying blindly).
+ */
+export async function askGmForResult(
+  payload: Record<string, unknown>,
+  timeoutMs = 8000,
+): Promise<{ ok: boolean; reason?: string }> {
+  const g = globalThis as any;
+  if (!g.game?.socket) return { ok: false, reason: 'gm-unavailable' };
+  if (!hasActiveGm()) return { ok: false, reason: 'gm-unavailable' };
+  const requestId = newRequestId();
+  const replyTo = String(g.game.user?.id || '');
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      pending.delete(requestId);
+      resolve({ ok: false, reason: 'gm-timeout' });
+    }, timeoutMs);
+    pending.set(requestId, (ok, reason) => {
+      clearTimeout(timer);
+      resolve(ok ? { ok: true } : { ok: false, reason: reason ?? 'gm-rejected' });
+    });
+    g.game.socket.emit(ENCOUNTER_SOCKET, { ...payload, requestId, replyTo });
+  });
+}
+
+/** With several GMs connected only Foundry's active GM answers, so a request is applied once. */
+export function isResponsibleGm(): boolean {
+  const g = globalThis as any;
+  const user = g.game?.user;
+  if (!user?.isGM) return false;
+  const active = g.game?.users?.activeGM;
+  if (active?.id) return String(active.id) === String(user.id);
+  return true;
 }
 
 /**

@@ -16,7 +16,7 @@ export declare const LEGACY_CLEANUP_TEMPLATE_REMAP: Readonly<Record<string, stri
 export declare const LEGACY_CLEANUP_CONFLICT_TEMPLATES: ReadonlySet<string>;
 /** Removed with Actives v0.9.9.6; that migration remaps or flags these. */
 export declare const V0996_OWNED_TEMPLATE_RE: RegExp;
-/** Old Moonlight Mending grant: now Ranged Scarred Bar Restoration on the Artifact. */
+/** Old Moonlight Mending grant: now Ranged Single Target Restoration on the Artifact. */
 export declare const ARTIFACT_SINGLE_HEAL_RE: RegExp;
 /** Zone T5 Root (D5): not printed in Actives v0.9.9.6. */
 export declare const ZONE_ROOT_TEMPLATE = "active-ranged-zone-t5";

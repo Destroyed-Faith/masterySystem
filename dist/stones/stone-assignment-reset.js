@@ -201,8 +201,17 @@ export async function revertStoneAssignmentEffects(opts) {
         /* best-effort */
     }
     try {
+        if (getRoundState(actor, combat).sharedFreeRaisesGiven?.length) {
+            const { reclaimSharedFreeRaises } = await import('../combat/shared-free-raises.js');
+            await reclaimSharedFreeRaises(actor, combat);
+        }
         const roundState = getRoundState(actor, combat);
+        // A Prep Attack Action Transfer from an ally is not a Stone purchase.
+        const donated = Math.max(0, Math.floor(Number(roundState.stoneBonuses?.donatedAttackActions) || 0));
         roundState.stoneBonuses = emptyStoneBonuses();
+        if (donated > 0)
+            roundState.stoneBonuses.donatedAttackActions = donated;
+        delete roundState.sharedFreeRaisesGiven;
         await setRoundState(actor, roundState);
     }
     catch {

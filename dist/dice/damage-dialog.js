@@ -723,6 +723,18 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         (!!selectedPowerId &&
             isSpellPowerItem(resolvePowerItemForDamage(actorToUse, selectedPowerId)));
     stoneDamageBonusDice = attackIsSpell ? 0 : await readMartialDamageDice();
+    let allOutDamageDice = 0;
+    if (actorToUse && !isSpecialOnlyAttack(flags)) {
+        try {
+            const { getRoundState } = await import('../combat/action-economy.js');
+            const { allOutDamageBonusDice } = await import('../combat/tactical-options.js');
+            const combat = game.combat ?? null;
+            allOutDamageDice = allOutDamageBonusDice(getRoundState(actorToUse, combat));
+        }
+        catch (e) {
+            console.warn('Mastery System | All-Out Attack damage bonus read failed', e);
+        }
+    }
     let raiseOutcomeLine = '';
     let shownPowerDamage = '';
     let shownRaiseDamage = '';
@@ -936,6 +948,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 ? Math.max(0, Math.floor(Number(actorToUse?.system?.scaling?.mightDamageBonus) || 0))
                 : 0,
             martialDamageDice: stoneDamageBonusDice,
+            allOutDamageDice,
             spellFocusDice: spellFocusBonusDice,
             weaponName: weaponDisplayName,
             spellFocusSources,
@@ -992,6 +1005,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     weaponDamageDice: flags?.weaponDamageDice ?? null,
                     masteryRank: flags?.masteryRank ?? null,
                     stoneDamageBonusDice,
+                    allOutDamageDice,
                     availableSpecials,
                     weaponSpecials,
                     npcAutoDamageDice,
@@ -1585,6 +1599,7 @@ export function attachDamageCardHandlers(messageId) {
                 raiseBonusDice: Math.max(0, Math.floor(Number(flags.raiseBonusDice) || 0)),
                 raiseBonusLabel: String(flags.raiseBonusLabel || ''),
                 spellFocusDice: Math.max(0, Math.floor(Number(flags.spellFocusDice) || 0)),
+                allOutDamageDice: Math.max(0, Math.floor(Number(flags.allOutDamageDice) || 0)),
                 isSpell: flags.powerIsSpell === true || flags.npcIsSpell === true,
             });
             // Mechanical npcStressD8 / Stress on hit retired.
@@ -1934,9 +1949,16 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             current: Number(b?.current) || 0,
         }));
         // Step 1: Flat Armor + Guard/reaction Armor + percentage DR + 8s-min floor.
-        const baseArmorTotal = Number(system.combat?.armorTotal ?? 0) +
+        let baseArmorTotal = Number(system.combat?.armorTotal ?? 0) +
             Number(system.combat?.armorFromActiveBuffs ?? 0) +
             summonArmorAuraBonus(target);
+        try {
+            const { applyAllOutArmorPenalty, currentCombatRoundState } = await import('../combat/tactical-options.js');
+            baseArmorTotal = applyAllOutArmorPenalty(baseArmorTotal, currentCombatRoundState(target));
+        }
+        catch {
+            /* ignore */
+        }
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
             count8s,
@@ -2890,6 +2912,14 @@ damageRollOpts) {
     // reduced pool from the first roll is passed back in.
     let negationSkipRaiseDice = 0;
     let spellFocusDiceLeft = Math.max(0, Math.floor(Number(damageRollOpts?.spellFocusDice) || 0));
+    let allOutDiceLeft = 0;
+    try {
+        const { resolveAllOutDamageDice, currentCombatRoundState } = await import('../combat/tactical-options.js');
+        allOutDiceLeft = resolveAllOutDamageDice(damageRollOpts?.allOutDamageDice, isSpecialOnlyAttack(damageRollOpts), attacker ? currentCombatRoundState(attacker) : null);
+    }
+    catch {
+        /* ignore */
+    }
     const negationNotes = [];
     if (target && !skipPhasingPrompt) {
         try {
@@ -2902,6 +2932,7 @@ damageRollOpts) {
             const originalDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
                 Math.max(0, Math.floor(stoneDamageBonusDice)) +
                 spellFocusDiceLeft +
+                allOutDiceLeft +
                 countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
                 countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
                 raiseDamagePicks +
@@ -2930,6 +2961,11 @@ damageRollOpts) {
                     if (left > 0 && spellFocusDiceLeft > 0) {
                         const take = Math.min(spellFocusDiceLeft, left);
                         spellFocusDiceLeft -= take;
+                        left -= take;
+                    }
+                    if (left > 0 && allOutDiceLeft > 0) {
+                        const take = Math.min(allOutDiceLeft, left);
+                        allOutDiceLeft -= take;
                         left -= take;
                     }
                     if (left > 0) {
@@ -2971,6 +3007,7 @@ damageRollOpts) {
         const remainingDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
             Math.max(0, Math.floor(stoneDamageBonusDice)) +
             spellFocusDiceLeft +
+            allOutDiceLeft +
             countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
             countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
             raiseDamagePicksLeft +
@@ -3021,6 +3058,15 @@ damageRollOpts) {
             rollDetails.push(stoneRoll.line);
         if (stoneRoll.roll)
             damageChatRolls.push(stoneRoll.roll);
+    }
+    let allOutDamageRolled = 0;
+    if (allOutDiceLeft > 0) {
+        const aoRoll = await rollDiceWithDetail(`${allOutDiceLeft}d8`, 'All-Out Attack', undefined, poolFaces);
+        allOutDamageRolled = aoRoll.total;
+        if (aoRoll.line)
+            rollDetails.push(aoRoll.line);
+        if (aoRoll.roll)
+            damageChatRolls.push(aoRoll.roll);
     }
     // PG: bonus applies to the next Martial Attack this turn — consume once used.
     if (martialGrantedAtStart > 0 && attacker) {
@@ -3339,6 +3385,7 @@ damageRollOpts) {
     // (Mark floor bonus is added after the post-roll Mark prompt below.)
     let totalDamage = baseDamageRolled
         + stoneMightDamageRolled
+        + allOutDamageRolled
         + mightMeleeBonus
         + spellFocusDamageRolled
         + powerDamageRolled
@@ -3368,6 +3415,7 @@ damageRollOpts) {
                 ...(autofireShared?.useId ? { useId: autofireShared.useId } : {}),
                 // Negation already stripped locals; keep remaining Focus / Raise buckets.
                 spellFocusDice: spellFocusDiceLeft,
+                allOutDamageDice: allOutDiceLeft,
                 raiseBonusDice: Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice),
                 raiseBonusLabel: damageRollOpts?.raiseBonusLabel,
                 isSpell: damageRollOpts?.isSpell === true,

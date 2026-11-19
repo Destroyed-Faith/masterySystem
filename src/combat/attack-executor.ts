@@ -45,6 +45,7 @@ import {
   isSpecialOnlyTemplateId,
   spellFocusDamageApplies,
 } from "./damage-transfer.js";
+import { totalAvailableSharedFreeRaises } from "./shared-free-raises.js";
 
 export {
   getTargetEvade,
@@ -1834,8 +1835,9 @@ function setupRaisesHandler(
     try {
       const id = String(button.attr('data-attacker-id') || '');
       const actor = gameAny?.actors?.get?.(id);
-      const rs = actor?.getFlag?.('mastery-system', 'roundState') as { stoneBonuses?: { freeRaises?: number } } | null;
-      return Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
+      if (!actor) return 0;
+      const combat = gameAny?.combat ?? null;
+      return totalAvailableSharedFreeRaises(actor, combat);
     } catch {
       return 0;
     }

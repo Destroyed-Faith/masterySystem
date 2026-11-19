@@ -12,6 +12,11 @@ import {
   getActiveBuffEnemyEvadeReduction,
   getActiveBuffSpellResistancePiercing,
 } from './offensive-active-buff-effects.js';
+import {
+  applyAllOutArmorPenalty,
+  applyAllOutEvadePenalty,
+  currentCombatRoundState,
+} from './tactical-options.js';
 
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
 export function getTargetEvade(targetActor: any, attacker?: any): number {
@@ -37,17 +42,34 @@ export function getTargetEvade(targetActor: any, attacker?: any): number {
       /* ignore */
     }
   }
+  try {
+    evade = applyAllOutEvadePenalty(evade, currentCombatRoundState(targetActor));
+  } catch {
+    /* ignore */
+  }
   return evade;
 }
 
-/** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */
-export function getTargetArmor(targetActor: any): number {
+/** Effective Armor (armorTotal + Active Buffs) before any All-Out drawback. */
+export function getTargetArmorBeforeAllOut(targetActor: any): number {
   if (!targetActor?.system) return 0;
   const combat = targetActor.system.combat ?? {};
   return (
     Math.max(0, Math.floor(Number(combat.armorTotal ?? combat.armor ?? 0) || 0)) +
     Math.max(0, Math.floor(Number(combat.armorFromActiveBuffs ?? 0) || 0))
   );
+}
+
+/** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */
+export function getTargetArmor(targetActor: any): number {
+  if (!targetActor?.system) return 0;
+  let armor = getTargetArmorBeforeAllOut(targetActor);
+  try {
+    armor = applyAllOutArmorPenalty(armor, currentCombatRoundState(targetActor));
+  } catch {
+    /* ignore */
+  }
+  return armor;
 }
 
 /** Spell Resistance used vs spells (`attack-executor.getTargetSpellResistance`). */

@@ -93,7 +93,8 @@ function npcAttackSlotsForEconomy(owner) {
 function reconcileNpcAttackActions(owner, state) {
     if (!owner || owner.type !== 'npc')
         return state;
-    const slots = npcAttackSlotsForEconomy(owner);
+    const donated = Math.max(0, Math.floor(Number(state.stoneBonuses?.donatedAttackActions) || 0));
+    const slots = npcAttackSlotsForEconomy(owner) + donated;
     const used = Math.min(Math.max(0, Math.floor(Number(state.attackActions?.used) || 0)), slots);
     if (Math.floor(Number(state.attackActions?.total) || 0) === slots &&
         Math.floor(Number(state.attackActions?.used) || 0) === used) {
@@ -308,7 +309,7 @@ export function highestExtraAttackGrant(sources) {
     }
     return best;
 }
-/** PC Attack Action total = 1 base + the highest extra-attack grant. */
+/** PC Attack Action total = 1 base + highest extra-attack grant + donated transfers. */
 export function syncPcExtraAttackTotal(state) {
     if (!state.isPC)
         return;
@@ -318,7 +319,8 @@ export function syncPcExtraAttackTotal(state) {
         sb?.shopExtraAttack,
         sb?.bonusAttackActions,
     ]);
-    const total = 1 + grant;
+    const donated = Math.max(0, Math.floor(Number(sb?.donatedAttackActions) || 0));
+    const total = 1 + grant + donated;
     const used = Math.max(0, Math.floor(Number(state.attackActions?.used) || 0));
     state.attackActions = { total, used: Math.min(used, total) };
 }
@@ -570,8 +572,33 @@ export async function consumeFreeRaises(actor, requested) {
     if (spend <= 0 || !rs.stoneBonuses)
         return 0;
     rs.stoneBonuses.freeRaises = have - spend;
+    rs.stoneBonuses.freeRaisesUsed =
+        Math.max(0, Math.floor(Number(rs.stoneBonuses.freeRaisesUsed) || 0)) + spend;
     await setRoundState(actor, rs);
     return spend;
+}
+/**
+ * Unspent Intellect Raises after activating a Rank whose Round allowance is
+ * `allowance`. Raises already spent or assigned to allies count against it, so
+ * raising the Rank mid-Round never refills the pool beyond the allowance.
+ */
+export function remainingFreeRaiseAllowance(state, allowance) {
+    const sb = state.stoneBonuses;
+    const current = Math.max(0, Math.floor(Number(sb?.freeRaises) || 0));
+    const used = Math.max(0, Math.floor(Number(sb?.freeRaisesUsed) || 0));
+    const given = (state.sharedFreeRaisesGiven ?? []).reduce((n, row) => n + Math.max(0, Math.floor(Number(row?.amount) || 0)), 0);
+    return Math.max(current, Math.max(0, Math.floor(Number(allowance) || 0)) - used - given);
+}
+/**
+ * Shared Free Raises (playtest): spend from a donor's Intellect Raises pool.
+ * Caller enforces range/perception; this only mutates the donor budget atomically.
+ */
+export async function consumeSharedFreeRaises(donor, requested) {
+    return consumeFreeRaises(donor, requested);
+}
+/** Free Raises available from an actor (self pool). */
+export function freeRaisePoolOf(actor) {
+    return freeRaisePool(actor);
 }
 /**
  * Strip Dragon Breath mode suffixes (`:damage` / `:ruin`) so both modes share
@@ -1230,9 +1257,13 @@ export function getAvailableAttackActions(actor, combat) {
         return 0;
     const owner = getActionEconomyActor(actor) ?? actor;
     const stunnedLock = Math.max(0, getStunnedRank(owner));
-    // Prep Active Buff commitment and Dash/Disengage both consume the single base
-    // Attack Action — they do not stack as a double lock.
-    const baseLock = roundState.baseAttackLocked || roundState.prepBaseAttackCommitted ? 1 : 0;
+    // Prep Active Buff commitment, Dash/Disengage, and Attack Action Transfer all
+    // consume the single base Attack Action — they do not stack as a double lock.
+    const baseLock = roundState.baseAttackLocked ||
+        roundState.prepBaseAttackCommitted ||
+        roundState.baseAttackTransferred
+        ? 1
+        : 0;
     const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock - baseLock);
     const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
     return n;
@@ -2166,6 +2197,7 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         armorPenetration: sb.armorPenetration ?? 0,
         meleeIgnoreArmor: sb.meleeIgnoreArmor ?? 0,
         freeRaises: sb.freeRaises ?? 0,
+        freeRaisesUsed: sb.freeRaisesUsed ?? 0,
         critRaises: sb.critRaises ?? 0,
         specialBoost: sb.specialBoost ?? 0,
         spellSpecialBoost: sb.spellSpecialBoost ?? 0,
@@ -2200,6 +2232,7 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         reactionRangeBonus: sb.reactionRangeBonus ?? 0,
         extraPassives: sb.extraPassives ?? 0,
         defensiveExpiry: sb.defensiveExpiry ?? null,
+        ...(sb.donatedAttackActions ? { donatedAttackActions: sb.donatedAttackActions } : {}),
     };
     await setRoundState(owner, roundState);
 }

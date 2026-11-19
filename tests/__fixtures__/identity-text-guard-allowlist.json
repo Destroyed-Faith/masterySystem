@@ -243,7 +243,19 @@
     },
     {
       "file": "src\\combat\\action-economy.ts",
-      "line": 1133,
+      "line": 1217,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1220,
+      "match": "isUltimateProgressionRow",
+      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
+    },
+    {
+      "file": "src\\combat\\action-economy.ts",
+      "line": 1221,
       "match": "isUltimateProgressionRow",
       "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
     },
@@ -324,18 +336,6 @@
       "line": 922,
       "match": "tags.includes",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
-    },
-    {
-      "file": "src\\combat\\action-economy.ts",
-      "line": 1129,
-      "match": "isUltimateProgressionRow",
-      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
-    },
-    {
-      "file": "src\\combat\\action-economy.ts",
-      "line": 1132,
-      "match": "isUltimateProgressionRow",
-      "reason": "K8 instance display — resolve Artifact grant name via slot/ultimate row helpers"
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",

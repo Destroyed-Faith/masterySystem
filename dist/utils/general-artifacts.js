@@ -44,23 +44,19 @@ const MOONLIGHT_GREATSWORD = {
     baseValues: [
         {
             slot: 'a',
-            label: 'Weapon Damage',
-            note: '4d8 base + 1d8 per Artifact Level (L1 = 5d8 … L10 = 14d8). Inherent Finesse is not a Base Value.',
+            label: 'Shared Artifact Damage',
+            note: 'Complete Artifact Damage: 4d8 base + 1d8 per Artifact Level (L1 = 5d8 … L10 = 14d8). Supports any legal direct Martial or Spell Damage Attack once. No separate Spell Focus. Inherent Finesse is not a Base Value.',
         },
         {
             slot: 'b',
-            label: 'Spell Focus (+4d8)',
-            note: 'Unlocked at Level 4. Runestaff two-handed Spell Focus; applies once to damaging Spells including Moonlight Judgment when unlocked; never multiplied by Limited (×4 is Power Dice only).',
-        },
-        {
-            slot: 'c',
-            label: 'Weapon Special: Expose',
-            note: 'Expose(4) at Levels 7–9; Expose(5) at Level 10. No separate Level-10 Ultimate.',
+            label: 'Expose (late unlock)',
+            note: 'Unlocks at Level 7: Expose(4) at Levels 7–9; Expose(5) at Level 10.',
         },
     ],
-    // Catalogue Technical References (Artifacts_FULL_Moonlight_Sundered 2026-11-04):
-    //   L1/4/7 Moonlight Mending  → Ranged Scarred Bar Restoration (PL 4/10/16; PH)
-    //   L2/5/8 Moonlight Judgment → Limited Ranged AoE Attack (Spell; PL 4/10/16)
+    // Catalogue (Artifact Damage Only 2026-11-19):
+    //   Base A Shared Artifact Damage; Base B Expose from L7; no Spell Focus
+    //   L1/4/7 Moonlight Mending  → Ranged Single Target Restoration (PL 4/10/16)
+    //   L2/5/8 Moonlight Judgment → Limited Ranged AoE Attack (Spell; PL 4/10/16) + Artifact Damage once
     //   L3/6/9 Moonlight Shadow   → Active Buff: Sundered Aura (PL 4/10/16)
     //   L10 Artifact Awakening (universal; no True Moonlight Ultimate)
     progressionPickSpecs: {
@@ -68,9 +64,9 @@ const MOONLIGHT_GREATSWORD = {
             templateId: 'active-ranged-health-level-heal',
             name: 'Moonlight Mending',
             stageEffectTexts: [
-                'Use **Ranged Scarred Bar Restoration (PL 4)**: restore up to **2 Scarred Bars at full HP** to one creature within **20 m**, from this Power\'s shared recovery pool per Safe Haven Rest.',
-                'Use **Ranged Scarred Bar Restoration (PL 10)**: restore up to **6 Scarred Bars at full HP** to one creature within **44 m**, from this Power\'s shared recovery pool per Safe Haven Rest. This replaces Moonlight Mending I.',
-                'Use **Ranged Scarred Bar Restoration (PL 16)**: restore up to **10 Scarred Bars at full HP** to one creature within **68 m**, from this Power\'s shared recovery pool per Safe Haven Rest. This replaces Moonlight Mending II.',
+                'Use **Ranged Single Target Restoration (PL 4)**: restore up to **2 Scarred Bars at full HP** to one creature within **20 m**, from this Power\'s shared recovery pool of **2** per Safe Haven Rest.',
+                'Use **Ranged Single Target Restoration (PL 10)**: restore up to **6 Scarred Bars at full HP** to one creature within **44 m**, from this Power\'s shared recovery pool per Safe Haven Rest. This replaces Moonlight Mending I.',
+                'Use **Ranged Single Target Restoration (PL 16)**: restore up to **10 Scarred Bars at full HP** to one creature within **68 m**, from this Power\'s shared recovery pool per Safe Haven Rest. This replaces Moonlight Mending II.',
             ],
         },
         2: {
@@ -82,9 +78,9 @@ const MOONLIGHT_GREATSWORD = {
             spellResolution: 'spellAttack',
             limited: true,
             stageEffectTexts: [
-                'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+12d8** for this use (×4). Base B is not yet unlocked; no Focus bonus. **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Weapon Damage; no Specials.',
-                'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+16d8** for this use (×4). When Base B is unlocked, **Spell Focus applies once** (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Weapon Damage; no Specials.',
-                'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+32d8** for this use (×4). When Base B is unlocked, **Spell Focus applies once** (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Weapon Damage; no Specials.',
+                'Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+12d8** for this use (×4). Add the Greatsword\'s complete Artifact Damage **once** to the shared Damage Roll (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Specials.',
+                'Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+16d8** for this use (×4). Add the Greatsword\'s complete Artifact Damage **once** to the shared Damage Roll (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Specials.',
+                'Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+32d8** for this use (×4). Add the Greatsword\'s complete Artifact Damage **once** to the shared Damage Roll (not ×4). **Shares the character\'s one global Limited use per Safe Haven Rest**; spent on declaration (miss still costs the use). No Specials.',
             ],
         },
         3: {
@@ -400,16 +396,16 @@ const LANTERN_OF_THE_HOLLOW_STAR = {
 // ----------------------------------------------------------------------
 const LOR_KETHS_STAFF = {
     key: 'lorKethsStaff',
-    name: "Lor-Keth's Staff",
+    name: "Lor-Keth's Titanstorm Staff",
     echoKey: '',
     slot: 'bothHands',
     baseProfile: 'twoHandedWeapon',
-    description: "Lor-Keth's Staff is a two-handed Rod of the Storm Ancestors. It was forged for giants, shaped from smooth blue-gray stone, and awakened by old runes of storm and bloodline.\n\nThe Staff changes with its bearer.\n\nIt is not a wand. It is a giant's weapon.",
-    restriction: "Lor-Keth's Staff requires both hands.\n\nWhile wielding it, the character cannot wield another weapon, shield, or Hand Artifact.",
-    // SOURCE MISSING (Batch 9F / 9G.4): no complete L1–9 table in Canonical PH,
-    // Actives, Active_Buffs, or the 2026-11-04 Compatibility Catalogue. L1–9 keep
-    // the existing catalogue-template wiring for owned actors; L10 is Core
-    // universal Artifact Awakening. newGrantHold skips fresh world-library seeds only.
+    description: "Lor-Keth's Titanstorm Staff (legacy display: Lor-Keth's Staff) is a two-handed Rod of the Storm Ancestors. It was forged for giants, shaped from smooth blue-gray stone, and awakened by old runes of storm and bloodline.\n\nThe Staff changes with its bearer.\n\nIt is not a wand. It is a giant's weapon.",
+    restriction: "Lor-Keth's Titanstorm Staff requires both hands.\n\nWhile wielding it, the character cannot wield another weapon, shield, or Hand Artifact.",
+    // SOURCE MISSING (Batch 9F / 9G.4): no complete L2–10 progression in the
+    // authorized 2026-11-19 Artifacts catalogue. L1 Giant Shock Strike = Expose
+    // PL4 retained; L10 Core Awakening wiring kept for owned actors.
+    // newGrantHold skips fresh world-library seeds only — do not lift.
     newGrantHold: true,
     stoneFunction: {
         kind: 'stonePowerSupport',

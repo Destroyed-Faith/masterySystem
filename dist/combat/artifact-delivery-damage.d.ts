@@ -37,8 +37,18 @@ export declare function resolveArtifactItemWeaponDamageFormula(item: any): strin
 /**
  * One Artifact → one delivery contribution for the selected Delivery.
  * Returns null when the Artifact grants no delivery damage.
+ *
+ * Artifact Damage Only (2026-11-19): a printed Artifact Damage / Weapon Damage
+ * value is the complete contribution for Martial or Spell. Prefer that over a
+ * separate Spell Focus row on the same Artifact so WD+SF never stack. Focus-only
+ * Artifacts still contribute their Focus dice to either Delivery.
  */
 export declare function resolveArtifactItemDeliveryContribution(item: any, delivery: ArtifactDeliveryKind): ArtifactDeliveryDamageSource | null;
+/**
+ * Pick at most one Artifact Damage source for a Damage Roll (highest dice).
+ * Callers must not sum multiple Artifact contributions onto one roll.
+ */
+export declare function selectPrimaryArtifactDeliverySource(actor: any, delivery: ArtifactDeliveryKind): ArtifactDeliveryDamageSource | null;
 /**
  * Martial formula for a resolved Artifact weapon (including Focus-only fallback).
  * Returns null when the item is not an Artifact or grants no delivery damage.
@@ -51,8 +61,10 @@ export declare function resolveMartialArtifactWeaponFormula(weaponOrArtifact: an
 export declare function listArtifactDeliveryDamageSources(actor: any, delivery: ArtifactDeliveryKind): ArtifactDeliveryDamageSource[];
 export declare function sumArtifactDeliveryDice(actor: any, delivery: ArtifactDeliveryKind): number;
 /**
- * Spell delivery damage sources: unified Artifact contributions plus mundane
+ * Spell delivery damage sources: at most one Artifact contribution, else mundane
  * weapons that print a Spell Focus (+Xd8) innate (unchanged mundane path).
+ * Artifact Damage never stacks with a second Artifact or mundane Focus on the
+ * same roll.
  */
 export declare function listSpellDeliveryDamageSources(actor: any): Array<{
     name: string;

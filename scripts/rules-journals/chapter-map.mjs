@@ -83,6 +83,7 @@ export const CHAPTER_SPECS = [
   // Health / Maneuvers / Rest live as ### under Advantage section region in the source
   { pack: 'rules-core', journal: 'Combat Core', page: 'Health & Fear', start: /^### Health & Fear/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Combat Maneuvers', start: /^### Combat Maneuvers/ },
+  { pack: 'rules-core', journal: 'Combat Core', page: 'Tactical Choices (Playtest)', start: /^### Tactical Choices \(Playtest\)/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Rest & Recovery', start: /^### Rest & Recovery/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Special Effects Reference', start: /^### Special Effects Reference/ },
 
@@ -90,7 +91,7 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Equipment', start: /^## Equipment\s*$/ },
   { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Weapons', start: /^## Weapons\s*$/ },
   { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Magic', start: /^## Magic\s*$/ },
-  { pack: 'rules-core', journal: 'Equipment, Magic & Powers', page: 'Powers', start: /^## Powers\s*$/ },
+  // Powers overview lives under Stones & Progression (`## Types of Powers`).
 
   // ── Rituals, Summons, Artifacts ─────────────────────────────────
   { pack: 'rules-core', journal: 'Rituals, Summons & Artifacts', page: 'Rituals', start: /^## Rituals\s*$/ },
@@ -101,7 +102,10 @@ export const CHAPTER_SPECS = [
 
   // ── Advanced (GM-leaning) ───────────────────────────────────────
   { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Game System Details', start: /^## Game System Details/ },
-  { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Limited Damage Powers', start: /^## Limited Damage Powers/ },
+  { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Limited Damage Powers', start: /^### Limited Damage Powers/ },
+
+  // ── Character Concepts (examples, not classes) — after Appendices ──
+  { pack: 'rules-core', journal: 'Character Concepts', page: 'Build Your Own Legend', start: /^## Character Concepts — Build Your Own Legend/ },
 
   // ── Quick Reference (cheat sheets live in the PG appendix) ──────
   { pack: 'rules-quickref', journal: 'Player Cheat Sheets', page: 'Core Flow', start: /^#### \*\*Player Cheat Sheet: Core Flow\*\*/ },

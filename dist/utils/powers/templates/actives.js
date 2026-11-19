@@ -797,10 +797,11 @@ const MIND_ILLUSION_EFFECT = [
 function healthLevelHealTemplate(flavour) {
     const isRanged = flavour === 'ranged';
     const pool = isRanged ? HL_HEAL_RANGED_POOL : HL_HEAL_MELEE_POOL;
-    // Display labels (R-canvas): Scarred Bar Restoration. Template ids unchanged for compatibility.
+    // Display labels match Canonical Actives Technical References.
+    // Template ids (`*-health-level-heal`) stay for compatibility.
     const displayName = isRanged
-        ? 'Ranged Scarred Bar Restoration'
-        : 'Melee Scarred Bar Restoration';
+        ? 'Ranged Single Target Restoration'
+        : 'Melee Single Target Restoration';
     return {
         templateId: isRanged ? 'active-ranged-health-level-heal' : 'active-melee-health-level-heal',
         templateName: displayName,

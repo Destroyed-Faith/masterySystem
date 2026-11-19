@@ -20,6 +20,7 @@ import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 import { isDamageTransferPower, isDamageTransferTemplateId, isSpecialOnlyTemplateId, spellFocusDamageApplies, } from "./damage-transfer.js";
+import { totalAvailableSharedFreeRaises } from "./shared-free-raises.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
@@ -1483,8 +1484,10 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         try {
             const id = String(button.attr('data-attacker-id') || '');
             const actor = gameAny?.actors?.get?.(id);
-            const rs = actor?.getFlag?.('mastery-system', 'roundState');
-            return Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
+            if (!actor)
+                return 0;
+            const combat = gameAny?.combat ?? null;
+            return totalAvailableSharedFreeRaises(actor, combat);
         }
         catch {
             return 0;

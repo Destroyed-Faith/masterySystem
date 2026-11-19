@@ -29,11 +29,13 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
     expect(String(bv.find((b) => b.slot === 'a')?.valueAt(10))).toBe('14d8');
   });
 
-  it('Base B is Spell Focus (+4d8) from L4; Base C Expose(4) then Expose(5) at L10', () => {
+  it('Base A is Shared Artifact Damage; Base B Expose from L7 (no Spell Focus)', () => {
     const focus = BASE_VALUE_TABLES.moonlightGreatsword.find((b) => b.type === 'spellFocus');
+    const damage = BASE_VALUE_TABLES.moonlightGreatsword.find((b) => b.type === 'weaponDamage');
     const expose = BASE_VALUE_TABLES.moonlightGreatsword.find((b) => b.label === 'Expose');
-    expect(focus?.unlock).toBe(4);
-    expect(focus?.valueAt(4)).toBe(4);
+    expect(focus).toBeUndefined();
+    expect(damage?.label).toMatch(/Shared Artifact Damage/i);
+    expect(expose?.slot).toBe('b');
     expect(expose?.unlock).toBe(7);
     expect(expose?.valueAt(7)).toBe(4);
     expect(expose?.valueAt(10)).toBe(5);
@@ -49,7 +51,7 @@ describe('Moonlight Greatsword — Artefacts 2026-10-25', () => {
     expect(l10?.name).not.toMatch(/True Moonlight/i);
   });
 
-  it('Mending is Ranged Scarred Bar Restoration; Judgment / Shadow use canonical templates at PL 4/10/16', () => {
+  it('Mending is Ranged Single Target Restoration; Judgment / Shadow use canonical templates at PL 4/10/16', () => {
     expect(picks[0].kind).toBe('power');
     expect(picks[0].powerTemplateId).toBe('active-ranged-health-level-heal');
     expect(picks[0].stoneFunction).toBeUndefined();

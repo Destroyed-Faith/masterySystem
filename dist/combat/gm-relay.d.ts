@@ -2,7 +2,18 @@
  * Player → GM relays for writes Foundry only accepts from a GM
  * (combat turns, NPC/unlinked-target actor updates).
  */
-export declare function settleGmRelay(requestId: string, ok: boolean): void;
+export declare function settleGmRelay(requestId: string, ok: boolean, reason?: string): void;
+/**
+ * Like `askGm`, but keeps the GM's rejection reason. `gm-unavailable` means no
+ * GM is connected; `gm-timeout` means the GM did not answer in time (the write
+ * may still have happened — callers re-read state instead of retrying blindly).
+ */
+export declare function askGmForResult(payload: Record<string, unknown>, timeoutMs?: number): Promise<{
+    ok: boolean;
+    reason?: string;
+}>;
+/** With several GMs connected only Foundry's active GM answers, so a request is applied once. */
+export declare function isResponsibleGm(): boolean;
 /**
  * Ask a specific connected user (owner or GM) for a yes/no decision — e.g. the
  * defender's Dive for Cover when the attack resolves on another client.

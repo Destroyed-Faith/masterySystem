@@ -203,6 +203,8 @@ damageRollOpts?: {
     useId?: string | null;
     /** Spends one Maximization charge AFTER Negation, before dice are revealed. */
     spendMaximizationAfterNegation?: () => Promise<boolean>;
+    /** All-Out Attack playtest: +Nd8 on each eligible direct Attack Damage Roll. */
+    allOutDamageDice?: number;
     /**
      * DF 2026 Damage Raises already resolved to bonus d8 (N × MR, or ceil(MR/2) on AoE).
      * Rolled as a separate chat line so they are not silently folded into Power.

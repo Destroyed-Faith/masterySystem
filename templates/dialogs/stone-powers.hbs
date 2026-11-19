@@ -198,6 +198,36 @@
   </div>
   {{/if}}
 
+  {{#if tacticalPrep.show}}
+  <div class="initiative-exchange-bar tactical-prep-bar{{#if tacticalPrep.locked}} is-locked{{/if}}">
+    <div class="initiative-exchange-row">
+      <div class="initiative-exchange-copy">
+        <strong>Tactical Choices (Playtest)</strong>
+        <span class="initiative-exchange-note">{{tacticalPrep.summary}}</span>
+      </div>
+      <div class="initiative-exchange-actions">
+        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-armor" {{#if tacticalPrep.locked}}disabled{{/if}} title="All-Out Attack: +1d8 Damage, −4 Armor this Round">
+          All-Out (−4 Armor)
+        </button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-evade" {{#if tacticalPrep.locked}}disabled{{/if}} title="All-Out Attack: +1d8 Damage, −2 Evade this Round">
+          All-Out (−2 Evade)
+        </button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" {{#if tacticalPrep.locked}}disabled{{/if}} title="Clear All-Out Attack">
+          Clear All-Out
+        </button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-transfer-attack" {{#if tacticalPrep.locked}}disabled{{/if}} title="Give your regular base Attack Action to an ally (they spend it on their Turn)">
+          Transfer Attack…
+        </button>
+        {{#if tacticalPrep.canShareRaises}}
+        <button type="button" class="dialog-btn initiative-inline-btn js-share-free-raises" title="Assign part of your Intellect Free Raises ({{tacticalPrep.raisePool}} left) to an ally within 20 m">
+          Share Free Raises…
+        </button>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
   {{#if naturalRecovery.show}}
   <div class="natural-recovery-bar{{#if naturalRecovery.locked}} is-locked{{/if}}{{#if naturalRecovery.autoSingle}} is-auto-single{{/if}}">
     <div class="natural-recovery-copy">

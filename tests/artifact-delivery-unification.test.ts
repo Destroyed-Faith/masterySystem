@@ -185,10 +185,11 @@ describe('Artifact Delivery Unification — contribution resolution', () => {
     const spell = resolveArtifactItemDeliveryContribution(gs, 'spell');
     expect(martial?.kind).toBe('weaponDamage');
     expect(martial?.dice).toBe(8);
-    expect(spell?.kind).toBe('spellFocus');
-    expect(spell?.dice).toBe(4);
-    // Spell path uses Focus only — never WD+SF together
-    expect(getSpellDeliveryBonusDice({ items: [gs] })).toBe(4);
+    // Artifact Damage Only 2026-11-19: complete printed Artifact Damage (WD) wins
+    // for both Deliveries — never WD+SF together, and Spell no longer prefers SF.
+    expect(spell?.kind).toBe('weaponDamage');
+    expect(spell?.dice).toBe(8);
+    expect(getSpellDeliveryBonusDice({ items: [gs] })).toBe(8);
     expect(getSpellDeliveryBonusDice({ items: [gs] })).not.toBe(8 + 4);
     expect(listSpellDeliveryDamageSources({ items: [gs] })).toHaveLength(1);
   });
@@ -220,14 +221,16 @@ describe('Artifact Delivery Unification — contribution resolution', () => {
     expect(sources).toEqual([{ name: 'Staff of the Dark', dice: 3 }]);
   });
 
-  it('10. Multiple independent Artifacts each contribute once', () => {
+  it('10. Multiple Artifacts: Damage Roll selects one primary Artifact contribution', () => {
     const gs = greatswordArtifact(1);
     const staff = staffFocusOnly(1);
     const sources = listSpellDeliveryDamageSources({ items: [gs, staff] });
-    expect(sources).toHaveLength(2);
-    expect(sources.find((s) => s.name === 'Moonlight Greatsword')?.dice).toBe(5);
-    expect(sources.find((s) => s.name === 'Staff of the Dark')?.dice).toBe(3);
-    expect(getSpellDeliveryBonusDice({ items: [gs, staff] })).toBe(8);
+    // Artifact Damage Only: one Artifact Damage source per roll (highest dice).
+    expect(sources).toHaveLength(1);
+    expect(sources[0]?.dice).toBe(5);
+    expect(sources[0]?.name).toBe('Moonlight Greatsword');
+    expect(getSpellDeliveryBonusDice({ items: [gs, staff] })).toBe(5);
+    expect(listArtifactDeliveryDamageSources({ items: [gs, staff] }, 'spell')).toHaveLength(2);
   });
 
   it('11. Existing Focus-only Staff data remains classified and reload-compatible', () => {

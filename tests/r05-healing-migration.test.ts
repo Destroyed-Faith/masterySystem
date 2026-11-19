@@ -37,7 +37,7 @@ describe('R-05 healing migration — planning', () => {
       templateId: 'active-ranged-health-level-heal',
       rank: 10,
     });
-    expect((plan as any).rename).toBe('Ranged Scarred Bar Restoration');
+    expect((plan as any).rename).toBe('Ranged Single Target Restoration');
     expect(planR05HealingItem(item('x', 'active-melee-single-heal', 4))).toMatchObject({
       templateId: 'active-melee-health-level-heal',
     });
@@ -124,7 +124,7 @@ describe('R-05 healing migration — run', () => {
     const first = await runR05HealingMigration([actor]);
     expect(first).toEqual({ restoration: 1, regeneration: 1, retired: 1 });
     expect(heal.system.templateId).toBe('active-melee-health-level-heal');
-    expect(heal.name).toBe('Melee Scarred Bar Restoration');
+    expect(heal.name).toBe('Melee Single Target Restoration');
     expect(regen.system.templateId).toBe('passive-regeneration');
     expect(regen.name).toBe('Passive: Restoration');
     expect(buff.flags['mastery-system'].r05Retired).toBe(true);

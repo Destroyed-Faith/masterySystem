@@ -141,14 +141,13 @@ describe('Moonlight Greatsword', () => {
   it('damage scales 5d8 → 14d8 (4d8 two-handed base + 1d8 per level)', () => {
     const expected = ['5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8', '14d8'];
     for (let lvl = 1; lvl <= 10; lvl++) {
-      expect(baseValue(tree, lvl, 'Weapon Damage').value).toBe(expected[lvl - 1]);
+      expect(baseValue(tree, lvl, 'Shared Artifact Damage').value).toBe(expected[lvl - 1]);
       expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(expected[lvl - 1]);
     }
   });
 
-  it('Spell Focus unlocks at L4; Expose(4) at L7–9 and Expose(5) at L10 (no Requiem)', () => {
-    expect(baseValue(tree, 3, 'Spell Focus (+4d8)')).toBeUndefined();
-    expect(baseValue(tree, 4, 'Spell Focus (+4d8)').value).toBe(4);
+  it('has no Spell Focus; Expose is Base B from L7 (Expose(4) L7–9, Expose(5) L10)', () => {
+    expect(baseValue(tree, 4, 'Spell Focus (+4d8)')).toBeUndefined();
     expect(baseValue(tree, 3, 'Expose')).toBeUndefined();
     expect(baseValue(tree, 6, 'Expose')).toBeUndefined();
     expect(baseValue(tree, 7, 'Expose').value).toBe(4);
@@ -176,7 +175,7 @@ describe('Moonlight Greatsword', () => {
 
   it('builds its three signature lines (standard catalog Powers)', () => {
     const def = getGeneralArtifact('moonlightGreatsword')!;
-    // PH: Mending = Ranged Scarred Bar Restoration; Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
+    // PH: Mending = Ranged Single Target Restoration; Judgment = Limited Ranged AoE Attack Spell; Shadow = Sundered Aura.
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
     expect(picks.map((p) => p.powerTemplateId)).toEqual([
@@ -902,7 +901,7 @@ describe('Lantern of the Hollow Star', () => {
   });
 });
 
-describe("Lor-Keth's Staff", () => {
+describe("Lor-Keth's Titanstorm Staff", () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('lorKethsStaff')!);
 
   it('is a two-handed staff occupying both hands', () => {

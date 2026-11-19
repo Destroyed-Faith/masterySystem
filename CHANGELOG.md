@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.872] - 2026-11-19
+
+### Added
+
+- **Tactical Choices (Playtest):** All-Out Attack, Regular Attack Action Transfer, and Shared Intellect Free Raises from Core 2026-11-19. Preparation UI in the Stone Powers dialog; donated Attack Actions are spent on the recipient's own Turn.
+- **GM relay for teamwork:** players can transfer a regular Attack Action or allocate Free Raises to another player's character without ownership; the active GM re-validates and writes both Round states. Recipient-first writes with rollback prevent lost Actions or double grants.
+- **Thirteen MR-2 character concepts** in the Players Handbook Character Creation journal, wired to existing catalogue powers (Pactbound uses `Reaction: Reactive Cleanse`).
+
+### Changed
+
+- **Artifact Damage Only:** spell delivery no longer adds mundane Weapon Damage; one equipped Artifact's complete Artifact Damage still applies once. Moonlight Greatsword uses shared Artifact Damage (no Spell Focus); Lor-Keth L1 remains Melee Single Target Special: Expose.
+- **Shared Free Raises:** the Stone user allocates from their unchanged pool; recipients spend only their own pool plus assigned Raises. Raising Intellect Raises mid-Round no longer refills beyond the Round allowance.
+- **All-Out Attack:** −4 Armor / −2 Evade apply only for the live combat Round on the declaring attacker; Armor drawback requires at least 4 effective Armor on that attacker; damage mitigation and Faith rerolls respect declared dice.
+
+### Fixed
+
+- Attack Action Transfer no longer drops donated Actions on NPC reconcile or Stone-plan revert; permission failures and write failures no longer leave the donor without the base Action.
+- Legacy cleanup naming for Ranged Single Target Restoration; Damage Transfer handbook wording aligned with Artifact Delivery Support.
+
 ## [0.9.871] - 2026-11-18
 
 ### Changed

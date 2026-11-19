@@ -95,7 +95,31 @@ async function handleEncounterSocket(payload) {
         if (payload.replyTo && payload.replyTo !== game.user?.id && userId !== game.user?.id)
             return;
         const { settleGmRelay } = await import('./gm-relay.js');
-        settleGmRelay(String(payload.requestId || ''), !!payload.ok);
+        settleGmRelay(String(payload.requestId || ''), !!payload.ok, payload.reason ? String(payload.reason) : undefined);
+        return;
+    }
+    if (type === 'gmTeamworkTransfer' || type === 'gmTeamworkFreeRaises') {
+        const { isResponsibleGm } = await import('./gm-relay.js');
+        if (!isResponsibleGm())
+            return;
+        let result;
+        try {
+            const { handleGmTeamworkRequest } = await import('./teamwork-transactions.js');
+            const requester = game.users?.get?.(payload.replyTo) ?? null;
+            result = await handleGmTeamworkRequest(payload, requester);
+        }
+        catch (err) {
+            console.error('Mastery System | GM teamwork relay failed', err);
+            result = { ok: false, reason: 'write-failed' };
+        }
+        game.socket?.emit(ENCOUNTER_SOCKET, {
+            type: 'gmRelayResult',
+            requestId: payload.requestId,
+            ok: result.ok,
+            reason: result.ok ? undefined : result.reason,
+            userId: payload.replyTo,
+            replyTo: payload.replyTo,
+        });
         return;
     }
     if (type === 'showBlood') {

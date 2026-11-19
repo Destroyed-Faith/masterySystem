@@ -33,6 +33,19 @@ export declare function incrementGenericStonePowerUsage(actor: Actor, abilityKey
  * Round state stored on actor flags
  * Tracks action budgets, bonuses, and stone usage per round
  */
+/** Recipient-side record of Free Raises a donor assigned this Round. */
+export type SharedFreeRaiseGrant = {
+    fromActorId: string;
+    fromName: string;
+    remaining: number;
+};
+/** Donor-side record of Free Raises assigned to an ally this Round. */
+export type SharedFreeRaiseAllocation = {
+    toActorId: string;
+    toUuid: string;
+    toName: string;
+    amount: number;
+};
 export interface RoundState {
     /** Foundry combat document id — stale state from a previous encounter is never reused. */
     combatId?: string;
@@ -101,6 +114,35 @@ export interface RoundState {
      * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
      */
     baseAttackLocked?: boolean;
+    /**
+     * Prep playtest: regular base Attack Action was given to an ally for this Round.
+     * Extras (Stones / shop / bonus) remain spendable; base is not.
+     */
+    baseAttackTransferred?: boolean;
+    /** Donor-side record of a Prep Attack Action transfer (playtest). */
+    attackActionTransfer?: {
+        fromActorId: string;
+        toActorId: string;
+        status: 'granted' | 'spent' | 'expired';
+    };
+    /** Recipient-side mirror of a Prep Attack Action transfer (playtest). */
+    receivedAttackTransfer?: {
+        fromActorId: string;
+        toActorId: string;
+        status: 'granted' | 'spent' | 'expired';
+    };
+    /**
+     * All-Out Attack (playtest): Prep declaration for this Round.
+     * Not an Active Buff; does not consume the one-Buff limit.
+     */
+    allOutAttack?: {
+        active: true;
+        penalty: 'armor' | 'evade';
+    };
+    /** Shared Free Raises (playtest): Raises allies assigned to this actor this Round. */
+    sharedFreeRaisesReceived?: SharedFreeRaiseGrant[];
+    /** Shared Free Raises (playtest): Raises this Stone user assigned to allies this Round. */
+    sharedFreeRaisesGiven?: SharedFreeRaiseAllocation[];
     /**
      * Disengage: movement does not provoke movement-triggered Reactions.
      */
@@ -197,8 +239,10 @@ export interface RoundState {
         critRaises?: number;
         /** Might.Armor — flat temp armor until start of next turn. */
         tempArmor?: number;
-        /** Legacy: +keep raises on next spell/skill roll. */
+        /** Intellect Raises still unspent and unassigned this Round. */
         freeRaises?: number;
+        /** Intellect Raises the Stone user spent itself this Round (caps a later Rank). */
+        freeRaisesUsed?: number;
         spellPoolDice?: number;
         spellKeepDice?: number;
         /**
@@ -241,6 +285,12 @@ export interface RoundState {
         shopExtraAttack?: number;
         /** Other named Attack Action grants. Highest source wins. */
         bonusAttackActions?: number;
+        /**
+         * Playtest: Attack Actions received via Regular Attack Action Transfer.
+         * Additive on top of base + highest Extra Attack grant (does not compete
+         * with Extra Attack stacking rules).
+         */
+        donatedAttackActions?: number;
         /** @deprecated Mirror of specialBoost. Kept so older turn-cleanup still sees the bonus. */
         spellSpecialBoost?: number;
         /** Resolve.Damage Reduction — additional %DR until next turn (creates DR if missing). */
@@ -283,7 +333,7 @@ export declare function getActionEconomyActor(actor: Actor | null | undefined): 
  * Extra Attack and Artifact support of Extra Attack are the same source.
  */
 export declare function highestExtraAttackGrant(sources: Array<number | null | undefined>): number;
-/** PC Attack Action total = 1 base + the highest extra-attack grant. */
+/** PC Attack Action total = 1 base + highest extra-attack grant + donated transfers. */
 export declare function syncPcExtraAttackTotal(state: RoundState): void;
 /**
  * Get round state from actor flags
@@ -312,6 +362,19 @@ export declare function setRoundState(actor: Actor, state: RoundState): Promise<
 export declare function freeRaisePool(actor: Actor | null | undefined): number;
 /** Spend declared Free Raises. They leave the pool whether the roll hits or misses. */
 export declare function consumeFreeRaises(actor: Actor | null | undefined, requested: number): Promise<number>;
+/**
+ * Unspent Intellect Raises after activating a Rank whose Round allowance is
+ * `allowance`. Raises already spent or assigned to allies count against it, so
+ * raising the Rank mid-Round never refills the pool beyond the allowance.
+ */
+export declare function remainingFreeRaiseAllowance(state: RoundState, allowance: number): number;
+/**
+ * Shared Free Raises (playtest): spend from a donor's Intellect Raises pool.
+ * Caller enforces range/perception; this only mutates the donor budget atomically.
+ */
+export declare function consumeSharedFreeRaises(donor: Actor | null | undefined, requested: number): Promise<number>;
+/** Free Raises available from an actor (self pool). */
+export declare function freeRaisePoolOf(actor: Actor | null | undefined): number;
 /**
  * Strip Dragon Breath mode suffixes (`:damage` / `:ruin`) so both modes share
  * one once-per-Round instance key with the grant lineage.

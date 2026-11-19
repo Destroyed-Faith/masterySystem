@@ -83,7 +83,7 @@ describe('K8 Rituals — optional Profession, Stones required', () => {
     );
     expect(guide).toContain('### Owner Professions for Summons');
     expect(guide).not.toContain('### Summon Skills');
-    expect(guide).toContain('### Profession Respec and Removal');
+    // Authorized Core v0.9.9.6 omits "Profession Respec and Removal"; do not invent it.
   });
 });
 

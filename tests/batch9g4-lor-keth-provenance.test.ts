@@ -16,6 +16,7 @@ describe('Batch 9G.4 — Lor-Keth provenance hold', () => {
   it('keeps the full definition resolvable (no delete / redesign)', () => {
     const def = getGeneralArtifact('lorKethsStaff');
     expect(def).toBeTruthy();
+    expect(def?.name).toBe("Lor-Keth's Titanstorm Staff");
     expect(def?.newGrantHold).toBe(true);
     expect(isArtifactNewGrantHeld('lorKethsStaff')).toBe(true);
     expect(isArtifactNewGrantHeld('moonlightGreatsword')).toBe(false);
