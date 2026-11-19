@@ -487,6 +487,27 @@ describe('Artifact picks', () => {
     expect(planArtifactLegacyCleanup(art, null)).toBeNull();
   });
 
+  it('world Artifacts after actor writes get a fresh operation (Foundry stores parent on it)', async () => {
+    const picks = defPicks('moonlightGreatsword');
+    picks[0] = { level: 1, kind: 'power', powerTemplateId: 'active-melee-single-heal', displayName: 'Moonlight Mending' };
+    const art = artifact('moonlightGreatsword', picks);
+    const artUpdate = art.update;
+    art.update = async (patch: Record<string, unknown>, options?: any) => {
+      if (options?.parent) throw new Error(`undefined id [${art.id}] does not exist in the EmbeddedCollection collection.`);
+      return artUpdate(patch, options);
+    };
+    const actor = mockActor('a1', 'Oda', charSystem({ skills: { athletics: 4 } }), { type: 'npc' });
+    const actorUpdate = actor.update;
+    actor.update = async (patch: Record<string, unknown>, options?: any) => {
+      if (options) options.parent = { id: 'token1' };
+      return actorUpdate(patch, options);
+    };
+    const g = installGame([actor], [art]);
+    const summary = await applyLegacyCleanupReport(buildLegacyCleanupReport(g), g);
+    expect(summary).toMatchObject({ actors: 1, artifacts: 1, failed: 0 });
+    expect(settings.get('legacyCleanup2026MigrationState')).toBe('applied');
+  });
+
   it('a Moonlight Mending Healing-support pick (v0.9.869) is realigned; other Healing supports are untouched', () => {
     const picks = defPicks('moonlightGreatsword');
     picks[0] = {

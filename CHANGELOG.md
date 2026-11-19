@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.873] - 2026-11-19
+
+### Fixed
+
+- **Legacy Cleanup 2026 Apply:** world Artifacts no longer fail with "does not exist in the EmbeddedCollection collection" after actor writes on Foundry V14. Each migration write now gets its own operation options, so the state can reach `applied` and the review dialog stops reappearing.
+
 ## [0.9.872] - 2026-11-19
 
 ### Added

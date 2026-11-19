@@ -975,7 +975,8 @@ function findItem(owner, id, g) {
         return coll.get(id) ?? null;
     return docItems(owner ?? { items: g?.items }).find((i) => String(i?.id) === id) ?? null;
 }
-const MIGRATION_OPTIONS = { [LEGACY_SKILL_MIGRATION_OPTION]: true };
+/** Fresh object per write: Foundry stores `parent` / `updates` on the operation it receives. */
+const migrationOptions = () => ({ [LEGACY_SKILL_MIGRATION_OPTION]: true });
 function powerItemUpdates(item, change, at) {
     if (change.kind === 'conflict') {
         return withBackup(item, { [`${FLAGS}.${LC_CONFLICT_FLAG}`]: { reasons: [change.note], at }, [`${FLAGS}.${LC_NOTE_FLAG}`]: change.note }, at);
@@ -1035,7 +1036,7 @@ export async function applyLegacyCleanupReport(report, g = globalThis.game) {
             continue;
         }
         try {
-            await actor.update(withBackup(actor, live.updates, at), MIGRATION_OPTIONS);
+            await actor.update(withBackup(actor, live.updates, at), migrationOptions());
             summary.actors += 1;
             if (live.conflictReasons.length)
                 summary.conflicts += 1;
@@ -1058,7 +1059,7 @@ export async function applyLegacyCleanupReport(report, g = globalThis.game) {
                 summary.skipped += 1;
                 continue;
             }
-            await item.update(patch, MIGRATION_OPTIONS);
+            await item.update(patch, migrationOptions());
             summary.items += 1;
             if (change.kind === 'conflict')
                 summary.conflicts += 1;
@@ -1076,7 +1077,7 @@ export async function applyLegacyCleanupReport(report, g = globalThis.game) {
             continue;
         }
         try {
-            await item.update(buildArtifactUpdates(item, change, at), MIGRATION_OPTIONS);
+            await item.update(buildArtifactUpdates(item, change, at), migrationOptions());
             summary.artifacts += 1;
             summary.conflicts += change.picks.filter((p) => p.kind === 'conflict').length;
         }
@@ -1120,7 +1121,7 @@ export async function resolveLegacySkillConflict(actor, decision) {
     });
     updates[`${FLAGS}.-=${LC_CONFLICT_FLAG}`] = null;
     updates[`${FLAGS}.${LC_MIGRATED_FLAG}`] = true;
-    await actor.update(withBackup(actor, updates, at), MIGRATION_OPTIONS);
+    await actor.update(withBackup(actor, updates, at), migrationOptions());
     return true;
 }
 /**
@@ -1144,7 +1145,7 @@ export async function rollbackActorLegacyCleanup(actor, options = {}) {
         const marked = flags[LC_BACKUP_FLAG] || flags[LC_MIGRATED_FLAG] || flags[LC_CONFLICT_FLAG] || flags[LC_RETIRED_FLAG];
         if (!marked)
             continue;
-        await doc.update(restoreFromBackup(flags[LC_BACKUP_FLAG]), MIGRATION_OPTIONS);
+        await doc.update(restoreFromBackup(flags[LC_BACKUP_FLAG]), migrationOptions());
         restored += 1;
     }
     return restored;

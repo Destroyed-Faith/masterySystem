@@ -1138,7 +1138,8 @@ function findItem(owner: any | null, id: string, g: any): any | null {
   return docItems(owner ?? { items: g?.items }).find((i) => String(i?.id) === id) ?? null;
 }
 
-const MIGRATION_OPTIONS = { [LEGACY_SKILL_MIGRATION_OPTION]: true };
+/** Fresh object per write: Foundry stores `parent` / `updates` on the operation it receives. */
+const migrationOptions = (): Record<string, unknown> => ({ [LEGACY_SKILL_MIGRATION_OPTION]: true });
 
 function powerItemUpdates(item: any, change: LcItemChange, at: string): Record<string, unknown> | null {
   if (change.kind === 'conflict') {
@@ -1208,7 +1209,7 @@ export async function applyLegacyCleanupReport(
       continue;
     }
     try {
-      await actor.update(withBackup(actor, live.updates, at), MIGRATION_OPTIONS);
+      await actor.update(withBackup(actor, live.updates, at), migrationOptions());
       summary.actors += 1;
       if (live.conflictReasons.length) summary.conflicts += 1;
     } catch (err) {
@@ -1230,7 +1231,7 @@ export async function applyLegacyCleanupReport(
         summary.skipped += 1;
         continue;
       }
-      await item.update(patch, MIGRATION_OPTIONS);
+      await item.update(patch, migrationOptions());
       summary.items += 1;
       if (change.kind === 'conflict') summary.conflicts += 1;
     } catch (err) {
@@ -1247,7 +1248,7 @@ export async function applyLegacyCleanupReport(
       continue;
     }
     try {
-      await item.update(buildArtifactUpdates(item, change, at), MIGRATION_OPTIONS);
+      await item.update(buildArtifactUpdates(item, change, at), migrationOptions());
       summary.artifacts += 1;
       summary.conflicts += change.picks.filter((p) => p.kind === 'conflict').length;
     } catch (err) {
@@ -1289,7 +1290,7 @@ export async function resolveLegacySkillConflict(actor: any, decision: { xpRefun
   });
   updates[`${FLAGS}.-=${LC_CONFLICT_FLAG}`] = null;
   updates[`${FLAGS}.${LC_MIGRATED_FLAG}`] = true;
-  await actor.update(withBackup(actor, updates, at), MIGRATION_OPTIONS);
+  await actor.update(withBackup(actor, updates, at), migrationOptions());
   return true;
 }
 
@@ -1312,7 +1313,7 @@ export async function rollbackActorLegacyCleanup(actor: any, options: { resetSta
     const flags = srcFlags(doc);
     const marked = flags[LC_BACKUP_FLAG] || flags[LC_MIGRATED_FLAG] || flags[LC_CONFLICT_FLAG] || flags[LC_RETIRED_FLAG];
     if (!marked) continue;
-    await doc.update(restoreFromBackup(flags[LC_BACKUP_FLAG] as LcBackup | undefined), MIGRATION_OPTIONS);
+    await doc.update(restoreFromBackup(flags[LC_BACKUP_FLAG] as LcBackup | undefined), migrationOptions());
     restored += 1;
   }
   return restored;
