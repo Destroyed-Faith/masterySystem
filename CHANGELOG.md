@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.875] - 2026-11-19
+
+### Changed
+
+- **Initiative Boost buttons** name the Rank and show when an Artifact pre-fill pays part of it (e.g. "Rank 2: 1 Wits Stone + Artifact → +4"), so the cumulative 1 / 3 / 7 / 15 Stone cost is no longer confusing.
+
 ## [0.9.874] - 2026-11-19
 
 ### Changed

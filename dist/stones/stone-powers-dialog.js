@@ -2130,15 +2130,21 @@ export class StonePowersDialog extends BaseDialog {
             .map((tier) => {
             const cost = initiativeBoostRankCost(tier, prefill) ?? 0;
             const bonus = initiativeBoostAmount(tier, mr);
+            const artifactPaid = prefill > 0 && prefill <= tier;
+            const stones = `${cost} Wits Stone${cost === 1 ? '' : 's'}`;
             return {
                 tier,
                 cost,
                 bonus,
                 // Cost is the Wits Stones this click spends. Bonus is Initiative gained.
                 label: cost === 0
-                    ? `Artifact already paid this rank · +${bonus} Initiative`
-                    : `Spend ${cost} Wits Stone${cost === 1 ? '' : 's'} · +${bonus} Initiative`,
-                button: cost === 0 ? `Support → +${bonus}` : `${cost} Wits → +${bonus}`,
+                    ? `Rank ${tier}: Artifact already paid this rank · +${bonus} Initiative`
+                    : artifactPaid
+                        ? `Rank ${tier}: spend ${stones}; your Artifact pays Rank ${prefill} · +${bonus} Initiative`
+                        : `Rank ${tier}: spend ${stones} · +${bonus} Initiative`,
+                button: cost === 0
+                    ? `Rank ${tier}: Artifact → +${bonus}`
+                    : `Rank ${tier}: ${stones}${artifactPaid ? ' + Artifact' : ''} → +${bonus}`,
                 affordable: !locked && wits >= cost,
             };
         })
