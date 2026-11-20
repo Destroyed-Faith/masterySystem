@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.876] - 2026-11-20
+
+### Changed
+
+- **Challenge Rolls:** Replaced the optional Social Challenges subsystem in the canonical Players Handbook with the universal Challenge Rolls progress procedure (shared Success target; Standard Training Checks; four eligible Raises for a second Success; Intellect Stone Free Raises remain Combat-only). Rules journals rebuilt; pure helpers and regression tests added.
+
 ## [0.9.875] - 2026-11-19
 
 ### Changed

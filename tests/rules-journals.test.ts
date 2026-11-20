@@ -110,7 +110,9 @@ describe('Rules Journals — chapter extraction', () => {
     expect(corePages.some((p) => p.page === 'Combat Core')).toBe(true);
     expect(corePages.some((p) => p.page === 'Stone Abilities')).toBe(true);
     expect(corePages.some((p) => p.page === 'Round Structure')).toBe(true);
-    expect(corePages.some((p) => p.page === 'Social Challenges')).toBe(true);
+    expect(corePages.some((p) => p.page === 'Challenge Rolls')).toBe(true);
+    expect(corePages.some((p) => p.page === 'Challenge Rolls — Examples')).toBe(true);
+    expect(corePages.some((p) => p.page === 'Social Challenges')).toBe(false);
     expect(corePages.some((p) => p.page === 'Raises')).toBe(true);
 
     const worldPages = [...(grouped.get('rules-world')?.values() ?? [])].flat();

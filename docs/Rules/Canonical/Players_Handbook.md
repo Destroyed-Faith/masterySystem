@@ -59,7 +59,7 @@
 ---
 - #### [{{ Playable Echoes}}{{ 64}}](#p64)
 ---
-- #### [{{ Social Challenges}}{{ 118}}](#p118)
+- #### [{{ Challenge Rolls}}{{ 118}}](#p118)
 ---
 - #### [{{ Disadvantages}}{{ 120}}](#p120)
 ---
@@ -4206,49 +4206,53 @@ All Deathless hear the call. It is not always a voice. Sometimes it is a road se
 {{pageNumber,auto}}
 {{wide
 
-## Social Challenges
+## Challenge Rolls
 
-*Social Challenges optionally organize negotiations, intrigue, public arguments, and other meaningful conversations. They are not a separate dice or resource system.*
+*Challenge Rolls resolve a meaningful objective that requires several distinct contributions. They apply to social, physical, investigative, survival, technical, and other group challenges. This is one universal progress procedure, not a new dice system or a special kind of Profession.*
 
-**Use the universal Training Roll: Attribute k MR, with Training Advantage and optional Training Crit from a fitting Profession.** One meaningful exchange normally needs one check. Longer scenes may contain distinct tasks, but there is no fixed number of phases or mandatory Lead.
+Use an ordinary **Standard Training Check** for a task one person can settle with one meaningful roll. Use a **Comparative Training Check** for direct trained opposition; it has no Raises. Use **Challenge Rolls** when several characters can make different, credible contributions toward **one shared objective**.
 
-### Shared Profession Procedure
+### Run a Challenge
 
-1. **Describe the objective.** Determine what the other person might plausibly agree to, reveal, or believe. Choose a fitting Attribute and a plausible Profession such as Courtier, Merchant, Spy, or Street Urchin, based on how the player approaches the exchange.
-2. **Choose the comparison.** An uncontested request, speech, or professional social task is a **Standard Training Check** against **Task Level x 4**, with optional predeclared Raises at **+4 TN each**. If a trained opponent actively challenges the attempt, use a **Comparative Training Check**: each side rolls once, with **no Task TN or Raises**.
-3. **Resolve.** Use Training Advantage and any available declared Training Crit on each eligible roll. For a Standard Check, success grants the basic outcome and its declared feasible Raise effects. For a Comparative Check, the **higher result wins**; a tie favors the defender or established position.
+1. **State the objective and required Successes.** The GM announces what the group is trying to accomplish and how many **Challenge Successes** are needed **before** anyone rolls. A **complex** objective typically requires **2 Successes**; a **very complex** objective typically requires **3**. The GM may choose a different announced target to fit the actual undertaking, not the party's Mastery Rank. These are progress requirements, **not additional Task TN modifiers**.
+2. **Choose each Professional Role.** Each participating player describes **one distinct contribution** and the relevant Profession or background. The GM confirms whether it fits and selects the appropriate Attribute and **Task Level** for that contribution. A Professional Role is an approach to this scene, **not a new character feature, class, or fixed role list**. An untrained, feasible contribution uses the normal Untrained rule.
+3. **Declare Raises before rolling.** Each character makes **one Standard Training Check** for their contribution: **Attribute k MR**, with the normal Training Advantage, optional Training Crit, and **Base TN = Task Level x 4**. Each Paid Raise adds **+4 to that character's Final TN**. A participant may declare **four Raises toward Challenge Progress** to seek a second Success. Ordinary Training limitations and feasibility still apply.
+4. **Count progress.** If the Training Check meets the **Final TN**, add **1 Challenge Success**. If the successful participant also declared **at least four eligible Raises toward Challenge Progress**, add **one further Success**, for **2 total**. A check can never grant more than **2 Challenge Successes**, no matter how many Raises were declared. If the roll fails, add **0 Successes**, including no bonus Success. A high roll never creates undeclared Raises.
+5. **Resolve.** The group completes the stated objective when its accumulated Challenge Successes reach the announced target. Each participant ordinarily rolls **once per Challenge**; repeating an identical action does not grant another attempt. If the group falls short, the objective is not yet achieved; the GM describes the consequences and remaining possibilities according to the fiction. There is **no automatic failure counter or mandatory phase structure**.
 
-**Social agency:** A persuasive approach is not mind control. Success cannot compel an impossible concession or erase essential loyalties. Concrete leverage, evidence, and a credible proposal may change what is feasible, but do not automatically grant flat bonuses.
+**Free Raises:** Any Free Raise from a source that **explicitly permits its use on a Challenge Roll** can count toward the four-Raise threshold, without adding TN. Profession Rank itself never grants Free Raises. The existing **Intellect Stone Free Raises are Combat-only** and therefore **do not** apply to Challenge Rolls or other Profession/Perception Training Checks. Do not silently convert those Combat resources into noncombat Raises.
 
-### One Conversation — A City Gate
-
-The captain listens to a traveler requesting entry. The GM sets **Task Level 4 (Base TN 16)**. A negotiator with **Courtier 4, Influence 4, MR 2** declares **one Quality Raise**, raising the **Final TN to 20**. They roll **4k2**, rerolling eligible initial 1s–4s through Training Advantage. An outcome of **22** succeeds and secures the plausible assurance of future entry. **15** fails. There are **no additional Free Raises**. A fundamentally different offer may justify a new attempt; repeating the same pitch endlessly does not.
+**Social agency and plausibility:** Challenge Successes never compel impossible agreements, mind control another character, erase core loyalties, or grant tools, knowledge, Powers, or access that the characters do not have. Each declared contribution must plausibly advance the stated objective.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 
-## Social Challenges — Worked Scenes
+## Challenge Rolls — Examples
 
-### A Major Negotiation — The Prince's Troops
+### Repairing the Bridge
 
-**Find the real concern.** A character uses **Courtier 3** and Intellect at **Base TN 12**, declares **one Insight Raise** (**Final TN 16**), and discovers an additional supported fact: the prince fears leaving his capital defenseless.
+The party needs to make an unstable bridge safe to cross. The GM announces a **very complex Challenge: 3 Successes**. Each character chooses a different contribution, and the GM sets that character's own Task TN.
 
-**Create a credible offer.** Another uses **Herald 3** to formalize an undertaking at **Base TN 16**, declaring **one Quality Raise** (**Final TN 20**) for a dependable proposal.
+- **Carpenter:** Reinforce the damaged supports. The GM chooses **Task Level 3, Base TN 12**. The Carpenter declares **4 Paid Raises for Challenge Progress**, giving **Final TN 28**. Their successful **31** grants **2 Successes**.
+- **Engineer:** Align the replacement load-bearing beams. The GM chooses **Task Level 4, Base TN 16**. The Engineer succeeds with **18**, adding **1 Success**.
 
-**Ask for the troops.** Diplomat 4 may attempt a feasible request at **Base TN 20**; a further Quality Raise would make it **TN 24**. If the prince actively opposes the negotiator with a credible trained trained method, replace the TN procedure with **one Comparative Training Check per side, without Raises**. No mandatory preparatory phase exists: credible prior evidence may already support the direct request.
+The group reaches **3 Successes** and secures the bridge. If the Carpenter had rolled below 28, their check would contribute **0**, not a partial Success at the unraised Base TN. Other party members could still try different credible contributions.
 
-### Comparative Training Check — A False Courier
+### Winning the Prince's Support
 
-A character with **Spy 3, Influence 4, MR 2** poses as a courier. A suspicious guard with **City Watchman 2, Wits 4, MR 2** tries to expose the story. **No setup Task TN is required**: both roll **4k2**, each using their Training Advantage. The courier obtains **22** and the guard **19**, so the cover holds. If the guard rolls **24**, the guard exposes the courier. A tie favors the inspecting guard. Neither participant declares Raises.
+The GM sets a **complex Challenge: 2 Successes** to obtain a plausible commitment of troops. One character uses **Courtier** to discover the prince's strategic concern; another uses **Herald** to construct a credible promise of support. Both use normal Standard Training Checks with their own fitting Attributes, Task Levels and any declared Raises. If each succeeds, the group reaches **2 Successes**. One character could instead obtain **2 Successes** through a single successful check with **4 eligible Raises**, provided that contribution could plausibly settle the shared objective.
 
-### Shared Table Guidance
+The prince still cannot be compelled to agree to something outside the fiction's plausible limits. If he personally and actively opposes a specific deception or trained maneuver, resolve that clash through the normal **Comparative Training Check**, with **no Raises**, rather than inventing a second social dice system.
 
-- **Cooperation:** Characters may contribute distinct credible actions, each with its own purpose and consequences. There is no obligatory lead or fixed assistance bonus.
-- **Raises:** Only Standard Training Checks permit Raises. Declare their number before the roll (**+4 TN each**), and apply the approved effects on success. Training Rank grants no Free Raises and imposes no fixed Raise cap.
-- **Consequences:** Failure can change trust, available options, time, or risk. Fear Checks are not automatic.
-- **Pacing:** Use one comparison where one meaningful decision settles the matter. Use several distinct checks only when the fiction presents genuinely different tasks.
+### GM Guidance
+
+- Let the players propose their own contributions. Do not prescribe a fixed set of Professions or require an appointed Lead.
+- The same universal procedure covers **negotiation, research, rescue, construction, infiltration and travel preparation** when the objective genuinely benefits from different contributions.
+- Keep **Task TN** and **required Challenge Successes** separate. The number of Successes describes the breadth of the objective; TN reflects the difficulty of each proposed action.
+- Use existing **Standard and Comparative Training Check** rules as written. Combat Attacks, Saves, Rituals and the **Challenge(X)** combat Special keep their own rules; the similar name does not make them Challenge Rolls.
+- Do not call for a Challenge if one meaningful ordinary Training Check, a direct Contest or a simple description already resolves the situation.
 
 }}
 \page
@@ -5804,7 +5808,7 @@ Two characters settle a dispute with an arm-wrestling match. The fiction leaves 
 
 Two characters spend hours arguing across a tavern table about whether the old gods deserved obedience. The GM decides that the entire exchange can be resolved as one Contest because the only question is **who comes out on top in the argument**. One character builds a careful logical case with **Intellect**. The other argues from conviction and lived faith with **Resolve**. They roll directly against each other; the higher result wins the debate. The same rule can resolve a formal theological dispute, a battle of wits, or another focused one-on-one argument.
 
-Winning a Contest does not create mind control. If the scene is about forcing a lasting concession, changing a major belief, negotiating complex terms, or resolving several social objectives, use the normal **Training Check** rules instead; the optional **Social Challenges** guidance can help organize a longer scene.
+Winning a Contest does not create mind control. If the scene is about forcing a lasting concession, changing a major belief, negotiating complex terms, or resolving several social objectives, use the normal **Training Check** rules instead; use the universal **Challenge Rolls** procedure if several different Professional Roles contribute toward one announced group objective.
 
 ---
 
@@ -5880,7 +5884,7 @@ A successful Attack, Spell, or AoE normally resolves its full listed payload. Pu
 - **Training against training or concealment:** Trained Opposition.
 - **Creature against a hostile effect:** Attribute Check against the effect's TN.
 - **Attack against a target:** normal Attack vs. Evade rules.
-- **Complex multi-stage social objective:** Linked normal Training Checks, optionally organized using the **Social Challenges** guidance (no special resolution rules).
+- **Complex group objective (social or otherwise):** **Challenge Rolls**, using the ordinary Standard Training Check rules and a GM-announced shared Success target.
 
 }}
 \page
@@ -9436,7 +9440,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **2) Training Checks**
 
-**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **Training Roll = Attribute k MR. Training Advantage:** Rank 1 rerolls initial 1s; Rank 2, 1s–2s; Rank 3, 1s–3s; Rank 4, 1s–4s; Rank 5, 1s–5s; Rank 6–8, 1s–6s (once per eligible initial die). **Training Crit:** Rank 7 grants one use and Rank 8 two uses **per Safe Haven Rest**, separately for each Profession or Perception; declare before rolling to explode on natural 7s and 8s. **Standard Check:** Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects, with no Rank-based Raise cap. **Comparative Check:** higher roll wins; defender/observer wins ties; **no Task TN or Raises**. Rank 0 has Disadvantage and no Raises. Familiar safe work may succeed routinely.
+**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **Training Roll = Attribute k MR. Training Advantage:** Rank 1 rerolls initial 1s; Rank 2, 1s–2s; Rank 3, 1s–3s; Rank 4, 1s–4s; Rank 5, 1s–5s; Rank 6–8, 1s–6s (once per eligible initial die). **Training Crit:** Rank 7 grants one use and Rank 8 two uses **per Safe Haven Rest**, separately for each Profession or Perception; declare before rolling to explode on natural 7s and 8s. **Standard Check:** Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects, with no Rank-based Raise cap. **Comparative Check:** higher roll wins; defender/observer wins ties; **no Task TN or Raises**. **Challenge Rolls:** GM announces a shared Success target (typically 2 for complex, 3 for very complex); one distinct contribution and Standard Training Check per character. Success grants 1 Challenge Success; a successful check with 4 declared eligible Raises for progress grants 2 total (maximum). Rank 0 has Disadvantage and no Raises. Familiar safe work may succeed routinely.
 
 **Echo Imprints:** Immediately after starting Attributes, choose up to MR free Imprints tied to Attributes **4+**; they express small magic and Echo Memories.
 
