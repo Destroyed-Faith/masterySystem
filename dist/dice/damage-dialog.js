@@ -1025,7 +1025,20 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         ChatMessage.create(chatData).then((message) => {
             damageCardPendingResolves.set(message.id, resolve);
             registerDamageCardChatHooks();
-            setTimeout(() => attachDamageCardHandlers(message.id), 100);
+            // Chat DOM can lag behind create — retry briefly instead of a one-shot warn.
+            const tryAttach = (attempt) => {
+                const el = document.querySelector(`.message[data-message-id="${message.id}"]`);
+                if (el) {
+                    attachDamageCardHandlers(message.id);
+                    return;
+                }
+                if (attempt >= 8) {
+                    console.warn('Mastery System | Could not find damage card message element', message.id);
+                    return;
+                }
+                setTimeout(() => tryAttach(attempt + 1), 50 * (attempt + 1));
+            };
+            setTimeout(() => tryAttach(0), 50);
         });
     });
 }
@@ -1309,7 +1322,7 @@ export function attachDamageCardHandlers(messageId) {
         return;
     const messageElement = $(`.message[data-message-id="${messageId}"]`);
     if (!messageElement.length) {
-        console.warn('Mastery System | Could not find damage card message element', messageId);
+        // Caller may retry; avoid noisy one-shot warnings during chat DOM lag.
         return;
     }
     const allocPanel = messageElement.find('.raise-alloc-panel');

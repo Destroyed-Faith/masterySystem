@@ -200,78 +200,43 @@ export function openRadialMenuForActor(token, allOptions) {
     // Try multiple approaches for compatibility
     let hudContainer = null;
     if (canvas.hud) {
-        // Debug: log canvas.hud structure
-        const hudKeys = Object.keys(canvas.hud);
-        const hudKeyTypes = {};
-        hudKeys.forEach(key => {
-            const value = canvas.hud[key];
-            hudKeyTypes[key] = typeof value;
-            if (value && typeof value.addChild === 'function') {
-                hudKeyTypes[key] += ' (has addChild)';
-            }
-        });
-        // Try v13 structure - check for layers property
+        const SKIP_HUD_KEYS = new Set(['bubbles', 'chatbubbles', 'chatBubbles']);
+        const isPixiContainer = (value) => !!value && typeof value.addChild === 'function';
+        const pixiFromHudPart = (value) => {
+            if (!value || typeof value !== 'object')
+                return null;
+            // Prefer V13+ element; never touch ChatBubbles.container (deprecated jQuery getter).
+            if (isPixiContainer(value.element))
+                return value.element;
+            if (isPixiContainer(value))
+                return value;
+            return null;
+        };
         if (canvas.hud.layers) {
-            // Foundry v13 uses layers array/object
             const layers = canvas.hud.layers;
             if (layers instanceof Array && layers.length > 0) {
-                // Try first layer
-                const firstLayer = layers[0];
-                if (firstLayer && typeof firstLayer.addChild === 'function') {
-                    hudContainer = firstLayer;
-                }
-                else if (firstLayer && firstLayer.container && typeof firstLayer.container.addChild === 'function') {
-                    hudContainer = firstLayer.container;
-                }
+                hudContainer = pixiFromHudPart(layers[0]);
             }
-            else if (layers && typeof layers.addChild === 'function') {
+            else if (isPixiContainer(layers)) {
                 hudContainer = layers;
             }
         }
-        // Try v13 structure - check for interactive property (TokenHUD)
-        if (!hudContainer && canvas.hud.interactive && typeof canvas.hud.interactive.addChild === 'function') {
-            hudContainer = canvas.hud.interactive;
+        if (!hudContainer) {
+            hudContainer = pixiFromHudPart(canvas.hud.interactive);
         }
-        // Try v13 structure - check for children property
-        if (!hudContainer && canvas.hud.children && Array.isArray(canvas.hud.children)) {
-            // If it has children, it might be a container itself
-            if (typeof canvas.hud.addChild === 'function') {
-                hudContainer = canvas.hud;
-            }
-        }
-        // Try container property
-        if (!hudContainer && canvas.hud.container && typeof canvas.hud.container.addChild === 'function') {
-            hudContainer = canvas.hud.container;
-        }
-        // Try direct addChild (older versions)
-        if (!hudContainer && typeof canvas.hud.addChild === 'function') {
+        if (!hudContainer && Array.isArray(canvas.hud.children) && isPixiContainer(canvas.hud)) {
             hudContainer = canvas.hud;
         }
-        // Try objects container
-        if (!hudContainer && canvas.hud.objects && typeof canvas.hud.objects.addChild === 'function') {
-            hudContainer = canvas.hud.objects;
-        }
-        // Try each key to see if any is a PIXI.Container
         if (!hudContainer) {
-            for (const key of hudKeys) {
-                const value = canvas.hud[key];
-                if (value && typeof value.addChild === 'function') {
-                    hudContainer = value;
+            hudContainer = pixiFromHudPart(canvas.hud.objects);
+        }
+        if (!hudContainer) {
+            for (const key of Object.keys(canvas.hud)) {
+                if (SKIP_HUD_KEYS.has(key))
+                    continue;
+                hudContainer = pixiFromHudPart(canvas.hud[key]);
+                if (hudContainer)
                     break;
-                }
-                // Also check nested properties
-                if (value && typeof value === 'object') {
-                    // Check for v13 element property first (replaces deprecated container)
-                    if (value.element && typeof value.element.addChild === 'function') {
-                        hudContainer = value.element;
-                        break;
-                    }
-                    // Fallback to deprecated container property (for backwards compatibility)
-                    if (value.container && typeof value.container.addChild === 'function') {
-                        hudContainer = value.container;
-                        break;
-                    }
-                }
             }
         }
     }

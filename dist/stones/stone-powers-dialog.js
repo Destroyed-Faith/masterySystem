@@ -15,7 +15,7 @@ import { getStoneUsageCount, getGenericStonePowerUsageCount, getStonePool, setSt
 import { ALL_OUT_ARMOR_STEP, ALL_OUT_EVADE_STEP, allOutDefenseView, areTeamworkAllies, clearAllOutAttack, declareAllOutAttack, grantRegularAttackActionTransfer, isPlayerCharacter, } from '../combat/tactical-options.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
-import { INITIATIVE_ROLLED_FLAG, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
+import { INITIATIVE_ROLLED_FLAG, controlledInitiativeBase, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import { assignLaterColorlessRecovery, colorlessRecoveryPreparationOpen, colorlessRecoverySpec, commitColorlessRecovery, designatedExhaustedColorlessIds, listColorlessStones, readColorlessRecovery, syncColorlessStoneLedger, } from './colorless-recovery.js';
@@ -1082,6 +1082,11 @@ export class StonePowersDialog extends BaseDialog {
             ? Math.floor(Number(rolledFlag?.diceTotal))
             : null;
         const equipmentModifier = getEquippedEquipmentInitiativeModifier(this.actor);
+        const controlledBase = controlledInitiativeBase(this.actor);
+        const controlledPreview = Math.max(0, controlledBase + equipmentModifier);
+        const armorPenaltyInline = !surprised && equipmentModifier !== 0
+            ? `Armor Penalty ${formatSignedInitiativeModifier(equipmentModifier)}`
+            : '';
         const initiativeExchange = {
             show: !!this.combatant && preparation.exchangeMode !== 'hidden',
             needsRoll,
@@ -1089,10 +1094,15 @@ export class StonePowersDialog extends BaseDialog {
             diceTotal,
             equipmentModifier,
             equipmentSigned: formatSignedInitiativeModifier(equipmentModifier),
+            armorPenaltyInline,
+            controlledBase,
+            controlledPreview,
             diceRollLine: !needsRoll && !surprised
                 ? formatInitiativeDiceRollLine(diceTotal ?? initiativeScore)
                 : '',
-            armorPenaltyLine: !needsRoll && !surprised ? formatInitiativeArmorPenaltyLine(equipmentModifier) : '',
+            armorPenaltyLine: !needsRoll && !surprised && !armorPenaltyInline
+                ? formatInitiativeArmorPenaltyLine(equipmentModifier)
+                : '',
             summary: needsRoll
                 ? ''
                 : formatInitiativeExchangeSummary({

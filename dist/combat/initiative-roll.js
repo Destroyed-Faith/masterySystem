@@ -265,13 +265,14 @@ export async function rollInitiativeForCombatant(combatant, opts) {
         catch {
             /* no round state outside combat */
         }
-        const totalInitiative = diceTotal +
+        // Core: apply bonuses/penalties once, minimum 0.
+        const totalInitiative = Math.max(0, diceTotal +
             equipmentInitiativeModifier +
             manualInitiativeFlat +
             passiveInitiativeBonus +
             witsInitBonus +
             stoneInitiativeBonus +
-            npcInitiativeModifier;
+            npcInitiativeModifier);
         const initiativeFlags = {
             msInitiativeValue: totalInitiative,
             msInitiativeBoostThisRound: stoneInitiativeBonus,

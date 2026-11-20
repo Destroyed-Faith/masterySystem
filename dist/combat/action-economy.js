@@ -1777,6 +1777,11 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
         return true;
     }
     catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        // Stone powers often warn then throw for expected validation (e.g. Buff Empowerment).
+        if (/Active Buff Empowerment|already used this combat|invalid Rank|requires a maintained Active Buff/i.test(msg)) {
+            return false;
+        }
         console.error('Mastery System | Error applying stone ability effect', error);
         ui.notifications?.error('Failed to apply stone ability effect');
         return false;
@@ -1862,6 +1867,10 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, 
         return true;
     }
     catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (/Active Buff Empowerment|already used this combat|invalid Rank|requires a maintained Active Buff/i.test(msg)) {
+            return false;
+        }
         console.error('Mastery System | Error applying generic mixed stone ability', error);
         ui.notifications?.error('Failed to apply stone ability effect');
         return false;

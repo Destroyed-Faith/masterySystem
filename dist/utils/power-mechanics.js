@@ -311,9 +311,12 @@ function resolveMechanicsFromCatalog(powerItem, rank) {
         // R4: unknown templateId must be visible, not a silent null.
         // Catalog-vs-name conflicts surface via identity-shadow when that diagnostic is on.
         if (!byId) {
-            const label = String(powerItem?.name ?? sys.name ?? tid);
-            console.warn(`Mastery System | Unknown or unranked templateId "${tid}" on "${label}" — ` +
-                'catalog mechanics omitted (no name fallback while a structured id is set).');
+            // Intentional freeform NPC reaction id — no catalog mechanics expected.
+            if (tid !== 'npc-custom-reaction') {
+                const label = String(powerItem?.name ?? sys.name ?? tid);
+                console.warn(`Mastery System | Unknown or unranked templateId "${tid}" on "${label}" — ` +
+                    'catalog mechanics omitted (no name fallback while a structured id is set).');
+            }
         }
         return byId;
     }, {

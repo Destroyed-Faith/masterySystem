@@ -77,6 +77,7 @@ import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
 import {
   INITIATIVE_ROLLED_FLAG,
+  controlledInitiativeBase,
   formatInitiativeArmorPenaltyLine,
   formatInitiativeDiceRollLine,
   formatInitiativeExchangeSummary,
@@ -1469,6 +1470,12 @@ export class StonePowersDialog extends BaseDialog {
       ? Math.floor(Number(rolledFlag?.diceTotal))
       : null;
     const equipmentModifier = getEquippedEquipmentInitiativeModifier(this.actor);
+    const controlledBase = controlledInitiativeBase(this.actor);
+    const controlledPreview = Math.max(0, controlledBase + equipmentModifier);
+    const armorPenaltyInline =
+      !surprised && equipmentModifier !== 0
+        ? `Armor Penalty ${formatSignedInitiativeModifier(equipmentModifier)}`
+        : '';
     const initiativeExchange = {
       show: !!this.combatant && preparation.exchangeMode !== 'hidden',
       needsRoll,
@@ -1476,12 +1483,17 @@ export class StonePowersDialog extends BaseDialog {
       diceTotal,
       equipmentModifier,
       equipmentSigned: formatSignedInitiativeModifier(equipmentModifier),
+      armorPenaltyInline,
+      controlledBase,
+      controlledPreview,
       diceRollLine:
         !needsRoll && !surprised
           ? formatInitiativeDiceRollLine(diceTotal ?? initiativeScore)
           : '',
       armorPenaltyLine:
-        !needsRoll && !surprised ? formatInitiativeArmorPenaltyLine(equipmentModifier) : '',
+        !needsRoll && !surprised && !armorPenaltyInline
+          ? formatInitiativeArmorPenaltyLine(equipmentModifier)
+          : '',
       summary: needsRoll
         ? ''
         : formatInitiativeExchangeSummary({

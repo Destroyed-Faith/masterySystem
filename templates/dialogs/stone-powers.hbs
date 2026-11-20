@@ -44,6 +44,20 @@
     </summary>
 
     <div class="tactical-prep-row">
+      <span class="tactical-prep-label">All-Out Attack</span>
+      <span class="tactical-prep-hint">Each step: +1d8 Damage on your direct attacks this Round. Armor and Evade steps can be combined; a defense never drops below 0.</span>
+      <span class="tactical-prep-controls">
+        <span class="tactical-defense-value" title="Armor now (before All-Out: {{tacticalPrep.allOut.armorBase}})">Armor {{tacticalPrep.allOut.armorNow}}</span>
+        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-armor" {{#if tacticalPrep.armorAddDisabled}}disabled{{/if}} title="One more step: −4 Armor, +1d8 Damage (needs at least 4 Armor left)">−4 Armor{{#if tacticalPrep.allOut.armorSteps}} ×{{tacticalPrep.allOut.armorSteps}}{{/if}}</button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" data-which="armor" {{#if tacticalPrep.armorClearDisabled}}disabled{{/if}} title="Clear All-Out Armor steps">Clear</button>
+        <span class="tactical-defense-value" title="Evade now (before All-Out: {{tacticalPrep.allOut.evadeBase}})">Evade {{tacticalPrep.allOut.evadeNow}}</span>
+        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-evade" {{#if tacticalPrep.evadeAddDisabled}}disabled{{/if}} title="One more step: −2 Evade, +1d8 Damage (needs at least 2 Evade left)">−2 Evade{{#if tacticalPrep.allOut.evadeSteps}} ×{{tacticalPrep.allOut.evadeSteps}}{{/if}}</button>
+        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" data-which="evade" {{#if tacticalPrep.evadeClearDisabled}}disabled{{/if}} title="Clear All-Out Evade steps">Clear</button>
+        {{#if tacticalPrep.allOut.damageDice}}<span class="tactical-prep-status">+{{tacticalPrep.allOut.damageDice}}d8 Damage</span>{{/if}}
+      </span>
+    </div>
+
+    <div class="tactical-prep-row">
       <span class="tactical-prep-label">Transfer Attack Action</span>
       <span class="tactical-prep-hint">Give your basic Attack Action to another player. They spend it on their own Turn this Round; bonus Attack Actions stay with you.</span>
       <span class="tactical-prep-controls">
@@ -57,20 +71,6 @@
         {{else}}
         <span class="tactical-prep-status">No other player in this combat.</span>
         {{/if}}
-      </span>
-    </div>
-
-    <div class="tactical-prep-row">
-      <span class="tactical-prep-label">All-Out Attack</span>
-      <span class="tactical-prep-hint">Each step: +1d8 Damage on your direct attacks this Round. Armor and Evade steps can be combined; a defense never drops below 0.</span>
-      <span class="tactical-prep-controls">
-        <span class="tactical-defense-value" title="Armor now (before All-Out: {{tacticalPrep.allOut.armorBase}})">Armor {{tacticalPrep.allOut.armorNow}}</span>
-        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-armor" {{#if tacticalPrep.armorAddDisabled}}disabled{{/if}} title="One more step: −4 Armor, +1d8 Damage (needs at least 4 Armor left)">−4 Armor{{#if tacticalPrep.allOut.armorSteps}} ×{{tacticalPrep.allOut.armorSteps}}{{/if}}</button>
-        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" data-which="armor" {{#if tacticalPrep.armorClearDisabled}}disabled{{/if}} title="Clear All-Out Armor steps">Clear</button>
-        <span class="tactical-defense-value" title="Evade now (before All-Out: {{tacticalPrep.allOut.evadeBase}})">Evade {{tacticalPrep.allOut.evadeNow}}</span>
-        <button type="button" class="dialog-btn initiative-inline-btn js-all-out-evade" {{#if tacticalPrep.evadeAddDisabled}}disabled{{/if}} title="One more step: −2 Evade, +1d8 Damage (needs at least 2 Evade left)">−2 Evade{{#if tacticalPrep.allOut.evadeSteps}} ×{{tacticalPrep.allOut.evadeSteps}}{{/if}}</button>
-        <button type="button" class="dialog-btn initiative-inline-btn js-clear-all-out" data-which="evade" {{#if tacticalPrep.evadeClearDisabled}}disabled{{/if}} title="Clear All-Out Evade steps">Clear</button>
-        {{#if tacticalPrep.allOut.damageDice}}<span class="tactical-prep-status">+{{tacticalPrep.allOut.damageDice}}d8 Damage</span>{{/if}}
       </span>
     </div>
 
@@ -205,6 +205,9 @@
         {{#unless initiativeExchange.needsRoll}}
         <span class="initiative-exchange-score">{{initiativeExchange.initiative}}</span>
         {{/unless}}
+        {{#if initiativeExchange.armorPenaltyInline}}
+        <span class="initiative-exchange-armor-penalty" title="Equipment Initiative modifier from armor, shield, Heavy weapon, and body armor class">{{initiativeExchange.armorPenaltyInline}}</span>
+        {{/if}}
         {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Boost used</span>{{/if}}
       </div>
       <div class="initiative-exchange-actions">
@@ -212,8 +215,8 @@
         <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative is-glow" data-method="risky" title="Risky: Mastery Rank exploding d8s. Stones wait until Initiative is set.">
           <i class="fas fa-dice"></i> Risky Initiative
         </button>
-        <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative" data-method="controlled" title="Controlled: fixed max of Agility or Wits (no MR multiplier). Stones wait until Initiative is set.">
-          <i class="fas fa-balance-scale"></i> Controlled
+        <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative" data-method="controlled" title="Controlled: max(Agility, Wits) = {{initiativeExchange.controlledBase}}, then Armor Penalty {{initiativeExchange.equipmentSigned}} → {{initiativeExchange.controlledPreview}}. Stones wait until Initiative is set.">
+          <i class="fas fa-balance-scale"></i> Controlled → {{initiativeExchange.controlledPreview}}
         </button>
         {{else}}
         {{#if (eq initiativeExchange.mode "receipt")}}

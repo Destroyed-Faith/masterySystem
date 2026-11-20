@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.878] - 2026-11-20
+
+### Fixed
+
+- **Initiative floor:** total Initiative after equipment/armor penalties is clamped to a minimum of 0 (Core).
+- **Token radial menu:** no longer touches deprecated `ChatBubbles#container` (Foundry V13 warning).
+- **Active Buff Empowerment:** expected validation (no maintained Buff) no longer also shows a generic apply-failure error.
+- **Damage card handlers:** retry attach when chat DOM lags instead of a one-shot miss warning.
+- **NPC custom reactions:** quiet expected `npc-custom-reaction` catalog lookup warnings.
+
+### Changed
+
+- **Stone Pause Initiative:** Armor Penalty shown next to Initiative; Controlled preview includes the penalty.
+- **Tactical Choices:** All-Out Attack above Transfer; Transfer dropdown widened.
+
 ## [0.9.877] - 2026-11-20
 
 ### Added
