@@ -177,6 +177,11 @@ export interface RollOptions {
     attributeKey: string;
     taskDescription?: string;
     gmVerified?: boolean;
+    comparative?: boolean;
+    /** Standard Training Check contributing to the active Challenge. */
+    challengeContribution?: boolean;
+    /** Base Task TN before Paid Raises (for Challenge progress resolve). */
+    baseTn?: number;
   };
 }
 
@@ -1042,6 +1047,7 @@ async function sendRollToChat(
               </div>`
                   : ''
               }
+              __CHALLENGE_LINE__
               ${isSkillRoll && result.success && actor ? `
                 <div class="result-line" title="Opposed Skill Rolls: if this was a Setup Roll, the Final Result is the TN the opposing creature must meet.">
                   <span>Opposing TN (Setup Roll):</span>
@@ -1082,6 +1088,92 @@ async function sendRollToChat(
       0,
       Math.floor(Number(skillCheckMeta?.paidRaisesDeclared ?? rollRecipe?.declaredRaiseSlots ?? 0) || 0),
     );
+
+    let challengeMeta:
+      | {
+          successes: number;
+          progress: number;
+          target: number;
+          complete: boolean;
+          blockedReason?: string;
+        }
+      | null = null;
+    let challengeLineHtml = '';
+    if (
+      skillCheckMeta?.challengeContribution &&
+      !skillCheckMeta.comparative &&
+      isSkillRoll &&
+      actorId &&
+      !isRerollResult
+    ) {
+      try {
+        const {
+          actorAlreadyContributed,
+          isChallengeComplete,
+          readActiveChallenge,
+          recordChallengeContribution,
+        } = await import('../rules/active-challenge.js');
+        const { resolveChallengeContribution } = await import('../rules/challenge-rolls.js');
+        const active = readActiveChallenge();
+        const already = !!active && actorAlreadyContributed(active, actorId);
+        const baseTn = Math.max(
+          0,
+          Math.floor(
+            Number(skillCheckMeta.baseTn ?? (result as any).normalTn ?? result.tn) || 0,
+          ),
+        );
+        const resolved = resolveChallengeContribution({
+          rollTotal: result.total,
+          baseTn,
+          paidRaises: paidDeclared,
+          alreadyContributed: already,
+        });
+        if (!resolved.ok) {
+          challengeMeta = {
+            successes: 0,
+            progress: active?.accumulated ?? 0,
+            target: active?.target ?? 0,
+            complete: active ? isChallengeComplete(active) : false,
+            blockedReason: resolved.error,
+          };
+          challengeLineHtml = `<div class="result-line md-sublabel"><span>Challenge:</span><span class="value">${
+            resolved.error || 'Blocked'
+          }</span></div>`;
+        } else if (active) {
+          const recorded = await recordChallengeContribution(actorId, resolved.successes);
+          const progressState = recorded.state ?? active;
+          challengeMeta = {
+            successes: recorded.ok ? recorded.successesApplied : resolved.successes,
+            progress: progressState.accumulated,
+            target: progressState.target,
+            complete: recorded.complete || isChallengeComplete(progressState),
+            ...(recorded.ok ? {} : { blockedReason: recorded.error }),
+          };
+          if (recorded.ok) {
+            const doneBit = challengeMeta.complete ? ' · complete' : '';
+            challengeLineHtml = `<div class="result-line"><span><strong>Challenge:</strong></span><span class="value"><strong>+${challengeMeta.successes}</strong> Success (${challengeMeta.progress} / ${challengeMeta.target})${doneBit}</span></div>`;
+          } else {
+            challengeLineHtml = `<div class="result-line md-sublabel"><span>Challenge:</span><span class="value">${
+              recorded.error || 'Could not record'
+            } (would be +${resolved.successes})</span></div>`;
+          }
+        } else {
+          challengeMeta = {
+            successes: resolved.successes,
+            progress: resolved.successes,
+            target: 0,
+            complete: false,
+            blockedReason: 'No active Challenge.',
+          };
+          challengeLineHtml = `<div class="result-line md-sublabel"><span>Challenge:</span><span class="value">+${resolved.successes} Success (no active Challenge to record)</span></div>`;
+        }
+      } catch (challengeErr) {
+        console.warn('Mastery System | Challenge contribution resolve failed', challengeErr);
+      }
+    }
+
+    const contentWithChallenge = content.replace('__CHALLENGE_LINE__', challengeLineHtml);
+
     const skillCheckSnapshot = skillCheckMeta
       ? {
           actorId: actorId || null,
@@ -1116,6 +1208,7 @@ async function sendRollToChat(
           sourceKind: skillCheckMeta.source?.kind || 'sheet-verbal',
           gmVerified: !!skillCheckMeta.gmVerified,
           schema: 'df-skill-check-2026-10-24',
+          ...(challengeMeta ? { challenge: challengeMeta } : {}),
         }
       : null;
 
@@ -1124,7 +1217,7 @@ async function sendRollToChat(
     const chatData: any = {
       user: (game as any).user?.id,
       speaker: actor ? ChatMessage.getSpeaker({ actor }) : ChatMessage.getSpeaker(),
-      content,
+      content: contentWithChallenge,
       // Do not force style to OTHER - let Foundry infer roll display from presence of rolls
       rolls: [roll.toJSON()],
       sound: CONFIG.sounds.dice,

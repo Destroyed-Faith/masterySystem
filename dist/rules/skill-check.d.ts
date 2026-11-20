@@ -65,6 +65,12 @@ export interface SkillCheckDraft {
     /** Concealment approach. Stores the result for Hidden / Invisibility comparison. */
     concealmentAttempt?: boolean;
     /**
+     * When true, this Standard Training Check contributes to the active Challenge.
+     * Comparative checks never contribute. Paid Raises count toward the four-Raise
+     * progress threshold. Intellect Stone Free Raises do not apply.
+     */
+    challengeContribution?: boolean;
+    /**
      * Skill / Attribute / Base TN / task — mirrored for convenience; authoritative
      * values always come from `source` via `authoritativeCheckContext`.
      */

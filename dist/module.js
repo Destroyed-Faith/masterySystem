@@ -43,6 +43,7 @@ import { clearPhasingForCombat, removeAugmentCharges, registerPhasingSettings, }
 import { registerStressBreakdownSettings } from './combat/stress-breakdown.js';
 import { registerMisfortuneTokenSettings } from './system/misfortune-tokens.js';
 import { registerUnluckSettings } from './system/unluck.js';
+import { registerActiveChallengeSettings } from './rules/active-challenge.js';
 import { registerKnownNpcSettings } from './system/known-npcs.js';
 import { initializeKnownNpcsBar } from './ui/known-npcs-bar.js';
 import { registerMinorExpressionsBarSettings } from './system/minor-expressions-bar.js';
@@ -141,6 +142,7 @@ function registerAllMasteryInitSettings() {
     registerStressBreakdownSettings();
     registerMisfortuneTokenSettings();
     registerUnluckSettings();
+    registerActiveChallengeSettings();
     registerKnownNpcSettings();
     registerMinorExpressionsBarSettings();
     registerHealingBarSettings();

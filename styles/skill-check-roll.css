@@ -65,6 +65,41 @@
   color: #cbd3da;
 }
 
+.ms-sc-challenge-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border: 1px solid #485663;
+  border-radius: 10px;
+  background: #1c2630;
+  padding: 0.65rem 0.75rem;
+}
+
+.ms-sc-challenge-gm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid #34404c;
+}
+
+.ms-sc-challenge-gm-start[hidden],
+.ms-sc-challenge-gm-clear[hidden],
+.ms-sc-challenge-hint[hidden],
+.ms-sc-challenge-expect[hidden] {
+  display: none !important;
+}
+
+.ms-sc-challenge-start,
+.ms-sc-challenge-clear {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.ms-sc-challenge-blocked {
+  color: #f0b4b4;
+}
+
 .ms-sc-free-notice {
   display: flex;
   gap: 0.55rem;

@@ -4,8 +4,23 @@
  * GM defines task, Attribute, Skill and Base TN.
  * The only player gameplay control before the roll is Paid Raises.
  */
-import { PERCEPTION_FOCUS_ATTRIBUTES, SPEC_ATTRIBUTE_KEYS, baseTnPresets, getSkillCritUsesRemaining, isCharacterPerceptionSpec, planSkillCheckDraft, resolveSkillForDraft, skillAdvantageLabel, taskLevelFromBaseTn, } from '../rules/index.js';
+import { CHALLENGE_PROGRESS_RAISE_THRESHOLD, MAX_CHALLENGE_SUCCESSES_PER_CONTRIBUTION, PERCEPTION_FOCUS_ATTRIBUTES, SPEC_ATTRIBUTE_KEYS, actorAlreadyContributed, baseTnPresets, clearActiveChallenge, getSkillCritUsesRemaining, isChallengeComplete, isCharacterPerceptionSpec, planSkillCheckDraft, readActiveChallenge, resolveSkillForDraft, skillAdvantageLabel, startActiveChallenge, taskLevelFromBaseTn, typicalTargetOptions, } from '../rules/index.js';
 import { masteryLocalize } from '../utils/mastery-localize.js';
+function isGmUser() {
+    return !!globalThis.game?.user?.isGM;
+}
+function formatActiveChallengeLine(state) {
+    if (!state)
+        return masteryLocalize('MASTERY.df2026.skillCheck.noActiveChallenge', 'No active Challenge.');
+    const done = isChallengeComplete(state) ? ' · complete' : '';
+    return `Progress ${state.accumulated} / ${state.target} — ${state.objective}${done}`;
+}
+function expectedChallengeSuccesses(paidRaises) {
+    const paid = Math.max(0, Math.floor(Number(paidRaises) || 0));
+    if (paid >= CHALLENGE_PROGRESS_RAISE_THRESHOLD)
+        return MAX_CHALLENGE_SUCCESSES_PER_CONTRIBUTION;
+    return 1;
+}
 function attributeKeysForSkill(skill, system) {
     if (skill.kind === 'perception')
         return PERCEPTION_FOCUS_ATTRIBUTES;
@@ -212,6 +227,49 @@ export async function promptSkillCheckRollDialog(opts) {
         </ul>
         <p class="md-sublabel">${masteryLocalize('MASTERY.df2026.skillCheck.effectsAfterSuccess', 'Concrete effects are assigned on the chat card after success.')}</p>
       </details>`;
+    const initialChallenge = !isComparative ? readActiveChallenge() : null;
+    const actorIdForChallenge = String(actor?.id ?? '');
+    const alreadyContributed = !!initialChallenge && actorAlreadyContributed(initialChallenge, actorIdForChallenge);
+    const gmControls = isGmUser();
+    const targetOpts = typicalTargetOptions()
+        .map((o) => `<option value="${o.value}">${escapeHtml(o.label)}</option>`)
+        .join('');
+    const challengeBlock = isComparative
+        ? `<input type="hidden" name="challengeContribution" value="0" />`
+        : `<div class="ms-sc-challenge-panel">
+        <div class="md-group">
+          <label class="md-label">
+            <input type="checkbox" name="challengeContribution" class="ms-sc-challenge-check" ${alreadyContributed ? 'disabled' : ''} />
+            ${masteryLocalize('MASTERY.df2026.skillCheck.challengeContribution', 'Challenge contribution')}
+          </label>
+          <small class="md-sublabel ms-sc-challenge-progress">${escapeHtml(formatActiveChallengeLine(initialChallenge))}</small>
+          <small class="md-sublabel ms-sc-challenge-hint" hidden>
+            ${masteryLocalize('MASTERY.df2026.skillCheck.challengeHint', 'Pass = 1 Challenge Success; 4 Paid Raises toward progress = 2 (max). Intellect Free Raises do not count. One roll per character.')}
+          </small>
+          <small class="md-sublabel ms-sc-challenge-expect" hidden></small>
+          ${alreadyContributed
+            ? `<small class="md-sublabel ms-sc-challenge-blocked">${masteryLocalize('MASTERY.df2026.skillCheck.challengeAlreadyContributed', 'This character already contributed to the active Challenge.')}</small>`
+            : ''}
+        </div>
+        ${gmControls
+            ? `<div class="ms-sc-challenge-gm">
+          <div class="ms-sc-challenge-gm-start" ${initialChallenge ? 'hidden' : ''}>
+            <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.challengeObjective', 'Challenge objective (GM)')}</label>
+            <input type="text" name="challengeObjective" class="md-input ms-sc-challenge-objective" maxlength="200" placeholder="${escapeHtml(masteryLocalize('MASTERY.df2026.skillCheck.challengeObjectivePh', 'What the group is trying to accomplish…'))}" />
+            <label class="md-label">${masteryLocalize('MASTERY.df2026.skillCheck.challengeTarget', 'Required Successes')}</label>
+            <select name="challengeTarget" class="md-select ms-sc-challenge-target">
+              ${targetOpts}
+              <option value="custom">Custom…</option>
+            </select>
+            <input type="number" name="challengeTargetCustom" class="md-input ms-sc-challenge-target-custom" min="1" step="1" value="2" style="display:none;margin-top:6px" />
+            <button type="button" class="ms-sc-challenge-start">${masteryLocalize('MASTERY.df2026.skillCheck.challengeStart', 'Start Challenge')}</button>
+          </div>
+          <div class="ms-sc-challenge-gm-clear" ${initialChallenge ? '' : 'hidden'}>
+            <button type="button" class="ms-sc-challenge-clear">${masteryLocalize('MASTERY.df2026.skillCheck.challengeClear', 'Clear / Complete Challenge')}</button>
+          </div>
+        </div>`
+            : ''}
+      </div>`;
     const mathBlock = isComparative
         ? `<div class="ms-sc-mathbox">
         <div class="ms-sc-mathrow ms-sc-mathrow-compact">
@@ -274,6 +332,7 @@ export async function promptSkillCheckRollDialog(opts) {
           Concealment attempt
         </label>
       </div>
+      ${challengeBlock}
       ${paidBlock}
       ${mathBlock}
     </form>`;
@@ -351,12 +410,16 @@ export async function promptSkillCheckRollDialog(opts) {
             const declareSkillCrit = !!root?.querySelector('[name="declareSkillCrit"]')?.checked;
             const physicalAttempt = !!root?.querySelector('[name="physicalAttempt"]')?.checked;
             const concealmentAttempt = !!root?.querySelector('[name="concealmentAttempt"]')?.checked;
+            const challengeContribution = !isComparative &&
+                !!root?.querySelector('[name="challengeContribution"]')
+                    ?.checked;
             return {
                 actorId: String(actor?.id ?? ''),
                 paidRaises: paid,
                 declareSkillCrit,
                 physicalAttempt,
                 concealmentAttempt,
+                challengeContribution,
                 skill,
                 attributeKey: nextSource.attributeKey,
                 baseTn: isComparative ? 0 : nextSource.baseTn,
@@ -526,6 +589,39 @@ export async function promptSkillCheckRollDialog(opts) {
                                 : `${livePlan.skillName} · Rank ${livePlan.rank} · ${cap(livePlan.attributeKey)} ${livePlan.attributeValue} · MR ${livePlan.masteryRank}`
                             : '';
                     }
+                    const challengeCheck = root.querySelector('.ms-sc-challenge-check');
+                    const challengeHint = root.querySelector('.ms-sc-challenge-hint');
+                    const challengeExpect = root.querySelector('.ms-sc-challenge-expect');
+                    const challengeProgress = root.querySelector('.ms-sc-challenge-progress');
+                    const activeCh = readActiveChallenge();
+                    if (challengeProgress) {
+                        challengeProgress.textContent = formatActiveChallengeLine(activeCh);
+                    }
+                    const contribOn = !!challengeCheck?.checked;
+                    if (challengeHint)
+                        challengeHint.hidden = !contribOn;
+                    if (challengeExpect) {
+                        if (contribOn && livePlan.ok) {
+                            challengeExpect.hidden = false;
+                            const expect = expectedChallengeSuccesses(livePlan.paidRaises);
+                            challengeExpect.textContent = masteryLocalize('MASTERY.df2026.skillCheck.challengeExpect', `On Final TN success: ${expect} Challenge Success${expect === 1 ? '' : 'es'} (Paid Raises toward progress: ${livePlan.paidRaises}).`);
+                        }
+                        else {
+                            challengeExpect.hidden = true;
+                            challengeExpect.textContent = '';
+                        }
+                    }
+                    const gmStart = root.querySelector('.ms-sc-challenge-gm-start');
+                    const gmClear = root.querySelector('.ms-sc-challenge-gm-clear');
+                    if (gmStart)
+                        gmStart.hidden = !!activeCh;
+                    if (gmClear)
+                        gmClear.hidden = !activeCh;
+                    const targetCustom = root.querySelector('.ms-sc-challenge-target-custom');
+                    const targetSel = root.querySelector('.ms-sc-challenge-target');
+                    if (targetCustom && targetSel) {
+                        targetCustom.style.display = targetSel.value === 'custom' ? '' : 'none';
+                    }
                     const rollBtn = root
                         .closest('.window-app')
                         ?.querySelector('.dialog-button.roll');
@@ -544,6 +640,44 @@ export async function promptSkillCheckRollDialog(opts) {
                 root.querySelectorAll('input, select').forEach((el) => {
                     el.addEventListener('input', refresh);
                     el.addEventListener('change', refresh);
+                });
+                const startBtn = root.querySelector('.ms-sc-challenge-start');
+                startBtn?.addEventListener('click', async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const objective = String(root.querySelector('.ms-sc-challenge-objective')?.value ||
+                        '').trim();
+                    const sel = root.querySelector('.ms-sc-challenge-target')?.value;
+                    let target = 2;
+                    if (sel === 'custom') {
+                        target = Math.max(1, Math.floor(Number(root.querySelector('.ms-sc-challenge-target-custom')
+                            ?.value) || 0));
+                    }
+                    else {
+                        target = Math.max(1, Math.floor(Number(sel) || 2));
+                    }
+                    const res = await startActiveChallenge({ objective, target });
+                    if (!res.ok) {
+                        globalThis.ui?.notifications?.warn?.(res.error || 'Could not start Challenge.');
+                        return;
+                    }
+                    globalThis.ui?.notifications?.info?.(`Challenge started: ${res.state?.objective} (${res.state?.target} Successes).`);
+                    refresh();
+                });
+                const clearBtn = root.querySelector('.ms-sc-challenge-clear');
+                clearBtn?.addEventListener('click', async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const res = await clearActiveChallenge();
+                    if (!res.ok) {
+                        globalThis.ui?.notifications?.warn?.(res.error || 'Could not clear Challenge.');
+                        return;
+                    }
+                    const check = root.querySelector('.ms-sc-challenge-check');
+                    if (check)
+                        check.checked = false;
+                    globalThis.ui?.notifications?.info?.('Active Challenge cleared.');
+                    refresh();
                 });
                 refresh();
             },

@@ -1197,7 +1197,8 @@ export class StonePowersDialog extends BaseDialog {
         return {
             show,
             locked,
-            open: this._sectionOpenOverride.tactical ?? !locked,
+            // Collapsed by default; remember explicit open/close for this dialog session.
+            open: this._sectionOpenOverride.tactical ?? false,
             summary,
             transferred,
             recipients,

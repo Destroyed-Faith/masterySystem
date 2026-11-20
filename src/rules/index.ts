@@ -7,6 +7,7 @@ export * from './skill-raises.js';
 export * from './skill-advantage.js';
 export * from './comparative-skill-check.js';
 export * from './challenge-rolls.js';
+export * from './active-challenge.js';
 export * from './skill-check.js';
 export * from './spell-tn.js';
 export * from './ritual-tn.js';

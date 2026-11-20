@@ -117,6 +117,10 @@ export async function executeSkillCheck(opts) {
     if (equipPenalty > 0) {
         flavor += ` Equipped armor/shield physical penalty: −${equipPenalty}d8.`;
     }
+    const challengeContribution = !isComparative && !!draft.challengeContribution;
+    if (challengeContribution) {
+        flavor += ' Challenge contribution.';
+    }
     if (opts.flavorExtra)
         flavor += ` ${opts.flavorExtra}`;
     const normalizedName = plan.skillName.trim().toLowerCase();
@@ -160,6 +164,8 @@ export async function executeSkillCheck(opts) {
             taskDescription: plan.taskDescription,
             gmVerified: plan.gmVerified,
             comparative: isComparative,
+            challengeContribution,
+            baseTn: isComparative ? 0 : plan.baseTn,
         },
     });
     const rollTotal = Number(result?.total) || 0;

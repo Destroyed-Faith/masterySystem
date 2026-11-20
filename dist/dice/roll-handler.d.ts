@@ -156,6 +156,11 @@ export interface RollOptions {
         attributeKey: string;
         taskDescription?: string;
         gmVerified?: boolean;
+        comparative?: boolean;
+        /** Standard Training Check contributing to the active Challenge. */
+        challengeContribution?: boolean;
+        /** Base Task TN before Paid Raises (for Challenge progress resolve). */
+        baseTn?: number;
     };
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */

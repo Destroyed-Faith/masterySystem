@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.877] - 2026-11-20
+
+### Added
+
+- **Challenge contribution in the Roles Training Check dialog:** checkbox plus GM start/clear for an active Challenge (shared Success target, progress, one contribution per character). Chat shows Challenge Successes; Intellect Free Raises still do not count.
+
+### Changed
+
+- **Tactical Choices (Stone Pause):** moved to the top of the dialog and collapsed by default.
+
 ## [0.9.876] - 2026-11-20
 
 ### Changed
