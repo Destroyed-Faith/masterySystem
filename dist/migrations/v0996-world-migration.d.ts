@@ -1,0 +1,99 @@
+/**
+ * Rules v0.9.9.6 world migration (GM, once per world, chat report).
+ *
+ * Runs on GM world load after the Actives v0.9.9.6 dry run and before the
+ * gate-free template resync, so every value change is reported with its old
+ * value. Every written document keeps a backup in
+ * `flags.mastery-system.v0996WorldBackup`; `rollbackV0996WorldActor` restores it.
+ *
+ *   1. Power items whose template changed outside the Actives review
+ *      (e.g. Reaction: Reposition, Mental Control, Protective Auras): re-baked
+ *      from the current template; "Reaction: Reactive Cleanse" default names
+ *      become "Reaction: Cleanse". Actives held for the Actives v0.9.9.6
+ *      review are only counted.
+ *   2. Artifact trees changed by v0.9.9.6 (Dragon Head, Elorian Stride,
+ *      Ringchain of Kept Names, Hunter's Scourge, Frostbound Returning Axe,
+ *      Lor-Keth's Titanstorm Staff): library refreshed and pushed to linked
+ *      actor copies; unlinked copies are listed only.
+ *   3. NPC Basic Evade Reaction rows (no longer a rule) are removed.
+ *   4. Last Breath burns are listed only: Burned and Sealed Stones both
+ *      return at the next Safe Haven Rest, so nothing is converted.
+ *
+ * Nothing is merged, refunded or deleted except the inert NPC Basic Evade rows.
+ * Idempotent: the world state is set to `applied`; per-document markers skip
+ * already migrated documents.
+ */
+export declare const V0996_WORLD_STATE_KEY = "v0996WorldMigrationState";
+export declare const V0996_WORLD_BACKUP_FLAG = "v0996WorldBackup";
+export declare const V0996_WORLD_MIGRATED_FLAG = "v0996WorldMigrated";
+/** Artifact library keys whose generator output changed in v0.9.9.6. */
+export declare const V0996_CHANGED_ARTIFACT_KEYS: readonly ["dragonHead", "elorianStride", "ringchainOfKeptNames", "huntersScourge", "frostboundReturningAxe", "lorKethsStaff"];
+export interface V0996WorldPowerChange {
+    actorName: string;
+    actorUuid: string;
+    itemId: string;
+    itemName: string;
+    templateId: string;
+    rank: number;
+    rename: string | null;
+    before: string;
+    after: string;
+}
+export interface V0996WorldArtifactRow {
+    actorName: string;
+    actorUuid: string;
+    itemId: string;
+    itemName: string;
+    key: string;
+    linked: boolean;
+}
+export interface V0996WorldNpcEvadeRow {
+    actorName: string;
+    actorUuid: string;
+    removed: number;
+}
+export interface V0996WorldInfoRow {
+    actorName: string;
+    actorUuid: string;
+    note: string;
+}
+export interface V0996WorldReport {
+    generatedAt: string;
+    powers: V0996WorldPowerChange[];
+    heldForActivesReview: number;
+    artifactTrees: string[];
+    artifacts: V0996WorldArtifactRow[];
+    npcEvade: V0996WorldNpcEvadeRow[];
+    lastBreath: V0996WorldInfoRow[];
+}
+export declare function getV0996WorldMigrationState(g?: any): string;
+export declare function registerV0996WorldMigrationSetting(): void;
+/** Power items whose stored values or default name differ from v0.9.9.6. */
+export declare function planV0996WorldPowers(actor: any): {
+    changes: V0996WorldPowerChange[];
+    held: number;
+};
+/** Actor-owned copies of the changed Artifact trees. */
+export declare function planV0996WorldArtifacts(actor: any): V0996WorldArtifactRow[];
+/** Stored NPC Basic Evade rows (top level + every phase). */
+export declare function planV0996WorldNpcEvade(actor: any): V0996WorldNpcEvadeRow | null;
+/** Actors holding a Last Breath burn from the old rule (info only). */
+export declare function planV0996WorldLastBreath(actor: any): V0996WorldInfoRow | null;
+export declare function buildV0996WorldReport(g?: any): V0996WorldReport;
+export interface V0996WorldApplySummary {
+    powers: number;
+    artifactNodes: number;
+    artifactCopies: number;
+    npcEvadeRows: number;
+    failed: number;
+}
+export declare function applyV0996WorldReport(report: V0996WorldReport, g?: any): Promise<V0996WorldApplySummary>;
+/**
+ * Restore one actor from its v0.9.9.6 world backups (Power items, Artifact
+ * copies, NPC Reaction rows) and clear the markers.
+ */
+export declare function rollbackV0996WorldActor(actor: any): Promise<number>;
+export declare function formatV0996WorldReportHtml(report: V0996WorldReport, summary: V0996WorldApplySummary | null): string;
+/** GM world load: plan, apply once, whisper the report to the GM(s). */
+export declare function runV0996WorldMigrationOnReady(g?: any): Promise<V0996WorldReport | null>;
+//# sourceMappingURL=v0996-world-migration.d.ts.map

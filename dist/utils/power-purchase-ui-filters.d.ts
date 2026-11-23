@@ -27,7 +27,7 @@ export type ActiveBuffUiFocus = (typeof ACTIVE_BUFF_UI_FOCI)[number];
 export declare const ACTIVE_BUFF_UI_FOCUS_LABELS: Record<ActiveBuffUiFocus, string>;
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (Batch 8.1: legacy auras retired; 14 Special Auras).
+ * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (v0.9.9.6: 3 Protective Auras; 14 Special Auras).
  */
 export declare const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID: Readonly<Record<string, readonly ActiveBuffUiFocus[]>>;
 /**

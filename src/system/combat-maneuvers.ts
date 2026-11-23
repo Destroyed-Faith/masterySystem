@@ -191,16 +191,6 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
       "Trigger: you are hit by an Attack or would take damage. Gain **+MR × 2 Armor** against that triggering event only.",
   },
   {
-    id: "evade",
-    name: "Evade",
-    description: "Gain +MR × 2 Evade vs the triggering attack.",
-    slot: "reaction",
-    category: "defensive-reaction",
-    tags: ["reaction", "defensive", "basic", "basic-reaction"],
-    effect:
-      "Trigger: you are targeted by an Attack, before the result is finalized. Gain **+MR × 2 Evade** against that Attack only.",
-  },
-  {
     id: "counterattack",
     name: "Counterattack",
     description: "Retired: there is no Basic Attack (Actives v0.9.9.6). Never offered in the Reaction Window.",

@@ -1,6 +1,7 @@
 /**
  * Describes the outcome of flat Armor + DR% mitigation.
  * `mitigatedDamage` is the value the caller forwards to Temp-HP/bars.
+ * Damage reduced to 0 deals 0 (Core v0.9.9.6: there is no natural-8 minimum).
  */
 export interface DefensiveMitigationResult {
     /** Raw damage passed in (unchanged). */
@@ -11,12 +12,8 @@ export interface DefensiveMitigationResult {
     reactionArmorApplied: number;
     /** Effective DR% on the post-armor pool (0–100), after sequential base + reaction steps. */
     drPercent: number;
-    /** Damage value fed into Temp-HP consumption after the 8s-floor. */
+    /** Damage value fed into Temp-HP consumption. */
     mitigatedDamage: number;
-    /** `true` if the 8s-minimum-rule kicked in (post-mitigation ≤ 0 but 8s > 0). */
-    min8sUsed: boolean;
-    /** Number of natural 8s that propagated into this mitigation call. */
-    count8s: number;
     /**
      * Human-readable single-line summary for the chat card, e.g.
      *   "Raw 14 → Armor 4 → Guard +8 → DR 20% → 8"
@@ -25,8 +22,6 @@ export interface DefensiveMitigationResult {
 }
 export interface DefensiveMitigationInput {
     rawDamage: number;
-    /** Natural 8s rolled across all damage dice for this strike. */
-    count8s: number;
     /** Flat Armor pool on the target (from `system.combat.armorTotal`). */
     armorTotal: number;
     /** Percentage DR on the target (from `system.combat.damageReductionPct`). */
@@ -53,8 +48,4 @@ export interface DefensiveMitigationInput {
  * Pure helper — no actor mutations. See module docstring for pipeline order.
  */
 export declare function applyDefensiveMitigation(input: DefensiveMitigationInput): DefensiveMitigationResult;
-/** Extract `count8s` from a Foundry Roll (sums natural 8s across all d8 terms). */
-export declare function countNaturalEightsInRoll(roll: any): number;
-/** Sum `count8s` across a list of Foundry Rolls. */
-export declare function countNaturalEights(rolls: Iterable<any>): number;
 //# sourceMappingURL=damage-mitigation.d.ts.map

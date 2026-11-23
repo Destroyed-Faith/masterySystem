@@ -185,7 +185,7 @@ export function buildSafeHavenRestUpdates(
     }
   }
 
-  // Sealed (Rituals, Remove Scar) and Burned (Last Breath, daily effects)
+  // Sealed (Rituals, Remove Scar, Last Breath) and Burned (daily effects)
   // stones return on Safe Haven Rest. Use a fixed key list — Foundry
   // DataModel / SchemaField pools often yield Object.keys([]) so a dynamic
   // loop would skip every attribute and leave Sealed stuck forever.

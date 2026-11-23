@@ -1,8 +1,8 @@
 /**
  * Batch 6 Z01 — Active Buff Lifecycle (2026-11-04):
  * one maintained Buff; free voluntary end; Prep activate/replace without
- * Attack Action / Stones; no general per-Combat activation limit; limited
- * Buff resources (Critical) are not restored by switching.
+ * Attack Action / Stones; each named Active Buff once per Combat (v0.9.9.6);
+ * limited Buff resources (Critical) are not restored by switching.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -26,6 +26,13 @@ import { remainingActiveBuffActions } from '../src/combat/action-economy.js';
 import { syncActiveBuffMaximizationQuotaState } from '../src/stones/stone-combat-effects.js';
 import { ACTIVE_BUFF_TEMPLATES } from '../src/utils/powers/templates/activeBuffs.js';
 import { getArtifactActiveBuffs } from '../src/utils/artifact-active-buffs.js';
+import {
+  activeBuffKeysUsedThisCombat,
+  activeBuffUseKey,
+  artifactActiveBuffUseKey,
+  clearActiveBuffCombatUses,
+  isActiveBuffUsedThisCombat,
+} from '../src/combat/active-buff-combat-uses.js';
 
 function makeItemCollection(list: any[]) {
   const items: any = [...list];
@@ -207,9 +214,66 @@ describe('Z01 — Active Buff lifecycle', () => {
     expect(buffs[0].name).toBe('Evade Buff');
     expect(buffs.every((e: any) => e.name !== 'Armor Buff')).toBe(true);
 
-    // Sequential re-activate of B must not duplicate.
-    expect(await activateActiveBuff(actor, b)).toBe(true);
+    // Re-activating B in the same Combat is refused and never duplicates.
+    expect(await activateActiveBuff(actor, b)).toBe(false);
     expect(getTrueActiveBuffs(actor)).toHaveLength(1);
+  });
+
+  it('each named Active Buff activates once per Combat; switching only to unused Buffs', async () => {
+    const actor = makeActor(2);
+    const combat = prepCombat(1);
+    vi.stubGlobal('game', { combat, user: { id: 'u1', isGM: true } });
+    const a = buffPower('ab-armor', 'Armor A', 4);
+    const b = buffPower('ab-evade', 'Evade B', 4);
+    actor.items = makeItemCollection([a, b]);
+    expect(await activateActiveBuff(actor, a)).toBe(true);
+    expect(await activateActiveBuff(actor, b)).toBe(true);
+    // Back to A: already used this Combat — B stays.
+    expect(await activateActiveBuff(actor, a)).toBe(false);
+    expect(getTrueActiveBuffs(actor)[0].name).toBe('Evade B');
+    expect(activeBuffKeysUsedThisCombat(actor, combat)).toEqual([
+      activeBuffUseKey(a),
+      activeBuffUseKey(b),
+    ]);
+  });
+
+  it('ending a Buff does not refund its activation', async () => {
+    const actor = makeActor(2);
+    const combat = prepCombat(1);
+    vi.stubGlobal('game', { combat, user: { id: 'u1', isGM: true } });
+    const a = buffPower('ab-armor', 'Armor A', 4);
+    actor.items = makeItemCollection([a]);
+    expect(await activateActiveBuff(actor, a)).toBe(true);
+    expect((await retractActiveBuffActivation(actor, { user: { isGM: true } })).ok).toBe(true);
+    expect(await activateActiveBuff(actor, a)).toBe(false);
+  });
+
+  it('a new Combat (or Combat End cleanup) makes every Buff available again', async () => {
+    const actor = makeActor(2);
+    const first = prepCombat(1);
+    vi.stubGlobal('game', { combat: first, user: { id: 'u1', isGM: true } });
+    const a = buffPower('ab-armor', 'Armor A', 4);
+    actor.items = makeItemCollection([a]);
+    expect(await activateActiveBuff(actor, a)).toBe(true);
+    await deleteAllMasteryActiveBuffEffects(actor);
+
+    const second = { ...prepCombat(1), id: 'c-z01-next' };
+    vi.stubGlobal('game', { combat: second, user: { id: 'u1', isGM: true } });
+    expect(isActiveBuffUsedThisCombat(actor, second, activeBuffUseKey(a))).toBe(false);
+    expect(await activateActiveBuff(actor, a)).toBe(true);
+
+    await clearActiveBuffCombatUses(actor);
+    expect(activeBuffKeysUsedThisCombat(actor, second)).toEqual([]);
+  });
+
+  it('Artifact Buff identity ignores the Roman-numeral stage', () => {
+    const item = { id: 'art-1' };
+    expect(artifactActiveBuffUseKey(item, { name: 'Draconic Roar I' })).toBe(
+      artifactActiveBuffUseKey(item, { name: 'Draconic Roar III' }),
+    );
+    expect(artifactActiveBuffUseKey(item, { name: 'X', artifactFunctionId: 'roar' })).toBe(
+      'artifact:art-1:roar',
+    );
   });
 
   it('replacement Buff receives a fresh full MR duration', async () => {
@@ -227,7 +291,7 @@ describe('Z01 — Active Buff lifecycle', () => {
     expect(flags.lastActiveRound).toBe(5);
   });
 
-  it('allows a second and third switch in the same combat / Preparation', async () => {
+  it('allows a second and third switch to unused Buffs in the same combat / Preparation', async () => {
     const actor = makeActor(2);
     const combat = prepCombat(1);
     vi.stubGlobal('game', { combat, user: { id: 'u1', isGM: true } });

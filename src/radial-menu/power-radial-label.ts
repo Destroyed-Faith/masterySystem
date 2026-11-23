@@ -18,7 +18,10 @@ export function stripPowerTierSuffixFromName(name: string): string {
 /**
  * Final radial label: tier noise removed, split-attack suffix, spell wording.
  */
-export function formatRadialPowerDisplayName(item: any, opts?: { splitAttack?: boolean }): string {
+export function formatRadialPowerDisplayName(
+  item: any,
+  opts?: { splitAttack?: boolean; splitTargets?: number },
+): string {
   let name = stripPowerTierSuffixFromName(String(item?.name ?? ''));
   const sys = item?.system ?? {};
   if (sys.isSpell === true) {
@@ -31,7 +34,7 @@ export function formatRadialPowerDisplayName(item: any, opts?: { splitAttack?: b
     }
   }
   if (opts?.splitAttack) {
-    name = `${name} × 2`;
+    name = `${name} × ${Math.max(2, Math.floor(Number(opts.splitTargets) || 2))}`;
   }
   return name;
 }

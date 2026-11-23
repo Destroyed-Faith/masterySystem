@@ -13,12 +13,14 @@ import { coerceNpcAttackSpecials, displayNpcSpecialName, getNpcAttackByIndex, np
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { listAvailableMaximizationSources, maximizationSourcePickerMode, remainingMaximizations, resolveMaximizationActor, } from '../stones/stone-combat-effects.js';
 import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
-import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
+import { applyDefensiveMitigation } from '../combat/damage-mitigation.js';
+import { LARGE_DAMAGE_POOL_DIE_VALUE, countLargeDamagePoolFormula, countedPoolFloorSource, isLargeDamagePool, } from '../combat/large-damage-pool.js';
 import { applyLimitedPowerDamage, applyLimitedToTransferPowerDamage, isSpecialOnlyAttack, martialWeaponDamageApplies, settleDamageTransfer, spellFocusDamageApplies, } from '../combat/damage-transfer.js';
 import { isForbiddenLimitedTemplateId, isLimitedPowerTemplateId, } from '../combat/limited-charge.js';
 import { hitCountsAsSpell, vulnerabilityRiderForHit } from '../combat/vulnerability-riders.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
+import { activeBuffDefenseBonus } from '../combat/target-defenses.js';
 import { resolveMartialArtifactWeaponFormula, } from '../combat/artifact-delivery-damage.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice, listActorSpellFocusSources } from '../utils/artifact-base-values.js';
@@ -420,7 +422,6 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 specialsLabel: formatDamageSpecialsLabel(specialsUsed),
                 totalDamage: 0,
                 rollDetails: ['Special-only Attack — no direct damage'],
-                count8s: 0,
                 pendingApply: false,
             };
         }
@@ -1014,6 +1015,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     npcStressD8,
                     splitAttack: !!flags?.splitAttack,
                     splitIndex: flags?.splitIndex ?? null,
+                    splitTotal: flags?.splitTotal ?? null,
                     splitPairId: flags?.splitPairId ?? null,
                     targetMarkValue,
                     // Triggering attack roll — Reaction: Evade compares against these.
@@ -1144,7 +1146,8 @@ function formatSplitStrikeBanner(flags) {
     const powerName = String(flags.selectedPowerName || '').trim();
     const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
     const title = powerName || `${attackKind} Split Attack`;
-    return `${title} — Strike ${idx} of 2`;
+    const total = Math.max(idx, Math.floor(Number(flags.splitTotal) || 2));
+    return `${title} — Strike ${idx} of ${total}`;
 }
 function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}, splitBanner = '', raiseAlloc = {}, 
 /** NPC shared-pool Maximization (overrides player stone/passive/buff UI when set). */
@@ -1550,7 +1553,6 @@ export function attachDamageCardHandlers(messageId) {
                         specialsLabel: formatDamageSpecialsLabel(resolvedSpecials),
                         totalDamage: 0,
                         rollDetails: ['Special-only Attack — no direct damage'],
-                        count8s: 0,
                         pendingApply: false,
                     });
                     rollDamageCompleted = true;
@@ -1786,11 +1788,11 @@ async function consumeTargetMark(target, spend) {
 import { applySpecialStringsToTarget as applyStatusEffectsToTarget, applyWardToIncomingSpecial, getIncomingWardTotal, } from '../combat/apply-special-effects.js';
 export { applyWardToIncomingSpecial, getIncomingWardTotal };
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
-export async function applyDamageToTargetFromAoe(target, damage, attacker, count8s = 0, attackContext) {
-    return applyDamageToTarget(target, damage, attacker, count8s, attackContext);
+export async function applyDamageToTargetFromAoe(target, damage, attacker, attackContext) {
+    return applyDamageToTarget(target, damage, attacker, attackContext);
 }
 /** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
-export async function applyDamageToTarget(target, damage, attacker, count8s = 0, attackContext) {
+export async function applyDamageToTarget(target, damage, attacker, attackContext) {
     const empty = {
         rawDamage: Math.max(0, Math.floor(damage)),
         armorApplied: 0,
@@ -1799,7 +1801,6 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         mitigatedDamage: 0,
         tempHPAbsorbed: 0,
         barDamage: 0,
-        min8sUsed: false,
         breakdownLine: '',
         phased: false,
     };
@@ -1961,9 +1962,9 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         const barsBefore = system.health.bars.map((b) => ({
             current: Number(b?.current) || 0,
         }));
-        // Step 1: Flat Armor + Guard/reaction Armor + percentage DR + 8s-min floor.
+        // Step 1: Flat Armor + Guard/reaction Armor + percentage DR.
         let baseArmorTotal = Number(system.combat?.armorTotal ?? 0) +
-            Number(system.combat?.armorFromActiveBuffs ?? 0) +
+            activeBuffDefenseBonus(target, 'armor') +
             summonArmorAuraBonus(target);
         try {
             const { applyAllOutArmorPenalty, currentCombatRoundState } = await import('../combat/tactical-options.js');
@@ -1974,7 +1975,6 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         }
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
-            count8s,
             armorTotal: baseArmorTotal,
             reactionArmorFlat,
             damageReductionPct: Number(system.combat?.damageReductionPct ?? 0),
@@ -2045,7 +2045,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                     g.canvas?.tokens?.placeables?.find((t) => t?.actor?.id === interposeActorId)?.actor ||
                     null;
                 if (ally && toAlly > 0) {
-                    await applyDamageToTarget(ally, toAlly, attacker, 0, {
+                    await applyDamageToTarget(ally, toAlly, attacker, {
                         skipPhasing: true,
                         skipReactionPrompt: true,
                     });
@@ -2257,7 +2257,11 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                 }
                 if (scars > 0) {
                     const { grantAbsorptionForScarredBars } = await import('../combat/absorption.js');
-                    await grantAbsorptionForScarredBars(target, scars);
+                    const absorbed = await grantAbsorptionForScarredBars(target, scars);
+                    if (absorbed > 0) {
+                        const { maybeOfferAbsorptionSurgeChat } = await import('../combat/reaction-followups.js');
+                        await maybeOfferAbsorptionSurgeChat(target, combat, attacker ?? null);
+                    }
                 }
             }
             catch (absorbErr) {
@@ -2303,7 +2307,6 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             mitigatedDamage: mitigated,
             tempHPAbsorbed: tempHPConsumption.reducedBy,
             barDamage,
-            min8sUsed: mitigation.min8sUsed,
             breakdownLine: `${mitigation.breakdownLine} → ${tail.join(' → ')}`,
             phased: false,
             transferHealing,
@@ -2753,7 +2756,9 @@ function attachDamageMarkPromptHandlers(message, htmlRaw) {
  * already posted a card, that message is reused; otherwise a preview card
  * with the rolled dice is posted first.
  */
-async function promptMarkSpend(attacker, target, markOnTarget, totalDamage, rollDetails, damageChatRolls, existingFloor, existingMessageId) {
+async function promptMarkSpend(attacker, target, markOnTarget, totalDamage, rollDetails, damageChatRolls, existingFloor, existingMessageId, 
+/** Large Damage Pool dice counted as 5 (not in `damageChatRolls`). */
+countedFloorSources = []) {
     const skip = {
         spend: 0,
         messageId: existingMessageId ? String(existingMessageId) : null,
@@ -2761,7 +2766,7 @@ async function promptMarkSpend(attacker, target, markOnTarget, totalDamage, roll
     const mark = Math.max(0, Math.floor(Number(markOnTarget) || 0));
     if (mark <= 0)
         return skip;
-    const options = listUsefulMarkSpends(damageChatRolls, mark, existingFloor);
+    const options = listUsefulMarkSpends([...damageChatRolls, ...countedFloorSources], mark, existingFloor);
     if (options.length === 0)
         return skip;
     try {
@@ -2900,7 +2905,6 @@ damageRollOpts) {
                     specialsLabel: '',
                     totalDamage: 0,
                     rollDetails: ['Phased — hit ignored before the damage roll (no damage, no Specials)'],
-                    count8s: 0,
                     mitigation: {
                         rawDamage: 0,
                         armorApplied: 0,
@@ -2908,7 +2912,6 @@ damageRollOpts) {
                         mitigatedDamage: 0,
                         tempHPAbsorbed: 0,
                         barDamage: 0,
-                        min8sUsed: false,
                         breakdownLine: 'Phased (ignored before damage roll)',
                         phased: true,
                     },
@@ -3005,27 +3008,28 @@ damageRollOpts) {
             console.debug?.('Mastery System | [CALCULATE DAMAGE] Damage Negation skipped', err);
         }
     }
+    // Damage Pool left after Damage Negation (drives Maximization and Large Damage Pools).
+    let raiseDamagePicksLeft = 0;
+    for (let i = 0; i < raises; i++) {
+        if (raiseSelections.get(i)?.type === 'damage')
+            raiseDamagePicksLeft++;
+    }
+    raiseDamagePicksLeft = Math.max(0, raiseDamagePicksLeft - negationSkipRaiseDice);
+    const remainingRaiseBonus = Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice);
+    const remainingDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
+        Math.max(0, Math.floor(stoneDamageBonusDice)) +
+        spellFocusDiceLeft +
+        allOutDiceLeft +
+        countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
+        countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
+        raiseDamagePicksLeft +
+        remainingRaiseBonus +
+        Math.max(0, Math.floor(npcAutoDamageDice));
     // Maximization AFTER Damage Negation, BEFORE any dice are revealed.
     // Skip entirely when Negation removed the whole pool (no charge for a 0-dice roll).
     // Autofire: pool is not stripped here (per-hit omit later); Maximization applies to
     // the full shared pool when that pool still has dice.
     if (damageRollOpts?.spendMaximizationAfterNegation && !skipPhasingPrompt) {
-        let raiseDamagePicksLeft = 0;
-        for (let i = 0; i < raises; i++) {
-            if (raiseSelections.get(i)?.type === 'damage')
-                raiseDamagePicksLeft++;
-        }
-        raiseDamagePicksLeft = Math.max(0, raiseDamagePicksLeft - negationSkipRaiseDice);
-        const remainingRaiseBonus = Math.max(0, Math.floor(Number(damageRollOpts?.raiseBonusDice) || 0) - negationSkipRaiseDice);
-        const remainingDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
-            Math.max(0, Math.floor(stoneDamageBonusDice)) +
-            spellFocusDiceLeft +
-            allOutDiceLeft +
-            countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
-            countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
-            raiseDamagePicksLeft +
-            remainingRaiseBonus +
-            Math.max(0, Math.floor(npcAutoDamageDice));
         const { shouldSpendMaximizationAfterNegation } = await import('../combat/maximization-order.js');
         if (shouldSpendMaximizationAfterNegation({
             wantMaximization: true,
@@ -3041,6 +3045,15 @@ damageRollOpts) {
             activeDamageMaximized = false;
         }
     }
+    // Large Damage Pools: offered after Negation and Maximization, before any die is rolled.
+    // A Faith-Fracture reroll (skipPhasingPrompt) keeps the earlier choice.
+    if (!skipPhasingPrompt) {
+        activeDamageCounted =
+            !isSpecialOnlyAttack(damageRollOpts) &&
+                isLargeDamagePool(remainingDice, { maximized: activeDamageMaximized }) &&
+                (await promptCountLargeDamagePool(remainingDice));
+    }
+    activeCountedFloorSources = [];
     const poolFaces = [];
     // Roll base damage
     // Sanitize dice notations before rolling
@@ -3054,6 +3067,9 @@ damageRollOpts) {
     // Maximization is chosen on the damage card (Roll vs Roll Maximum), not here.
     if (activeDamageMaximized) {
         rollDetails.push('Maximization: every d8 is 8 (not a natural 8, does not explode)');
+    }
+    else if (activeDamageCounted) {
+        rollDetails.push(`Large Damage Pool: ${remainingDice} dice counted as ${LARGE_DAMAGE_POOL_DIE_VALUE} each (not rolled)`);
     }
     const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon', undefined, poolFaces);
     const baseDamageRolled = baseRoll.total;
@@ -3240,7 +3256,7 @@ damageRollOpts) {
         console.warn('Mastery System | [CALCULATE DAMAGE] conditional rider eval failed', e);
     }
     // Unconditional Active Buff damage riders — full listed damage on every hit
-    // (Single / AoE / Autofire). Docs: active-buffs.md Active Buff: Damage.
+    // (Single / AoE / Autofire). Docs: ActiveBuffs.md Active Buff: Damage.
     let activeBuffDamageRolled = 0;
     try {
         if (attacker) {
@@ -3384,7 +3400,7 @@ damageRollOpts) {
                 damageChatRolls.push(r.roll);
         }
         if (brutalImpactFloor > 0) {
-            brutalImpactBonus = computeMarkFloorBonus(damageChatRolls, brutalImpactFloor);
+            brutalImpactBonus = computeMarkFloorBonus([...damageChatRolls, ...activeCountedFloorSources], brutalImpactFloor);
             rollDetails.push(brutalImpactBonus > 0
                 ? `Brutal Impact(${brutalImpactFloor}): damage dice floored at ${brutalImpactFloor} (+${brutalImpactBonus})`
                 : `Brutal Impact(${brutalImpactFloor}): all damage dice already ≥ ${brutalImpactFloor}`);
@@ -3450,17 +3466,18 @@ damageRollOpts) {
             const { getActiveSpecialValue } = await import('../system/active-specials.js');
             const mark = Math.max(0, getActiveSpecialValue(target, 'mark'));
             if (mark > 0) {
-                const useful = listUsefulMarkSpends(damageChatRolls, mark, brutalImpactFloor);
+                const floorRolls = [...damageChatRolls, ...activeCountedFloorSources];
+                const useful = listUsefulMarkSpends(floorRolls, mark, brutalImpactFloor);
                 if (useful.length === 0) {
                     rollDetails.push(`Mark(${mark}) available — all damage dice already ≥ ${mark}, nothing to gain`);
                 }
                 else {
-                    const markChoice = await promptMarkSpend(attacker, target, mark, totalDamage, rollDetails, damageChatRolls, brutalImpactFloor, prePostedChatMessageId);
+                    const markChoice = await promptMarkSpend(attacker, target, mark, totalDamage, rollDetails, damageChatRolls, brutalImpactFloor, prePostedChatMessageId, activeCountedFloorSources);
                     if (markChoice.messageId)
                         prePostedChatMessageId = markChoice.messageId;
                     const spend = markChoice.spend;
                     if (spend > 0) {
-                        const markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend, brutalImpactFloor);
+                        const markFloorBonus = computeMarkFloorBonus(floorRolls, spend, brutalImpactFloor);
                         totalDamage += markFloorBonus;
                         rollDetails.push(`Mark(${mark}) spend ${spend} → floor ${spend} (+${markFloorBonus})`);
                         specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
@@ -3565,14 +3582,10 @@ damageRollOpts) {
     }
     for (const note of conditionalSpecialsUsed)
         specialsUsed.push(note);
-    // Count natural 8s across every damage roll we fired above — drives the
-    // "never below count8s if any 8 was rolled" floor in the defensive pipeline.
-    const count8s = countNaturalEights(damageChatRolls);
     // Split Attack splits accuracy (Attack/Casting Pool), not damage.
     // Each successful split deals the Power's full Damage Pool + payload.
     const appliedDamage = totalDamage;
     void splitAttack;
-    const appliedCount8s = count8s;
     // Per-hit context forwarded to mitigation (direct or deferred path).
     // Phasing was already resolved before the damage roll — never re-prompt.
     const applyContext = {
@@ -3583,7 +3596,7 @@ damageRollOpts) {
     // Apply damage to target (unless deferred for Reaction Window chat order)
     let mitigation;
     if (target && !skipApply) {
-        mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s, {
+        mitigation = await applyDamageToTarget(target, appliedDamage, attacker, {
             ...applyContext,
             skipPhasing: true,
         });
@@ -3607,7 +3620,6 @@ damageRollOpts) {
         totalDamage: appliedDamage,
         rollDetails: rollDetails.length ? rollDetails : undefined,
         damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined,
-        count8s: appliedCount8s,
         mitigation,
         pendingApply: skipApply || undefined,
         attackContext: skipApply ? applyContext : undefined,
@@ -3673,6 +3685,41 @@ function summarizeRollDiceFaces(roll) {
  * Roll one damage pool (Foundry v13+: must evaluate asynchronously — sync mode throws for standard dice).
  */
 let activeDamageMaximized = false;
+/** Large Damage Pool: every d8 of this Damage Roll counts as 5 instead of rolling. */
+let activeDamageCounted = false;
+/** Counted dice as roll-shaped results, so Mark / Brutal Impact floors can raise them. */
+let activeCountedFloorSources = [];
+async function promptCountLargeDamagePool(remainingDice) {
+    const title = 'Large Damage Pool';
+    const content = `<p><strong>${remainingDice}</strong> Damage Dice remain after Damage Negation.</p>` +
+        `<p>Count each die as <strong>${LARGE_DAMAGE_POOL_DIE_VALUE}</strong> instead of rolling? ` +
+        `A Mark or Brutal Impact floor above ${LARGE_DAMAGE_POOL_DIE_VALUE} still raises each die to that floor.</p>`;
+    try {
+        const DialogV2 = globalThis.foundry?.applications?.api?.DialogV2;
+        if (typeof DialogV2?.confirm === 'function') {
+            return !!(await DialogV2.confirm({
+                window: { title },
+                content,
+                yes: { label: `Count as ${LARGE_DAMAGE_POOL_DIE_VALUE}` },
+                no: { label: 'Roll', default: true },
+            }));
+        }
+        const LegacyDialog = globalThis.Dialog;
+        if (typeof LegacyDialog?.confirm === 'function') {
+            return !!(await LegacyDialog.confirm({
+                title,
+                content,
+                yes: () => true,
+                no: () => false,
+                defaultYes: false,
+            }));
+        }
+    }
+    catch (err) {
+        console.debug?.('Mastery System | Large Damage Pool prompt skipped', err);
+    }
+    return false;
+}
 async function rollDiceWithDetail(diceNotation, label, maximize = activeDamageMaximized, 
 /**
  * Shared Autofire roll: collects every d8 of this pool in roll order (an artificial
@@ -3696,9 +3743,22 @@ faceSink) {
         for (let i = 0; i < n; i++)
             faceSink.push({ face: 8, artificial: true });
     }
+    const counted = !maximize && activeDamageCounted;
+    if (counted) {
+        const n = countD8DiceInFormula(formula);
+        if (faceSink) {
+            for (let i = 0; i < n; i++)
+                faceSink.push({ face: LARGE_DAMAGE_POOL_DIE_VALUE, artificial: false });
+        }
+        if (n > 0)
+            activeCountedFloorSources.push(countedPoolFloorSource(n));
+    }
     if (maximize) {
         const { maximizeDamageFormula } = await import('../stones/stone-combat-effects.js');
         formula = maximizeDamageFormula(formula);
+    }
+    else if (counted) {
+        formula = countLargeDamagePoolFormula(formula);
     }
     else {
         formula = masteryApplyExplodingD8(formula);
@@ -3710,7 +3770,7 @@ faceSink) {
         const total = roll.total ?? 0;
         const detail = summarizeRollDiceFaces(roll);
         const line = `${label}: ${detail} → ${total}`;
-        if (faceSink && !maximize) {
+        if (faceSink && !maximize && !counted) {
             for (const term of roll.terms || []) {
                 if (term?.faces !== 8 || !Array.isArray(term?.results))
                     continue;

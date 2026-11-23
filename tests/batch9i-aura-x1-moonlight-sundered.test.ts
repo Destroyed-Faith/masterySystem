@@ -127,17 +127,17 @@ describe('Batch 9I — Frostwave / Draconic Roar unchanged', () => {
     expect(frost?.chosenSpecial?.key).toBe('slow');
   });
 
-  it('Draconic Roar remains Armor Aura +4/+10/+16 (not Special Aura formula)', async () => {
+  it('Draconic Roar is Protective Armor Aura +7/+17/+29 (not Special Aura formula)', async () => {
     const { ECHO_ARTIFACTS } = await import('../src/utils/echo-artifacts.js');
     const head = ECHO_ARTIFACTS.dragonHead;
     const roarPick = head.progressionPickSpecs?.[2] as any;
     expect(roarPick?.templateId).toBe('ab-armor-aura');
     expect(roarPick?.stagePowerLevels).toEqual(['4', '10', '16']);
     const lvl = (pl: string) => getTemplate('ab-armor-aura')?.levels?.[pl] as any;
-    // Armor Aura grants +1 Armor per PL → PL4/10/16 = +4/+10/+16 (not ×1 Special Aura PP).
-    expect(String(lvl('4')?.effect?.text || '')).toMatch(/\+4\s*Armor/i);
-    expect(String(lvl('10')?.effect?.text || '')).toMatch(/\+10\s*Armor/i);
-    expect(String(lvl('16')?.effect?.text || '')).toMatch(/\+16\s*Armor/i);
+    // Protective Armor Aura PL4/10/16 = +7/+17/+29 (v0.9.9.6).
+    expect(String(lvl('4')?.effect?.text || '')).toMatch(/\+7\s*Armor/i);
+    expect(String(lvl('10')?.effect?.text || '')).toMatch(/\+17\s*Armor/i);
+    expect(String(lvl('16')?.effect?.text || '')).toMatch(/\+29\s*Armor/i);
   });
 });
 

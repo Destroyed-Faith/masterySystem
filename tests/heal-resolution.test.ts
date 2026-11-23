@@ -127,7 +127,7 @@ describe('artifact heal radial', () => {
     const hearth = {
       source: 'power' as const,
       name: 'Hearth Circle II',
-      description: 'Restore up to 9 Scarred Health Bars · Melee AoE Restoration (PL 16)',
+      description: 'Restore up to 10 Scarred Health Bars · Melee AoE Restoration (PL 16)',
       item: { type: 'artifact', id: 'rc', name: 'Ringchain of Kept Names' },
       artifactPowerTemplateId: 'active-melee-aoe-restoration',
       artifactRowLevel: 8,
@@ -135,7 +135,7 @@ describe('artifact heal radial', () => {
     };
     expect(isHealRadialOption(hearth)).toBe(true);
     const hearthPower = healPowerItemFromRadialOption(hearth as any);
-    expect(getPowerHlrPoolMax(hearthPower)).toBe(9);
+    expect(getPowerHlrPoolMax(hearthPower)).toBe(10);
 
     // No template id on the row: printed text is not used to infer a Restoration identity.
     const textOnly = {

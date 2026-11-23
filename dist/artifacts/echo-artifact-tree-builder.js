@@ -22,6 +22,7 @@ import { getArmorDefinitionForType } from '../utils/equipment.js';
 import { resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
 import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons.js';
+import { getTemplate } from '../utils/powers/templates/index.js';
 /**
  * Content version of the generated trees. Bump this whenever the generator's
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
@@ -124,29 +125,9 @@ function falconPredatorSenseForLevel(level) {
 function frostboundThrownRangeForLevel(level) {
     return clampLevel(level) + 5;
 }
-/** Lor-Keth's Staff weapon damage — two-handed: 4d8 base + 1d8/level (5d8 … 14d8). */
+/** Lor-Keth's Staff Base — 4d8 L1 … 12d8 L9, 14d8 L10 (Artifacts.md "Staff Base"). */
 function lorKethStaffDamageForLevel(level) {
-    return weaponDamageForLevel(level, 'twoHandedWeapon');
-}
-/** Lor-Keth's Staff Storm Rune tier — Shock Rune L4-6, Greater L7-9, True L10. */
-function lorKethStormRuneForLevel(level) {
-    const l = clampLevel(level);
-    if (l < 4)
-        return '';
-    if (l >= 10)
-        return 'True Shock Rune';
-    if (l >= 7)
-        return 'Greater Shock Rune';
-    return 'Shock Rune';
-}
-/** Lor-Keth's Staff Giant Weight tier — Giant Weight L7-9, True L10. */
-function lorKethGiantWeightForLevel(level) {
-    const l = clampLevel(level);
-    if (l < 7)
-        return '';
-    if (l >= 10)
-        return 'True Giant Weight';
-    return 'Giant Weight';
+    return unboundGuideDamageForLevel(level);
 }
 /** Unbound weapon / bite / staff / scourge — 4d8 L1 … 12d8 L9, 14d8 L10. */
 function unboundGuideDamageForLevel(level) {
@@ -442,27 +423,26 @@ export const BASE_VALUE_TABLES = {
     lanternOfTheHollowStar: [],
     lorKethsStaff: [
         { slot: 'a', type: 'weaponDamage', label: 'Staff Damage', unlock: 1, valueAt: (l) => lorKethStaffDamageForLevel(l) },
-        {
-            slot: 'b',
-            type: 'sense',
-            label: 'Storm Rune',
-            unlock: 4,
-            valueAt: (l) => lorKethStormRuneForLevel(l),
-            note: 'Base item feature; does not create attacks, actions, Stone uses, or reactions by itself.',
-        },
-        {
-            slot: 'c',
-            type: 'sense',
-            label: 'Giant Weight',
-            unlock: 7,
-            valueAt: (l) => lorKethGiantWeightForLevel(l),
-            note: 'Base item feature; requires both hands.',
-        },
     ],
 };
 // ---------------------------------------------------------------------------
 // Level Progression row → embedded power mapping
 // ---------------------------------------------------------------------------
+const EMBEDDED_POWER_CATEGORIES = [
+    'active',
+    'activeBuff',
+    'reaction',
+    'movement',
+    'passive',
+];
+/** Embedded-power category: the row's catalogue template decides; the Type column is the fallback. */
+function categoryForRow(row) {
+    const tplCategory = row.powerTemplateId ? getTemplate(row.powerTemplateId)?.category : undefined;
+    if (tplCategory && EMBEDDED_POWER_CATEGORIES.includes(tplCategory)) {
+        return tplCategory;
+    }
+    return categoryForRowType(row.type);
+}
 /** Map the Player's-Guide "Type" column onto an embedded-power category. */
 function categoryForRowType(rowType) {
     const t = String(rowType || '').toLowerCase();
@@ -472,7 +452,7 @@ function categoryForRowType(rowType) {
         return 'movement';
     if (t.includes('active buff') || t.includes('buff'))
         return 'activeBuff';
-    if (t.startsWith('active') || t === 'active' || t.includes('active,'))
+    if (t.startsWith('active') || t.startsWith('artifact active') || t.includes('active,'))
         return 'active';
     // Catalog martial / attack row types (e.g. "Ranged AoE", "Melee", "Ranged
     // Single") are Actives that deliver an attack.
@@ -573,7 +553,7 @@ function emptyLevelRow() {
 }
 /** Build the EmbeddedPowerData for a single Level Progression row of an artifact. */
 function buildEmbeddedPower(echoArtifactKey, row) {
-    const category = categoryForRowType(row.type);
+    const category = categoryForRow(row);
     const plKey = powerLevelForArtifactLevel(row.level);
     const levels = {};
     for (const k of ALL_POWER_LEVEL_KEYS)

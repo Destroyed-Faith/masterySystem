@@ -1,34 +1,34 @@
 /**
  * R-05 pure data: Restoration pool tables, radius / range helpers, catalog text.
  *
- * Leaf module (no imports) so power template files can read it at module-load
- * time without creating an import cycle through actors / the power catalog.
- * `r05-restoration.ts` re-exports everything here.
+ * Only imports the generated (import-free) canonical table, so power template
+ * files can read it at module-load time without creating an import cycle
+ * through actors / the power catalog. `r05-restoration.ts` re-exports everything here.
  */
+import { CANONICAL_ACTIVES } from '../utils/powers/canonical-actives.generated.js';
+/** Printed Scarred-Bar pool PL 1–16 (0 where Unavailable). */
+function canonicalBarPool(canonId) {
+    const rows = CANONICAL_ACTIVES[canonId]?.rows ?? [];
+    return Array.from({ length: 16 }, (_, i) => rows[i]?.bars ?? 0);
+}
 /** Melee ST Restoration pool (Safe Haven Rest). PL1 unavailable. */
-export const R05_MELEE_ST_POOL = [0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12];
+export const R05_MELEE_ST_POOL = canonicalBarPool('melee-single-target-restoration');
 /** Ranged ST Restoration pool (Safe Haven Rest). PL1 unavailable. */
-export const R05_RANGED_ST_POOL = [0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 10];
-/** Melee AoE Restoration pool (Safe Haven Rest). */
-export const R05_MELEE_AOE_POOL = [0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 6, 6, 7, 8, 9, 9];
-/** Ranged AoE Restoration pool (Safe Haven Rest). */
-export const R05_RANGED_AOE_POOL = [0, 0, 1, 2, 2, 3, 4, 4, 4, 5, 5, 6, 7, 7, 8, 8];
+export const R05_RANGED_ST_POOL = canonicalBarPool('ranged-single-target-restoration');
+/** Melee AoE Restoration pool (Safe Haven Rest). PL1 unavailable. */
+export const R05_MELEE_AOE_POOL = canonicalBarPool('melee-aoe-restoration');
+/** Ranged AoE Restoration pool (Safe Haven Rest). PL1–2 unavailable. */
+export const R05_RANGED_AOE_POOL = canonicalBarPool('ranged-aoe-restoration');
 /** Passive: Restoration daily pool (Tyhran Day). PL1 unavailable. */
 export const R05_PASSIVE_REGEN_POOL = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8];
 export function clampPowerLevel(pl) {
     return Math.max(1, Math.min(16, Math.floor(Number(pl) || 1)));
 }
 export function meleeAoeRadiusMeters(pl) {
-    const lvl = clampPowerLevel(pl);
-    if (lvl <= 5)
-        return 2;
-    if (lvl <= 8)
-        return 3;
-    return 4;
+    return CANONICAL_ACTIVES['melee-aoe-restoration']?.rows[clampPowerLevel(pl) - 1]?.radiusM ?? 2;
 }
 export function rangedAoeRadiusMeters(pl) {
-    const lvl = clampPowerLevel(pl);
-    return lvl <= 8 ? 2 : 3;
+    return CANONICAL_ACTIVES['ranged-aoe-restoration']?.rows[clampPowerLevel(pl) - 1]?.radiusM ?? 2;
 }
 export function rangedRangeMeters(pl) {
     return 8 + 4 * (clampPowerLevel(pl) - 1);

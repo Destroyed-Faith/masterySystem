@@ -71,9 +71,9 @@ export const CATEGORY_LABELS: Record<PowerCategory, string> = {
 };
 
 /**
- * Final Active Buff catalogue (Canonical Active_Buffs.md + Batch 8.1 Special Auras).
- * New-Power pickers may only offer these IDs. Legacy aura templates remain in
- * `ACTIVE_BUFF_TEMPLATES` for owned items / Artifact grants (Batch 9 redesign).
+ * Final Active Buff catalogue (Canonical ActiveBuffs.md v0.9.9.6): 19 core Buffs,
+ * 3 Protective Auras, 14 Special Auras. New-Power pickers may only offer these IDs.
+ * Legacy aura templates remain in `ACTIVE_BUFF_TEMPLATES` for owned items.
  */
 export const FINAL_ACTIVE_BUFF_TEMPLATE_IDS = [
     'ab-armor',
@@ -95,6 +95,9 @@ export const FINAL_ACTIVE_BUFF_TEMPLATE_IDS = [
     'ab-spell-resistance-piercing',
     'ab-maximization',
     'ab-area-expansion',
+    'ab-armor-aura',
+    'ab-evade-aura',
+    'ab-spell-resistance-aura',
     'ab-blight-aura',
     'ab-challenge-aura',
     'ab-corrode-aura',
@@ -117,14 +120,45 @@ const FINAL_ACTIVE_BUFF_INDEX = new Map<string, number>(
     FINAL_ACTIVE_BUFF_TEMPLATE_IDS.map((id, i) => [id, i]),
 );
 
-/** True when `templateId` is in the official 33-buff selection catalogue (Batch 8.1). */
+/** True when `templateId` is in the official 36-buff selection catalogue (v0.9.9.6). */
 export function isSelectableActiveBuffTemplateId(templateId: string | null | undefined): boolean {
     return FINAL_ACTIVE_BUFF_INDEX.has(String(templateId || '').trim());
+}
+
+/**
+ * Final Reaction catalogue (Canonical Reactions.md v0.9.9.6): the 16 printed
+ * Reaction Effects. Unprinted Reaction templates stay for owned items only.
+ */
+export const FINAL_REACTION_TEMPLATE_IDS = [
+    'reaction-armor',
+    'reaction-evade',
+    'reaction-temp-hp',
+    'reaction-ally-armor',
+    'reaction-ally-evade',
+    'reaction-ally-temp-hp',
+    'reaction-reposition',
+    'reaction-reactive-cleanse',
+    'reaction-damage-reduction',
+    'reaction-phasing',
+    'reaction-counter-damage',
+    'reaction-counter-damage-push',
+    'reaction-initiative-gain',
+    'reaction-riposte',
+    'reaction-parry-reflection',
+    'reaction-absorption-surge',
+] as const;
+
+const FINAL_REACTION_IDS = new Set<string>(FINAL_REACTION_TEMPLATE_IDS);
+
+/** True when `templateId` is one of the 16 printed Reactions (v0.9.9.6). */
+export function isSelectableReactionTemplateId(templateId: string | null | undefined): boolean {
+    return FINAL_REACTION_IDS.has(String(templateId || '').trim());
 }
 
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export const SUBFAMILY_LABELS: Record<string, string> = {
     'special-aura': 'Special Aura',
+    'protective-aura': 'Protective Aura',
     'damage-single': 'Single-Target Special Attack',
     'damage-aoe': 'Area Special Attack',
     'instant-special-single': 'Instant Single-Special',
@@ -476,6 +510,12 @@ export interface CatalogFilter {
     includeNonFinalActiveBuffs?: boolean;
 
     /**
+     * Include Reactions outside the 16 printed Reactions. Default false for
+     * pickers. Direct `templateId` lookups still resolve legacy templates.
+     */
+    includeNonFinalReactions?: boolean;
+
+    /**
      * Include Passives outside the final 28-passive rulebook catalogue.
      * Default false for pickers. Direct `templateId` lookups still resolve
      * legacy / artifact-only templates.
@@ -674,6 +714,14 @@ export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
             !filter.includeNonFinalActiveBuffs &&
             !filter.templateId &&
             !isSelectableActiveBuffTemplateId(e.templateId)
+        ) {
+            return false;
+        }
+        if (
+            e.category === 'reaction' &&
+            !filter.includeNonFinalReactions &&
+            !filter.templateId &&
+            !isSelectableReactionTemplateId(e.templateId)
         ) {
             return false;
         }

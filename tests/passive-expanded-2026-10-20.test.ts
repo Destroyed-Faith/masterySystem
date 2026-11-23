@@ -210,8 +210,9 @@ describe('10–11. Persistence helpers / existing suite anchors', () => {
 
   it('Parry Extra Attack wording still present in rules doc (regression anchor)', async () => {
     const fs = await import('node:fs');
-    const text = fs.readFileSync('docs/Rules/passives.md', 'utf8');
+    const text = fs.readFileSync('docs/Rules/Canonical/Passives.md', 'utf8');
     expect(text).toMatch(/additional Attack Action/i);
-    expect(text).toMatch(/Active Buff: Parry Recovery/);
+    const buffs = fs.readFileSync('docs/Rules/Canonical/ActiveBuffs.md', 'utf8');
+    expect(buffs).toMatch(/Active Buff: Parry Recovery/);
   });
 });

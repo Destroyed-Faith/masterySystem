@@ -39,7 +39,7 @@
   <details class="initiative-exchange-bar tactical-prep-bar{{#if tacticalPrep.locked}} is-locked{{/if}}" data-section="tactical" {{#if tacticalPrep.open}}open{{/if}}>
     <summary class="tactical-prep-summary">
       <i class="fas fa-chevron-right" aria-hidden="true"></i>
-      <strong>Tactical Choices (Playtest)</strong>
+      <strong>Tactical Choices</strong>
       <span class="initiative-exchange-note">{{tacticalPrep.summary}}</span>
     </summary>
 
@@ -59,7 +59,7 @@
 
     <div class="tactical-prep-row">
       <span class="tactical-prep-label">Transfer Attack Action</span>
-      <span class="tactical-prep-hint">Give your basic Attack Action to another player. They spend it on their own Turn this Round; bonus Attack Actions stay with you.</span>
+      <span class="tactical-prep-hint">Give your regular Attack Action to a willing ally within 20 m. They spend it on their own Turn this Round and cannot pass it on; bonus Attack Actions stay with you.</span>
       <span class="tactical-prep-controls">
         {{#if tacticalPrep.transferred}}
         <span class="tactical-prep-status">Given away this Round.</span>
@@ -150,9 +150,10 @@
       {{/if}}
       {{#each activeBuffPrep.options}}
       <button type="button"
-              class="dialog-btn js-activate-active-buff{{#if this.isActive}} is-active{{/if}}{{#if this.chosenThisRound}} is-chosen{{/if}}"
+              class="dialog-btn js-activate-active-buff{{#if this.isActive}} is-active{{/if}}{{#if this.chosenThisRound}} is-chosen{{/if}}{{#if this.usedThisCombat}} is-used{{/if}}"
               data-power-id="{{this.id}}"
-              title="{{#if ../activeBuffPrep.maintaining}}Replace with {{this.name}} (PL {{this.level}}) — prior Buff ends first; no Attack Action or Stone cost{{else}}Activate {{this.name}} (PL {{this.level}}) — no Attack Action or Stone cost{{/if}}">
+              {{#if this.usedThisCombat}}disabled{{/if}}
+              title="{{#if this.usedThisCombat}}{{this.name}} was already activated this Combat — each named Active Buff can be activated once per Combat.{{else if ../activeBuffPrep.maintaining}}Replace with {{this.name}} (PL {{this.level}}) — prior Buff ends first; no Attack Action or Stone cost{{else}}Activate {{this.name}} (PL {{this.level}}) — no Attack Action or Stone cost{{/if}}">
         {{this.name}} (PL {{this.level}}){{this.suffix}}
       </button>
       {{/each}}

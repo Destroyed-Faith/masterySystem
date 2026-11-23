@@ -177,9 +177,9 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(rows[0].effect).toBe(tpl.levels['1'].effect.text);
     expect(rows[1].effect).toBe(tpl.levels['3'].effect.text);
     expect(rows[2].effect).toBe(tpl.levels['5'].effect.text);
-    expect(rows[0].aoe).toContain('2');
-    expect(rows[1].aoe).toContain('6');
-    expect(rows[2].aoe).toContain('10');
+    expect(rows[0].aoe).toContain(String(tpl.levels['1'].aoe?.radiusM));
+    expect(rows[1].aoe).toContain(String(tpl.levels['3'].aoe?.radiusM));
+    expect(rows[2].aoe).toContain(String(tpl.levels['5'].aoe?.radiusM));
   });
 
   it('supports per-stage template ids on one pick (Serpent Evasion + Mobility Extension)', () => {

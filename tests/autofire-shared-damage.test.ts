@@ -31,10 +31,9 @@ afterEach(async () => {
 });
 
 describe('Autofire shared dice — omit per hit', () => {
-  it('omit 0 / 1 / 2 across three hits → totals 20 / 17 / 9; natural 8s 1 / 1 / 0', () => {
+  it('omit 0 / 1 / 2 across three hits → totals 20 / 17 / 9', () => {
     const hits = [0, 1, 2].map((omit) => damageFromSharedDice(FACES, omit));
     expect(hits.map((h) => h.total)).toEqual([20, 17, 9]);
-    expect(hits.map((h) => h.natural8s)).toEqual([1, 1, 0]);
   });
 
   it('same target twice (omit 1 then omit 2): separate omit, identical faces', () => {
@@ -45,15 +44,6 @@ describe('Autofire shared dice — omit per hit', () => {
     expect(second.total).toBe(9);
     expect(first.total).not.toBe(second.total);
     expect(faces).toEqual(FACES); // the shared roll is never mutated
-  });
-
-  it('omitted natural 8s do not count toward the natural-8 minimum', () => {
-    const t = damageFromSharedDice([8, 8, 1, 4], 2);
-    expect(t.natural8s).toBe(0);
-    expect(t.omittedNatural8s).toBe(2);
-    expect(t.total).toBe(5);
-    // Kept 8s still count.
-    expect(damageFromSharedDice([1, 8, 8], 1).natural8s).toBe(2);
   });
 
   it('omit is a deterministic PREFIX of the ordered list (no cherry-picking)', () => {
@@ -72,7 +62,7 @@ describe('Autofire shared dice — omit per hit', () => {
     const a = damageFromSharedDice(faces, 1);
     const b = damageFromSharedDice(faces, 1);
     expect(a).toEqual(b);
-    sharedDamageForHit({ totalDamage: 16, count8s: 0, orderedDieFaces: faces }, 1);
+    sharedDamageForHit({ totalDamage: 16, orderedDieFaces: faces }, 1);
     expect(rnd).not.toHaveBeenCalled();
     rnd.mockRestore();
     expect(faces).toEqual([4, 4, 4, 4]);
@@ -85,10 +75,9 @@ describe('Autofire shared dice — omit per hit', () => {
     expect(damageFromSharedDice(FACES, -1).total).toBe(20);
   });
 
-  it('Maximization: artificial 8s are not natural 8s but still add 8 each', () => {
-    const t = damageFromSharedDice([8, 8, 8], 1, { artificial: true });
+  it('Maximization: artificial 8s add 8 each', () => {
+    const t = damageFromSharedDice([1, 2, 3], 1, { artificial: true });
     expect(t.total).toBe(16);
-    expect(t.natural8s).toBe(0);
   });
 
   it('die floors (Brutal Impact / Mark) are given back for omitted dice', () => {
@@ -102,7 +91,6 @@ describe('Autofire shared dice — omit per hit', () => {
 describe('Autofire shared payload — per hit', () => {
   const full = toSharedAoeDamagePayload({
     totalDamage: 25, // 20 dice + 5 flat (Might etc.)
-    count8s: 1,
     specialsUsed: ['Burn(2)'],
     rollDetails: ['Base weapon: 4d8 [3, 8, 2, 7] → 20'],
     sharedDice: { orderedDieFaces: FACES, artificial: false, dieFloor: 0 },
@@ -117,21 +105,18 @@ describe('Autofire shared payload — per hit', () => {
   it('derives per-hit totals from the one roll; flat bonus stays, omitted dice leave', () => {
     const hits = [0, 1, 2].map((o) => sharedDamageForHit(full, o));
     expect(hits.map((h) => h.totalDamage)).toEqual([25, 22, 14]);
-    expect(hits.map((h) => h.count8s)).toEqual([1, 1, 0]);
     expect(hits.map((h) => h.omitCount)).toEqual([0, 1, 2]);
     expect(hits.every((h) => h.orderedDieFaces === full.orderedDieFaces || h.orderedDieFaces?.join() === FACES.join())).toBe(true);
     expect(hits[1]!.rollDetails?.[0]).toMatch(/first 1 of 4 shared dice omitted/);
     // The shared source payload is never mutated.
     expect(full.totalDamage).toBe(25);
-    expect(full.count8s).toBe(1);
   });
 
   it('a payload without ordered faces is unchanged (Instant AoE style)', () => {
-    const aoe = toSharedAoeDamagePayload({ totalDamage: 17, count8s: 1 })!;
+    const aoe = toSharedAoeDamagePayload({ totalDamage: 17 })!;
     expect(aoe.orderedDieFaces).toBeUndefined();
     const hit = sharedDamageForHit(aoe, 3);
     expect(hit.totalDamage).toBe(17);
-    expect(hit.count8s).toBe(1);
   });
 });
 

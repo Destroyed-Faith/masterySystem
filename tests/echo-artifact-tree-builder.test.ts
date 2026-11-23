@@ -364,7 +364,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(byName('Hearth Circle I')).toMatchObject({ powerTemplateId: 'active-melee-aoe-restoration', aoe: 'Radius 2 m' });
     expect(byName('Hearth Circle II')).toMatchObject({ powerTemplateId: 'active-melee-aoe-restoration', aoe: 'Radius 4 m' });
     expect(byName('Hearth Circle I').effect).toMatch(/up to 2 Scarred Health Bars/);
-    expect(byName('Hearth Circle II').effect).toMatch(/up to 9 Scarred Health Bars/);
+    expect(byName('Hearth Circle II').effect).toMatch(/up to 10 Scarred Health Bars/);
     expect(byName('Remembered Hands I')).toMatchObject({ powerTemplateId: 'active-ranged-health-level-heal' });
     expect(byName('Remembered Hands I').effect).toMatch(/up to 6 Scarred Health Bars/);
     expect(byName('Remembered Hands II').effect).toMatch(/up to 10 Scarred Health Bars/);
@@ -429,7 +429,7 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     const byLevel = (lvl: number) => picks.find((p) => p.level === lvl);
     expect(byLevel(1).kind).toBe('power');
     expect(byLevel(1).powerTemplateId).toBe('reaction-evade');
-    expect(byLevel(1).stagePowerLevels).toEqual(['2', '4', '6']);
+    expect(byLevel(1).stagePowerLevels).toBeUndefined();
     expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
     // Crit Support is a catalog Stone Function pick (editable), not authored Focus.
     expect(byLevel(3).kind).toBe('stoneFunction');
@@ -446,9 +446,9 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
         /Otherworld Reflex/.test(r.name),
       )?.effect as string) || '';
-    expect(reflexEffectAt(1)).toMatch(/\+2 Evade/);
-    expect(reflexEffectAt(4)).toMatch(/\+4 Evade/);
-    expect(reflexEffectAt(7)).toMatch(/\+6 Evade/);
+    expect(reflexEffectAt(1)).toMatch(/\+4 Evade/);
+    expect(reflexEffectAt(4)).toMatch(/\+10 Evade/);
+    expect(reflexEffectAt(7)).toMatch(/\+16 Evade/);
 
     const clingEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>

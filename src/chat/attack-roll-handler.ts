@@ -647,7 +647,7 @@ export async function executeAttackRollFromCard(
       const splitPowerName = String(flags.selectedPowerName || '').trim();
       const splitBanner =
         flags.splitAttack === true
-          ? `${splitPowerName || `${attackKind} Split Attack`} — Strike ${splitIdx} of 2`
+          ? `${splitPowerName || `${attackKind} Split Attack`} — Strike ${splitIdx} of ${Math.max(splitIdx, Math.floor(Number(flags.splitTotal) || 2))}`
           : '';
       const rollLabel =
         tnKind === 'casting'
@@ -1222,7 +1222,6 @@ export async function executeAttackRollFromCard(
                     target as any,
                     damageResult.totalDamage,
                     freshAttackerForDialog as any,
-                    damageResult.count8s ?? 0,
                     {
                       attackTotal: attackCtx.attackTotal ?? null,
                       evadeTn: attackCtx.evadeTn ?? null,
@@ -1323,23 +1322,25 @@ export async function executeAttackRollFromCard(
         }
       }
 
-      // Split Attack: Strike 2 only after Strike 1 fully finishes (hit or miss).
-      if (flags.splitAttack === true && Math.floor(Number(flags.splitIndex) || 0) === 1) {
+      // Split Attack: the next strike only after this one fully finishes (hit or miss).
+      if (flags.splitAttack === true && Math.floor(Number(flags.splitIndex) || 0) >= 1) {
         try {
-          const { rememberSplitSharedRaises, spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+          const { rememberSplitSharedRaises, spawnNextSplitStrikeIfPending } = await import('../combat/attack-executor.js');
           const { peekSharedRaiseAllocation } = await import('../dice/damage-dialog.js');
           const sharedPlan =
             peekSharedRaiseAllocation(`split:${flags.splitPairId}`) ||
             parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
-          rememberSplitSharedRaises(String(flags.splitPairId || ''), {
-            plan: JSON.stringify(sharedPlan),
-            slots: String(declaredRaiseSlots),
-            free: String(freeRaiseSlots),
-            tn: button.attr('data-raise-tn'),
-          });
-          await spawnSplitStrike2IfPending(flags.splitPairId);
+          if (Math.floor(Number(flags.splitIndex) || 0) === 1) {
+            rememberSplitSharedRaises(String(flags.splitPairId || ''), {
+              plan: JSON.stringify(sharedPlan),
+              slots: String(declaredRaiseSlots),
+              free: String(freeRaiseSlots),
+              tn: button.attr('data-raise-tn'),
+            });
+          }
+          await spawnNextSplitStrikeIfPending(flags.splitPairId);
         } catch (split2Err) {
-          console.warn('Mastery System | Split Strike 2 spawn failed', split2Err);
+          console.warn('Mastery System | next Split strike spawn failed', split2Err);
         }
       }
       
@@ -1405,7 +1406,6 @@ function buildMitigationHtml(damageResult: any): string {
     mitigatedDamage: number;
     tempHPAbsorbed: number;
     barDamage: number;
-    min8sUsed: boolean;
     breakdownLine: string;
     phased: boolean;
     negatedByEvade?: boolean;
@@ -1453,9 +1453,6 @@ function buildMitigationHtml(damageResult: any): string {
     mit.tempHPAbsorbed > 0
       ? `<span class="mitigation-chip mitigation-chip-temp"><i class="fas fa-heart"></i> Temp-HP: ${mit.tempHPAbsorbed} absorbiert</span>`
       : '';
-  const min8sLine = mit.min8sUsed
-    ? `<span class="mitigation-chip mitigation-chip-8s"><i class="fas fa-dice"></i> 8er-Minimum</span>`
-    : '';
   return `
         <div class="mastery-damage-mitigation">
           <div class="mastery-damage-mitigation-title">
@@ -1467,7 +1464,6 @@ function buildMitigationHtml(damageResult: any): string {
             ${guardLine}
             ${drLine}
             ${tempLine}
-            ${min8sLine}
             <span class="mitigation-chip mitigation-chip-final"><i class="fas fa-heart-crack"></i> HP verloren: <strong>${mit.barDamage}</strong></span>
           </div>
           <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
@@ -1525,7 +1521,7 @@ function buildDamageChatContent(damageResult: any, target: Actor, flags?: any): 
   const attackKind = flags?.attackType === 'ranged' ? 'Ranged' : 'Melee';
   const splitBanner =
     flags?.splitAttack === true
-      ? `${splitPower || `${attackKind} Split Attack`} — Strike ${splitIdx} of 2`
+      ? `${splitPower || `${attackKind} Split Attack`} — Strike ${splitIdx} of ${Math.max(splitIdx, Math.floor(Number(flags?.splitTotal) || 2))}`
       : '';
   const splitHtml = splitBanner
     ? `<div class="damage-split-banner"><strong>${esc(splitBanner)}</strong></div>`

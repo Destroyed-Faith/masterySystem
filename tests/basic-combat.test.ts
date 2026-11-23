@@ -22,26 +22,25 @@ describe('basic-combat helpers', () => {
     expect(getMasteryRank({ system: {} })).toBe(2);
   });
 
-  it('builds Guard / Evade / Dive for Cover with MR×2 bonuses', () => {
+  it('builds only Guard and Dive for Cover (no Basic Evade, Core v0.9.9.6)', () => {
     const items = buildBasicReactionItems({ system: { mastery: { rank: 3 } } });
     expect(items.map((i) => i.id)).toEqual([
       BASIC_REACTION_IDS.guard,
-      BASIC_REACTION_IDS.evade,
       BASIC_REACTION_IDS.diveForCover,
     ]);
     expect(items[0].mechanics.armor).toBe(6);
-    expect(items[1].mechanics.evade).toBe(6);
-    expect(items[2].basicReaction).toBe('dive-for-cover');
+    expect(items[1].basicReaction).toBe('dive-for-cover');
+    expect(items.some((i) => i.basicReaction === 'evade')).toBe(false);
     expect(items.every(isBasicReactionItem)).toBe(true);
   });
 });
 
 describe('basic combat maneuvers catalog', () => {
-  it('includes Guard/Evade/Dive/Quick Load/Flee and radial prefs cover core basics', () => {
+  it('includes Guard/Dive/Quick Load/Flee and radial prefs cover core basics', () => {
     const ids = new Set(COMBAT_MANEUVERS.map((m) => m.id));
+    expect(ids.has('evade')).toBe(false);
     for (const id of [
       'guard',
-      'evade',
       'dive-for-cover',
       'quick-load',
       'weapon-swap',

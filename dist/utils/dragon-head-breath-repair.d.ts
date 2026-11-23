@@ -1,16 +1,15 @@
 /**
  * Detect / repair Dragon Head embeds whose Breath Weapon row cannot reach the
- * combat UI (stale "Artifact Active" type, missing Breath row, empty progression).
+ * combat UI (Breath row without `dragon-breath` identity, missing row, empty progression).
  *
- * The radial classifier historically treated "Artifact Active" as passive and
- * skipped Breath entirely. Seed stamps alone could mark embeds "current" without
- * pushing Melee AoE catalogue rows — this helper is the content-health check.
+ * Seed stamps alone could mark embeds "current" without pushing catalogue rows —
+ * this helper is the content-health check.
  */
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 export declare function isDragonHeadArtifactKey(key: string | null | undefined): boolean;
 /**
  * True when a Dragon Head embed at `level` will not expose usable Breath modes
- * from its stored `levelProgression` (missing row or pre-catalogue type label).
+ * from its stored `levelProgression` (no row carrying the `dragon-breath` identity).
  */
 export declare function dragonHeadBreathProgressionBroken(levelProgression: ArtifactLevelProgressionRow[] | null | undefined, artifactLevel: number): boolean;
 /** Rebuild visible level-progression rows for Dragon Head at a given level. */

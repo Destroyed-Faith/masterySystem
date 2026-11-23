@@ -1,4 +1,3 @@
-<!-- Editorial reorder 2026-11-18 of v0.9.9.6 audit working copy: 88 reconstructed tooltips retained; discontinued psychic offensive table removed by editorial decision; unchanged remaining table values. Not a recalibrated release. Persistent Zones require balance decisions. Adopted 2026-11-18: repeatable Attack Powers, no automatic Basic Attack, Ruin immediate damage (Balance Review open). -->
 {{wide
 ---
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -58,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Actives
-Version: v0.9.9.6 (2026-11-08)  
+Version: v0.9.9.6 (2026-11-23)  
 
 }}
 
@@ -98,7 +97,7 @@ Version: v0.9.9.6 (2026-11-08)
 
 Each named Active is a Power with its own **Technical Reference**. For a slash-separated choice, select **one printed Special** when learning the Power; that choice remains part of its identity.
 
-A legal **Ranged Active** may use **Martial or Spell delivery** as described in the Player's Guide. The delivery method is a way to use that Power, not an additional instance. **An Attack Power (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special) may be used repeatedly in the same Round as long as the character still has an Attack Action available for each use.** Explicit limits still apply: Limited charges, printed use limits, Reaction and Movement economy, Active Buff limits and Stone limits are unchanged. **Support, Barrier, Power Image, Mental Powers and Persistent Special Zones keep their own usage rules: each independently learned or granted instance of these Powers can normally be used once per Round.** Separate acquisitions of the same Technical Reference are separate instances.
+A legal **Ranged Active** may use **Martial or Spell delivery** as described in the Player's Guide. The delivery method is a way to use that Power, not an additional instance. **Each independently learned or granted Power instance can normally be used once per Round**, provided the character has the required Actions. Separate acquisitions of the same Technical Reference are separate instances.
 
 ### Ranged Spell Delivery
 
@@ -127,7 +126,7 @@ These templates are still **Actives**. Their Technical Reference does not change
 
 ### Weapon Damage Rule
 
-A successful hostile **Damage Attack** or damage-dealing Autofire Martial hit includes matching Weapon Damage; an eligible damaging Spell instead includes matching Spell Focus Damage. **An Instant Special-only Attack (Single Target or AoE) and a pure Push/Pull Attack deal zero direct Attack Damage. They add no Power Damage, Weapon Damage, Spell Focus Damage, external Attack Damage bonuses, Damage Raises, or triggered hit-damage bonuses, and no Damage Roll occurs.** Special-generated later damage uses the Special's own rules. There is no automatic Basic Attack; damage attacks are made with a learned or granted Attack Power. Split Attacks and Autofire remain damaging attacks under their own templates, even when their purchased Power Damage Dice are zero. Non-attack Support Powers gain no delivery damage.
+A successful hostile **Damage Attack** or damage-dealing Autofire Martial hit includes matching Weapon Damage; an eligible damaging Spell instead includes matching Spell Focus Damage. **An Instant Special-only Attack (Single Target or AoE) and a pure Push/Pull Attack deal zero direct Attack Damage. They add no Power Damage, Weapon Damage, Spell Focus Damage, external Attack Damage bonuses, Damage Raises, or triggered hit-damage bonuses, and no Damage Roll occurs.** Special-generated later damage uses the Special's own rules. Ordinary Basic Attacks, Split Attacks and Autofire remain damaging attacks under their own templates, even when their purchased Power Damage Dice are zero. Non-attack Support Powers gain no delivery damage.
 
 Purchased bonus Damage Dice are listed as **+Xd8 damage**. An **instant Damage AoE** adds the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once to its single shared Damage Roll. A **Special-only AoE** adds neither and deals absolutely no direct Attack Damage, regardless of external Attack Damage modifiers.
 
@@ -160,7 +159,12 @@ To use a Single Target Attack:
 3. Compare the result to the target's defense as normal.
 4. If the attack hits, roll the listed Damage Pool.
 5. For a **Damage Attack**, the target receives matching Weapon Damage (Martial) or Spell Focus Damage (Spell), plus purchased Power Damage. For a **Special-only Attack**, the target receives its printed Special **and no direct damage**.
+}}
 
+\page
+
+{{pageNumber,auto}}
+{{wide
 A Single Target Attack has only one target.
 
 It does not split damage.  
@@ -168,12 +172,7 @@ It does not create an AoE.
 It does not hit additional creatures unless another rule says so.
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-{{wide
 
 ### AoE Attack Rule
 
@@ -277,7 +276,12 @@ Autofire is a **Ranged Active attack chain, not AoE**. Its printed Attack Capaci
 **Declare before rolling:** Choose 1 to the purchased number of ordered attack slots. Every target must be within printed Range; each successive target must be within **4 m** of the preceding slot's target. Declare any Paid and Intellect Free Raises **once** for the Power use.
 
 **One Attack/Casting Roll:** Check the shared result against each slot in sequence, using:
+}}
 
+\page
+
+{{pageNumber,auto}}
+{{wide
 **Autofire TN(i) = target's Evade (Martial) or Final Spell TN (Spell) + 4 × (i − 1) + 4 × declared Paid Raises**, for slot *i* starting at 1.
 
 The first attack has **no Autofire surcharge**. Later slots carry cumulative **+4 TN** each, including repeated targets. These increments are **not Paid Raises**; they grant no additional Raise effect and cannot be removed by Free Raises. Normal Paid/Free Raise effects are chosen once for the Power use and applied to successful hits normally.
@@ -290,12 +294,7 @@ The first attack has **no Autofire surcharge**. Later slots carry cumulative **+
 
 ---
 :
-}}
 
-\page
-
-{{pageNumber,auto}}
-{{wide
 
 ### Example: Single Target Attack
 
@@ -338,6 +337,7 @@ A miss against one creature does not change the result against any other creatur
 {{pageNumber,auto}}
 {{wide
 
+
 ### Example: Ranged AoE Attack
 
 A character uses **Ranged AoE Attack** at Level 5:
@@ -356,23 +356,12 @@ Roll one shared Pool of **3d8 Power Damage + matching Weapon Damage (Martial) or
 
 The attack does not make separate Attack Rolls against the creatures in the area.
 
-}}
-
-\page
-
-{{pageNumber,auto}}
-{{wide
 
 ### Example — Split Attack
 
 A character uses a Level 7 Melee Split Attack with an Attack Pool of **12 dice**. The character divides the Pool into **6 dice against Enemy A** and **6 dice against Enemy B**. Each split is rolled against its target. If both hit, each receives a separate roll of **full Weapon Damage plus the Power's full bonus Damage**. With one declared Paid Raise, both TNs rise by **4**; after the rolls, the player chooses one Raise effect and applies that same effect to every successful split. The character splits accuracy, not damage.
 
-}}
 
-\page
-
-{{pageNumber,auto}}
-{{wide
 
 ### Example — Autofire
 
@@ -405,8 +394,6 @@ The cumulative Autofire +4 steps are **not Paid Raises** and award no free Raise
   Melee Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
       L1: Range 0 + Area 0 + 2d8 x 15 = 30/30 PP (0 unused).<br>
@@ -462,8 +449,6 @@ A straightforward melee strike that adds the printed Power Damage to matching We
   Ranged Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
       L1: Range 0 + Area 0 + 2d8 x 15 = 30/30 PP (0 unused).<br>
@@ -531,15 +516,13 @@ A straightforward ranged attack that adds the printed Power Damage to matching W
   Melee AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
-      L1: Range 0 + Area 20 + 1d8 x 15 = 35/30 PP (-5 unused); MINIMUM FUNCTION +5 PP.<br>
-      L2: Range 0 + Area 20 + 2d8 x 15 = 50/60 PP (10 unused).<br>
-      L3: Range 0 + Area 50 + 2d8 x 15 = 80/90 PP (10 unused).<br>
-      L4: Range 0 + Area 50 + 4d8 x 15 = 110/120 PP (10 unused).<br>
-      L5: Range 0 + Area 80 + 4d8 x 15 = 140/150 PP (10 unused).<br>
+      L1: Range 0 + Area 20 + 1d8 x 15 = 35/30 PP (5 PP over, within tolerance); MINIMUM FUNCTION +5 PP.<br>
+      L2: Range 0 + Area 20 + 3d8 x 15 = 65/60 PP (5 PP over, within tolerance).<br>
+      L3: Range 0 + Area 50 + 3d8 x 15 = 95/90 PP (5 PP over, within tolerance).<br>
+      L4: Range 0 + Area 50 + 5d8 x 15 = 125/120 PP (5 PP over, within tolerance).<br>
+      L5: Range 0 + Area 80 + 5d8 x 15 = 155/150 PP (5 PP over, within tolerance).<br>
       L6: Range 0 + Area 80 + 6d8 x 15 = 170/180 PP (10 unused).<br>
       L7: Range 0 + Area 120 + 6d8 x 15 = 210/210 PP (0 unused).<br>
       L8: Range 0 + Area 120 + 7d8 x 15 = 225/240 PP (15 unused).<br>
@@ -566,10 +549,10 @@ A self-centered Martial **Damage AoE** that deals the same shared Power Damage p
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | Self | Radius 2 m | Instant | Make one melee AoE attack. Every creature hit takes **1d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
-| **2** | Active | Self | Radius 2 m | Instant | Make one melee AoE attack. Every creature hit takes **2d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
-| **3** | Active | Self | Radius 3 m | Instant | Make one melee AoE attack. Every creature hit takes **2d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
-| **4** | Active | Self | Radius 3 m | Instant | Make one melee AoE attack. Every creature hit takes **4d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
-| **5** | Active | Self | Radius 4 m | Instant | Make one melee AoE attack. Every creature hit takes **4d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
+| **2** | Active | Self | Radius 2 m | Instant | Make one melee AoE attack. Every creature hit takes **3d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
+| **3** | Active | Self | Radius 3 m | Instant | Make one melee AoE attack. Every creature hit takes **3d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
+| **4** | Active | Self | Radius 3 m | Instant | Make one melee AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
+| **5** | Active | Self | Radius 4 m | Instant | Make one melee AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
 | **6** | Active | Self | Radius 4 m | Instant | Make one melee AoE attack. Every creature hit takes **6d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
 | **7** | Active | Self | Radius 5 m | Instant | Make one melee AoE attack. Every creature hit takes **6d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
 | **8** | Active | Self | Radius 5 m | Instant | Make one melee AoE attack. Every creature hit takes **7d8 Power damage** plus matching Weapon Damage in one shared Damage Roll. | — |
@@ -593,11 +576,9 @@ A self-centered Martial **Damage AoE** that deals the same shared Power Damage p
   Ranged AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: +1d8 Power Damage=15 PP, Ranged Range=5 PP per 4m beyond 8m, Instant Attack AoE radius as printed. Matching delivery damage is not purchased as bonus PP.<br>
-      L1: Range 0 + Area 20 + 1d8 x 15 = 35/30 PP (-5 unused); MINIMUM FUNCTION +5 PP.<br>
+      L1: Range 0 + Area 20 + 1d8 x 15 = 35/30 PP (5 PP over, within tolerance); MINIMUM FUNCTION +5 PP.<br>
       L2: Range 5 + Area 20 + 2d8 x 15 = 55/60 PP (5 unused).<br>
       L3: Range 10 + Area 50 + 2d8 x 15 = 90/90 PP (0 unused).<br>
       L4: Range 15 + Area 50 + 3d8 x 15 = 110/120 PP (10 unused).<br>
@@ -611,7 +592,7 @@ A self-centered Martial **Damage AoE** that deals the same shared Power Damage p
       L12: Range 55 + Area 220 + 5d8 x 15 = 350/360 PP (10 unused).<br>
       L13: Range 60 + Area 220 + 5d8 x 15 = 355/390 PP (35 unused).<br>
       L14: Range 65 + Area 280 + 5d8 x 15 = 420/420 PP (0 unused).<br>
-      L15: Range 70 + Area 280 + 6d8 x 15 = 440/450 PP (10 unused).<br>
+      L15: Range 70 + Area 280 + 7d8 x 15 = 455/450 PP (5 PP over, within tolerance).<br>
       L16: Range 75 + Area 280 + 8d8 x 15 = 475/480 PP (5 unused).<br>
     </span>
   </span>
@@ -642,7 +623,7 @@ A ranged **Damage AoE** (Martial or legal Spell delivery) that adds matching Wea
 | **12** | Active | 52 m | Radius 7 m | Instant | Make one ranged AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 | **13** | Active | 56 m | Radius 7 m | Instant | Make one ranged AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 | **14** | Active | 60 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **5d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
-| **15** | Active | 64 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **6d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
+| **15** | Active | 64 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **7d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 | **16** | Active | 68 m | Radius 8 m | Instant | Make one ranged AoE attack. Every creature hit takes **8d8 Power damage** plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) in one shared Damage Roll. | — |
 
 ---
@@ -656,26 +637,24 @@ A ranged **Damage AoE** (Martial or legal Spell delivery) that adds matching Wea
   Melee Split Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Published model: 30 PP for second attack + 15 PP per bonus d8 + Range. Split divides Attack/Casting Pool only; each successful split deals full Damage Pool. Accuracy trade-off needs playtest calibration.<br>
-      L1: Range 0 + extra target 30 + 0d8 x 15 = 30/30 PP (0 unused).<br>
-      L2: Range 0 + extra target 30 + 2d8 x 15 = 60/60 PP (0 unused).<br>
-      L3: Range 0 + extra target 30 + 4d8 x 15 = 90/90 PP (0 unused).<br>
-      L4: Range 0 + extra target 30 + 6d8 x 15 = 120/120 PP (0 unused).<br>
-      L5: Range 0 + extra target 30 + 8d8 x 15 = 150/150 PP (0 unused).<br>
-      L6: Range 0 + extra target 30 + 10d8 x 15 = 180/180 PP (0 unused).<br>
-      L7: Range 0 + extra target 30 + 10d8 x 15 = 180/210 PP (30 unused).<br>
-      L8: Range 0 + extra target 30 + 12d8 x 15 = 210/240 PP (30 unused).<br>
-      L9: Range 0 + extra target 30 + 14d8 x 15 = 240/270 PP (30 unused).<br>
-      L10: Range 0 + extra target 30 + 16d8 x 15 = 270/300 PP (30 unused).<br>
-      L11: Range 0 + extra target 30 + 18d8 x 15 = 300/330 PP (30 unused).<br>
-      L12: Range 0 + extra target 30 + 20d8 x 15 = 330/360 PP (30 unused).<br>
-      L13: Range 0 + extra target 30 + 20d8 x 15 = 330/390 PP (60 unused).<br>
-      L14: Range 0 + extra target 30 + 22d8 x 15 = 360/420 PP (60 unused).<br>
-      L15: Range 0 + extra target 30 + 24d8 x 15 = 390/450 PP (60 unused).<br>
-      L16: Range 0 + extra target 30 + 26d8 x 15 = 420/480 PP (60 unused).<br>
+      Formula: 30 PP per additional target (2 targets at PL 1–6, 3 at PL 7–12, 4 at PL 13–16) + 15 PP per bonus d8 + Range. Split divides the Attack/Casting Pool only; each successful split deals the full Damage Pool.<br>
+      L1: Range 0 + 1 extra target x30 + 0d8 x 15 = 30/30 PP (0 unused).<br>
+      L2: Range 0 + 1 extra target x30 + 2d8 x 15 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + 1 extra target x30 + 4d8 x 15 = 90/90 PP (0 unused).<br>
+      L4: Range 0 + 1 extra target x30 + 6d8 x 15 = 120/120 PP (0 unused).<br>
+      L5: Range 0 + 1 extra target x30 + 8d8 x 15 = 150/150 PP (0 unused).<br>
+      L6: Range 0 + 1 extra target x30 + 10d8 x 15 = 180/180 PP (0 unused).<br>
+      L7: Range 0 + 2 extra targets x30 + 10d8 x 15 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + 2 extra targets x30 + 12d8 x 15 = 240/240 PP (0 unused).<br>
+      L9: Range 0 + 2 extra targets x30 + 14d8 x 15 = 270/270 PP (0 unused).<br>
+      L10: Range 0 + 2 extra targets x30 + 16d8 x 15 = 300/300 PP (0 unused).<br>
+      L11: Range 0 + 2 extra targets x30 + 18d8 x 15 = 330/330 PP (0 unused).<br>
+      L12: Range 0 + 2 extra targets x30 + 20d8 x 15 = 360/360 PP (0 unused).<br>
+      L13: Range 0 + 3 extra targets x30 + 20d8 x 15 = 390/390 PP (0 unused).<br>
+      L14: Range 0 + 3 extra targets x30 + 22d8 x 15 = 420/420 PP (0 unused).<br>
+      L15: Range 0 + 3 extra targets x30 + 24d8 x 15 = 450/450 PP (0 unused).<br>
+      L16: Range 0 + 3 extra targets x30 + 26d8 x 15 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
@@ -696,16 +675,16 @@ A melee technique that divides one attack sequence between multiple targets.
 | **4** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **6d8 damage**. | — |
 | **5** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **8d8 damage**. | — |
 | **6** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **10d8 damage**. | — |
-| **7** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **10d8 damage**. | — |
-| **8** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **12d8 damage**. | — |
-| **9** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **14d8 damage**. | — |
-| **10** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **16d8 damage**. | — |
-| **11** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **18d8 damage**. | — |
-| **12** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **20d8 damage**. | — |
-| **13** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **20d8 damage**. | — |
-| **14** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **22d8 damage**. | — |
-| **15** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **24d8 damage**. | — |
-| **16** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **26d8 damage**. | — |
+| **7** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **10d8 damage**. | — |
+| **8** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **12d8 damage**. | — |
+| **9** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **14d8 damage**. | — |
+| **10** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **16d8 damage**. | — |
+| **11** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **18d8 damage**. | — |
+| **12** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **20d8 damage**. | — |
+| **13** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **20d8 damage**. | — |
+| **14** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **22d8 damage**. | — |
+| **15** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **24d8 damage**. | — |
+| **16** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **26d8 damage**. | — |
 
 }}
 
@@ -720,26 +699,24 @@ A melee technique that divides one attack sequence between multiple targets.
   Ranged Split Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Published model: 30 PP for second attack + 15 PP per bonus d8 + Range. Split divides Attack/Casting Pool only; each successful split deals full Damage Pool. Accuracy trade-off needs playtest calibration.<br>
-      L1: Range 0 + extra target 30 + 0d8 x 15 = 30/30 PP (0 unused).<br>
-      L2: Range 5 + extra target 30 + 1d8 x 15 = 50/60 PP (10 unused).<br>
-      L3: Range 10 + extra target 30 + 3d8 x 15 = 85/90 PP (5 unused).<br>
-      L4: Range 15 + extra target 30 + 5d8 x 15 = 120/120 PP (0 unused).<br>
-      L5: Range 20 + extra target 30 + 6d8 x 15 = 140/150 PP (10 unused).<br>
-      L6: Range 25 + extra target 30 + 8d8 x 15 = 175/180 PP (5 unused).<br>
-      L7: Range 30 + extra target 30 + 8d8 x 15 = 180/210 PP (30 unused).<br>
-      L8: Range 35 + extra target 30 + 9d8 x 15 = 200/240 PP (40 unused).<br>
-      L9: Range 40 + extra target 30 + 11d8 x 15 = 235/270 PP (35 unused).<br>
-      L10: Range 45 + extra target 30 + 13d8 x 15 = 270/300 PP (30 unused).<br>
-      L11: Range 50 + extra target 30 + 14d8 x 15 = 290/330 PP (40 unused).<br>
-      L12: Range 55 + extra target 30 + 16d8 x 15 = 325/360 PP (35 unused).<br>
-      L13: Range 60 + extra target 30 + 16d8 x 15 = 330/390 PP (60 unused).<br>
-      L14: Range 65 + extra target 30 + 17d8 x 15 = 350/420 PP (70 unused).<br>
-      L15: Range 70 + extra target 30 + 19d8 x 15 = 385/450 PP (65 unused).<br>
-      L16: Range 75 + extra target 30 + 21d8 x 15 = 420/480 PP (60 unused).<br>
+      Formula: 30 PP per additional target (2 targets at PL 1–6, 3 at PL 7–12, 4 at PL 13–16) + 15 PP per bonus d8 + Range. Split divides the Attack/Casting Pool only; each successful split deals the full Damage Pool.<br>
+      L1: Range 0 + 1 extra target x30 + 0d8 x 15 = 30/30 PP (0 unused).<br>
+      L2: Range 5 + 1 extra target x30 + 2d8 x 15 = 65/60 PP (5 PP over, within tolerance).<br>
+      L3: Range 10 + 1 extra target x30 + 3d8 x 15 = 85/90 PP (5 unused).<br>
+      L4: Range 15 + 1 extra target x30 + 5d8 x 15 = 120/120 PP (0 unused).<br>
+      L5: Range 20 + 1 extra target x30 + 7d8 x 15 = 155/150 PP (5 PP over, within tolerance).<br>
+      L6: Range 25 + 1 extra target x30 + 8d8 x 15 = 175/180 PP (5 unused).<br>
+      L7: Range 30 + 2 extra targets x30 + 8d8 x 15 = 210/210 PP (0 unused).<br>
+      L8: Range 35 + 2 extra targets x30 + 10d8 x 15 = 245/240 PP (5 PP over, within tolerance).<br>
+      L9: Range 40 + 2 extra targets x30 + 11d8 x 15 = 265/270 PP (5 unused).<br>
+      L10: Range 45 + 2 extra targets x30 + 13d8 x 15 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + 2 extra targets x30 + 15d8 x 15 = 335/330 PP (5 PP over, within tolerance).<br>
+      L12: Range 55 + 2 extra targets x30 + 16d8 x 15 = 355/360 PP (5 unused).<br>
+      L13: Range 60 + 3 extra targets x30 + 16d8 x 15 = 390/390 PP (0 unused).<br>
+      L14: Range 65 + 3 extra targets x30 + 18d8 x 15 = 425/420 PP (5 PP over, within tolerance).<br>
+      L15: Range 70 + 3 extra targets x30 + 19d8 x 15 = 445/450 PP (5 unused).<br>
+      L16: Range 75 + 3 extra targets x30 + 21d8 x 15 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
@@ -756,21 +733,21 @@ A ranged technique that divides one attack sequence between multiple targets.
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | 8 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage. | — |
-| **2** | Active | 12 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **1d8 damage**. | — |
+| **2** | Active | 12 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **2d8 damage**. | — |
 | **3** | Active | 16 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **3d8 damage**. | — |
 | **4** | Active | 20 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **5d8 damage**. | — |
-| **5** | Active | 24 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **6d8 damage**. | — |
+| **5** | Active | 24 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **7d8 damage**. | — |
 | **6** | Active | 28 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **8d8 damage**. | — |
-| **7** | Active | 32 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **8d8 damage**. | — |
-| **8** | Active | 36 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **9d8 damage**. | — |
-| **9** | Active | 40 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **11d8 damage**. | — |
-| **10** | Active | 44 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **13d8 damage**. | — |
-| **11** | Active | 48 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **14d8 damage**. | — |
-| **12** | Active | 52 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **16d8 damage**. | — |
-| **13** | Active | 56 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **16d8 damage**. | — |
-| **14** | Active | 60 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **17d8 damage**. | — |
-| **15** | Active | 64 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **19d8 damage**. | — |
-| **16** | Active | 68 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **21d8 damage**. | — |
+| **7** | Active | 32 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **8d8 damage**. | — |
+| **8** | Active | 36 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **10d8 damage**. | — |
+| **9** | Active | 40 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **11d8 damage**. | — |
+| **10** | Active | 44 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **13d8 damage**. | — |
+| **11** | Active | 48 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **15d8 damage**. | — |
+| **12** | Active | 52 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **16d8 damage**. | — |
+| **13** | Active | 56 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **16d8 damage**. | — |
+| **14** | Active | 60 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **18d8 damage**. | — |
+| **15** | Active | 64 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **19d8 damage**. | — |
+| **16** | Active | 68 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to weapon damage + **21d8 damage**. | — |
 
 }}
 
@@ -786,22 +763,20 @@ A ranged technique that divides one attack sequence between multiple targets.
   Ranged Autofire
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: Range PP + 30 PP per attack slot beyond the first + 15 PP per bonus Power Damage d8.<br>
       Each later slot increases target threshold by +4; repeated targets allowed and chain ends at first miss.<br>
       L1: Range 0 + 1 extra slots x30 + 0d8 x15 = 30/30 PP (0 unused).<br>
       L2: Range 5 + 1 extra slots x30 + 1d8 x15 = 50/60 PP (10 unused).<br>
       L3: Range 10 + 2 extra slots x30 + 1d8 x15 = 85/90 PP (5 unused).<br>
-      L4: Range 15 + 2 extra slots x30 + 2d8 x15 = 105/120 PP (15 unused).<br>
-      L5: Range 20 + 3 extra slots x30 + 2d8 x15 = 140/150 PP (10 unused).<br>
+      L4: Range 15 + 2 extra slots x30 + 3d8 x15 = 120/120 PP (0 unused).<br>
+      L5: Range 20 + 3 extra slots x30 + 3d8 x15 = 155/150 PP (5 PP over, within tolerance).<br>
       L6: Range 25 + 3 extra slots x30 + 4d8 x15 = 175/180 PP (5 unused).<br>
       L7: Range 30 + 4 extra slots x30 + 4d8 x15 = 210/210 PP (0 unused).<br>
       L8: Range 35 + 4 extra slots x30 + 5d8 x15 = 230/240 PP (10 unused).<br>
       L9: Range 40 + 5 extra slots x30 + 5d8 x15 = 265/270 PP (5 unused).<br>
-      L10: Range 45 + 5 extra slots x30 + 6d8 x15 = 285/300 PP (15 unused).<br>
-      L11: Range 50 + 6 extra slots x30 + 6d8 x15 = 320/330 PP (10 unused).<br>
+      L10: Range 45 + 5 extra slots x30 + 7d8 x15 = 300/300 PP (0 unused).<br>
+      L11: Range 50 + 6 extra slots x30 + 7d8 x15 = 335/330 PP (5 PP over, within tolerance).<br>
       L12: Range 55 + 6 extra slots x30 + 8d8 x15 = 355/360 PP (5 unused).<br>
       L13: Range 60 + 7 extra slots x30 + 8d8 x15 = 390/390 PP (0 unused).<br>
       L14: Range 65 + 7 extra slots x30 + 9d8 x15 = 410/420 PP (10 unused).<br>
@@ -814,9 +789,8 @@ A ranged technique that divides one attack sequence between multiple targets.
 A ranged Active that walks an ordered burst of **attacks**, which may repeatedly strike the same creature. Each later attack has a cumulative +4 TN threshold, with one shared roll for Attack and one for Damage.
 
 ---
-:
-**Martial Requirement:** Ranged Weapon  
-**Spell Delivery:** An eligible Ranged Spell version follows the normal Catalogue Delivery Rule; it uses Casting and Spell Focus instead of Martial Attack and Weapon Damage.
+
+
 
 ---
 :
@@ -825,14 +799,14 @@ A ranged Active that walks an ordered burst of **attacks**, which may repeatedly
 | **1** | Active | 8 m | — | Instant | Autofire **2 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage; one shared Damage Roll. | — |
 | **2** | Active | 12 m | — | Instant | Autofire **2 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **1d8 Power damage**; one shared Damage Roll. | — |
 | **3** | Active | 16 m | — | Instant | Autofire **3 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **1d8 Power damage**; one shared Damage Roll. | — |
-| **4** | Active | 20 m | — | Instant | Autofire **3 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **2d8 Power damage**; one shared Damage Roll. | — |
-| **5** | Active | 24 m | — | Instant | Autofire **4 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **2d8 Power damage**; one shared Damage Roll. | — |
+| **4** | Active | 20 m | — | Instant | Autofire **3 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **3d8 Power damage**; one shared Damage Roll. | — |
+| **5** | Active | 24 m | — | Instant | Autofire **4 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **3d8 Power damage**; one shared Damage Roll. | — |
 | **6** | Active | 28 m | — | Instant | Autofire **4 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **4d8 Power damage**; one shared Damage Roll. | — |
 | **7** | Active | 32 m | — | Instant | Autofire **5 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **4d8 Power damage**; one shared Damage Roll. | — |
 | **8** | Active | 36 m | — | Instant | Autofire **5 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **5d8 Power damage**; one shared Damage Roll. | — |
 | **9** | Active | 40 m | — | Instant | Autofire **6 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **5d8 Power damage**; one shared Damage Roll. | — |
-| **10** | Active | 44 m | — | Instant | Autofire **6 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **6d8 Power damage**; one shared Damage Roll. | — |
-| **11** | Active | 48 m | — | Instant | Autofire **7 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **6d8 Power damage**; one shared Damage Roll. | — |
+| **10** | Active | 44 m | — | Instant | Autofire **6 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **7d8 Power damage**; one shared Damage Roll. | — |
+| **11** | Active | 48 m | — | Instant | Autofire **7 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **7d8 Power damage**; one shared Damage Roll. | — |
 | **12** | Active | 52 m | — | Instant | Autofire **7 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **8d8 Power damage**; one shared Damage Roll. | — |
 | **13** | Active | 56 m | — | Instant | Autofire **8 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **8d8 Power damage**; one shared Damage Roll. | — |
 | **14** | Active | 60 m | — | Instant | Autofire **8 attacks** (repeat targets; each next within **4 m**). One roll, +4 TN per later attack; stop on first failure. Each hit: matching Weapon/Spell Focus damage + **9d8 Power damage**; one shared Damage Roll. | — |
@@ -852,32 +826,21 @@ Choose one printed **Special** and one of four deliveries: **Melee Single Target
 
 On a successful delivery, **apply the full listed Special(X)** to each hit target. A Special-only Attack deals **zero direct Attack Damage** and uses **no Damage Roll**, including Weapon Damage, Spell Focus Damage, Attack Damage bonuses or Damage Raises. **Special Raises** remain eligible. Later damage generated by a Special (such as Ruin) follows that Special's own rules.
 
-**Ruin immediate damage:** Whenever Ruin stacks are newly applied to a creature, it immediately loses **4 HP per newly applied stack**. This damage ignores Armor and is not Attack Damage; otherwise it uses the same protection rules as the Ruin tick (Damage Reduction, Damage Negation and Temporary HP apply). Only stacks actually added after Special Negation and other Special defenses count; if no stack is added, no immediate damage occurs. The printed Ruin values are unchanged; **Balance Review: open**.
-
 An AoE makes one Attack or Casting Roll for the whole area, compares against each target's eligible defense, and allows Dive for Cover where legal. Its Special is applied separately to each creature hit. Melee AoEs are centered on their user; Ranged AoEs are placed at a legal point within Range. Timing, recovery, decay, Cleanse and stacking follow the Core rules for the particular Special.
 
 The following tables supply the **exact Special values** at each Power Level. Their entries deliver the Special stated in the row, with its existing rules.
 
----
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-blight">
   Melee Single Target Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Blight cost: 3 x T(X).<br>
       Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Blight(4) 30 = 30/30 PP (0 unused).<br>
       L2: Range 0 + Area 0 + Blight(5) 45 = 45/60 PP (15 unused).<br>
       L3: Range 0 + Area 0 + Blight(7) 84 = 84/90 PP (6 unused).<br>
@@ -935,12 +898,10 @@ Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the
   Melee Single Target Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Challenge(1) 6 = 6/30 PP (24 unused).<br>
       L2: Range 0 + Area 0 + Challenge(2) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Challenge(2) 60 = 60/90 PP (30 unused).<br>
@@ -986,24 +947,16 @@ Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives 
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Challenge(6)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-corrode">
   Melee Single Target Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Corrode cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Corrode(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 0 + Area 0 + Corrode(4) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Corrode(5) 90 = 90/90 PP (0 unused).<br>
@@ -1061,12 +1014,10 @@ Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives th
   Melee Single Target Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Disoriented(1) 8 = 8/30 PP (22 unused).<br>
       L2: Range 0 + Area 0 + Disoriented(1) 8 = 8/60 PP (52 unused).<br>
       L3: Range 0 + Area 0 + Disoriented(2) 80 = 80/90 PP (10 unused).<br>
@@ -1112,24 +1063,16 @@ Apply **Disoriented(X)** as an Instant Special-only Active. The printed row give
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Disoriented(5)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-expose">
   Melee Single Target Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Expose cost: 8 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Expose(2) 24 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 0 + Expose(3) 48 = 48/60 PP (12 unused).<br>
       L3: Range 0 + Area 0 + Expose(4) 80 = 80/90 PP (10 unused).<br>
@@ -1187,12 +1130,10 @@ Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the
   Melee Single Target Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Hex cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Hex(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 0 + Area 0 + Hex(4) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Hex(5) 90 = 90/90 PP (0 unused).<br>
@@ -1237,25 +1178,16 @@ Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Sp
 | **15** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(11)**. |
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Hex(12)**. |
 
----
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-lacerate">
   Melee Single Target Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Lacerate cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Lacerate(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 0 + Lacerate(5) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Lacerate(6) 84 = 84/90 PP (6 unused).<br>
@@ -1313,12 +1245,10 @@ Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives t
   Melee Single Target Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Mark cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Mark(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 0 + Mark(5) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Mark(6) 84 = 84/90 PP (6 unused).<br>
@@ -1364,24 +1294,16 @@ Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the S
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Mark(15)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-root">
   Melee Single Target Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Root cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 0 + Area 0 + Root(4) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Root(5) 90 = 90/90 PP (0 unused).<br>
@@ -1439,13 +1361,10 @@ Apply **Root(X)** as an Instant Special-only Active. The printed row gives the S
   Melee Single Target Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Ruin cost: 4 x T(X).<br>
-      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Ruin(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 0 + Ruin(5) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Ruin(6) 84 = 84/90 PP (6 unused).<br>
@@ -1491,24 +1410,16 @@ Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the S
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Ruin(15)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-slow">
   Melee Single Target Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Slow cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Slow(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 0 + Slow(5) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Slow(6) 84 = 84/90 PP (6 unused).<br>
@@ -1566,12 +1477,10 @@ Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the S
   Melee Single Target Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Soulburn(1) 8 = 8/30 PP (22 unused).<br>
       L2: Range 0 + Area 0 + Soulburn(1) 8 = 8/60 PP (52 unused).<br>
       L3: Range 0 + Area 0 + Soulburn(2) 80 = 80/90 PP (10 unused).<br>
@@ -1617,24 +1526,16 @@ Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives t
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Soulburn(5)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-single-target-special-sundered">
   Melee Single Target Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Sundered cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Sundered(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 0 + Area 0 + Sundered(4) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Sundered(5) 90 = 90/90 PP (0 unused).<br>
@@ -1692,12 +1593,10 @@ Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives t
   Melee Single Target Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Weaken(1) 8 = 8/30 PP (22 unused).<br>
       L2: Range 0 + Area 0 + Weaken(1) 8 = 8/60 PP (52 unused).<br>
       L3: Range 0 + Area 0 + Weaken(2) 80 = 80/90 PP (10 unused).<br>
@@ -1743,25 +1642,17 @@ Apply **Weaken(X)** as an Instant Special-only Active. The printed row gives the
 | **16** | Active, Special | Melee Reach | — | Instant | On successful delivery apply **Weaken(5)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-blight">
   Ranged Single Target Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Blight cost: 3 x T(X).<br>
       Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Blight(4) 30 = 30/30 PP (0 unused).<br>
       L2: Range 5 + Area 0 + Blight(5) 45 = 50/60 PP (10 unused).<br>
       L3: Range 10 + Area 0 + Blight(6) 63 = 73/90 PP (17 unused).<br>
@@ -1819,12 +1710,10 @@ Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the
   Ranged Single Target Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Challenge(1) 6 = 6/30 PP (24 unused).<br>
       L2: Range 5 + Area 0 + Challenge(1) 6 = 11/60 PP (49 unused).<br>
       L3: Range 10 + Area 0 + Challenge(2) 60 = 70/90 PP (20 unused).<br>
@@ -1870,24 +1759,16 @@ Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives 
 | **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Challenge(5)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-corrode">
   Ranged Single Target Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Corrode cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Corrode(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 5 + Area 0 + Corrode(3) 36 = 41/60 PP (19 unused).<br>
       L3: Range 10 + Area 0 + Corrode(4) 60 = 70/90 PP (20 unused).<br>
@@ -1945,12 +1826,10 @@ Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives th
   Ranged Single Target Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Disoriented(1) 8 = 8/30 PP (22 unused).<br>
       L2: Range 5 + Area 0 + Disoriented(1) 8 = 13/60 PP (47 unused).<br>
       L3: Range 10 + Area 0 + Disoriented(2) 80 = 90/90 PP (0 unused).<br>
@@ -1996,24 +1875,16 @@ Apply **Disoriented(X)** as an Instant Special-only Active. The printed row give
 | **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Disoriented(4)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-expose">
   Ranged Single Target Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Expose cost: 8 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Expose(2) 24 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 0 + Expose(3) 48 = 53/60 PP (7 unused).<br>
       L3: Range 10 + Area 0 + Expose(4) 80 = 90/90 PP (0 unused).<br>
@@ -2071,12 +1942,10 @@ Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the
   Ranged Single Target Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Hex cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Hex(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 5 + Area 0 + Hex(3) 36 = 41/60 PP (19 unused).<br>
       L3: Range 10 + Area 0 + Hex(4) 60 = 70/90 PP (20 unused).<br>
@@ -2122,24 +1991,16 @@ Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Sp
 | **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Hex(11)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-lacerate">
   Ranged Single Target Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Lacerate cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Lacerate(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 0 + Lacerate(4) 40 = 45/60 PP (15 unused).<br>
       L3: Range 10 + Area 0 + Lacerate(5) 60 = 70/90 PP (20 unused).<br>
@@ -2197,12 +2058,10 @@ Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives t
   Ranged Single Target Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Mark cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Mark(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 0 + Mark(4) 40 = 45/60 PP (15 unused).<br>
       L3: Range 10 + Area 0 + Mark(5) 60 = 70/90 PP (20 unused).<br>
@@ -2248,24 +2107,16 @@ Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the S
 | **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Mark(13)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-root">
   Ranged Single Target Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Root cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 5 + Area 0 + Root(3) 36 = 41/60 PP (19 unused).<br>
       L3: Range 10 + Area 0 + Root(4) 60 = 70/90 PP (20 unused).<br>
@@ -2323,13 +2174,10 @@ Apply **Root(X)** as an Instant Special-only Active. The printed row gives the S
   Ranged Single Target Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Ruin cost: 4 x T(X).<br>
-      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Ruin(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 0 + Ruin(4) 40 = 45/60 PP (15 unused).<br>
       L3: Range 10 + Area 0 + Ruin(5) 60 = 70/90 PP (20 unused).<br>
@@ -2375,24 +2223,16 @@ Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the S
 | **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Ruin(13)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-slow">
   Ranged Single Target Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Slow cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Slow(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 0 + Slow(4) 40 = 45/60 PP (15 unused).<br>
       L3: Range 10 + Area 0 + Slow(5) 60 = 70/90 PP (20 unused).<br>
@@ -2450,12 +2290,10 @@ Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the S
   Ranged Single Target Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Soulburn(1) 8 = 8/30 PP (22 unused).<br>
       L2: Range 5 + Area 0 + Soulburn(1) 8 = 13/60 PP (47 unused).<br>
       L3: Range 10 + Area 0 + Soulburn(2) 80 = 90/90 PP (0 unused).<br>
@@ -2501,24 +2339,16 @@ Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives t
 | **16** | Active, Special | 68 m | — | Instant | On successful delivery apply **Soulburn(4)**. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-single-target-special-sundered">
   Ranged Single Target Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Sundered cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Sundered(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 5 + Area 0 + Sundered(3) 36 = 41/60 PP (19 unused).<br>
       L3: Range 10 + Area 0 + Sundered(4) 60 = 70/90 PP (20 unused).<br>
@@ -2576,12 +2406,10 @@ Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives t
   Ranged Single Target Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Weaken(1) 8 = 8/30 PP (22 unused).<br>
       L2: Range 5 + Area 0 + Weaken(1) 8 = 13/60 PP (47 unused).<br>
       L3: Range 10 + Area 0 + Weaken(2) 80 = 90/90 PP (0 unused).<br>
@@ -2639,27 +2467,17 @@ The following **Melee AoE** and **Ranged AoE** Powers use the same Special-only 
 - **Melee AoE:** centered on the user.
 - **Ranged AoE:** placed at a legal point within the printed Range; Martial or eligible Spell delivery.
 
-The existing Power Level tables, delivery restrictions, and calculation tooltips remain unchanged in this editorial reordering.
-
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
+---
 
 <h3 id="melee-aoe-special-blight">
   Melee AoE Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Blight cost: 3 x T(X).<br>
       Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Blight(2) 9 = 29/30 PP (1 unused).<br>
       L2: Range 0 + Area 20 + Blight(4) 30 = 50/60 PP (10 unused).<br>
       L3: Range 0 + Area 50 + Blight(4) 30 = 80/90 PP (10 unused).<br>
@@ -2717,12 +2535,10 @@ Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the
   Melee AoE Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Challenge(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 0 + Area 20 + Challenge(1) 6 = 26/60 PP (34 unused).<br>
       L3: Range 0 + Area 50 + Challenge(1) 6 = 56/90 PP (34 unused).<br>
@@ -2768,24 +2584,16 @@ Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives 
 | **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Challenge(3)** to every creature hit in the area. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-aoe-special-corrode">
   Melee AoE Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Corrode cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Corrode(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 0 + Area 20 + Corrode(3) 36 = 56/60 PP (4 unused).<br>
       L3: Range 0 + Area 50 + Corrode(3) 36 = 86/90 PP (4 unused).<br>
@@ -2843,12 +2651,10 @@ Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives th
   Melee AoE Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Disoriented(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 0 + Area 20 + Disoriented(1) 8 = 28/60 PP (32 unused).<br>
       L3: Range 0 + Area 50 + Disoriented(1) 8 = 58/90 PP (32 unused).<br>
@@ -2894,24 +2700,16 @@ Apply **Disoriented(X)** as an Instant Special-only Active. The printed row give
 | **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Disoriented(3)** to every creature hit in the area. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-aoe-special-expose">
   Melee AoE Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Expose cost: 8 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Expose(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 0 + Area 20 + Expose(2) 24 = 44/60 PP (16 unused).<br>
       L3: Range 0 + Area 50 + Expose(2) 24 = 74/90 PP (16 unused).<br>
@@ -2969,12 +2767,10 @@ Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the
   Melee AoE Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Hex cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Hex(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 0 + Area 20 + Hex(3) 36 = 56/60 PP (4 unused).<br>
       L3: Range 0 + Area 50 + Hex(3) 36 = 86/90 PP (4 unused).<br>
@@ -3020,24 +2816,15 @@ Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Sp
 | **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Hex(7)** to every creature hit in the area. |
 
 ---
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-aoe-special-lacerate">
   Melee AoE Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Lacerate cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Lacerate(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 20 + Lacerate(4) 40 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 50 + Lacerate(4) 40 = 90/90 PP (0 unused).<br>
@@ -3095,12 +2882,10 @@ Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives t
   Melee AoE Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Mark cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Mark(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 20 + Mark(4) 40 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 50 + Mark(4) 40 = 90/90 PP (0 unused).<br>
@@ -3146,24 +2931,15 @@ Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the S
 | **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Mark(10)** to every creature hit in the area. |
 
 ---
-}}
-
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-aoe-special-root">
   Melee AoE Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Root cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 0 + Area 20 + Root(3) 36 = 56/60 PP (4 unused).<br>
       L3: Range 0 + Area 50 + Root(3) 36 = 86/90 PP (4 unused).<br>
@@ -3221,13 +2997,10 @@ Apply **Root(X)** as an Instant Special-only Active. The printed row gives the S
   Melee AoE Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Ruin cost: 4 x T(X).<br>
-      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Ruin(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 20 + Ruin(4) 40 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 50 + Ruin(4) 40 = 90/90 PP (0 unused).<br>
@@ -3273,24 +3046,16 @@ Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the S
 | **16** | Active, Special | Self | Radius 7 m | Instant | Apply **Ruin(10)** to every creature hit in the area. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-aoe-special-slow">
   Melee AoE Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Slow cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Slow(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 20 + Slow(4) 40 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 50 + Slow(4) 40 = 90/90 PP (0 unused).<br>
@@ -3348,12 +3113,10 @@ Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the S
   Melee AoE Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Soulburn(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 0 + Area 20 + Soulburn(1) 8 = 28/60 PP (32 unused).<br>
       L3: Range 0 + Area 50 + Soulburn(1) 8 = 58/90 PP (32 unused).<br>
@@ -3399,24 +3162,16 @@ Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives t
 | **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Soulburn(3)** to every creature hit in the area. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="melee-aoe-special-sundered">
   Melee AoE Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Sundered cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Sundered(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 0 + Area 20 + Sundered(3) 36 = 56/60 PP (4 unused).<br>
       L3: Range 0 + Area 50 + Sundered(3) 36 = 86/90 PP (4 unused).<br>
@@ -3474,12 +3229,10 @@ Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives t
   Melee AoE Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Weaken(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 0 + Area 20 + Weaken(1) 8 = 28/60 PP (32 unused).<br>
       L3: Range 0 + Area 50 + Weaken(1) 8 = 58/90 PP (32 unused).<br>
@@ -3525,25 +3278,17 @@ Apply **Weaken(X)** as an Instant Special-only Active. The printed row gives the
 | **16** | Active, Special | Self | Radius 8 m | Instant | Apply **Weaken(3)** to every creature hit in the area. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-aoe-special-blight">
   Ranged AoE Special: Blight
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Blight cost: 3 x T(X).<br>
       Blight(X) is Timed: X is Turns remaining; reapplication refreshes rather than stacks.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Blight(2) 9 = 29/30 PP (1 unused).<br>
       L2: Range 5 + Area 20 + Blight(4) 30 = 55/60 PP (5 unused).<br>
       L3: Range 10 + Area 50 + Blight(4) 30 = 90/90 PP (0 unused).<br>
@@ -3601,12 +3346,10 @@ Apply **Blight(X)** as an Instant Special-only Active. The printed row gives the
   Ranged AoE Special: Challenge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Challenge compressed Special cost: X=1 =&gt; 6 PP; X&gt;=2 =&gt; 6 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Challenge(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 5 + Area 20 + Challenge(1) 6 = 31/60 PP (29 unused).<br>
       L3: Range 10 + Area 50 + Challenge(1) 6 = 66/90 PP (24 unused).<br>
@@ -3652,24 +3395,16 @@ Apply **Challenge(X)** as an Instant Special-only Active. The printed row gives 
 | **16** | Active, Special | 68 m | Radius 8 m | Instant | Apply **Challenge(2)** to every creature hit in the area. |
 
 ---
-}}
 
-\page
-
-{{pageNumber,auto}}
-
-{{wide
 
 <h3 id="ranged-aoe-special-corrode">
   Ranged AoE Special: Corrode
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Corrode cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Corrode(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 5 + Area 20 + Corrode(2) 18 = 43/60 PP (17 unused).<br>
       L3: Range 10 + Area 50 + Corrode(2) 18 = 78/90 PP (12 unused).<br>
@@ -3727,12 +3462,10 @@ Apply **Corrode(X)** as an Instant Special-only Active. The printed row gives th
   Ranged AoE Special: Disoriented
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Disoriented compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Disoriented(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 5 + Area 20 + Disoriented(1) 8 = 33/60 PP (27 unused).<br>
       L3: Range 10 + Area 50 + Disoriented(1) 8 = 68/90 PP (22 unused).<br>
@@ -3790,12 +3523,10 @@ Apply **Disoriented(X)** as an Instant Special-only Active. The printed row give
   Ranged AoE Special: Expose
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Expose cost: 8 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Expose(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 5 + Area 20 + Expose(2) 24 = 49/60 PP (11 unused).<br>
       L3: Range 10 + Area 50 + Expose(2) 24 = 84/90 PP (6 unused).<br>
@@ -3853,12 +3584,10 @@ Apply **Expose(X)** as an Instant Special-only Active. The printed row gives the
   Ranged AoE Special: Hex
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Hex cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Hex(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 5 + Area 20 + Hex(2) 18 = 43/60 PP (17 unused).<br>
       L3: Range 10 + Area 50 + Hex(2) 18 = 78/90 PP (12 unused).<br>
@@ -3916,12 +3645,10 @@ Apply **Hex(X)** as an Instant Special-only Active. The printed row gives the Sp
   Ranged AoE Special: Lacerate
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Lacerate cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Lacerate(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 20 + Lacerate(3) 24 = 49/60 PP (11 unused).<br>
       L3: Range 10 + Area 50 + Lacerate(3) 24 = 84/90 PP (6 unused).<br>
@@ -3979,12 +3706,10 @@ Apply **Lacerate(X)** as an Instant Special-only Active. The printed row gives t
   Ranged AoE Special: Mark
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Mark cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Mark(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 20 + Mark(3) 24 = 49/60 PP (11 unused).<br>
       L3: Range 10 + Area 50 + Mark(3) 24 = 84/90 PP (6 unused).<br>
@@ -4042,12 +3767,10 @@ Apply **Mark(X)** as an Instant Special-only Active. The printed row gives the S
   Ranged AoE Special: Root
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Root cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 0 + Root(2) 18 = 18/30 PP (12 unused).<br>
       L2: Range 5 + Area 20 + Root(2) 18 = 43/60 PP (17 unused).<br>
       L3: Range 10 + Area 50 + Root(2) 18 = 78/90 PP (12 unused).<br>
@@ -4105,13 +3828,10 @@ Apply **Root(X)** as an Instant Special-only Active. The printed row gives the S
   Ranged AoE Special: Ruin
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Ruin cost: 4 x T(X).<br>
-      WARNING: Adopted Ruin immediate damage (4 per newly applied stack) is NOT priced here; Balance Review open.<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Ruin(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 20 + Ruin(3) 24 = 49/60 PP (11 unused).<br>
       L3: Range 10 + Area 50 + Ruin(3) 24 = 84/90 PP (6 unused).<br>
@@ -4169,12 +3889,10 @@ Apply **Ruin(X)** as an Instant Special-only Active. The printed row gives the S
   Ranged AoE Special: Slow
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Slow cost: 4 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Slow(1) 4 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 20 + Slow(3) 24 = 49/60 PP (11 unused).<br>
       L3: Range 10 + Area 50 + Slow(3) 24 = 84/90 PP (6 unused).<br>
@@ -4232,12 +3950,10 @@ Apply **Slow(X)** as an Instant Special-only Active. The printed row gives the S
   Ranged AoE Special: Soulburn
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Soulburn compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Soulburn(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 5 + Area 20 + Soulburn(1) 8 = 33/60 PP (27 unused).<br>
       L3: Range 10 + Area 50 + Soulburn(1) 8 = 68/90 PP (22 unused).<br>
@@ -4295,12 +4011,10 @@ Apply **Soulburn(X)** as an Instant Special-only Active. The printed row gives t
   Ranged AoE Special: Sundered
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Sundered cost: 6 x T(X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Sundered(1) 6 = 26/30 PP (4 unused).<br>
       L2: Range 5 + Area 20 + Sundered(2) 18 = 43/60 PP (17 unused).<br>
       L3: Range 10 + Area 50 + Sundered(2) 18 = 78/90 PP (12 unused).<br>
@@ -4358,12 +4072,10 @@ Apply **Sundered(X)** as an Instant Special-only Active. The printed row gives t
   Ranged AoE Special: Weaken
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: SpecialCost(X) + Ranged Range (5 PP per 4 m beyond 8 m) + Instant AoE Radius (0/20/50/80/120/165/220/280 PP for 1-8 m).<br>
       Weaken compressed Special cost: X=1 =&gt; 8 PP; X&gt;=2 =&gt; 8 x T(2X).<br>
-      PER LEVEL CURRENT TABLE COST (NOT NEW BALANCE SIGNOFF):<br>
+      PER LEVEL COST:<br>
       L1: Range 0 + Area 20 + Weaken(1) 8 = 28/30 PP (2 unused).<br>
       L2: Range 5 + Area 20 + Weaken(1) 8 = 33/60 PP (27 unused).<br>
       L3: Range 10 + Area 50 + Weaken(1) 8 = 68/90 PP (22 unused).<br>
@@ -4435,8 +4147,6 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
   Limited Melee Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
       L1: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
@@ -4461,7 +4171,7 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
 
 **Requirement:** Melee Weapon or Unarmed.
 
-**Delivery:** Martial; Melee Reach. This is a distinct Power Technical Reference from `Melee Single Target Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+**Delivery:** Martial; Melee Reach. This is a distinct Power Technical Reference from **Melee Single Target Attack**.
 
 **Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
 
@@ -4497,8 +4207,6 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
   Limited Ranged Single Target Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
       L1: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
@@ -4523,7 +4231,7 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
 
 **Requirement:** Ranged Weapon or Thrown Weapon for Martial; legal Spell delivery requires no such weapon.
 
-**Delivery:** Martial or Spell; Printed Range. This is a distinct Power Technical Reference from `Ranged Single Target Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+**Delivery:** Martial or Spell; Printed Range. This is a distinct Power Technical Reference from **Ranged Single Target Attack**; Martial versus Spell delivery does not create an extra Limited identity.
 
 **Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
 
@@ -4559,15 +4267,13 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
   Limited Melee AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
       L1: Printed 4d8 = base 1d8 x 4: OK. Base PP separate.<br>
-      L2: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
-      L3: Printed 8d8 = base 2d8 x 4: OK. Base PP separate.<br>
-      L4: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
-      L5: Printed 16d8 = base 4d8 x 4: OK. Base PP separate.<br>
+      L2: Printed 12d8 = base 3d8 x 4: OK. Base PP separate.<br>
+      L3: Printed 12d8 = base 3d8 x 4: OK. Base PP separate.<br>
+      L4: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
+      L5: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
       L6: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
       L7: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
       L8: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
@@ -4585,7 +4291,7 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
 
 **Requirement:** Melee Weapon or Unarmed.
 
-**Delivery:** Martial; Self-centered. This is a distinct Power Technical Reference from `Melee Aoe Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+**Delivery:** Martial; Self-centered. This is a distinct Power Technical Reference from **Melee AoE Attack**.
 
 **Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
 
@@ -4594,10 +4300,10 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Limited Damage Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **4d8 Limited Power Damage** (base 1d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **2** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **3** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **8d8 Limited Power Damage** (base 2d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **4** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
-| **5** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **16d8 Limited Power Damage** (base 4d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **2** | Limited Active | Self | Radius 2 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **3** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **12d8 Limited Power Damage** (base 3d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **4** | Limited Active | Self | Radius 3 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
+| **5** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
 | **6** | Limited Active | Self | Radius 4 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
 | **7** | Limited Active | Self | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
 | **8** | Limited Active | Self | Radius 5 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage once in the shared Damage Roll. |
@@ -4621,8 +4327,6 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
   Limited Ranged AoE Attack
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Limited Damage Power: separate learned Power, global one use per Safe Haven Rest. Printed Power Damage is 4 x corresponding standard Damage Attack Power Dice; Weapon/Focus/Raise dice are not multiplied.<br>
       L1: Printed 4d8 = base 1d8 x 4: OK. Base PP separate.<br>
@@ -4639,7 +4343,7 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
       L12: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
       L13: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
       L14: Printed 20d8 = base 5d8 x 4: OK. Base PP separate.<br>
-      L15: Printed 24d8 = base 6d8 x 4: OK. Base PP separate.<br>
+      L15: Printed 28d8 = base 7d8 x 4: OK. Base PP separate.<br>
       L16: Printed 32d8 = base 8d8 x 4: OK. Base PP separate.<br>
     </span>
   </span>
@@ -4647,7 +4351,7 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
 
 **Requirement:** Ranged Weapon or Thrown Weapon for Martial; legal Spell delivery requires no such weapon.
 
-**Delivery:** Martial or Spell; Target point in printed Range. This is a distinct Power Technical Reference from `Ranged Aoe Attack`; Ranged Martial versus Spell delivery does not create extra Limited identities.
+**Delivery:** Martial or Spell; Target point in printed Range. This is a distinct Power Technical Reference from **Ranged AoE Attack**; Martial versus Spell delivery does not create an extra Limited identity.
 
 **Use:** Make the same Attack/Casting Roll and resolve the same defenses as the base attack. On a hit, deal the listed **Limited Power Damage** plus the matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Do not multiply Weapon or Focus dice, Raises or other additions. One shared Damage Roll is used for AoEs. Never apply Special(X) as part of this pure Damage Power.
 
@@ -4669,7 +4373,7 @@ Limited attacks use the usual **Attack or Casting Roll, defenses, Action economy
 | **12** | Limited Active | 52 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
 | **13** | Limited Active | 56 m | Radius 7 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
 | **14** | Limited Active | 60 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **20d8 Limited Power Damage** (base 5d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
-| **15** | Limited Active | 64 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **24d8 Limited Power Damage** (base 6d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
+| **15** | Limited Active | 64 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **28d8 Limited Power Damage** (base 7d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
 | **16** | Limited Active | 68 m | Radius 8 m | Instant | One shared AoE attack, compare against each target individually. Every hit creature takes **32d8 Limited Power Damage** (base 8d8 x4) plus matching Weapon Damage (Martial) or Spell Focus Damage (Spell) once in the shared Damage Roll. |
 
 ---
@@ -4699,10 +4403,8 @@ Damage Transfer restores **current Bar HP**. Reopening a Scarred Bar uses a Rest
   Melee Single Target Damage Transfer
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical original Actives tooltip: Damage Transfer 25 PP per purchased +1d8 plus Range; healing equals actual target HP lost, limited to current Health Bar.<br>
+      Formula: Damage Transfer = 25 PP per purchased +1d8, plus Range. Healing equals the HP the target actually lost, limited to the current Health Bar.<br>
       L1: Range 0 + 1d8 x25 = 25/30 PP (5 unused).<br>
       L2: Range 0 + 2d8 x25 = 50/60 PP (10 unused).<br>
       L3: Range 0 + 3d8 x25 = 75/90 PP (15 unused).<br>
@@ -4761,10 +4463,8 @@ A melee damage-to-self-healing transfer that siphons only real HP removed from t
   Ranged Single Target Damage Transfer
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical original Actives tooltip: Damage Transfer 25 PP per purchased +1d8 plus Range; healing equals actual target HP lost, limited to current Health Bar.<br>
+      Formula: Damage Transfer = 25 PP per purchased +1d8, plus Range. Healing equals the HP the target actually lost, limited to the current Health Bar.<br>
       L1: Range 0 + 1d8 x25 = 25/30 PP (5 unused).<br>
       L2: Range 5 + 2d8 x25 = 55/60 PP (5 unused).<br>
       L3: Range 10 + 3d8 x25 = 85/90 PP (5 unused).<br>
@@ -4840,8 +4540,6 @@ The two tables below list the Melee and Ranged distances at every Power Level.
   Melee Push / Pull
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: forced movement 30 PP per 2m plus legal Ranged Range cost. Control-only: zero direct Attack Damage.<br>
       L1: Range 0 + Push/Pull 2m (1 x 30) = 30/30 PP (0 unused).<br>
@@ -4897,8 +4595,6 @@ A close-range martial control technique that forces the target away from you or 
   Ranged Push / Pull
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
       Formula: forced movement 30 PP per 2m plus legal Ranged Range cost. Control-only: zero direct Attack Damage.<br>
       L1: Range 0 + Push/Pull 2m (1 x 30) = 30/30 PP (0 unused).<br>
@@ -4982,11 +4678,9 @@ Support Actives aid eligible creatures within the printed Range or area. A singl
   Melee Single Target Restoration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
-      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      Formula: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest.<br>
+      Range = 5 PP per 4 m beyond 8 m. Support AoE radius: 2 m = 20, 3 m = 50, 4 m = 90 PP. The shared pool lasts until the next Safe Haven Rest.<br>
       L1: unavailable; no purchased legal function.<br>
       L2: Range 0 + support Radius 0 + 1 Bars x40 = 40/60 PP (20 unused).<br>
       L3: Range 0 + support Radius 0 + 2 Bars x40 = 80/90 PP (10 unused).<br>
@@ -5039,11 +4733,9 @@ Restore Scarred Health Bars at **full HP** to one creature within reach. The sha
   Ranged Single Target Restoration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
-      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      Formula: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest.<br>
+      Range = 5 PP per 4 m beyond 8 m. Support AoE radius: 2 m = 20, 3 m = 50, 4 m = 90 PP. The shared pool lasts until the next Safe Haven Rest.<br>
       L1: unavailable; no purchased legal function.<br>
       L2: Range 5 + support Radius 0 + 1 Bars x40 = 45/60 PP (15 unused).<br>
       L3: Range 10 + support Radius 0 + 2 Bars x40 = 90/90 PP (0 unused).<br>
@@ -5096,27 +4788,25 @@ Restore Scarred Health Bars at **full HP** to one creature within Range. The sha
   Melee AoE Restoration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
-      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      Formula: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest.<br>
+      Range = 5 PP per 4 m beyond 8 m. AoE radius uses the Instant Attack AoE price. The shared pool lasts until the next Safe Haven Rest.<br>
       L1: unavailable; no purchased legal function.<br>
-      L2: Range 0 + support Radius 20 + 1 Bars x40 = 60/60 PP (0 unused).<br>
-      L3: Range 0 + support Radius 20 + 1 Bars x40 = 60/90 PP (30 unused).<br>
-      L4: Range 0 + support Radius 20 + 2 Bars x40 = 100/120 PP (20 unused).<br>
-      L5: Range 0 + support Radius 20 + 3 Bars x40 = 140/150 PP (10 unused).<br>
-      L6: Range 0 + support Radius 50 + 3 Bars x40 = 170/180 PP (10 unused).<br>
-      L7: Range 0 + support Radius 50 + 4 Bars x40 = 210/210 PP (0 unused).<br>
-      L8: Range 0 + support Radius 50 + 4 Bars x40 = 210/240 PP (30 unused).<br>
-      L9: Range 0 + support Radius 90 + 4 Bars x40 = 250/270 PP (20 unused).<br>
-      L10: Range 0 + support Radius 90 + 5 Bars x40 = 290/300 PP (10 unused).<br>
-      L11: Range 0 + support Radius 90 + 6 Bars x40 = 330/330 PP (0 unused).<br>
-      L12: Range 0 + support Radius 90 + 6 Bars x40 = 330/360 PP (30 unused).<br>
-      L13: Range 0 + support Radius 90 + 7 Bars x40 = 370/390 PP (20 unused).<br>
-      L14: Range 0 + support Radius 90 + 8 Bars x40 = 410/420 PP (10 unused).<br>
-      L15: Range 0 + support Radius 90 + 9 Bars x40 = 450/450 PP (0 unused).<br>
-      L16: Range 0 + support Radius 90 + 9 Bars x40 = 450/480 PP (30 unused).<br>
+      L2: Range 0 + Radius 20 + 1 Bars x40 = 60/60 PP (0 unused).<br>
+      L3: Range 0 + Radius 20 + 1 Bars x40 = 60/90 PP (30 unused).<br>
+      L4: Range 0 + Radius 20 + 2 Bars x40 = 100/120 PP (20 unused).<br>
+      L5: Range 0 + Radius 20 + 3 Bars x40 = 140/150 PP (10 unused).<br>
+      L6: Range 0 + Radius 50 + 3 Bars x40 = 170/180 PP (10 unused).<br>
+      L7: Range 0 + Radius 50 + 4 Bars x40 = 210/210 PP (0 unused).<br>
+      L8: Range 0 + Radius 50 + 4 Bars x40 = 210/240 PP (30 unused).<br>
+      L9: Range 0 + Radius 80 + 4 Bars x40 = 240/270 PP (30 unused).<br>
+      L10: Range 0 + Radius 80 + 5 Bars x40 = 280/300 PP (20 unused).<br>
+      L11: Range 0 + Radius 80 + 6 Bars x40 = 320/330 PP (10 unused).<br>
+      L12: Range 0 + Radius 80 + 7 Bars x40 = 360/360 PP (0 unused).<br>
+      L13: Range 0 + Radius 80 + 7 Bars x40 = 360/390 PP (30 unused).<br>
+      L14: Range 0 + Radius 80 + 8 Bars x40 = 400/420 PP (20 unused).<br>
+      L15: Range 0 + Radius 80 + 9 Bars x40 = 440/450 PP (10 unused).<br>
+      L16: Range 0 + Radius 80 + 10 Bars x40 = 480/480 PP (0 unused).<br>
     </span>
   </span>
 </h3>
@@ -5138,11 +4828,11 @@ The Restoration Power starts at **PL 2**. The size of its shared pool and the ar
 | **9** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
 | **10** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **5 Scarred Bars at full HP** among eligible creatures. | **5 Bars** / Safe Haven Rest |
 | **11** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
-| **12** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
+| **12** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
 | **13** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
 | **14** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **8 Scarred Bars at full HP** among eligible creatures. | **8 Bars** / Safe Haven Rest |
 | **15** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **9 Scarred Bars at full HP** among eligible creatures. | **9 Bars** / Safe Haven Rest |
-| **16** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **9 Scarred Bars at full HP** among eligible creatures. | **9 Bars** / Safe Haven Rest |
+| **16** | Active, Support | Self | Radius 4 m | Instant | Distribute up to **10 Scarred Bars at full HP** among eligible creatures. | **10 Bars** / Safe Haven Rest |
 
 }}
 
@@ -5154,27 +4844,25 @@ The Restoration Power starts at **PL 2**. The size of its shared pool and the ar
   Ranged AoE Restoration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical original Actives tooltip: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest, not 30 PP as in stale agent.md.<br>
-      Range price 5PP/4m, support AoE historical radius table 2m=20, 3m=50, 4m=90. Shared pool / Safe Haven Rest persists.<br>
+      Formula: Scarred Health Bar Restoration = 40 PP per Bar per Safe Haven Rest.<br>
+      Range = 5 PP per 4 m beyond 8 m. AoE radius uses the Instant Attack AoE price. The shared pool lasts until the next Safe Haven Rest.<br>
       L1: unavailable; no purchased legal function.<br>
       L2: unavailable; no purchased legal function.<br>
-      L3: Range 10 + support Radius 20 + 1 Bars x40 = 70/90 PP (20 unused).<br>
-      L4: Range 15 + support Radius 20 + 2 Bars x40 = 115/120 PP (5 unused).<br>
-      L5: Range 20 + support Radius 20 + 2 Bars x40 = 120/150 PP (30 unused).<br>
-      L6: Range 25 + support Radius 50 + 2 Bars x40 = 155/180 PP (25 unused).<br>
-      L7: Range 30 + support Radius 50 + 3 Bars x40 = 200/210 PP (10 unused).<br>
-      L8: Range 35 + support Radius 50 + 3 Bars x40 = 205/240 PP (35 unused).<br>
-      L9: Range 40 + support Radius 90 + 3 Bars x40 = 250/270 PP (20 unused).<br>
-      L10: Range 45 + support Radius 90 + 4 Bars x40 = 295/300 PP (5 unused).<br>
-      L11: Range 50 + support Radius 90 + 4 Bars x40 = 300/330 PP (30 unused).<br>
-      L12: Range 55 + support Radius 90 + 5 Bars x40 = 345/360 PP (15 unused).<br>
-      L13: Range 60 + support Radius 90 + 6 Bars x40 = 390/390 PP (0 unused).<br>
-      L14: Range 65 + support Radius 90 + 6 Bars x40 = 395/420 PP (25 unused).<br>
-      L15: Range 70 + support Radius 90 + 7 Bars x40 = 440/450 PP (10 unused).<br>
-      L16: Range 75 + support Radius 90 + 7 Bars x40 = 445/480 PP (35 unused).<br>
+      L3: Range 10 + Radius 20 + 1 Bars x40 = 70/90 PP (20 unused).<br>
+      L4: Range 15 + Radius 20 + 2 Bars x40 = 115/120 PP (5 unused).<br>
+      L5: Range 20 + Radius 20 + 2 Bars x40 = 120/150 PP (30 unused).<br>
+      L6: Range 25 + Radius 50 + 2 Bars x40 = 155/180 PP (25 unused).<br>
+      L7: Range 30 + Radius 50 + 3 Bars x40 = 200/210 PP (10 unused).<br>
+      L8: Range 35 + Radius 50 + 3 Bars x40 = 205/240 PP (35 unused).<br>
+      L9: Range 40 + Radius 80 + 3 Bars x40 = 240/270 PP (30 unused).<br>
+      L10: Range 45 + Radius 80 + 4 Bars x40 = 285/300 PP (15 unused).<br>
+      L11: Range 50 + Radius 80 + 5 Bars x40 = 330/330 PP (0 unused).<br>
+      L12: Range 55 + Radius 80 + 5 Bars x40 = 335/360 PP (25 unused).<br>
+      L13: Range 60 + Radius 80 + 6 Bars x40 = 380/390 PP (10 unused).<br>
+      L14: Range 65 + Radius 80 + 7 Bars x40 = 425/420 PP (5 PP over, within tolerance).<br>
+      L15: Range 70 + Radius 80 + 7 Bars x40 = 430/450 PP (20 unused).<br>
+      L16: Range 75 + Radius 80 + 8 Bars x40 = 475/480 PP (5 unused).<br>
     </span>
   </span>
 </h3>
@@ -5197,12 +4885,12 @@ This Power is available from **PL 3**. The radius, range and shared recovery poo
 | **8** | Active, Support | 36 m | Radius 3 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
 | **9** | Active, Support | 40 m | Radius 4 m | Instant | Distribute up to **3 Scarred Bars at full HP** among eligible creatures. | **3 Bars** / Safe Haven Rest |
 | **10** | Active, Support | 44 m | Radius 4 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
-| **11** | Active, Support | 48 m | Radius 4 m | Instant | Distribute up to **4 Scarred Bars at full HP** among eligible creatures. | **4 Bars** / Safe Haven Rest |
+| **11** | Active, Support | 48 m | Radius 4 m | Instant | Distribute up to **5 Scarred Bars at full HP** among eligible creatures. | **5 Bars** / Safe Haven Rest |
 | **12** | Active, Support | 52 m | Radius 4 m | Instant | Distribute up to **5 Scarred Bars at full HP** among eligible creatures. | **5 Bars** / Safe Haven Rest |
 | **13** | Active, Support | 56 m | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
-| **14** | Active, Support | 60 m | Radius 4 m | Instant | Distribute up to **6 Scarred Bars at full HP** among eligible creatures. | **6 Bars** / Safe Haven Rest |
+| **14** | Active, Support | 60 m | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
 | **15** | Active, Support | 64 m | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
-| **16** | Active, Support | 68 m | Radius 4 m | Instant | Distribute up to **7 Scarred Bars at full HP** among eligible creatures. | **7 Bars** / Safe Haven Rest |
+| **16** | Active, Support | 68 m | Radius 4 m | Instant | Distribute up to **8 Scarred Bars at full HP** among eligible creatures. | **8 Bars** / Safe Haven Rest |
 
 }}
 
@@ -5219,10 +4907,8 @@ This Power is available from **PL 3**. The radius, range and shared recovery poo
   Melee Single Target Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the Instant Attack AoE price.<br>
       L1: Range 0 + Area 0 + Cleanse(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 0 + Area 0 + Cleanse(5) 60 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 0 + Cleanse(6) 84 = 84/90 PP (6 unused).<br>
@@ -5275,10 +4961,8 @@ A close-range support Active that removes negative Special value from one creatu
   Ranged Single Target Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the Instant Attack AoE price.<br>
       L1: Range 0 + Area 0 + Cleanse(3) 24 = 24/30 PP (6 unused).<br>
       L2: Range 5 + Area 0 + Cleanse(4) 40 = 45/60 PP (15 unused).<br>
       L3: Range 10 + Area 0 + Cleanse(5) 60 = 70/90 PP (20 unused).<br>
@@ -5331,11 +5015,9 @@ A ranged support Active that removes negative Special value from one creature wi
   Melee AoE Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
-      L1: Range 0 + Area 20 + Cleanse(1) 4 = 24/30 PP (6 unused).<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the Instant Attack AoE price.<br>
+      L1: Range 0 + Area 20 + Cleanse(2) 12 = 32/30 PP (2 PP over, within tolerance).<br>
       L2: Range 0 + Area 20 + Cleanse(4) 40 = 60/60 PP (0 unused).<br>
       L3: Range 0 + Area 20 + Cleanse(5) 60 = 80/90 PP (10 unused).<br>
       L4: Range 0 + Area 20 + Cleanse(6) 84 = 104/120 PP (16 unused).<br>
@@ -5344,13 +5026,13 @@ A ranged support Active that removes negative Special value from one creature wi
       L7: Range 0 + Area 50 + Cleanse(8) 144 = 194/210 PP (16 unused).<br>
       L8: Range 0 + Area 80 + Cleanse(8) 144 = 224/240 PP (16 unused).<br>
       L9: Range 0 + Area 80 + Cleanse(9) 180 = 260/270 PP (10 unused).<br>
-      L10: Range 0 + Area 80 + Cleanse(9) 180 = 260/300 PP (40 unused).<br>
+      L10: Range 0 + Area 80 + Cleanse(10) 220 = 300/300 PP (0 unused).<br>
       L11: Range 0 + Area 80 + Cleanse(10) 220 = 300/330 PP (30 unused).<br>
       L12: Range 0 + Area 80 + Cleanse(11) 264 = 344/360 PP (16 unused).<br>
       L13: Range 0 + Area 80 + Cleanse(11) 264 = 344/390 PP (46 unused).<br>
       L14: Range 0 + Area 120 + Cleanse(11) 264 = 384/420 PP (36 unused).<br>
-      L15: Range 0 + Area 120 + Cleanse(11) 264 = 384/450 PP (66 unused).<br>
-      L16: Range 0 + Area 120 + Cleanse(12) 312 = 432/480 PP (48 unused).<br>
+      L15: Range 0 + Area 120 + Cleanse(12) 312 = 432/450 PP (18 unused).<br>
+      L16: Range 0 + Area 120 + Cleanse(13) 364 = 484/480 PP (4 PP over, within tolerance).<br>
     </span>
   </span>
 </h3>
@@ -5359,7 +5041,7 @@ A self-centered support Active that removes negative Special value from affected
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
+| **1** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(2)** total negative Special value from each affected creature. |
 | **2** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(4)** total negative Special value from each affected creature. |
 | **3** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
 | **4** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
@@ -5368,13 +5050,13 @@ A self-centered support Active that removes negative Special value from affected
 | **7** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
 | **8** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
 | **9** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
-| **10** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **10** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
 | **11** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
 | **12** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
 | **13** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
 | **14** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **15** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
-| **16** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(12)** total negative Special value from each affected creature. |
+| **15** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(12)** total negative Special value from each affected creature. |
+| **16** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(13)** total negative Special value from each affected creature. |
 
 }}
 
@@ -5387,15 +5069,13 @@ A self-centered support Active that removes negative Special value from affected
   Ranged AoE Cleanse
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the instant Attack AoE price as the historical published audit reference.<br>
-      L1: Range 0 + Area 20 + Cleanse(1) 4 = 24/30 PP (6 unused).<br>
-      L2: Range 5 + Area 20 + Cleanse(3) 24 = 49/60 PP (11 unused).<br>
+      Formula: Cleanse(X)=4 x T(X); add Range and coverage. AoE radius uses the Instant Attack AoE price.<br>
+      L1: Range 0 + Area 20 + Cleanse(2) 12 = 32/30 PP (2 PP over, within tolerance).<br>
+      L2: Range 5 + Area 20 + Cleanse(4) 40 = 65/60 PP (5 PP over, within tolerance).<br>
       L3: Range 10 + Area 20 + Cleanse(5) 60 = 90/90 PP (0 unused).<br>
       L4: Range 15 + Area 20 + Cleanse(6) 84 = 119/120 PP (1 unused).<br>
-      L5: Range 20 + Area 20 + Cleanse(6) 84 = 124/150 PP (26 unused).<br>
+      L5: Range 20 + Area 20 + Cleanse(7) 112 = 152/150 PP (2 PP over, within tolerance).<br>
       L6: Range 25 + Area 20 + Cleanse(7) 112 = 157/180 PP (23 unused).<br>
       L7: Range 30 + Area 20 + Cleanse(8) 144 = 194/210 PP (16 unused).<br>
       L8: Range 35 + Area 50 + Cleanse(8) 144 = 229/240 PP (11 unused).<br>
@@ -5415,11 +5095,11 @@ A ranged area support Active that removes negative Special value from affected c
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
-| **2** | Active, Support | 12 m | Radius 2 m | Instant | Remove up to **Cleanse(3)** total negative Special value from each affected creature. |
+| **1** | Active, Support | 8 m | Radius 2 m | Instant | Remove up to **Cleanse(2)** total negative Special value from each affected creature. |
+| **2** | Active, Support | 12 m | Radius 2 m | Instant | Remove up to **Cleanse(4)** total negative Special value from each affected creature. |
 | **3** | Active, Support | 16 m | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
 | **4** | Active, Support | 20 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
-| **5** | Active, Support | 24 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **5** | Active, Support | 24 m | Radius 2 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
 | **6** | Active, Support | 28 m | Radius 2 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
 | **7** | Active, Support | 32 m | Radius 2 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
 | **8** | Active, Support | 36 m | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
@@ -5489,15 +5169,6 @@ Mind Illusions remain mental perceptions; physical terrain, other creatures and 
 {{wide
 <h3 id="mind-illusion">
   Mind Illusion
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Dedicated qualitative Mental Power; original source states fixed per-Level milestones and telepathic prerequisites. There is no general PP-per-sense, PP-per-memory or PP-per-control formula in the supplied agent.md.<br>
-      NO AUTOMATIC RECALCULATION. Review level semantics, access, limits, and test behavior against current Core.<br>
-    </span>
-  </span>
 </h3>
 
 A mental illusion that creates false perceptions inside affected creatures' minds.
@@ -5550,15 +5221,6 @@ Mind Probe searches the mind. Use other Mental Powers for altered perception or 
 
 <h3 id="mind-probe">
   Mind Probe
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Dedicated qualitative Mental Power; original source states fixed per-Level milestones and telepathic prerequisites. There is no general PP-per-sense, PP-per-memory or PP-per-control formula in the supplied agent.md.<br>
-      NO AUTOMATIC RECALCULATION. Review level semantics, access, limits, and test behavior against current Core.<br>
-    </span>
-  </span>
 </h3>
 
 A direct mental search that extracts one thought, fact, intention, or memory from a creature.
@@ -5602,15 +5264,6 @@ A willing creature may share information through Telepathy. **Mind Probe** is th
 Control takes place **outside Combat**. If an affected creature becomes a Combat participant, the control ends before its first combat action.
 
 <h3 id="mental-control">Mental Control
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Dedicated qualitative Mental Power; original source states fixed per-Level milestones and telepathic prerequisites. There is no general PP-per-sense, PP-per-memory or PP-per-control formula in the supplied agent.md.<br>
-      NO AUTOMATIC RECALCULATION. Review level semantics, access, limits, and test behavior against current Core.<br>
-    </span>
-  </span>
 </h3>
 
 Choose a believable noncombat instruction matching the Power's current Level; consult the following table for eligible targets, complexity and Duration.
@@ -5716,26 +5369,24 @@ An Active Construct is a way to change **routes, cover and access**. Use a Wall 
   Ranged Barrier
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
       Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Historical dedicated 4-Round Barrier formula: Range + 2 x (radius cost + barrier HP); distinct from current maintained Special Zones. Barrier HP costs 1PP each.<br>
+      Formula (4-Round Barrier): Range + 2 x (Radius cost + Barrier HP); Barrier HP costs 1 PP each.<br>
       L1: unavailable.<br>
-      L2: Range 5 + 2 x (Radius 20 + Barrier 10 HP) = 65/60 PP (-5 unused).<br>
-      L3: Range 10 + 2 x (Radius 20 + Barrier 22 HP) = 94/90 PP (-4 unused).<br>
-      L4: Range 15 + 2 x (Radius 20 + Barrier 35 HP) = 125/120 PP (-5 unused).<br>
+      L2: Range 5 + 2 x (Radius 20 + Barrier 10 HP) = 65/60 PP (5 PP over, within tolerance).<br>
+      L3: Range 10 + 2 x (Radius 20 + Barrier 22 HP) = 94/90 PP (4 PP over, within tolerance).<br>
+      L4: Range 15 + 2 x (Radius 20 + Barrier 35 HP) = 125/120 PP (5 PP over, within tolerance).<br>
       L5: Range 20 + 2 x (Radius 20 + Barrier 42 HP) = 144/150 PP (6 unused).<br>
       L6: Range 25 + 2 x (Radius 20 + Barrier 42 HP) = 149/180 PP (31 unused).<br>
-      L7: Range 30 + 2 x (Radius 50 + Barrier 42 HP) = 214/210 PP (-4 unused).<br>
-      L8: Range 35 + 2 x (Radius 50 + Barrier 55 HP) = 245/240 PP (-5 unused).<br>
-      L9: Range 40 + 2 x (Radius 50 + Barrier 65 HP) = 270/270 PP (0 unused).<br>
-      L10: Range 45 + 2 x (Radius 50 + Barrier 65 HP) = 275/300 PP (25 unused).<br>
-      L11: Range 50 + 2 x (Radius 50 + Barrier 65 HP) = 280/330 PP (50 unused).<br>
-      L12: Range 55 + 2 x (Radius 90 + Barrier 65 HP) = 365/360 PP (-5 unused).<br>
-      L13: Range 60 + 2 x (Radius 90 + Barrier 77 HP) = 394/390 PP (-4 unused).<br>
-      L14: Range 65 + 2 x (Radius 90 + Barrier 90 HP) = 425/420 PP (-5 unused).<br>
-      L15: Range 70 + 2 x (Radius 90 + Barrier 102 HP) = 454/450 PP (-4 unused).<br>
-      L16: Range 75 + 2 x (Radius 90 + Barrier 115 HP) = 485/480 PP (-5 unused).<br>
+      L7: Range 30 + 2 x (Radius 50 + Barrier 42 HP) = 214/210 PP (4 PP over, within tolerance).<br>
+      L8: Range 35 + 2 x (Radius 50 + Barrier 55 HP) = 245/240 PP (5 PP over, within tolerance).<br>
+      L9: Range 40 + 2 x (Radius 50 + Barrier 67 HP) = 274/270 PP (4 PP over, within tolerance).<br>
+      L10: Range 45 + 2 x (Radius 50 + Barrier 75 HP) = 295/300 PP (5 unused).<br>
+      L11: Range 50 + 2 x (Radius 50 + Barrier 75 HP) = 300/330 PP (30 unused).<br>
+      L12: Range 55 + 2 x (Radius 80 + Barrier 75 HP) = 365/360 PP (5 PP over, within tolerance).<br>
+      L13: Range 60 + 2 x (Radius 80 + Barrier 87 HP) = 394/390 PP (4 PP over, within tolerance).<br>
+      L14: Range 65 + 2 x (Radius 80 + Barrier 100 HP) = 425/420 PP (5 PP over, within tolerance).<br>
+      L15: Range 70 + 2 x (Radius 80 + Barrier 112 HP) = 454/450 PP (4 PP over, within tolerance).<br>
+      L16: Range 75 + 2 x (Radius 80 + Barrier 125 HP) = 485/480 PP (5 PP over, within tolerance).<br>
     </span>
   </span>
 </h3>
@@ -5756,14 +5407,14 @@ A ranged protective barrier that creates a temporary area of cover and obstructi
 | **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
 | **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a Barrier with **42 HP**. | — |
 | **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a Barrier with **55 HP**. | — |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **12** | Active | 52 m | Radius 4 m | 4 Rounds | Create a Barrier with **65 HP**. | — |
-| **13** | Active | 56 m | Radius 4 m | 4 Rounds | Create a Barrier with **77 HP**. | — |
-| **14** | Active | 60 m | Radius 4 m | 4 Rounds | Create a Barrier with **90 HP**. | — |
-| **15** | Active | 64 m | Radius 4 m | 4 Rounds | Create a Barrier with **102 HP**. | — |
-| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a Barrier with **115 HP**. | — |
+| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a Barrier with **67 HP**. | — |
+| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a Barrier with **75 HP**. | — |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a Barrier with **75 HP**. | — |
+| **12** | Active | 52 m | Radius 4 m | 4 Rounds | Create a Barrier with **75 HP**. | — |
+| **13** | Active | 56 m | Radius 4 m | 4 Rounds | Create a Barrier with **87 HP**. | — |
+| **14** | Active | 60 m | Radius 4 m | 4 Rounds | Create a Barrier with **100 HP**. | — |
+| **15** | Active | 64 m | Radius 4 m | 4 Rounds | Create a Barrier with **112 HP**. | — |
+| **16** | Active | 68 m | Radius 4 m | 4 Rounds | Create a Barrier with **125 HP**. | — |
 }}
 
 \page
@@ -5818,15 +5469,6 @@ A Power that explicitly grants a real mechanical effect resolves that effect und
 :
 <h3 id="ranged-power-image">
   Ranged Power Image
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      Dedicated qualitative Image/Illusion progression; original source uses Range + 2 x (Image Size cost + Tier cost) for 4-round duration. Do not invent exact Image Size/Tier prices from this simplified document.<br>
-      REQUIRES DEDICATED MILSTONE RE-AUDIT with original tooltip and canon, not a basic Special or Damage PP curve.<br>
-    </span>
-  </span>
 </h3>
 
 A ranged illusion Active that creates false sensory information for 4 Rounds.
@@ -5887,30 +5529,6 @@ Zones and Special Auras apply their Specials automatically, without Attack, Cast
 ---
 :
 <h3 id="ranged-persistent-zone-blight">Ranged Persistent Special Zone: Blight
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
-      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
-      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
-      L3: printed Range 16 m, Radius 2 m, Blight(2). PP STATUS: pending.<br>
-      L4: printed Range 20 m, Radius 2 m, Blight(3). PP STATUS: pending.<br>
-      L5: printed Range 24 m, Radius 2 m, Blight(4). PP STATUS: pending.<br>
-      L6: printed Range 28 m, Radius 2 m, Blight(4). PP STATUS: pending.<br>
-      L7: printed Range 32 m, Radius 2 m, Blight(5). PP STATUS: pending.<br>
-      L8: printed Range 36 m, Radius 2 m, Blight(5). PP STATUS: pending.<br>
-      L9: printed Range 40 m, Radius 3 m, Blight(5). PP STATUS: pending.<br>
-      L10: printed Range 44 m, Radius 3 m, Blight(5). PP STATUS: pending.<br>
-      L11: printed Range 48 m, Radius 3 m, Blight(6). PP STATUS: pending.<br>
-      L12: printed Range 52 m, Radius 3 m, Blight(6). PP STATUS: pending.<br>
-      L13: printed Range 56 m, Radius 3 m, Blight(7). PP STATUS: pending.<br>
-      L14: printed Range 60 m, Radius 3 m, Blight(7). PP STATUS: pending.<br>
-      L15: printed Range 64 m, Radius 3 m, Blight(8). PP STATUS: pending.<br>
-      L16: printed Range 68 m, Radius 3 m, Blight(8). PP STATUS: pending.<br>
-    </span>
-  </span>
 </h3>
 
 A ranged persistent pestilence cloud that remains on the battlefield while maintained. Affected creatures receive timed Blight (Disadvantage on all Attribute-based dice pools); X is the number of their Turns it lasts after application. The cloud can refresh Blight, but repeated applications do not add durations.
@@ -5952,30 +5570,6 @@ A ranged persistent pestilence cloud that remains on the battlefield while maint
 ---
 :
 <h3 id="ranged-persistent-zone-standard-diminishing-special">Ranged Persistent Special Zone: Lacerate / Mark / Ruin / Slow
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
-      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
-      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
-      L3: printed Range 16 m, Radius 2 m, Lacerate(1) / Slow(1) / Ruin(1) / Mark(1). PP STATUS: pending.<br>
-      L4: printed Range 20 m, Radius 2 m, Lacerate(2) / Slow(2) / Ruin(2) / Mark(2). PP STATUS: pending.<br>
-      L5: printed Range 24 m, Radius 2 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
-      L6: printed Range 28 m, Radius 2 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
-      L7: printed Range 32 m, Radius 3 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
-      L8: printed Range 36 m, Radius 3 m, Lacerate(3) / Slow(3) / Ruin(3) / Mark(3). PP STATUS: pending.<br>
-      L9: printed Range 40 m, Radius 3 m, Lacerate(4) / Slow(4) / Ruin(4) / Mark(4). PP STATUS: pending.<br>
-      L10: printed Range 44 m, Radius 3 m, Lacerate(4) / Slow(4) / Ruin(4) / Mark(4). PP STATUS: pending.<br>
-      L11: printed Range 48 m, Radius 3 m, Lacerate(5) / Slow(5) / Ruin(5) / Mark(5). PP STATUS: pending.<br>
-      L12: printed Range 52 m, Radius 3 m, Lacerate(5) / Slow(5) / Ruin(5) / Mark(5). PP STATUS: pending.<br>
-      L13: printed Range 56 m, Radius 3 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
-      L14: printed Range 60 m, Radius 3 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
-      L15: printed Range 64 m, Radius 3 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
-      L16: printed Range 68 m, Radius 4 m, Lacerate(6) / Slow(6) / Ruin(6) / Mark(6). PP STATUS: pending.<br>
-    </span>
-  </span>
 </h3>
 
 A ranged persistent area that applies a standard Diminishing Special while maintained.  
@@ -6018,30 +5612,6 @@ This template covers Lacerate, Mark, Ruin, and Slow.
 ---
 :
 <h3 id="ranged-persistent-zone-heavy-diminishing-special">Ranged Persistent Special Zone: Challenge / Corrode / Hex / Sundered
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
-      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
-      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
-      L3: printed Range 16 m, Radius 2 m, Challenge(1) / Corrode(1) / Hex(1) / Sundered(1). PP STATUS: pending.<br>
-      L4: printed Range 20 m, Radius 2 m, Challenge(1) / Corrode(1) / Hex(1) / Sundered(1). PP STATUS: pending.<br>
-      L5: printed Range 24 m, Radius 2 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
-      L6: printed Range 28 m, Radius 2 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
-      L7: printed Range 32 m, Radius 3 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
-      L8: printed Range 36 m, Radius 3 m, Challenge(1) / Corrode(2) / Hex(2) / Sundered(2). PP STATUS: pending.<br>
-      L9: printed Range 40 m, Radius 3 m, Challenge(1) / Corrode(3) / Hex(3) / Sundered(3). PP STATUS: pending.<br>
-      L10: printed Range 44 m, Radius 3 m, Challenge(1) / Corrode(3) / Hex(3) / Sundered(3). PP STATUS: pending.<br>
-      L11: printed Range 48 m, Radius 3 m, Challenge(2) / Corrode(4) / Hex(4) / Sundered(4). PP STATUS: pending.<br>
-      L12: printed Range 52 m, Radius 3 m, Challenge(2) / Corrode(4) / Hex(4) / Sundered(4). PP STATUS: pending.<br>
-      L13: printed Range 56 m, Radius 3 m, Challenge(2) / Corrode(4) / Hex(4) / Sundered(4). PP STATUS: pending.<br>
-      L14: printed Range 60 m, Radius 3 m, Challenge(2) / Corrode(5) / Hex(5) / Sundered(5). PP STATUS: pending.<br>
-      L15: printed Range 64 m, Radius 3 m, Challenge(2) / Corrode(5) / Hex(5) / Sundered(5). PP STATUS: pending.<br>
-      L16: printed Range 68 m, Radius 3 m, Challenge(2) / Corrode(5) / Hex(5) / Sundered(5). PP STATUS: pending.<br>
-    </span>
-  </span>
 </h3>
 
 A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered while maintained.
@@ -6080,30 +5650,6 @@ A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered while
 ## Ranged Persistent Special Zone: Disoriented / Expose / Soulburn / Weaken
 
 <h3 id="ranged-persistent-zone-pool-reduction-special">Ranged Persistent Special Zone: Disoriented / Expose / Soulburn / Weaken
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      RECONSTRUCTED POWER AUDIT - 2026-11-18<br>
-      Working copy only. Based on currently printed Power Levels and historic PP costs; this is not a new balance approval.<br>
-      Target PP = 30 x PL. T(X) = X x (X+1)/2.<br>
-      RECALIBRATION REQUIRED - NO VALID CURRENT PP FORMULA.<br>
-      These tables were carried forward from old fixed four-Round Zones. They now require one Attack Action at creation and at each subsequent creator Turn to maintain; historic x2 duration multiplier must NOT be used as current balance.<br>
-      Automatic application once per Zone/source/creature/Round; no hit or damage roll. Untested with adopted immediate Ruin damage and repeatable Attack Powers; Balance Review open.<br>
-      L3: printed Range 16 m, Radius 2 m, Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L4: printed Range 20 m, Radius 2 m, Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L5: printed Range 24 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L6: printed Range 28 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L7: printed Range 32 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L8: printed Range 36 m, Radius 2 m, Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L9: printed Range 40 m, Radius 2 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L10: printed Range 44 m, Radius 2 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L11: printed Range 48 m, Radius 3 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L12: printed Range 52 m, Radius 3 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L13: printed Range 56 m, Radius 3 m, Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1). PP STATUS: pending.<br>
-      L14: printed Range 60 m, Radius 3 m, Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2). PP STATUS: pending.<br>
-      L15: printed Range 64 m, Radius 3 m, Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2). PP STATUS: pending.<br>
-      L16: printed Range 68 m, Radius 3 m, Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2). PP STATUS: pending.<br>
-    </span>
-  </span>
 </h3>
 
 A persistent battlefield zone that weakens perception, defense, physical performance, or spiritual performance.

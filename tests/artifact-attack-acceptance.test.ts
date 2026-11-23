@@ -101,14 +101,14 @@ describe('Artifact attack acceptance — Dragon Claws L3', () => {
 });
 
 describe('Artifact attack acceptance — Dragon Head L3 Breath', () => {
-  it('1–4 + 7: Damage/Ruin Cone routes; Bite exception; shared combat use gate', async () => {
+  it('1–4 + 7: Damage/Ruin self-centered burst routes; Bite exception; shared rest use gate', async () => {
     const opts = buildArtifactRadialOptions(actorWithNode(treeNode('dragonHead', 3), 3));
     const damage = opts.find((o) => /Damage Breath/i.test(o.name));
     const ruin = opts.find((o) => /Ruin Breath/i.test(o.name));
     expect(damage).toBeTruthy();
     expect(ruin).toBeTruthy();
-    expect(attackRoute(damage)).toBe('cone');
-    expect(attackRoute(ruin)).toBe('cone');
+    expect(attackRoute(damage)).toBe('melee-burst');
+    expect(attackRoute(ruin)).toBe('melee-burst');
     expect(damage!.dragonHeadDamageBreath).toBe(true);
     expect(
       martialWeaponDamageApplies({

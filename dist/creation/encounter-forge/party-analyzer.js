@@ -20,7 +20,7 @@ import { canonicalSpecialId } from '../../utils/special-effects.js';
 import { getPowerDefinitionRank } from '../../utils/power-definition-rank.js';
 import { passiveParryPoolForLevel } from '../../utils/powers/templates/passives.js';
 import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, collectMechanicsContributions, } from '../../utils/power-mechanics.js';
-import { getTargetArmor, getTargetEvade, getTargetSpellResistance, } from '../../combat/target-defenses.js';
+import { activeBuffDefenseBonus, getTargetArmor, getTargetEvade, getTargetSpellResistance, } from '../../combat/target-defenses.js';
 import { permanentStonesFromLifetimeXp, usesV099Stones } from '../../progression/v099-rules.js';
 import { baseEvadeForMr, mightMeleeBonus, stonesForAttribute } from './combat-math.js';
 /* ------------------------------------------------------------------ */
@@ -147,9 +147,9 @@ export function analyzePc(actor) {
     const stoneEvade = Math.max(0, num(combat.stoneEvadeBonus, 0));
     const stoneArmor = Math.max(0, num(combat.stoneArmorBonus, 0));
     const stoneDr = Math.max(0, num(combat.stoneDrBonusPct, 0));
-    const buffEvade = Math.max(0, num(combat.evadeFromActiveBuffs, 0));
-    const buffArmor = Math.max(0, num(combat.armorFromActiveBuffs, 0));
-    const buffSr = Math.max(0, num(combat.spellResistanceFromActiveBuffs, 0));
+    const buffEvade = Math.max(0, activeBuffDefenseBonus(actor, 'evade'));
+    const buffArmor = Math.max(0, activeBuffDefenseBonus(actor, 'armor'));
+    const buffSr = Math.max(0, activeBuffDefenseBonus(actor, 'spellResistance'));
     let mechWard = 0;
     let mechAttackDice = 0;
     let mechDamageDice = 0;

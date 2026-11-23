@@ -186,10 +186,11 @@ const FROSTBOUND_RETURNING_AXE = {
         3: {
             templateId: 'active-melee-weapon-aoe',
             name: "Ivaldi's Anvil",
+            rowType: 'Active, Martial',
             stageEffectTexts: [
-                "Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **4d8** bonus damage.",
-                "Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **7d8** bonus damage. This replaces Ivaldi's Anvil I; it does not grant an additional use.",
-                "Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **13d8** bonus damage. This replaces Ivaldi's Anvil II; it does not grant an additional use.",
+                "Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **5d8** bonus damage.",
+                "Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **7d8** bonus damage. This replaces Ivaldi's Anvil I.",
+                "Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **13d8** bonus damage. This replaces Ivaldi's Anvil II.",
             ],
         },
     },
@@ -402,34 +403,35 @@ const LOR_KETHS_STAFF = {
     baseProfile: 'twoHandedWeapon',
     description: "Lor-Keth's Titanstorm Staff (legacy display: Lor-Keth's Staff) is a two-handed Rod of the Storm Ancestors. It was forged for giants, shaped from smooth blue-gray stone, and awakened by old runes of storm and bloodline.\n\nThe Staff changes with its bearer.\n\nIt is not a wand. It is a giant's weapon.",
     restriction: "Lor-Keth's Titanstorm Staff requires both hands.\n\nWhile wielding it, the character cannot wield another weapon, shield, or Hand Artifact.",
-    // SOURCE MISSING (Batch 9F / 9G.4): no complete L2–10 progression in the
-    // authorized 2026-11-19 Artifacts catalogue. L1 Giant Shock Strike = Expose
-    // PL4 retained; L10 Core Awakening wiring kept for owned actors.
-    // newGrantHold skips fresh world-library seeds only — do not lift.
-    newGrantHold: true,
+    // Artifacts.md v0.9.9.6: Giant Shock Strike (Expose) / Titanstorm Guard
+    // (Reaction: Armor) / Stormbreaker (Might: Armor Reduction Support).
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
         stonePowerId: 'might.armorReduction',
         level: 3,
-        name: 'Might Ignore Armor Support',
+        name: 'Stormbreaker',
+        stageEffectTexts: [
+            'Pre-fill **Rank 2** of **Might: Armor Reduction**. Rank 1 must still be activated and paid normally (**1 Stone**). The Stone Ability must be unlocked.',
+            'Pre-fill **Rank 3** of **Might: Armor Reduction**. Ranks 1 and 2 must still be activated and paid normally (**3 Stones total**). This replaces Stormbreaker I.',
+            'Pre-fill **Rank 4** of **Might: Armor Reduction**. Ranks 1, 2 and 3 must still be activated and paid normally (**7 Stones total**). This replaces Stormbreaker II.',
+        ],
     },
     baseValues: [
-        { slot: 'a', label: 'Staff Damage', note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).' },
         {
-            slot: 'b',
-            label: 'Storm Rune',
-            note: 'Shock Rune from L4, Greater Shock Rune from L7, True Shock Rune at L10.',
-        },
-        {
-            slot: 'c',
-            label: 'Giant Weight',
-            note: 'Giant Weight from L7, True Giant Weight at L10.',
+            slot: 'a',
+            label: 'Staff Damage',
+            note: 'Shared Artifact Damage: 4d8 at Level 1 to 12d8 at Level 9, 14d8 at Level 10.',
         },
     ],
     progressionPickSpecs: {
-        1: { templateId: 'active-melee-instant-special-t6', special: 'expose', name: 'Giant Shock Strike' },
-        2: { templateId: 'reaction-armor', name: 'Ancestral Guard' },
+        1: {
+            templateId: 'active-melee-instant-special-t6',
+            special: 'expose',
+            name: 'Giant Shock Strike',
+            rowType: 'Active, Special',
+        },
+        2: { templateId: 'reaction-armor', name: 'Titanstorm Guard' },
     },
     levelProgression: [artifactAwakeningRow("Lor-Keth's Staff")],
 };

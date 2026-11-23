@@ -70,6 +70,7 @@ export function parseCanonicalActives(md) {
     const iRange = col('range');
     const iAoe = col('aoe');
     const iEffect = col('effect');
+    const iPool = header.findIndex((x) => /recovery pool$/i.test(x));
     const rows = new Array(16).fill(null);
     for (let k = j + 2; k < lines.length && lines[k].startsWith('|'); k++) {
       const cells = lines[k].split('|').slice(1, -1);
@@ -83,8 +84,15 @@ export function parseCanonicalActives(md) {
       if (radiusM !== undefined) row.radiusM = radiusM;
       const specials = parseSpecials(tail);
       if (Object.keys(specials).length) row.specials = specials;
-      const dice = cleanCell(cells[iEffect]).match(/(\d+)d8/);
+      const effect = cleanCell(cells[iEffect]);
+      const dice = effect.match(/(\d+)d8/);
       if (dice) row.dice = Number(dice[1]);
+      const attacks = effect.match(/^(?:Make up to|Autofire)\s+(\d+)\s+(?:melee |ranged )?(?:weapon )?attacks\b/i);
+      if (attacks) row.attacks = Number(attacks[1]);
+      const hp = effect.match(/^Create a Barrier with (\d+) HP/i);
+      if (hp) row.hp = Number(hp[1]);
+      const bars = iPool >= 0 ? cleanCell(cells[iPool]).match(/^(?:Restore up to\s+)?(\d+)\s+(?:Scarred\s+)?Bars?\b/i) : null;
+      if (bars) row.bars = Number(bars[1]);
       rows[lvl - 1] = row;
     }
     result[id] = { title, rows };
@@ -106,6 +114,12 @@ export interface CanonicalActiveRow {
   radiusM?: number;
   specials?: Readonly<Record<string, number>>;
   dice?: number;
+  /** Split Attack targets / Autofire attack slots. */
+  attacks?: number;
+  /** Ranged Barrier HP. */
+  hp?: number;
+  /** AoE / Single Target Restoration Scarred-Bar pool per Safe Haven Rest. */
+  bars?: number;
 }
 
 export interface CanonicalActiveTable {

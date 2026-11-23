@@ -1,7 +1,7 @@
 /**
  * Reaction Power Templates
  *
- * Source: Rules/reactions.md — Levels 1..16.
+ * Source: Rules/Canonical/Reactions.md — Levels 1..16.
  * Single-axis defensive answers (Armor / Evade / Temp HP), two-axis combos,
  * Ally Protection variants, closed premium subsystems (DR, Phasing),
  * retaliatory Counter Damage / Special Increase, Initiative Gain, Reposition,
@@ -36,17 +36,20 @@ const COUNTER_DMG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const COUNTER_DMG_PUSH_D = [1, 1, 2, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const COUNTER_DMG_PUSH_M = [0, 2, 2, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 const INITIATIVE_GAIN = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-/** Reposition distance (m) — L4=2, L10=4, L16=8 (10 PP / m milestone curve). */
-const REPOSITION_M = [0, 0, 0, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8];
+/** Reposition distance (m) — milestones L4–7 = 2, L8–11 = 4, L12–14 = 6, L15–16 = 8. */
+const REPOSITION_M = [0, 0, 0, 2, 2, 2, 2, 4, 4, 4, 4, 6, 6, 6, 8, 8];
 
 /** Repositioning Intercept — pre-resolve movement (m). */
 const INTERCEPT_M = [0, 0, 0, 2, 2, 2, 2, 4, 4, 4, 4, 6, 6, 6, 8, 8];
 
-/** Reactive Cleanse — reduce triggering ongoing effect by N. */
-const REACTIVE_CLEANSE = [4, 8, 16, 20, 24, 32, 36, 40, 48, 52, 56, 64, 68, 72, 80, 84];
+/** Reaction: Cleanse — Cleanse(X) on the triggering eligible Special (Reactions.md). */
+export const REACTION_CLEANSE_X = [2, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 11, 12];
 
 /** Reactive Overload — Absorbed Damage multiplier. */
 const OVERLOAD_MULT = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5];
+
+/** Reaction: Absorption Surge — extra Temporary Colorless Stones per triggering damage instance. */
+export const ABSORPTION_SURGE_STONES = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 
 export const REACTION_TEMPLATES: PowerTemplate[] = [
     {
@@ -431,19 +434,19 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
     },
     {
         templateId: 'reaction-reactive-cleanse',
-        templateName: 'Reactive Cleanse',
-        name: 'Reaction: Reactive Cleanse',
+        templateName: 'Cleanse',
+        name: 'Reaction: Cleanse',
         subfamily: 'cleanse',
         category: 'reaction',
         tags: [],
-        fluff: 'Self only. Strip value from one triggering eligible ongoing effect.',
-        trigger: 'When an eligible ongoing effect would apply to you or is already affecting you',
+        fluff: 'Self only. Cleanse(X) reduces exactly one triggering eligible Special by X; it cannot be split. If the Special has less than X remaining, it ends and unused points are lost.',
+        trigger: 'Incoming Effect Trigger / Ongoing Effect Trigger',
         cost: { action: 'reaction' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const amt = REACTIVE_CLEANSE[lvl - 1]!;
+            const amt = REACTION_CLEANSE_X[lvl - 1]!;
             return reactionRow({
-                effectText: `Reduce the triggering eligible ongoing effect by **${amt}**.`,
+                effectText: `Reduce the triggering eligible Special by **${amt}**.`,
                 specials: [{ key: 'cleanse', rank: amt }],
                 mechanics: { modifySpecial: { type: 'triggering', mode: 'decreaseExisting', amount: amt } },
             });
@@ -532,6 +535,32 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
                 effectText:
                     `The actual HP lost from the triggering damage instance counts **${word}** as Absorbed Damage.`,
                 mechanics: {},
+            });
+        }),
+    },
+    {
+        templateId: 'reaction-absorption-surge',
+        templateName: 'Absorption Surge',
+        name: 'Reaction: Absorption Surge',
+        subfamily: 'absorption-surge',
+        category: 'reaction',
+        tags: [],
+        fluff:
+            'You seize the power released by a fresh scar and draw even more Colorless Stones from the wound. ' +
+            'Requires Passive: Absorption. The bonus is granted once per damage instance, not once per Health Bar; ' +
+            'it adds no Absorption triggers and no Stone Recovery.',
+        trigger:
+            "An eligible hostile damage instance Scars one or more of your Health Bars, using at least one of Passive: Absorption's four triggers for this combat",
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const stones = ABSORPTION_SURGE_STONES[lvl - 1]!;
+            return reactionRow({
+                type: 'Reaction, Absorption',
+                range: SELF,
+                effectText:
+                    `**+${stones} Temporary Colorless Stone${stones === 1 ? '' : 's'}** on a valid Absorption-triggering damage instance (once per instance).`,
+                mechanics: { absorptionSurgeStones: stones },
             });
         }),
     },

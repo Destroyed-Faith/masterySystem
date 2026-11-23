@@ -25,16 +25,17 @@ const ROOT = join(__dirname, '..');
 
 describe('Power Purchase UI filters — Active Buffs', () => {
   it('final catalogue has Active Buffs including Armor, offensive expansion, and Special Auras', () => {
-    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(33);
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(36);
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-armor');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-armor-reduction');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-area-expansion');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-ruin-aura');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-hex-aura');
-    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).not.toContain('ab-armor-aura');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-armor-aura');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).not.toContain('ab-damage-aura');
     const listed = filterCatalog({ category: 'activeBuff' });
-    expect(listed).toHaveLength(33);
-    expect(new Set(listed.map((e) => e.templateId)).size).toBe(33);
+    expect(listed).toHaveLength(36);
+    expect(new Set(listed.map((e) => e.templateId)).size).toBe(36);
     expect(listed.some((e) => e.templateId === 'ab-armor')).toBe(true);
     expect(listed.some((e) => e.name === 'Active Buff: Armor')).toBe(true);
     expect(listed.some((e) => e.name === 'Active Buff: Armor Reduction')).toBe(true);
@@ -50,13 +51,13 @@ describe('Power Purchase UI filters — Active Buffs', () => {
     );
 
     const all = filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: null });
-    expect(all).toHaveLength(33);
+    expect(all).toHaveLength(36);
     expect(all.filter((e) => e.templateId === 'ab-armor')).toHaveLength(1);
     expect(all.filter((e) => e.templateId === 'ab-thorns')).toHaveLength(1);
 
     const defensive = filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'defensive' });
     const offensive = filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'offensive' });
-    expect(defensive).toHaveLength(12);
+    expect(defensive).toHaveLength(15);
     expect(offensive).toHaveLength(22);
     expect(defensive.some((e) => e.templateId === 'ab-armor')).toBe(true);
     expect(defensive.some((e) => e.templateId === 'ab-damage-reduction')).toBe(true);
@@ -83,7 +84,7 @@ describe('Power Purchase UI filters — Active Buffs', () => {
       ...defensive.map((e) => e.templateId),
       ...offensive.map((e) => e.templateId),
     ]);
-    expect(covered.size).toBe(33);
+    expect(covered.size).toBe(36);
 
     expect(all.some((e) => e.templateId === 'ab-penetration')).toBe(false);
     expect(all.some((e) => /combined/i.test(e.templateId))).toBe(false);

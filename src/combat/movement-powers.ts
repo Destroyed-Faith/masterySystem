@@ -538,7 +538,7 @@ export async function executeMovementPower(input: {
     for (const creature of crossed) {
       const targetActor = creature.actor;
       if (!targetActor) continue;
-      const summary = await applyDamageToTarget(targetActor, raw, actor, 0, {
+      const summary = await applyDamageToTarget(targetActor, raw, actor, {
         skipPhasing: true,
         skipReactionPrompt: true,
         attackSucceeded: true,

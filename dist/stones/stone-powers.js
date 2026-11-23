@@ -653,12 +653,12 @@ const INTELLECT_POWERS_RAW = [
         name: 'Raises',
         attribute: 'intellect',
         category: 'action',
-        description: 'One shared Round allowance of 2/4/6/8 Free Raises (Ranks 1–4). They do not increase the TN. You may spend them on your own eligible Attack/Casting Rolls or allocate unused Raises to willing allies within 20 m whom you can perceive (playtest). Stones stay with you. Unused Raises expire at Round End. Spent whether the roll succeeds or fails.',
+        description: 'One shared Round allowance of 2/4/6/8 Free Raises (Ranks 1–4). They do not increase the TN. You may spend them on your own eligible Attack/Casting Rolls or allocate unused Raises to willing allies within 20 m who can perceive your signal. Stones stay with you. Unused Raises expire at Round End. Spent whether the roll succeeds or fails.',
         tiers: [
-            { label: '2 Raises', description: '2 shared Free Raises this round (+0 TN). May be shared with allies (playtest 20 m).', value: 2 },
-            { label: '4 Raises', description: '4 shared Free Raises this round (+0 TN). May be shared with allies (playtest 20 m).', value: 4 },
-            { label: '6 Raises', description: '6 shared Free Raises this round (+0 TN). May be shared with allies (playtest 20 m).', value: 6 },
-            { label: '8 Raises', description: '8 shared Free Raises this round (+0 TN). May be shared with allies (playtest 20 m).', value: 8 },
+            { label: '2 Raises', description: '2 shared Free Raises this round (+0 TN). May be shared with allies within 20 m.', value: 2 },
+            { label: '4 Raises', description: '4 shared Free Raises this round (+0 TN). May be shared with allies within 20 m.', value: 4 },
+            { label: '6 Raises', description: '6 shared Free Raises this round (+0 TN). May be shared with allies within 20 m.', value: 6 },
+            { label: '8 Raises', description: '8 shared Free Raises this round (+0 TN). May be shared with allies within 20 m.', value: 8 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;

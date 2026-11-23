@@ -1,7 +1,7 @@
 /**
  * Active Buff Power Templates
  *
- * Source: docs/Rules/active-buffs.md + Offensive Expansion 2026-10-24 (25 Buffs), Levels 1..16.
+ * Source: docs/Rules/Canonical/ActiveBuffs.md + Offensive Expansion 2026-10-24 (25 Buffs), Levels 1..16.
  * Duration: Mastery Rank complete Rounds (Round-End expiry) unless noted.
  * Active Buff PP curve = 40 / 70 / 100 / 130 PP, then +30 per level (cap L16 = 490 PP).
  */
@@ -35,9 +35,35 @@ const AB_PENETRATION = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61
 const AB_SPELL_RESISTANCE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Active Buff: Self Cleanse (+1 per level; Start of Turn). */
 const AB_CLEANSE_MAINTENANCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-const AURA_RADIUS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-// Armor Aura: +1 Armor / PL (weaker than self Buff); radius +2 m / Level unchanged.
-const AURA_ARMOR = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Protective Auras (v0.9.9.6): Armor / Evade / Spell Resistance Aura share one curve. */
+const PROTECTIVE_AURA_VALUE = [1, 3, 5, 7, 9, 11, 13, 15, 15, 17, 19, 21, 23, 25, 27, 29];
+const PROTECTIVE_AURA_RADIUS = [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
+function protectiveAura(templateId, templateName, stat, label, fluff) {
+    return {
+        templateId,
+        templateName,
+        name: `Active Buff: ${templateName}`,
+        subfamily: 'protective-aura',
+        category: 'activeBuff',
+        tags: [],
+        fluff,
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const value = PROTECTIVE_AURA_VALUE[lvl - 1];
+            const radiusM = PROTECTIVE_AURA_RADIUS[lvl - 1];
+            return activeBuffRow({
+                aoe: { shape: 'aura', radiusM, targetFilter: 'allies', center: 'self' },
+                duration: DURATION_MR_ROUNDS,
+                effectText: `You and every ally inside the Aura (**Radius ${radiusM} m**) gain **+${value} ${label}**.`,
+                mechanics: {
+                    protectiveAura: { stat, value, radiusM },
+                    duration: 'masteryRankRounds',
+                },
+            });
+        }),
+    };
+}
 // --- Active Buff Aura tables (banded radius L1–7=2m, L8–14=3m, L15–16=4m) ---
 const AURA_BAND_RADIUS = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4];
 const AURA_DAMAGE = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
@@ -157,23 +183,9 @@ export const ACTIVE_BUFF_TEMPLATES = [
             });
         }),
     },
-    {
-        templateId: 'ab-armor-aura',
-        templateName: 'Armor Aura',
-        name: 'Active Buff: Armor Aura',
-        subfamily: 'aura',
-        category: 'activeBuff',
-        tags: [],
-        fluff: '**Retired (Batch 8):** Legacy Armor Aura is unavailable for new selection. Kept only for existing owned items / Artifact grants pending Batch 9 redesign.',
-        cost: { action: 'attack' },
-        roll: { kind: 'none' },
-        levels: buildLevels((lvl) => activeBuffRow({
-            aoe: { shape: 'aura', radiusM: AURA_RADIUS[lvl - 1], targetFilter: 'allies', center: 'self' },
-            duration: DURATION_MR_ROUNDS,
-            effectText: `You and allies within **${AURA_RADIUS[lvl - 1]} m** gain **+${AURA_ARMOR[lvl - 1]} Armor**.`,
-            mechanics: { armor: AURA_ARMOR[lvl - 1], duration: 'masteryRankRounds' },
-        })),
-    },
+    protectiveAura('ab-armor-aura', 'Armor Aura', 'armor', 'Armor', 'You project a protective field that hardens you and the allies beside you.'),
+    protectiveAura('ab-evade-aura', 'Evade Aura', 'evade', 'Evade', 'You blur movement, call warnings and shift angles so that you and nearby allies are harder to hit.'),
+    protectiveAura('ab-spell-resistance-aura', 'Spell Resistance Aura', 'spellResistance', 'Spell Resistance', 'You weave a warding field that raises the Final Spell TN of hostile Spells against you and nearby allies.'),
     {
         templateId: 'ab-temp-hp',
         templateName: 'Temporary HP',
@@ -530,7 +542,7 @@ export const ACTIVE_BUFF_TEMPLATES = [
             mechanics: {},
         })),
     },
-    // Active Buff Auras never apply or increase Specials (Rules/active-buffs.md).
+    // Active Buff Auras never apply or increase Specials (Rules/Canonical/ActiveBuffs.md).
     // Special interaction is Active Buff: Special Overdrive only; Passive Special Aura lives in passives.
     {
         templateId: 'ab-growth-form',
@@ -906,11 +918,11 @@ export const ACTIVE_BUFF_TEMPLATES = [
             });
         }),
     },
-    // --- Special Auras (Batch 8 / Z05) — Canonical Active_Buffs.md 2026-11-04 ---
+    // --- Special Auras (Batch 8 / Z05) — Canonical ActiveBuffs.md 2026-11-04 ---
     // Exact playtest PL / radius / Special tables. Owner immune; all other creatures affected.
     ...specialAuraTemplates(),
 ];
-/** Canonical Special Aura progressions (14 Powers). `null` = Unavailable. Source: docs/Rules/Canonical/Active_Buffs.md */
+/** Canonical Special Aura progressions (14 Powers). `null` = Unavailable. Source: docs/Rules/Canonical/ActiveBuffs.md */
 function specialAuraTemplates() {
     const make = (templateId, templateName, special, table, titled) => ({
         templateId,

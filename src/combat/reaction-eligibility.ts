@@ -84,16 +84,15 @@ function subfamilyOf(item: any): string {
   return String(item?.system?.subfamily ?? '').toLowerCase();
 }
 
-/** Basic Evade or a reaction whose only combat effect is an Evade bonus. */
+/** A reaction whose only combat effect is an Evade bonus (e.g. Reaction: Evade). */
 export function isEvadeOnlyReaction(item: any): boolean {
-  if (item?.basicReaction === 'evade') return true;
+  if (item?.basicReaction) return false;
   const mech = mechanicsOf(item);
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
   if (ev <= 0) return false;
   const armor = Math.max(0, Math.floor(Number(mech?.armor) || 0));
   const dr = Math.max(0, Math.floor(Number(mech?.damageReductionPct) || 0));
   if (armor > 0 || dr > 0) return false;
-  if (item?.basicReaction === 'counterattack' || item?.basicReaction === 'guard') return false;
   return true;
 }
 
@@ -178,6 +177,10 @@ export function isOverloadReaction(item: any): boolean {
   const tid = templateIdOf(item);
   if (tid === 'reaction-reactive-overload') return true;
   return subfamilyOf(item) === 'absorption';
+}
+
+export function isAbsorptionSurgeReaction(item: any): boolean {
+  return templateIdOf(item) === 'reaction-absorption-surge';
 }
 
 export function isParryFollowUpReaction(item: any): boolean {
@@ -305,6 +308,9 @@ export function evaluateReactionEligibility(power: any, ctx: ReactionTriggerCont
   }
   if (isOverloadReaction(power) && !ctx.hpLost) {
     return { shown: false, enabled: false, reason: 'Overload triggers after actual HP loss' };
+  }
+  if (isAbsorptionSurgeReaction(power)) {
+    return { shown: false, enabled: false, reason: 'Absorption Surge triggers after an Absorption-triggering Scar' };
   }
 
   // Parry follow-ups: Weapon Damage is martial melee only. Reflection matches delivery.

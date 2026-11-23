@@ -55,8 +55,8 @@ function stagePowerLevels(pick: ArtifactProgressionPick): string[] {
   return ['4', '10', '16'];
 }
 
-describe('Draconic Roar — catalogue Armor Aura (not Core stale +12/+28/+44)', () => {
-  it('compiled Roar stages are +4 / +10 / +16 Armor at 8 / 20 / 32 m', () => {
+describe('Draconic Roar — Protective Armor Aura (v0.9.9.6)', () => {
+  it('compiled Roar stages are +7 / +17 / +29 Armor at 2 / 3 / 3 m', () => {
     const def = ECHO_ARTIFACTS.dragonHead;
     const picks = buildEchoProgressionPicks(def);
     const roar = picks.find((p) => /draconic\s*roar/i.test(String(p.displayName || '')));
@@ -69,9 +69,9 @@ describe('Draconic Roar — catalogue Armor Aura (not Core stale +12/+28/+44)', 
     expect(rows).toHaveLength(3);
 
     const expected = [
-      { armor: 4, radius: 8 },
-      { armor: 10, radius: 20 },
-      { armor: 16, radius: 32 },
+      { armor: 7, radius: 2 },
+      { armor: 17, radius: 3 },
+      { armor: 29, radius: 3 },
     ];
     for (let i = 0; i < 3; i++) {
       expect(armorFromText(String(rows[i].effect))).toBe(expected[i].armor);
@@ -81,9 +81,9 @@ describe('Draconic Roar — catalogue Armor Aura (not Core stale +12/+28/+44)', 
     }
 
     const aura = getTemplate('ab-armor-aura');
-    expect(templateArmor(aura?.levels?.['4'])).toBe(4);
-    expect(templateArmor(aura?.levels?.['10'])).toBe(10);
-    expect(templateArmor(aura?.levels?.['16'])).toBe(16);
+    expect(templateArmor(aura?.levels?.['4'])).toBe(7);
+    expect(templateArmor(aura?.levels?.['10'])).toBe(17);
+    expect(templateArmor(aura?.levels?.['16'])).toBe(29);
   });
 });
 

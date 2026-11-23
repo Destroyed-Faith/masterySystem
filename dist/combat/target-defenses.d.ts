@@ -4,15 +4,21 @@
  * second interpretation of the sheet.
  *
  * Always-on Passive `mechanics.evade` / `mechanics.armor` are already folded
- * into `evadeTotal` / `armorTotal` by `prepareDerivedData`. Active Buff
- * bonuses still stack on top via `*FromActiveBuffs`.
+ * into `evadeTotal` / `armorTotal` by `prepareDerivedData`. The Active Buff
+ * part (`*FromActiveBuffs` vs Protective Auras in range, highest only) adds on top.
  */
+import { type ProtectiveAuraStat } from './protective-aura-runtime.js';
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
 export declare function getTargetEvade(targetActor: any, attacker?: any): number;
 /** Evade (evadeTotal + Active Buffs) before attacker reductions and All-Out drawbacks. */
 export declare function getTargetEvadeBeforeAllOut(targetActor: any): number;
 /** Effective Armor (armorTotal + Active Buffs) before any All-Out drawback. */
 export declare function getTargetArmorBeforeAllOut(targetActor: any): number;
+/**
+ * Active Buff part of Armor / Evade / Spell Resistance: the highest of the
+ * creature's own Active Buff and every Protective Aura it stands in (no stacking).
+ */
+export declare function activeBuffDefenseBonus(targetActor: any, stat: ProtectiveAuraStat): number;
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */
 export declare function getTargetArmor(targetActor: any): number;
 /** Spell Resistance used vs spells (`attack-executor.getTargetSpellResistance`). */

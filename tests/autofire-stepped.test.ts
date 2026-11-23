@@ -209,7 +209,7 @@ describe('Stepped Autofire — damage', () => {
   });
 
   it('one shared payload is reused for every slot, repeated creature included', () => {
-    const shared = toSharedAoeDamagePayload({ totalDamage: 17, count8s: 1, specialsUsed: [] })!;
+    const shared = toSharedAoeDamagePayload({ totalDamage: 17, specialsUsed: [] })!;
     const hits = ['A', 'A', 'B'].map((id) => ({ id, ...shared }));
     expect(hits.map((h) => h.totalDamage)).toEqual([17, 17, 17]);
     expect(hits).toHaveLength(3); // no dedupe by token id

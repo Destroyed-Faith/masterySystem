@@ -31,14 +31,21 @@ export { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId };
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
 /**
- * Final Active Buff catalogue (Canonical Active_Buffs.md + Batch 8.1 Special Auras).
- * New-Power pickers may only offer these IDs. Legacy aura templates remain in
- * `ACTIVE_BUFF_TEMPLATES` for owned items / Artifact grants (Batch 9 redesign).
+ * Final Active Buff catalogue (Canonical ActiveBuffs.md v0.9.9.6): 19 core Buffs,
+ * 3 Protective Auras, 14 Special Auras. New-Power pickers may only offer these IDs.
+ * Legacy aura templates remain in `ACTIVE_BUFF_TEMPLATES` for owned items.
  */
-export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-thorns", "ab-intensified-absorption", "ab-armor-reduction", "ab-enemy-evade-reduction", "ab-spell-resistance-piercing", "ab-maximization", "ab-area-expansion", "ab-blight-aura", "ab-challenge-aura", "ab-corrode-aura", "ab-disoriented-aura", "ab-expose-aura", "ab-hex-aura", "ab-lacerate-aura", "ab-mark-aura", "ab-root-aura", "ab-ruin-aura", "ab-slow-aura", "ab-soulburn-aura", "ab-sundered-aura", "ab-weaken-aura"];
+export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-thorns", "ab-intensified-absorption", "ab-armor-reduction", "ab-enemy-evade-reduction", "ab-spell-resistance-piercing", "ab-maximization", "ab-area-expansion", "ab-armor-aura", "ab-evade-aura", "ab-spell-resistance-aura", "ab-blight-aura", "ab-challenge-aura", "ab-corrode-aura", "ab-disoriented-aura", "ab-expose-aura", "ab-hex-aura", "ab-lacerate-aura", "ab-mark-aura", "ab-root-aura", "ab-ruin-aura", "ab-slow-aura", "ab-soulburn-aura", "ab-sundered-aura", "ab-weaken-aura"];
 export type FinalActiveBuffTemplateId = (typeof FINAL_ACTIVE_BUFF_TEMPLATE_IDS)[number];
-/** True when `templateId` is in the official 33-buff selection catalogue (Batch 8.1). */
+/** True when `templateId` is in the official 36-buff selection catalogue (v0.9.9.6). */
 export declare function isSelectableActiveBuffTemplateId(templateId: string | null | undefined): boolean;
+/**
+ * Final Reaction catalogue (Canonical Reactions.md v0.9.9.6): the 16 printed
+ * Reaction Effects. Unprinted Reaction templates stay for owned items only.
+ */
+export declare const FINAL_REACTION_TEMPLATE_IDS: readonly ["reaction-armor", "reaction-evade", "reaction-temp-hp", "reaction-ally-armor", "reaction-ally-evade", "reaction-ally-temp-hp", "reaction-reposition", "reaction-reactive-cleanse", "reaction-damage-reduction", "reaction-phasing", "reaction-counter-damage", "reaction-counter-damage-push", "reaction-initiative-gain", "reaction-riposte", "reaction-parry-reflection", "reaction-absorption-surge"];
+/** True when `templateId` is one of the 16 printed Reactions (v0.9.9.6). */
+export declare function isSelectableReactionTemplateId(templateId: string | null | undefined): boolean;
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export declare const SUBFAMILY_LABELS: Record<string, string>;
 export declare const SUBFAMILY_HINTS: Record<string, string>;
@@ -235,6 +242,11 @@ export interface CatalogFilter {
      * pickers. Direct `templateId` lookups still resolve legacy templates.
      */
     includeNonFinalActiveBuffs?: boolean;
+    /**
+     * Include Reactions outside the 16 printed Reactions. Default false for
+     * pickers. Direct `templateId` lookups still resolve legacy templates.
+     */
+    includeNonFinalReactions?: boolean;
     /**
      * Include Passives outside the final 28-passive rulebook catalogue.
      * Default false for pickers. Direct `templateId` lookups still resolve

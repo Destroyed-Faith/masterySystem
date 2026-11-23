@@ -3,7 +3,8 @@
  *
  * There is no automatic Basic Attack (Actives v0.9.9.6): damage attacks come
  * from learned or granted Attack Powers.
- * Basic Reactions: Guard (+MR×2 Armor), Evade (+MR×2 Evade), Dive for Cover (AoE).
+ * Basic Reactions (Core v0.9.9.6): Guard (+MR×2 Armor) and Dive for Cover (AoE) only.
+ * There is no Basic Evade; Reaction: Evade is a purchased Power.
  * Counterattack is not a Basic Reaction; legacy Counterattack items are never offered.
  */
 
@@ -13,14 +14,13 @@ export function getMasteryRank(actor: any): number {
   return getRulesMasteryRank(actor);
 }
 
-/** MR × 2 — Guard / Evade bonuses and Dive for Cover distance. */
+/** MR × 2 — Guard bonus and Dive for Cover distance. */
 export function basicCombatMrTimesTwo(actor: any): number {
   return getMasteryRank(actor) * 2;
 }
 
 export const BASIC_REACTION_IDS = {
   guard: 'basic-reaction-guard',
-  evade: 'basic-reaction-evade',
   diveForCover: 'basic-reaction-dive-for-cover',
   /** @deprecated Not injected as a universal Basic Reaction. */
   counterattack: 'basic-reaction-counterattack',
@@ -38,22 +38,10 @@ export function buildBasicReactionItems(actor: any): any[] {
       system: {
         powerType: 'reaction',
         templateId: 'basic-guard',
-        description: `Gain +${mr2} Armor (MR × 2) against the triggering attack or damage.`,
+        description: `Gain +${mr2} Armor (MR × 2) against the triggering attack or damage instance.`,
       },
       basicReaction: 'guard',
       mechanics: { armor: mr2 },
-    },
-    {
-      id: BASIC_REACTION_IDS.evade,
-      name: 'Evade',
-      type: 'basic-reaction',
-      system: {
-        powerType: 'reaction',
-        templateId: 'basic-evade',
-        description: `Gain +${mr2} Evade (MR × 2) against the triggering attack.`,
-      },
-      basicReaction: 'evade',
-      mechanics: { evade: mr2 },
     },
     {
       id: BASIC_REACTION_IDS.diveForCover,

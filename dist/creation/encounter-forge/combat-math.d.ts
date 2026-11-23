@@ -78,9 +78,8 @@ export interface DamageSpec {
 }
 /**
  * Exact expected HP damage of one connecting hit, respecting:
- * Damage Negation (dice removed) -> roll -> Penetration -> Armor -> DR% ->
- * natural-8 minimum damage (if armor+DR zero out the hit, the target still
- * takes 1 damage per natural 8 rolled).
+ * Damage Negation (dice removed) -> roll -> Penetration -> Armor -> DR%.
+ * A hit reduced to 0 deals 0.
  *
  * Temporary HP is handled by the simulator (it is a pool, not a per-hit
  * modifier).

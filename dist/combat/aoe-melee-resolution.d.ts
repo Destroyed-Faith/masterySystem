@@ -96,7 +96,6 @@ export declare function withInstantAoeFlags<T extends Record<string, any>>(flags
 /** Shared AoE damage payload — rolled once, applied to every remaining hit. */
 export type SharedAoeDamagePayload = {
     totalDamage: number;
-    count8s?: number;
     specialsUsed?: string[];
     applicationLimitNotes?: string[];
     rollDetails?: string[];
@@ -106,7 +105,7 @@ export type SharedAoeDamagePayload = {
     specialsAppliedToTargetId?: string | null;
     /**
      * Autofire: the full ordered negatable d8 faces of the ONE shared roll (before any
-     * per-hit omission). `totalDamage` / `count8s` are the FULL roll values.
+     * per-hit omission). `totalDamage` is the FULL roll value.
      */
     orderedDieFaces?: number[];
     /** Maximization: every die is an artificial 8 (never a natural 8). */
@@ -118,7 +117,6 @@ export type SharedAoeDamagePayload = {
 };
 export declare function toSharedAoeDamagePayload(result: {
     totalDamage?: number;
-    count8s?: number;
     specialsUsed?: string[];
     applicationLimitNotes?: string[];
     rollDetails?: string[];

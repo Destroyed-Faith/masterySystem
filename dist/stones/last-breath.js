@@ -1,6 +1,7 @@
 /**
- * Last Breath — once per Safe Haven Rest, burn 1 Stone to stay up
- * with 1 box in the Wounded bar when you would drop to Incapacitated.
+ * Last Breath (Core v0.9.9.6) — once per Safe Haven Rest, when you would drop to
+ * Incapacitated, Seal 1 Attribute Stone and stay conscious with 1 HP in the
+ * Broken Health Bar. The Sealed Stone returns at the next Safe Haven Rest.
  */
 import { getStonePool, STONE_POOL_ATTRIBUTE_KEYS } from '../combat/action-economy.js';
 export const LAST_BREATH_FLAG = 'lastBreathUsed';
@@ -29,10 +30,10 @@ export function wouldDropToIncapacitated(bars) {
         return Math.max(0, Number(bars[incapIdx]?.current) || 0) <= 0;
     return bars.every((b) => Math.max(0, Number(b?.current) || 0) <= 0);
 }
-/** Mutate bars in place: 1 box in Wounded, later bars restored. Returns wounded index. */
+/** Mutate bars in place: 1 HP in Broken, later bars restored. Returns the Broken index. */
 export function applyLastBreathBars(bars) {
-    const wounded = barIndexByName(bars, 'wounded');
-    const idx = wounded >= 0 ? wounded : Math.max(0, bars.length - 2);
+    const broken = barIndexByName(bars, 'broken');
+    const idx = broken >= 0 ? broken : Math.max(0, bars.length - 2);
     for (let i = 0; i < bars.length; i++) {
         const bar = bars[i];
         if (!bar)
@@ -44,17 +45,16 @@ export function applyLastBreathBars(bars) {
     }
     return idx;
 }
-async function burnOneReadyStone(actor) {
+async function sealOneReadyStone(actor) {
     for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
         const pool = getStonePool(actor, attr);
         if (pool.current <= 0)
             continue;
-        // BURN: the stone is lost until a Safe Haven Rest — `burned` blocks regen
-        // and end-of-combat refills from bringing it back early.
-        const burnedNow = Math.max(0, Number(actor?.system?.stonePools?.[attr]?.burned) || 0);
+        // `sealed` blocks regen and end-of-combat refills until a Safe Haven Rest.
+        const sealedNow = Math.max(0, Number(actor?.system?.stonePools?.[attr]?.sealed) || 0);
         await actor.update?.({
             [`system.stonePools.${attr}.current`]: pool.current - 1,
-            [`system.stonePools.${attr}.burned`]: burnedNow + 1,
+            [`system.stonePools.${attr}.sealed`]: sealedNow + 1,
         });
         return attr;
     }
@@ -63,7 +63,7 @@ async function burnOneReadyStone(actor) {
 async function confirmLastBreath(actor) {
     const DialogV2 = globalThis.foundry?.applications?.api?.DialogV2;
     const name = String(actor?.name || 'You');
-    const content = `${name} would drop to Incapacitated. Burn <strong>1 Stone</strong> to stay conscious with 1 box in the Wounded Health Bar? Remaining damage from this hit is ignored.`;
+    const content = `${name} would drop to Incapacitated. Seal <strong>1 Attribute Stone</strong> (it returns at the next Safe Haven Rest) to stay conscious with 1 HP in the Broken Health Bar? Remaining damage from this hit is ignored.`;
     if (typeof DialogV2?.confirm === 'function') {
         return !!(await DialogV2.confirm({
             window: { title: 'Last Breath' },
@@ -85,7 +85,7 @@ async function confirmLastBreath(actor) {
 }
 /**
  * If this hit would drop the actor to Incapacitated, offer Last Breath.
- * Mutates `bars` when accepted. Returns the Wounded bar index, or null.
+ * Mutates `bars` when accepted. Returns the Broken bar index, or null.
  */
 export async function maybeApplyLastBreath(actor, bars) {
     if (!wouldDropToIncapacitated(bars) || !canUseLastBreath(actor))
@@ -93,13 +93,13 @@ export async function maybeApplyLastBreath(actor, bars) {
     const accepted = await confirmLastBreath(actor);
     if (!accepted)
         return null;
-    const burned = await burnOneReadyStone(actor);
-    if (!burned)
+    const sealed = await sealOneReadyStone(actor);
+    if (!sealed)
         return null;
     await actor.setFlag?.('mastery-system', LAST_BREATH_FLAG, true);
-    const woundedIdx = applyLastBreathBars(bars);
-    globalThis.ui?.notifications?.info(`${actor.name}: Last Breath — stays conscious with 1 Wounded box (burned 1 ${burned} Stone).`);
-    return woundedIdx;
+    const brokenIdx = applyLastBreathBars(bars);
+    globalThis.ui?.notifications?.info(`${actor.name}: Last Breath — stays conscious with 1 HP in the Broken bar (Sealed 1 ${sealed} Stone).`);
+    return brokenIdx;
 }
 export async function clearLastBreathOnRest(actor) {
     if (actor.getFlag?.('mastery-system', LAST_BREATH_FLAG) !== true)

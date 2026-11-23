@@ -42,7 +42,7 @@ export declare const SUMMON_CAPS: {
     /** Normal Bound Stone → Summon Tokens (Players Guide). */
     readonly tokensPerStone: 8;
     /**
-     * Artifact Summon Token Generator (`Rules/artefacts.md`):
+     * Artifact Summon Token Generator (`Rules/Canonical/Artifacts.md`):
      * each Artifact Summon Stone → 4 bonus Tokens for an existing Bond.
      * These are not Bound Stones and cannot create a Bond.
      */

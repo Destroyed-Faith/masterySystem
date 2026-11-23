@@ -98,6 +98,7 @@ import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v
 import { buildValueTableHtml } from './progression/build-value.js';
 import { DF_CORE_RULES_VERSION, nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
+import { registerV0996WorldMigrationSetting } from './migrations/v0996-world-migration.js';
 import { runEchoStoneSupportResyncMigration } from './migrations/echo-stone-support-resync.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
@@ -136,6 +137,7 @@ function registerAllMasteryInitSettings() {
     registerPaperdollSlotCanonicalSetting();
     registerAbCriticalMilestonesMigrationSetting();
     registerPowerTemplateResyncMigrationSetting();
+    registerV0996WorldMigrationSetting();
     registerRulesV2AlignmentMigrationSetting();
     registerSpeed8mMigrationSetting();
     registerSummonV2MigrationSetting();
@@ -1766,6 +1768,16 @@ function exposeMasterySystemApi() {
             const { openActivesV0996Review } = await import('./migrations/actives-v0996-review-dialog.js');
             return openActivesV0996Review();
         },
+        /** Rules v0.9.9.6 world migration: restore one actor from its backups. */
+        v0996WorldRollback: async (actor) => {
+            const { rollbackV0996WorldActor } = await import('./migrations/v0996-world-migration.js');
+            return rollbackV0996WorldActor(actor);
+        },
+        /** Rules v0.9.9.6 world migration: read-only plan of what is still pending. */
+        v0996WorldReport: async () => {
+            const { buildV0996WorldReport } = await import('./migrations/v0996-world-migration.js');
+            return buildV0996WorldReport();
+        },
         /** Actives v0.9.9.6: read-only report object (for macros / verification). */
         activesV0996Report: async () => {
             const { buildActivesV0996Report } = await import('./migrations/actives-v0996-migration.js');
@@ -1791,13 +1803,13 @@ function exposeMasterySystemApi() {
             const { rollbackActorLegacyCleanup } = await import('./migrations/legacy-cleanup-2026-migration.js');
             return rollbackActorLegacyCleanup(actor);
         },
-        /** Playtest: declare All-Out Attack for the current Round (−4 Armor or −2 Evade). */
+        /** Declare All-Out Attack for the current Round (−4 Armor or −2 Evade). */
         declareAllOutAttack: async (actor, penalty) => {
             const { declareAllOutAttack } = await import('./combat/tactical-options.js');
             return declareAllOutAttack(actor, game.combat ?? null, penalty);
         },
         /**
-         * Playtest: transfer regular base Attack Action (Prep grant; recipient spends on their Turn).
+         * Transfer the regular base Attack Action (Prep grant; recipient spends on their Turn).
          * Range/perception are skipped only for a GM; players go through the GM relay checks.
          */
         transferAttackAction: async (donor, recipient) => {
@@ -1806,7 +1818,7 @@ function exposeMasterySystemApi() {
                 skipRangeCheck: true,
             });
         },
-        /** Playtest: donor assigns `amount` of its Intellect Free Raises to an ally for this Round. */
+        /** Donor assigns `amount` of its Intellect Free Raises to an ally for this Round. */
         allocateFreeRaises: async (donor, recipient, amount) => {
             const { requestFreeRaiseAllocation } = await import('./combat/teamwork-transactions.js');
             return requestFreeRaiseAllocation(donor, recipient, amount, game.combat ?? null);
@@ -3342,6 +3354,14 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | legacy cleanup dry-run failed', error);
+    }
+    // Rules v0.9.9.6 world migration: once, before the resync, with a GM chat report.
+    try {
+        const { runV0996WorldMigrationOnReady } = await import('./migrations/v0996-world-migration.js');
+        await runV0996WorldMigrationOnReady();
+    }
+    catch (error) {
+        console.warn('Mastery System | v0.9.9.6 world migration failed', error);
     }
     try {
         await runPowerTemplateResyncMigration();

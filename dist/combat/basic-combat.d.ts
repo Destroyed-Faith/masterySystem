@@ -3,15 +3,15 @@
  *
  * There is no automatic Basic Attack (Actives v0.9.9.6): damage attacks come
  * from learned or granted Attack Powers.
- * Basic Reactions: Guard (+MR×2 Armor), Evade (+MR×2 Evade), Dive for Cover (AoE).
+ * Basic Reactions (Core v0.9.9.6): Guard (+MR×2 Armor) and Dive for Cover (AoE) only.
+ * There is no Basic Evade; Reaction: Evade is a purchased Power.
  * Counterattack is not a Basic Reaction; legacy Counterattack items are never offered.
  */
 export declare function getMasteryRank(actor: any): number;
-/** MR × 2 — Guard / Evade bonuses and Dive for Cover distance. */
+/** MR × 2 — Guard bonus and Dive for Cover distance. */
 export declare function basicCombatMrTimesTwo(actor: any): number;
 export declare const BASIC_REACTION_IDS: {
     readonly guard: "basic-reaction-guard";
-    readonly evade: "basic-reaction-evade";
     readonly diveForCover: "basic-reaction-dive-for-cover";
     /** @deprecated Not injected as a universal Basic Reaction. */
     readonly counterattack: "basic-reaction-counterattack";

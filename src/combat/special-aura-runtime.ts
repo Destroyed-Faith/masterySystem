@@ -46,7 +46,6 @@ export type SpecialAuraSpecialKey =
   | 'weaken';
 
 export const RETIRED_LEGACY_AURA_TEMPLATE_IDS = [
-  'ab-armor-aura',
   'ab-damage-aura',
   'ab-summon-damage-aura',
   'ab-summon-armor-aura',

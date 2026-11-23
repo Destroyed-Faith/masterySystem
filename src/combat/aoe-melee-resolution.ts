@@ -270,7 +270,6 @@ export function withInstantAoeFlags<T extends Record<string, any>>(
 /** Shared AoE damage payload — rolled once, applied to every remaining hit. */
 export type SharedAoeDamagePayload = {
   totalDamage: number;
-  count8s?: number;
   specialsUsed?: string[];
   applicationLimitNotes?: string[];
   rollDetails?: string[];
@@ -280,7 +279,7 @@ export type SharedAoeDamagePayload = {
   specialsAppliedToTargetId?: string | null;
   /**
    * Autofire: the full ordered negatable d8 faces of the ONE shared roll (before any
-   * per-hit omission). `totalDamage` / `count8s` are the FULL roll values.
+   * per-hit omission). `totalDamage` is the FULL roll value.
    */
   orderedDieFaces?: number[];
   /** Maximization: every die is an artificial 8 (never a natural 8). */
@@ -293,7 +292,6 @@ export type SharedAoeDamagePayload = {
 
 export function toSharedAoeDamagePayload(result: {
   totalDamage?: number;
-  count8s?: number;
   specialsUsed?: string[];
   applicationLimitNotes?: string[];
   rollDetails?: string[];
@@ -306,7 +304,6 @@ export function toSharedAoeDamagePayload(result: {
   if (result.mitigation?.phased) return null;
   return {
     totalDamage: Math.max(0, Math.floor(Number(result.totalDamage) || 0)),
-    count8s: Math.max(0, Math.floor(Number(result.count8s) || 0)),
     specialsUsed: Array.isArray(result.specialsUsed) ? [...result.specialsUsed] : [],
     applicationLimitNotes: Array.isArray(result.applicationLimitNotes)
       ? [...result.applicationLimitNotes]
@@ -573,7 +570,6 @@ export async function applySharedAoePayloadToTarget(params: {
       defender,
       shared.totalDamage,
       attacker,
-      shared.count8s ?? 0,
       {
         attackTotal,
         evadeTn,
@@ -784,7 +780,6 @@ export async function resolveAoeFullPayloadOnTarget(params: {
         defender,
         damageResult.totalDamage,
         attacker,
-        damageResult.count8s ?? 0,
         {
           attackTotal,
           evadeTn,
@@ -1068,7 +1063,6 @@ export async function resolveAoeMeleeSecondaries(params: {
       }
       shared = {
         totalDamage: 0,
-        count8s: 0,
         specialsUsed,
         rollDetails: ['Special-only Attack — no direct damage'],
       };
@@ -1116,7 +1110,6 @@ export async function resolveAoeMeleeSecondaries(params: {
           roller.defender,
           damageResult.totalDamage,
           attacker,
-          damageResult.count8s ?? 0,
           {
             attackTotal,
             evadeTn: roller.evadeTn,

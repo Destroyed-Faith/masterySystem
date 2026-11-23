@@ -11,7 +11,6 @@ import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export const NPC_STANDARD_REACTIONS = [
     { id: 'guard', name: 'Guard', description: '+MR × 2 Armor vs the triggering hit.' },
-    { id: 'evade', name: 'Evade', description: '+MR × 2 Evade vs the triggering attack.' },
     { id: 'dive-for-cover', name: 'Dive for Cover', description: 'Move 2 × MR m to leave an AoE.' },
     { id: 'interpose', name: 'Interpose', description: 'Take half of an adjacent ally’s damage.' },
 ];
@@ -22,8 +21,12 @@ export function newNpcReactionId() {
 export function isNpcCounterattackRow(row) {
     return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'counterattack';
 }
+/** Basic Evade no longer exists (Core v0.9.9.6); stored rows are inert. */
+export function isNpcRetiredBasicEvadeRow(row) {
+    return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'evade';
+}
 export function omitNpcCounterattackRows(rows) {
-    return rows.filter((row) => !isNpcCounterattackRow(row));
+    return rows.filter((row) => !isNpcCounterattackRow(row) && !isNpcRetiredBasicEvadeRow(row));
 }
 export function coerceNpcReactionsArray(raw) {
     const list = Array.isArray(raw)
@@ -140,7 +143,7 @@ function buildNpcInterposeItem() {
 }
 function materializeBasic(actor, basicId) {
     const id = String(basicId || '');
-    if (id === 'counterattack')
+    if (id === 'counterattack' || id === 'evade')
         return null;
     if (id === 'interpose')
         return buildNpcInterposeItem();

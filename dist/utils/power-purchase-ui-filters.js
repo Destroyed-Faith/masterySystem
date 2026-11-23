@@ -51,7 +51,7 @@ export const ACTIVE_BUFF_UI_FOCUS_LABELS = {
 };
 /**
  * Canonical Active Buff templateId → UI focus labels (multi allowed).
- * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (Batch 8.1: legacy auras retired; 14 Special Auras).
+ * Matches FINAL_ACTIVE_BUFF_TEMPLATE_IDS (v0.9.9.6: 3 Protective Auras; 14 Special Auras).
  */
 export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID = {
     'ab-armor': ['defensive'],
@@ -74,6 +74,9 @@ export const ACTIVE_BUFF_UI_FOCUS_BY_TEMPLATE_ID = {
     'ab-spell-resistance-piercing': ['offensive'],
     'ab-maximization': ['offensive'],
     'ab-area-expansion': ['offensive'],
+    'ab-armor-aura': ['defensive'],
+    'ab-evade-aura': ['defensive'],
+    'ab-spell-resistance-aura': ['defensive'],
     'ab-blight-aura': ['offensive'],
     'ab-challenge-aura': ['offensive'],
     'ab-corrode-aura': ['offensive'],

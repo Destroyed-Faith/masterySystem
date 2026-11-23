@@ -224,7 +224,6 @@ export function toSharedAoeDamagePayload(result) {
         return null;
     return {
         totalDamage: Math.max(0, Math.floor(Number(result.totalDamage) || 0)),
-        count8s: Math.max(0, Math.floor(Number(result.count8s) || 0)),
         specialsUsed: Array.isArray(result.specialsUsed) ? [...result.specialsUsed] : [],
         applicationLimitNotes: Array.isArray(result.applicationLimitNotes)
             ? [...result.applicationLimitNotes]
@@ -441,7 +440,7 @@ export async function applySharedAoePayloadToTarget(params) {
         mitLine = `Raw ${shared.totalDamage} → Phased (ignored)`;
     }
     else {
-        const mit = await applyDamageToTarget(defender, shared.totalDamage, attacker, shared.count8s ?? 0, {
+        const mit = await applyDamageToTarget(defender, shared.totalDamage, attacker, {
             attackTotal,
             evadeTn,
             armorPenetration: shared.armorPenetration ?? 0,
@@ -607,7 +606,7 @@ export async function resolveAoeFullPayloadOnTarget(params) {
             mitLine = `Raw ${damageResult.totalDamage} → Phased (ignored)`;
         }
         else {
-            const mit = await applyDamageToTarget(defender, damageResult.totalDamage, attacker, damageResult.count8s ?? 0, {
+            const mit = await applyDamageToTarget(defender, damageResult.totalDamage, attacker, {
                 attackTotal,
                 evadeTn,
                 reactionMitigation: preDamage.mitigation,
@@ -827,7 +826,6 @@ export async function resolveAoeMeleeSecondaries(params) {
             }
             shared = {
                 totalDamage: 0,
-                count8s: 0,
                 specialsUsed,
                 rollDetails: ['Special-only Attack — no direct damage'],
             };
@@ -866,7 +864,7 @@ export async function resolveAoeMeleeSecondaries(params) {
                     rollerMitLine = `Raw ${damageResult.totalDamage} → Phased (ignored)`;
                 }
                 else {
-                    const mit = await applyDamageToTarget(roller.defender, damageResult.totalDamage, attacker, damageResult.count8s ?? 0, {
+                    const mit = await applyDamageToTarget(roller.defender, damageResult.totalDamage, attacker, {
                         attackTotal,
                         evadeTn: roller.evadeTn,
                         armorPenetration: Math.max(0, Math.floor(Number(damageResult.attackContext?.armorPenetration) || 0)),

@@ -54,14 +54,10 @@ export declare function assertMoonlightJudgmentAvailable(actor: any, _artifactLe
 export declare function spendMoonlightJudgmentUse(actor: any, _artifactLevel?: number): Promise<boolean>;
 export declare function assertMoonlightShadowAvailable(actor: any): boolean;
 export declare function spendMoonlightShadowUse(actor: any): Promise<boolean>;
-/**
- * Dragon Breath: shared Damage/Ruin counter.
- * Must have remaining Safe Haven uses AND not already used this Combat.
- * Artifact Awakening must not bypass the combat-once gate.
- */
+/** Dragon Breath: shared Damage/Ruin counter, ceil(MR/2) uses per Safe Haven Rest. */
 export declare function assertDragonBreathAvailable(actor: any): {
     ok: boolean;
-    reason?: 'rest' | 'combat';
+    reason?: 'rest';
 };
 export declare function spendDragonBreathUse(actor: any): Promise<boolean>;
 //# sourceMappingURL=artifact-rest-uses.d.ts.map

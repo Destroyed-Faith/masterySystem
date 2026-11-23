@@ -167,7 +167,8 @@ describe('Batch 6.1 — Active Buff prep UI & confirmation independence', () => 
     expect(ended.ok).toBe(true);
     expect(getTrueActiveBuffs(actor)).toHaveLength(0);
 
-    expect(await activateActiveBuff(actor, a)).toBe(true);
+    // Once per Combat (v0.9.9.6): ending does not refund A's activation.
+    expect(await activateActiveBuff(actor, a)).toBe(false);
     expect(await activateActiveBuff(actor, b)).toBe(true);
     expect(getTrueActiveBuffs(actor)).toHaveLength(1);
     expect(getTrueActiveBuffs(actor)[0].name).toBe('Evade Buff');
@@ -207,7 +208,10 @@ describe('Batch 6.1 — Active Buff prep UI & confirmation independence', () => 
     expect(getTrueActiveBuffs(actor)).toHaveLength(0);
     expect(actor.system.stones).toEqual(stonesBefore);
 
-    expect(await activateActiveBuff(actor, a)).toBe(true);
+    const c = buffPower('ab-critical', 'Critical Buff', 4);
+    actor.items = makeItemCollection([a, b, c]);
+    expect(await activateActiveBuff(actor, a)).toBe(false);
+    expect(await activateActiveBuff(actor, c)).toBe(true);
     expect(getTrueActiveBuffs(actor)).toHaveLength(1);
     expect(actor.system.stones).toEqual(stonesBefore);
   });

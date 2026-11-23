@@ -71,6 +71,7 @@ import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
 import { buildCharacterStatusRows, raiseCharacterStatusRow, reduceCharacterStatusRow, removeCharacterStatusRow, } from './character-status-panel.js';
 import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import { activeBuffDefenseBonus } from '../combat/target-defenses.js';
 import { invisibilityTokenEffectEnabled, setInvisibilityTokenEffect, } from '../combat/invisibility-presentation.js';
 import { applyGroundTruthXp, computeGroundTruthXp, formatXpRecalcHtml } from '../utils/xp-recalc.js';
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
@@ -1319,8 +1320,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     armorBreakdown: takeRows(combat.armorBreakdownRows, 14),
                     evadeBreakdown: takeRows(combat.evadeBreakdownRows, 14),
                     drBreakdown: takeRows(combat.damageReductionRows, 10),
-                    armorFromActiveBuffs: Math.max(0, Math.floor(Number(combat.armorFromActiveBuffs) || 0)),
-                    evadeFromActiveBuffs: Math.max(0, Math.floor(Number(combat.evadeFromActiveBuffs) || 0)),
+                    armorFromActiveBuffs: Math.max(0, activeBuffDefenseBonus(this.actor, 'armor')),
+                    evadeFromActiveBuffs: Math.max(0, activeBuffDefenseBonus(this.actor, 'evade')),
                 };
             }
         }

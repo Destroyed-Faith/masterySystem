@@ -8,8 +8,6 @@ import {
   R05_PASSIVE_REGEN_POOL,
   R05_RANGED_AOE_POOL,
   R05_RANGED_ST_POOL,
-  meleeAoePoolFromBudget,
-  rangedAoePoolFromBudget,
   passiveRegenPoolFromBudget,
   restoreScarredHealthBars,
   isScarredRestorationTemplateId,
@@ -82,15 +80,13 @@ describe('R-05 PL tables (Test M)', () => {
   it('matches Section 6 ST / AoE / Regen pools', () => {
     expect([...R05_MELEE_ST_POOL]).toEqual([0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12]);
     expect([...R05_RANGED_ST_POOL]).toEqual([0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 10]);
-    expect([...R05_MELEE_AOE_POOL]).toEqual([0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 6, 6, 7, 8, 9, 9]);
-    expect([...R05_RANGED_AOE_POOL]).toEqual([0, 0, 1, 2, 2, 3, 4, 4, 4, 5, 5, 6, 7, 7, 8, 8]);
+    expect([...R05_MELEE_AOE_POOL]).toEqual([0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 6, 7, 7, 8, 9, 10]);
+    expect([...R05_RANGED_AOE_POOL]).toEqual([0, 0, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5, 6, 7, 7, 8]);
     expect([...R05_PASSIVE_REGEN_POOL]).toEqual([0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8]);
   });
 
-  it('validates PP budgets independently for AoE and Regen', () => {
+  it('validates the Passive Regen PP budget', () => {
     for (let pl = 1; pl <= 16; pl += 1) {
-      expect(meleeAoePoolFromBudget(pl)).toBe(R05_MELEE_AOE_POOL[pl - 1]);
-      expect(rangedAoePoolFromBudget(pl)).toBe(R05_RANGED_AOE_POOL[pl - 1]);
       expect(passiveRegenPoolFromBudget(pl)).toBe(R05_PASSIVE_REGEN_POOL[pl - 1]);
     }
   });

@@ -28,7 +28,7 @@ import { resetDamageTransferInstances } from '../src/combat/damage-transfer';
 import { MOVEMENT_TEMPLATES } from '../src/utils/powers/templates/movement';
 import { summonArmorAuraBonus } from '../src/combat/aura-modifiers';
 
-/** Printed Ground Dash distances from docs/Rules/movement.md (2026-10-16). */
+/** Printed Ground Dash distances from docs/Rules/Canonical/Movement.md (2026-10-16). */
 const GROUND_DASH_BOOK = [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 34, 34, 34];
 const SAFE_MOVEMENT_BOOK = [2, 4, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 const TELEPORT_BOOK = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
@@ -160,7 +160,6 @@ describe('Rules-runtime integration v0.9.9.5', () => {
       // Book: Final = ceil(DamageAfterArmor × (1 − DR/100)); 13 @ 30% → 10
       const pure = applyDefensiveMitigation({
         rawDamage: 13,
-        count8s: 0,
         armorTotal: 0,
         damageReductionPct: 30,
       });
@@ -168,7 +167,7 @@ describe('Rules-runtime integration v0.9.9.5', () => {
 
       const target = combatActor('def', { armor: 4, dr: 25, tempHP: 5, bars: [{ current: 30, max: 30 }] });
       // raw 20 → armor 4 → 16 → ceil(16×0.75)=ceil(12)=12 → tempHP 5 → HP loss 7
-      const summary = await applyDamageToTarget(target, 20, combatActor('atk'), 0, {
+      const summary = await applyDamageToTarget(target, 20, combatActor('atk'), {
         skipPhasing: true,
         skipReactionPrompt: true,
         attackSucceeded: true,
@@ -211,7 +210,6 @@ describe('Rules-runtime integration v0.9.9.5', () => {
       // Enemy hits while bonuses still armed (sheet armor + stone armor + stone DR).
       const hit = applyDefensiveMitigation({
         rawDamage: 20,
-        count8s: 0,
         armorTotal: 4 + mid.stoneBonuses.tempArmor,
         damageReductionPct: mid.stoneBonuses.damageReductionBoostPct,
       });
@@ -235,7 +233,7 @@ describe('Rules-runtime integration v0.9.9.5', () => {
       });
       const attacker = combatActor('xfer-a', { bars: [{ current: 5, max: 20 }] });
       // 20 → armor 4 → 16 → ceil(16×0.75)=12 → temp 3 → real HP 9 → heal 9
-      const summary = await applyDamageToTarget(target, 20, attacker, 0, {
+      const summary = await applyDamageToTarget(target, 20, attacker, {
         skipPhasing: true,
         skipReactionPrompt: true,
         attackSucceeded: true,
@@ -476,7 +474,7 @@ describe('Rules-runtime integration v0.9.9.5', () => {
       }
 
       expect(summonArmorAuraBonus(summon)).toBe(8);
-      const inside = await applyDamageToTarget(summon, 20, owner, 0, {
+      const inside = await applyDamageToTarget(summon, 20, owner, {
         skipPhasing: true,
         skipReactionPrompt: true,
       });

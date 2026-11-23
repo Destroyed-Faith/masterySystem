@@ -32,7 +32,7 @@ export declare function singleDiePmf(): Pmf;
  * PMF of the sum of `count` exploding d8 (keep all).
  * NOTE: Mastery damage dice do NOT explode (see damage-dialog.ts:
  * "damage dice do not explode unless a rule explicitly says so").
- * Use `plainDamagePmf` / `damageJointPmf` for damage rolls; this helper is
+ * Use `plainDamagePmf` for damage rolls; this helper is
  * for rolls that keep all exploding dice (e.g. initiative).
  */
 export declare function explodingSumPmf(count: number): Pmf;
@@ -40,13 +40,6 @@ export declare function explodingSumPmf(count: number): Pmf;
 export declare const PLAIN_D8_MEAN = 4.5;
 /** PMF of the sum of `count` plain d8 (damage dice never explode by default). */
 export declare function plainDamagePmf(count: number): Pmf;
-/**
- * Joint distribution of (damage sum, count of natural 8s) for `count` plain
- * d8. Needed for the minimum-damage rule: when Armor + DR reduce a hit to 0,
- * the target still takes 1 damage per natural 8 rolled.
- * Returned as an array indexed by eights-count; each entry is a PMF over sums.
- */
-export declare function damageJointPmf(count: number): Pmf[];
 /**
  * Exact PMF of "roll `pool` exploding d8, keep the `keep` highest, sum them".
  *

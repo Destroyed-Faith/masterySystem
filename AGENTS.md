@@ -6,9 +6,13 @@ The authoritative game rules for Destroyed Faith are:
 
 - `docs/Rules/Canonical/Players_Handbook.md`
 - `docs/Rules/Canonical/Actives.md`
-- `docs/Rules/Canonical/Active_Buffs.md`
+- `docs/Rules/Canonical/ActiveBuffs.md`
+- `docs/Rules/Canonical/Passives.md`
+- `docs/Rules/Canonical/Reactions.md`
+- `docs/Rules/Canonical/Movement.md`
+- `docs/Rules/Canonical/Artifacts.md`
 
-These three documents are the Single Source of Truth for game mechanics.
+These documents (rules version v0.9.9.6, 2026-11-23) are the Single Source of Truth for game mechanics. `docs/Rules/agent.md` is the derivative balance framework; it explains and audits the rulebooks but never overrides them.
 
 Before implementing or changing any game mechanic, locate and verify its definition in the authoritative rulebooks.
 

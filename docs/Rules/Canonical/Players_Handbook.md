@@ -53,6 +53,8 @@
 ---
 - #### [{{ Choose your Powers}}{{ 56}}](#p56)
 ---
+- #### [{{ Mind Effects and Telepathy}}{{ 57}}](#p57)
+---
 - #### [{{ Languages}}{{ 59}}](#p59)
 ---
 - #### [{{ Schticks}}{{ 60}}](#p60)
@@ -116,8 +118,6 @@
 ---
 - #### [{{ Magic}}{{ 193}}](#p193)
 ---
-- #### [{{ Mind Effects and Telepathy}}{{ 57}}](#p57)
----
 - #### [{{ Powers}}{{ 198}}](#p198)
 ---
 - #### [{{ Echo Imprints}}{{ 205}}](#p205)
@@ -163,7 +163,7 @@
 ---
 - #### [{{ Appendix — Special Descriptions}}{{ 254}}](#p254)
 ---
-- #### [{{ Limited Damage Powers — Playtest}}{{ 263}}](#p263)
+- #### [{{ Limited Damage Powers}}{{ 263}}](#p263)
 ---
 - #### [{{ Character Concepts — Thirteen Builds}}{{ 264}}](#p264)
 ---
@@ -224,8 +224,7 @@ The Homebrewery
 
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
-Destroyed Faith — DF Core Version: v0.9.9.6 (2026-11-08)  
-*Editorial playtest working copy — 2026-11-19; teamwork Range and All-Out AR guard provisional.*  
+Destroyed Faith — DF Core Version: v0.9.9.6 (2026-11-23)  
 
 }}
 
@@ -239,23 +238,28 @@ Destroyed Faith — DF Core Version: v0.9.9.6 (2026-11-08)
 
 **Destroyed Faith is a rules-heavy, classless, tactical dark fantasy roleplaying game for players who love challenging combat, detailed character progression, an unforgiving world, and character-driven campaigns shaped by their own decisions.** There are no predefined classes or progression paths: you choose your Powers, discover how they work together, and learn the mechanics needed to bring your character concept to life. **The rules define what a Power does, not what it looks like.** You decide how your abilities manifest, what they mean to your character, and who that character becomes in a world that responds to your choices.
 
-:
+::
 ### Your Character. Your Powers. Your Vision.
 
 A defensive Power might manifest as hardened skin, spectral armor, a shimmering barrier of light, or something entirely different. The mechanical effects, costs, and limitations remain the same, but their appearance and meaning are entirely yours to define. Two characters can use identical Powers and still be completely different.
-:
+::
 ### Tactical Combat 
 
 Combat emphasizes positioning, timing, resource management, and the interaction of Powers, Stones, Specials, and defenses. Understanding these mechanics and making effective choices is an important part of the game. **Every roll uses pools of eight-sided dice (d8s), and sometimes those pools can become quite large. No other dice types are used.** If you prefer rules-light storytelling or quick, abstract combat, Destroyed Faith may not be the game for you.
 
 
 :
+:
 
 
+### Dark Themes
 
+Destroyed Faith is a grim setting. It includes demonic possession, slavery, torture, genocide, the hunting and devouring of sentient peoples, and the loss of faith. Agree as a group which themes you explore in detail and which remain off-screen.
+
+::
 ### How Your Character Works
 
-Your **Attributes** determine your base dice pools. These pools do not increase spontaneously during combat; they decrease only when your character is heavily wounded, while the Attributes themselves can still improve through XP. Outside combat, you rely on **Professions and Perception** in combination with your Attributes. When using a Profession, you explain how it applies to the situation at hand and finding creative ways to do so is part of the fun.
+Your **Attributes** determine your base dice pools. Health Penalties, Fear, hostile Specials and heavy equipment can reduce these pools during play; the Attributes themselves improve through XP. Outside combat, you rely on **Professions and Perception** in combination with your Attributes. When using a Profession, you explain how it applies to the situation at hand and finding creative ways to do so is part of the fun.
 
 In combat, **Passives** provide permanent benefits, **Powers** give you tactical options, and evolving **Artifacts** strengthen and expand your abilities. Your **Stones** allow you to gain additional actions and activate powerful Stone Abilities, such as reducing enemy Armor, healing yourself, or healing others.
 
@@ -280,8 +284,8 @@ In combat, **Passives** provide permanent benefits, **Powers** give you tactical
 
 
 ### Orrondar – The center of order
-At the heart of the continent lay Orrondar a well-ordered land, crisscrossed by roads, fields, and cities where all peoples had once been represented equally. From above, it appeared like a finely drawn pattern: geometric, clear, symmetrical. Thyrros, the god of truth and law, was revered there. His paladins and judges safeguarded justice and the well-being of the community. After the War of the Gods, Orrondar became the model for what the Eight called *safety through order*. The gods had issued the **Sentinel Mandate** holy detachments dispatched into towns and even remote villages, tasked with guarding the people against the lingering **monsters of the old world**. Truth be told, such creatures had grown rarer with every passing decade. Yet they remained *common enough in rumor* and *real enough in the deep woods and forgotten grottos* that fear never fully left the hearthfires. The Sentinels were the answer the gods provided: protection, patrol, and the comforting weight of authority at every gate.
-Equilara, also known as “The City of Law,” served as the center of justice and communal life in Orrondar a place where the values of Thyrros were deeply woven into both architecture and daily life. The city lay at the confluence of two rivers, known as the River of Clarity and the River of Protection, symbolizing the core principles of Orrondarian society: transparency and care. All buildings in Equilara had been arranged symmetrically, and the city was divided into meticulously planned districts, each serving the greater purpose of harmony and structured coexistence. At the heart of the city stood the Temple of Truth, a grand structure of pale stone that housed the High Court and the Council of Paladins. The temple was adorned with symbols of Thyrros’ protection and wisdom and contained the Great Scale a ceremonial artifact representing the balance of truth and justice. It was overseen by the priests and paladins of Thyrros, known as the “Guardians of Truth,” who had been devoted to upholding the law with fairness and shielding society from deceit and injustice.
+At the heart of the continent lay Orrondar — a well-ordered land, crisscrossed by roads, fields, and cities where all peoples had once been represented equally. From above, it appeared like a finely drawn pattern: geometric, clear, symmetrical. Thyrros, the god of truth and law, was revered there. His paladins and judges safeguarded justice and the well-being of the community. After the War of the Gods, Orrondar became the model for what the Eight called *safety through order*. The gods had issued the **Sentinel Mandate**: holy detachments dispatched into towns and even remote villages, tasked with guarding the people against the lingering **monsters of the old world**. Truth be told, such creatures had grown rarer with every passing decade. Yet they remained *common enough in rumor* and *real enough in the deep woods and forgotten grottos* that fear never fully left the hearthfires. The Sentinels were the answer the gods provided: protection, patrol, and the comforting weight of authority at every gate.
+Equilara, also known as “The City of Law,” served as the center of justice and communal life in Orrondar — a place where the values of Thyrros were deeply woven into both architecture and daily life. The city lay at the confluence of two rivers, known as the River of Clarity and the River of Protection, symbolizing the core principles of Orrondarian society: transparency and care. All buildings in Equilara had been arranged symmetrically, and the city was divided into meticulously planned districts, each serving the greater purpose of harmony and structured coexistence. At the heart of the city stood the Temple of Truth, a grand structure of pale stone that housed the High Court and the Council of Paladins. The temple was adorned with symbols of Thyrros’ protection and wisdom and contained the Great Scale a ceremonial artifact representing the balance of truth and justice. It was overseen by the priests and paladins of Thyrros, known as the “Guardians of Truth,” who had been devoted to upholding the law with fairness and shielding society from deceit and injustice.
 
 
 \page
@@ -289,7 +293,7 @@ Equilara, also known as “The City of Law,” served as the center of justice a
 
 
 ###  Athera – The living cycle
-To the west lay Athera, a land of rolling hills, roaring coasts, and fire-spewing mountains. Halflings and humans had been the dominant peoples there, though elves and dwarves had also called this land home. The region was both fertile and perilous shaped by constant change. It was there that Thronos, the Warden of the Natural Cycle, had been worshipped. His signs had manifested in animal traits and in the whispering of the woods.
+To the west lay Athera, a land of rolling hills, roaring coasts, and fire-spewing mountains. Halflings and humans had been the dominant peoples there, though Elorians and dwarves had also called this land home. The region was both fertile and perilous — shaped by constant change. It was there that Thronos, the Warden of the Natural Cycle, had been worshipped. His signs had manifested in animal traits and in the whispering of the woods.
 
 Silverspring served as the capital of Athera, located on the banks of the emerald green Beryllus River. The city had been famed for its silver mines and the exceptional craftsmanship of its smiths. Surrounded by fertile fields and dense forests, Silverspring had been both protected by and dependent upon its natural surroundings vital for both defense and agriculture.
 
@@ -304,9 +308,9 @@ At the city’s heart stood the Temple of the Infinite Weave, a monumental struc
 
 :
 ### Astravar 
-Directly to the east lay Astravar a tranquil land of knowledge and compassion. Centaurs and humans had lived in white cities filled with healing gardens and libraries. Valkath, goddess of magic and healing, had been worshipped there. Her light had brought hope, wisdom, and restoration manifesting through the sacred rituals of the “Enlightened.”
+Directly to the east lay Astravar a tranquil land of knowledge and compassion. Centaurs and humans had lived in white cities filled with healing gardens and libraries. Valkath, goddess of magic and healing, had been worshipped there. Her light had brought hope, wisdom, and restoration, manifesting through the sacred rituals of the “Enlightened.”
 
-Illumara, also known as “The City of the Sacred Flame,” had been the heart of Astravar and a center for the study and practice of healing arts and magic. The city rested upon a gentle plateau and had been known for its white stone buildings, which gleamed in the sunlight and were adorned with healing symbols and arcane runes. The streets of Illumara had been spacious and paved with mosaics depicting Valkath’s symbols healing hands, crystals, and radiant flames representing the flow of magical and restorative energy.
+Illumara, also known as “The City of the Sacred Flame,” had been the heart of Astravar and a center for the study and practice of healing arts and magic. The city rested upon a gentle plateau and had been known for its white stone buildings, which gleamed in the sunlight and were adorned with healing symbols and arcane runes. The streets of Illumara had been spacious and paved with mosaics depicting Valkath’s symbols: healing hands, crystals, and radiant flames representing the flow of magical and restorative energy.
 
 :
 
@@ -320,20 +324,20 @@ At the center of the city stood the Temple of Enlightenment, a magnificent struc
 :
 ### Zehrion 
 
-In the southeast lay the vast, desert-like expanse of Zehrion. Storms had raced across its skies, and though the land had been dry, it had not been lifeless. Nomadic centaurs and minotaurs had roamed the plains with tents and feathers, following the wind. Their goddess had been Sylphoria, the deity of freedom, who had spoken through the breeze. There had been no permanent cities there only wandering gatherings such as Aerithar.
+In the southeast lay the vast, desert-like expanse of Zehrion. Storms had raced across its skies, and though the land had been dry, it had not been lifeless. Nomadic centaurs and minotaurs had roamed the plains with tents and feathers, following the wind. Their goddess had been Sylphoria, the deity of freedom, who had spoken through the breeze. There had been no permanent cities there — only wandering gatherings such as Aerithar.
 
 The capital of Zehrion had not been a traditional city of buildings and streets. Known as Aerithar, it had been a temporary, traveling city assembled by the clans once each year for the Great Wind Ceremony. Its exact location had shifted from year to year, determined by the signs of the wind and the interpretations of tribal leaders, who had read the skies and weather to divine the place of gathering.
 
-During the Wind Ceremony, Aerithar had transformed into a vibrant, pulsing city of tents, banners, and colorful cloth dancing in the wind. The tents had been elaborately painted and decorated with Sylphoria’s symbols spirals representing the eternal cycle of life and change. A festive atmosphere had filled the air as tribes had exchanged stories, traded goods, and held competitions celebrating physical prowess and spiritual insight. It had been a time of sharing and the renewal of bonds between clans.
+During the Wind Ceremony, Aerithar had transformed into a vibrant, pulsing city of tents, banners, and colorful cloth dancing in the wind. The tents had been elaborately painted and decorated with Sylphoria’s symbols: spirals representing the eternal cycle of life and change. A festive atmosphere had filled the air as tribes had exchanged stories, traded goods, and held competitions celebrating physical prowess and spiritual insight. It had been a time of sharing and the renewal of bonds between clans.
 
 At the heart of Aerithar had stood the Altar of Winds, a simple yet sacred structure made of stones and feathers — the holiest site in Zehrion’s culture. The altar had been erected for the Wind Ceremony and had served as a place of offering to Sylphoria. Tribal leaders had gathered there to present prayers and gifts, seeking the goddess’s guidance. It was said that when the prayers had been sincere, a warm wind had stirred across the altar, lifting the feathers into the air — a sign of Sylphoria’s blessing.
 
 :
 
 ### Karaveth
-Northeast of Zehrion lay Karaveth, a bustling realm of deception, secrets, and gold. Merchants, spies, and diplomats primarily dwarves and humans had traversed this hilly land filled with vibrant bazaars and secret auctions. Ithkor, god of trade and trickery, had been worshipped there. His masks, coins, and rituals had been woven into every deal struck and every promise made.
+Northeast of Zehrion lay Karaveth, a bustling realm of deception, secrets, and gold. Merchants, spies, and diplomats — primarily dwarves and humans — had traversed this hilly land filled with vibrant bazaars and secret auctions. Ithkor, god of trade and trickery, had been worshipped there. His masks, coins, and rituals had been woven into every deal struck and every promise made.
 
-The capital city, Draemir, had been the beating heart of Karaveth’s commerce a labyrinth of secrets and ambition. Draemir had been famed for its maze-like markets and alleys, where one could have found every kind of good from fine silks and exotic spices to rare artifacts and hidden knowledge. Built upon the ruins of an ancient trade city, many of Draemir’s buildings had contained underground chambers and secret passages used by smugglers and merchants alike. Here, in the shadows of its narrow streets, trade had thrived not only in goods, but in whispers and confidential exchanges.
+The capital city, Draemir, had been the beating heart of Karaveth’s commerce — a labyrinth of secrets and ambition. Draemir had been famed for its maze-like markets and alleys, where one could have found every kind of good from fine silks and exotic spices to rare artifacts and hidden knowledge. Built upon the ruins of an ancient trade city, many of Draemir’s buildings had contained underground chambers and secret passages used by smugglers and merchants alike. Here, in the shadows of its narrow streets, trade had thrived not only in goods, but in whispers and confidential exchanges.
 
 At the center of Draemir had risen the Obsidian Tower of Ithkor, an imposing structure of dark stone that had served as both the religious and economic heart of the city. The tower had housed the Guild of Ithkor, a powerful organization that had controlled the flow of goods and information across Karaveth. Composed of seasoned traders, spies, and diplomats, the guild had adhered to Ithkor’s teachings and had excelled in the arts of deception and manipulation. The tower had also contained a vast archive of valuable trade agreements, secret contracts, and intelligence on the continent’s most influential merchants and political leaders — knowledge the guild had wielded with precision and cunning.
 
@@ -343,7 +347,7 @@ At the center of Draemir had risen the Obsidian Tower of Ithkor, an imposing str
 \page
 {{pageNumber,auto}}
 {{wide
-The Grand Bazaar had been the center of daily life in Draemir a vast, covered market where merchants from every corner of the world had sold their wares. There, visitors could have found rare and exotic goods, and it had been an open secret that more illicit dealings had taken place in the shadowy backstreets. Contracts had been sealed in hushed corners over a glass of wine, and it had not been uncommon for the most profitable negotiations to revolve not around price, but information. One tradition had endured above all others: every new merchant had tossed a coin into the Bazaar’s Fountain and had whispered a small secret to Ithkor, hoping to earn his favor.
+The Grand Bazaar had been the center of daily life in Draemir — a vast, covered market where merchants from every corner of the world had sold their wares. There, visitors could have found rare and exotic goods, and it had been an open secret that more illicit dealings had taken place in the shadowy backstreets. Contracts had been sealed in hushed corners over a glass of wine, and it had not been uncommon for the most profitable negotiations to revolve not around price, but information. One tradition had endured above all others: every new merchant had tossed a coin into the Bazaar’s Fountain and had whispered a small secret to Ithkor, hoping to earn his favor.
 :
 
 ### Kalgrad 
@@ -380,7 +384,7 @@ The Black Temple of Nethrion, the imposing heart of Nimrath, had been built from
 :
 
 > *Carved in stone and raised on the village square.*  
-> *Binding for all folk of the Light freeborn, sworn, merchant, traveler, and child.*
+> *Binding for all folk of the Light: freeborn, sworn, merchant, traveler, and child.*
 >
 > ---
 > :
@@ -398,7 +402,7 @@ The Black Temple of Nethrion, the imposing heart of Nimrath, had been built from
 > :
 > ### III. The Law of the Offering
 > No Grace without an offering.  
-> Before any plea is spoken, payment is given grain, coin, service, blood or vow as need demands.
+> Before any plea is spoken, payment is given: grain, coin, service, blood or vow as need demands.
 >
 > ---
 > :
@@ -445,7 +449,7 @@ The Black Temple of Nethrion, the imposing heart of Nimrath, had been built from
 ---
 :
 > The **Eight Laws** are not presented by the temples as mere restrictions.  
-> In the holy writings of the old faith, they are called the **Mercies of Order** the sacred form through which divine grace may pass safely into the mortal world.
+> In the holy writings of the old faith, they are called the **Mercies of Order**: the sacred form through which divine grace may pass safely into the mortal world.
 
 ---
 :
@@ -582,22 +586,25 @@ Folk sayings vary, but three are found everywhere:
 > The night has always been mostly dark and always will be.
 >
 ---
+
 > Only **six lights** are spoken of as *true* stars: the **Constants**.  
 > They are not worshipped for being many, but feared for being **consistent**.  
 > Each Constant carries a *pressure* in the world, a quiet law that people feel in their bones.
 >
 > ---
 >:
+> 
 > **I — The Eye** *(Order)*  
 > A violet star, too clean to be natural.  
 > It sometimes feels less like a light in the sky and more like a gaze returned.  
 > *When the Eye burns hard, rules tighten and choices become unavoidable.*
->> ---
+> 
+> ---
 >
 > **II — The Veil** *(Chaos)*  
-Not a clean point of light, but a thin shimmer, a faint halo that never holds the same shape twice. It looks like a **barrier seen from the wrong side**: present, but unwilling to be measured.
-*When the Veil steadies, wards and boundaries hold.*  
-*When it stutters, reality leaks, plans fracture, coincidences gather, and things slip through that should not exist here.*
+> Not a clean point of light, but a thin shimmer, a faint halo that never holds the same shape twice. It looks like a **barrier seen from the wrong side**: present, but unwilling to be measured.
+> *When the Veil steadies, wards and boundaries hold.*  
+> *When it stutters, reality leaks, plans fracture, coincidences gather, and things slip through that should not exist here.*
 >
 > ---
 >:
@@ -851,10 +858,7 @@ to mark that time “slipped” and returned.
 *Custom:* no music until the second bell; people speak softly. *Omen:* the sky listens.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+::::
 
 ## The Triune Alignment 
 
@@ -893,7 +897,7 @@ It is rare enough that many die without seeing it and common enough that every c
 > *“Their halos shine — but their wings are chains.”*
 
 <div style="width:75%; ">
-The Eight Archangels are worshipped across the known lands as divine messengers and protectors. To the faithful, they are the **living representatives of the Gods** upon Tyhra embodiments of divine order and judgment, mercy and flame. Each of them once commanded the *Sentinels*, the holy legions that enforced the will of the heavens across the mortal world. They walked among mortals rarely, yet their presence was a tangible reminder of the divine hierarchy distant, radiant, and terrible in its perfection.
+The Eight Archangels are worshipped across the known lands as divine messengers and protectors. To the faithful, they are the **living representatives of the Gods** upon Tyhra, embodiments of divine order and judgment, mercy and flame. Each of them once commanded the *Sentinels*, the holy legions that enforced the will of the heavens across the mortal world. They walked among mortals rarely, yet their presence was a tangible reminder of the divine hierarchy: distant, radiant, and terrible in its perfection.
 
 Though rarely seen by mortals, they appeared **far more often than the gods themselves**. Kings claimed to dream of them, priests swore to have seen their wings pass over battlefields and cities still carry their sigils as sacred protection.
 
@@ -902,12 +906,12 @@ Though rarely seen by mortals, they appeared **far more often than the gods them
 | **Land** | **Archangel** | **Known As** | **Domains** |
 |:--|:--|:--|:--|
 | **Orrondar** | **Gabriel** | *The Crownless One* | Judgment, Dominion, The Void, the Throne Beyond Gods |
-| **Zehrion** | **Pyriel** | *The Judge of Light* | Law, Purity, Fire, Revelation |
+| **Athera** | **Pyriel** | *The Judge of Light* | Law, Purity, Fire, Revelation |
 | **Kalgrad** | **Ignariel** | *The Flame of Renewal* | War, Strength, Flame, Smithing |
-| **Athera** | **Korruniel** | *The Voice of the Wind* | Air, Freedom, Storms, Defiance |
+| **Zehrion** | **Korruniel** | *The Voice of the Wind* | Air, Freedom, Storms, Defiance |
 | **Velenor** | **Ambriel** | *The Weaver of Stars* | Mind, Dream, Prophecy, Memory |
 | **Astravar** | **Zadkiel** | *The Seraph of Mercy* | Water, Healing, Compassion, Sorrow |
-| **Karaveth** | **Uraliel** | *The Keeper of Masks* | Earth, Memory, Secrets, Bargains |
+| **Karaveth** | **Uraliel** | *The Keeper of Masks* | Earth, Wealth, Secrets, Bargains |
 | **Morrdrak** | **Ezrael** | *The Silent Watcher* | Shadow, Death, Stillness, Passage |
 </div>
 
@@ -917,14 +921,14 @@ Though rarely seen by mortals, they appeared **far more often than the gods them
 | **Era** | **Event** | **Description** |
 |:--|:--|:--|
 | **Primordial Age** | *Creation of the World* | The five Prime Dragons shape sky, sea, earth, fire, and time. |
-|  | *Awakening of the Peoples* | From elements and starlight, elves, dwarves, humans, and beastfolk are born. |
+|  | *Awakening of the Peoples* | From elements and starlight, Elorians, dwarves, humans, and beastfolk are born. |
 | **Age of the Gods**<br>*(ca. 10,000 years ago)* |  *Appearance of the Gods* | 888 divine sparks awaken as gods and begin to rule the world and its fate. |
 |  |  *War of the Gods*<br>*(~1,000 years)* | Brother fights sister, order shatters. Continents shift, seas boil. |
 | **Great Peace**<br>*(ca. 6,000 years ago)* |  *Age of Order* | The eight gods establish a balance. Magic, cities, arts, and faith flourish. |
 |  |  *Founding of the Realms* | Athera, Velenor, Astravar, Morrdrak, and others arise under divine guidance. |
-| **Fall of Order**<br>*(< 500 years ago)* |  *Disappearance of the Dragons* | The great ancestors withdraw or perish. Their bones become mountains, their names legends. |
+| **Fall of Order**<br>*(< 500 years ago)* |  *Purge of the Dragons* | Hunted by the Sentinels at the gods' command, the great ancestors withdraw or perish. Their bones become mountains, their names legends. |
 |  | *Disappearance of the Gods*<br>*(88 years ago)* | Temples fall silent. No prayer is answered. Their sparks vanish from the world. |
-|  |  *War of Light*<br>*(80 years ago)* | Last desperate uprising of faithful kingdoms. Annihilation in light and fire. |
+|  |  *War of Light*<br>*(80–50 years ago)* | Last desperate uprising of faithful kingdoms. Annihilation in light and fire. |
 | **Present Day** | *Rule of the Demons* | The princes of the Abyss sit on thrones of bone. Faith is a whisper, hope a curse. |
 
 ---
@@ -937,7 +941,7 @@ Though rarely seen by mortals, they appeared **far more often than the gods them
 # The History of Tyhra
 ### The Fall of the Gods
 :
-Long before the rule of mortals and the Great Peace, a war had raged in the heavens themselves a war that had forever changed the foundation of the world as it had been known. The War of the Gods, as it came to be called, had been an endless conflict in which the gods themselves had fought each other, driven by envy, lust for power, and ancient feuds.
+Long before the rule of mortals and the Great Peace, a war had raged in the heavens themselves — a war that had forever changed the foundation of the world as it had been known. The War of the Gods, as it came to be called, had been an endless conflict in which the gods themselves had fought each other, driven by envy, lust for power, and ancient feuds.
 
 For centuries, these divine battles had spilled into the mortal realms. The kingdoms that had existed at the time had been used as tools in this celestial struggle, as the gods had moved their followers like chess pieces upon a divine battlefield. Each god had demanded absolute loyalty from their worshippers, and even the mightiest heroes and kingdoms had been nothing more than pawns in this heavenly war.
 
@@ -971,7 +975,7 @@ Above all gods had stood Thyrros, the leader of the pantheon, worshipped equally
 
 :
 
-Thyrros had been the god of truth, unity, and righteous law. He had been regarded as the unwavering guardian who had watched over the welfare of the people and had ensured that truth and order had existed in harmony. Thyrros had been known especially as the patron of paladins holy warriors sworn to defend law and protect justice. He had embodied the ideals of fairness and collective well-being, often perceived as a radiant figure who had illuminated even the darkest corners of the soul. Thyrros had not been revered as a harsh judge, but rather as a wise mentor who had guided his followers to serve their community and to wield their strength in the name of justice.
+Thyrros had been the god of truth, unity, and righteous law. He had been regarded as the unwavering guardian who had watched over the welfare of the people and had ensured that truth and order had existed in harmony. Thyrros had been known especially as the patron of paladins — holy warriors sworn to defend law and protect justice. He had embodied the ideals of fairness and collective well-being, often perceived as a radiant figure who had illuminated even the darkest corners of the soul. Thyrros had not been revered as a harsh judge, but rather as a wise mentor who had guided his followers to serve their community and to wield their strength in the name of justice.
 
 ---
 :
@@ -979,7 +983,7 @@ Thyrros had been the god of truth, unity, and righteous law. He had been regarde
 
 **Aspect:** Change, Protection, and Nature
 :
-Thronos had been the divine embodiment of the natural cycle of growth, change, and preservation. He had watched over the balance of nature and had ensured that all things could renew and thrive. Thronos had rarely appeared in human form; instead, his presence had manifested through the signs of nature the gentle whispering of the forest as wind had passed through the leaves, the trembling of the earth, or the migrations of animals foretelling the changing seasons. Yet it had been said that in moments of great peril, when the balance of life and nature had been threatened, Thronos had appeared as an old, wise man wandering through villages and forests. In those rare encounters, he had spoken in calm, cryptic words and had left behind clues that only the wise and learned had been able to decipher.
+Thronos had been the divine embodiment of the natural cycle of growth, change, and preservation. He had watched over the balance of nature and had ensured that all things could renew and thrive. Thronos had rarely appeared in human form; instead, his presence had manifested through the signs of nature: the gentle whispering of the forest as wind had passed through the leaves, the trembling of the earth, or the migrations of animals foretelling the changing seasons. Yet it had been said that in moments of great peril, when the balance of life and nature had been threatened, Thronos had appeared as an old, wise man wandering through villages and forests. In those rare encounters, he had spoken in calm, cryptic words and had left behind clues that only the wise and learned had been able to decipher.
 
 :
 
@@ -989,13 +993,13 @@ Thronos had been the divine embodiment of the natural cycle of growth, change, a
 :
 <img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Sword%20of%20the%20Moon.png" style="float:right; width:260px; margin:0 0 12px 14px;" />
 
-Valkath had been the goddess of magic and healing — the radiant principle that had guided mortals through light and knowledge toward inner harmony and restoration. She had not been depicted as a physical being, but as pure, radiant light shining within the vast depths of the cosmos visible only in darkness and revered by sages as the source of all healing magic. Valkath had been the force that had purified mind and body and had mended wounds, whether through the art of magic or through the wisdom that had led to healing. Her light had served as both inspiration and comfort, and she had been regarded as the protector of all who had wielded magic for the purpose of healing.
+Valkath had been the goddess of magic and healing — the radiant principle that had guided mortals through light and knowledge toward inner harmony and restoration. She had not been depicted as a physical being, but as pure, radiant light shining within the vast depths of the cosmos, visible only in darkness and revered by sages as the source of all healing magic. Valkath had been the force that had purified mind and body and had mended wounds, whether through the art of magic or through the wisdom that had led to healing. Her light had served as both inspiration and comfort, and she had been regarded as the protector of all who had wielded magic for the purpose of healing.
 
 #### Nethrion, the Eternal Stream  
 **Aspect:** Death, Compassion, and Passage
 :
 
-Nethrion had been the gentle guardian of death and the final companion of mortals on their last journey. He had not embodied forgetting, but rather transition the loving release and peaceful conclusion of one’s life path. Nethrion had been neither cruel nor fearsome; instead, he had been a calm, compassionate presence who had gently guided souls into the next world. He had appeared as an endlessly flowing, dark stream a quiet river that had welcomed the departed and had carried them lovingly into the distance, where they had returned to the great cycle of nature. Mortals had not feared him, but had seen him as a comforting figure who had helped them let go of life with dignity and peace.
+Nethrion had been the gentle guardian of death and the final companion of mortals on their last journey. He had not embodied forgetting, but rather transition: the loving release and peaceful conclusion of one’s life path. Nethrion had been neither cruel nor fearsome; instead, he had been a calm, compassionate presence who had gently guided souls into the next world. He had appeared as an endlessly flowing, dark stream — a quiet river that had welcomed the departed and had carried them lovingly into the distance, where they had returned to the great cycle of nature. Mortals had not feared him, but had seen him as a comforting figure who had helped them let go of life with dignity and peace.
 
 <div style="clear:both;"></div>
 
@@ -1008,7 +1012,7 @@ Nethrion had been the gentle guardian of death and the final companion of mortal
 **Aspect:** Rebellion, Courage, and Freedom
 
 :
-Sylphoria had been the goddess of wind and untamed freedom the embodiment of the courage to rise against rigid structures and boundaries. She had been the spirit of change and renewal, the inspiration for all who had sought liberty and self-determination. Sylphoria had possessed no fixed form; she had been the ever-blowing wind, the sudden breeze that had tousled hair, and the mighty storm that had torn down walls and barriers. She had appeared when people had found the courage to rise against injustice, or when old structures had needed to be released to make room for something new. Her presence had served as a reminder that true freedom had lain in the willingness to change and that courage had not been the absence of fear, but the decision to act in spite of it.
+Sylphoria had been the goddess of wind and untamed freedom — the embodiment of the courage to rise against rigid structures and boundaries. She had been the spirit of change and renewal, the inspiration for all who had sought liberty and self-determination. Sylphoria had possessed no fixed form; she had been the ever-blowing wind, the sudden breeze that had tousled hair, and the mighty storm that had torn down walls and barriers. She had appeared when people had found the courage to rise against injustice, or when old structures had needed to be released to make room for something new. Her presence had served as a reminder that true freedom had lain in the willingness to change and that courage had not been the absence of fear, but the decision to act in spite of it.
 
 :
 
@@ -1017,20 +1021,20 @@ Sylphoria had been the goddess of wind and untamed freedom the embodiment of the
 
 :
 
-Ithkor had been the god of commerce, deception, and hidden knowledge a shadowy figure who had embodied both the lure of profit and the art of cunning. He had been worshipped by merchants, thieves, and all who had known that truth was often buried in shadow, and that the shrewd trader had dealt not only in goods but also in secrets. Ithkor had been the patron of those who had bargained in markets, had negotiated with finesse, and had obscured truths to their advantage. It had been said that his “eye” had watched from the darkest corners of every marketplace, observing deals and seeking those who had honored his principles, those who had understood that trade had always been a game of illusion.
+Ithkor had been the god of commerce, deception, and hidden knowledge — a shadowy figure who had embodied both the lure of profit and the art of cunning. He had been worshipped by merchants, thieves, and all who had known that truth was often buried in shadow, and that the shrewd trader had dealt not only in goods but also in secrets. Ithkor had been the patron of those who had bargained in markets, had negotiated with finesse, and had obscured truths to their advantage. It had been said that his “eye” had watched from the darkest corners of every marketplace, observing deals and seeking those who had honored his principles, those who had understood that trade had always been a game of illusion.
 
 #### Xaldris, the Stormforger  
 **Aspect:** Strength, Conflict, and Smithing
 
 :
 
-Xaldris had been the goddess of smithing, war, and strength an unshakable force who had forged weapons and hearts alike. She had been the embodiment of the tireless hammer striking the anvil and of the fire that had melted metal to create something powerful and new. Xaldris had represented the strength that had arisen through conflict and struggle the might earned by enduring trials. To her followers, she had been revered as the Great Smith, who had forged heroes and indestructible weapons from raw force and flame. She had taught that true strength had been born through the process of tempering and testing.
+Xaldris had been the goddess of smithing, war, and strength — an unshakable force who had forged weapons and hearts alike. She had been the embodiment of the tireless hammer striking the anvil and of the fire that had melted metal to create something powerful and new. Xaldris had represented the strength that had arisen through conflict and struggle — the might earned by enduring trials. To her followers, she had been revered as the Great Smith, who had forged heroes and indestructible weapons from raw force and flame. She had taught that true strength had been born through the process of tempering and testing.
 
 #### Azarath, the Weaver
 
 **Aspect:** Fate and Time
 :
-Azarath had been the goddess of fate and time the one who had spun the great tapestry of the universe, in which every being and every action had held its destined place. She had not appeared in human form, but as a weave of glowing threads of light that had reflected in the stars and had been perceived only by the wisest of oracles. These threads had connected all events, thoughts, and fates, and a single, nearly imperceptible tug had been able to alter a person’s life completely. Azarath’s work had been so intricate that mortals had only ever glimpsed fragments of it and even these fleeting insights had often led to profound revelations or haunting premonitions.
+Azarath had been the goddess of fate and time — the one who had spun the great tapestry of the universe, in which every being and every action had held its destined place. She had not appeared in human form, but as a weave of glowing threads of light that had reflected in the stars and had been perceived only by the wisest of oracles. These threads had connected all events, thoughts, and fates, and a single, nearly imperceptible tug had been able to alter a person’s life completely. Azarath’s work had been so intricate that mortals had only ever glimpsed fragments of it, and even these fleeting insights had often led to profound revelations or haunting premonitions.
 
 :
 }}
@@ -1047,7 +1051,7 @@ When the gods vanished overnight, they left the mortals with the burden of maint
 
 #### Dying Peace
 :
-With the pact sealed, a great war swept across the realms. Known as the War of Light, it lasted 30 years and brought immeasurable suffering. The armies of demons descended upon the realms, and mortals fought desperately to preserve their freedom. The war raged without end, and even the last priests and paladins who still wielded divine power vanished or fell in battle. The gods remained silent. It was as if they had abandoned their creation completely. The dragons, the last divine beings to stand with the realms, were gradually hunted to extinction or withdrew to the depths of the earth and the peaks of mountains. In the end, the light was lost. The Demon King Agravorn and his mortal ally, the now-lich King Morlan, rule over the shattered realms. The world as it once was no longer exists.
+With the pact sealed, a great war swept across the realms. Known as the War of Light, it lasted 30 years and brought immeasurable suffering. The armies of demons descended upon the realms, and mortals fought desperately to preserve their freedom. The war raged without end, and even the last priests and paladins who still wielded divine power vanished or fell in battle. The gods remained silent. It was as if they had abandoned their creation completely. The last surviving dragons, few since the divine purge, rose one final time beside the realms and fell, or withdrew into the depths of the earth and the peaks of mountains. In the end, the light was lost. The Demon King Agravorn and his mortal ally, the now-lich King Morlan, rule over the shattered realms. The world as it once was no longer exists.
 
 ::
 
@@ -1069,21 +1073,21 @@ The inhabitants of the decaying cities suffer under extreme oppression. Heavy ta
 
 #### The Brand
 :
-The demons who now rule the shattered realms are not natural creatures of this world. Their existence on the mortal plane is precariously sustained only through dark rites and mortal vessels. In their true form, they are beings of smoke and shadow: formless nightmares that cannot endure the weight of reality. To gain a foothold in the mortal realm, they require an anchor a living being bound to them by blood, pain, and will.
+The demons who now rule the shattered realms are not natural creatures of this world. Their existence on the mortal plane is precariously sustained only through dark rites and mortal vessels. In their true form, they are beings of smoke and shadow: formless nightmares that cannot endure the weight of reality. To gain a foothold in the mortal realm, they require an anchor: a living being bound to them by blood, pain, and will.
 :
-When the demons entered the world through the betrayal of the King of Kalgrad, their servants the **Red Priests** — began the ritual branding of mortals. Each brand, known as a **Mark**, binds a fragment of a demon’s essence to a living host. As long as these hosts endure, the demon’s presence remains tethered to the mortal world. In this way, the Red Priests ensure their masters can never be fully banished, for when one host dies, another can be branded in their stead.
+When the demons entered the world through the betrayal of the King of Kalgrad, their servants — the **Red Priests** — began the ritual branding of mortals. Each brand, known as a **Mark**, binds a fragment of a demon’s essence to a living host. As long as these hosts endure, the demon’s presence remains tethered to the mortal world. In this way, the Red Priests ensure their masters can never be fully banished, for when one host dies, another can be branded in their stead.
 :
 At first, newly bound demons are weak, their influence limited to whispers and fleeting visions. They drift unseen through dreams, feed on fear, and twist the emotions of those around their hosts. But with each act of corruption and despair, their strength grows. **Manifestation.** Once a demon has gathered enough power through its marked vessels, it may attempt to manifest physically. This act is both triumph and risk for in gaining substance, the demon becomes vulnerable. Its life and strength are bound to the branded hosts, and should all of them perish, the demon’s essence collapses back into the abyss.
 :
 
 #### The Mark and Society
 
-The mark is a dark, rune-like symbol that appears somewhere on the bearer’s body, like the back or chest. It burns into the skin when a demon seals its claim either willingly accepted as a pact, or forcefully branded by the Red Priests. The ritual is brutal and irreversible. Once the mark is burned into the flesh, the demon’s essence takes root within the victim’s soul, binding host and master until death. If the bearer of the mark dies, the demon does not vanish. It lingers, weakened but restless, until the Red Priests find a new vessel to claim. In this way, the cycle of corruption never truly ends. The curse of the mark ensures that even the most innocent are dragged into darkness. Some bearers sense the demon’s presence in their dreams or hear its whispers during the day. Others are plagued by visions and dreadful premonitions. Some collapse under the burden, while others manage to carry on—until the demon one day decides to fully manifest. Over the eighty years since the fall of the gods, the mark has become both a curse and a privilege—depending on who bears it.
+The mark is a dark, rune-like symbol that appears somewhere on the bearer’s body, like the back or chest. It burns into the skin when a demon seals its claim, either willingly accepted as a pact, or forcefully branded by the Red Priests. The ritual is brutal and irreversible. Once the mark is burned into the flesh, the demon’s essence takes root within the victim’s soul, binding host and master until death. If the bearer of the mark dies, the demon does not vanish. It lingers, weakened but restless, until the Red Priests find a new vessel to claim. In this way, the cycle of corruption never truly ends. The curse of the mark ensures that even the most innocent are dragged into darkness. Some bearers sense the demon’s presence in their dreams or hear its whispers during the day. Others are plagued by visions and dreadful premonitions. Some collapse under the burden, while others manage to carry on—until the demon one day decides to fully manifest. Over the nearly ninety years since the gods vanished, the mark has become both a curse and a privilege—depending on who bears it.
 
-Among the nobility, pacts with demons have long become a tool of politics. Most noble houses have learned to coexist with their infernal patrons, and those who refused were wiped out during the Great War. Today, it is even considered desirable for one or two children of a noble lineage to carry a mark, as it grants influence, wealth, and most importantly protection. Yet care is taken that the heir remains untainted, for reproduction with a marked bearer often leads to grotesque offspring—twisted creatures or half-demonic abominations that bring shame and fear to a family’s name.
+Among the nobility, pacts with demons have long become a tool of politics. Most noble houses have learned to coexist with their infernal patrons, and those who refused were wiped out during the War of Light. Today, it is even considered desirable for one or two children of a noble lineage to carry a mark, as it grants influence, wealth, and most importantly protection. Yet care is taken that the heir remains untainted, for reproduction with a marked bearer often leads to grotesque offspring—twisted creatures or half-demonic abominations that bring shame and fear to a family’s name.
 
 In contrast, among the common folk, the mark is seen as a sentence of doom. For them, it means one of two things:
-Either the demon behind the mark shows little interest, and the bearer is one day taken into the service of a higher demon, leaving the family untouched but forever scarred by loss, or the demon takes full possession, turning the host into a monster that devours its own kin. Over time, people have learned to distinguish the marks from each demonic lord by rumor and legend. Each demon lord leaves a distinct pattern, and some are whispered to be worse than others—marks of Sammael or Beleth are especially feared.
+Either the demon behind the mark shows little interest, and the bearer is one day taken into the service of a higher demon, leaving the family untouched but forever scarred by loss, or the demon takes full possession, turning the host into a monster that devours its own kin. Over time, people have learned to distinguish the marks from each demonic lord by rumor and legend. Each demon lord leaves a distinct pattern, and some are whispered to be worse than others—marks of Usiel or Kasbeel are especially feared.
 
 ---
 :
@@ -1097,13 +1101,13 @@ The higher the demon, the more cunning and intelligent it tends to be. Thus, the
 :
 #### The Hidden Flame
 :
-The Hidden Flames and other remnants of resistance once sought more than mere survival. Long ago, they searched for the divine relics ancient artifacts said to weaken or even undo the demonic marks that bound mortals to their masters. But one by one, these relics faded, their power spent, their light extinguished. Some were lost in the ruins of fallen temples, others simply ceased to respond, their divine spark long gone. What remains are fragments, broken runes, and forgotten prayers, the last traces of a faith that has almost vanished.
+The Hidden Flame and other remnants of resistance once sought more than mere survival. Long ago, they searched for the divine relics: ancient artifacts said to weaken or even undo the demonic marks that bound mortals to their masters. But one by one, these relics faded, their power spent, their light extinguished. Some were lost in the ruins of fallen temples, others simply ceased to respond, their divine spark long gone. What remains are fragments, broken runes, and forgotten prayers, the last traces of a faith that has almost vanished.
 
-Even so, the Hidden Flames continue their struggle against the demonic order that has ruled for generations. Their war is slow, grueling, and full of loss. To protect a bearer of a mark means facing the demon bound to them. An almost impossible task, for few creatures are as dangerous as a demon defending its vessel. And yet, they still attempt it not because they believe they can win, but because each battle, each fleeting victory, proves that the demons can bleed. Their actions are statements, sparks of defiance meant to remind the broken and enslaved that the abyss is not invincible.
+Even so, the cells of the Hidden Flame continue their struggle against the demonic order that has ruled for generations. Their war is slow, grueling, and full of loss. To protect a bearer of a mark means facing the demon bound to them. An almost impossible task, for few creatures are as dangerous as a demon defending its vessel. And yet, they still attempt it — not because they believe they can win, but because each battle, each fleeting victory, proves that the demons can bleed. Their actions are statements, sparks of defiance meant to remind the broken and enslaved that the abyss is not invincible.
 
-But such efforts have become rare. Every confrontation drains what little strength remains burning through relics, lives, and faith alike. The few surviving artifacts are hoarded for the most desperate missions, and every rescue costs men and hope in equal measure. The Flames know this, and still they endure, because surrender would mean silence and silence is death
+But such efforts have become rare. Every confrontation drains what little strength remains, burning through relics, lives, and faith alike. The few surviving artifacts are hoarded for the most desperate missions, and every rescue costs men and hope in equal measure. The Flames know this, and still they endure, because surrender would mean silence and silence is death.
 
-They fight from the shadows from forests, mountains, and the ruins of the old world. Their weapons are crude, their armor stolen or forged from scrap, but their conviction burns brighter than any torch. They rely on ambush, sabotage, and infiltration: destroying bridges, poisoning supplies, and striking down commanders who serve the demon lords. Their victories are small and fleeting, but each one whispers a single truth — resistance still lives.
+They fight from the shadows — from forests, mountains, and the ruins of the old world. Their weapons are crude, their armor stolen or forged from scrap, but their conviction burns brighter than any torch. They rely on ambush, sabotage, and infiltration: destroying bridges, poisoning supplies, and striking down commanders who serve the demon lords. Their victories are small and fleeting, but each one whispers a single truth — resistance still lives.
 
 Black markets and secret allies feed their cause, and in rare moments, they unearth fragments of divine power that even the demons fear. But every act of rebellion carries a price: for every village saved, another burns. Still they endure, fighting not to win, but to remember that freedom once existed, and to delay the end long enough for prophecy to find them — when the gods may yet walk the earth once more.
 
@@ -1135,7 +1139,7 @@ alt="The Mark of Agravorn"
 
 #### **Agravorn in Equilara**
 
-Once the beating heart of the empire of the gods, **Equilara** now serves as the seat of the **Throne** itself and of **Agravorn**, the self-proclaimed King of Demons. Agravorn is the mightiest of the Demon Lords, holding the others in check through sheer force and ancient right. The Throne is seldom spoken of directly, a power beyond even the Nine, hovering above them all like a dark sun.
+Once the beating heart of the empire of the gods, **Equilara** now serves as the seat of the **Throne** itself and of **Agravorn**, the self-proclaimed King of Demons. Agravorn stands above the Nine Demon Lords, holding them in check through sheer force and ancient right. The Throne is seldom spoken of directly, a power beyond even the Nine, hovering above them all like a dark sun.
 
 <div class="df-realm-clear"></div>
 
@@ -1199,7 +1203,7 @@ To the south rises **Emberstone**, claimed by **Azzael, the Burning Judge**. Sin
 
 Far beneath the frozen mountains of the north lie the remnants of the ancient dwarven kingdoms: halls, mines, forge-cities, and deep roads older than most mortal realms. Here rules **Caim, the Iron Lord**. Dwarven flesh resists ordinary demonic binding, and so Caim found other ways to make them obedient. He controls the deep roads, seals the ancient forge-fires, holds clan against clan, and turns ancestral oaths into chains. Entire bloodlines are made responsible for the obedience of a single dwarf. Caim rules with an iron hand, not through constant slaughter, but by ensuring that every act of resistance threatens something older and more precious than the rebel’s own life.
 
-The undead dominions claim the frozen plains, fortresses, and mountain passes above. Caim and the Lich-Kings are rivals for the north, yet neither has chosen open war. For now, the dead leave the Deep Kingdoms untouched, and Caim leaves their black fortresses alone. Their peace is not trust. It is the pause between two predators deciding which one can afford to strike first.
+The undead dominions claim the frozen plains, fortresses, and mountain passes above. Caim and the Lich-King are rivals for the north, yet neither has chosen open war. For now, the dead leave the Deep Kingdoms untouched, and Caim leaves their black fortresses alone. Their peace is not trust. It is the pause between two predators deciding which one can afford to strike first.
 
 <div class="df-realm-clear"></div>
 
@@ -1249,7 +1253,7 @@ alt="The Mark of Flauros"
 
 #### **Flauros in Morrdrak**
 
-The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**. He moves unseen among lich-kings and necromancers, spreading doubt and false memory. Where others conquer with armies, Flauros conquers with questions and beneath his influence, the living rot faster than the dead. Few have heard his name spoken aloud, and fewer still remember it correctly.
+The dead lands of **Morrdrak** know no open ruler, yet whispers speak of **Flauros, the Corrupter of Truth**. He moves unseen among the Lich-King's lich-lords and necromancers, spreading doubt and false memory. Where others conquer with armies, Flauros conquers with questions and beneath his influence, the living rot faster than the dead. Few have heard his name spoken aloud, and fewer still remember it correctly.
 
 <div class="df-realm-clear"></div>
 
@@ -1313,7 +1317,7 @@ Coins still exist.
 
 They are not used to make the Demon Houses rich. The Demon Houses take what they want. Their power rests on soldiers, records, walls, rations, and the favor of the Demon Lords. Coins are mainly used by those who need to move within the order: travelers, merchants, mercenaries, messengers, guards, innkeepers, spies, craftsmen, smugglers, and servants of the Demon Houses. The coins of the demon realms are minted from **Bloodsilver**.
 
-Bloodsilver comes from Emberstone, the old city of embers, where Azzael, the Burning Judge, now reigns. No one outside Emberstone knows how the metal is made. Some say it is silver that has passed through Azzael’s fire. Others claim it is smelted from the ashes of the condemned. No one knows the truth. Only one thing is certain: Bloodsilver cannot be forged by ordinary means. A true coin carries thin red veins within the metal. When held against sunlight, candlelight, or open flame, these veins shimmer like blood beneath the surface. Some coins seem to hold a weak flame inside them.
+Bloodsilver comes from Emberstone, where Azzael, the Burning Judge, now reigns. No one outside Emberstone knows how the metal is made. Some say it is silver that has passed through Azzael’s fire. Others claim it is smelted from the ashes of the condemned. No one knows the truth. Only one thing is certain: Bloodsilver cannot be forged by ordinary means. A true coin carries thin red veins within the metal. When held against sunlight, candlelight, or open flame, these veins shimmer like blood beneath the surface. Some coins seem to hold a weak flame inside them.
 
 The stamp of a coin usually shows the symbol of the Demon Lord whose territory recognizes it. But the stamp alone does not make the coin real.
 
@@ -1408,15 +1412,15 @@ The Mastery System is built for **fast, tactical, and narrative-rich play**. It 
 
 ### The Role of the Players
 :
-You begin as **scattered survivors** remnants of a fallen world, bound by fading memories and a spark of defiance. The game assumes you are not for the demons and that you would join if possible the last embers of rebellion struggling against the demonic order. Whether you fight for freedom, redemption, or your own survival, your story begins in the ashes of the old world.
+You begin as **scattered survivors**, remnants of a fallen world, bound by fading memories and a spark of defiance. The game assumes you do not side with the demons and that you would join, if possible, the last embers of rebellion struggling against the demonic order. Whether you fight for freedom, redemption, or your own survival, your story begins in the ashes of the old world.
 
 ---
 :
-This is a **sandbox**, not a railroad. No one will hand you missions or tell you what to do. You decide where to go, who to trust, and what risks to take. The GM shapes the world’s response, but **you set the course** every decision carries weight.
+This is a **sandbox**, not a railroad. No one will hand you missions or tell you what to do. You decide where to go, who to trust, and what risks to take. The GM shapes the world’s response, but **you set the course**; every decision carries weight.
 
 ---
 :
-The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allies are fragile, and every act of mercy or defiance matters. Killing a marked host destroys the vessel but not the demon, saving one may cost lives but can inspire hope in others. Your victories will be small, your sacrifices great yet even the smallest triumph proves that the darkness can bleed.
+The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allies are fragile, and every act of mercy or defiance matters. Killing a marked host destroys the vessel but not the demon; saving one may cost lives but can inspire hope in others. Your victories will be small, your sacrifices great, yet even the smallest triumph proves that the darkness can bleed.
 
 ---
 
@@ -1450,11 +1454,11 @@ The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allie
 
 >**Armor (AR):** Reduces the rolled damage of a successful hit. Armor does not reduce Specials, conditions, ongoing damage, or other effect damage unless a rule explicitly says so.
 
-> **Damage Reduction (DR):** Reduces all incoming damage of the listed type.
+> **Damage Reduction (DR):** Reduces the damage left after Armor by a percentage.
  
 > **Attack Action:** You normally have one per Turn. Spend it to activate an eligible Active Power (including a Martial Attack or Spell) or perform an available Combat Maneuver. An Attack Action does not itself provide a free weapon strike or damage.
 
-> **Reaction:** Trigger-based responses outside your Turn, such as Guard, Evade, Dive for Cover, or an eligible Reaction Power.  
+> **Reaction:** Trigger-based responses outside your Turn, such as Guard, Dive for Cover, or an eligible Reaction Power.  
 \page
 {{pageNumber,auto}}
 
@@ -1639,7 +1643,7 @@ Start with the character's intended playstyle, then place the fixed values where
 
 *"Your past tells us what you might know. Your method tells us which Attribute you use."*
 
-A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow player Professions.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
+A **Profession** describes work, training, or a formative period of life: Burglar, Tracker, Woodcutter, Juggler, Courtier, Former Prisoner, or any comparably grounded concept. It covers practical knowledge, contacts, habits, and techniques credibly learned from that experience. **Professions replace lists of narrow skills.** Every character chooses **four Professions at Rank 2** during creation and receives **Perception Rank 2 separately for free**.
 
 A player describes their method and explains how a Profession helps. The GM decides whether that link is credible and selects a relevant **Attribute**; professions never prescribe fixed Attributes. A broad title must have an agreed concrete scope: *Assassin - worked as a quiet contract killer in Karaveth* is useful; *Good at Everything* is not.
 
@@ -2256,26 +2260,26 @@ The two Actives give Alaris a choice between immediate damage and preparing a ta
 {{wide
 ## Choose a Language
 
-> All souls share the **Common Tongue**, born from the Echoes of the First War.  
+> All souls share the **Common Tongue**, born from the Echoes of the War of the Gods.  
 > Every character also learns **one additional language**. For some Echoes, this language is fixed by their origin and cannot be chosen freely.
 
 - **Dwarves** automatically learn **Dwarvish**.
 - **Dragonborn** automatically learn **Draconic**.
 - **Sentinels** automatically learn **Mustelic**.
-- **Elorians** automatically learn **Elvish**.
+- **Elorians** automatically learn **Elorian**.
 - Characters of **all other Echoes** choose their additional language freely to reflect their origin, training, culture, or story.
 
 ---
 ::
 #### Languages of the Known Realms
 
-- **Common Tongue** – spoken by all civilized nations  
+- **Common Tongue** – spoken in all realms  
 - **Arcane** – language of runes, sigils, and scholars of the old world  
 - **Infernal** – the whispered bargains of hell  
 - **Celestial** – hymns of the divine and long-fallen angels  
 - **Dwarvish** – forged words of stone and steel  
 - **The First** – ancient tongue of the Titan-born  
-- **Elvish** – fluid and timeless, carried by wind and memory  
+- **Elorian** – fluid and timeless, carried by wind and memory  
 - **Draconic** – the primal roar of flame, wave, and storm  
 - **Mustelic** – the precise command-tongue of Sentinels and divine law
 
@@ -2283,7 +2287,7 @@ The two Actives give Alaris a choice between immediate damage and preparing a ta
 :
 #### Example
 
-A Human with a demonic mark might choose **Infernal**. Their languages are: **Common Tongue, Infernal**. An Elorian wanderer automatically learns **Elvish**. Their languages are: **Common Tongue, Elvish**.
+A Human with a demonic mark might choose **Infernal**. Their languages are: **Common Tongue, Infernal**. An Elorian wanderer automatically learns **Elorian**. Their languages are: **Common Tongue, Elorian**.
 
 }}
 \page
@@ -2355,7 +2359,7 @@ Schticks exist to help describe characters and their evolution. Use them when de
 {{note
 ##### Schticks Are Not Powers
 
-A Schtick cannot provide a free mechanical ability. A character whose eyes glow in darkness does not automatically gain Darkvision. A character surrounded by frost does not deal cold damage. A character who appears briefly translucent does not gain Phasing. A character whose voice sounds terrifying does not gain a bonus to Intimidation. If you want one of those effects, choose or acquire the appropriate Power.
+A Schtick cannot provide a free mechanical ability. A character whose eyes glow in darkness does not automatically gain Darkvision. A character surrounded by frost does not deal cold damage. A character who appears briefly translucent does not gain Phasing. A character whose voice sounds terrifying does not gain a bonus to intimidating others. If you want one of those effects, choose or acquire the appropriate Power.
 
 **Describe freely. Resolve mechanically through the rules.**
 }}
@@ -2421,7 +2425,7 @@ The following examples show how different themes might manifest as Mastery grows
 
 ## Example: Alaris Chooses Languages and Schticks
 
-Every character speaks the **Common Tongue** and gains one additional language. For Elorians, this language is fixed as **Elvish**. Alaris therefore automatically learns **Elvish** through her Elorian Echo, connecting her directly to Elorian history, communities, and surviving traditions. Alaris is Mastery Rank 2 and therefore chooses two Schticks. Both are purely descriptive and grant no concealment, teleportation, movement, or defensive benefit.
+Every character speaks the **Common Tongue** and gains one additional language. For Elorians, this language is fixed as **Elorian**. Alaris therefore automatically learns **Elorian** through her Elorian Echo, connecting her directly to Elorian history, communities, and surviving traditions. Alaris is Mastery Rank 2 and therefore chooses two Schticks. Both are purely descriptive and grant no concealment, teleportation, movement, or defensive benefit.
 
 ### Between the Steps
 
@@ -2454,7 +2458,7 @@ You can choose from the following Echoes:
 
 - **Dwarves** – The bastion against Hell: incorruptible stone-hearts who stand where others break, holding the line against demons, preserving what must not fall, and turning endurance into a weapon.
 
-- **Elves** – A rare, burning glare: outsiders between realms whose light cuts through lies and rot, almost myth, almost painful, too bright to be common and too sharp to be safe.
+- **Elorians** – A rare, burning glare: outsiders between realms whose light cuts through lies and rot, almost myth, almost painful, too bright to be common and too sharp to be safe.
 
 - **Sentinels** – Forgotten fragments of divine order: living verdict-machines whose purpose outlived their makers, glitching through obedience, justice, and the hollow silence where meaning used to be.
 
@@ -2481,7 +2485,7 @@ You can choose from the following Echoes:
 
 ## Example: Alaris Chooses Her Echo
 
-Alaris chooses the **Elorian (Elf) Echo**. It supports the same identity already established by her Attributes and Powers: grace, difficult movement, and remaining hard to pin down. Her **Elorian Stride** Echo Artifact embodies otherworldly balance and movement. Her **Catfall** Echo Imprint echoes that theme through controlled landings and fleeting memories of another life. It is not an additional Movement Power.
+Alaris chooses the **Elorian Echo**. It supports the same identity already established by her Attributes and Powers: grace, difficult movement, and remaining hard to pin down. Her **Elorian Stride** Echo Artifact embodies otherworldly balance and movement. Her **Catfall** Echo Imprint echoes that theme through controlled landings and fleeting memories of another life. It is not an additional Movement Power.
 
 <img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Echo.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
 
@@ -2520,7 +2524,7 @@ Not every Echo handles Echo Artifacts the same way. Some Echoes, including Human
 | **Human** | 0 | 0 | 4 |
 | **Halfling** | 0 | 1 | 3–4 |
 | **Dwarf** | 1 | 1 | 3 |
-| **Elf** | 1 | 1 | 3 |
+| **Elorian** | 1 | 1 | 3 |
 | **Dragonborn** | 1 | 3 | 1–3 |
 | **Titanborn** | 1 | 1 | 3 |
 | **Sentinel** | 1 | 1 | 3 |
@@ -2570,7 +2574,7 @@ Humans are the most widespread people in the shattered world of Destroyed Faith.
 
 Once, they lived beneath the order of the gods, serving as priests, soldiers, builders, and keepers of daily life. Now they endure among ruins, rituals, and the weight of things that no longer answer. The cities they built have become strongholds of demons, tyrants, and false faith. Those who are not made into guards, laborers, vessels, or sacrifices learn to hide, flee, obey, or die.
 
-Yet humanity is not easily erased. Again and again, humans gather in hidden enclaves, rebel cells, smuggler camps, and wandering caravans. They keep fires lit where they should have gone out long ago. They bury their dead, pass on forbidden names, and teach their children how to survive one more winter, one more patrol, one more night. Many humans bear a demonic mark, burned into flesh by pact, force, punishment, or inheritance. Some marks whisper. Some wound. Some tempt. A mark may offer strength, but never freely. It is always also a claim a presence that presses closer with every moment of weakness, fear, or surrender.
+Yet humanity is not easily erased. Again and again, humans gather in hidden enclaves, rebel cells, smuggler camps, and wandering caravans. They keep fires lit where they should have gone out long ago. They bury their dead, pass on forbidden names, and teach their children how to survive one more winter, one more patrol, one more night. Many humans bear a demonic mark, burned into flesh by pact, force, punishment, or inheritance. Some marks whisper. Some wound. Some tempt. A mark may offer strength, but never freely. It is always also a claim: a presence that presses closer with every moment of weakness, fear, or surrender.
 
 </div>
 
@@ -2680,7 +2684,7 @@ The Ringchain supports the **Influence Ability: Not a Target** Stone Ability. No
 | **5** | **Kept from Sight II**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid normally. |
 | **6** | **Burden Lifted II**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 10)</span> | Active, Support | 44 m | None | Instant | Remove up to **10 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. This replaces Burden Lifted I. |
 | **7** | **Remembered Hands II**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 16)</span> | Active, Support | 68 m | None | Instant | Restore up to **10 fully refilled Scarred Health Bars** on one legal creature from the upgraded Recovery Pool per Safe Haven Rest; replaces Remembered Hands I, without duplicating its resource. |
-| **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Melee AoE Restoration (PL 16)</span> | Active, Support | Self | Radius 4 m | Instant | Distribute up to **9 full Scarred Bar restorations** among eligible allies using **one shared pool per Safe Haven Rest**; replaces Hearth Circle I and resolves immediately on activation. |
+| **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Melee AoE Restoration (PL 16)</span> | Active, Support | Self | Radius 4 m | Instant | Distribute up to **10 full Scarred Bar restorations** among eligible allies using **one shared pool per Safe Haven Rest**; replaces Hearth Circle I and resolves immediately on activation. |
 | **9** | **Kept from Sight III**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid normally. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Ringchain of Kept Names)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 }}
@@ -2691,7 +2695,7 @@ The Ringchain supports the **Influence Ability: Not a Target** Stone Ability. No
 ### Dwarves
 <div style="width:65%; ">
 
-Dwarves are a dying people proud, unyielding, and hated by the powers of Hell. In a world where almost every body can be claimed, branded, and hollowed out, dwarves are feared for what they deny. Demonic marks do not hold easily upon them. Their flesh resists. Their souls do not open willingly. What others call a gift, a pact, or a curse, dwarves know only as intrusion.
+Dwarves are a dying people: proud, unyielding, and hated by the powers of Hell. In a world where almost every body can be claimed, branded, and hollowed out, dwarves are feared for what they deny. Demonic marks do not hold easily upon them. Their flesh resists. Their souls do not open willingly. What others call a gift, a pact, or a curse, dwarves know only as intrusion.
 
 Before the fall, dwarves stood at the heart of the old world’s strength. Their forges burned without rest, their halls carried the memory of ages, and their walls held where others broke. They forged for gods, marched in holy wars, and endured burdens that would have crushed lesser peoples. When the War of Light came, the dwarves did not retreat. They stood in the breach, and they paid for it in blood. Entire lineages were extinguished. Great halls were buried, desecrated, or swallowed by darkness. In many lands, their names survive only as curses, ruins, or half-remembered songs.
 
@@ -2712,7 +2716,7 @@ Dwarves do not fight because they believe they will win. They fight because some
 
 Every dwarf carries a Last Oath. It may be sworn to a fallen hall, a dead bloodline, a lost forge, an unfinished grudge, a sacred craft, a buried king, or the last name of a people nearly erased. The exact oath differs from dwarf to dwarf, but its weight is always the same: something must not be allowed to vanish while the dwarf still draws breath.
 
-A dwarf may retreat, bargain, hide, or lose. They are not fools, and their courage is not the same as suicide. But when their Last Oath is directly threatened, they cannot simply walk away without consequence. To abandon it is not just failure. It is a wound to identity, memory, and soul. For a dwarf, survival is not enough. Something must remain unbroken and if nothing else remains, the oath must.
+A dwarf may retreat, bargain, hide, or lose. They are not fools, and their courage is not the same as suicide. But when their Last Oath is directly threatened, they cannot simply walk away without consequence. To abandon it is not just failure. It is a wound to identity, memory, and soul. For a dwarf, survival is not enough. Something must remain unbroken — and if nothing else remains, the oath must.
 
 ![DwarfElitaWarrior](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/Tjalfa.png){position:absolute,top:30px,right:-20px,width:400px}
 }}
@@ -2760,18 +2764,12 @@ The Armor from Stonebound Soles is minor Armor from the Feet Slot. It stacks wit
 
 Stonebound Soles grant **Tremor Sense** as an available Special Sense Slot option. Tremor Sense is not Base Value A or Base Value B and does not scale with Artifact Level. Before a scene or combat, the dwarf may place Tremor Sense in the **Special Sense Slot**. Normal Combat Awareness remains active at the same time. Tremor Sense uses the standard **20 m** range and works through a shared solid surface. It does not perceive flying, hovering, swimming, fully airborne, incorporeal, or vibrationless creatures unless they contact the connected surface.
 
----
-
-#### Immovable
-
-**Availability:** Only a Feet Artifact that has **Immovable as Base Value B** grants this option. It is not a standalone Active, Active Buff, Reaction, Passive, Stone Ability, or a Base Value for another equipment slot. A Feet Artifact has at most Base Values A and B; an Artifact already using Base B for another effect does not gain a third Base Value. Existing Stonebound Soles retain Tunneling as Base B.
-
-**Declaration:** During the **Preparation Phase**, while choosing and assigning Stone Abilities for the coming Round, the wearer may announce: "I am Immovable this Round." The announcement is made **before the Round's actions**, costs **no separate Action or Stone**, and cannot be added retroactively after an Attack or forced-movement effect. No additional activation Power is required.
 }}
+
 \page
+
 {{pageNumber,auto}}
 {{wide
-**Duration and tradeoff:** The choice lasts **for that Round only**, ending when the Round ends. Throughout that Round, the wearer has **0 m voluntary Movement** and cannot move voluntarily by Move, Dash, Disengage, or a Movement Power. In exchange, the wearer **cannot be pushed, pulled, knocked back, or otherwise forcibly displaced**. This is protection from displacement, not immunity to every condition: it does not itself prevent Prone or Stunned. **Other defenses:** Immovable does not itself cancel Evade, make attacks automatic hits, change Armor or Damage Reduction, or prevent legal non-movement Actions and Reactions. On the next Round the wearer can choose again during Preparation; without a new declaration, Immovable is inactive.
 
 ---
 
@@ -2802,7 +2800,7 @@ Elorians are the children of the Otherworld, Eloria — a realm spoken of in hal
 
 Some were stranded when the gates closed. Some refused to leave. Some stayed for love, for duty, or for reasons they no longer speak aloud. Now they walk the broken world as wanderers, watchers, and fragments of something that no longer belongs here. In many places, mortals take them for spirits, omens, or stories told by firelight.
 
-Elorians are not untouched by corruption, but they endure it differently. Demonic marks can take hold in them, yet never as cleanly as they do in humankind. Something in their nature resists. The bond catches like a thorn rather than sinking like a hook. For some, that only means a slower suffering. For others, it becomes a private war fought in silence, dream by dream, breath by breath. To play an elf is to carry the memory of a world that feels more like longing than home. You remember colors no one here has seen, songs that sound wrong in mortal air, and the weight of gates that may never open again.
+Elorians are not untouched by corruption, but they endure it differently. Demonic marks can take hold in them, yet never as cleanly as they do in humankind. Something in their nature resists. The bond catches like a thorn rather than sinking like a hook. For some, that only means a slower suffering. For others, it becomes a private war fought in silence, dream by dream, breath by breath. To play an Elorian is to carry the memory of a world that feels more like longing than home. You remember colors no one here has seen, songs that sound wrong in mortal air, and the weight of gates that may never open again.
 
 You were not made for this world.
 But you remained.
@@ -2811,7 +2809,7 @@ And that must mean something.
 
 | **Echo** | **Creature Type** | **Size** | **Speed** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
 |:--|:--|:--:|:--:|:--:|:--:|:--:|
-| **Elf** | Humanoid | Medium | 8 m | 1 | 1 | 3 |
+| **Elorian** | Humanoid | Medium | 8 m | 1 | 1 | 3 |
 
 </div>
 
@@ -2878,13 +2876,13 @@ Elorian Focus supports the **Agility Ability: Crit** Stone Ability. Crit is a **
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Otherworld Reflex I**<span class="artifactTechnicalReference">Reaction: Evade (PL 2)</span> | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. |
+| **1** | **Otherworld Reflex I**<span class="artifactTechnicalReference">Reaction: Evade (PL 4)</span> | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. |
 | **2** | **Elorian Cling I**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 4)</span> | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. |
 | **3** | **Elorian Focus I**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid normally. |
-| **4** | **Otherworld Reflex II**<span class="artifactTechnicalReference">Reaction: Evade (PL 4)</span> | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. This replaces Otherworld Reflex I. |
+| **4** | **Otherworld Reflex II**<span class="artifactTechnicalReference">Reaction: Evade (PL 10)</span> | Reaction | Self | — | Triggering attack only | Gain **+10 Evade** against the triggering attack. This replaces Otherworld Reflex I. |
 | **5** | **Elorian Cling II**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 10)</span> | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling I. |
 | **6** | **Elorian Focus II**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid normally. |
-| **7** | **Otherworld Reflex III**<span class="artifactTechnicalReference">Reaction: Evade (PL 6)</span> | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. This replaces Otherworld Reflex II. |
+| **7** | **Otherworld Reflex III**<span class="artifactTechnicalReference">Reaction: Evade (PL 16)</span> | Reaction | Self | — | Triggering attack only | Gain **+16 Evade** against the triggering attack. This replaces Otherworld Reflex II. |
 | **8** | **Elorian Cling III**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 16)</span> | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling II. |
 | **9** | **Elorian Focus III**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid normally. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Elorian Stride)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -2895,14 +2893,14 @@ Elorian Focus supports the **Agility Ability: Crit** Stone Ability. Crit is a **
 {{wide
 
 ### **Sentinels** 
-Sentinels are no ordinary beings. They are divinely forged engines of judgment — ancient, deathless, and built for obedience rather than life. The gods did not create them to dream, to love, or to choose. They were made to enforce. In the ages before the fall, Sentinels walked the world as the will of heaven given form: judges, wardens, prophets, executioners. Their bodies are shaped from stone and metal, etched with sacred runes, and where a mortal heart should rest, each bears a radiant divine core a light the demons now hunger for with relentless desire.
+Sentinels are no ordinary beings. They are divinely forged engines of judgment — ancient, deathless, and built for obedience rather than life. The gods did not create them to dream, to love, or to choose. They were made to enforce. In the ages before the fall, Sentinels walked the world as the will of heaven given form: judges, wardens, prophets, executioners. Their bodies are shaped from stone and metal, etched with sacred runes, and where a mortal heart should rest, each bears a radiant divine core, a light the demons now hunger for with relentless desire.
 
 ---
 Sentinels were never merely soldiers. They were verdicts with blades.
 Their kind was divided into three great Orders:
 
 - **Judicators**, clerics, inquisitors, and divine judges, charged with punishment and sacred law  
-- **Sentinels**, armored enforcers and living bastions, the iron wall of heavenly order  
+- **Bastions**, armored enforcers and living bastions, the iron wall of heavenly order  
 - **Oracles**, arcane vessels of command, prophecy, and divine will
 
 ---
@@ -3010,14 +3008,14 @@ The Oracle Frame channels **Influence** through coordination, Stone Pool storage
 {{pageNumber,auto}}
 {{wide
 
-### Sentinel Frame Level Progression
+### Bastion Frame Level Progression
 
-The Sentinel Frame channels **Resolve** through healing, stabilization, and Special Negation support.
+The Bastion Frame channels **Resolve** through healing, stabilization, and Special Negation support.
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
 | **1** | **Single Restoration I**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 4; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Restore up to **2 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Artifact Range remains 8 m. |
-| **2** | **Resolve Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Resolve (2)</span> | Stone Pool | Self | — | Passive | Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions. |
+| **2** | **Resolve Core I**<span class="artifactTechnicalReference">Artifact Stone Pool: Resolve (2)</span> | Stone Pool | Self | — | Passive | Store **2 Resolve Stones** after each Safe Haven Rest. They may be spent only on Bastion Frame's listed Resolve Stone functions. |
 | **3** | **Healing Support I**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **4** | **Single Restoration II**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 10; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Restore up to **6 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration I without a second pool. |
 | **5** | **Special Negation Support I**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
@@ -3025,7 +3023,7 @@ The Sentinel Frame channels **Resolve** through healing, stabilization, and Spec
 | **7** | **Single Restoration III**<span class="artifactTechnicalReference">Ranged Single Target Restoration (PL 16; Artifact Range 8 m)</span> | Active, Support | 8 m | None | Instant | Restore up to **10 full Scarred Health Bars** on one legal creature from this Power's shared pool per Safe Haven Rest. Replaces Single Restoration II without a second pool. |
 | **8** | **Healing Support II**<span class="artifactTechnicalReference">Resolve Ability: Healing (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **9** | **Special Negation Support II**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
-| **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Sentinel Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
+| **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Bastion Frame)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
 ---
 ![SentinelsRed](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Sentinel%20Frame.png){position:absolute,top:680px,right:320px,width:200px}
@@ -3035,7 +3033,7 @@ The Sentinel Frame channels **Resolve** through healing, stabilization, and Spec
 {{wide
 ### Judicator Frame Level Progression
 
-The Judicator Frame channels **Wits** through armor protocols and stored Stones. Its former recovery support has been replaced by **self-only Healing Stone Power Support**. Healing remains a Resolve Stone Ability; the Frame's Wits Stone Pool does not pay Resolve Healing costs.
+The Judicator Frame channels **Wits** through armor protocols and stored Stones. It provides **self-only Healing Stone Power Support**. Healing remains a Resolve Stone Ability; the Frame's Wits Stone Pool does not pay Resolve Healing costs.
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
@@ -3212,16 +3210,16 @@ Wyrm Scales are Echo-bound and cannot normally be removed or replaced.
 
 | Artifact Level | Base Value A: Armor | Drawbacks |
 |:---:|:---:|---|
-| Level 1 | +16 Armor | -2 Evade, -2 Initiative, -2d8 Physical Training Checks |
-| Level 2 | +17 Armor | -2 Evade, -2 Initiative, -2d8 Physical Training Checks |
-| Level 3 | +18 Armor | -2 Evade, -2 Initiative, -2d8 Physical Training Checks |
-| Level 4 | +19 Armor | -4 Evade, -4 Initiative, -2d8 Physical Training Checks |
-| Level 5 | +20 Armor | -4 Evade, -4 Initiative, -2d8 Physical Training Checks |
-| Level 6 | +21 Armor | -4 Evade, -4 Initiative, -2d8 Physical Training Checks |
-| Level 7 | +22 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
-| Level 8 | +23 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
-| Level 9 | +24 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
-| Level 10 | +25 Armor | -6 Evade, -6 Initiative, -2d8 Physical Training Checks |
+| Level 1 | +16 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 2 | +17 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 3 | +18 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 4 | +19 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 5 | +20 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 6 | +21 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 7 | +22 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 8 | +23 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 9 | +24 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
+| Level 10 | +25 Armor | -4 Evade, -8 Initiative, -2d8 Physical Training Checks |
 
 ![WyrmArmor](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Wyrm%20Scales.png){position:absolute,top:500px,right:250px,width:300px}
 ---
@@ -3367,15 +3365,16 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 
 #### Level Progression
 
-Only currently granted Dragon Head effects are listed. Artifact Levels without a listed effect grant no additional Power in this progression; the Artifact still advances normally.
-
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **4d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. |
+| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **5d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. |
+| **2** | **Draconic Roar I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 4)</span> | Active Buff, Aura | Self | Radius 2 m | Mastery Rank Rounds | You and every ally inside the Aura gain **+7 Armor**. |
 | **3** | **Draconic Recovery I**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 4)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. |
 | **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
+| **5** | **Draconic Roar II**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 10)</span> | Active Buff, Aura | Self | Radius 3 m | Mastery Rank Rounds | You and every ally inside the Aura gain **+17 Armor**. This replaces Draconic Roar I. |
 | **6** | **Draconic Recovery II**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 10)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. |
 | **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (plus matching Bite Weapon Damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
+| **8** | **Draconic Roar III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 16)</span> | Active Buff, Aura | Self | Radius 3 m | Mastery Rank Rounds | You and every ally inside the Aura gain **+29 Armor**. This replaces Draconic Roar II. |
 | **9** | **Draconic Recovery III**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 16)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Dragon Head)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
@@ -3393,7 +3392,7 @@ Only currently granted Dragon Head effects are listed. Artifact Levels without a
 When Dragon Head reaches Artifact Level 3, choose one Attribute for Draconic Recovery. This choice is permanent. Draconic Recovery can be used once per Safe Haven Rest and restores spent Stones only from that Attribute. Draconic Recovery II and III replace the earlier profile; they do not grant additional uses.
 
 #### Dragon Claws
-![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Dragon%20Claws.png){position:absolute,top:50px,right:80px,width:200px}
+![DragonHead](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Dragon%20Claws.png){position:absolute,top:120px,right:80px,width:180px}
 
 <div style="width:65%; ">
 
@@ -3589,9 +3588,9 @@ Primal Vestment occupies the **Body Slot** and is Echo-bound. A Beast with Prima
 
 ---
 
-### Primal Rage *(2 Points)*
+#### Primal Rage *(2 Points)*
 
-A Beast who chooses Primal Vestment automatically gains **Primal Rage** as a **2 Point Disadvantage**. These points count normally toward the character's Disadvantage Point total and Reroll Point maximum. Primal Rage cannot be removed while Primal Vestment remains part of the Beast. You spend your life suppressing something that wants to hunt, tear, and answer pain with violence. **Trigger:** When you lose your **second Health Level**, and each time you lose another Health Level thereafter, make a `Resolve k1` roll against **TN 6**. If one damage instance crosses several qualifying Health Levels, make one roll for each threshold crossed. No Raises may be declared.
+A Beast who chooses Primal Vestment automatically gains **Primal Rage** as a **2 Point Disadvantage**. These points count normally toward the character's Disadvantage Point total and Reroll Point maximum. Primal Rage cannot be removed while Primal Vestment remains part of the Beast. You spend your life suppressing something that wants to hunt, tear, and answer pain with violence. **Trigger:** When your **second Health Bar becomes Scarred**, and each time another Health Bar becomes Scarred thereafter, make a `Resolve k1` roll against **TN 6**. If one damage instance Scars several qualifying Health Bars, make one roll for each of them. No Raises may be declared.
 
 On failure, you enter **Primal Rage** for `1d8 / 2 Rounds, rounded up`.
 
@@ -3713,13 +3712,13 @@ The Staff is a Spell Focus Weapon. Tradition Special is determined by the chosen
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Witch Stone I**<span class="artifactTechnicalReference">Intellect Ability: Raises (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
-| **2** | **Binding Circle I**<span class="artifactTechnicalReference">Ranged AoE Special: Root (PL 4)</span> | Active, Spell | 20 m | Radius 3 m | Instant | Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(3)**; **no Power damage**. |
+| **2** | **Binding Circle I**<span class="artifactTechnicalReference">Ranged AoE Special: Root (PL 4)</span> | Active, Spell | 20 m | Radius 3 m | Instant | Make one Casting Roll and compare it against the Final Spell TN of each creature in the area; Dive for Cover applies. Each creature hit gains **Root(3)**; **no Power damage**. |
 | **3** | **Main Spell I**<span class="artifactTechnicalReference">Ranged Single Target Special: Weaken (Root) / Ranged Single Target Special: Ruin (Ruin) / Ranged Single Target Special: Blight (Blight), PL 4</span> | Active, Spell | 20 m | None | Instant | Use the Main Spell of this Staff's tradition at PL 4: Root = **Weaken(2)**; Ruin = **Ruin(6)**; Blight = **Blight(7)**. One creature; **no Power damage**. |
 | **4** | **Witch Stone II**<span class="artifactTechnicalReference">Intellect Ability: Raises (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
-| **5** | **Binding Circle II**<span class="artifactTechnicalReference">Ranged AoE Special: Root (PL 10)</span> | Active, Spell | 44 m | Radius 6 m | Instant | Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I. |
+| **5** | **Binding Circle II**<span class="artifactTechnicalReference">Ranged AoE Special: Root (PL 10)</span> | Active, Spell | 44 m | Radius 6 m | Instant | Make one Casting Roll and compare it against the Final Spell TN of each creature in the area; Dive for Cover applies. Each creature hit gains **Root(5)**; **no Power damage**. This replaces Binding Circle I. |
 | **6** | **Main Spell II**<span class="artifactTechnicalReference">Ranged Single Target Special: Weaken (Root) / Ranged Single Target Special: Ruin (Ruin) / Ranged Single Target Special: Blight (Blight), PL 10</span> | Active, Spell | 44 m | None | Instant | Use the Main Spell of this Staff's tradition at PL 10: Root = **Weaken(3)**; Ruin = **Ruin(10)**; Blight = **Blight(12)**. One creature; **no Power damage**. This replaces Main Spell I. |
 | **7** | **Witch Stone III**<span class="artifactTechnicalReference">Intellect Ability: Raises (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
-| **8** | **Binding Circle III**<span class="artifactTechnicalReference">Ranged AoE Special: Root (PL 16)</span> | Active, Spell | 68 m | Radius 7 m | Instant | Make one AoE Attack Roll against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Root(7)**; **no Power damage**. This replaces Binding Circle II. |
+| **8** | **Binding Circle III**<span class="artifactTechnicalReference">Ranged AoE Special: Root (PL 16)</span> | Active, Spell | 68 m | Radius 7 m | Instant | Make one Casting Roll and compare it against the Final Spell TN of each creature in the area; Dive for Cover applies. Each creature hit gains **Root(7)**; **no Power damage**. This replaces Binding Circle II. |
 | **9** | **Main Spell III**<span class="artifactTechnicalReference">Ranged Single Target Special: Weaken (Root) / Ranged Single Target Special: Ruin (Ruin) / Ranged Single Target Special: Blight (Blight), PL 16</span> | Active, Spell | 68 m | None | Instant | Use the Main Spell of this Staff's tradition at PL 16: Root = **Weaken(4)**; Ruin = **Ruin(13)**; Blight = **Blight(15)**. One creature; **no Power damage**. This replaces Main Spell II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Witch Staff)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
@@ -3731,278 +3730,240 @@ The Staff is a Spell Focus Weapon. Tradition Special is determined by the chosen
 \page
 {{pageNumber,auto}}
 {{wide
+### Banes
 
-### Banes 
-
-Banes are Unbound who carry the hunt into the world. They are not Beasts who surrender to animal shape, and they are not Witches who bind themselves primarily through covenants and rites. Banes survive through preparation, endurance, old wrath, relics, tools, scars, and the refusal to die before monsters.
-
-When a Bane Echo is created, choose one Bane Call:
-
-- **Alchemist**
-- **Greenwarden**
-- **Relic Hunter**
-
-The chosen Call defines the Bane's method, appearance, and expected Power direction. It does not create a separate species. It is the shape the hunt has taken.
+Banes are Unbound who confront the horrors of Tyhra through preparation, protection, or relics. Choose one Bane Call: **Alchemist**, **Greenwarden**, or **Relic Hunter**. Each begins with its own required Echo-bound Artifact, occupying **1 Artifact Capacity** and leaving **3 free**.
 
 ---
 
 #### Alchemist
 
-![Alchemist](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/Daro-Unbound-Alchemist-noBG.png){position:absolute,top:250px,right:80px,width:400px}
-<div style="width:45%; ">
+<div style="width:48%;">
 
-Alchemists are Banes who survive through preparation. They brew potions, oils, salves, bitter draughts, tinctures, and hunter mixtures from roots, ash, venom, blood, bone, and demon-tainted remains. An Alchemist does not win by becoming a monster. An Alchemist studies the monster, prepares the body, coats the blade, drinks the poison first, and walks into the dark with a plan. Alchemists fit characters who want potions, oils, preparation, resistance, toxins, temporary empowerment, and controlled self-enhancement. Their power is preparation, not transformation.
+Alchemists study their prey and prepare for the hunt. They brew potions, poisons, oils, and other mixtures from the remains of creatures and the resources of the wild. Instead of changing their nature, they strengthen their bodies through calculated preparation and take their own survival into their hands. They learn to recognize a monster's habits, track the signs it leaves behind, and anticipate what the next encounter will demand. Their craft turns observation into practical tools, whether the hunt leads through a ruined city or deep into the wild. For an Alchemist, preparation is as essential as the final strike.
+
+##### Echo Statistics
+
+| Character Creation | Value |
+|:---|:---:|
+| Creature Type | Humanoid |
+| Size | Medium |
+| Speed | 8 m |
+| Required Echo Artifacts | 1 |
+| Maximum Echo Artifacts | 1 |
+| Free Artifact Capacity | 3 |
 
 #### Alchemist Coat
 
-The Alchemist Coat is a Bane Echo Artifact made from hardened leather, stitched iron, bone plates, sealed vials, black glass, monster sinew, silver hooks, blood tubes, hidden needles, and reinforced potion harnesses. It is not a robe and not a trinket.
-
-It is real armor.
-
-The Alchemist Coat protects the body while carrying the volatile mixtures that allow a Bane Alchemist to survive the hunt.
+The Alchemist Coat is reinforced armor fitted with sealed vials, hidden needles, iron hooks, and potion harnesses. It protects its wearer and carries the mixtures used in the hunt. Every clasp and concealed pocket has a purpose, keeping dangerous ingredients secure until they are needed. The Coat is as much a portable workshop as it is protection for the hunter wearing it.
 
 </div>
 
-| Slot | Base Type | Artifact Functions | Binding |
-|---|---|---|---|
-| Body | Medium Armor | Armor / Damage Potion / Alchemist Stone Artifact Function / Critical Potion | Echo-bound |
-
-Alchemist Coat occupies the Body Slot. A Bane with Alchemist Coat cannot wear another Body Artifact, magical armor, robe Artifact, natural armor Artifact, or body-based transformation Artifact at the same time. Alchemist Coat is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-#### Alchemist Coat Base
-
-| Artifact Level | Base Value A: Medium Armor |
-|:---:|:---:|
-| Level 1 | 12 Armor |
-| Level 2 | 13 Armor |
-| Level 3 | 14 Armor |
-| Level 4 | 15 Armor |
-| Level 5 | 16 Armor |
-| Level 6 | 17 Armor |
-| Level 7 | 18 Armor |
-| Level 8 | 19 Armor |
-| Level 9 | 20 Armor |
-| Level 10 | 22 Armor |
-
-Alchemist Coat uses the normal Medium Armor drawbacks unless another rule explicitly changes them.
-
----
-
-#### Alchemist Potions
-
-Alchemist Potions use their listed **Active Buffs**. You may activate **each Potion once per Combat** during a Preparation Phase, without an Attack Action or Stone cost. End an active Potion at any time. During Preparation, you may switch to another Potion or Buff whose activation is still available. Maintain **one Active Buff at a time**; its duration is **Mastery Rank complete Rounds**.
-
----
-
-#### Red Potion
-
-Red Potion floods the body with heat, rage, pressure, and violent focus. Mechanically, Red Potion uses the normal **Active Buff: Damage**.
-
----
-
-#### Black Potion
-
-Black Potion sharpens the senses until every pulse, blink, tendon, and weak point becomes visible. Mechanically, Black Potion uses the normal **Active Buff: Critical**.
-
----
-
-#### Alchemist Stone
-
-Alchemist Stone is a dedicated **Artifact Function** of the Alchemist Coat, not an Attribute Stone Ability. It extends one **Red Potion** or **Black Potion** Active Buff when that Potion is activated. At Artifact Level 2, 5, or 8, the effect is respectively **+1 / +2 / +3 complete Rounds** of duration; the Potion retains its original **Power Level** and all its other values. These duration increases replace earlier Alchemist Stone values; they do not add together.
-
-The normal Active Buff rules still apply. Alchemist Stone does not allow a second Active Buff to be maintained. If another source extends the same Buff, use only the highest applicable duration increase unless an explicit rule permits stacking.
+![Alchemist](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/Daro-Unbound-Alchemist-noBG.png){position:absolute,top:110px,right:55px,width:380px}
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+### Alchemist Coat — Artifact Details
+
+![Alchemist Coat ](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:85px,right:45px,width:185px}
+
+<div style="width:57%;">
+
+**Slot:** Body  
+**Base Type:** Medium Armor  
+**Binding:** Echo-bound  
+**Functions:** Armor / Red Potion / Black Potion / Alchemist Stone
+
+##### Base Values
+
+<div style="font-size:0.88em;">
+
+| Level | Armor | Level | Armor |
+|:---:|:---:|:---:|:---:|
+| **1** | 12 | **6** | 17 |
+| **2** | 13 | **7** | 18 |
+| **3** | 14 | **8** | 19 |
+| **4** | 15 | **9** | 20 |
+| **5** | 16 | **10** | 22 |
+
+</div>
+
+</div>
+
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|
-| **1** | **Red Potion I**<span class="artifactTechnicalReference">Active Buff: Damage (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 4. Alchemist Stone may extend its duration, but never its PL. |
-| **2** | **Alchemist Stone I**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+1 Complete Round)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, extend its duration by **+1 complete Round**. Its Power Level remains unchanged. This replaces any earlier Alchemist Stone value. |
-| **3** | **Black Potion I**<span class="artifactTechnicalReference">Active Buff: Critical (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 4. Alchemist Stone may extend its duration, but never its PL. |
-| **4** | **Red Potion II**<span class="artifactTechnicalReference">Active Buff: Damage (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 10. This replaces Red Potion I. |
-| **5** | **Alchemist Stone II**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+2 Complete Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, extend its duration by **+2 complete Rounds**. Its Power Level remains unchanged. This replaces any earlier Alchemist Stone value. |
-| **6** | **Black Potion II**<span class="artifactTechnicalReference">Active Buff: Critical (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 10. This replaces Black Potion I. |
-| **7** | **Red Potion III**<span class="artifactTechnicalReference">Active Buff: Damage (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Damage Active Buff profile at PL 16. This replaces Red Potion II. |
-| **8** | **Alchemist Stone III**<span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+3 Complete Rounds)</span> | Artifact Function | Self | — | On Potion activation | When activating Red Potion or Black Potion, extend its duration by **+3 complete Rounds**. Its Power Level remains unchanged. This replaces any earlier Alchemist Stone value. |
-| **9** | **Black Potion III**<span class="artifactTechnicalReference">Active Buff: Critical (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Critical Active Buff profile at PL 16. This replaces Black Potion II. |
-| **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Alchemist Coat)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
+| Level | Granted Feature / Technical Reference | Effect |
+|:---:|:---|:---|
+| **1** | **Red Potion I** <span class="artifactTechnicalReference">Active Buff: Damage (PL 4)</span> | Normal Damage Active Buff; lasts **MR Rounds**. |
+| **2** | **Alchemist Stone I** <span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+1 Complete Round)</span> | Extend Red or Black Potion by **+1 Round**. |
+| **3** | **Black Potion I** <span class="artifactTechnicalReference">Active Buff: Critical (PL 4)</span> | Normal Critical Active Buff; lasts **MR Rounds**. |
+| **4** | **Red Potion II** <span class="artifactTechnicalReference">Active Buff: Damage (PL 10)</span> | Replaces Red Potion I. |
+| **5** | **Alchemist Stone II** <span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+2 Complete Rounds)</span> | Extend Red or Black Potion by **+2 Rounds**; replaces I. |
+| **6** | **Black Potion II** <span class="artifactTechnicalReference">Active Buff: Critical (PL 10)</span> | Replaces Black Potion I. |
+| **7** | **Red Potion III** <span class="artifactTechnicalReference">Active Buff: Damage (PL 16)</span> | Replaces Red Potion II. |
+| **8** | **Alchemist Stone III** <span class="artifactTechnicalReference">Artifact Function: Active Buff Empowerment (+3 Complete Rounds)</span> | Extend Red or Black Potion by **+3 Rounds**; replaces II. |
+| **9** | **Black Potion III** <span class="artifactTechnicalReference">Active Buff: Critical (PL 16)</span> | Replaces Black Potion II. |
+| **10** | **Artifact Awakening** <span class="artifactTechnicalReference">Artifact Level 10: Awakening (Alchemist Coat)</span> | Apply the universal Artifact Awakening rules. |
 
----
+**Notes:** Each Potion is an Active Buff that may be activated **once per Combat** during Preparation without an Attack Action or Stone cost. Only **one Active Buff** may be maintained at a time. Alchemist Stone extends duration, **not Power Level**, and its successive bonuses **replace rather than stack**. The Coat occupies the Body Slot and follows normal Medium Armor penalties.
+
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 #### Greenwarden
 
-<div style="width:100%; ">
+<div style="width:48%;">
 
-Greenwardens are Banes touched by the old green wrath of the world. They are inspired by ancient forest guardians, thorn-covered wanderers, antlered figures, bark-skinned protectors, moss-grown bodies, and the idea that nature itself remembers what was done to it. A Greenwarden is not a Beast. They do not become an animal. They become something older: bark, thorn, moss, antler, sap, rot, root, and patient violence. Greenwardens fit characters who want thorns, reflected harm, bark-skin, close-range punishment, defensive retaliation, and the feeling that the world itself answers every wound. Their power is endurance and retaliation.
+Greenwardens are protectors shaped by the old wrath of the living world. Bark, thorns, roots, and moss answer their call. They endure the enemy's blows, shield their companions, and punish those who harm what remains of nature. Their strength lies in protection and retaliation, not animal transformation. Some watch over forgotten groves, while others defend isolated communities at the edge of demon-held territory. They understand the warning signs of a wounded landscape and know that protecting a place often means standing against those who would destroy it. Their duty can be as quiet as tending new growth or as brutal as holding a narrow path against an advancing enemy.
 
----
+##### Echo Statistics
 
-#### Green Warden Mantle
+| Character Creation | Value |
+|:---|:---:|
+| Creature Type | Humanoid |
+| Size | Medium |
+| Speed | 8 m |
+| Required Echo Artifacts | 1 |
+| Maximum Echo Artifacts | 1 |
+| Free Artifact Capacity | 3 |
 
-The Green Warden Mantle is a Bane Echo Artifact grown from bark, thorn, moss, old roots, green iron, beast hide, sacred soil, and the last living strength of the wild places. It is not a druidic robe and not a holy vestment. It is the armor of a protector. Green Wardens do not serve gods. They stand between the living world and the things that would harvest it.
+#### Greenwarden Mantle
+
+The Greenwarden Mantle is living armor of bark, roots, thorns, and weathered hide. It grows with its wearer, hardening against attacks and striking back through the power of the wild. Its living fibers tighten around the wearer when danger approaches, while its thorns answer a careless strike. To wear it is to carry a fragment of the wilderness into every battle.
 
 </div>
 
-| Slot | Base Type | Artifact Functions | Binding |
-|---|---|---|---|
-| Body | Medium Armor | Armor / Active Buff: Thorns / Reaction: Ally Armor / Special Negation Stone Power Support | Echo-bound |
+![Greenwarden](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/Daro-Unbound-Alchemist-noBG.png){position:absolute,top:40px,right:55px,width:380px}
 
-Green Warden Mantle occupies the Body Slot. A Green Warden with Green Warden Mantle cannot wear another Body Artifact, magical armor, robe Artifact, natural armor Artifact, or body-based transformation Artifact at the same time. Green Warden Mantle is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
-
----
-
-### Green Warden Mantle Base
-
-| Artifact Level | Base Value A: Medium Armor |
-|:---:|:---:|
-| Level 1 | 12 Armor |
-| Level 2 | 13 Armor |
-| Level 3 | 14 Armor |
-| Level 4 | 15 Armor |
-| Level 5 | 16 Armor |
-| Level 6 | 17 Armor |
-| Level 7 | 18 Armor |
-| Level 8 | 19 Armor |
-| Level 9 | 20 Armor |
-| Level 10 | 22 Armor |
-
-Green Warden Mantle uses the normal Medium Armor drawbacks unless another rule explicitly changes them.
-
----
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-### Green Warden Passive Access
+### Greenwarden Mantle — Artifact Details
 
-A Green Warden may choose the **Thorns Passive** during character creation. Thorns Passive is exclusive to Green Wardens unless another rule explicitly grants access. The Green Warden must still spend one Passive Slot to slot Thorns Passive. If Thorns Passive is not slotted, it provides no benefit. The **Thorns Active** is not exclusive. Any character may learn the Thorns Active if they meet its normal requirements. A Green Warden may have both the Thorns Passive and the Thorns Active.
+![Greenwarden Mantle ](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:85px,right:45px,width:185px}
 
----
+<div style="width:57%;">
 
-### Green Warden Thorns
+**Slot:** Body  
+**Base Type:** Medium Armor  
+**Binding:** Echo-bound  
+**Functions:** Armor / Thorns / Warden's Guard / Special Negation Stone Support
 
-Green Warden Mantle grants access to the normal **Active Buff: Thorns**. Active Buff: Thorns represents thorns, roots, bark splinters, hooked vines, green iron spines, or living brambles striking back at nearby enemies. The name is the Artifact's flavour name. The mechanical Power is the existing **Active Buff: Thorns**.
+##### Base Values
 
----
+<div style="font-size:0.88em;">
 
-### Green Warden Protection
+| Level | Armor | Level | Armor |
+|:---:|:---:|:---:|:---:|
+| **1** | 12 | **6** | 17 |
+| **2** | 13 | **7** | 18 |
+| **3** | 14 | **8** | 19 |
+| **4** | 15 | **9** | 20 |
+| **5** | 16 | **10** | 22 |
 
-Green Warden Mantle grants access to the normal **Reaction: Ally Armor**. This Reaction represents roots rising, bark hardening, thorns catching a blow, or the Warden forcing the living world between an ally and harm. The Reaction follows all normal Reaction rules. It applies only to the triggering ally hit or damage instance. It does not create a maintained state. It is not an Active Buff.
+</div>
 
----
-
-### Green Warden Stone
-
-Green Warden Mantle supports the **Resolve Ability: Special Negation** Stone Power. The Mantle pre-fills higher tiers of that Stone Power through its Level Progression. The character must still pay all required lower tiers normally.
+</div>
 
 ### Level Progression
 
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Thorns I**<span class="artifactTechnicalReference">Active Buff: Thorns (PL 4)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 4. |
-| **2** | **Warden's Guard I**<span class="artifactTechnicalReference">Reaction: Ally Armor (PL 4)</span> | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+7 Armor** against that attack or damage instance. |
-| **3** | **Green Warden Stone I**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
-| **4** | **Thorns II**<span class="artifactTechnicalReference">Active Buff: Thorns (PL 10)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 10. This replaces Thorns I. |
-| **5** | **Warden's Guard II**<span class="artifactTechnicalReference">Reaction: Ally Armor (PL 10)</span> | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+19 Armor** against that attack or damage instance. This replaces Warden's Guard I. |
-| **6** | **Green Warden Stone II**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
-| **7** | **Thorns III**<span class="artifactTechnicalReference">Active Buff: Thorns (PL 16)</span> | Active Buff | Self | — | Mastery Rank Rounds | Use the normal Active Buff: Thorns profile at PL 16. This replaces Thorns II. |
-| **8** | **Warden's Guard III**<span class="artifactTechnicalReference">Reaction: Ally Armor (PL 16)</span> | Reaction | 4 m | — | Triggering hit or damage instance only | The triggering ally gains **+31 Armor** against that attack or damage instance. This replaces Warden's Guard II. |
-| **9** | **Green Warden Stone III**<span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
-| **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Green Warden Mantle)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
+| Level | Granted Feature / Technical Reference | Effect |
+|:---:|:---|:---|
+| **1** | **Thorns I** <span class="artifactTechnicalReference">Active Buff: Thorns (PL 4)</span> | Normal Thorns Active Buff; lasts **MR Rounds**. |
+| **2** | **Warden's Guard I** <span class="artifactTechnicalReference">Reaction: Ally Armor (PL 4)</span> | Within **4 m**, one ally gains **+7 Armor** against the triggering hit or damage instance. |
+| **3** | **Greenwarden Stone I** <span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 2)</span> | Pre-fill **Rank 2**; pay Rank 1 normally. |
+| **4** | **Thorns II** <span class="artifactTechnicalReference">Active Buff: Thorns (PL 10)</span> | Replaces Thorns I. |
+| **5** | **Warden's Guard II** <span class="artifactTechnicalReference">Reaction: Ally Armor (PL 10)</span> | **+19 Armor** for one ally within **4 m** against the triggering hit/damage instance; replaces I. |
+| **6** | **Greenwarden Stone II** <span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 3)</span> | Pre-fill **Rank 3**; pay Ranks 1–2 normally. |
+| **7** | **Thorns III** <span class="artifactTechnicalReference">Active Buff: Thorns (PL 16)</span> | Replaces Thorns II. |
+| **8** | **Warden's Guard III** <span class="artifactTechnicalReference">Reaction: Ally Armor (PL 16)</span> | **+31 Armor** for one ally within **4 m** against the triggering hit/damage instance; replaces II. |
+| **9** | **Greenwarden Stone III** <span class="artifactTechnicalReference">Resolve Ability: Special Negation (Stone Power Support, Rank 4)</span> | Pre-fill **Rank 4**; pay Ranks 1–3 normally. |
+| **10** | **Artifact Awakening** <span class="artifactTechnicalReference">Artifact Level 10: Awakening (Greenwarden Mantle)</span> | Apply the universal Artifact Awakening rules. |
 
----
+**Notes:** Greenwardens alone may select **Passive: Thorns** unless another rule explicitly grants access; it still occupies a **Passive Slot**. The **Active Buff: Thorns** is not exclusive. Warden's Guard is a **Reaction**, not a maintained Buff. The Mantle occupies the Body Slot and follows normal Medium Armor penalties.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+#### Relic Hunter
+
+<div style="width:48%;">
+
+Relic Hunters began as explorers of forgotten ruins, recovering artifacts and knowledge from civilizations that may have existed even before the gods. Their work led them into sealed tombs, broken temples, and cities buried beneath centuries of dust. They learned to read the traces left by vanished peoples and to handle discoveries that others would fear to touch. Every recovered relic was another fragment of a history that the world had almost forgotten. After Tyhra fell to the demons, their search became a hunt for weapons and secrets capable of fighting Hell. Today they are both treasure seekers and demon hunters, turning the power of the past against the horrors of the present.
+
+##### Echo Statistics
+
+| Character Creation | Value |
+|:---|:---:|
+| Creature Type | Humanoid |
+| Size | Medium |
+| Speed | 8 m |
+| Required Echo Artifacts | 1 |
+| Maximum Echo Artifacts | 1 |
+| Free Artifact Capacity | 3 |
+
 #### Hunter's Scourge
 
-<div style="width:100%; ">
-
-Hunter's Scourge is a Relic Hunter Echo Artifact: a chain-whip, iron lash, hooked cord, weighted scourge, relic whip, or segmented killing chain built to drag monsters into reach and destroy them. Relic Hunters are not holy knights. They are trained killers of demons, undead, fiends, cursed things, and monsters that survived too long. Where Alchemists survive the hunt by changing their own bodies, and Green Wardens protect what still lives, Relic Hunters end the hunt by pulling the monster close and burning it out of the world.
-
-| Slot | Base Type | Artifact Functions | Binding |
-|---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Chain Whip | Whip Damage / Finesse / Reach / Limited Single Target Strike / Expose Special / Maximization Stone Power Support | Echo-bound |
-
-Hunter's Scourge occupies both hand Slots. A Relic Hunter with Hunter's Scourge cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Hunter's Scourge is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
-
----
+Hunter's Scourge is the Relic Hunter's Echo-bound chain-whip, iron lash, or segmented scourge, made for facing dangerous prey beyond the reach of an ordinary blade. Its flexible links and hooked edges make it an unmistakable tool of the trade. More than a brutal weapon, it reflects a hunter's determination to confront horrors using the hard-won knowledge and equipment of generations past.
 
 </div>
 
-### Hunter's Scourge Base
+![Relic Hunter](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/Corvin-No-Background.png){position:absolute,top:20px,right:55px,width:380px}
 
-Hunter's Scourge uses the normal **Whip** as its Base Weapon.
-
-| Base Weapon | Damage | Hands | Specials |
-|---|:---:|:---:|---|
-| Whip | 2d8 | 1 | Finesse, Reach (+1 m) |
-
-Hunter's Scourge turns this weapon into a two-handed Echo Artifact. It keeps **Finesse** and **Reach (+1 m)** from the Base Weapon. The ordinary Whip's **2d8 Weapon Damage** is its starting chassis; the bound Scourge adds **+1d8 Weapon Damage per Artifact Level**, including +1d8 at Level 1. These dice are already included in the total values below and must not be added a second time.
-
----
-
-### Hunter's Scourge Damage
-
-| Artifact Level | Base Value A: Scourge Damage | Base Value B: Reach |
-|:---:|:---:|:---:|
-| Level 1 | 3d8 | — |
-| Level 2 | 4d8 | — |
-| Level 3 | 5d8 | — |
-| Level 4 | 6d8 |+1 m |
-| Level 5 | 7d8 |+1 m |
-| Level 6 | 8d8 | +2 m |
-| Level 7 | 9d8 | +2 m |
-| Level 8 | 10d8 | +3 m |
-| Level 9 | 11d8 | +3 m |
-| Level 10 | 12d8 | +4 m |
-
-Scourge Damage is Weapon Damage. Hunter's Scourge keeps the **Finesse** quality.
-
----
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-![Hunter's Scourge](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:620px,right:260px,width:280px}
+### Hunter's Scourge — Artifact Details
+
+![Hunter's Scourge](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Chainwhip.png){position:absolute,top:25px,right:45px,width:255px}
+
+<div style="width:57%;">
+
+**Slot:** Both Hands  
+**Base Type:** Two-Handed Chain Whip  
+**Binding:** Echo-bound  
+**Functions:** Scourge Damage / Finesse / Reach / Scourge Strike / Expose / Maximization Support
+
+##### Base Values
+
+<div style="font-size:0.88em;">
+
+| Level | Scourge Damage | Additional Reach | Level | Scourge Damage | Additional Reach |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| **1** | 3d8 | — | **6** | 8d8 | +2 m |
+| **2** | 4d8 | — | **7** | 9d8 | +2 m |
+| **3** | 5d8 | — | **8** | 10d8 | +3 m |
+| **4** | 6d8 | +1 m | **9** | 11d8 | +3 m |
+| **5** | 7d8 | +1 m | **10** | 12d8 | +4 m |
+
+</div>
+
+**Whip chassis:** Finesse, Reach +1 m, **2d8 already included** in Scourge Damage; do not count it twice. Printed Reach is additional.
+
+</div>
 
 ### Level Progression
 
-**Limited source:** Scourge Strike is a granted variant of the normal **Melee Single Target Attack**. It inherits that catalogue Power's full Attack Roll, action, delivery, and other rules. The base Power's printed Damage Dice are **quadrupled** by the universal Limited rule; the weapon's Base Damage is not multiplied. This granted version uses the character's **single shared Limited charge per Safe Haven Rest**, not a PL-based per-Power use counter. It grants no free additional Attack Actions, and the Artifact's granted instance does not provide another globally shared Limited charge or bypass any explicit global restriction.
+| Level | Granted Feature / Technical Reference | Effect |
+|:---:|:---|:---|
+| **1** | **Scourge Strike I** <span class="artifactTechnicalReference">Limited Melee Single Target Attack (PL 4; Hunter's Scourge source only)</span> | **32d8 Power Damage** + one Scourge Damage contribution on hit. |
+| **2** | **Maximization Support I** <span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 2)</span> | Pre-fill **Rank 2**; pay **1 Stone** for Rank 1; **2 shared uses per Combat**. |
+| **3** | **Unmask the Prey I** <span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 4)</span> | Apply **Expose(5)** on hit; **no direct Attack Damage**. |
+| **4** | **Scourge Strike II** <span class="artifactTechnicalReference">Limited Melee Single Target Attack (PL 10; Hunter's Scourge source only)</span> | **80d8 Power Damage** + one Scourge Damage contribution; replaces I. |
+| **5** | **Maximization Support II** <span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 3)</span> | Pre-fill **Rank 3**; pay **3 Stones** for Ranks 1–2; **3 shared uses per Combat**. |
+| **6** | **Unmask the Prey II** <span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 10)</span> | Apply **Expose(8)** on hit; **no direct Attack Damage**; replaces I. |
+| **7** | **Scourge Strike III** <span class="artifactTechnicalReference">Limited Melee Single Target Attack (PL 16; Hunter's Scourge source only)</span> | **128d8 Power Damage** + one Scourge Damage contribution; replaces II. |
+| **8** | **Maximization Support III** <span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 4)</span> | Pre-fill **Rank 4**; pay **7 Stones** for Ranks 1–3; **4 shared uses per Combat**. |
+| **9** | **Unmask the Prey III** <span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 16)</span> | Apply **Expose(10)** on hit; **no direct Attack Damage**; replaces II. |
+| **10** | **Artifact Awakening** <span class="artifactTechnicalReference">Artifact Level 10: Awakening (Hunter's Scourge)</span> | Apply the universal Artifact Awakening rules. |
 
-**Hunter's Scourge Stone Support exception:** Although Hand Artifacts normally grant Might/Agility-oriented Stone support, Hunter's Scourge is an explicitly approved Echo Artifact exception supporting **Vitality: Maximization**. This grants no Vitality Stones or automatic access to locked Vitality Stone Abilities: the wielder still needs the Ability legally unlocked and must pay its required lower Ranks. This exception applies only to the named Hunter's Scourge support, not to Hand Artifacts generally.
-
-**Maximization Support:** Scourge Strike is a **Limited Instant Active** and **may be maximized** by **Vitality Ability: Maximization**. Hunter's Scourge grants the normal Stone Power Support for this Ability at Artifact Levels 2 / 5 / 8. Support pre-fills exactly the named Rank's incremental Stone cost; lower Ranks remain payable. Choose the Rank and pay the remaining cost once during the first Preparation Phase of combat. The Support does not grant a second activation, extra uses, additional Limited uses, or a separate Power. Its **shared Maximization allowance** may be spent on Scourge Strike, another eligible Damage Roll, or an eligible **Healing Roll made by the wielder**, following the universal Maximization rules.
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-| :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Scourge Strike I**<span class="artifactTechnicalReference">Limited Melee Single Target Attack (PL 4; Hunter's Scourge source only)</span> | Active (Limited) | Melee Reach | — | Instant | Use **Limited Melee Single Target Attack (PL 4)** with Hunter's Scourge: on hit, deal its Weapon Damage + **32d8 Power damage**. Uses the wielder's **one global Limited charge per Safe Haven Rest**. The 32d8 is 4 times its normal 8d8 Power bonus; the Scourge's Weapon Damage is not doubled. |
-| **2** | **Maximization Support I**<span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of **Vitality: Maximization** (**2-Stone Rank cost** supplied by Hunter's Scourge). Pay Rank 1 normally (**1 Stone**), activate once at the first Preparation Phase of combat, and gain **2 shared Maximization uses** for complete Damage or Healing Rolls during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
-| **3** | **Unmask the Prey I**<span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 4)</span> | Active, Special | Melee Reach | — | Instant | Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(5)**, **no direct damage; no Weapon Damage or Spell Focus Damage**. |
-| **4** | **Scourge Strike II**<span class="artifactTechnicalReference">Limited Melee Single Target Attack (PL 10; Hunter's Scourge source only)</span> | Active (Limited) | Melee Reach | — | Instant | Use **Limited Melee Single Target Attack (PL 10)** with Hunter's Scourge: on hit, deal its Weapon Damage + **80d8 Power damage**. Uses the same **one global Limited charge per Safe Haven Rest**. Replaces Scourge Strike I; an in-day Artifact Level change never replenishes that charge. |
-| **5** | **Maximization Support II**<span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of **Vitality: Maximization** (**4-Stone Rank cost** supplied by Hunter's Scourge). Pay Ranks 1 and 2 normally (**3 Stones**), activate once at the first Preparation Phase of combat, and gain **3 shared Maximization uses** for complete Damage or Healing Rolls during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
-| **6** | **Unmask the Prey II**<span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 10)</span> | Active, Special | Melee Reach | — | Instant | Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(8)**, **no direct damage; no Weapon Damage or Spell Focus Damage**. This replaces Unmask the Prey I. |
-| **7** | **Scourge Strike III**<span class="artifactTechnicalReference">Limited Melee Single Target Attack (PL 16; Hunter's Scourge source only)</span> | Active (Limited) | Melee Reach | — | Instant | Use **Limited Melee Single Target Attack (PL 16)** with Hunter's Scourge: on hit, deal its Weapon Damage + **128d8 Power damage**. Uses the same **one global Limited charge per Safe Haven Rest**. Replaces Scourge Strike II. |
-| **8** | **Maximization Support III**<span class="artifactTechnicalReference">Vitality Ability: Maximization (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of **Vitality: Maximization** (**8-Stone Rank cost** supplied by Hunter's Scourge). Pay Ranks 1, 2 and 3 normally (**7 Stones**), activate once at the first Preparation Phase of combat, and gain **4 shared Maximization uses** for complete Damage or Healing Rolls during that combat. This improves the same Support function rather than granting a new activation. **The Limited Scourge Strike is an eligible Damage Roll.** |
-| **9** | **Unmask the Prey III**<span class="artifactTechnicalReference">Melee Single Target Special: Expose (PL 16)</span> | Active, Special | Melee Reach | — | Instant | Make a melee Attack Roll with Hunter's Scourge; on hit apply **Expose(10)**, **no direct damage; no Weapon Damage or Spell Focus Damage**. This replaces Unmask the Prey II. |
-| **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Hunter's Scourge)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
+**Notes:** All Scourge Strikes share the wielder's **one Limited use per Safe Haven Rest**. Limited multiplies only **Power Damage**, never Scourge Damage. Maximization Support follows the normal Vitality Stone rules: the listed Rank is pre-filled, lower Ranks require legal access and payment, and it adds **no additional Limited charges**. Scourge Strike is an eligible Maximization Damage Roll. Hunter's Scourge occupies **both Hand Slots**; no other hand-held weapon, shield, or focus may be equipped with it.
 
 }}
 \page
@@ -4074,7 +4035,7 @@ The Deathless still lose Health and can become Incapacitated normally. However, 
 
 At Level 1, Deathless Body shifts normal Health Penalties two steps toward Healthy.
 
-| Health Level | Normal Penalty | Deathless Body I |
+| Health Bar | Normal Penalty | Deathless Body I |
 |:---:|:---:|:---:|
 | Healthy | 0% | 0% |
 | Bruised | 10% | 0% |
@@ -4356,7 +4317,7 @@ Use the fixed band that describes the **actual situation**, not the character's 
 You lose control when badly wounded, succumbing to blood-fury.
 
 **Trigger:**  
-When you lose your **second Health Level**, and each time you lose another Health Level thereafter, make a `Resolve k1` roll against **TN 6**. If one damage instance causes you to lose multiple Health Levels and crosses more than one qualifying threshold, make one test for each Health Level lost from the second onward. No Raises may be declared on this roll. On failure, you go **Berserk** for `1d8 / 2 rounds, rounded up`.
+When your **second Health Bar becomes Scarred**, and each time another Health Bar becomes Scarred thereafter, make a `Resolve k1` roll against **TN 6**. If one damage instance Scars several qualifying Health Bars, make one test for each qualifying Bar from the second onward. No Raises may be declared on this roll. On failure, you go **Berserk** for `1d8 / 2 rounds, rounded up`.
 
 **While Berserk:**
 
@@ -4421,13 +4382,14 @@ They may affect:
 |---|:---:|---|
 | One-Eyed | 1 | **−1 die** to Ranged Attack Pools and sight-based Perception Pools. |
 | One-Handed | 2 | You cannot dual wield or use a shield and one-handed weapon at the same time. |
+| Nightmares | 1–2 | Sleep returns you to memories, omens or images you cannot control; troubled nights may complicate rests and watches. |
 | Heavy Sleeper | 1 | You do not wake from normal noise. You wake only when damaged, physically shaken, or directly disturbed. |
 | Light Sleeper | 1 | You sleep poorly and may suffer complications during rests, watches, or exhaustion scenes. |
 | Sleepless | 2–3 | You cannot sleep normally. Define with the GM how you recover during rests. |
 | Chronic Pain | 1–2 | Under stress, the GM may require a **Resolve k1** check (**TN 8** for ordinary strain, **TN 16** for acute pain) to remain focused. State the TN before the roll; no Training Raises. Failure causes an appropriate short-term pain complication; no unprinted permanent penalty. |
 | Damaged Lungs | 1–2 | Smoke, poison gas, drowning, long chases, or exhaustion affect you more severely. |
 | Trembling Hands | 1–2 | Fine manipulation, delicate tools, ranged precision, or spell focus may become harder under pressure. |
-| Fragile Frame | 3 | Your Health Track has one fewer box on every level. |
+| Fragile Frame | 3 | Each normal Health Bar has **Vitality × 3 HP** instead of Vitality × 4 (Fortitude multipliers are also reduced by 1). |
 
 The important question is not whether the flaw appears on this list.
 
@@ -4478,7 +4440,7 @@ Examples:
 - Fear of losing control
 - Fear of becoming a monster
 - Paranoia
-- Hatred for a group
+- Hatred for a group (an in-world faction, people or institution, never a real-world group)
 
 ---
 
@@ -4505,9 +4467,9 @@ To act **against** your Mental Restriction, make a `Resolve k1` roll. No Raises 
 
 | **Difficulty** | **TN** | **Meaning** | **Points** |
 |---|:---:|---|:---:|
-| Easy | 4 | Minor resistance or mild discomfort | 1 |
-| Normal | 8 | Strong internal conflict | 2 |
-| Hard | 12 | Violates a core belief, fear, vow, or identity | 3 |
+| Hard | 4 | Minor resistance or mild discomfort | 1 |
+| Very Hard | 8 | Strong internal conflict | 2 |
+| Extreme | 12 | Violates a core belief, fear, vow, or identity | 3 |
 
 On success, you may act against the Restriction for the moment. On failure, the Restriction creates a complication. This may mean hesitation, refusal, panic, retreat, escalation, social conflict, tactical risk, or another consequence agreed by the GM and player. A Mental Restriction should create drama and pressure. It should not remove the character from play every time it appears.
 
@@ -4535,9 +4497,9 @@ Misfortune should complicate the story. It should not be used to invalidate play
 
 ---
 
-### Vulnerability *(1-4 Points)*
+### Vulnerability *(1–3 Points)*
 
-You are unusually susceptible to a specific harmful Special. Choose one eligible negative value-based Special. Add your **Vulnerability value** to the incoming Special before Special Negation. This only affects the Special when it is applied. It does not trigger again when the Special ticks. It does not add extra hits, extra stacks, or a separate Special. It does not make the Special harder to remove unless a rule explicitly says so.
+You are unusually susceptible to one specific harmful Special. Choose one eligible negative value-based Special. Whenever that Special is applied to you, you receive **1, 2 or 3 additional points** of it, equal to the Disadvantage Points spent on Vulnerability. That is all Vulnerability does: add the bonus to the incoming Special **before Special Negation**, once per application. It does not trigger again when the Special ticks and does not add hits, stacks of another Special, or resistance to Cleanse.
 
 **Example:**  
 If you have **Vulnerability: Ruin(2)** and an enemy applies **Ruin(3)** to you, you suffer **Ruin(5)** instead.
@@ -4612,7 +4574,7 @@ The following examples show how a character might combine Disadvantages up to th
 | **Physical Scar** *(Damaged Lungs)* | **2** | Smoke, poison gas, drowning, long chases, or exhaustion may affect the character more severely. | The war left wounds that never fully healed. |
 | **Hunted** *(Old War Enemy)* | **2** | The GM may introduce pursuers, bounty notices, old rivals, or dangerous recognition. | Someone from the past still wants revenge. |
 | **Mental Restriction** *(Never Abandon an Ally)* | **2** | Leaving an ally behind requires a `Resolve k1` roll against the appropriate TN. | Loyalty is strength, but also a chain. |
-| **Berserker’s Curse** | **2** | When the character loses their second Health Level, and each further Health Level thereafter, they risk losing control according to the Berserker’s Curse rules. | Pain turns discipline into fury. |
+| **Berserker’s Curse** | **2** | When the character has their second Health Bar Scarred, and each further Bar thereafter, they risk losing control according to the Berserker’s Curse rules. | Pain turns discipline into fury. |
 
 **Total:** **8 Points**
 
@@ -4622,9 +4584,9 @@ The following examples show how a character might combine Disadvantages up to th
 
 | **Disadvantage** | **Points** | **Trigger / Effect** | **Narrative Hook** |
 |:--|:--:|:--|:--|
-| **Vulnerability** *(Ruin)* | **4** | Whenever **Ruin(X)** is applied to the character, increase the applied Ruin value by **4**. | Fire does not merely burn them; it awakens the curse. |
+| **Vulnerability** *(Ruin)* | **3** | Whenever **Ruin(X)** is applied to the character, increase the applied Ruin value by **3**. | Fire does not merely burn them; it awakens the curse. |
 | **Mental Restriction** *(Fear of Fire)* | **2** | Acting calmly near dangerous flame requires a `Resolve k1` roll against the appropriate TN. | The character remembers burning, even when no fire is present. |
-| **Physical Scar** *(Trembling Hands)* | **1** | Fine manipulation, delicate tools, ranged precision, or spell focus may become harder under pressure. | The body still shakes from an old trauma. |
+| **Physical Scar** *(Trembling Hands)* | **2** | Fine manipulation, delicate tools, ranged precision, or spell focus may become harder under pressure. | The body still shakes from an old trauma. |
 | **Unluck** | **1** | The GM gains Misfortune Tokens according to the Unluck rules. | Misfortune follows like a shadow. |
 
 **Total:** **8 Points**
@@ -4641,8 +4603,8 @@ Alaris takes the full **8 Disadvantage Points**. Those points become her maximum
 | **Disadvantage** | **Points** | **How it matters** |
 |:--|:--:|:--|
 | **Lost Love: Liora** | **3** | Her connection to Liora can override caution or immediate priorities. |
-| **Light Sleeper** | **2** | Rest becomes fragile in unsafe or unfamiliar places. |
-| **Nightmares** | **1** | Sleep may return her to memories, omens, or images she cannot control. |
+| **Light Sleeper** | **1** | Rest becomes fragile in unsafe or unfamiliar places. |
+| **Nightmares** | **2** | Sleep may return her to memories, omens, or images she cannot control. |
 | **Vegetarian** | **2** | Scarcity can turn a personal conviction into a survival problem. |
 
 <img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Disadvantages.png" style="display:block; width:680px; margin:10px auto 0 auto;" />
@@ -4665,7 +4627,7 @@ The final character should read as one connected plan rather than a collection o
 |:--|:--|
 | **Mastery Rank** | 2 |
 | **Core role** | Mobile melee skirmisher |
-| **Total Evade** | 17 from the MR baseline and her artifacts |
+| **Total Evade** | 17: MR baseline 8, Passive: Evade +8, Elorian Stride +1 |
 | **Armor** | 2 from Mastery Rank soak |
 | **Health per Bar** | 16 from Vitality 4 × 4 |
 | **Fear** | Starts at 0; accumulated Fear remains until Safe Haven Rest. |
@@ -4721,7 +4683,7 @@ Stones exist in 4 states:
 - **Ready**: available to be used.
 - **Exhausted**: spent during the current combat flow. Attribute Stones can return through **Stone Recovery**. Colorless Stones are **not recoverable** unless selected by **Influence Stone Ability: Colorless Recovery**.
 - **Sealed**: locked by Rituals or an Ability that explicitly Seals Stones (such as Remove Scar); cannot recover at the end of a Round and returns only after a **Safe Haven Rest**.
-- **Bound**: Permanently invested (Artifacts, Familiars, Summons, etc.). Bound Stones are not part of your usable pool and do not recover. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
+- **Bound**: Permanently invested (Artifacts, Summon Bonds, etc.). Bound Stones are not part of your usable pool and do not recover. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
 
 ### Colorless Stones
 
@@ -4891,7 +4853,7 @@ For Healing, apply the current active-Bar HP cap. **Resolve: Healing** qualifies
 | **Special Boost** | **+2 Special(X)** | **+4 Special(X)** | **+8 Special(X)** | **+12 Special(X)** |
 | **Spell Resistance** | **+4 Spell Resistance** | **+8 Spell Resistance** | **+12 Spell Resistance** | **+16 Spell Resistance** |
 
-**Raises (including Shared Free Raises — Playtest):** The Intellect Stone Ability grants **one shared Free Raise allowance of 2 / 4 / 6 / 8 per Round** at Ranks 1–4. The user may spend this pool on their own eligible Martial or Spell Attack/Casting Rolls **or allocate unused Raises to willing allies**. This does not multiply the allowance or transfer Stones. The activating character pays and exhausts their own Stones as normal. **Provisional sharing Range: 20 m**; the ally must be able to perceive a signal or coordination from the donor during the Round. A recipient commits the donated count **before** their qualifying Attack/Casting Roll, just as they would commit their own Free Raises; committed Raises are consumed on a miss or failed casting. **After** hit checks, the recipient makes the normal shared Damage / existing numeric Special allocation. Free Raises increase neither hit dice nor the TN, and cannot be used for Profession/Perception Training Checks, Ritual Checks, or separate Training Raises. Unspent Raise allowance expires at Round End. If several legal sources participate, each source's expenditure is tracked independently; no Raise may be allocated twice. This is a provisional playtest addition; it does not change the existing 2 / 4 / 6 / 8 values. All other Combat Raise restrictions remain in force.
+**Raises:** The Intellect Stone Ability grants **one shared Free Raise allowance of 2 / 4 / 6 / 8 per Round** at Ranks 1–4. The user may spend this pool on their own eligible Martial or Spell Attack/Casting Rolls **or allocate unused Raises to willing allies**. This does not multiply the allowance or transfer Stones. The activating character pays and exhausts their own Stones as normal. **Sharing Range: 20 m**; the ally must be able to perceive a signal or coordination from the donor during the Round. A recipient commits the donated count **before** their qualifying Attack/Casting Roll, just as they would commit their own Free Raises; committed Raises are consumed on a miss or failed casting. **After** hit checks, the recipient makes the normal shared Damage / existing numeric Special allocation. Free Raises increase neither hit dice nor the TN, and cannot be used for Profession/Perception Training Checks, Ritual Checks, or separate Training Raises. Unspent Raise allowance expires at Round End. If several legal sources participate, each source's expenditure is tracked independently; no Raise may be allocated twice. All other Combat Raise restrictions remain in force.
 
 **Range & AoE Boost:** During the current Round, improve only delivery components an eligible Attack or Power **already possesses**: Range, Melee Reach, and/or an existing AoE radius. This grants no new delivery mode, AoE, target, or attack. The temporary bonus may exceed the Power's purchased radius cap without changing its base profile.
 
@@ -4956,7 +4918,7 @@ For Healing, apply the current active-Bar HP cap. **Resolve: Healing** qualifies
 
 ### Last Breath
 
-Once per Safe Haven Rest, when you would drop to Incapacitated, you may burn **1 Stone** from any Attribute. You remain conscious with **1 free box** in your Wounded Health Bar. Any remaining damage from the triggering damage instance is ignored. You cannot use Last Breath again until you complete a Safe Haven Rest.
+Once per Safe Haven Rest, when you would drop to Incapacitated, you may Seal **1 Attribute Stone**. You remain conscious with **1 HP** in your Broken Health Bar. Any remaining damage from the triggering damage instance is ignored. You cannot use Last Breath again until you complete a Safe Haven Rest.
 
 ::
 }}
@@ -4970,9 +4932,9 @@ Powers are divided into five main types:
 
 | **Power Type** | **Short Description** |
 |---|---|
-| **Active** | Action-based Powers for attacks, healing, effects, zones, barriers, and Special delivery. |
+| **Active** | Action-based Powers for attacks, Restoration, effects, zones, barriers, and Special delivery. |
 | **Passive** | Ongoing character features that define your baseline and combat identity. |
-| **Active Buff** | Temporary combat states, stances, auras, or short-term enhancements; mechanical size changes use Transformation, while Form is visual only. |
+| **Active Buff** | Temporary combat states, stances, auras, or short-term enhancements; size changes and visual Form follow their own rules. |
 | **Reaction** | Immediate responses to specific triggers outside your turn. |
 | **Movement Power** | Special movement options that replace your normal Movement. |
 
@@ -4992,7 +4954,7 @@ Characters normally specialize in only a small number of Specials and combine th
 ### Power Tags  
 
 #### Tag: Spell  
-Any Power that interacts with the **Veil** the boundary between matter and will gains the **(Spell)** tag. Only abilities that explicitly reference “Spells” can target, dispel or suppress these effects. *Examples:* Ruin, Root, Bless, Hex Bolt, Healing Pulse.
+Any Power that interacts with the **Veil**, the boundary between matter and will, gains the **(Spell)** tag. Only abilities that explicitly reference “Spells” can target, dispel or suppress these effects. *Examples:* any Spell-delivered Ruin, Root, Hex or Restoration Power. The same Specials delivered Martially do not gain the tag.
 
 }}
 \page
@@ -5072,9 +5034,9 @@ Example: Resolve 2, MR 4 normally rolls **2k2**. Even if Fear would remove both 
 | VIII | k8 |
 
 ---
-:
 
-### Raises
+
+#### Raises
 
 **One Raise catalog for every delivery.** Martial and Spell attacks use the same Raise values.
 
@@ -5089,7 +5051,7 @@ Example: Resolve 2, MR 4 normally rolls **2k2**. Even if Fear would remove both 
 
 Multiple Raises may be assigned to the same option. **Range, Melee Reach, AoE size, and Duration** use the Power's printed values and do not change through combat Raises. This keeps target declaration and Attack-Trigger Reactions in the normal pre-roll window.
 
-**Split Attack:** One Power use makes up to two separate Attack or Casting Rolls using its divided Pool. **Before either roll**, declare one shared count of Paid Raises and commit one shared count of eligible Free Raises. Add the same Paid-Raise TN increase to both rolls. **After both split rolls and hit checks**, choose **one shared Damage/Special Raise allocation**, applying it to every successful split before resolving its payload. A failed split gains no Raise effect; successful splits each deal their full eligible Damage and Special payload. The split rolls determine hits independently.
+**Split Attack:** One Power use makes up to its printed number of separate Attack or Casting Rolls using its divided Pool. **Before any roll**, declare one shared count of Paid Raises and commit one shared count of eligible Free Raises. Add the same Paid-Raise TN increase to every roll. **After all split rolls and hit checks**, choose **one shared Damage/Special Raise allocation**, applying it to every successful split before resolving its payload. A failed split gains no Raise effect; successful splits each deal their full eligible Damage and Special payload. The split rolls determine hits independently.
 
 **Autofire:** Declare the ordered attack slots and **one shared count of Paid and committed Free Raises** before the shared roll. For attack number *i*, its TN is that target's applicable defense **+4 × (i − 1)** plus **+4 per Paid Raise** for this Power use. This positional increase is **not a Paid Raise**, grants no Raise effect and cannot be canceled with Intellect Free Raises. **After the shared roll and sequential hit checks**, choose **one shared Damage/Special Raise allocation** for all successful slots; stop on the first failed slot. Autofire uses one Attack/Casting Roll and one common Damage Roll, not one roll per slot.
 
@@ -5170,7 +5132,7 @@ A creature must have a meaningful opportunity and a credible method to conceal i
 
 **Invisibility is separate:** Invisibility requires no ordinary Stealth Check. Standing still without any perceptible cue offers no Perception attempt through ordinary sight alone. Once the creature moves or another relevant cue exists, an eligible observer can attempt Perception against its Invisibility TN through a Sense covered by Invisibility. When the creature also uses ordinary Stealth, resolve the Stealth attempt normally and use the **higher** of its established Stealth roll result and its Invisibility TN against affected Senses, never their sum. A Stealth roll does not require the creature to stay in one place. When ordinary Stealth ends, only Invisibility's TN remains. An uncovered, Clear sense follows its normal detection rules.
 
-**Group Ambush:** A coordinated group may use the **Group Ambush — Coordinated Stealth** rule in the **Professions** chapter: one selected specialist's concealment result, reduced by every participating member's armor and shield Physical Training penalties, versus eligible observers' Perception results. There are no group Raises or extra setup TNs.
+**Group Ambush:** A coordinated group may use the **Ambush** rule in the **Professions and Training** chapter: one selected specialist's concealment result, reduced by every participating member's armor and shield Physical Training penalties, versus eligible observers' Perception results. There are no group Raises or extra setup TNs.
 
 ---
 }}
@@ -5208,7 +5170,7 @@ A Sense that is genuinely Blocked by another effect cannot be used for Perceptio
 
 ### Invisibility Detection TN
 
-An invisible creature's Perception TN comes from its MR, Invisibility Bonus and current Health Level. A separately declared and credible concealment approach uses a fitting Profession (or untrained) Training Roll; no preliminary setup Task TN is added to an active Comparative Training Check.
+An invisible creature's Perception TN comes from its MR, Invisibility Bonus and lost Health Bars. A separately declared and credible concealment approach uses a fitting Profession (or untrained) Training Roll; no preliminary setup Task TN is added to an active Comparative Training Check.
 
 #### Step 1 — Base TN
 
@@ -5252,7 +5214,7 @@ This is a **specific combat detection defense**, not a mundane Task TN and not a
 
 ### Targeting Through Concealment
 
-Before directly targeting a Hidden or invisible creature with an Attack, Spell, or hostile Power, check the attacker's active Combat Senses. **If the target is Obscured and there is a plausible detectable cue, the attacker may make a free Perception Check immediately before attempting direct targeting. This Check costs no Attack Action, Movement, Reaction, or Stone.** Ordinary sight alone offers no Perception attempt against a wholly still, quiet invisible target with no visual clue; sound, movement, touch, traces, a previously known approximate location with a usable cue, or an eligible Special Combat Sense may justify an attempt. The starting Perception Rank is granted free; this action still follows the detection limits below.
+Before directly targeting a Hidden or invisible creature with an Attack, Spell, or hostile Power, check the attacker's active Combat Senses. **If the target is Obscured and there is a plausible detectable cue, the attacker may make a free Perception Check immediately before attempting direct targeting. This Check costs no Attack Action, Movement, Reaction, or Stone.** Ordinary sight alone offers no Perception attempt against a wholly still, quiet invisible target with no visual clue; sound, movement, touch, traces, a previously known approximate location with a usable cue, or an eligible Special Combat Sense may justify an attempt.
 
 - **Clear:** If an active Sense can clearly locate the creature, it may be targeted normally. An uncovered Special Combat Sense ignores Invisibility entirely.
 - **Obscured:** If Invisibility or another effect Obscures a valid Sense, make a Perception Check against the appropriate TN.
@@ -5266,7 +5228,7 @@ The observer locates the creature until the end of the current Round and may tar
 
 **Failed Perception**
 
-The observer cannot directly target the creature during its current Turn unless another valid Sense or effect locates it. The attempted targeting action is not spent. Each observer may make **one free Perception Check per Hidden or invisible creature per Round**; a failed Check cannot be repeated against that same creature until the next Round. At the start of each new Round, previous Perception-based location results expire. A new Check is required if the creature remains Obscured. Area effects, zones, environmental effects, and abilities that do not require precise targeting remain usable normally.
+The observer cannot directly target the creature during the observer's current Turn unless another valid Sense or effect locates it. The attempted targeting action is not spent. Each observer may make **one free Perception Check per Hidden or invisible creature per Round**; a failed Check cannot be repeated against that same creature until the next Round. At the start of each new Round, previous Perception-based location results expire. A new Check is required if the creature remains Obscured. Area effects, zones, environmental effects, and abilities that do not require precise targeting remain usable normally.
 
 ### Attacking from Invisibility
 
@@ -5290,7 +5252,7 @@ If a creature initiates combat against an enemy that is unaware of it, the attac
 
 **Normal Stealth:** A character obtains **21** on a concealment Training Roll. An eligible guard obtains **19** on Perception, so the character remains Hidden; a Perception result of **21** would detect the character. **Invisibility:** MR 3 with Passive: Invisibility Level 6 has TN 12 + Bonus 6 = **18**. **Stealth plus Invisibility:** The invisible creature has a separate Stealth result **24**. An observer whose Combat Sense is Obscured uses the higher threshold **24**, not 24 + 18; Perception **23** fails. Comparative Stealth has **no setup Task TN and no Raises**.
 
-**Injured:** The same MR 3 character loses two Health Bars. Its Invisibility TN drops from 18 to **12**. A separately established Stealth TN remains subject to the ordinary Stealth rules, not post-roll spending.
+**Injured:** The same MR 3 character loses two Health Bars. Its Invisibility TN drops from 18 to **12**. A separately established Stealth TN remains subject to the ordinary Stealth rules.
 
 **Uncovered Sense:** A creature with active Predator Sense encounters an invisible character who has not selected Predator Sense as part of Invisibility. Predator Sense perceives the character normally. **No Invisibility Perception Check is required.**
 }}
@@ -5299,7 +5261,6 @@ If a creature initiates combat against an enemy that is unaware of it, the attac
 {{wide
 ### Round Structure
 
-Each combat follows this structure:
 
 1. **Preparation Phase**
 The Preparation Phase takes place before the Round begins. Prepare Stone Abilities and activate **each named Active Buff once per Combat**, before any Turn. Maintain **one Active Buff at a time**; during Preparation you may switch to another unused Buff. Benefits apply to the upcoming Round, regardless of Initiative.
@@ -5313,7 +5274,7 @@ The Preparation Phase takes place before the Round begins. Prepare Stone Abiliti
    - Defensive and passive Stone values that apply during the Round become active immediately.
    - Stone Abilities with a Turn timing or trigger are prepared now but resolve at their specified time.
    - During this Phase, activate a Buff whose **one activation per Combat** remains available, for **no Attack Action or Stone cost**, including after Stone Confirmation. To switch, end the current Buff before the new one starts; the confirmed Stone plan remains unchanged. **Active Buff Empowerment** retains its separate once-per-Combat use. Spent Critical/Maximization charges remain spent.
-   - Resolve the optional **All-Out Attack** declaration and any voluntary **Regular Attack Action Transfer** for this Round before Initiative Order is locked. These choices grant no extra Actions or Stones. See *Tactical Choices (Playtest)*.
+   - Resolve the optional **All-Out Attack** declaration and any voluntary **Regular Attack Action Transfer** for this Round before Initiative Order is locked. These choices grant no extra Actions or Stones. See *Tactical Choices*.
    - Once Preparation choices are complete, determine Initiative Order and lock it for this Round.
 
 2. **Resolve Turns**
@@ -5339,10 +5300,10 @@ At the start of each Round, each character normally has:
 - **1 Attack Action**
 - **1 Reaction**
 
-Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. **Activating an Active Buff commits no Attack Action**. The character retains the normal base Attack Action plus any separately legal additional Attack Actions. **Only the single regular Attack Action may be voluntarily transferred to an ally during Preparation** under the optional playtest rule; personal extra Actions from Stones or other grants are not transferable.
+Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions. **Activating an Active Buff commits no Attack Action**. The character retains the normal base Attack Action plus any separately legal additional Attack Actions. **Only the single regular Attack Action may be voluntarily transferred to an ally during Preparation** (see *Tactical Choices*); personal extra Actions from Stones or other grants are not transferable.
 
 ---
-::
+
 ### Turn Structure
 
 On your Turn, resolve the following steps in order:
@@ -5400,14 +5361,18 @@ An available **Attack Action** may be spent to:
 - perform an **available Combat Maneuver** that costs an Attack Action (such as Grapple or Stand Up), or
 - activate an **item or Artifact effect** whose printed rules require an Attack Action.
 
+---
+}}
+\page
+{{pageNumber,auto}}
+
+
 **An Attack Action is a resource, not an automatic weapon attack.** It deals no damage by itself. To make a normal damaging Martial or Spell attack, use an eligible acquired or granted Attack Power. **NPCs and Summons may instead use their expressly defined NPC/Summon attack profiles**, which do not grant a free player-character attack. Universal Combat Maneuvers remain available without a Power purchase.
 
 **Active Buffs activate only in Preparation**, never through a Turn Attack Action. An **Attack Action transferred during Preparation** belongs to its recipient for this Round and follows the normal Active Power and Combat Maneuver choices; it cannot be transferred again.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
+:
 ### Reactions
 
 A Reaction is used when its specific Trigger occurs. You normally have **1 Reaction per Round**. Additional Reactions may be spent when an eligible Trigger occurs.
@@ -5604,7 +5569,7 @@ Calculate each incoming numeric Special as **printed Special(X) + successful Rai
 
 #### 9. Resolve Hit Effects
 
-Apply the remaining Specials, forced movement, control effects, conditions, and other hit effects according to their individual rules. **When Ruin is successfully added, resolve its immediate Special-generated damage: 4 × the number of new Ruin points actually applied after Special Negation and other applicable Special defenses.** Existing Ruin points do not trigger extra immediate damage. This ignores Armor but uses the normal applicable Damage Reduction, Temporary HP buffers, and Health damage sequence. It creates **no direct Attack Damage Roll** and cannot receive Attack Damage bonuses, Damage Raises or Limited multiplication. A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. A later Attribute Check occurs only if the effect explicitly grants a break attempt, disbelief attempt, or another separately timed response.
+Apply the remaining Specials, forced movement, control effects, conditions, and other hit effects according to their individual rules. **When Ruin is successfully added, resolve its immediate Special-generated damage: 4 × the number of new Ruin points actually applied after Special Negation and other applicable Special defenses.** Existing Ruin points do not trigger extra immediate damage. This ignores Armor but uses the normal applicable Damage Reduction, Temporary HP buffers, and Health damage sequence. It creates **no direct Attack Damage Roll** and cannot receive Attack Damage bonuses, Damage Raises or Limited multiplication. A successful Attack, Spell, or AoE does not automatically trigger a second defensive roll. 
 }}
 \page
 {{pageNumber,auto}}
@@ -5624,14 +5589,16 @@ For a shared **AoE or Autofire** Damage Roll, each defender declares Negation be
 
 Normally roll the remaining Damage Dice; they do not explode unless stated. For a damaging **AoE or Autofire**, roll the common eligible Damage Pool **once**; reuse those recorded die results for every successful AoE target or Autofire hit. For Autofire **and instant Damage AoEs**, that common Pool includes the eligible mundane Weapon or Spell Focus Damage **or one selected Artifact Damage contribution**, never multiple equipment Damage sources. Each hit applies its declared Damage Negation and other defenses separately; target-specific dice are resolved only for that hit. **After Damage Negation, before rolling**, you may spend one eligible use of **Passive: Maximization** or **Vitality Stone Ability: Maximization** to make every remaining die in the complete roll an **artificial 8**, with no natural-8 effects. Choose **one source per roll**, never both.
 
+**Large Damage Pools:** If **40 or more** Damage Dice remain after Damage Negation, you may count each die as **5** instead of rolling. Maximization still counts each die as 8. A damage floor above 5 (such as Mark or Brutal Impact) counts each die at that floor value instead.
+
 The slotted Passive grants **1 / 2 / 3 free uses per Combat** at PL 4-7 / 8-14 / 15-16. Vitality Maximization grants **1 / 2 / 3 / 4 shared Combat uses** if paid for in the first Preparation Phase. Track them separately. One shared AoE roll costs one use; separate rolls cost separate uses. Either source may maximize a legal **Limited Power** or eligible **Healing Roll**, but adds no attack or dice. Resolve Armor, DR and other mitigation normally. **Damage Transfer** has no separate Healing Roll.
-
-After determining the Damage Roll result, the attacker may spend any **Mark already on the target before this hit began** to set that Damage Roll's floor. Decide the amount **after viewing Damage Dice but before Damage-Trigger Reactions**; change qualifying die results and reduce the target's stored Mark immediately. Mark newly applied by this hit becomes available for **later hits**, not this hit. Then resolve eligible **Damage-Trigger Reactions** against the resulting Damage Roll before Armor and other damage mitigation. A Reaction requiring a later event, such as Scarring, resolves at that specifically stated event.
-
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+After determining the Damage Roll result, the attacker may spend any **Mark already on the target before this hit began** to set that Damage Roll's floor. Decide the amount **after viewing Damage Dice but before Damage-Trigger Reactions**; change qualifying die results and reduce the target's stored Mark immediately. Mark newly applied by this hit becomes available for **later hits**, not this hit. Then resolve eligible **Damage-Trigger Reactions** against the resulting Damage Roll before Armor and other damage mitigation. A Reaction requiring a later event, such as Scarring, resolves at that specifically stated event.
+
+
 #### 13. Apply Corrode, Armor Reduction, Weapon Penetration, and Armor
 
 Start with the target's **current Armor** for this hit. Apply **Corrode(X)** present at Step 13 (including Corrode just applied by this hit), then subtract eligible attacker-specific **Passive: Armor Reduction**, **Might Stone Ability: Armor Reduction** (Rank 1/2/3/4 = 4/8/16/32), and any applicable **Weapon Special: Penetration(X)**. These stack additively against this attack only; Effective Armor cannot go below zero. `Effective Armor = max(0, Current Armor - Corrode - Passive Armor Reduction - Might Stone Armor Reduction - Weapon Penetration)`
@@ -5644,28 +5611,24 @@ Subtract effective Armor from the rolled damage using `Damage after Armor = Roll
 
 Apply percentage-based **Damage Reduction (DR)** to damage remaining after Armor. Start with the character's **Passive DR**. Add eligible **Active Buff DR** up to that Buff's printed total-DR cap; then add eligible **Reaction DR** up to that Reaction's own printed total-DR cap. Each cap limits how much that particular bonus can increase the current non-Stone DR subtotal; applying a lower cap never removes DR already present. Both Buff and Reaction require the underlying Passive DR when their entries say so. Then add **Resolve Stone Ability: Damage Reduction** outside those printed Buff/Reaction caps. The final total DR cannot exceed **100%**.
 
-**Final damage after DR = ceil(max(0, Damage after Armor) × (1 − total DR / 100)).** Apply the existing minimum-damage rule for natural 8s in Step 15. For example, 13 damage after Armor and 30% DR becomes **10**; with 80% total DR it becomes **3**. A separate explicitly stated 50% final-damage reduction such as Bulwark applies to the already calculated final damage when its own trigger resolves; round any fractional remaining damage **up**.
+**Final damage after DR = ceil(max(0, Damage after Armor) × (1 − total DR / 100)).** For example, 13 damage after Armor and 30% DR becomes **10**; with 80% total DR it becomes **3**. A separate explicitly stated 50% final-damage reduction such as Bulwark applies to the already calculated final damage when its own trigger resolves; round any fractional remaining damage **up**.
 
-#### 15. Apply Minimum Damage from Natural 8s
-
-If Armor and Damage Reduction reduce the damage to **0 or less**, the target still takes **1 damage for each natural 8 rolled on the original Damage Dice**. Only dice that were actually rolled count; Damage Dice removed through Damage Negation cannot generate minimum damage.
-
-#### 16. Apply Temporary HP and Other Damage Buffers
+#### 15. Apply Temporary HP and Other Damage Buffers
 
 Apply remaining damage to legal Temporary HP buffers before real HP, keeping distinct Passive, Active Buff, Stone, and Reaction sources separate. **Reaction Temporary HP protects only its triggering damage instance; any unused amount expires immediately afterward.** Temporary HP damage is not real HP loss.
 
-#### 17. Apply Damage to Health
+#### 16. Apply Damage to Health
 
-Apply all remaining damage to the target's current Health Bar according to the normal Health and Health Level rules.
+Apply all remaining damage to the target's current Health Bar according to the normal Health Bar rules.
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-#### 18. Resolve Damage Transfer (Vampyr)
+#### 17. Resolve Damage Transfer (Vampyr)
 
-For a successful **Melee Single Target Damage Transfer** or **Ranged Single Target Damage Transfer** attack or Spell, heal the attacker by the **real HP actually lost by the target from this attack** after all mitigation, Temporary HP, and other buffers. Martial Weapon Damage counts in the same damage instance; Spell delivery does not add mundane Weapon Damage (an equipped Artifact's complete Artifact Damage still applies once, see *Artifact Delivery Support*). Never count prevented damage, unused overkill, earlier damage, or HP loss from other sources. The self-healing is limited to missing HP in the attacker's **current active Health Bar**; it cannot restore Scarred bars or grant Temporary HP. No separate Healing Dice are rolled; zero real HP lost means zero healing. Limited and Maximization may modify the eligible Damage Dice, but transferred healing still equals actual real HP lost and has **no separate Healing Roll to maximize**. This fixed, single-target Transfer is not the Deathless Echo's Life Absorption Stone mechanic.
+For a successful **Melee Single Target Damage Transfer** or **Ranged Single Target Damage Transfer** attack or Spell, heal the attacker by the **real HP actually lost by the target from this attack** after all mitigation, Temporary HP, and other buffers. Martial Weapon Damage counts in the same damage instance; Spell delivery does not add Weapon Damage. Never count prevented damage, unused overkill, earlier damage, or HP loss from other sources. The self-healing is limited to missing HP in the attacker's **current active Health Bar**; it cannot restore Scarred bars or grant Temporary HP. No separate Healing Dice are rolled; zero real HP lost means zero healing. Limited and Maximization may modify the eligible Damage Dice, but transferred healing still equals actual real HP lost and has **no separate Healing Roll to maximize**. This fixed, single-target Transfer is not the Deathless Echo's Life Absorption Stone mechanic.
 
-#### 19. Resolve Absorption
+#### 18. Resolve Absorption
 
 After the damage instance resolves, count **Health Bars newly Scarred by eligible hostile damage** while Passive: Absorption is slotted. **Each such bar consumes one of the Passive's four available triggers per combat**, even if one hit Scars multiple bars. Each valid trigger earns the Passive's Power-Level-based Stones (1 at Levels 1–2 through 8 at Levels 15–16). A qualifying Absorption Reaction may add Stones once for this damage instance; the maintained Absorption Active Buff may add Stones on the first valid trigger of the Round. Neither increases the four-trigger allowance. Voluntary Health Bar sacrifices, self-inflicted damage, and damage that does not Scar a bar generate no Absorption. Earned Stones arrive Ready in the **next Preparation Phase**. Track only triggers used (0–4), not HP lost or a damage remainder.
 
@@ -5821,7 +5784,7 @@ Use **Comparative Training Checks** when two creatures directly oppose one anoth
 3. **Compare results.** The higher Training Roll result wins. **Ties favor the observer or defender**; otherwise maintain the existing situation. For multiple observers against one unchanged concealment, reuse the original Profession result and compare each eligible observer's own check to that single result.
 4. **Respect what can be observed.** A creature with no valid way to notice a hidden action does not gain information through an invented roll. If the situation materially changes, resolve the new situation normally rather than repeatedly rolling an unchanged contest.
 
-**NPC response:** NPCs roll an appropriate situational Training Pool and keep their MR, as described under **NPCs in Training Checks and Contests**. Assign a situational Training Rank where appropriate for Training Advantage; NPC Training Crit is available only when its limited-use specialist training is deliberately assigned. Do not automatically detect a trained setup without rolling when a valid Perception or Investigation response is possible.
+**NPC response:** NPCs roll an appropriate situational Training Pool and keep their MR, as described under **NPCs in Training Checks and Contests**. Assign a situational Training Rank where appropriate for Training Advantage; NPC Training Crit is available only when its limited-use specialist training is deliberately assigned. Do not automatically detect a trained setup without rolling when a valid Perception or Profession response is possible.
 
 **Example:** A false courier with Spy obtains **22** while a trained guard with City Watchman obtains **19**. The cover holds. A guard result of **24** exposes the deception; **22** also exposes it because ties favor the defender. Neither party uses Raises or a separate preliminary Task TN.
 
@@ -5884,7 +5847,7 @@ A successful Attack, Spell, or AoE normally resolves its full listed payload. Pu
 - **Training against training or concealment:** Trained Opposition.
 - **Creature against a hostile effect:** Attribute Check against the effect's TN.
 - **Attack against a target:** normal Attack vs. Evade rules.
-- **Complex group objective (social or otherwise):** **Challenge Rolls**, using the ordinary Standard Training Check rules and a GM-announced shared Success target.
+- **Complex group objective (social or otherwise):** **Challenge Rolls**, using ordinary Standard Training Check rules and a GM-announced shared Success target.
 
 }}
 \page
@@ -5918,7 +5881,7 @@ Outside combat, an NPC may still need to **roll** to observe a Hidden creature, 
 | **MR 2** | **6k2** | **8k2** |
 | **MR 3** | **10k3** | **12k3** |
 
-The **MR 3 range is deliberately about four dice above MR 2**, as a playtest guideline. Even an MR 2 **6k2** guard is much better at the relevant check than a beginning hero rolling **4k2**; reserve the upper range for a genuinely capable specialist. A common bystander can use a smaller Pool. At MR 4+, set the Pool to the NPC's actual role and intended challenge; do **not** extend the +4 dice step mechanically without checking the resulting odds.
+The **MR 3 range is deliberately about four dice above MR 2**, as a guideline. Even an MR 2 **6k2** guard is much better at the relevant check than a beginning hero rolling **4k2**; reserve the upper range for a genuinely capable specialist. A common bystander can use a smaller Pool. At MR 4+, set the Pool to the NPC's actual role and intended challenge; do **not** extend the +4 dice step mechanically without checking the resulting odds.
 
 **Trained Opposition:** When actively opposed, an NPC rolls its own situational Pool and compares directly with the other creature's Training Result. There is **no preliminary setup Task TN and no Raises**. Give a trained specialist an appropriate situational **Training Rank for Training Advantage**, and Training Crit only where specifically warranted; an untrained NPC follows normal Disadvantage. **Opposed Attribute Contests:** both creatures roll their relevant Attribute Pools with their own Keep as usual, without Profession benefits. A source-based resistance check still follows the effect's printed TN or fallback rule.
 
@@ -5940,16 +5903,16 @@ By default, everyone has five Health Bars.
 
 Each Health Bar has:
 
-<strong>Vitality × 4</strong> boxes by default. **Passive: Fortitude** may increase that multiplier to **×5, ×6, ×7, or ×8** at Power Levels **4, 8, 12, and 16**, respectively, while slotted. It changes the maximum size of normal Health Bars only; it does not create additional bars, heal lost HP, or reopen Scarred bars. **Passive: Health** and **Passive: Fortitude** share the Health category and cannot be slotted together. **Passive: Absorption** does not grant HP.
+<strong>Vitality × 4</strong> HP by default. **Passive: Fortitude** may increase that multiplier to **×5, ×6, ×7, or ×8** at Power Levels **4, 8, 12, and 16**, respectively, while slotted. It changes the maximum size of normal Health Bars only; it does not create additional bars, heal lost HP, or reopen Scarred bars. **Passive: Health** and **Passive: Fortitude** share the Health category and cannot be slotted together. **Passive: Absorption** does not grant HP.
 
-After all available Health Bars are depleted (including any additional Bars granted by Growth or other approved effects), the character enters the **Incapacitated** state, which is represented by one final box.
+After all available Health Bars are depleted (including any additional Bars granted by Growth or other approved effects), the character enters the **Incapacitated** state.
 
 <ul style="margin-top:0; padding-left: 1.2em;">
   <li><strong>Active Health Bar:</strong> the highest Health Bar that is not Scarred.</li>
   <li>You can heal damage only within your current Active Health Bar.</li>
-  <li>Once a Health Bar is completely filled, it becomes <strong>Scarred</strong>.</li>
+  <li>Once a Health Bar has lost all its HP, it becomes <strong>Scarred</strong>.</li>
   <li>A Scarred Health Bar cannot be healed during the same combat unless a rule explicitly allows it.</li>
-  <li>The final box is always <strong>Incapacitated</strong>.</li>
+  <li>When the last available Bar is Scarred, the character is <strong>Incapacitated</strong>.</li>
 </ul>
 
 ---
@@ -5962,7 +5925,7 @@ Health penalties reduce the number of dice you roll.
 |:--|:--:|:--:|:--:|:--:|:--:|:--:|
 | **Pool** | — | −10% | −20% | −40% | −50% | no actions |
 
-Round dice loss down, minimum 0. Applies to attacks, Attribute Checks, Training Checks, spells, rituals, and initiative. Does not reduce damage dice unless a rule explicitly says so.
+Round dice loss down, minimum 0. Applies to attacks, Attribute Checks, Training Checks, spells and rituals. Does not reduce damage dice unless a rule explicitly says so.
 
 ---
 
@@ -5987,9 +5950,9 @@ Combine flat penalties, then apply the percentage Health Penalty. The **two-dice
 {{wide
 #### Example
 
-Someone with **Vitality 2** has the following Health Levels. Each normal Health Bar has:
+Someone with **Vitality 2** has the following Health Bars. Each normal Health Bar has:
 
-<strong>Vitality × 4 = 8 boxes</strong>
+<strong>Vitality × 4 = 8 HP</strong>
 
 ---
 :
@@ -6019,10 +5982,10 @@ Someone with **Vitality 2** has the following Health Levels. Each normal Health 
 
 #### Pool Reduction Example
 
-A character has **Agility 16**, **Mastery Rank 3**, and is making a **concealment** check using the learned Profession **Burglar**. There is no Profession-Rank dice-pool threshold; the character is affected by **Weaken(4)** and is currently **Injured**.
+A character has **Agility 16**, **Mastery Rank 3**, and is making a **concealment** check using the learned Profession **Burglar**. The character is affected by **Weaken(4)** and is currently **Injured**.
 
 1. Attribute Pool = 16  
-2. Training Checks use the full Attribute Pool = 16 (no Profession-Rank threshold)  
+2. Training Checks use the full Attribute Pool = 16  
 3. Weaken(4) removes 4 dice → 12 dice remain  
 4. Injured Health Penalty removes 20% of 12 → lose 2 dice  
 5. Final Pool = **10k3**
@@ -6241,10 +6204,9 @@ Convert Movement into reloading. Instead of moving, spend your Movement to perfo
 #### Stand Up
 
 Recover from Prone by spending **1 Attack Action**. Until you stand, your normal Evade and passive defenses apply, but you cannot move, attack, cast or use Reactions. After standing, your Movement and other available actions function normally. Standing up itself does not provoke Reactions. Movement taken afterward may provoke normally.
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
+---
+:::
 
 ### Attack Actions and Available Maneuvers
 
@@ -6256,26 +6218,41 @@ An **Attack Action** can activate an eligible **Active Power** (including an Att
 \page
 {{pageNumber,auto}}
 {{wide
-### Tactical Choices (Playtest)
+### Tactical Choices
 
-The following choices are **universal combat options**, not Powers or Stone Abilities. They grant no free attacks, charges, Powers, or additional overall Actions. **The 20 m teamwork Range is provisional for playtesting**, not a finalized balance value.
+The following choices are **universal combat options**, not Powers or Stone Abilities. They grant no free attacks, charges, Powers, or additional overall Actions.
 
 #### All-Out Attack
 
-During the **Preparation Phase**, announce **All-Out Attack** for the coming Round, in one or more **steps**. Each step grants **+1d8 Damage on each of your own direct, damaging Martial or Spell Attack Damage Rolls** during that Round. Add the die to the actual Damage Roll, never to the Attack/Casting Pool; with AoE or Autofire, add it **once to the shared Damage Roll**, not separately for each target or hit. The bonus also works on your own eligible attacks made with additional Attack Actions. It does not generate Damage for Special-only Attacks, and does not apply to Ruin, other Special-generated ticks, Auras, Zones, Summons, traps, or an ally's attacks.
+During the **Preparation Phase**, you may declare an **All-Out Attack** for the coming Round. Choose **one defense** to sacrifice: your **total Armor** or your **total Evade**. Then choose how many complete increments of that defense to give up. **Each increment grants +1d8 Damage on every one of your own eligible direct, damaging Martial or Spell Attack Damage Rolls during that Round.** The choice and the number of bonus dice are fixed for the Round; you cannot change them after Preparation.
 
-Each step takes **one drawback** for the entire Round: **−4 Armor** or **−2 Evade**. Armor and Evade steps can be combined and repeated. An Armor step is legal only while your effective Armor, after earlier Armor steps, is still at least **4**; an Evade step only while your Evade, after earlier Evade steps, is still at least **2**. A defense therefore never drops below 0, and you never gain a benefit by choosing a nonexistent defense (example: 9 Armor allows two Armor steps, 9 → 5 → 1). Every drawback and damage die applies from the start of the Round through **Round End**, including when the character is attacked. No Action or Stone cost.
+| Chosen Defense | Cost per Bonus Die | Maximum Bonus Dice at Declaration |
+|:--|:--:|:--:|
+| **Total Armor** | **−4 Armor** | **floor(Total Armor / 4)** |
+| **Total Evade** | **−2 Evade** | **floor(Total Evade / 2)** |
+
+Calculate the available amount from your **complete current defense after Preparation choices**, including the normal Armor or base Evade, shield, Mastery Rank where applicable, equipment, Artifacts, Passives, active Active Buffs, Stone effects, and every other bonus **already active at declaration**. This is your own total defense, not the value left after an enemy's Penetration, Corrode, or Armor Reduction. Triggered Reactions not yet active do not increase the amount you can sacrifice at declaration. You may choose any whole number of bonus dice from **1 up to the relevant maximum**. You cannot choose a defense that cannot pay for at least one complete increment.
+
+**Your chosen penalty applies to that same defense for the entire Round.** After all applicable defense bonuses and modifiers, subtract the committed **4 Armor per die** or **2 Evade per die**, with a **minimum final Armor or Evade of 0**. Later legal changes to the defense, including a triggered defensive Reaction, are resolved normally, but do not let you choose more bonus dice or undo the committed penalty. Do not reduce the other defense.
+
+**Examples:** A character with **9 total Armor** may sacrifice **8 Armor** for **+2d8 Damage**, leaving **1 Armor**. A character with **6 total Evade** may sacrifice **6 Evade** for **+3d8 Damage**, leaving **0 Evade**. A character may sacrifice less than the maximum if preferred.
+
+Add the bonus dice to the actual **Damage Roll**, never to the Attack/Casting Pool. With AoE or Autofire, add the entire selected bonus **once to the shared Damage Roll**, not separately for each target or hit. The bonus also applies to the character's other eligible direct attacks made with additional Attack Actions during this Round. It does **not** generate direct Damage for Special-only Attacks and does **not** apply to Ruin application or ticks, other Special-generated damage, Auras, Zones, Summons, traps, support effects, or an ally's attacks.
+
+All-Out Attack costs **no Action or Stone**, uses **no Active Buff slot**, and **cannot stack with itself**. Its bonus and defense penalty end together at **Round End**.
 
 #### Give Your Regular Attack Action to an Ally
 
-During the **Preparation Phase**, you may **give your one regular Attack Action for this Round** to a willing ally instead of keeping it. **Provisional Range: 20 m**; the ally must be able to perceive your coordination. The ally receives **one additional Attack Action to spend on their own Turn this Round**, on any legal Active Power or Combat Maneuver. The donor loses that one regular Attack Action, but retains any separately granted personal Attack Actions. The recipient gains no extra Turn, Stones, Movement, Reactions, or Powers. **Stone-granted and other bonus Attack Actions cannot be transferred. A donated Attack Action cannot be donated again**, and any unused donated Action expires at Round End. The option is free and needs no purchased Power.
+During the **Preparation Phase**, you may **give your one regular Attack Action for this Round** to a willing ally instead of keeping it. **Range: 20 m**; the ally must be able to perceive your coordination. The ally receives **one additional Attack Action to spend on their own Turn this Round**, on any legal Active Power or Combat Maneuver. The donor loses that one regular Attack Action, but retains any separately granted personal Attack Actions. The recipient gains no extra Turn, Stones, Movement, Reactions, or Powers. **Stone-granted and other bonus Attack Actions cannot be transferred. A donated Attack Action cannot be donated again**, and any unused donated Action expires at Round End. The option is free and needs no purchased Power.
 
-#### Shared Free Raises
-
-The existing **Intellect Stone Ability: Raises** can distribute its **unchanged 2 / 4 / 6 / 8 shared Free Raises** among the Stone user and willing allies for eligible Martial/Spell Attack or Casting Rolls this Round, within the same **provisional 20 m coordination Range**. Each recipient commits its allocated Raises **before rolling**, using normal Combat Raise timing and legal Damage/Special allocation; failed uses still consume them. No hit bonus, Training Raises, Profession/Perception Check benefit, Stone transfer, new Stones, or added Actions. Track the donor's shared total; a Free Raise can be spent only once.
 
 ---
 :
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Basic Reactions
 
 Every character can use Basic Reactions without purchasing a Reaction Power. Using a Basic Reaction spends **1 Reaction**. Basic Reactions are not Powers and do not become spent after use. If a character gains additional Reactions through Stones, Powers, or another effect, they may use Basic Reactions again whenever their Trigger occurs. Reaction Powers provide stronger, more specialized, or more tactical responses, but they are not required to react in combat.
@@ -6287,14 +6264,6 @@ Every character can use Basic Reactions without purchasing a Reaction Power. Usi
 **Trigger:** You are hit by an Attack or would take damage.
 
 **Effect:** Gain **+MR × 2 Armor** against the triggering Attack or damage instance. This Armor is added to your existing Armor and applies only against the triggering event.
-
----
-
-#### Evade
-
-**Trigger:** An Attack is declared against you, before its Attack Roll or Casting Roll.
-
-**Effect:** Gain **+MR × 2 Evade** against the triggering Attack. This Evade is added to your existing Evade and applies only against the triggering Attack.
 
 ---
 
@@ -6420,11 +6389,11 @@ A Safe Haven Rest is a **Night Rest (1 Watch)** taken in a **Safe Haven** (secur
 
 **Benefits**
 1) **Safe Haven Rest refresh:** restore resources that recharge **once per Safe Haven Rest**:
-   - Any Stones **lost until Safe Haven Rest** return (e.g., Stones burned for Safe Haven Rest effects).
+   - Any Stones **lost until Safe Haven Rest** return (e.g., the Stone Sealed by Last Breath).
    - Ritual Stones that were **Sealed** become available again.
 2) **Form Release:** Stones bound by **Stone-Bound Form** are released.
-3) **Natural Recovery:** restore **1 Scarred Health Bar at full HP**, **plus 1** with continuous qualified **a qualified medical Profession at Rank 4-7** providing aftercare, or **plus 2** with **a qualified medical Profession at Rank 8** providing aftercare (maximum **3 Bars total**). The aftercare benefit is received once per patient per rest, cannot stack between healers, and fulfills natural recovery for that same rest period. Restoration Power pools refresh and become available for later deliberate use.
-4) **Restores** your current active Health Bar to full (boxes only).
+3) **Natural Recovery:** restore **1 Scarred Health Bar at full HP**, **plus 1** with continuous aftercare by **a qualified medical Profession at Rank 4-7**, or **plus 2** with **a qualified medical Profession at Rank 8** providing aftercare (maximum **3 Bars total**). The aftercare benefit is received once per patient per rest, cannot stack between healers, and fulfills natural recovery for that same rest period. Restoration Power pools refresh and become available for later deliberate use.
+4) **Restores** your current active Health Bar to full (HP only; Scarred Bars stay Scarred).
 5) **Clears Fear:** all accumulated Fear is removed; set Fear to **0**.
 
 **Limits**
@@ -6447,7 +6416,7 @@ When you perform a Ritual, spent Stones are **Sealed** and cannot be recovered b
 ---
 
 #### Bound Stones (Do NOT return on rest)
-Stones bound into **Artifacts, Familiars, or similar permanent bonds** remain bound until released or destroyed.
+Stones bound into **Artifacts, Summon Bonds, or similar permanent bonds** remain bound until released or destroyed.
 
 }}
 \page
@@ -6591,7 +6560,7 @@ The character sheet should display the progression through **2,200 Lifetime XP**
 
 **MR 1–8 allow 2 / 4 / 6 / 8 / 10 / 12 / 14 / 16 assigned Stones per Attribute.**
 
-At **2,200 Lifetime XP**, normal permanent Stone progression reaches its maximum of **112 earned permanent Stones**. No additional permanent Stones are earned beyond this point unless a rule explicitly extends progression.
+At **2,200 Lifetime XP**, normal permanent Stone progression reaches its maximum of **110 earned permanent Stones** (plus the 2 starting Stones). No additional permanent Stones are earned beyond this point unless a rule explicitly extends progression.
 
 This cap does not prevent further XP awards or the spending of Banked XP on otherwise legal upgrades.
 
@@ -6654,7 +6623,7 @@ Mastery Rank reflects how far a character has progressed through their lifetime 
 
 MR8 represents the highest level of Mastery and is not expected as part of normal campaign advancement. It exists for divine beings, cosmic entities, extraordinary ascensions, and campaigns that intentionally explore power beyond the conventional mortal and legendary scale. Not every MR8 being is necessarily equal. Lesser Gods, True Gods, High Gods, and Apex Gods may differ greatly in their nature, influence, and abilities. Such distinctions do not automatically create additional Mastery Ranks or permanent Stones.
 
-Normal permanent Stone progression ends at **2,200 Lifetime XP**, with a total of **112 earned permanent Stones**. Reaching MR8 is not a requirement for completing a campaign, nor is it intended to be the ultimate objective of every player character.
+Normal permanent Stone progression ends at **2,200 Lifetime XP**, with a total of **110 earned permanent Stones** (plus the 2 starting Stones). Reaching MR8 is not a requirement for completing a campaign, nor is it intended to be the ultimate objective of every player character.
 
 *The purpose of progression is to support the story being played, not to force every story toward godhood.*
 
@@ -7083,7 +7052,7 @@ Examples:
 :
 | **Weapon**        | **Weapon Damage** | **Hands** | **Innate Abilities**                         | **Special**                          |
 |------------------|:-----------------:|:---------:|----------------------------------------------|--------------------------------------|
-| **Unarmed**       | 1                 | 1         | —                                            | —                                    |
+| **Unarmed**       | 1d8               | 1         | —                                            | —                                    |
 | **Dagger**        | 1d8               | 1         | **Finesse, Light, Thrown (16 m)**         | **Penetration(4)**                   |
 | **Short Sword**   | 1d8               | 1         | **Finesse, Light**                           | **Expose(2)**                        |
 | **Rapier**        | 1d8               | 1         | **Finesse**                                  | **Precision(1)**                     |
@@ -7104,7 +7073,7 @@ Examples:
 | **Heavy Xbow**    | 4d8               | 2         | **Ranged (32 m), Load**                  | **Penetration(4), Precision(4)**     |
 | **Whip**          | 2d8               | 1         | **Finesse, Reach (+1 m)**                    |                   |
 | **Quarterstaff**  | 2d8               | 2         | **Defensive**                                | **Expose(1)**                        |
-| **Wand**          | 1                 | 1         | **Spell Focus (+2d8)**                       | —                                    |
+| **Wand**          | 1d8               | 1         | **Spell Focus (+2d8)**                       | —                                    |
 | **Runestaff**     | 1d8               | 2         | **Spell Focus (+4d8)**                       | —                                    |
 
 :::
@@ -7184,7 +7153,7 @@ Examples:
 
 - **Critical** may apply to a Martial Attack or damaging Spell.
 - **Special Boost** may increase Specials applied through Martial or Spell delivery.
-- **Raises (Intellect Stone Ability)** grants one shared allowance of **2 / 4 / 6 / 8** at Ranks 1–4 for the current Round. Under **Shared Free Raises (Playtest)**, this fixed pool may be distributed to willing allies within the provisional 20 m coordination Range; **no Stones are transferred**. **Before each eligible Attack/Casting Roll**, the recipient commits the chosen count; **after the roll and hit checks**, they allocate committed Raises to eligible Damage and/or an existing numeric Special. Special-only Attacks cannot select Damage Raises. These Free Raises neither increase TN nor require Raise Cost; they are consumed on failure without effect. They never improve Training Checks.
+- **Raises (Intellect Stone Ability)** grants one shared allowance of **2 / 4 / 6 / 8** at Ranks 1–4 for the current Round. This fixed pool may be distributed to willing allies within **20 m**; **no Stones are transferred**. **Before each eligible Attack/Casting Roll**, the recipient commits the chosen count; **after the roll and hit checks**, they allocate committed Raises to eligible Damage and/or an existing numeric Special. Special-only Attacks cannot select Damage Raises. These Free Raises neither increase TN nor require Raise Cost; they are consumed on failure without effect. They never improve Training Checks.
 - **Extra Attack** grants additional Attack Actions. Each can be spent on another use of any eligible **Active Power** (including the same Power, whether Martial or Spell-delivered) or an available Combat Maneuver. Printed Action and resource costs still apply.
 
 Delivery-specific rules remain delivery-specific:
@@ -7409,7 +7378,7 @@ Every successful slot is a **separate hit**, even against the same creature. Rol
 {{wide
 ### Passives
 
-Passives are reliable, always-on character identity. They do not require an action to activate. Every current Passive belongs to exactly one Passive Category. Combined Passives are not available in this release. A Passive Category is a mechanical classification, not flavour text. The authoritative **28-Passive catalogue** includes defenses such as Armor, Evade, Health/Fortitude, Temporary HP, Parry and Damage Negation; offensive choices such as Damage, Armor Reduction, Critical, Maximization, Enemy Evade Reduction, Spell Resistance Piercing and Special Amplification; plus Self Cleanse, Regeneration, Speed and other support Powers. **Passive: Regeneration**, not a generic "Healing" Passive, handles its printed Scarred-Bar recovery.
+Passives are reliable, always-on character identity. They do not require an action to activate. Every current Passive belongs to exactly one Passive Category. Combined Passives do not exist. A Passive Category is a mechanical classification, not flavour text. The authoritative **28-Passive catalogue** includes defenses such as Armor, Evade, Health/Fortitude, Temporary HP, Parry and Damage Negation; offensive choices such as Damage, Armor Reduction, Critical, Maximization, Enemy Evade Reduction, Spell Resistance Piercing and Special Amplification; plus Self Cleanse, Regeneration, Speed and other support Powers. **Passive: Regeneration**, not a generic "Healing" Passive, handles its printed Scarred-Bar recovery.
 
 Offensive / Defensive / Utility & Mobility selection groups are for display only; **mechanical Passive Categories** still determine slot compatibility. Passives may not hide Active effects inside always-on features. They may not grant free attacks, extra actions, Movement Powers, Reactions, Spell effects, full Persistent Zones, or casual hard control.
 See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_blank" rel="noopener noreferrer">Passives</a>
@@ -7435,7 +7404,7 @@ Active Buffs are temporary combat enhancements that are activated during the **P
 {{wide
 #### Active Buff Limits
 
-Activate **each named Active Buff once per Combat**, during Preparation. Maintain **one Active Buff at a time**; end it at any time, and switch during Preparation to another unused Buff. This includes Special Auras and Alchemist Potions. The Buff retains its printed effect limits and duration.
+Activate **each named Active Buff once per Combat**, during Preparation. Maintain **one Active Buff at a time**; end it at any time, and switch during Preparation to another unused Buff. This includes Special Auras and Alchemist Potions. The Buff retains its printed effect limits and duration. **Protective Auras** (Armor, Evade, Spell Resistance) also grant their bonus to allies in the radius; a creature uses only the highest Active Buff bonus to the same value.
 
 ---
 
@@ -7445,7 +7414,7 @@ Active Buffs may be:
 - single-focus offensive buffs,
 - or dedicated premium subsystem buffs.
 
-Combined Active Buffs are not selectable in this beta release. The **fourteen catalogued Special Auras** (Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken) are explicitly permitted Active Buffs. Other Active Buffs do not apply Specials by default. Persistent Special Zones remain Actives with ongoing Action maintenance. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
+Combined Active Buffs do not exist. The **fourteen catalogued Special Auras** (Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken) are explicitly permitted Active Buffs. Other Active Buffs do not apply Specials by default. Persistent Special Zones remain Actives with ongoing Action maintenance. **Passive: Special Amplification**, **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise Effect** are separate legal sources; none is a Combined Active Buff.
 
 See: <a href="https://homebrewery.naturalcrit.com/share/-LDVoC64w7wX" target="_blank" rel="noopener noreferrer">Active Buffs</a>
 
@@ -7563,7 +7532,7 @@ Use the relevant Power or Stone Ability for the listed effect:
 | Self Regeneration | Passive: Regeneration |
 | Damage Reduction | Dedicated Passive, Active Buff, and Reaction entries |
 | Phasing | Dedicated Passive, Active Buff, and Reaction entries |
-| Anti-Displacement | Passives, Active Buffs, Reactions, or specific Tree exceptions |
+| Anti-Displacement | Passives, Active Buffs, Reactions, or specific Artifact exceptions |
 
 These effects are explained in the relevant catalogue entries, not in this chapter. Movement Powers provoke movement-triggered Reactions normally unless the entry explicitly says otherwise. Only Movement Powers that say they prevent such Reactions do so. See: <a href="http://homebrewery.naturalcrit.com/share/pyfkMUFdD_C7" target="_blank" rel="noopener noreferrer">Movement</a>
 
@@ -7641,7 +7610,7 @@ An Imprint may show **where to look**, what a faint impression feels like, or a 
 
 Every use should feel like a trace of another existence, even if it is only a quick phrase. Use the individual **GM - Echo Memory** example as a starting point, not a fixed biography. Let memory motifs recur: the same red alley, a remembered laugh, a different hand, or the scent of a lost harbor. Do not interrupt fast play with a mandatory monologue. **Example - Catfall:** A character rolls gently from a low ledge. The GM says, *"For a heartbeat the cobbles become red dust. You remember landing here before - in another city, in another body."* The movement is controlled; a genuinely dangerous fall still uses the normal rules.
 
-**Example - Hollow Echo:** A character touches a stone wall and hears an uneven hollow note. The GM says, *"Something behind this section sounds different. It might be worth searching."* The Imprint has supplied a clue, **not a discovered secret door**. Investigation or an appropriate task is still needed to locate a seam, find a mechanism, or open anything. **Example - Living Warmth:** A character warms a friend's hands. For an instant they remember cradling a sleeping child in a winter they never lived. No HP or Health Bar changes.
+**Example - Hollow Echo:** A character touches a stone wall and hears an uneven hollow note. The GM says, *"Something behind this section sounds different. It might be worth searching."* The Imprint has supplied a clue, **not a discovered secret door**. A fitting Profession check or another appropriate task is still needed to locate a seam, find a mechanism, or open anything. **Example - Living Warmth:** A character warms a friend's hands. For an instant they remember cradling a sleeping child in a winter they never lived. No HP or Health Bar changes.
 
 ---
 
@@ -7811,7 +7780,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 
 
 #### Vitality - Pulse Touch
-*With a willing creature’s direct skin contact, feel its pulse, breath and warmth as a subjective impression. Interpreting illness or injury remains a Medicine task.*
+*With a willing creature’s direct skin contact, feel its pulse, breath and warmth as a subjective impression. Interpreting illness or injury remains a task for a medical Profession.*
 
 | Attribute | Effect |
 |:--:|---|
@@ -7967,7 +7936,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 
 
 #### Influence - Glamour
-*Cast a cosmetic illusion over clothing, hair or superficial details. Successful impersonation still depends on the normal Social or Stealth rules.*
+*Cast a cosmetic illusion over clothing, hair or superficial details. Successful impersonation still depends on the normal Profession and concealment rules.*
 
 | Attribute | Effect |
 |:--:|---|
@@ -7996,7 +7965,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 
 
 #### Influence - Borrowed Voice
-*Alter the pitch, accent or apparent age of your voice. Using that change to impersonate someone is a Deception attempt when opposition matters.*
+*Alter the pitch, accent or apparent age of your voice. Using that change to impersonate someone is resolved as a Comparative Training Check when opposition matters.*
 
 | Attribute | Effect |
 |:--:|---|
@@ -8043,7 +8012,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 
 ---
 ####  Wits -  Waymark
-*Leave a temporary personal magical route mark on an inert surface; you and deliberately included companions can see it. Navigation and protected passages retain their normal rules.*
+*Leave a temporary personal magical route mark on an inert surface; you and deliberately included companions can see it. Route-finding and protected passages retain their normal rules.*
 
 | Attribute | Effect |
 |:--:|---|
@@ -8051,7 +8020,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 | **8** | Leave two or three signs along the same route back. |
 | **12** | Mark a short path through a building you already know. |
 | **16** | Mark one small local route through an evening. |
-| **20** | Temporarily mark a connected route across a small area; Navigation and finding new routes remain Professions. |
+| **20** | Temporarily mark a connected route across a small area; finding new routes remains a Profession task. |
 
 *You place a sign on a stone. Suddenly you remember the same mark on trees in a forest you have never seen.*
 
@@ -8092,7 +8061,7 @@ Each entry gives the **effect**, five Attribute **tiers**, and a short **GM - Ec
 
 Rituals are deliberate supernatural workings outside ordinary combat: interpretation, binding, cleansing, distant sight, memory, sealing, and spiritual transformation. They are **normal Training Checks with a prescribed supernatural effect and a Sealed-Stone cost**, not another dice engine. **The required Stones are the only character-resource prerequisite:** no Profession, minimum Profession Rank, or named occupational background is required. Printed targets, materials, time, and effect restrictions still apply.
 
-### Rituals Use the Training Check Engine
+#### Rituals Use the Training Check Engine
 
 **Every character knows all sixteen Core Rituals from creation onward.** To perform one, describe the method—song, forged sigil, herbal arrangement, prayer, dance, diagram or remembered gesture—provide the printed targets and materials, spend **one Tyhran Hour** and Seal the required Stones. Choose the **Attribute that genuinely powers the approach** and roll **Relevant Attribute k Mastery Rank**. The Ritual's Task Level follows the supernatural task or source, independently of the caster. Rituals are available to every character; the method defines how each character expresses the same magic.
 
@@ -8108,9 +8077,9 @@ Rituals are deliberate supernatural workings outside ordinary combat: interpreta
 
 Printed Ritual limits override generic Raise effects. An ordinary Raise cannot create a new Power, raise a named Ritual tier above 4, grant magical healing, or restore a Scarred Health Bar.
 
-### Rituals Do Not Replace Ordinary Professions
+#### Do Not Replace Ordinary Professions
 
-Rituals do not replace normal Training Checks. If a task can reasonably be solved with a mundane Training Check, use the Training Check instead.
+Rituals do not replace normal Profession Checks. If a task can reasonably be solved with a mundane Training Check, use the Training Check instead.
 
 Rituals should not replace:
 
@@ -8142,6 +8111,7 @@ A Ritual has **no required Profession**. The examples below show how a character
 | **Blacksmith** | Forge a sigil or prepare a marked iron vessel with practiced tools. |
 | **Theologian** | Recite and structure a rite according to a tradition the character actually knows. |
 | **Herald** | Lead the formal public declaration or witnessed oath of a binding. |
+| **Woodcutter** | Fell a tree at dawn, carve a sign into fresh wood, or sharpen the axe in silence as part of the working. |
 | **Archivist** | Reconstruct inscriptions or the documented history of an object or place. |
 
 **Explain what the character does and why that background helps.** The GM selects a fitting Attribute and approves a credible Profession, if one applies. No Profession changes the Ritual's base TN merely by its name; without a fitting Profession, the full-Attribute Ritual roll remains available. The printed Stone cost is mandatory in every case.
@@ -8291,7 +8261,7 @@ A Profession does **not automatically complete a supernatural Ritual** merely be
 
 ### Example: Three Ways to Cleanse a Shrine
 
-A shrine has a fixed **Task Level 4 (Base TN 16)**. One character traces an alchemical circle using **Alchemist 4 + Intellect**; a second chants through **Cantor 4 + Influence**; a third lays out a pattern of stones using **Survival + Wits**, without a relevant learned Profession. **Each can attempt the same Purify Ground Ritual.** They must describe their method; the Task Level does not change because the method or caster changes.
+A shrine has a fixed **Task Level 4 (Base TN 16)**. One character traces an alchemical circle using **Alchemist 4 + Intellect**; a second chants through **Cantor 4 + Influence**; a third lays out a pattern of stones using **Wits**, without a relevant learned Profession. **Each can attempt the same Purify Ground Ritual.** They must describe their method; the Task Level does not change because the method or caster changes.
 
 All declare **named tier 2** (**two Raises, Final TN 24, 2 Sealed Stones**). The Alchemist 4 and Cantor 4 characters may reroll initial 1s–4s through Training Advantage. The untrained ritualist receives no Training Advantage but also suffers no mundane Untrained Disadvantage. All face the same TN 24. Success grants tiers 0-2; no high roll creates undeclared effects.
 
@@ -8314,7 +8284,7 @@ Another caster with no related Profession reads **PL 6** Resonance at **Base TN 
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Concentration, up to 1 Forearm
 **Requirement:** The caster must focus on an area, object, threshold, corpse, mark, relic, symbol, wound, seal, or visible phenomenon.  
-**Example Approaches:** Occult (listen to old names), Science & Craft (tune instruments), Investigation (reconstruct traces), Physical (measured tapping).
+**Example Approaches:** a Mason taps the old stones and listens for the false note; a Woodcutter lays a palm on the bark and waits for the grain to answer; a Theologian murmurs the names of the Eight; a Detective walks the scene step by step, touching each trace.
 
 ---
 
@@ -8331,7 +8301,7 @@ Another caster with no related Profession reads **PL 6** Resonance at **Base TN 
 ---
 
 #### Scope & Limits
-Read Resonance detects **supernatural traces** and identifies their broad character or origin. Investigation, Tracking and Perception handle mundane evidence; **Learn Artifact** examines an Artifact's function and binding. The achieved tier determines the depth of the reading. Failure gives no reliable conclusion.
+Read Resonance detects **supernatural traces** and identifies their broad character or origin. Ordinary Profession checks (such as Detective or Tracker) and Perception handle mundane evidence; **Learn Artifact** examines an Artifact's function and binding. The achieved tier determines the depth of the reading. Failure gives no reliable conclusion.
 
 > **Danger:** Strong Resonance can answer back; ancient Seals, demonic marks, divine ruins and intelligent Artifacts may notice a reading.
 
@@ -8350,7 +8320,7 @@ Read Resonance detects **supernatural traces** and identifies their broad charac
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Concentration, up to 1 Forearm
 **Requirement:** You must have seen or touched the object, or know its precise form.  
-**Example Approaches:** Survival (dowsing and landmarks), Science & Craft (compass or sympathetic tool), Investigation (study connections), Social (recall a promise).
+**Example Approaches:** a Tracker walks slow circles with a forked hazel twig; a Blacksmith hangs a filed iron needle on a thread; a Merchant recites the object's worth and history like an inventory; a Cartographer redraws the area until one corner feels heavier.
 
 ---
 
@@ -8365,7 +8335,7 @@ Read Resonance detects **supernatural traces** and identifies their broad charac
 | **Raise 4** | You glimpse one brief memory tied to the object, such as who last touched it, where it last rested, or what strong emotion clings to it. Range extends to **5 kilometers**, unless a stronger ward blocks the link. |
 
 #### Scope & Limits
-Locate Object tracks a **specified object or defined object type**, including one carried by a creature. Tracking and Investigation address ordinary evidence; **Learn Artifact** reveals an Artifact's purpose.
+Locate Object tracks a **specified object or defined object type**, including one carried by a creature. Ordinary Profession checks (such as Tracker or Detective) address ordinary evidence; **Learn Artifact** reveals an Artifact's purpose.
 
 > **Danger:** Powerful, cursed or intelligent objects may notice your search.
 
@@ -8381,7 +8351,7 @@ Locate Object tracks a **specified object or defined object type**, including on
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Concentration, up to 1 Forearm
 **Requirement:** You must name a place you know or a creature familiar to you.  
-**Example Approaches:** Occult (meditation), Science & Craft (mirrors and lenses), Investigation (mental reconstruction), Social (rhythmic chanting).
+**Example Approaches:** a Glassblower stares into cooling glass until it shows another room; an Astronomer aligns the Constants above the destination; a Courtier recalls every guest and custom of the place; a Herbalist breathes the smoke of dream-herbs.
 
 ---
 
@@ -8413,7 +8383,7 @@ Clairvoyance observes a known place or familiar creature from a distance. Wards,
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Until the next Safe Haven Rest or one Tyhran Day, whichever comes first
 **Requirement:** You must mark or touch the threshold, boundary, or protected entry point.  
-**Example Approaches:** Survival (knotted boundary line), Finesse (precise markings), Science & Craft (chimes and wire), Occult (warding words).
+**Example Approaches:** a Woodcutter carves a notch into the doorframe; a Locksmith fits a tiny chime into the hinge; a Sentry walks the perimeter three times reciting the watch-words; a Tailor stitches a single thread across the entrance.
 
 ---
 
@@ -8442,7 +8412,7 @@ Threshold Alarm **warns of a crossing**; the named tiers determine its reach and
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Until broken, opened, dismissed, or overcome
 **Requirement:** You must touch the passage, seal, door, gate, hatch, or boundary being affected.  
-**Example Approaches:** Science & Craft (forge a seal), Physical (stonework gestures), Occult (inscribe a rune), Social (bind a declared promise).
+**Example Approaches:** a Blacksmith forges and drives a seal-nail; a Mason sets a final keystone; a Carpenter planes the door until it fits as if it had grown there; a Herald proclaims the way closed.
 
 ---
 }}
@@ -8472,7 +8442,7 @@ Seal Passage applies a supernatural seal to an **existing passage** or opens suc
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Instant, with lasting consequences as described by the Raise result
 **Requirement:** You must remain within the area being purified for the full Ritual.  
-**Example Approaches:** Survival (herbal smoke), Science & Craft (salt patterns), Occult (prayer), Social (purifying song).
+**Example Approaches:** a Herbalist burns cleansing smoke; a Baker scatters salted bread across the threshold; a Theologian prays the old litany; a Woodcutter fells a rotting tree and burns it on the spot.
 
 ---
 
@@ -8504,7 +8474,7 @@ Purify Ground cleanses **spiritual and ritual residue** from an existing site at
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Instant
 **Requirement:** You must hold, touch, examine, or remain close to the Artifact or relic for the full Ritual.  
-**Example Approaches:** Science & Craft (inspect workmanship), Investigation (reconstruct provenance), Occult (speak its names), Social (ritual testimony).
+**Example Approaches:** an Armorer inspects every rivet and seam; an Archivist traces its provenance; a Bloodsilver Assayer holds it against open flame; a Herald recites the names of its former bearers.
 
 ---
 
@@ -8531,7 +8501,7 @@ Learn Artifact reveals **functions, binding rules, costs or hidden history** in 
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Concentration, up to 1 Forearm
 **Requirement:** You must touch the object, location, wall, floor, weapon, relic, or remains being read.  
-**Example Approaches:** Investigation (reconstruct a scene), Occult (meditation), Social (lamentation), Survival (read a place through living signs).
+**Example Approaches:** a Forensic Examiner retraces the last movements in the room; a Mason feels along the old cracks; a Tailor turns the cloth of the dead in their hands; a Beggar sits silently where no one else would.
 
 ---
 
@@ -8549,7 +8519,7 @@ Learn Artifact reveals **functions, binding rules, costs or hidden history** in 
 {{pageNumber,auto}}
 {{wide
 #### Scope & Limits
-Forgotten Memory reads **subjective emotional residue in a place or object**. Its impressions may be incomplete or symbolic; Investigation establishes factual conclusions. Personal former-life memories belong to **Echo Imprints**.
+Forgotten Memory reads **subjective emotional residue in a place or object**. Its impressions may be incomplete or symbolic; a fitting Profession check establishes factual conclusions. Personal former-life memories belong to **Echo Imprints**.
 
 ---
 
@@ -8563,7 +8533,7 @@ Forgotten Memory reads **subjective emotional residue in a place or object**. It
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Permanent until used, dismissed, broken, or removed
 **Requirement:** The place must be meaningful to you and prepared through prayer, blood, sacrifice, craft, memory, or witness.  
-**Example Approaches:** Survival (route knots), Science & Craft (engrave a homeward mark), Occult (true-name rite), Social (ceremony of belonging).
+**Example Approaches:** a Woodcutter carves a homeward mark into a doorpost; a Blacksmith hammers a nail of return into the hearthstone; a Caravan Master ties route knots; a Servant sets a place at the table for the day of return.
 
 ---
 
@@ -8601,7 +8571,7 @@ Word of Recall anchors a return to a **previously visited, meaningful location**
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Up to 1 Forearm inside the dream
 **Requirement:** The target must be asleep and willing, or their soul must be unguarded with GM approval.  
-**Example Approaches:** Occult (trance), Social (lullaby), Science & Craft (dream mandala), Survival (sleep herbs).
+**Example Approaches:** a Herbalist brews sleep herbs; an Innkeeper sings the guest to sleep; a Tailor weaves a dream-thread into the pillow; a Theologian sinks into prayerful trance.
 
 ---
 
@@ -8630,7 +8600,7 @@ Dreamwalk allows an encounter **within a dream**, respecting the sleeper's agenc
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Instant, with lasting consequences as described by the Raise result
 **Requirement:** Performed within sight of the body, grave, ashes, relic, or death-place of the deceased.  
-**Example Approaches:** Social (farewell and witness), Occult (liturgy), Science & Craft (memorial craft), Survival (funerary herbs).
+**Example Approaches:** a Carpenter builds the bier; a Herald speaks the farewell before witnesses; a Herbalist burns funerary herbs; a Potter fires the urn for the ashes.
 
 ---
 
@@ -8660,7 +8630,7 @@ Last Light guides a deceased soul's **natural passage** and protects ordinary fu
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Instant
 **Requirement:** State **one specific course of action** you genuinely intend to attempt within the next Tyhran Day; arrange a symbolic medium, such as ashes, cards, water, metal shavings, bones, or written omens.  
-**Example Approaches:** Occult (prayer), Survival (natural signs), Science & Craft (star chart), Social (oracular storytelling).
+**Example Approaches:** a Storm Watcher reads the clouds; a Velenor Star Reader charts the Constants; a Brewer reads the foam in a fresh cask; an Omen Interpreter casts bones and tells their story.
 
 #### Named Ritual Effect Tiers (0-4)
 
@@ -8689,7 +8659,7 @@ Augury offers a **plausible omen based on current circumstances**, not a fixed f
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Until the next Safe Haven Rest or 1 Tyhran Day, whichever comes first
 **Requirement:** Remain within the intended space and mark its boundary throughout the working.  
-**Example Approaches:** Occult (quiet litany), Social (shared lullaby), Science & Craft (harmonic chimes), Survival (woven boughs).
+**Example Approaches:** a Woodcutter weaves fresh boughs into a ring; a Glassblower hangs harmonic chimes; an Innkeeper leads a shared lullaby; a Theologian recites a quiet litany.
 
 ---
 
@@ -8720,7 +8690,7 @@ Circle of Quiet softens **ambient spiritual noise** so a place feels calmer. Nor
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** As stated by the chosen tier, no longer than 1 Lunar Month
 **Requirement:** Two **informed, willing** oathmakers agree to **clear, specific terms** and take part in the full ceremony. They may create a shared witness token.  
-**Example Approaches:** Social (public witness or song), Occult (names and vow), Science & Craft (engraved token), Investigation (precise wording).
+**Example Approaches:** a Herald proclaims the terms; a Blacksmith engraves a shared token; a Merchant drafts every clause aloud; a Theologian calls the names of the witnesses.
 
 ---
 
@@ -8751,7 +8721,7 @@ Binding Oath records a **mutually voluntary, clearly worded promise** as a lasti
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Concentration, up to 1 Forearm after completion
 **Requirement:** A **living animal** must be within **10 meters** when communication begins. The caster prepares natural tokens, gestures, sounds, or another suitable working.  
-**Example Approaches:** Survival (Animal Handling or field signs), Social (song), Science & Craft (sympathetic instrument), Occult (spirit-tongue rite).
+**Example Approaches:** a Beast Handler mirrors the animal's posture and breath; a Hunter answers its calls; a Falconer offers the glove; a Herbalist scatters scents the animal knows.
 
 ---
 
@@ -8766,7 +8736,7 @@ Binding Oath records a **mutually voluntary, clearly worded promise** as a lasti
 | **Raise 4** | Hold a short exchange of related impressions with **a few willing nearby animals**, allowing a composite sense of what **they personally witnessed**. Each remains independent. |
 
 #### Scope & Limits
-Voice of the Wild conveys **an animal's simple feelings and perceptions**, subject to the animal's own awareness and willingness. Training, tracking, taming and commands remain Animal Handling or other relevant tasks. Supernatural beasts may present their own resistance.
+Voice of the Wild conveys **an animal's simple feelings and perceptions**, subject to the animal's own awareness and willingness. Training, tracking, taming and commands remain tasks for a fitting Profession such as Beast Handler. Supernatural beasts may present their own resistance.
 
 }}
 \page
@@ -8782,7 +8752,7 @@ Voice of the Wild conveys **an animal's simple feelings and perceptions**, subje
 **Base TN:** **12 minimum** (higher for harder sources or tasks)  
 **Effect Duration:** Concentration, up to 1 Forearm after completion
 **Requirement:** A **real sample** of unfamiliar writing or speech must be available during preparation. The working focuses on **one language or script**, not all unknown languages.  
-**Example Approaches:** Investigation (study letterforms), Science & Craft (reconstruct a text), Social (chant the cadence), Occult (listen to old names).
+**Example Approaches:** a Linguist traces the letterforms; an Archivist reconstructs the damaged text; a Forger copies the script stroke by stroke; a Scholar chants its cadence until it starts to speak.
 
 ---
 
@@ -8797,7 +8767,7 @@ Voice of the Wild conveys **an animal's simple feelings and perceptions**, subje
 | **Raise 4** | Comprehend the **broad faithful meaning** of up to **one short page** or one speaker's ongoing simple speech during the Ritual's effect duration. This does not teach fluency. |
 
 #### Scope & Limits
-Whispers of Lost Tongues reads **the general meaning of a present language sample** at the achieved tier. Codes, ciphers, guarded command phrases and disputed translations may require research, source difficulty or Investigation; speaking and writing fluency remain separate.
+Whispers of Lost Tongues reads **the general meaning of a present language sample** at the achieved tier. Codes, ciphers, guarded command phrases and disputed translations may require research, source difficulty or a fitting Profession check; speaking and writing fluency remain separate.
 
 }}
 \page
@@ -9252,7 +9222,7 @@ During a **Safe Haven Rest**, a character may create up to **Mastery Rank Minor 
 
 A Power belonging only to another creature cannot be copied. Only Active Powers may be stored. Active Buffs, Passives, Reactions, Movement Powers, Rituals, Stone Abilities, Artifact Functions, and other Power types are not eligible. If the stored Power is granted by an Item or Artifact, use the values currently granted by that Item or Artifact, but never values above the **Artifact Level 4–6 / Power Level 10** band. If the source currently grants lower values, use those lower values. Values from Artifact Level 7 or higher, Power Level 16, or Ultimate progression cannot be stored in a Minor Magic Item.
 
-The stored Active Power must have an **Instant** duration. A Power with a persistent or duration-based effect cannot be stored, including a persistent zone, barrier, construct, terrain effect, image, aura, or similar ongoing effect. Minor Magic Items cannot store or reproduce **Restoration of Scarred Health Bars**, Health Level Recovery, Stone Refresh, Safe Haven Rest resources or uses, or any other resource recovery tied to a Safe Haven Rest. Restoration instead follows its dedicated Safe Haven recovery resource. If an otherwise eligible Active Power includes both an allowed immediate effect and one of these excluded effects, the excluded effect is not stored.
+The stored Active Power must have an **Instant** duration. A Power with a persistent or duration-based effect cannot be stored, including a persistent zone, barrier, construct, terrain effect, image, aura, or similar ongoing effect. Minor Magic Items cannot store or reproduce **Restoration of Scarred Health Bars**, Stone Refresh, Safe Haven Rest resources or uses, or any other resource recovery tied to a Safe Haven Rest. Restoration instead follows its dedicated Safe Haven recovery resource. If an otherwise eligible Active Power includes both an allowed immediate effect and one of these excluded effects, the excluded effect is not stored.
 
 Creating a Minor Magic Item requires no Stones, currency, or special materials. Any object or weapon included in its description must be present, but provides no mechanical benefits. **New items can be created only during a Safe Haven Rest.** A used or expired item may be recreated during a later Safe Haven Rest, but the new item is a new consumable within that rest cycle's limit. **No stockpiling:** unspent items created during the previous cycle all expire when the creator begins the next Safe Haven Rest, wherever they are, before new items are made.
 
@@ -9266,13 +9236,19 @@ The Minor Magic Item records the Power at the moment of its creation, including:
 * The creator's relevant Keep value.
 * Its Damage, Area, Targets, and other Power values. (Restoration uses dedicated Safe Haven recovery resources and is outside Minor Magic Item storage.)
 
-Later changes to the character or Power do not alter an existing Minor Magic Item. The recorded Keep value is the Keep value the creator had when the item was created. It remains unchanged even if the creator's Mastery Rank or other values later change. The item stores and resolves only the pure Active Power. Temporary bonuses, Active Buffs, auras, Artifact Effects, Weapon Damage Dice, Weapon Specials, and other modifiers that are not part of the stored Power are ignored both when the item is created and when it resolves.
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+
+Later changes to the character or Power do not alter an existing Minor Magic Item. The recorded Keep value is the Keep value the creator had when the item was created. It remains unchanged even if the creator's Mastery Rank or other values later change. The item stores and resolves only the pure Active Power. Temporary bonuses, Active Buffs, auras, Artifact Effects, Weapon Damage Dice, Weapon Specials, and other modifiers that are not part of the stored Power are ignored both when the item is created and when it resolves.
+
+---
+:
+
 If the stored Power requires an Attack Roll or Spell Casting Roll, roll normally using the recorded applicable Pool and Keep value. A stored Spell uses **Spell Base TN = 4 × its recorded Power Level**, plus any effective target Spell Resistance and applicable Paid Raises; it never uses the activator's MR to determine Spell Base TN. A Minor Magic Item does not hit or cast automatically.
 
+:
 ---
 An offensive Minor Magic Item deals only the Damage of the stored Power. It never adds the Damage Dice or Specials of a weapon used as its physical form. Specials purchased as part of the Power still apply. A Single Target Power remains Single Target. It does not become an Area Power merely because the Minor Magic Item is described as a grenade or explosive device. For an Item- or Artifact-granted Power, all recorded values are subject to the **Artifact Level 4–6 / Power Level 10 cap** described above.
 
@@ -9427,7 +9403,7 @@ can be found in the separate **Artifacts Catalogue**:
 \page
 {{pageNumber,auto}}
 {{wide
-<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:1em; line-height:1.1;">
+<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.97em; line-height:1.1;">
 
 #### **Player Cheat Sheet: Core Flow**
 
@@ -9440,7 +9416,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **2) Training Checks**
 
-**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **Training Roll = Attribute k MR. Training Advantage:** Rank 1 rerolls initial 1s; Rank 2, 1s–2s; Rank 3, 1s–3s; Rank 4, 1s–4s; Rank 5, 1s–5s; Rank 6–8, 1s–6s (once per eligible initial die). **Training Crit:** Rank 7 grants one use and Rank 8 two uses **per Safe Haven Rest**, separately for each Profession or Perception; declare before rolling to explode on natural 7s and 8s. **Standard Check:** Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects, with no Rank-based Raise cap. **Comparative Check:** higher roll wins; defender/observer wins ties; **no Task TN or Raises**. **Challenge Rolls:** GM announces a shared Success target (typically 2 for complex, 3 for very complex); one distinct contribution and Standard Training Check per character. Success grants 1 Challenge Success; a successful check with 4 declared eligible Raises for progress grants 2 total (maximum). Rank 0 has Disadvantage and no Raises. Familiar safe work may succeed routinely.
+**Four freely named Professions at Rank 2, plus Perception Rank 2 free.** Describe how your Profession fits the task; if none fits, try untrained. **Training Roll = Attribute k MR. Training Advantage:** Rank 1 rerolls initial 1s; Rank 2, 1s–2s; Rank 3, 1s–3s; Rank 4, 1s–4s; Rank 5, 1s–5s; Rank 6–8, 1s–6s (once per eligible initial die). **Training Crit:** Rank 7 grants one use and Rank 8 two uses **per Safe Haven Rest**, separately for each Profession or Perception; declare before rolling to explode on natural 7s and 8s. **Standard Check:** Task TN = 4 x Task Level; optional declared Raises add +4 TN each and grant feasible effects, with no Rank-based Raise cap. **Comparative Check:** higher roll wins; defender/observer wins ties; **no Task TN or Raises**. **Challenge Rolls:** GM sets a shared Success target (typically 2 or 3); each participant contributes one Standard Training Check using a fitting Professional Role. Success grants 1; success with 4 declared eligible Raises for progress grants 2 total (maximum). Intellect Stone Free Raises are Combat-only. Rank 0 has Disadvantage and no Raises. Familiar safe work may succeed routinely.
 
 **Echo Imprints:** Immediately after starting Attributes, choose up to MR free Imprints tied to Attributes **4+**; they express small magic and Echo Memories.
 
@@ -9455,7 +9431,7 @@ can be found in the separate **Artifacts Catalogue**:
 
 #### **4) Round & Turn**
 
-Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 1 Reaction** per Round. Movement and available Attack Actions can be used in either order. **Playtest:** During Preparation, you may choose All-Out Attack or transfer only your regular Attack Action to an ally; Intellect Free Raises may be shared without multiplying their allowance. **Activating an Active Buff during Preparation is free and does not consume an Attack Action.** Reactions follow their printed trigger.
+Each creature receives **one Turn**, normally **1 Movement, 1 Attack Action and 1 Reaction** per Round. Movement and available Attack Actions can be used in either order. During Preparation, All-Out Attack may exchange **4 total Armor or 2 total Evade per +1d8 direct Attack Damage** (never below 0); alternatively, you may transfer only your regular Attack Action to an ally. Intellect Free Raises may be shared without multiplying their allowance. **Activating an Active Buff during Preparation is free and does not consume an Attack Action.** Reactions follow their printed trigger.
 
 #### **5) Power Use and Attack Actions**
 
@@ -9488,7 +9464,7 @@ Initiative stays at or above 0. Initiative Colorless Stones pay ordinary unlocke
 \page
 {{pageNumber,auto}}
 {{wide
-<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.9em; line-height:1.12;">
+<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.99em; line-height:1.12;">
 
 #### **Player Cheat Sheet: Defense & Resources**
 
@@ -9511,7 +9487,7 @@ Damage dice explode only when their own rule allows it. Apply **Armor**, then co
 
 `Final Damage = ceil(max(0, Damage − Effective Armor) × (1 − total DR/100))`
 
-If this yields zero, the natural-8 minimum still deals **1 damage per natural 8 on the original Damage Dice**. Ongoing Special damage follows its own Armor rule.
+Ongoing Special damage follows its own Armor rule.
 
 #### **10) Defense**
 
@@ -9522,7 +9498,7 @@ If this yields zero, the natural-8 minimum still deals **1 damage per natural 8 
 
 #### **11) Health & Fear**
 
-**Health:** Five normal Bars, each with **Vitality × 4 boxes** (Fortitude can raise that to ×5/×6/×7/×8 at PL 4/8/12/16). A fully marked Bar becomes **Scarred**. HP Healing refills an available Bar; **Restoration** reopens a Scarred Bar at full HP, including Broken to awaken an Incapacitated creature. Emergency Medicine: adjacent helper, **1 Attack Action**, **Base TN = patient MR × 4**, success stabilizes; medical aftercare during Safe Haven Rest restores **2 Bars total with medical Profession Rank 4-7**, **3 with medical Profession Rank 8**, instead of the normal 1. Incapacitated characters cannot act or spend Stones; death follows the fiction, with reincarnation reserved for the GM Guide.
+**Health:** Five normal Bars, each with **Vitality × 4 HP** (Fortitude can raise that to ×5/×6/×7/×8 at PL 4/8/12/16). A fully depleted Bar becomes **Scarred**. HP Healing refills an available Bar; **Restoration** reopens a Scarred Bar at full HP, including Broken to awaken an Incapacitated creature. Emergency Care: adjacent helper, **1 Attack Action**, **Base TN = patient MR × 4**, success stabilizes; medical aftercare during Safe Haven Rest restores **2 Bars total with medical Profession Rank 4-7**, **3 with medical Profession Rank 8**, instead of the normal 1. Incapacitated characters cannot act or spend Stones; death follows the fiction, with reincarnation reserved for the GM Guide.
 
 **Fear:** Roll **Resolve k1** when called for: **below 8: +2 Fear; 8–15: +1; 16+: +0**. Each Fear removes one Attribute-Pool die before Health penalties; standard affected rolls retain **at least 2 dice** if the original Pool began at 2+. Fear is cleared by Safe Haven Rest.
 
@@ -9822,7 +9798,10 @@ Root does **not** receive Natural Special Recovery and does **not** use normal D
 On a success, reduce Root by **exactly 1**. The amount does not increase with the result above TN. If Root reaches **0**, it ends.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Ruin(X)
 
 **Type:** Diminishing (X→0)
@@ -9841,10 +9820,7 @@ At each start-of-Turn Ruin Tick, take **4 × the current total Ruin(X)** (for ex
 ---
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 
 #### Slow(X)
 
@@ -9877,7 +9853,10 @@ Slow deals no immediate damage when applied. Damage occurs only at the regular s
 **Effect:** Soulburn erodes instinct, presence, will, and spiritual stability. Whenever you build a dice pool based on **Wits**, **Influence**, or **Resolve**, remove **X dice** from that pool. Soulburn reduces dice pools, not the Attributes themselves. It does not reduce **Keep**, Damage Pools, derived values, resource maximums, Health Bars, or other fixed values created from those Attributes. Apply Soulburn before percentage Health Penalties; legal standard rolls retain the **two-dice penalty floor**. At the start of your turn, Soulburn decays by **1**. If Soulburn reaches **0**, it ends.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Sundered(X)
 
 **Type:** Diminishing (X→0)
@@ -10157,13 +10136,13 @@ Each Limited attack uses the base template's same printed Power Level, XP costs,
 **Maximization — unchanged:** A Limited attack may use an eligible Maximization source under the normal restrictions. First quadruple only eligible Power Damage Dice, build the full legal Damage Pool including one matching Weapon/Spell Focus contribution, resolve Damage Negation, and then maximize the surviving Damage Dice to artificial 8s **before Armor**. This consumes the global Limited charge and one legal Maximization use; it grants no extra damage roll or use. The Maximization mechanic, costs and usage allowances are otherwise unchanged.
 
 
-**Example:** A PL4 Limited Melee AoE Attack purchases 4d8 Power Damage and radius 3 m. Its use deals **16d8 Power Damage + matching Weapon Damage** per hit target from **one shared roll** and consumes the character's global Limited use. A PL16 Limited Melee Single Target Attack purchases 32d8 Power Damage; when used it deals **128d8 Power Damage + matching Weapon Damage** to its one target. No Special-only AoE may use Limited.
+**Example:** A PL4 Limited Melee AoE Attack purchases 5d8 Power Damage and radius 3 m. Its use deals **20d8 Power Damage + matching Weapon Damage** per hit target from **one shared roll** and consumes the character's global Limited use. A PL16 Limited Melee Single Target Attack purchases 32d8 Power Damage; when used it deals **128d8 Power Damage + matching Weapon Damage** to its one target. No Special-only AoE may use Limited.
 
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-## Character Concepts — Build Your Own Legend
+## Character Concepts
 
 *Thirteen ready-to-build starting characters, not thirteen classes.*
 
@@ -10177,13 +10156,13 @@ Each Limited attack uses the base template's same printed Power Level, XP costs,
 
 **4. Choose exactly the starting Power slots.** **Two Actives at PL 2**, **two Passives at PL 4**, **one Reaction at PL 4**, and **one Active Buff at PL 4**. These are real catalogue technical names, not examples of free class features. One Buff may be maintained; Reactions use their normal trigger and economy. No character is required to take an attack Power if the concept calls for two support Actives.
 
-**5. Plan the first Round, then your progression.** Identify the Preparation choice, Movement, how you spend your legal Attack Actions and when your Reaction triggers. The optional **All-Out Attack**, **Shared Intellect Free Raises** and **Regular Attack Action Transfer** are marked **Playtest** in the Core. They create no new Powers or Stones. Two development directions illustrate different future XP purchases, not entitlements at MR 2. A learned Power upgraded from **PL 2 to PL 3 costs 6 XP**; PL 4 to PL 5 requires **MR 3** and costs **10 XP**. Purchase new Powers and any missing intermediate Levels normally.
+**5. Plan the first Round, then your progression.** Identify the Preparation choice, Movement, how you spend your legal Attack Actions and when your Reaction triggers. The optional **All-Out Attack**, sharing Intellect Free Raises and **Regular Attack Action Transfer** create no new Powers or Stones. Two development directions illustrate different future XP purchases, not entitlements at MR 2. A learned Power upgraded from **PL 2 to PL 3 costs 6 XP**; PL 4 to PL 5 requires **MR 3** and costs **10 XP**. Purchase new Powers and any missing intermediate Levels normally.
 
 **6. Describe freely; resolve by catalogue.** A spell can look like prayer, blood, song, psychic force or technology; it remains the **same Spell delivery**. A wolf Form is not a free combat transformation. Growth and Summons—including animal scouting through purchased Shared Senses—use their own existing mechanics. Restoration repairs **Scarred Bars**; ordinary HP Healing comes from **Resolve Stones** or other expressly printed effects. A **Special-only Attack** does no direct Attack Damage.
 
 {{note
 ##### Reading the Examples
-Every build below is a reproducible **MR 2 starting selection**, assuming the named ordinary weapon or legal delivery and the standard starting package. The chosen Echo Artifact, if any, is the Echo's ordinary creation selection—not an extra reward. Profession labels give the agreed background scope, never attack bonuses. The two future paths are optional alternatives; later purchases must satisfy XP, Mastery Rank, equipment and catalogue requirements. The seven additional Pathfinder-inspired examples are reserved for a separate future collection.
+Every build below is a reproducible **MR 2 starting selection**, assuming the named ordinary weapon or legal delivery and the standard starting package. The chosen Echo Artifact, if any, is the Echo's ordinary creation selection—not an extra reward. Profession labels give the agreed background scope, never attack bonuses. The two future paths are optional alternatives; later purchases must satisfy XP, Mastery Rank, equipment and catalogue requirements.
 }}
 
 }}
@@ -10288,7 +10267,7 @@ Every build below is a reproducible **MR 2 starting selection**, assuming the na
 
 **Two development directions** (paid choices, not automatic unlocks):
 
-- **Purifier:** Improve Ranged Single Target Cleanse PL2 → PL3 (6 XP); acquire Ranged AoE Cleanse at its first legal PL.
+- **Purifier:** Improve Ranged Single Target Cleanse PL2 → PL3 (6 XP); acquire Ranged AoE Cleanse from MR 3.
 - **Restorer:** Improve Ranged Single Target Restoration PL2 → PL3 (6 XP); raise Ally Armor Reaction above PL4 only at MR3 or higher.
 
 }}
@@ -10369,7 +10348,7 @@ Every build below is a reproducible **MR 2 starting selection**, assuming the na
 
 *Unarmed precision and mobility.* A fast unarmed fighter who survives by choosing when to engage and when to vanish from reach.
 
-**Mastery Rank:** 2 · **Echo:** Elorian (Elf)  
+**Mastery Rank:** 2 · **Echo:** Elorian  
 **Echo Artifact / slot:** Elorian Stride — required Feet Echo Artifact, occupies Feet; no free extra Movement Power beyond its printed progression.
 
 **Attributes:** **Agility 4** · **Wits 4** · **Might 3** · **Vitality 3** · **Resolve 2** · **Intellect 2** · **Influence 2**.  
@@ -10534,7 +10513,7 @@ Every build below is a reproducible **MR 2 starting selection**, assuming the na
 **Two development directions** (paid choices, not automatic unlocks):
 
 - **Stormfront:** Improve Ranged AoE Attack PL2 → PL3 (6 XP) and later purchase a Special-bearing Ranged AoE Power.
-- **Blood duelist:** Improve Ranged Single Target Attack PL2 → PL3 (6 XP), then acquire a defensive Ranged Barrier at legal PL.
+- **Blood duelist:** Improve Ranged Single Target Attack PL2 → PL3 (6 XP), then acquire a defensive Ranged Barrier from MR 3.
 
 }}
 \page
@@ -10559,7 +10538,7 @@ Every build below is a reproducible **MR 2 starting selection**, assuming the na
 | Active 2, **PL 2** | **Ranged Single Target Attack** — Spell delivery, Resolve; Special-less damage Spell. |
 | Passive 1, **PL 4** | **Passive: Telepathy** |
 | Passive 2, **PL 4** | **Passive: Spell Resistance** |
-| Reaction, **PL 4** | **Reaction: Reactive Cleanse** |
+| Reaction, **PL 4** | **Reaction: Cleanse** |
 | Active Buff, **PL 4** | **Active Buff: Spell Resistance** |
 
 **Equipment / slot check:** Pact contract, sigils and familiar imagery are descriptive. Telepathy is a purchased starting Passive, not a new psionic Delivery.
@@ -10603,8 +10582,8 @@ Every build below is a reproducible **MR 2 starting selection**, assuming the na
 
 **Two development directions** (paid choices, not automatic unlocks):
 
-- **Battlefield architect:** Upgrade Ranged Barrier PL2 → PL3 (6 XP) and add Ranged Power Image at its first legal PL.
-- **Evoker:** Upgrade Ranged Single Target Attack PL2 → PL3 (6 XP) and learn Ranged AoE Attack through normal progression.
+- **Battlefield architect:** Upgrade Ranged Barrier PL2 → PL3 (6 XP) and add Ranged Power Image from MR 3.
+- **Evoker:** Upgrade Ranged Single Target Attack PL2 → PL3 (6 XP) and learn Ranged AoE Attack from MR 3.
 
 }}
 \page

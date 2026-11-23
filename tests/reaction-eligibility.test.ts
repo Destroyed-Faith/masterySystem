@@ -64,7 +64,7 @@ describe('reaction eligibility', () => {
       system: { templateId: 'reaction-armor' },
       mechanics: { armor: 4 },
     };
-    const evade = { basicReaction: 'evade', id: 'basic-reaction-evade', mechanics: { evade: 4 } };
+    const evade = { system: { templateId: 'reaction-evade' }, mechanics: { evade: 4 } };
     const counter = { basicReaction: 'counterattack', id: 'basic-reaction-counterattack' };
     const miss = { ...hitCtx, hit: false };
     expect(evaluateReactionEligibility(armor, miss).shown).toBe(false);

@@ -304,20 +304,20 @@ export interface RoundState {
    * Extras (Stones / shop / bonus) remain spendable; base is not.
    */
   baseAttackTransferred?: boolean;
-  /** Donor-side record of a Prep Attack Action transfer (playtest). */
+  /** Donor-side record of a Prep Attack Action transfer. */
   attackActionTransfer?: {
     fromActorId: string;
     toActorId: string;
     status: 'granted' | 'spent' | 'expired';
   };
-  /** Recipient-side mirror of a Prep Attack Action transfer (playtest). */
+  /** Recipient-side mirror of a Prep Attack Action transfer. */
   receivedAttackTransfer?: {
     fromActorId: string;
     toActorId: string;
     status: 'granted' | 'spent' | 'expired';
   };
   /**
-   * All-Out Attack (playtest): Prep declaration for this Round.
+   * All-Out Attack: Prep declaration for this Round.
    * Not an Active Buff; does not consume the one-Buff limit.
    */
   allOutAttack?: {
@@ -329,9 +329,9 @@ export interface RoundState {
     /** Older single declaration; reads as one step. */
     penalty?: 'armor' | 'evade';
   };
-  /** Shared Free Raises (playtest): Raises allies assigned to this actor this Round. */
+  /** Shared Free Raises: Raises allies assigned to this actor this Round. */
   sharedFreeRaisesReceived?: SharedFreeRaiseGrant[];
-  /** Shared Free Raises (playtest): Raises this Stone user assigned to allies this Round. */
+  /** Shared Free Raises: Raises this Stone user assigned to allies this Round. */
   sharedFreeRaisesGiven?: SharedFreeRaiseAllocation[];
   /**
    * Disengage: movement does not provoke movement-triggered Reactions.
@@ -473,7 +473,7 @@ export interface RoundState {
     /** Other named Attack Action grants. Highest source wins. */
     bonusAttackActions?: number;
     /**
-     * Playtest: Attack Actions received via Regular Attack Action Transfer.
+     * Attack Actions received via Regular Attack Action Transfer.
      * Additive on top of base + highest Extra Attack grant (does not compete
      * with Extra Attack stacking rules).
      */
@@ -957,7 +957,7 @@ export function remainingFreeRaiseAllowance(state: RoundState, allowance: number
 }
 
 /**
- * Shared Free Raises (playtest): spend from a donor's Intellect Raises pool.
+ * Shared Free Raises: spend from a donor's Intellect Raises pool.
  * Caller enforces range/perception; this only mutates the donor budget atomically.
  */
 export async function consumeSharedFreeRaises(
@@ -1716,8 +1716,8 @@ export function getAvailableAttackActions(actor: Actor, combat: Combat | null): 
  */
 /**
  * Radial remaining display for Active Buffs (Z01).
- * There is no general per-Prep / per-Combat activation limit — Prep gate lives
- * in `activateActiveBuff`. Always show 1 while combat exists so switches are visible.
+ * The Prep gate and the once-per-Combat limit per named Buff live in
+ * `activateActiveBuff`. Always show 1 while combat exists so switches are visible.
  */
 export function remainingActiveBuffActions(
   _usedThisRound?: boolean | undefined,
@@ -1997,8 +1997,8 @@ export function getStonePool(actor: Actor, attribute: AttributeKey): { current: 
 
 /**
  * Stones in a pool that must NOT come back through regen / refills:
- * Sustain, Sealed (Rituals / Remove Scar — return on Safe Haven Rest) and
- * Burned (lost until Safe Haven Rest, e.g. Last Breath).
+ * Sustain, Sealed (Rituals / Remove Scar / Last Breath — return on Safe Haven
+ * Rest) and Burned (lost until Safe Haven Rest).
  */
 export function stonePoolReservedStones(system: any, attr: string): number {
   const p = system?.stonePools?.[attr] ?? {};

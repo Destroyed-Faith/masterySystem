@@ -40,8 +40,8 @@ import {
 } from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
 import {
-  breathDamageConeMeters,
-  breathRuinConeMeters,
+  breathDamageRadiusMeters,
+  breathRuinRadiusMeters,
   breathRuinValue,
   damageBreathSharedPoolFormula,
 } from '../utils/breath-weapon.js';
@@ -546,8 +546,9 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             }
             // Dragon Head Breath: Damage + Ruin (shared use).
             if (row.artifactFunctionId === 'dragon-breath') {
-                const dmgL = breathDamageConeMeters(currentLevel);
-                const ruinL = breathRuinConeMeters(currentLevel);
+                const dmgL = breathDamageRadiusMeters(currentLevel);
+                const ruinL = breathRuinRadiusMeters(currentLevel);
+                const radiusBonus = getEffectiveCircularAoeRadiusBonusMeters(actor);
                 const ruinV = breathRuinValue(currentLevel);
                 const poolPreview = damageBreathSharedPoolFormula(currentLevel);
 
@@ -556,16 +557,16 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                     ...option,
                     id: `${id}:damage`,
                     name: stageSuffix ? `Damage Breath ${stageSuffix}` : 'Damage Breath',
-                    description: `${description} · Damage Breath · shared pool ${poolPreview} · Cone ${dmgL} m · Might or Agility`,
-                    aoeShape: 'cone',
-                    aoeRadiusMeters: dmgL,
-                    range: 0,
-                    rangeMeters: 0,
-                    burstMeleeAoE: false,
-                    burstMeleeRadiusMeters: undefined,
-                    meleeReachMeters: undefined,
+                    description: `${description} · Damage Breath · shared pool ${poolPreview} · radius ${dmgL} m`,
+                    aoeShape: 'radius',
+                    aoeRadiusMeters: dmgL + radiusBonus,
+                    range: dmgL,
+                    rangeMeters: dmgL,
+                    burstMeleeAoE: true,
+                    burstMeleeRadiusMeters: dmgL,
+                    meleeReachMeters: dmgL,
                     defaultTargetGroup: 'enemy',
-                    allowManualTargetSelection: true,
+                    allowManualTargetSelection: false,
                     aoePlacementProfile: undefined,
                     ignoreWeaponDamage: false,
                     dragonHeadDamageBreath: true,
@@ -581,16 +582,16 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                     ...option,
                     id: `${id}:ruin`,
                     name: stageSuffix ? `Ruin Breath ${stageSuffix}` : 'Ruin Breath',
-                    description: `${description} · Ruin Breath · Ruin(${ruinV}) · Cone ${ruinL} m · no damage · Might or Agility`,
-                    aoeShape: 'cone',
-                    aoeRadiusMeters: ruinL,
-                    range: 0,
-                    rangeMeters: 0,
-                    burstMeleeAoE: false,
-                    burstMeleeRadiusMeters: undefined,
-                    meleeReachMeters: undefined,
+                    description: `${description} · Ruin Breath · Ruin(${ruinV}) · radius ${ruinL} m · no direct Attack Damage`,
+                    aoeShape: 'radius',
+                    aoeRadiusMeters: ruinL + radiusBonus,
+                    range: ruinL,
+                    rangeMeters: ruinL,
+                    burstMeleeAoE: true,
+                    burstMeleeRadiusMeters: ruinL,
+                    meleeReachMeters: ruinL,
                     defaultTargetGroup: 'enemy',
-                    allowManualTargetSelection: true,
+                    allowManualTargetSelection: false,
                     aoePlacementProfile: undefined,
                     ignoreWeaponDamage: true,
                     dragonHeadDamageBreath: false,

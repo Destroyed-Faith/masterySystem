@@ -142,10 +142,10 @@
         "id": "huntersScourge-pw-7",
         "name": "Scourge Strike III",
         "fluff": "Special: Limited",
-        "category": "passive",
+        "category": "active",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {

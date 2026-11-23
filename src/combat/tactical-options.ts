@@ -1,11 +1,11 @@
 /**
- * Playtest tactical options (Core 2026-11-19):
+ * Tactical Choices (Core v0.9.9.6):
  * - All-Out Attack (Prep declaration)
  * - Regular Attack Action Transfer (Prep grant → recipient spends on their Turn)
  * - Shared Intellect Free Raises helpers (range / perception)
  * Two-actor writes live in `teamwork-transactions.ts`.
  *
- * Provisional playtest: 20 m coordination range; All-Out Armor floor 0.
+ * 20 m coordination range; All-Out Armor floor 0.
  */
 
 import {
@@ -16,7 +16,7 @@ import {
   type RoundState,
 } from './action-economy.js';
 
-/** Provisional playtest coordination range (meters). */
+/** Tactical Choices coordination range (meters). */
 export const TACTICAL_COORDINATION_RANGE_M = 20;
 
 /** Armor lost per All-Out Armor step; a step needs at least this much Armor left. */

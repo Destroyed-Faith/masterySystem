@@ -111,7 +111,7 @@ export async function maybeApplyThornsRetaliation(
 
   try {
     const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
-    await applyDamageToTarget(source, applied, defender, 0, {
+    await applyDamageToTarget(source, applied, defender, {
       skipThorns: true,
       armorPenetration: 0,
     } as any);

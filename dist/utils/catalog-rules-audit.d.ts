@@ -43,10 +43,12 @@ export interface CatalogAuditOptions {
     rulesMarkdown?: Partial<Record<RulesBook, string>>;
 }
 export type RulesBook = 'actives' | 'active-buffs' | 'passives' | 'reactions' | 'movement' | 'artefacts';
+/** Rules book → file name under docs/Rules/Canonical/. */
+export declare const CANONICAL_RULES_FILES: Readonly<Record<RulesBook, string>>;
 /** Awareness / Heightened Senses — retired; Sense Slot replaces them. */
 export declare const RETIRED_AWARENESS_PASSIVE_IDS: readonly ["passive-heightened-senses", "passive-awareness-evade", "passive-awareness-damage", "conditional-passive-awareness-evade", "conditional-passive-awareness-damage"];
 /**
- * Template IDs corrected against Rules/active-buffs.md in the catalog audit pass
+ * Template IDs corrected against Rules/Canonical/ActiveBuffs.md in the catalog audit pass
  * (Active Buff Evade pure curve + Evade combinations).
  */
 export declare const AUDIT_CORRECTED_TEMPLATE_IDS: Set<string>;
@@ -81,12 +83,12 @@ export declare const SYSTEM_SUPPORT_PASSIVE_IDS: ReadonlyArray<{
     rulesName: string;
     id: string;
 }>;
-/** Core Passives expected from Rules/passives.md (non-awareness). */
+/** Core Passives expected from Rules/Canonical/Passives.md (non-awareness). */
 export declare const RULES_EXPECTED_PASSIVES: ReadonlyArray<{
     rulesName: string;
     id: string;
 }>;
-/** Named artifacts expected from Rules/artefacts.md (+ echo set). */
+/** Named artifacts expected from Rules/Canonical/Artifacts.md (+ echo set). */
 export declare const RULES_EXPECTED_ARTIFACTS: ReadonlyArray<{
     rulesName: string;
     id: string;
@@ -96,15 +98,17 @@ export declare const RULES_EXPECTED_ARTIFACTS: ReadonlyArray<{
 export declare const RULES_AB_EVADE_CURVE: readonly [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Expected Active Buff: Armor L1…L16 values (15 PP / Armor → +2…+32). */
 export declare const RULES_AB_ARMOR_CURVE: readonly [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-/** Expected Active Buff: Armor Aura L1…L16 values (+1 Armor / PL). */
-export declare const RULES_AB_ARMOR_AURA_CURVE: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Expected Protective Aura (Armor / Evade / Spell Resistance Aura) L1…L16 bonus. */
+export declare const RULES_AB_PROTECTIVE_AURA_CURVE: readonly [1, 3, 5, 7, 9, 11, 13, 15, 15, 17, 19, 21, 23, 25, 27, 29];
+/** Expected Protective Aura radius L1…L16 (2 m to PL 8, 3 m from PL 9). */
+export declare const RULES_AB_PROTECTIVE_AURA_RADIUS_M: readonly [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
 /** Expected Active Buff: Summon Armor Aura L1…L16 values (+1 Armor / PL). */
 export declare const RULES_AB_SUMMON_ARMOR_AURA_CURVE: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /** Extract `Active Buff: X` / `Reaction: X` style titles from Rules markdown. */
 export declare function parsePrefixedPowerNames(markdown: string, prefix: string): string[];
 /** Passive names from `<h3>Name (Passive: …)</h3>` and `Passive: X` headings. */
 export declare function parsePassiveNamesFromRules(markdown: string): string[];
-/** Movement power section titles from Rules/movement.md. */
+/** Movement power section titles from Rules/Canonical/Movement.md. */
 export declare function parseMovementNamesFromRules(markdown: string): string[];
 /** Detect Artifact Summon Token Generator conversion table (4 tokens / stone). */
 export declare function parseArtifactSummonTokenRatio(markdown: string): number | null;

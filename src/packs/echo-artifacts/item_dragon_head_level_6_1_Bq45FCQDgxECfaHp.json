@@ -41,11 +41,11 @@
       {
         "level": 4,
         "name": "Breath Weapon II",
-        "type": "Melee AoE",
+        "type": "Artifact Active",
         "range": "Self",
-        "aoe": "Damage: Cone 6 m / Ruin: Cone 5 m",
+        "aoe": "Damage: radius 6 m / Ruin: radius 5 m",
         "duration": "Instant",
-        "effect": "Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.",
+        "effect": "Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.",
         "special": "",
         "powerTemplateId": "active-melee-weapon-aoe",
         "rank": 10,
@@ -54,11 +54,11 @@
       {
         "level": 5,
         "name": "Draconic Roar II",
-        "type": "Active Buff",
+        "type": "Active Buff, Aura",
         "range": "Self",
-        "aoe": "Aura 20m",
+        "aoe": "Aura 3m",
         "duration": "MR Rounds",
-        "effect": "You and allies within **20 m** gain **+10 Armor**.",
+        "effect": "You and every ally inside the Aura gain **+17 Armor**. This replaces Draconic Roar I.",
         "special": "",
         "powerTemplateId": "ab-armor-aura",
         "rank": 10
@@ -66,11 +66,11 @@
       {
         "level": 6,
         "name": "Draconic Recovery II",
-        "type": "Stone Refresh",
+        "type": "Artifact Active, Support",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Restore 2 spent Might Stones.",
+        "effect": "As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I.",
         "special": "stoneRefresh"
       }
     ],
@@ -91,10 +91,11 @@
           "16"
         ],
         "stageEffectTexts": [
-          "Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.",
-          "Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.",
-          "Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II."
+          "Choose **Damage Breath** (Melee AoE Attack PL 4: **5d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter.",
+          "Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.",
+          "Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (plus matching Bite Weapon Damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II."
         ],
+        "rowType": "Artifact Active",
         "artifactFunctionId": "dragon-breath"
       },
       {
@@ -106,7 +107,13 @@
           "4",
           "10",
           "16"
-        ]
+        ],
+        "stageEffectTexts": [
+          "You and every ally inside the Aura gain **+7 Armor**.",
+          "You and every ally inside the Aura gain **+17 Armor**. This replaces Draconic Roar I.",
+          "You and every ally inside the Aura gain **+29 Armor**. This replaces Draconic Roar II."
+        ],
+        "rowType": "Active Buff, Aura"
       },
       {
         "level": 3,
@@ -115,11 +122,17 @@
           "kind": "stoneRefresh",
           "attribute": "might"
         },
-        "displayName": "Draconic Recovery"
+        "displayName": "Draconic Recovery",
+        "rowType": "Artifact Active, Support",
+        "stageEffectTexts": [
+          "As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery.",
+          "As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I.",
+          "As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II."
+        ]
       }
     ],
-    "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee Cone Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.",
-    "description": "A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee Cone Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.\n\nA Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.",
+    "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin self-centered Melee Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.",
+    "description": "A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin self-centered Melee Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.\n\nA Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -250,12 +263,12 @@
             "specials": []
           },
           "10": {
-            "type": "Melee AoE",
+            "type": "Artifact Active",
             "range": {
               "kind": "self"
             },
             "aoe": {
-              "shape": "cone",
+              "shape": "radius",
               "m": 6,
               "radiusM": 6
             },
@@ -263,7 +276,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I."
+              "text": "Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I."
             },
             "specials": [],
             "lvl": 4
@@ -460,21 +473,21 @@
             "specials": []
           },
           "10": {
-            "type": "Active Buff",
+            "type": "Active Buff, Aura",
             "range": {
               "kind": "self"
             },
             "aoe": {
               "shape": "aura",
-              "m": 20,
-              "radiusM": 20
+              "m": 3,
+              "radiusM": 3
             },
             "duration": {
               "kind": "rounds",
               "rounds": 1
             },
             "effect": {
-              "text": "You and allies within **20 m** gain **+10 Armor**."
+              "text": "You and every ally inside the Aura gain **+17 Armor**. This replaces Draconic Roar I."
             },
             "specials": [],
             "lvl": 5
@@ -557,12 +570,10 @@
         "id": "dragonHead-pw-6",
         "name": "Draconic Recovery II",
         "fluff": "Special: stoneRefresh",
-        "category": "passive",
-        "tags": [
-          "stone-function"
-        ],
+        "category": "active",
+        "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {
@@ -674,7 +685,7 @@
             "specials": []
           },
           "10": {
-            "type": "Stone Refresh",
+            "type": "Artifact Active, Support",
             "range": {
               "kind": "self"
             },
@@ -683,7 +694,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Restore 2 spent Might Stones."
+              "text": "As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I."
             },
             "specials": [],
             "lvl": 6

@@ -53,8 +53,6 @@ export interface DamageResult {
      * Ephemeral — not stored on documents.
      */
     damageChatRolls?: any[];
-    /** Natural 8s rolled across all damage dice (drives the 8s-minimum rule). */
-    count8s?: number;
     /**
      * Mitigation breakdown once damage has been applied to the target. The
      * attack-roll chat card appends this line so players can see exactly
@@ -80,7 +78,7 @@ export interface DamageResult {
     prePostedChatMessageId?: string;
     /**
      * Shared Autofire roll only: the full ordered negatable d8 pool (see
-     * `autofire-shared-damage.ts`). `totalDamage` / `count8s` are the FULL roll values;
+     * `autofire-shared-damage.ts`). `totalDamage` is the FULL roll value;
      * each hit omits its own prefix of `orderedDieFaces`.
      */
     sharedDice?: SharedDicePool;
@@ -119,7 +117,6 @@ export interface AppliedDamageSummary {
     mitigatedDamage: number;
     tempHPAbsorbed: number;
     barDamage: number;
-    min8sUsed: boolean;
     /** "Raw X → Armor Y → Guard +Z → DR% → TempHP A → B". */
     breakdownLine: string;
     /** `true` if the target phased out of the hit entirely. */
@@ -131,11 +128,7 @@ export interface AppliedDamageSummary {
 }
 /**
  * Apply damage to target actor — full defensive pipeline:
- *   Phasing check (Phase 3) → Armor → DR% → 8s-minimum → Temp-HP → Health bars.
- *
- * `count8s` is the number of natural 8s rolled across all damage dice for
- * this strike; `applyDamageToTarget` uses it to enforce the floor rule
- * ("never below count8s if any 8 was rolled").
+ *   Phasing check (Phase 3) → Armor → DR% → Temp-HP → Health bars.
  */
 export interface ApplyDamageOptions {
     attackTotal?: number | null;
@@ -164,9 +157,9 @@ export interface ApplyDamageOptions {
     skipThorns?: boolean;
 }
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
-export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
+export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
 /** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
-export declare function applyDamageToTarget(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
+export declare function applyDamageToTarget(target: Actor, damage: number, attacker: Actor, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
 /**
  * Calculate damage result from selections
  */
@@ -203,7 +196,7 @@ damageRollOpts?: {
     useId?: string | null;
     /** Spends one Maximization charge AFTER Negation, before dice are revealed. */
     spendMaximizationAfterNegation?: () => Promise<boolean>;
-    /** All-Out Attack playtest: +Nd8 on each eligible direct Attack Damage Roll. */
+    /** All-Out Attack: +Nd8 on each eligible direct Attack Damage Roll. */
     allOutDamageDice?: number;
     /**
      * DF 2026 Damage Raises already resolved to bonus d8 (N × MR, or ceil(MR/2) on AoE).

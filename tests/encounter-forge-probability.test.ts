@@ -6,7 +6,6 @@ import {
   EXPLODING_D8_MEAN,
   PLAIN_D8_MEAN,
   clearProbabilityCaches,
-  damageJointPmf,
   expectedOverThreshold,
   expectedRaises,
   explodingSumPmf,
@@ -62,26 +61,6 @@ describe('plainDamagePmf (damage dice never explode)', () => {
     expect(pmf[3]).toBe(0);
     expect(pmf[4]).toBeGreaterThan(0);
     expect(pmf[32]).toBeCloseTo(Math.pow(1 / 8, 4), 12);
-  });
-});
-
-describe('damageJointPmf', () => {
-  it('marginal over eights equals the plain damage PMF', () => {
-    const joint = damageJointPmf(3);
-    const plain = plainDamagePmf(3);
-    for (let s = 0; s < plain.length; s += 1) {
-      let m = 0;
-      for (const pmf of joint) m += pmf[s] ?? 0;
-      expect(m).toBeCloseTo(plain[s], 12);
-    }
-  });
-
-  it('eights count follows Binomial(n, 1/8)', () => {
-    const joint = damageJointPmf(4);
-    const pZeroEights = joint[0].reduce((a, b) => a + b, 0);
-    expect(pZeroEights).toBeCloseTo(Math.pow(7 / 8, 4), 12);
-    const pAllEights = joint[4].reduce((a, b) => a + b, 0);
-    expect(pAllEights).toBeCloseTo(Math.pow(1 / 8, 4), 12);
   });
 });
 

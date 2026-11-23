@@ -4,6 +4,12 @@ export interface CanonicalActiveRow {
     radiusM?: number;
     specials?: Readonly<Record<string, number>>;
     dice?: number;
+    /** Split Attack targets / Autofire attack slots. */
+    attacks?: number;
+    /** Ranged Barrier HP. */
+    hp?: number;
+    /** AoE / Single Target Restoration Scarred-Bar pool per Safe Haven Rest. */
+    bars?: number;
 }
 export interface CanonicalActiveTable {
     title: string;

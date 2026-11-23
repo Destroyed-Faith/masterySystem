@@ -75,15 +75,16 @@ function mockBuffActor(mechanics: Record<string, unknown>) {
 
 describe('Offensive Active Buff expansion 2026-10-24', () => {
   it('keeps core Buffs + selectable offensive expansion; legacy auras retired from FINAL list', () => {
-    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(33);
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(36);
     for (const id of ORIGINAL_CORE) expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain(id);
     for (const id of OFFENSIVE_STILL_SELECTABLE) expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain(id);
     // Batch 8.1: legacy auras no longer selectable; 14 Special Auras are in the pick list.
-    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).not.toContain('ab-armor-aura');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-armor-aura');
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).not.toContain('ab-damage-aura');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).not.toContain('ab-damage-aura');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-ruin-aura');
     expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toContain('ab-hex-aura');
-    expect(new Set(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).size).toBe(33);
+    expect(new Set(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).size).toBe(36);
     void NEW_IDS;
   });
 
@@ -154,9 +155,9 @@ describe('Offensive Active Buff expansion 2026-10-24', () => {
   });
 
   it('Focus Offensive / Defensive / All after Batch 8.1 Special Auras', () => {
-    expect(filterCatalog({ category: 'activeBuff' })).toHaveLength(33);
+    expect(filterCatalog({ category: 'activeBuff' })).toHaveLength(36);
     expect(filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'offensive' })).toHaveLength(22);
-    expect(filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'defensive' })).toHaveLength(12);
+    expect(filterCatalog({ category: 'activeBuff', uiActiveBuffFocus: 'defensive' })).toHaveLength(15);
   });
 
   it('runtime: personal Armor Reduction / Evade / SR piercing / Maximization / Area Expansion', () => {

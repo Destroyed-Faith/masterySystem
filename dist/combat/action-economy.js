@@ -590,7 +590,7 @@ export function remainingFreeRaiseAllowance(state, allowance) {
     return Math.max(current, Math.max(0, Math.floor(Number(allowance) || 0)) - used - given);
 }
 /**
- * Shared Free Raises (playtest): spend from a donor's Intellect Raises pool.
+ * Shared Free Raises: spend from a donor's Intellect Raises pool.
  * Caller enforces range/perception; this only mutates the donor budget atomically.
  */
 export async function consumeSharedFreeRaises(donor, requested) {
@@ -1275,8 +1275,8 @@ export function getAvailableAttackActions(actor, combat) {
  */
 /**
  * Radial remaining display for Active Buffs (Z01).
- * There is no general per-Prep / per-Combat activation limit — Prep gate lives
- * in `activateActiveBuff`. Always show 1 while combat exists so switches are visible.
+ * The Prep gate and the once-per-Combat limit per named Buff live in
+ * `activateActiveBuff`. Always show 1 while combat exists so switches are visible.
  */
 export function remainingActiveBuffActions(_usedThisRound, _attackActionsAvailable) {
     return 1;
@@ -1515,8 +1515,8 @@ export function getStonePool(actor, attribute) {
 }
 /**
  * Stones in a pool that must NOT come back through regen / refills:
- * Sustain, Sealed (Rituals / Remove Scar — return on Safe Haven Rest) and
- * Burned (lost until Safe Haven Rest, e.g. Last Breath).
+ * Sustain, Sealed (Rituals / Remove Scar / Last Breath — return on Safe Haven
+ * Rest) and Burned (lost until Safe Haven Rest).
  */
 export function stonePoolReservedStones(system, attr) {
     const p = system?.stonePools?.[attr] ?? {};

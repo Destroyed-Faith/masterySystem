@@ -132,10 +132,10 @@
         "id": "huntersScourge-pw-4",
         "name": "Scourge Strike II",
         "fluff": "Special: Limited",
-        "category": "passive",
+        "category": "active",
         "tags": [],
         "cost": {
-          "action": "none"
+          "action": "attack"
         },
         "levels": {
           "1": {

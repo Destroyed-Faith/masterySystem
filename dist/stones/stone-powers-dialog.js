@@ -1406,7 +1406,7 @@ export class StonePowersDialog extends BaseDialog {
             ? formatActiveBuffDurationLabel(life.activationRound, life.lastActiveRound, round)
             : '';
         const rs = combat ? getRoundState(this.actor, combat) : null;
-        // Z01 / 6.1: no general per-Prep / per-Combat activation limit. Prep window only.
+        // Prep window only; the once-per-Combat limit is per named Buff (usedThisCombat below).
         const alreadyCommitted = false;
         const windowOpen = combat ? isActiveBuffPreparationWindow(this.actor, combat) : false;
         // Stone confirmation must never lock Active Buff change/end.
@@ -1452,23 +1452,30 @@ export class StonePowersDialog extends BaseDialog {
         const retractHint = canRetract
             ? 'End Active Buff — removes effects immediately. Limited Buff resources (Critical, Maximization, …) are not restored. Confirmed Stones are unchanged.'
             : '';
+        const { activeBuffKeysUsedThisCombat, preparationEntryUseKey } = await import('../combat/active-buff-combat-uses.js');
+        const usedKeys = activeBuffKeysUsedThisCombat(this.actor, combat);
         const optionRefs = powers.map((p) => ({
             id: String(p.id || p._id || ''),
             name: String(p.name || 'Active Buff'),
             level: Math.max(1, Math.floor(Number(p.system?.rank ?? p.system?.level ?? 1) || 1)),
+            usedThisCombat: usedKeys.includes(preparationEntryUseKey(p)),
         }));
         const options = optionRefs.map((row) => {
             const marks = activeBuffOptionMarks(row, current, round, optionRefs);
+            const usedThisCombat = row.usedThisCombat && !marks.isActive;
             const suffix = marks.chosenThisRound
                 ? ' — currently active'
                 : marks.isActive
                     ? ' — currently active'
-                    : current
-                        ? ' — replace'
-                        : '';
-            return { ...row, ...marks, isCurrent: marks.isActive, suffix };
+                    : usedThisCombat
+                        ? ' — already used this Combat'
+                        : current
+                            ? ' — replace'
+                            : '';
+            return { ...row, ...marks, usedThisCombat, isCurrent: marks.isActive, suffix };
         });
         const replaceOptions = options.filter((row) => !row.isActive);
+        const hasUnusedReplacement = replaceOptions.some((row) => !row.usedThisCombat);
         // Change mode: expand selection while maintaining. Auto-open when none active.
         if (!current)
             this._activeBuffChangeOpen = false;
@@ -1483,7 +1490,7 @@ export class StonePowersDialog extends BaseDialog {
             stoneConfirmed,
             canRetract,
             retractHint,
-            canChange: !!current && windowOpen && options.length > 1,
+            canChange: !!current && windowOpen && hasUnusedReplacement,
             changeOpen: !!current && windowOpen && this._activeBuffChangeOpen,
             showOptions,
             showCancelChange: !!current && windowOpen && this._activeBuffChangeOpen,
@@ -1499,8 +1506,8 @@ export class StonePowersDialog extends BaseDialog {
             hint: current
                 ? stoneConfirmed
                     ? 'Stones are confirmed — Active Buff may still be changed or ended during Preparation. Confirmed Stones stay as-is.'
-                    : 'Only one Active Buff at a time. Change during Preparation (prior ends first) or End anytime. No Attack Action or Stone cost.'
-                : 'Activate during Preparation — no Attack Action or Stone cost. Independent of Stone confirmation.',
+                    : 'Only one Active Buff at a time. Change during Preparation to a Buff not yet used this Combat (prior ends first) or End anytime. No Attack Action or Stone cost.'
+                : 'Activate during Preparation — each named Active Buff once per Combat. No Attack Action or Stone cost. Independent of Stone confirmation.',
             unavailableReason,
         };
     }

@@ -61,8 +61,9 @@ export declare function evaluateReactionEvadeNegation(baseEvade: number, bonus: 
  */
 export declare function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[];
 /**
- * If the actor already has a real Evade/Guard reaction power, hide the matching
- * Basic Reaction so the window does not list "Reaction: Evade" and "Evade".
+ * If the actor already has a real Guard / Reaction: Armor power, hide the Basic
+ * Guard so the window does not list both. Legacy Basic Evade items (removed in
+ * Core v0.9.9.6) are always dropped.
  */
 export declare function dedupeOverlappingBasicReactions(powers: any[]): any[];
 /** Ally-protection reactions (help another creature in range). */
@@ -79,7 +80,7 @@ export interface ReactionWindowActorEntry {
 /** Synthetic Interpose button (ally ≤2 m takes half damage). */
 export declare function buildInterposeReactionItem(): any;
 /**
- * @deprecated No universal Opportunity Attack (reactions.md). Kept only so old
+ * @deprecated No universal Opportunity Attack (Reactions.md). Kept only so old
  * chat cards / tests referencing the id do not crash on import.
  */
 export declare function buildOpportunityAttackReactionItem(actor: any): any;

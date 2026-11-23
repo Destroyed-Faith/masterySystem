@@ -10,8 +10,8 @@ import { aoeContextFromAffectedTokenIds } from '../src/combat/attack-executor.js
 import { excludeAlliesFromAoePool } from '../src/combat/aoe-target-filter.js';
 import { collectMeleeBurstHostileTokenIds } from '../src/melee-targeting.js';
 import {
-  breathDamageConeMeters,
-  breathRuinConeMeters,
+  breathDamageRadiusMeters,
+  breathRuinRadiusMeters,
 } from '../src/utils/breath-weapon.js';
 
 function flag() {
@@ -91,8 +91,8 @@ describe('Self-centered Melee AoE — auto acquire, no panel flags', () => {
   });
 });
 
-describe('Dragon Breath Cone — keep aim geometry, no selection panel', () => {
-  it('Damage + Ruin are Cone Instant AoE with catalogue lengths', () => {
+describe('Dragon Breath — self-centered radius, no selection panel', () => {
+  it('Damage + Ruin are self-centered Instant AoE with catalogue radii', () => {
     const opts = buildArtifactRadialOptions({
       items: [headL3()],
       system: { mastery: { rank: 3 } },
@@ -100,12 +100,12 @@ describe('Dragon Breath Cone — keep aim geometry, no selection panel', () => {
     });
     const damage = opts.find((o) => /Damage Breath/i.test(o.name));
     const ruin = opts.find((o) => /Ruin Breath/i.test(o.name));
-    expect(damage?.aoeShape).toBe('cone');
-    expect(ruin?.aoeShape).toBe('cone');
-    expect(damage?.burstMeleeAoE).toBeFalsy();
-    expect(ruin?.burstMeleeAoE).toBeFalsy();
-    expect(damage?.aoeRadiusMeters).toBe(breathDamageConeMeters(3));
-    expect(ruin?.aoeRadiusMeters).toBe(breathRuinConeMeters(3));
+    expect(damage?.aoeShape).toBe('radius');
+    expect(ruin?.aoeShape).toBe('radius');
+    expect(damage?.burstMeleeAoE).toBe(true);
+    expect(ruin?.burstMeleeAoE).toBe(true);
+    expect(damage?.aoeRadiusMeters).toBe(breathDamageRadiusMeters(3));
+    expect(ruin?.aoeRadiusMeters).toBe(breathRuinRadiusMeters(3));
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(ruin?.dragonHeadBreathMode).toBe('ruin');
   });

@@ -380,8 +380,9 @@ describe('MR-2 character concepts use existing catalogue entries', () => {
     expect(hits.length).toBe(1);
   });
 
-  it('Concept 11 names the existing Reactive Cleanse template', () => {
-    expect(ph).toContain('| Reaction, **PL 4** | **Reaction: Reactive Cleanse** |');
-    expect(ALL_POWER_TEMPLATES.some((t: any) => t.templateId === 'reaction-reactive-cleanse')).toBe(true);
+  it('Concept 11 names Reaction: Cleanse (template id kept for existing owners)', () => {
+    expect(ph).toContain('| Reaction, **PL 4** | **Reaction: Cleanse** |');
+    const t = ALL_POWER_TEMPLATES.find((x: any) => x.templateId === 'reaction-reactive-cleanse') as any;
+    expect(t?.name).toBe('Reaction: Cleanse');
   });
 });

@@ -69,7 +69,6 @@ describe('Batch 3 C02 — Instant Damage AoE shared Damage Pool', () => {
   it('rolls one shared raw total for every hit target', () => {
     const shared = toSharedAoeDamagePayload({
       totalDamage: 18,
-      count8s: 1,
       rollDetails: ['Weapon: 2d8', 'Power: 4d8'],
     });
     expect(shared).not.toBeNull();
@@ -81,13 +80,11 @@ describe('Batch 3 C02 — Instant Damage AoE shared Damage Pool', () => {
     const raw = 20;
     const soft = applyDefensiveMitigation({
       rawDamage: raw,
-      count8s: 0,
       armorTotal: 2,
       damageReductionPct: 0,
     });
     const hard = applyDefensiveMitigation({
       rawDamage: raw,
-      count8s: 0,
       armorTotal: 8,
       damageReductionPct: 0,
     });

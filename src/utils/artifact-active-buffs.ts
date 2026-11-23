@@ -262,6 +262,16 @@ export async function activateArtifactActiveBuff(
     return false;
   }
 
+  const { artifactActiveBuffUseKey, isActiveBuffUsedThisCombat, markActiveBuffUsedThisCombat } =
+    await import('../combat/active-buff-combat-uses.js');
+  const useKey = artifactActiveBuffUseKey(artifactItem, option);
+  if (isActiveBuffUsedThisCombat(actor, combat, useKey)) {
+    ui.notifications?.warn(
+      `${option.name} was already activated this Combat — each named Active Buff can be activated once per Combat.`,
+    );
+    return false;
+  }
+
   // Only one maintained Active Buff — end prior Buff fully before creating the new one (Z01).
   const existing = hasAnyMaintainedActiveBuff(actor);
   if (existing) {
@@ -431,6 +441,12 @@ export async function activateArtifactActiveBuff(
       await restoreGrowthFromEffect({ flags: { 'mastery-system': { growthTokenSizes } } });
     }
     return false;
+  }
+
+  try {
+    await markActiveBuffUsedThisCombat(actor, combat, useKey);
+  } catch (err) {
+    console.warn('Mastery System | Artifact Active Buff once-per-Combat record failed', err);
   }
 
   try {

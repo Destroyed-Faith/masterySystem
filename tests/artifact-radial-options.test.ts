@@ -159,15 +159,15 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     const opts = buildArtifactRadialOptions(actor([head]));
     const damage = opts.find((option) => /Damage Breath/i.test(option.name));
     const ruin = opts.find((option) => /Ruin Breath/i.test(option.name));
-    expect(damage?.aoeShape).toBe('cone');
+    expect(damage?.aoeShape).toBe('radius');
     expect(damage?.aoeRadiusMeters).toBe(3);
-    expect(damage?.burstMeleeAoE).toBeFalsy();
+    expect(damage?.burstMeleeAoE).toBe(true);
     expect(damage?.ignoreWeaponDamage).toBe(false);
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('dh2');
     expect(damage?.artifactPowerTemplateId).toBe('active-melee-weapon-aoe');
     expect(damage?.artifactFunctionId).toBe('dragon-breath');
-    expect(ruin?.aoeShape).toBe('cone');
+    expect(ruin?.aoeShape).toBe('radius');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
     expect(ruin?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
     expect(ruin?.forcedWeaponItemId).toBeUndefined();

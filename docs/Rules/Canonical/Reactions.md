@@ -14,7 +14,6 @@
 ![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/LogosBanners/Destroyed%20Faith%20Banner%20Beige.png)  {position:absolute,top:0px,right:55px,width:700px}
 
 
-<!-- LIMITED POWER MODIFIER: NOT AVAILABLE for this Power Type. The Limited variant applies exclusively to eligible Instant Active Powers; see Core. -->
 \page
 {{pageNumber,auto}}
 {{wide
@@ -58,9 +57,8 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Reactions
-Version: v0.9.9.5 (2026-10-15)
-Playtest revision: 2026-10-20 (working draft; no release or version bump)
-> **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
+Version: v0.9.9.6 (2026-11-23)
+> **Unavailable lower Power Levels:** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
 
 }}
 
@@ -123,7 +121,7 @@ A creature may use a Reaction only when the Trigger belonging to that Reaction o
 
 Every catalogue entry uses its heading as its canonical technical Reaction Effect name.
 
-The technical Reaction Effect name defines rules identity and data identity. Power Level or a dedicated Mastery Rank progression changes the strength of that Reaction Effect, not its identity.
+The technical Reaction Effect name defines its rules identity. Power Level or a dedicated Mastery Rank progression changes the strength of that Reaction Effect, not its identity.
 
 A character-facing name is not part of this catalogue and never creates a second Reaction Effect.
 
@@ -131,7 +129,7 @@ The chosen Allowed Trigger is stored separately. It does not change the technica
 
 If a technical name lists alternatives separated by slashes, choose one when learning the Reaction Effect. The chosen option replaces the slash list in that character's configured technical name. All configured variants still share the same base Reaction Effect for duplicate rules unless an explicit rule says otherwise.
 
-Foundry VTT must store the technical Reaction Effect name separately from Power Level, chosen Trigger, chosen option, base Reaction Effect, and any character-facing label. Duplicate rules compare the base Reaction Effect, not the chosen Trigger or character-facing label.
+Duplicate rules compare the base Reaction Effect, not the chosen Trigger, chosen option, or character-facing label.
 
 ---
 ::
@@ -206,7 +204,7 @@ Different Triggers do not create separate copies of the same Reaction Effect.
 
 A character cannot benefit from the same Reaction Effect more than once.
 
-Sources such as Trees, Artifacts, Echoes, weapons, shields, armor, or other features do not create additional uses of an identical Reaction Effect.
+Sources such as Artifacts, Echoes, weapons, shields, armor, or other features do not create additional uses of an identical Reaction Effect.
 
 Duplicate sources:
 
@@ -819,16 +817,16 @@ You recover position only after the immediate danger has resolved.
       L1 target 20 PP → Cleanse(2) = 12 PP.<br>
       L2 target 40 PP → Cleanse(4) = 40 PP.<br>
       L3 target 60 PP → Cleanse(5) = 60 PP.<br>
-      L4 target 80 PP → Cleanse(5) = 60 PP.<br>
+      L4 target 80 PP → Cleanse(6) = 84 PP (4 PP over, within tolerance).<br>
       L5 target 100 PP → Cleanse(6) = 84 PP.<br>
       L6 target 120 PP → Cleanse(7) = 112 PP.<br>
-      L7 target 140 PP → Cleanse(7) = 112 PP.<br>
+      L7 target 140 PP → Cleanse(8) = 144 PP (4 PP over, within tolerance).<br>
       L8 target 160 PP → Cleanse(8) = 144 PP.<br>
       L9 target 180 PP → Cleanse(9) = 180 PP.<br>
       L10 target 200 PP → Cleanse(9) = 180 PP.<br>
       L11 target 220 PP → Cleanse(10) = 220 PP.<br>
       L12 target 240 PP → Cleanse(10) = 220 PP.<br>
-      L13 target 260 PP → Cleanse(10) = 220 PP.<br>
+      L13 target 260 PP → Cleanse(11) = 264 PP (4 PP over, within tolerance).<br>
       L14 target 280 PP → Cleanse(11) = 264 PP.<br>
       L15 target 300 PP → Cleanse(11) = 264 PP.<br>
       L16 target 320 PP → Cleanse(12) = 312 PP.<br><br>
@@ -840,21 +838,25 @@ You recover position only after the immediate danger has resolved.
 
 You force one hostile Special out of your body, blood, mind, or spirit when it is applied or becomes dangerous.
 
+**Allowed Triggers:** Incoming Effect Trigger or Ongoing Effect Trigger.
+
+Choose one of these Triggers when you learn this Reaction Effect.
+
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
 | **1** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **2**. |
 | **2** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **4**. |
 | **3** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **5**. |
-| **4** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **5**. |
+| **4** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **6**. |
 | **5** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **6**. |
 | **6** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **7**. |
-| **7** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **7**. |
+| **7** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **8**. |
 | **8** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **8**. |
 | **9** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **9**. |
 | **10** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **9**. |
 | **11** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **10**. |
 | **12** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **10**. |
-| **13** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **10**. |
+| **13** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **11**. |
 | **14** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **11**. |
 | **15** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **11**. |
 | **16** | Reaction | Incoming Effect Trigger / Ongoing Effect Trigger | Self | — | Reduce the triggering eligible Special by **12**. |

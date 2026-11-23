@@ -139,7 +139,7 @@ describe('Staff of the Dark L3 — Life Taken combat radial', () => {
     const attacker = actorBars('oda', 4, 20);
 
     const rolled = 10; // printed Power Damage pool (not the heal amount)
-    const summary = await applyDamageToTarget(target, rolled, attacker, 0, {
+    const summary = await applyDamageToTarget(target, rolled, attacker, {
       skipPhasing: true,
       skipReactionPrompt: true,
       attackSucceeded: true,

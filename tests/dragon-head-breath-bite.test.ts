@@ -1,6 +1,6 @@
 /**
  * Dragon Head Breath Weapon — Damage Breath includes Bite; Ruin does not;
- * Might/Agility; shared combat/rest uses; other AoE unchanged.
+ * self-centered radius; shared Safe Haven Rest uses; other AoE unchanged.
  */
 import { describe, expect, it } from 'vitest';
 import { ECHO_ARTIFACTS, buildEchoProgressionPicks } from '../src/utils/echo-artifacts.js';
@@ -8,9 +8,9 @@ import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-co
 import { getTemplate } from '../src/utils/powers/templates/index.js';
 import { weaponDamageForLevel } from '../src/utils/artifact-base-derive.js';
 import {
-  breathDamageConeMeters,
+  breathDamageRadiusMeters,
   breathPowerDamageDice,
-  breathRuinConeMeters,
+  breathRuinRadiusMeters,
   breathRuinValue,
   damageBreathSharedPoolFormula,
   dragonHeadBiteDamage,
@@ -57,25 +57,25 @@ describe('Dragon Head Bite damage progression L1–10', () => {
   });
 
   it('Damage Breath shared pool = Bite + Power Dice at stages I/II/III', () => {
-    expect(breathPowerDamageDice(1)).toBe(4);
+    expect(breathPowerDamageDice(1)).toBe(5);
     expect(breathPowerDamageDice(4)).toBe(7);
     expect(breathPowerDamageDice(7)).toBe(13);
-    expect(damageBreathSharedPoolFormula(1)).toBe('1d8+4d8');
+    expect(damageBreathSharedPoolFormula(1)).toBe('1d8+5d8');
     expect(damageBreathSharedPoolFormula(4)).toBe('4d8+7d8');
     expect(damageBreathSharedPoolFormula(7)).toBe('7d8+13d8');
     expect(damageBreathSharedPoolFormula(10)).toBe('10d8+13d8');
   });
 
-  it('Scurry at Dragon Head L3: Damage Breath = 3d8 Bite + 4d8 Power = 7d8; +PL4 Damage Buff = 11d8', () => {
+  it('Scurry at Dragon Head L3: Damage Breath = 3d8 Bite + 5d8 Power = 8d8; +PL4 Damage Buff = 12d8', () => {
     // L3 still uses Breath stage I (PL 4 Power Dice); Bite scales with Artifact Level.
     expect(dragonHeadBiteDamage(3)).toBe('3d8');
-    expect(breathPowerDamageDice(3)).toBe(4);
-    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+4d8');
+    expect(breathPowerDamageDice(3)).toBe(5);
+    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+5d8');
     const biteD8 = 3;
     const powerD8 = breathPowerDamageDice(3);
     const buffD8 = 4; // Active Buff: Damage PL4 (canonical rebalance)
-    expect(biteD8 + powerD8).toBe(7);
-    expect(biteD8 + powerD8 + buffD8).toBe(11);
+    expect(biteD8 + powerD8).toBe(8);
+    expect(biteD8 + powerD8 + buffD8).toBe(12);
     expect(
       martialWeaponDamageApplies({
         ignoreWeaponDamage: false,
@@ -89,12 +89,12 @@ describe('Dragon Head Bite damage progression L1–10', () => {
     expect(breathRuinValue(1)).toBe(5);
     expect(breathRuinValue(4)).toBe(9);
     expect(breathRuinValue(7)).toBe(10);
-    expect(breathDamageConeMeters(1)).toBe(3);
-    expect(breathDamageConeMeters(4)).toBe(6);
-    expect(breathDamageConeMeters(7)).toBe(8);
-    expect(breathRuinConeMeters(1)).toBe(3);
-    expect(breathRuinConeMeters(4)).toBe(5);
-    expect(breathRuinConeMeters(7)).toBe(7);
+    expect(breathDamageRadiusMeters(1)).toBe(3);
+    expect(breathDamageRadiusMeters(4)).toBe(6);
+    expect(breathDamageRadiusMeters(7)).toBe(8);
+    expect(breathRuinRadiusMeters(1)).toBe(3);
+    expect(breathRuinRadiusMeters(4)).toBe(5);
+    expect(breathRuinRadiusMeters(7)).toBe(7);
   });
 });
 
@@ -123,26 +123,23 @@ describe('Damage Breath weapon damage on Instant AoE', () => {
   });
 });
 
-describe('Breath Attack Attribute Might or Agility', () => {
-  it('honours attackAttributeOverride without combining pools', () => {
+describe('Breath Attack Attribute', () => {
+  it('uses the normal Martial melee attribute (no Breath-specific choice)', () => {
     const actor = { system: { attributes: { might: { value: 4 }, agility: { value: 3 } } } };
     expect(
-      getAttackAttribute(actor, null, { attackAttributeOverride: 'might' } as any, 'melee'),
+      getAttackAttribute(actor, null, { dragonHeadBreathMode: 'damage' } as any, 'melee'),
     ).toBe('might');
-    expect(
-      getAttackAttribute(actor, null, { attackAttributeOverride: 'agility' } as any, 'melee'),
-    ).toBe('agility');
   });
 });
 
-describe('Shared Combat / Rest Breath uses', () => {
-  it('Damage and Ruin share once-per-Combat and SHR ledger', async () => {
+describe('Shared Safe Haven Rest Breath uses', () => {
+  it('Damage and Ruin share ceil(MR/2) uses per Safe Haven Rest; no once-per-Combat limit', async () => {
     const actor = mockActor({ masteryRank: 4 });
     expect(assertDragonBreathAvailable(actor)).toEqual({ ok: true });
     expect(await spendDragonBreathUse(actor)).toBe(true);
-    expect(assertDragonBreathAvailable(actor)).toEqual({ ok: false, reason: 'combat' });
-    await clearArtifactCombatUses(actor);
+    expect(assertDragonBreathAvailable(actor)).toEqual({ ok: true });
     expect(await spendDragonBreathUse(actor)).toBe(true);
+    expect(assertDragonBreathAvailable(actor)).toEqual({ ok: false, reason: 'rest' });
     await clearArtifactCombatUses(actor);
     expect(assertDragonBreathAvailable(actor)).toEqual({ ok: false, reason: 'rest' });
   });
@@ -179,7 +176,7 @@ describe('Dragon Head Level 3 always exposes both Breath modes', () => {
     };
   }
 
-  it('exposes Damage + Ruin Breath from catalogue tree node at L3 (7d8 shared pool)', async () => {
+  it('exposes Damage + Ruin Breath from catalogue tree node at L3 (8d8 shared pool)', async () => {
     const { buildAllEchoArtifactTrees } = await import(
       '../src/artifacts/echo-artifact-tree-builder.js'
     );
@@ -198,12 +195,12 @@ describe('Dragon Head Level 3 always exposes both Breath modes', () => {
     expect(ruin).toBeTruthy();
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('IqH2PUiBdJzevU5Q');
-    expect(damage?.aoeShape).toBe('cone');
-    expect(damage?.burstMeleeAoE).toBeFalsy();
-    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+4d8');
+    expect(damage?.aoeShape).toBe('radius');
+    expect(damage?.burstMeleeAoE).toBe(true);
+    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+5d8');
     expect(ruin?.dragonHeadBreathMode).toBe('ruin');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
-    expect(ruin?.aoeShape).toBe('cone');
+    expect(ruin?.aoeShape).toBe('radius');
   });
 
   it('exposes both Breath modes even when embed still has stale Artifact Active type', () => {
@@ -236,14 +233,14 @@ describe('Dragon Head Level 3 always exposes both Breath modes', () => {
     });
     expect(opts.some((o) => /Damage Breath/i.test(o.name))).toBe(true);
     expect(opts.some((o) => /Ruin Breath/i.test(o.name))).toBe(true);
-    expect(opts.find((o) => /Damage Breath/i.test(o.name))?.aoeShape).toBe('cone');
+    expect(opts.find((o) => /Damage Breath/i.test(o.name))?.aoeShape).toBe('radius');
     expect(opts.find((o) => /Damage Breath/i.test(o.name))?.aoeRadiusMeters).toBe(3);
     expect(opts.find((o) => /Ruin Breath/i.test(o.name))?.artifactRowSpecial).toMatch(/Ruin\(5\)/);
   });
 });
 
 describe('Radial emits Damage Breath + Ruin Breath', () => {
-  it('surfaces both Cone modes; Damage carries Bite; Ruin does not', () => {
+  it('surfaces both self-centered radius modes; Damage carries Bite; Ruin does not', () => {
     const flag = (extra: Record<string, unknown> = {}) => (scope: string, key: string) => {
       if (scope !== 'mastery-system') return undefined;
       if (key === 'artifactActivated') return true;
@@ -293,14 +290,14 @@ describe('Radial emits Damage Breath + Ruin Breath', () => {
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(damage?.forcedWeaponItemId).toBe('dh1');
     expect(damage?.ignoreWeaponDamage).toBe(false);
-    expect(damage?.aoeShape).toBe('cone');
+    expect(damage?.aoeShape).toBe('radius');
     expect(damage?.aoeRadiusMeters).toBe(6);
-    expect(damage?.burstMeleeAoE).toBeFalsy();
+    expect(damage?.burstMeleeAoE).toBe(true);
     expect(ruin?.dragonHeadBreathMode).toBe('ruin');
     expect(ruin?.ignoreWeaponDamage).toBe(true);
     expect(ruin?.forcedWeaponItemId).toBeUndefined();
     expect(ruin?.artifactRowSpecial).toMatch(/Ruin\(9\)/);
-    expect(ruin?.aoeShape).toBe('cone');
+    expect(ruin?.aoeShape).toBe('radius');
     expect(ruin?.aoeRadiusMeters).toBe(5);
   });
 });
@@ -313,12 +310,12 @@ describe('Core mapping still uses canonical Melee AoE Attack', () => {
     expect(picks[0].powerTemplateId).toBe('active-melee-weapon-aoe');
     const melee = getTemplate('active-melee-weapon-aoe');
     expect(String(melee?.levels?.['4']?.effect?.dice || melee?.levels?.['4']?.mechanics?.damageRider?.flat)).toMatch(
-      /4d8/,
+      /5d8/,
     );
     const b1 = fromPicks.find((r) => r.level === 1);
-    expect(String(b1?.effect)).toMatch(/Bite Weapon Damage \+ 4d8/);
+    expect(String(b1?.effect)).toMatch(/\*\*5d8\*\* Power Damage \(plus matching Bite Weapon Damage\)/);
     expect(String(b1?.effect)).toMatch(/Ruin\(5\)/);
-    expect(String(b1?.effect)).toMatch(/Might or Agility/);
+    expect(String(b1?.effect)).not.toMatch(/Might or Agility|Cone/);
     expect(String(b1?.effect)).not.toMatch(/no Bite damage/i);
   });
 

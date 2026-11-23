@@ -49,7 +49,7 @@ export interface ReactionEligibility {
     enabled: boolean;
     reason?: string;
 }
-/** Basic Evade or a reaction whose only combat effect is an Evade bonus. */
+/** A reaction whose only combat effect is an Evade bonus (e.g. Reaction: Evade). */
 export declare function isEvadeOnlyReaction(item: any): boolean;
 /** True when the reaction's only / primary defensive effect is Armor (hit/damage). */
 export declare function isArmorAxisReaction(item: any): boolean;
@@ -61,6 +61,7 @@ export declare function isRepositionReaction(item: any): boolean;
 export declare function isGhostSlipReaction(item: any): boolean;
 export declare function isCleanseReaction(item: any): boolean;
 export declare function isOverloadReaction(item: any): boolean;
+export declare function isAbsorptionSurgeReaction(item: any): boolean;
 export declare function isParryFollowUpReaction(item: any): boolean;
 export declare function isInterposeReaction(item: any): boolean;
 export declare function actorHasPassiveDR(actor: any): boolean;

@@ -231,8 +231,8 @@ export function getTrueActiveBuffs(actor) {
  * Duration is complete Combat Rounds ending at Round End:
  * lastActiveRound = activationRound + effectiveDuration - 1.
  * Only one true active buff can be active at a time (utilities can stack).
- * Activation does not spend an Attack Action or Stones. There is no general
- * per-Combat or per-Preparation activation limit — replace ends the prior Buff
+ * Activation does not spend an Attack Action or Stones. Each named Active Buff
+ * may be activated once per Combat (Core v0.9.9.6) — replace ends the prior Buff
  * fully before the new one begins (Z01).
  */
 export async function activateActiveBuff(actor, power, opts) {
@@ -268,6 +268,12 @@ export async function activateActiveBuff(actor, power, opts) {
             console.warn('Mastery System | Active Buff Preparation gate failed', err);
             return false;
         }
+    }
+    const { activeBuffUseKey, isActiveBuffUsedThisCombat, markActiveBuffUsedThisCombat } = await import('../combat/active-buff-combat-uses.js');
+    const useKey = activeBuffUseKey(power);
+    if (combat && isActiveBuffUsedThisCombat(actor, combat, useKey)) {
+        ui.notifications?.warn(`${power.name} was already activated this Combat — each named Active Buff can be activated once per Combat.`);
+        return false;
     }
     const tplId = String(power?.system?.templateId || '').toLowerCase();
     // Active Buff: Damage Negation Pool requires slotted Passive: Damage Negation
@@ -473,6 +479,14 @@ export async function activateActiveBuff(actor, power, opts) {
             }
             ui.notifications?.error(`Failed to activate ${power.name}`);
             return false;
+        }
+        if (combat) {
+            try {
+                await markActiveBuffUsedThisCombat(actor, combat, useKey);
+            }
+            catch (err) {
+                console.warn('Mastery System | Active Buff once-per-Combat record failed', err);
+            }
         }
         ui.notifications?.info(`Activated ${power.name} (Rounds ${activationRound}–${lastActiveRound}${empower.rounds > 0 ? `, incl. +${empower.rounds} from Active Buff Empowerment` : ''})`);
         // Grant Prep resources immediately (Temp HP / DN Pool) for the activation Round.

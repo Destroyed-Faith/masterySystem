@@ -3,7 +3,6 @@
  */
 export function applyDefensiveMitigation(input) {
     const raw = Math.max(0, Math.floor(Number(input.rawDamage) || 0));
-    const count8s = Math.max(0, Math.floor(Number(input.count8s) || 0));
     const armorBase = Math.max(0, Math.floor(Number(input.armorTotal) || 0));
     const reactionArmor = Math.max(0, Math.floor(Number(input.reactionArmorFlat) || 0));
     const penetration = Math.max(0, Math.floor(Number(input.armorPenetration) || 0));
@@ -25,13 +24,7 @@ export function applyDefensiveMitigation(input) {
         : afterBaseDr;
     const reductionTotal = Math.max(0, afterArmor - afterDr);
     const effectiveDrPct = afterArmor > 0 ? Math.min(100, Math.round((100 * reductionTotal) / afterArmor)) : 0;
-    // Step 3 — 8s-minimum rule.
-    let mitigated = afterDr;
-    let min8sUsed = false;
-    if (mitigated <= 0 && count8s > 0) {
-        mitigated = count8s;
-        min8sUsed = true;
-    }
+    const mitigated = afterDr;
     const parts = [`Raw ${raw}`];
     if (penetration > 0 && armorBase > 0) {
         parts.push(`Armor ${armorBase} − Pen ${penetration} → ${sheetAfterPen}`);
@@ -46,8 +39,6 @@ export function applyDefensiveMitigation(input) {
         parts.push(`DR ${drBase}%`);
     if (drReact > 0)
         parts.push(`Reaction DR ${drReact}%`);
-    if (min8sUsed)
-        parts.push(`8s-min ${count8s}`);
     parts.push(`${mitigated}`);
     const breakdownLine = parts.join(' → ');
     return {
@@ -56,41 +47,7 @@ export function applyDefensiveMitigation(input) {
         reactionArmorApplied: guardAfterPen,
         drPercent: effectiveDrPct,
         mitigatedDamage: mitigated,
-        min8sUsed,
-        count8s,
         breakdownLine,
     };
-}
-/** Extract `count8s` from a Foundry Roll (sums natural 8s across all d8 terms). */
-export function countNaturalEightsInRoll(roll) {
-    if (!roll)
-        return 0;
-    let n = 0;
-    try {
-        for (const term of roll.terms || roll.dice || []) {
-            const faces = term?.faces;
-            const results = term?.results;
-            if (faces !== 8 || !Array.isArray(results))
-                continue;
-            for (const r of results) {
-                // Foundry marks exploded dice as `active` — we count every natural 8
-                // that rolled, including the trigger dice of explosions, because the
-                // rule reads "per rolled 8", not "per surviving 8".
-                if (r && r.result === 8)
-                    n += 1;
-            }
-        }
-    }
-    catch {
-        /* ignore mis-shaped rolls */
-    }
-    return n;
-}
-/** Sum `count8s` across a list of Foundry Rolls. */
-export function countNaturalEights(rolls) {
-    let n = 0;
-    for (const roll of rolls)
-        n += countNaturalEightsInRoll(roll);
-    return n;
 }
 //# sourceMappingURL=damage-mitigation.js.map

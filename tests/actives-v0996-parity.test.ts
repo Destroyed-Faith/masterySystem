@@ -3,7 +3,7 @@
  * binding rulebook, docs/Rules/Canonical/Actives.md (PL 1–16).
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 // @ts-expect-error — plain ESM build script without type declarations
 import { parseCanonicalActives } from '../scripts/generate-canonical-actives.mjs';
@@ -50,6 +50,13 @@ function mappings(): Mapping[] {
     out.push({ canon: `${flavour}-aoe-restoration`, templateId: `active-${flavour}-aoe-restoration` });
   }
   out.push({ canon: 'ranged-autofire-weapon-attack', templateId: 'active-ranged-weapon-autofire' });
+  out.push({ canon: 'ranged-barrier', templateId: 'active-ranged-barrier' });
+  out.push({ canon: 'melee-push-pull', templateId: 'active-melee-control-push-pull' });
+  out.push({ canon: 'ranged-push-pull', templateId: 'active-ranged-control-push-pull' });
+  out.push({ canon: 'mind-illusion', templateId: 'active-mind-illusion' });
+  out.push({ canon: 'mind-probe', templateId: 'active-mind-probe' });
+  out.push({ canon: 'mental-control', templateId: 'active-mental-control' });
+  out.push({ canon: 'ranged-power-image', templateId: 'active-ranged-illusion-image' });
   const zones: Record<string, { tier: ActiveSpecialTier; keys: string[] }> = {
     'ranged-persistent-zone-blight': { tier: 3, keys: ['blight'] },
     'ranged-persistent-zone-standard-diminishing-special': { tier: 4, keys: ['lacerate', 'mark', 'ruin', 'slow'] },
@@ -95,6 +102,16 @@ function compare(m: Mapping): string[] {
       const dice = Number(String(r?.effect?.dice ?? '').match(/(\d+)d8/)?.[1] ?? NaN);
       if (dice !== c.dice) diffs.push(`${tag}: dice ${dice} != ${c.dice}`);
     }
+    if (c.attacks !== undefined && r?.aoe?.targets !== c.attacks) {
+      diffs.push(`${tag}: attacks ${r?.aoe?.targets} != ${c.attacks}`);
+    }
+    if (c.bars !== undefined && r?.mechanics?.healthLevelRecovery !== c.bars) {
+      diffs.push(`${tag}: bars ${r?.mechanics?.healthLevelRecovery} != ${c.bars}`);
+    }
+    if (c.hp !== undefined) {
+      const hp = Number(String(r?.effect?.text ?? '').match(/(\d+)\s*HP\b/)?.[1] ?? NaN);
+      if (hp !== c.hp) diffs.push(`${tag}: hp ${hp} != ${c.hp}`);
+    }
   }
   return diffs;
 }
@@ -104,12 +121,10 @@ describe('Actives v0.9.9.6 — canonical source', () => {
     expect(parseCanonicalActives(MD)).toEqual(CANONICAL_ACTIVES);
   });
 
-  it('docs/Rules/actives.md is a pointer without rules or tables', () => {
-    const stub = readFileSync(join(ROOT, 'docs/Rules/actives.md'), 'utf8');
-    expect(stub).toMatch(/Canonical\/Actives\.md/);
-    expect(stub).not.toMatch(/^\|/m);
-    expect(stub).not.toMatch(/<h3 id=/);
-    expect(stub.length).toBeLessThan(1000);
+  it('no parallel rule copies exist outside docs/Rules/Canonical', () => {
+    for (const name of ['actives', 'active-buffs', 'passives', 'reactions', 'movement', 'artefacts', 'players-guide']) {
+      expect(existsSync(join(ROOT, 'docs/Rules', `${name}.md`))).toBe(false);
+    }
   });
 
   it('control examples from the v0.9.9.6 tables', () => {
@@ -125,6 +140,10 @@ describe('Actives v0.9.9.6 — canonical source', () => {
 });
 
 describe('Actives v0.9.9.6 — runtime parity PL 1–16', () => {
+  it('every printed Active table is mapped to a runtime template', () => {
+    const mapped = new Set(mappings().map((m) => m.canon));
+    expect(Object.keys(CANONICAL_ACTIVES).filter((k) => !mapped.has(k))).toEqual([]);
+  });
   for (const m of mappings()) {
     it(`${m.canon} ↔ ${m.templateId}${m.special ? `::${m.special}` : ''}`, () => {
       expect(compare(m).join('\n')).toBe('');

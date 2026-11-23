@@ -53,8 +53,8 @@ export interface ActivateActiveBuffOptions {
  * Duration is complete Combat Rounds ending at Round End:
  * lastActiveRound = activationRound + effectiveDuration - 1.
  * Only one true active buff can be active at a time (utilities can stack).
- * Activation does not spend an Attack Action or Stones. There is no general
- * per-Combat or per-Preparation activation limit — replace ends the prior Buff
+ * Activation does not spend an Attack Action or Stones. Each named Active Buff
+ * may be activated once per Combat (Core v0.9.9.6) — replace ends the prior Buff
  * fully before the new one begins (Z01).
  */
 export declare function activateActiveBuff(actor: Actor, power: any, opts?: ActivateActiveBuffOptions): Promise<boolean>;

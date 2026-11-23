@@ -47,11 +47,29 @@ describe('NPC reaction opt-in', () => {
       system: {
         mastery: { rank: 2 },
         npcReactionSlots: 1,
-        npcReactions: [{ id: 'a', name: 'Evade', source: 'basic', basicId: 'evade' }],
+        npcReactions: [{ id: 'a', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' }],
       },
     };
     const powers = materializeNpcReactionPowers(npc);
-    expect(powers.map((p: any) => p.basicReaction)).toEqual(['evade']);
+    expect(powers.map((p: any) => p.basicReaction)).toEqual(['dive-for-cover']);
+  });
+
+  it('drops stored Basic Evade rows (Core v0.9.9.6)', () => {
+    expect(NPC_STANDARD_REACTIONS.map((row) => row.id)).not.toContain('evade');
+    expect(newStandardNpcReaction('evade')).toBeNull();
+    const npc = {
+      type: 'npc',
+      system: {
+        mastery: { rank: 2 },
+        npcReactionSlots: 1,
+        npcReactions: [
+          { id: 'e', name: 'Evade', source: 'basic', basicId: 'evade' },
+          { id: 'g', name: 'Guard', source: 'basic', basicId: 'guard' },
+        ],
+      },
+    };
+    expect(resolveNpcReactionConfig(npc.system).rows.map((row) => row.basicId)).toEqual(['guard']);
+    expect(materializeNpcReactionPowers(npc).map((p: any) => p.basicReaction)).toEqual(['guard']);
   });
 
   it('reads the active boss phase', () => {

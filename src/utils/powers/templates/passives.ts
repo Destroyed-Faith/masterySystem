@@ -1,7 +1,7 @@
 /**
  * Passive Power Templates.
  *
- * Canonical source: `docs/passives.md` (Passive Design Rules + Catalog).
+ * Canonical source: `docs/Rules/Canonical/Passives.md` (Passive Design Rules + Catalog).
  *
  * Structure:
  *   - Base unconditional passives (one axis per template): Armor, Damage
@@ -28,7 +28,7 @@ import { R05_PASSIVE_REGEN_POOL, regenerationCatalogText } from '../../../combat
 
 // ─── Per-spec progression tables ─────────────────────────────────────────
 
-/** Fortified Frame — unconditional Armor (Rules/passives.md, 15 PP per +1). */
+/** Fortified Frame — unconditional Armor (Rules/Canonical/Passives.md, 15 PP per +1). */
 const ARMOR_UNCOND      = [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21];
 
 /** Conditional Armor (Stone Stance / Surrounded Bulwark; 7.5 PP / +1). */
@@ -161,7 +161,7 @@ const TELEPATHY_LINKS = [
     'MR + 2 willing creatures', 'MR + 2 willing creatures', 'MR + 3 willing creatures', 'MR + 4 willing creatures',
 ];
 
-/** Telepathy / Mind Link — feature text per level (Rules/passives.md printed table).
+/** Telepathy / Mind Link — feature text per level (Rules/Canonical/Passives.md printed table).
  * Telepathy never reads unwilling minds (that requires Mind Probe); no "Mind Save" exists. */
 const TELEPATHY_FEATURE = [
     'Send simple silent words to one willing creature within range.',
@@ -324,7 +324,7 @@ const CC_DMG_BANDED     = ['', '+1d8', '+2d8', '+2d8', '+3d8', '+4d8', '+4d8', '
 /** Damage for conditional Evade+Damage (20 PP / +1d8 half-budget). */
 const CC_EVADE_DMG_DMG  = ['', '+1d8', '+1d8', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8', '+4d8', '+5d8', '+5d8', '+6d8', '+6d8', '+7d8', '+7d8', '+8d8'];
 
-/** Rules/passives.md Armor + Healing / Armor + Temporary HP / Armor + Health. */
+/** Rules/Canonical/Passives.md Armor + Healing / Armor + Temporary HP / Armor + Health. */
 const COMB_ARMOR_HALF   = [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11];
 const COMB_ARMOR_HEAL_HP = [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20];
 
@@ -1196,7 +1196,7 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         id: 'passive-thornhide', name: 'Thorns', subfamily: 'damage',
         passiveType: 'Passive',
         requiresEcho: ['bane-greenwarden'],
-        fluff: 'When final HP damage lands on you, thorns bite back — capped by that loss. Exclusive to Green Wardens.',
+        fluff: 'When final HP damage lands on you, thorns bite back — capped by that loss. Greenwarden access (or another explicit grant); occupies one Passive Slot.',
         perLevel: (lvl) => {
             const d = THORNHIDE_DICE[lvl - 1]!;
             if (d <= 0) return { text: '—', mechanics: {} };

@@ -5,7 +5,7 @@
  * Expose, Root, and the rest). These overrides apply only when the chosen
  * Special is Challenge, Disoriented, Soulburn, or Weaken.
  *
- * Source: docs/Rules/Canonical/Actives.md, active-buffs.md, reactions.md. Do not halve
+ * Source: docs/Rules/Canonical/Actives.md, ActiveBuffs.md, Reactions.md. Do not halve
  * a rank at runtime — the arrays below are the catalogue.
  */
 

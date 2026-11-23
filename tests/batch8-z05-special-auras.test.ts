@@ -147,7 +147,7 @@ describe('Batch 8.1 — Special Aura catalogue (14 Powers)', () => {
     }
   });
 
-  it('matches Canonical Active_Buffs.md PL 1–16 tables for every Aura', () => {
+  it('matches Canonical ActiveBuffs.md PL 1–16 tables for every Aura', () => {
     for (const [specialKey, pack] of Object.entries(TABLES)) {
       const id = `ab-${specialKey}-aura`;
       expect(tpl(id), id).toBeTruthy();
@@ -229,8 +229,8 @@ describe('Batch 8.1 — Special Aura catalogue (14 Powers)', () => {
     expect(row('ab-hex-aura', 1).mechanics.activeSpecialAura.rank).toBe(1);
   });
 
-  it('selectable catalogue is 33 Buffs (19 core + 14 Special Auras); legacy auras excluded', () => {
-    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(33);
+  it('selectable catalogue is 36 Buffs (19 core + 3 Protective + 14 Special Auras); legacy auras excluded', () => {
+    expect(FINAL_ACTIVE_BUFF_TEMPLATE_IDS).toHaveLength(36);
     for (const id of SPECIAL_AURA_TEMPLATE_IDS) {
       expect(isSelectableActiveBuffTemplateId(id)).toBe(true);
     }
@@ -243,10 +243,10 @@ describe('Batch 8.1 — Special Aura catalogue (14 Powers)', () => {
       expect(ACTIVE_BUFF_TEMPLATES.some((t) => t.templateId === id)).toBe(true);
     }
     const listed = filterCatalog({ category: 'activeBuff' });
-    expect(listed).toHaveLength(33);
+    expect(listed).toHaveLength(36);
     expect(listed.some((e) => e.templateId === 'ab-hex-aura')).toBe(true);
     expect(listed.some((e) => e.templateId === 'ab-challenge-aura')).toBe(true);
-    expect(listed.some((e) => e.templateId === 'ab-armor-aura')).toBe(false);
+    expect(listed.some((e) => e.templateId === 'ab-armor-aura')).toBe(true);
     expect(listed.some((e) => e.templateId === 'ab-damage-aura')).toBe(false);
   });
 });

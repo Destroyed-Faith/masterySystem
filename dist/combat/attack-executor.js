@@ -13,6 +13,7 @@ import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { parseD8Count } from "../utils/dice-formula.js";
 import { mergeWeaponSpecialsIntoSnapshot, parkWeaponSpecialsForRaises, weaponSpecialEntries, } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
+import { splitTargetsForPowerLevel } from "./split-attack-targets.js";
 import { userMayUpdateChatMessage } from "../chat/chat-message-permission.js";
 import { getRulesMasteryRank } from "../utils/mastery-rank-sync.js";
 import { castingBaseTnForPowerLevel, mentalFinalTnSurchargeForTemplate } from "./spell-roll-handler.js";
@@ -24,14 +25,33 @@ import { totalAvailableSharedFreeRaises } from "./shared-free-raises.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
-/** Split one attack pool across two strikes. No Mastery Rank floor. */
-export function divideSplitAttackPool(total) {
+export { splitTargetsForPowerLevel };
+/** Maximum different targets for this Split Attack option (NPC rows: 2 unless stated). */
+export function splitAttackMaxTargets(option) {
+    const explicit = Math.floor(Number(option.splitTargets ?? option.npcSplitTargets) || 0);
+    if (explicit >= 2)
+        return Math.min(4, explicit);
+    if (option.source === 'npc-attack')
+        return 2;
+    const pl = option.artifactPowerTemplateId
+        ? Number(artifactLevelToTemplateRank(option.artifactRowLevel || 1))
+        : Number(option.item?.system?.level ?? option.item?.system?.rank ?? 0);
+    return pl > 0 ? splitTargetsForPowerLevel(pl) : 2;
+}
+/** Divide one attack pool across N strikes; earlier strikes take the remainder. No MR floor. */
+export function divideSplitAttackPoolN(total, parts) {
     const n = Math.max(0, Math.floor(Number(total) || 0));
-    const first = Math.ceil(n / 2);
-    const second = n - first;
+    const k = Math.max(1, Math.floor(Number(parts) || 1));
+    const base = Math.floor(n / k);
+    const extra = n - base * k;
+    return Array.from({ length: k }, (_, i) => base + (i < extra ? 1 : 0));
+}
+/** Split one attack pool across two strikes. */
+export function divideSplitAttackPool(total) {
+    const [first = 0, second = 0] = divideSplitAttackPoolN(total, 2);
     return { first, second };
 }
-/** Combatants other than the attacker. One alternative target is enough. */
+/** Combatants other than the attacker (deduplicated). */
 export function listSplitSecondTargetIds(tokenIds, attackerTokenId) {
     const attacker = String(attackerTokenId || '');
     const seen = new Set();
@@ -46,7 +66,7 @@ export function listSplitSecondTargetIds(tokenIds, attackerTokenId) {
     return out;
 }
 export function rememberSplitSharedRaises(pairId, raises) {
-    const pending = pendingSplitStrike2.get(String(pairId || ''));
+    const pending = pendingSplitStrikes.get(String(pairId || ''));
     if (!pending)
         return;
     pending.sharedRaisePlan = String(raises.plan ?? '[]');
@@ -54,40 +74,52 @@ export function rememberSplitSharedRaises(pairId, raises) {
     pending.sharedRaiseFree = String(raises.free ?? '0');
     pending.sharedRaiseTn = String(raises.tn ?? '');
 }
+/** Next queued strike of a Split Attack (target + pool), or null when none is left. */
 export function peekPendingSplit(pairId) {
-    const pending = pendingSplitStrike2.get(String(pairId || ''));
+    const pending = pendingSplitStrikes.get(String(pairId || ''));
     if (!pending)
         return null;
+    const i = pending.nextIndex - 1;
     return {
-        targetTokenId: pending.targetTokenId,
-        secondPool: pending.secondPool,
+        targetTokenId: pending.targetTokenIds[i] ?? '',
+        secondPool: pending.pools[i] ?? 0,
+        nextIndex: pending.nextIndex,
+        splitTotal: pending.targetTokenIds.length,
         sharedRaisePlan: pending.sharedRaisePlan,
     };
 }
 let splitSecondTargetResolver = null;
-/** Tests and the attack card use this to choose the second Split Attack token. */
+/**
+ * Tests and the attack card use this to choose additional Split Attack targets.
+ * Called once per additional target; return null (or an already chosen id) to stop.
+ */
 export function setSplitSecondTargetResolver(fn) {
     splitSecondTargetResolver = fn;
 }
-async function promptSplitSecondTarget(attackerToken, primaryTarget) {
+async function promptSplitAdditionalTarget(attackerToken, chosenTokenIds, strikeNumber, maxTargets) {
     const Dialog = globalThis.Dialog;
     const combatants = globalThis.game?.combat?.combatants;
     const list = typeof combatants?.values === 'function' ? Array.from(combatants.values()) : [];
-    const choices = list.filter((c) => listSplitSecondTargetIds([String(c?.token?.id || '')], String(attackerToken?.id || '')).length > 0);
+    const chosen = new Set(chosenTokenIds.map(String));
+    const choices = list.filter((c) => {
+        const id = String(c?.token?.id || '');
+        return listSplitSecondTargetIds([id], String(attackerToken?.id || '')).length > 0 && !chosen.has(id);
+    });
     if (!Dialog?.wait || choices.length < 1)
         return null;
     const buttons = {};
     choices.forEach((c, i) => {
         const id = String(c.token.id);
-        buttons[`t${i}`] = {
-            label: id === String(primaryTarget?.id) ? `${c.name || c.token.name} (first target)` : String(c.name || c.token.name || id),
-            callback: () => id,
-        };
+        buttons[`t${i}`] = { label: String(c.name || c.token.name || id), callback: () => id };
     });
+    buttons.done = {
+        label: chosen.size <= 1 ? 'No further target' : 'No more targets',
+        callback: () => null,
+    };
     try {
         const picked = await Dialog.wait({
-            title: 'Split Attack — second target',
-            content: '<p>Choose the second target. The attack pool is already divided.</p>',
+            title: `Split Attack — target ${strikeNumber} of up to ${maxTargets}`,
+            content: '<p>Choose a different target for the next strike. The Attack Pool is divided evenly between all chosen targets.</p>',
             buttons,
             default: 't0',
         });
@@ -97,45 +129,56 @@ async function promptSplitSecondTarget(attackerToken, primaryTarget) {
         return null;
     }
 }
-const pendingSplitStrike2 = new Map();
+const pendingSplitStrikes = new Map();
 /**
- * After Strike 1 of a Split Attack fully resolves (hit or miss), post Strike 2.
- * Safe to call more than once — the pending entry is consumed on first spawn.
+ * After a Split Attack strike fully resolves (hit or miss), post the next strike.
+ * Safe to call more than once — each queued strike is consumed on first spawn.
  */
-export async function spawnSplitStrike2IfPending(splitPairId) {
+export async function spawnNextSplitStrikeIfPending(splitPairId) {
     const pairId = String(splitPairId || '').trim();
     if (!pairId)
         return;
-    const pending = pendingSplitStrike2.get(pairId);
+    const pending = pendingSplitStrikes.get(pairId);
     if (!pending)
         return;
-    pendingSplitStrike2.delete(pairId);
+    const index = pending.nextIndex;
+    const total = pending.targetTokenIds.length;
+    if (index > total) {
+        pendingSplitStrikes.delete(pairId);
+        return;
+    }
+    pending.nextIndex = index + 1;
+    if (pending.nextIndex > total)
+        pendingSplitStrikes.delete(pairId);
+    const targetTokenId = pending.targetTokenIds[index - 1] ?? '';
     const canvasTokens = globalThis.canvas?.tokens;
     const attackerToken = canvasTokens?.get?.(pending.attackerTokenId) ||
         canvasTokens?.placeables?.find?.((t) => String(t?.id) === pending.attackerTokenId) ||
         null;
-    const targetToken = canvasTokens?.get?.(pending.targetTokenId) ||
-        canvasTokens?.placeables?.find?.((t) => String(t?.id) === pending.targetTokenId) ||
+    const targetToken = canvasTokens?.get?.(targetTokenId) ||
+        canvasTokens?.placeables?.find?.((t) => String(t?.id) === targetTokenId) ||
         null;
     if (!attackerToken || !targetToken) {
-        console.warn('Mastery System | Split Strike 2: tokens missing', {
+        console.warn(`Mastery System | Split Strike ${index}: tokens missing`, {
             pairId,
             attackerTokenId: pending.attackerTokenId,
-            targetTokenId: pending.targetTokenId,
+            targetTokenId,
         });
         return;
     }
     await createAttackCard(attackerToken, targetToken, pending.option, pending.attackType, {
         splitPairId: pairId,
-        splitIndex: 2,
-        attributePool: pending.secondPool,
-        secondPool: pending.secondPool,
+        splitIndex: index,
+        splitTotal: total,
+        attributePool: pending.pools[index - 1] ?? 0,
         sharedRaisePlan: pending.sharedRaisePlan,
         sharedRaiseSlots: pending.sharedRaiseSlots,
         sharedRaiseFree: pending.sharedRaiseFree,
         sharedRaiseTn: pending.sharedRaiseTn,
     }, null, null);
 }
+/** @deprecated Name from the two-strike version — posts the next queued strike. */
+export const spawnSplitStrike2IfPending = spawnNextSplitStrikeIfPending;
 /** Build Instant AoE card context from a flat affected-token list (no Primary). */
 export function aoeContextFromAffectedTokenIds(affectedTokenIds, powerBonusDice = 0) {
     const ids = [...new Set((affectedTokenIds || []).map(String).filter(Boolean))];
@@ -172,7 +215,7 @@ function detectSplitAttack(option) {
         }
         if (option.source !== 'power' || !option.item)
             return false;
-        const tid = String(option.item.system?.templateId || '');
+        const tid = String(option.artifactPowerTemplateId || option.item.system?.templateId || '');
         if (tid === 'active-melee-weapon-split' || tid === 'active-ranged-weapon-split') {
             return true;
         }
@@ -371,21 +414,28 @@ export function getAttackAttribute(actor, weapon, option, attackType) {
 /** Queue strike 2 against a chosen token. One other combatant is a valid choice. */
 export async function openSplitPair(attackerToken, targetToken, option, attackType) {
     const pairId = newSplitPairId();
-    let secondTargetId = String(targetToken?.id || '');
-    const picked = splitSecondTargetResolver
-        ? await splitSecondTargetResolver(attackerToken, targetToken, option)
-        : await promptSplitSecondTarget(attackerToken, targetToken);
-    if (picked && listSplitSecondTargetIds([String(picked)], String(attackerToken?.id || '')).includes(String(picked))) {
-        secondTargetId = String(picked);
+    const attackerId = String(attackerToken?.id || '');
+    const targetTokenIds = [String(targetToken?.id || '')];
+    const maxTargets = splitAttackMaxTargets(option);
+    while (targetTokenIds.length < maxTargets) {
+        const picked = splitSecondTargetResolver
+            ? await splitSecondTargetResolver(attackerToken, targetToken, option, [...targetTokenIds])
+            : await promptSplitAdditionalTarget(attackerToken, targetTokenIds, targetTokenIds.length + 1, maxTargets);
+        const id = String(picked || '');
+        // A creature may not be targeted more than once by the same Split Attack.
+        if (!id || targetTokenIds.includes(id) || !listSplitSecondTargetIds([id], attackerId).length)
+            break;
+        targetTokenIds.push(id);
     }
-    pendingSplitStrike2.set(pairId, {
-        attackerTokenId: String(attackerToken?.id || ''),
-        targetTokenId: secondTargetId,
+    pendingSplitStrikes.set(pairId, {
+        attackerTokenId: attackerId,
         attackType,
         option,
-        secondPool: 0,
+        targetTokenIds,
+        pools: [],
+        nextIndex: 2,
     });
-    return { pairId, secondTargetId };
+    return { pairId, secondTargetId: targetTokenIds[1] ?? '', targetTokenIds };
 }
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
@@ -414,6 +464,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         await createAttackCard(attackerToken, targetToken, option, attackType, {
             splitPairId: pairId,
             splitIndex: 1,
+            splitTotal: opened.targetTokenIds.length,
             attributePool: 0, // recomputed below with the real base pool.
         }, null, null);
         return null;
@@ -486,9 +537,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 const { assertDragonBreathAvailable } = await import('./artifact-rest-uses.js');
                 const gate = assertDragonBreathAvailable(attacker);
                 if (!gate.ok) {
-                    ui.notifications?.warn(gate.reason === 'combat'
-                        ? 'Breath Weapon: already used this Combat (shared Damage/Ruin limit).'
-                        : 'Breath Weapon: no Safe Haven Rest uses remaining.');
+                    ui.notifications?.warn('Breath Weapon: no Safe Haven Rest uses remaining.');
                     return null;
                 }
                 const mode = option.dragonHeadBreathMode === 'damage' || option.dragonHeadBreathMode === 'ruin'
@@ -509,28 +558,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                         dragonHeadDamageBreath: true,
                         dragonHeadBreathMode: 'damage',
                     };
-                }
-                // Might or Agility — choose before the Attack Roll; never combine pools.
-                // Cancellable: must run BEFORE spending the Breath use (P0).
-                if (!option.attackAttributeOverride && !option.storedAttackPool?.attribute) {
-                    const Dialog = globalThis.Dialog;
-                    let attr = 'might';
-                    if (Dialog?.wait) {
-                        const choice = await Dialog.wait({
-                            title: 'Breath Weapon — Attack Attribute',
-                            content: '<p>Choose <strong>Might</strong> or <strong>Agility</strong> for this Breath Attack Roll. Do not combine Attribute Pools.</p>',
-                            buttons: {
-                                might: { label: 'Might', callback: () => 'might' },
-                                agility: { label: 'Agility', callback: () => 'agility' },
-                            },
-                            default: 'might',
-                            close: () => null,
-                        });
-                        if (choice !== 'might' && choice !== 'agility')
-                            return null;
-                        attr = choice;
-                    }
-                    option = { ...option, attackAttributeOverride: attr };
                 }
                 pendingArtifactSpend = { kind: 'breath' };
             }
@@ -647,17 +674,15 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             ? poolFromNpc
             : getAttributeValue(attacker, attribute);
     const masteryRank = getMasteryRank(attacker);
-    let splitSecondPool = 0;
-    if (split?.splitIndex === 2) {
+    if (split && split.splitIndex > 1) {
         attributeValue = Math.max(0, Math.floor(Number(split.attributePool) || 0));
     }
     else if (split) {
-        const parts = divideSplitAttackPool(attributeValue);
-        attributeValue = parts.first;
-        splitSecondPool = parts.second;
-        const pending = split.splitPairId ? pendingSplitStrike2.get(split.splitPairId) : undefined;
+        const parts = divideSplitAttackPoolN(attributeValue, split.splitTotal);
+        attributeValue = parts[0] ?? 0;
+        const pending = split.splitPairId ? pendingSplitStrikes.get(split.splitPairId) : undefined;
         if (pending)
-            pending.secondPool = splitSecondPool;
+            pending.pools = parts;
     }
     // Debug: Log attribute reading
     // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
@@ -936,11 +961,12 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         limited: option.artifactLimited === true ||
             option.item?.system?.limited === true ||
             undefined,
-        // Split-attack bookkeeping (both strikes share pairId for "Strike N of 2"
+        // Split-attack bookkeeping (every strike shares pairId for "Strike i of N"
         // labels). Damage is full per successful strike — only the attack pool is split.
         splitAttack: !!split,
         splitPoolAssigned: !!split,
         splitIndex: split?.splitIndex ?? null,
+        splitTotal: split?.splitTotal ?? null,
         splitPairId: split?.splitPairId ?? null,
         meleeBurstVolleyId: burstVolley?.volleyId ?? null,
         meleeBurstVolleyIndex: burstVolley?.volleyIndex ?? null,
@@ -1030,11 +1056,15 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const optionName = burstVolley
         ? `${baseOptionName} — Target ${burstVolley.volleyIndex} of ${burstVolley.volleyTotal}`
         : split
-            ? `${baseOptionName} — Strike ${split.splitIndex} of 2`
+            ? `${baseOptionName} — Strike ${split.splitIndex} of ${split.splitTotal}`
             : aoeMelee && aoeMelee.secondaryTokenIds?.length
                 ? `${baseOptionName} (AoE)`
                 : baseOptionName;
     const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
+    // Later Split strikes reuse the shared Raise count, but their TN comes from their own target.
+    const splitFollowUp = !!split && split.splitIndex > 1;
+    const splitSharedSlots = splitFollowUp ? Math.max(0, Math.floor(Number(split.sharedRaiseSlots) || 0)) : 0;
+    const splitRaiseTn = normalTn + splitSharedSlots * RAISE_INCREMENT;
     const npcSpecialsLine = isNpcAttack && npcAttackRow ? formatNpcAttackSpecialsLine(npcAttackRow) : "";
     const npcAttackDetailHtml = isNpcAttack && npcAttackRow
         ? `<div class="detail-row"><span class="detail-label">NSC-Pool:</span><span class="detail-value">${attributeValue}d8</span></div>
@@ -1139,10 +1169,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
               data-normal-tn="${normalTn}"
               data-target-evade="${normalTn}"
               data-base-evade="${normalTn}"
-              data-raise-tn="${split?.splitIndex === 2 && split.sharedRaiseTn ? attackCardEsc(split.sharedRaiseTn) : normalTn}"
-              data-raise-slots="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseSlots || '0') : '0'}"
-              data-free-raises="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseFree || '0') : '0'}"
-              data-raise-plan="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
+              data-raise-tn="${splitFollowUp ? splitRaiseTn : normalTn}"
+              data-raise-slots="${splitFollowUp ? splitSharedSlots : '0'}"
+              data-free-raises="${splitFollowUp ? attackCardEsc(split.sharedRaiseFree || '0') : '0'}"
+              data-raise-plan="${splitFollowUp ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
               data-aoe-melee="${aoeMeleeAttr}"
               data-aoe-secondary-ids="${aoeIdsAttr}"
               data-aoe-power-dice="${aoeDiceAttr}"
@@ -1167,10 +1197,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             data-normal-tn="${normalTn}"
             data-target-evade="${normalTn}"
             data-base-evade="${normalTn}"
-            data-raise-tn="${split?.splitIndex === 2 && split.sharedRaiseTn ? attackCardEsc(split.sharedRaiseTn) : normalTn}"
-            data-raise-slots="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseSlots || '0') : '0'}"
-            data-free-raises="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseFree || '0') : '0'}"
-            data-raise-plan="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
+            data-raise-tn="${splitFollowUp ? splitRaiseTn : normalTn}"
+            data-raise-slots="${splitFollowUp ? splitSharedSlots : '0'}"
+            data-free-raises="${splitFollowUp ? attackCardEsc(split.sharedRaiseFree || '0') : '0'}"
+            data-raise-plan="${splitFollowUp ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
             data-aoe-melee="${aoeMeleeAttr}"
             data-aoe-secondary-ids="${aoeIdsAttr}"
             data-aoe-power-dice="${aoeDiceAttr}"

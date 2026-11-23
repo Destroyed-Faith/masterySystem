@@ -117,29 +117,14 @@ export function getEligibleReactionPowers(defender, combat) {
     return dedupeOverlappingBasicReactions(out);
 }
 /**
- * If the actor already has a real Evade/Guard reaction power, hide the matching
- * Basic Reaction so the window does not list "Reaction: Evade" and "Evade".
+ * If the actor already has a real Guard / Reaction: Armor power, hide the Basic
+ * Guard so the window does not list both. Legacy Basic Evade items (removed in
+ * Core v0.9.9.6) are always dropped.
  */
 export function dedupeOverlappingBasicReactions(powers) {
     if (!powers?.length)
         return powers ?? [];
     const nonBasic = powers.filter((p) => !isBasicReactionItem(p));
-    const hasPowerEvade = nonBasic.some((p) => {
-        const mech = resolvePowerMechanics(p);
-        if ((Number(mech?.evade) || 0) > 0)
-            return true;
-        const tid = String(p?.system?.templateId ?? '').toLowerCase();
-        const name = String(p?.name ?? '').toLowerCase();
-        // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
-        return compareIdentityDecision('reaction.hasPowerEvade', () => (tid.includes('evade') && !tid.includes('ally')) ||
-            (/\bevade\b/.test(name) && !/\bally\b/.test(name)), () => {
-            if (tid.includes('evade') && !tid.includes('ally'))
-                return true;
-            if (!tid)
-                return { kind: 'unresolved', reason: 'missing-identity' };
-            return false;
-        }, { tid, name }, { prefer: 'identity' });
-    });
     const hasPowerGuard = nonBasic.some((p) => {
         const tid = String(p?.system?.templateId ?? '').toLowerCase();
         const name = String(p?.name ?? '').toLowerCase();
@@ -158,7 +143,7 @@ export function dedupeOverlappingBasicReactions(powers) {
         }, { tid, name }, { prefer: 'identity' });
     });
     return powers.filter((p) => {
-        if (p?.basicReaction === 'evade' && hasPowerEvade)
+        if (p?.basicReaction === 'evade')
             return false;
         if (p?.basicReaction === 'guard' && hasPowerGuard)
             return false;
@@ -197,7 +182,7 @@ export function buildInterposeReactionItem() {
     };
 }
 /**
- * @deprecated No universal Opportunity Attack (reactions.md). Kept only so old
+ * @deprecated No universal Opportunity Attack (Reactions.md). Kept only so old
  * chat cards / tests referencing the id do not crash on import.
  */
 export function buildOpportunityAttackReactionItem(actor) {
@@ -223,8 +208,8 @@ export function buildOpportunityAttackReactionItem(actor) {
  * this window. Only reactions without such a trigger remain usable.
  */
 export function isThreatenedDeclarationLegalReaction(item) {
-    // All Basic Reactions trigger off being hit/targeted (Guard, Evade,
-    // Interpose, Dive for Cover, optional Counterattack). Aid is retired.
+    // All Basic Reactions trigger off being hit/targeted (Guard, Interpose,
+    // Dive for Cover, optional Counterattack). Aid is retired.
     if (String(item?.basicReaction || ''))
         return false;
     if (isThreatenedRangedOffensiveReaction(item))

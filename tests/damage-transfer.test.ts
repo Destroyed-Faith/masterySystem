@@ -66,7 +66,7 @@ async function hit(
   damage: number,
   extra: Record<string, unknown> = {},
 ) {
-  return applyDamageToTarget(target, damage, attacker, 0, {
+  return applyDamageToTarget(target, damage, attacker, {
     skipPhasing: true,
     skipReactionPrompt: true,
     attackSucceeded: true,
@@ -245,7 +245,7 @@ describe('Damage Transfer / Vampyr', () => {
     expect(damageTransferApplies({ damageTransfer: true, hit: true })).toBe(true);
     const target = actor({ id: 't-live', bars: [{ current: 12, max: 12 }] });
     const attacker = actor({ id: 'a-live', bars: [{ current: 2, max: 12 }] });
-    const summary = await applyDamageToTarget(target, 4, attacker, 0, {
+    const summary = await applyDamageToTarget(target, 4, attacker, {
       skipPhasing: true,
       skipReactionPrompt: true,
       attackSucceeded: true,

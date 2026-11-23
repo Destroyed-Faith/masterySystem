@@ -10,7 +10,7 @@ export interface NpcReactionRow {
     id: string;
     name: string;
     source: NpcReactionSource;
-    /** Standard maneuver: guard | evade | dive-for-cover | interpose */
+    /** Standard maneuver: guard | dive-for-cover | interpose */
     basicId?: string;
     /** Catalog templateId */
     templateId?: string;
@@ -26,6 +26,11 @@ export declare const NPC_STANDARD_REACTIONS: Array<{
 export declare function newNpcReactionId(): string;
 /** Counterattack is a character maneuver. NPCs do not configure or fire it. */
 export declare function isNpcCounterattackRow(row: {
+    source?: string;
+    basicId?: string;
+} | null | undefined): boolean;
+/** Basic Evade no longer exists (Core v0.9.9.6); stored rows are inert. */
+export declare function isNpcRetiredBasicEvadeRow(row: {
     source?: string;
     basicId?: string;
 } | null | undefined): boolean;

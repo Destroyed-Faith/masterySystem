@@ -9,5 +9,6 @@ export declare function stripPowerTierSuffixFromName(name: string): string;
  */
 export declare function formatRadialPowerDisplayName(item: any, opts?: {
     splitAttack?: boolean;
+    splitTargets?: number;
 }): string;
 //# sourceMappingURL=power-radial-label.d.ts.map

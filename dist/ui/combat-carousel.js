@@ -18,6 +18,7 @@ import { isCombatantSurprised, toggleSurprisedCombatant } from '../combat/surpri
 import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 import { readDeferredIds } from '../combat/turn-defer.js';
 import { peekSelfFacingDefenseMechanics } from '../utils/power-mechanics.js';
+import { protectiveAuraDelta } from '../combat/protective-aura-runtime.js';
 import { getPhasingCharges } from '../combat/phasing.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
@@ -305,6 +306,8 @@ export class CombatCarouselApp extends BaseCarousel {
                 let evadeBuff = Math.floor(Number(c.evadeFromActiveBuffs) || 0);
                 try {
                     const peek = peekSelfFacingDefenseMechanics(actor);
+                    peek.armorBuff += protectiveAuraDelta(actor, 'armor', peek.armorBuff);
+                    peek.evadeBuff += protectiveAuraDelta(actor, 'evade', peek.evadeBuff);
                     armorBuff = peek.armorBuff;
                     evadeBuff = peek.evadeBuff;
                     const storedMechDr = Math.max(0, Math.floor(Number(actor.system?.derived?.mechanicsBreakdown?.totals?.damageReductionPct) ||

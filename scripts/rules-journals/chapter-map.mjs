@@ -71,7 +71,7 @@ export const CHAPTER_SPECS = [
 
   // ── Combat Core ─────────────────────────────────────────────────
   { pack: 'rules-core', journal: 'Combat Core', page: 'Combat Core', start: /^## Combat Core\s*$/ },
-  { pack: 'rules-core', journal: 'Combat Core', page: 'Raises', start: /^### Raises\s*$/ },
+  { pack: 'rules-core', journal: 'Combat Core', page: 'Raises', start: /^#{3,4} Raises\s*$/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Combat Senses', start: /^## Combat Senses/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Stealth, Hidden, and Invisibility', start: /^## Stealth, Hidden, and Invisibility/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Round Structure', start: /^### Round Structure/ },
@@ -83,7 +83,7 @@ export const CHAPTER_SPECS = [
   // Health / Maneuvers / Rest live as ### under Advantage section region in the source
   { pack: 'rules-core', journal: 'Combat Core', page: 'Health & Fear', start: /^### Health & Fear/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Combat Maneuvers', start: /^### Combat Maneuvers/ },
-  { pack: 'rules-core', journal: 'Combat Core', page: 'Tactical Choices (Playtest)', start: /^### Tactical Choices \(Playtest\)/ },
+  { pack: 'rules-core', journal: 'Combat Core', page: 'Tactical Choices', start: /^### Tactical Choices\b/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Rest & Recovery', start: /^### Rest & Recovery/ },
   { pack: 'rules-core', journal: 'Combat Core', page: 'Special Effects Reference', start: /^### Special Effects Reference/ },
 
@@ -105,7 +105,7 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-core', journal: 'Advanced & Optional', page: 'Limited Damage Powers', start: /^### Limited Damage Powers/ },
 
   // ── Character Concepts (examples, not classes) — after Appendices ──
-  { pack: 'rules-core', journal: 'Character Concepts', page: 'Build Your Own Legend', start: /^## Character Concepts — Build Your Own Legend/ },
+  { pack: 'rules-core', journal: 'Character Concepts', page: 'Build Your Own Legend', start: /^## Character Concepts\s*(—.*)?$/ },
 
   // ── Quick Reference (cheat sheets live in the PG appendix) ──────
   { pack: 'rules-quickref', journal: 'Player Cheat Sheets', page: 'Core Flow', start: /^#### \*\*Player Cheat Sheet: Core Flow\*\*/ },
@@ -115,7 +115,7 @@ export const CHAPTER_SPECS = [
   { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Round Structure', start: /^### Round Structure/ },
   { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Health & Fear', start: /^### Health & Fear/ },
   { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Special Effects Reference', start: /^### Special Effects Reference/ },
-  { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Raises', start: /^### Raises\s*$/ },
+  { pack: 'rules-quickref', journal: 'Combat Quick Reference', page: 'Raises', start: /^#{3,4} Raises\s*$/ },
   { pack: 'rules-quickref', journal: 'Stones Quick Reference', page: 'Stone Abilities', start: /^## Stone Abilities/ },
   { pack: 'rules-quickref', journal: 'Core Terms', page: 'Core Terms', start: /^>\s*## Core Terms/ },
 ];

@@ -86,6 +86,16 @@ export type RulesBook =
     | 'movement'
     | 'artefacts';
 
+/** Rules book → file name under docs/Rules/Canonical/. */
+export const CANONICAL_RULES_FILES: Readonly<Record<RulesBook, string>> = {
+    actives: 'Actives.md',
+    'active-buffs': 'ActiveBuffs.md',
+    passives: 'Passives.md',
+    reactions: 'Reactions.md',
+    movement: 'Movement.md',
+    artefacts: 'Artifacts.md',
+};
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Awareness / Heightened Senses — retired; Sense Slot replaces them. */
@@ -98,7 +108,7 @@ export const RETIRED_AWARENESS_PASSIVE_IDS = [
 ] as const;
 
 /**
- * Template IDs corrected against Rules/active-buffs.md in the catalog audit pass
+ * Template IDs corrected against Rules/Canonical/ActiveBuffs.md in the catalog audit pass
  * (Active Buff Evade pure curve + Evade combinations).
  */
 export const AUDIT_CORRECTED_TEMPLATE_IDS = new Set<string>([
@@ -147,7 +157,9 @@ export const RULES_EXPECTED_ACTIVE_BUFFS: ReadonlyArray<{ rulesName: string; id:
     { rulesName: 'Armor Reduction Aura', id: 'ab-armor-reduction-aura' },
     { rulesName: 'Allied Damage Aura', id: 'ab-allied-damage-aura' },
     { rulesName: 'Area Expansion', id: 'ab-area-expansion' },
-    // Batch 8 / 8.1 / Z05 Special Auras (Canonical Active_Buffs.md — 14 Powers)
+    { rulesName: 'Evade Aura', id: 'ab-evade-aura' },
+    { rulesName: 'Spell Resistance Aura', id: 'ab-spell-resistance-aura' },
+    // Batch 8 / 8.1 / Z05 Special Auras (Canonical ActiveBuffs.md — 14 Powers)
     { rulesName: 'Blight Aura', id: 'ab-blight-aura' },
     { rulesName: 'Challenge Aura', id: 'ab-challenge-aura' },
     { rulesName: 'Corrode Aura', id: 'ab-corrode-aura' },
@@ -182,11 +194,12 @@ export const RULES_EXPECTED_REACTIONS: ReadonlyArray<{ rulesName: string; id: st
     { rulesName: 'Special Increase', id: 'reaction-special-increase' },
     { rulesName: 'Initiative Gain', id: 'reaction-initiative-gain' },
     { rulesName: 'Reposition', id: 'reaction-reposition' },
-    { rulesName: 'Reactive Cleanse', id: 'reaction-reactive-cleanse' },
+    { rulesName: 'Cleanse', id: 'reaction-reactive-cleanse' },
     { rulesName: 'Parry + Weapon Damage', id: 'reaction-riposte' },
     { rulesName: 'Damage Negation', id: 'reaction-damage-negation' },
     { rulesName: 'Parry + Attack Reflection', id: 'reaction-parry-reflection' },
     { rulesName: 'Reactive Overload', id: 'reaction-reactive-overload' },
+    { rulesName: 'Absorption Surge', id: 'reaction-absorption-surge' },
     // Catalog expansion (CHANGELOG / agent intercept patterns); keep tracked.
     { rulesName: 'Repositioning Intercept', id: 'reaction-repositioning-intercept' },
 ];
@@ -282,7 +295,7 @@ export const SYSTEM_SUPPORT_PASSIVE_IDS: ReadonlyArray<{ rulesName: string; id: 
     { rulesName: 'Echo Armor Value', id: 'passive-echo-armor-value' },
 ];
 
-/** Core Passives expected from Rules/passives.md (non-awareness). */
+/** Core Passives expected from Rules/Canonical/Passives.md (non-awareness). */
 export const RULES_EXPECTED_PASSIVES: ReadonlyArray<{ rulesName: string; id: string }> = [
     { rulesName: 'Armor', id: 'passive-fortified-frame' },
     { rulesName: 'Damage Reduction', id: 'passive-damage-reduction' },
@@ -314,7 +327,7 @@ export const RULES_EXPECTED_PASSIVES: ReadonlyArray<{ rulesName: string; id: str
     { rulesName: 'Special Amplification', id: 'passive-special-amplification' },
 ];
 
-/** Named artifacts expected from Rules/artefacts.md (+ echo set). */
+/** Named artifacts expected from Rules/Canonical/Artifacts.md (+ echo set). */
 export const RULES_EXPECTED_ARTIFACTS: ReadonlyArray<{
     rulesName: string;
     id: string;
@@ -365,9 +378,14 @@ export const RULES_AB_ARMOR_CURVE = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
 ] as const;
 
-/** Expected Active Buff: Armor Aura L1…L16 values (+1 Armor / PL). */
-export const RULES_AB_ARMOR_AURA_CURVE = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+/** Expected Protective Aura (Armor / Evade / Spell Resistance Aura) L1…L16 bonus. */
+export const RULES_AB_PROTECTIVE_AURA_CURVE = [
+    1, 3, 5, 7, 9, 11, 13, 15, 15, 17, 19, 21, 23, 25, 27, 29,
+] as const;
+
+/** Expected Protective Aura radius L1…L16 (2 m to PL 8, 3 m from PL 9). */
+export const RULES_AB_PROTECTIVE_AURA_RADIUS_M = [
+    2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
 ] as const;
 
 /** Expected Active Buff: Summon Armor Aura L1…L16 values (+1 Armor / PL). */
@@ -420,7 +438,7 @@ export function parsePassiveNamesFromRules(markdown: string): string[] {
     return out;
 }
 
-/** Movement power section titles from Rules/movement.md. */
+/** Movement power section titles from Rules/Canonical/Movement.md. */
 export function parseMovementNamesFromRules(markdown: string): string[] {
     const known = new Set(RULES_EXPECTED_MOVEMENT.map((x) => x.rulesName.toLowerCase()));
     const out: string[] = [];
@@ -554,10 +572,7 @@ function loadRulesBook(
     override?: Partial<Record<RulesBook, string>>,
 ): string {
     if (override?.[book] != null) return override[book]!;
-    const path =
-        book === 'actives'
-            ? join(rootDir, 'docs', 'Rules', 'Canonical', 'Actives.md')
-            : join(rootDir, 'docs', 'Rules', `${book}.md`);
+    const path = join(rootDir, 'docs', 'Rules', 'Canonical', CANONICAL_RULES_FILES[book]);
     if (!existsSync(path)) return '';
     return readFileSync(path, 'utf8');
 }
@@ -836,14 +851,23 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
                     ? `Armor curve +2…+32 matches Rules; Active Buff: ${rulesName}`
                     : `Armor curve mismatch vs Rules +2…+32 (got ${curve.filter((x) => x != null).join(',')})`;
             }
-            if (id === 'ab-armor-aura') {
+            if (id === 'ab-armor-aura' || id === 'ab-evade-aura' || id === 'ab-spell-resistance-aura') {
                 const tpl = abMap.get(id)?.template;
                 if (!tpl) return undefined;
-                const curve = readMechanicsCurve(tpl, 'armor');
-                const ok = RULES_AB_ARMOR_AURA_CURVE.every((v, i) => curve[i] === v);
+                const rows = POWER_LEVEL_KEYS.map((k) => {
+                    const m = tpl.levels?.[k]?.mechanics as
+                        | { protectiveAura?: { value?: number; radiusM?: number } }
+                        | undefined;
+                    return m?.protectiveAura;
+                });
+                const ok = RULES_AB_PROTECTIVE_AURA_CURVE.every(
+                    (v, i) =>
+                        rows[i]?.value === v &&
+                        rows[i]?.radiusM === RULES_AB_PROTECTIVE_AURA_RADIUS_M[i],
+                );
                 return ok
-                    ? `Armor Aura curve +1…+16 matches Rules; Active Buff: ${rulesName}`
-                    : `Armor Aura curve mismatch vs Rules +1…+16 (got ${curve.filter((x) => x != null).join(',')})`;
+                    ? `Protective Aura curve +1…+29 / 2–3 m matches Rules; Active Buff: ${rulesName}`
+                    : `Protective Aura curve mismatch vs Rules (got ${rows.map((r) => r?.value ?? '?').join(',')})`;
             }
             if (id === 'ab-summon-armor-aura') {
                 const tpl = abMap.get(id)?.template;
@@ -1019,7 +1043,7 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
             name: row.name,
             status: 'correct',
             notes: mentioned
-                ? `Present in ${exp.source} catalog; referenced in docs/Rules/artefacts.md`
+                ? `Present in ${exp.source} catalog; referenced in docs/Rules/Canonical/Artifacts.md`
                 : `Present in ${exp.source} catalog (curated expected list)`,
         });
     }
@@ -1055,7 +1079,7 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
                 ? 'Rules: 1 Artifact Summon Stone → 4 Tokens (bonus tokens, not Bound Stones). Marked correct — not a conflict with Summon Bound Stone ×8.'
                 : tokenRatio == null
                   ? 'Rules section present or assumed; 4 tokens per Artifact Summon Stone is the documented conversion (not a conflict).'
-                  : `Unexpected token ratio ${tokenRatio}; expected 4 per docs/Rules/artefacts.md`,
+                  : `Unexpected token ratio ${tokenRatio}; expected 4 per docs/Rules/Canonical/Artifacts.md`,
     });
 
     // Sort for stable output

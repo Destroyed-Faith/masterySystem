@@ -1053,10 +1053,6 @@ export function buildCharacterPrintContext(
         entry.damageRoll = `+${mr2} Armor`;
         entry.rollLabel = 'Effect';
         entry.battleFootnote = 'Basic Reaction — +Armor vs the triggering attack / damage.';
-      } else if (key === 'evade') {
-        entry.damageRoll = `+${mr2} Evade`;
-        entry.rollLabel = 'Effect';
-        entry.battleFootnote = 'Basic Reaction — may negate the hit if Evade exceeds the attack total.';
       } else if (key === 'dive-for-cover') {
         entry.damageRoll = `Move ${mr2} m`;
         entry.rollLabel = 'Effect';

@@ -29,6 +29,7 @@ const ACTIVE_BUFF_DEFENSE_AXIS = {
     'ab-evade-temp-hp': 'evade',
     'ab-immovable-temp-hp': 'armor',
     'ab-armor-aura': 'armor',
+    'ab-evade-aura': 'evade',
     'ab-reinforced-parry': 'parry',
     'ab-reinforced-damage-negation': 'damage-negation',
 };

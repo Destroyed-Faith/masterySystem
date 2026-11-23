@@ -4,10 +4,11 @@
  * second interpretation of the sheet.
  *
  * Always-on Passive `mechanics.evade` / `mechanics.armor` are already folded
- * into `evadeTotal` / `armorTotal` by `prepareDerivedData`. Active Buff
- * bonuses still stack on top via `*FromActiveBuffs`.
+ * into `evadeTotal` / `armorTotal` by `prepareDerivedData`. The Active Buff
+ * part (`*FromActiveBuffs` vs Protective Auras in range, highest only) adds on top.
  */
 
+import { protectiveAuraDelta, type ProtectiveAuraStat } from './protective-aura-runtime.js';
 import {
   getActiveBuffEnemyEvadeReduction,
   getActiveBuffSpellResistancePiercing,
@@ -51,8 +52,7 @@ export function getTargetEvadeBeforeAllOut(targetActor: any): number {
   if (!targetActor?.system) return 6;
   const combat = targetActor.system.combat || {};
   const base = combat.evadeTotal ?? combat.evade ?? 6;
-  const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
-  return Math.max(0, Math.floor(Number(base) + Number(buffBonus) || 0));
+  return Math.max(0, Math.floor(Number(base) + activeBuffDefenseBonus(targetActor, 'evade') || 0));
 }
 
 /** Effective Armor (armorTotal + Active Buffs) before any All-Out drawback. */
@@ -61,8 +61,24 @@ export function getTargetArmorBeforeAllOut(targetActor: any): number {
   const combat = targetActor.system.combat ?? {};
   return (
     Math.max(0, Math.floor(Number(combat.armorTotal ?? combat.armor ?? 0) || 0)) +
-    Math.max(0, Math.floor(Number(combat.armorFromActiveBuffs ?? 0) || 0))
+    Math.max(0, activeBuffDefenseBonus(targetActor, 'armor'))
   );
+}
+
+/**
+ * Active Buff part of Armor / Evade / Spell Resistance: the highest of the
+ * creature's own Active Buff and every Protective Aura it stands in (no stacking).
+ */
+export function activeBuffDefenseBonus(targetActor: any, stat: ProtectiveAuraStat): number {
+  const combat = targetActor?.system?.combat ?? {};
+  const field =
+    stat === 'armor'
+      ? combat.armorFromActiveBuffs
+      : stat === 'evade'
+        ? combat.evadeFromActiveBuffs
+        : combat.spellResistanceFromActiveBuffs;
+  const own = Math.floor(Number(field ?? 0) || 0);
+  return own + protectiveAuraDelta(targetActor, stat, own);
 }
 
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */
@@ -91,7 +107,7 @@ export function getTargetSpellResistance(targetActor: any): number {
   return Math.max(
     0,
     Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0) +
-      Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0) +
+      activeBuffDefenseBonus(targetActor, 'spellResistance') +
       stoneBonus,
   );
 }

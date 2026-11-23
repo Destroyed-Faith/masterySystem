@@ -1142,8 +1142,6 @@ body.ms-chat-panel-closed .ms-rolls-globe-host {
 #chat-log .mastery-damage-mitigation .mitigation-chip-dr i { color: #cc88ff; }
 #chat-log .mastery-damage-mitigation .mitigation-chip-temp { border-color: rgba(127, 211, 169, 0.55); }
 #chat-log .mastery-damage-mitigation .mitigation-chip-temp i { color: #7fd3a9; }
-#chat-log .mastery-damage-mitigation .mitigation-chip-8s { border-color: rgba(255, 209, 102, 0.55); }
-#chat-log .mastery-damage-mitigation .mitigation-chip-8s i { color: #ffd166; }
 #chat-log .mastery-damage-mitigation .mitigation-chip-final {
   border-color: rgba(233, 69, 96, 0.65);
   background: rgba(233, 69, 96, 0.15);

@@ -2,11 +2,31 @@
 
 **Public technical reference for Power design, pricing, and mechanical audit**
 
-**Framework version:** 1.2  
-**Rules status:** Destroyed Faith 0.9.9.5 Beta (Actives v0.9.9.6)  
-**Canonical sync:** 2026-11-18  
-**Primary Core baseline:** Destroyed Faith Core v0.9.9.5 (2026-10-15)  
+**Framework version:** 1.3 (2026-11-23)  
+**Rules status:** Destroyed Faith v0.9.9.6 Beta  
+**Canonical source review:** 2026-11-23 (Core and all six Power Catalogues)  
+**Primary Core baseline:** Destroyed Faith Core v0.9.9.6 (2026-11-23)  
+**Catalogue baseline:** Actives, Active Buffs, Passives, Reactions, Movement and Artifacts v0.9.9.6 (2026-11-23)  
+**Implementation status:** Rules documents synchronized; Foundry runtime still requires migration (see Section 24)  
 **Scope:** Powers, Specials, Movement, Artifacts, Stone Power Support, and the separation between character construction math and encounter calibration.
+
+---
+
+## Review Status – Read Before Using This Framework
+
+**This framework is synchronized with the v0.9.9.6 rules documents dated 2026-11-23.** The source of truth remains the current Core and the exact relevant catalogue. This file changes no repository files, Foundry worlds, Actor items or Compendiums.
+
+| Topic | Status as of 2026-11-23 |
+|---|---|
+| Core | v0.9.9.6 (2026-11-23), governs play |
+| Actives, Active Buffs, Passives, Reactions, Movement, Artifacts | v0.9.9.6 (2026-11-23); audited against this framework; calculation tooltips reflect the current rows |
+| Repeatable Active Powers, Basic Attack removal, immediate Ruin damage, Mental Attack retirement | **Implemented in Core and Actives**; Foundry migration pending |
+| Changes of 2026-11-23 | Basic Reaction Evade removed; natural-8 minimum damage removed; Large Damage Pool averaging added; Protective Auras added; Split Attack target progression; unified AoE radius table for Support and Barrier; refilled AoE/Autofire/Cleanse/Restoration rows; see Section 24 |
+| Persistent Zones | Printed rules and values are authoritative; **no PP formula by design** |
+| Ruin pricing | Deliberately unchanged at 4 × T(X) while immediate damage is playtested (`RUIN_BALANCE_REVIEW_PENDING`) |
+| Absorption | Rules complete; playtest pending |
+
+**Two distinct files:** `docs/Rules/agent.md` is this balance/audit framework. Repository-root `AGENTS.md` contains guidance for coding assistants and is not a substitute for the balance framework. A reviewed file must not silently replace the other.
 
 ---
 
@@ -50,21 +70,21 @@ When two documents appear to disagree, use this order:
 
 If authoritative sources conflict, do **not** silently invent a hybrid rule. Record the conflict, choose the higher-precedence source for current use, and fix the stale source upstream.
 
-### Audited source set
+### Source set and verification scope
 
-This public audit was checked against:
+| Source | State used | Verification |
+|---|---|---|
+| Destroyed Faith Core | v0.9.9.6 (2026-11-23) | Global gameplay rules cross-checked against all catalogues |
+| Actives | v0.9.9.6 (2026-11-23) | Every non-qualitative row recalculated; tooltips match tables |
+| Active Buffs | v0.9.9.6 (2026-11-23) | Rows checked; Protective Auras priced in this framework |
+| Passives | v0.9.9.6 (2026-11-23) | Progressions checked against their formulas |
+| Reactions | v0.9.9.6 (2026-11-23) | Every row checked against Section 12.2 |
+| Movement | v0.9.9.6 (2026-11-23) | Caps checked against Section 13.1 |
+| Artifacts | v0.9.9.6 (2026-11-23) | Technical References checked against the catalogues at PL 4/10/16 |
+| Quick Encounter | v0.7 Beta, older Core baseline | Encounter layer only; do not infer player PP |
+| Foundry runtime | Not re-audited | Must be migrated to the documents above |
 
-| Source | Version used |
-|---|---|
-| Destroyed Faith Core | v0.9.9.5, 2026-10-15 |
-| Actives | v0.9.9.6, 2026-11-08 (canonical alignment 2026-11-18) |
-| Active Buffs | v0.9.9.5, 2026-10-15 |
-| Passives | v0.9.9.5, 2026-10-15 |
-| Reactions | v0.9.9.5, 2026-10-15 |
-| Movement Powers | v0.9.8, 2026-08-01 |
-| Artifacts | v0.9.9.5, 2026-10-15 |
-| Quick Encounter | v0.7 Beta, based on Core v0.9.8.2, with MR3-MR6 appendix present in the audited copy |
-| Alaris Quick Play Sheet | audited runtime reference, 2026-09-02 |
+Do not infer new PL rows from a superseded framework formula. The current printed catalogue tables govern.
 
 ---
 
@@ -93,18 +113,20 @@ A legal Power may intentionally underspend its target when:
 - the effect advances only at discrete milestones;
 - the next legal increase would exceed the intended structure;
 - spending the remainder would add an unrelated rider;
-- a Special-first design would become a damage-first design if filler were added;
+- a Special-only design would cease to be damage-free if filler were added;
 - the mechanic belongs to a closed premium subsystem with a fixed progression.
 
 Unused PP is preferable to mechanical filler.
 
-### 3.3 Near-target evaluation
+### 3.3 Near-target evaluation and the +5 PP tolerance
 
-For a continuous axis where a near-exact fit is possible, a value within roughly **5 PP** of the target is normally considered cleanly on-curve.
+For a continuous axis, a row may end **up to 5 PP above** its target when that is required to reach the next legal increment. A value within 5 PP below or above the target is cleanly on-curve. Tooltips record such rows as "X PP over, within tolerance".
 
-This is an audit convention, not a license to add arbitrary effects. Discrete tables and dedicated subsystem progressions may intentionally deviate by more than 5 PP. Their exact catalogue entry controls.
+When a row is (re)filled, use the largest legal value whose total stays at or below **target + 5 PP**, subject to the monotonicity rule in Section 7.6. Unused PP below that is legal.
 
-Minimum-function exceptions may modestly exceed a target if the effect has no cheaper legal version. Such exceptions must be explicit and reproducible.
+Discrete tables and dedicated subsystem progressions may intentionally deviate by more than 5 PP. Their exact catalogue entry controls.
+
+Minimum-function exceptions may modestly exceed a target if the effect has no cheaper legal version (for example the PL 1 Damage AoE). Such exceptions must be explicit and reproducible.
 
 There is **no universal +/-10% rule** and no general capstone +/-15% rule.
 
@@ -148,44 +170,43 @@ A creature normally receives each Round:
 
 Movement and Attack Action may be used in either legal order on the creature's Turn.
 
-### 4.4 Named Power use limit
+### 4.4 Power use and the Attack Action economy
 
-An **Attack Power** (Single Target, AoE, Split, Autofire, Single Target Special or AoE Special) may be used repeatedly in the same Round as long as an Attack Action is available for each use. Limited charges, printed use limits and Stone limits still apply.
+**Every Active Power can be used again in the same Round** if the character has another legal Attack Action and the Power is otherwise legal to activate. This covers damaging attacks, Special-only attacks, Support, Restoration, Barriers, Images, mental Powers and Persistent Zones. No duplicate purchase is needed and there is no per-instance once-per-Round counter. Explicit resource limits remain: the global Limited charge, Restoration pools, Artifact quotas, maintenance requirements, printed charges.
 
-Every other named Power (Support, Barriers, Power Images, Mental Powers, Persistent Special Zones, Active Buffs, Reactions, Movement Powers) may normally be used only **once per Round** per independently acquired or granted instance. Extra Reactions or extra Movements do not let a character repeat the same such Power during that Round.
+Additional Attack Action grants from different sources do not stack unless expressly allowed; use the highest single grant.
 
-There is no automatic Basic Attack. Damage attacks use an Attack Power. Repeatable Attack Powers are **not yet priced** for repetition; Balance Review open.
+There is **no Basic Attack**. An Attack Action deals no damage by itself; damage requires an acquired or granted Attack Power. Universal Combat Maneuvers (such as Grapple) remain available. NPCs and Summons may use their expressly defined attack profiles.
+
+The only regular Attack Action may be voluntarily transferred to an ally during Preparation (Core: *Tactical Choices*). This creates no additional Action.
 
 ### 4.5 Initiative
 
-Initiative is rolled once at the start of combat:
+At the start of combat each creature chooses **Risky** (MR d8, keep all, natural 8s explode) or **Controlled** (the higher Attribute value of Agility or Wits, no roll). All Initiative modifiers apply once. The score persists across Rounds; Initiative may be converted into Initiative Colorless Stones during the **Initiative Exchange** at 4 × MR Initiative per Stone.
 
-> **MR d8, keep all**
+### 4.6 Combat Raises – current Core
 
-Natural 8s explode. Initiative Order normally remains fixed unless an explicit rule changes Initiative or reopens the Initiative Shop.
+- **Before** an eligible Attack/Casting Roll, declare the count of Paid Raises. Each adds **+4 to the relevant TN**. Commit eligible Intellect Free Raises before rolling; these add **no TN**.
+- **After** the roll and hit checks, choose one shared allocation of the already declared/committed Raises to eligible effects on that Power. Never declare extra Raises after rolling.
+- Each Damage Raise adds **+MR d8 Damage** to an existing damaging Attack; for an AoE, it adds **+ceil(MR/2) d8** instead.
+- Each Special Raise adds **+MR** to an existing numeric Special(X) applied by the Power.
+- **Special-only Single Target and AoE Attacks cannot select Damage Raises.** Placed Persistent Zones and Special Auras make no Attack/Casting Roll and cannot use Raises.
+- AoE, Split Attack and Autofire each use one shared after-roll Raise allocation for the Power use.
 
-### 4.6 Raises
+These are Raise effects, not Power Point purchases. There is **no upfront Damage Dice payment** for a Combat Raise under v0.9.9.6.
 
-Each declared Raise increases the required result by **+4**.
+### 4.7 Attack and damage mitigation
 
-- A Martial Raise pays **MR Damage Dice** up front.
-- A Spell Raise pays **MR** from the Spell's damage dice pool or Special budget, as allowed by the Spell rules.
+Use the Core's full Attack and Defense Sequence instead of a shortcut that accidentally bypasses premium defenses:
 
-Do not treat a Raise as a generic +4 bonus purchased with PP.
+1. Resolve legal targets, Paid/Free Raise declarations and any Parry/Attack-Trigger defenses.
+2. Resolve the Attack or Casting Roll against Evade/Final Spell TN where required.
+3. Calculate the incoming Special value, including legal boosts and Vulnerability, then **Special Negation**, before applying it. Immediate Ruin damage resolves here.
+4. For damaging hits, resolve eligible **Damage Negation before the Damage Roll**, then roll the remaining dice. **Large Damage Pools:** with 40 or more remaining Damage Dice, each die may count as 5 instead of rolling; Maximization still counts 8; a damage floor above 5 (Mark, Brutal Impact) counts its floor value.
+5. Apply Corrode/Armor Reduction/Penetration and Armor, then percentage **Damage Reduction** (maximum 100%; current sources reach at most 90%), then Temporary HP and Health.
+6. Resolve Damage Transfer and later Scar/Absorption triggers by their exact timing.
 
-### 4.7 Damage mitigation order
-
-Unless an exact rule changes the sequence:
-
-1. roll damage;
-2. apply Armor (Armor-ignoring damage such as Ruin skips this step);
-3. apply Damage Reduction;
-4. apply Damage Negation and Temporary HP as described in the Core;
-5. apply remaining damage.
-
-The Core damage sequence is authoritative; this list is a summary.
-
-If final damage is reduced to 0 or less, the Core minimum-damage rule still applies: the target takes 1 damage per natural 8 rolled on the original damage dice.
+**There is no natural-8 minimum damage.** Damage reduced to 0 by Armor and DR deals 0. Special-only Attacks have **no direct Damage Roll**. Ruin damage ignores Armor but uses Damage Reduction, Temporary HP and normal Health processing.
 
 ---
 
@@ -198,25 +219,19 @@ Every catalogue Power has a canonical **Technical Power Name**. A character-faci
 Examples:
 
 - `Reaction: Evade` may be described as a shield flash, a sidestep, a shadow flicker, or a divine warning.
-- `Melee Single Target Special: Ruin` may be a cursed blade, corrosive claw, sacred brand, or supernatural martial technique.
+- `Melee Single Target Special: Ruin` may be portrayed as a cursed touch, corrosion, sacred brand, or supernatural martial technique; it carries **no direct Attack Damage**.
 
-The Technical Power Name controls:
-
-- duplicate checks;
-- once-per-Round use tracking for non-Attack Powers;
-- source overlap;
-- catalogue rules;
-- Foundry VTT data identity.
+A Technical Reference identifies the underlying mechanical Power. A renamed character-facing Power or a Martial/Spell delivery change does not create a new Technical Reference.
 
 ### 5.1 Alternatives in technical names
 
-When a catalogue heading contains alternatives separated by `/`, choose one when the Power is learned. The chosen option becomes part of that character's technical identity where the catalogue says so.
+For catalogue headings containing slash-separated alternatives, choose **one printed Special** when learning the Power; the choice is part of that instance's identity. For Foundry, current Phase 1 analysis identifies a `templateId::specialKey` form; do not map a different Special to the same generic tier value when rendering a preview.
 
-### 5.2 Duplicate sources
+### 5.2 Duplicates and migration
 
-Multiple sources that grant the same base Technical Reference are the same Power for duplicate selection. For the once-per-Round limit of non-Attack Powers, the Core tracks **independently acquired or granted instances**: a learned Power and an Artifact grant are separate instances. Renaming, downcasting or changing delivery does not create a new instance. Attack Powers are repeatable and limited only by Attack Actions and explicit limits.
+Because every Active may be reused with any legal Attack Action, a duplicate purchase of the same Technical Reference grants nothing. Upgrades of a single grant replace the previous profile. Duplicate Reaction Effects, Passives and Buffs follow their own catalogue duplicate rules.
 
-This rule is especially important for Artifacts, Echoes, purchased Powers, and other layered character sources.
+When migrating legacy Damage-plus-Special definitions or duplicate purchases in Foundry, **do not automatically merge, delete, refund or downgrade owned instances.** Preserve PL, source and the chosen Special, and report conflicts for GM review.
 
 ---
 
@@ -295,13 +310,7 @@ These rules are more important than any isolated price.
 
 ### 7.1 One Power, one budget
 
-A Combination Power does not receive a complete target budget for every axis.
-
-If an Active Buff contains Armor and Temporary HP, both effects fit inside the **same** Active Buff budget.
-
-If a Combined Passive contains Evade and Healing, both effects fit inside the **same** Passive budget.
-
-This prevents a two-axis Power from silently becoming two full Powers occupying one slot.
+A Power never receives several full PL budgets merely because it contains several effects. **Currently selectable v0.9.9.6 Active Buffs and Passives are not generic Combined Powers.** If a *future dedicated* combination is introduced, its exact printed table must define how one shared budget is allocated. Historical Combined Passive/Buff examples are no longer legal templates.
 
 ### 7.2 Coverage has value
 
@@ -318,7 +327,7 @@ Multi-target mechanics must define whether payload is:
 - shared between placements;
 - or stopped by a chain condition.
 
-The catalogue prices that behavior explicitly. Never assume that adding targets automatically grants multiple full independent attacks.
+The catalogue prices that behavior explicitly. Some printed Powers (e.g., Split Attack and Autofire) can deliver **full damage on multiple successful hits** with their own limitations and PP capacity costs. Do not grant extra hits without those printed structures, and never treat such a Power use as extra free Attack Actions.
 
 ### 7.4 Closed systems stay closed
 
@@ -326,17 +335,17 @@ Critical, Damage Reduction, Phasing, Parry, Absorption, Damage Negation, Invisib
 
 If the catalogue gives such a subsystem a dedicated Power, use that Power. Do not recreate the mechanic as a cheaper secondary effect inside another template.
 
-### 7.5 Preserve identity across levels
+### 7.5 Preserve Power identity across levels
 
-For standard Active Buffs, Levels 1-4 establish the structure. Levels 5-16 scale that structure rather than adding new mechanical axes.
+An Active's **exact current catalogue table** establishes its identity across PL 1–16. A Direct Damage Attack, a Single-Target Special-only Attack, and an AoE Special-only Attack are separate Power families. Do not create retired Damage-plus-Special hybrids or use a historical Level 4 "Damage Anchor" to fill leftover PP.
 
-For Special-first Actives, Levels 1-4 establish the damage/Special identity; later levels scale the Special first and preserve the Damage Anchor.
+Likewise, no new effect axis is silently added to an Active Buff or Passive. **Combined Active Buffs and Combined Passives are not selectable** in the current v0.9.9.6 Core. Higher PL scales only legal existing effects unless a dedicated table expressly says otherwise.
 
-A Power should become **more itself** as it advances, not turn into a different Power because unused PP appeared.
+### 7.6 Monotonicity – never reduce a paid axis
 
-### 7.6 Monotonicity
+Within a progression, **no paid axis may ever decrease** at a higher Power Level: not damage, not Radius, not Range, not targets, not Special value. A Power must never trade a smaller Radius for more damage, or less damage for a larger Radius, because the points no longer suffice.
 
-Within a progression, a paid axis may remain the same or improve. It should not decrease merely to make room for a different axis unless a dedicated entry explicitly defines such a trade.
+When refilling rows, compute each level's maximum and then take the running minimum from the top level downward, so that no later level falls below an earlier one. This is why some AoE rows below a Radius increase intentionally keep unused PP (for example Melee AoE Attack PL 8–12 and Ranged AoE Attack PL 6–13).
 
 ### 7.7 No filler requirement
 
@@ -356,12 +365,11 @@ Do not reverse-engineer a different progression simply because a generic price w
 
 This section contains the most reusable current cost structures. They are valid only in the contexts stated.
 
-### 8.1 Active damage and healing
+### 8.1 Active direct damage and HP healing
 
-For normal Active construction:
+For the normal **Damage Attack** construction, **+1d8 Power Damage = 15 PP** unless the exact entry uses a dedicated different price (e.g., Damage Transfer or Mental subsystems).
 
-- **+1d8 Damage = 15 PP**
-- **+1d8 Healing = 15 PP**
+**Do not generate generic HP Healing Actives from this price.** The v0.9.9.6 Actives catalogue removed former pure HP Heal Actives. Ordinary HP Healing belongs to **Resolve Ability: Healing** under Stones. **Restoration** is a separate Active that reopens Scarred Health Bars **at full HP**, with a finite pool per Safe Haven Rest.
 
 ### 8.2 Ranged Active Range
 
@@ -397,8 +405,7 @@ Current base groups:
 
 | Base | Specials |
 |---:|---|
-| 2 PP | Exorcism, Requiem |
-| 3 PP | Blight |
+| 3 PP | Blight *(Timed: X is remaining affected Turns, not a Diminishing stack)* |
 | 4 PP | Lacerate, Mark, Ruin, Slow |
 | 6 PP | Corrode, Hex, Sundered; Root uses this price but its own recovery rules |
 | 8 PP | Expose |
@@ -412,7 +419,7 @@ The printed X values in exact catalogue entries are authoritative. These formula
 
 Example:
 
-`Blight(8) = 3 x T(8) = 3 x 36 = 108 PP`
+`Blight(8) = 3 x T(8) = 3 x 36 = 108 PP` (catalogue design price; Blight duration does **not** add as Diminishing stacks)
 
 `Weaken(2) = 8 x T(4) = 8 x 10 = 80 PP`
 
@@ -457,320 +464,157 @@ This table applies only to **instant Attack AoEs**:
 
 8 m is the normal maximum for standard player Attack Powers.
 
-Do not reuse this table for Persistent Zones, Active Buff Auras, Passive Special Auras, Artifact Armor Auras, Images, Barriers, or other dedicated area systems.
+This table is used for:
+
+- **instant Attack AoEs** (Damage and Special-only);
+- **Support AoEs** (AoE Cleanse and AoE Restoration);
+- the **Radius of Ranged Barrier** (inside its own Barrier formula);
+- **Protective Auras** (Active Buffs, Section 10.4).
+
+Do not reuse it for **Persistent Zones**, **Special Auras**, Power Images or other dedicated area systems; those use their printed values.
 
 ### 8.7 Fixed control costs
 
-Current Active control reference includes:
+The **current printed pure Push/Pull Active** uses **30 PP per 2 m** of forced movement before any legal Ranged cost.
 
-- Push / Pull: **30 PP per 2 m**
-- Prone: **60 PP fixed**
-- Disarm: **60 PP fixed**
-- Stunned: **120 PP fixed**
-
-Binary or fixed control does not automatically scale merely because Power Level rises. Later levels need another already-legal axis or may intentionally underspend.
+Earlier framework references to **Prone (60 PP), Disarm (60 PP) and Stunned (120 PP)** are historical design prices. They do **not** create current selectable Active Powers on their own; the v0.9.9.6 Actives catalogue does not contain matching standard Prone/Disarm/Stunned attack tables. Any legacy Foundry templates combining those effects require a separate catalogue source or explicit redesign decision.
 
 ---
 
 ## 9. Active Power Construction
 
-Actives consume an Attack Action and are the primary catalogue for direct attacks, support effects, zones, barriers, images, control, and mental effects.
+Active target budget = **30 PP × Power Level**. Use only an exact legal entry in the v0.9.9.6 Actives catalogue. Printed level rows, including exceptions, control availability, Range and Radius, govern over generic reverse engineering.
 
-### 9.1 Standard direct Active workflow
+### 9.1 Core attack families and construction order
 
-For a normal direct Active:
+The player-facing order is:
 
-1. Determine PL and target PP (`30 x PL`).
-2. Choose one legal catalogue structure.
-3. Add the exact costs for Range, area, damage/healing, Special, control, or target structure allowed by that entry.
-4. Preserve the entry's identity across levels.
-5. Leave PP unused when the next legal improvement would distort the template.
-6. Record the arithmetic in the technical tooltip or audit block.
+1. **Damage Attacks:** Melee/Ranged Single Target; Melee/Ranged AoE; Melee/Ranged Split Attack; Ranged Autofire.
+2. **Special-only Attacks:** Melee/Ranged Single Target and Melee/Ranged AoE for each of the fourteen catalogue Specials.
+3. **Limited Damage Powers**, **Damage Transfer**, and pure **Push/Pull** (dedicated offensive mechanics with their own limits).
+4. **Support:** Single-Target and AoE Cleanse/Restoration.
+5. **Mental utility:** Mind Illusion, Mind Probe, Mental Control; **no Mental Attack/Mental Damage Active**.
+6. **Constructs, Barriers, Power Images**.
+7. **Ranged Persistent Special Zones**, at the end of the document.
 
-### 9.2 Special-first attacks
+For an exact entry: read its PL row; account for legal damage, Range and AoE geometry as needed; preserve the exact Technical Reference; record every relevant PP component and any unspent PP in the information tooltip. Never substitute a generic default Special for the selected `specialKey`.
 
-Special-first Martial Actives treat the Special as the primary scaling axis.
+### 9.2 Direct Special-only attacks
 
-Levels 1-4 establish the baseline. From Level 5 onward:
+Every printed Special has **four distinct attack profiles**: Melee Single Target, Ranged Single Target, Melee AoE, Ranged AoE. Each is an independently learnable technical Power. The previously mixed `Damage + Special` families are **not** catalogue entries and must not be regenerated.
 
-- Level 4 damage becomes the **Damage Anchor**;
-- increase the Special whenever the budget permits;
-- increase damage only when doing so does not delay or block the next Special increase;
-- damage and Special never decrease;
-- unused PP may remain unused.
+A successful Special-only hit applies its printed Special but **zero direct Attack Damage**. No Power Damage, Weapon Damage, Spell Focus Damage, external Attack Damage bonus, Damage Raise or direct Damage Roll. The Special may cause damage later under its own rule (currently Ruin tick, etc.). Special Raises remain legal on successful rolled attacks.
 
-This prevents a control/debuff Power from becoming a generic damage Power at higher PL.
+Use **per-Special** printed PL1–16 ranks, not a common tier rank. Example controls from the current v0.9.9.6 catalogue:
 
-### 9.3 AoE attacks
+| Power | PL | Printed payload |
+|---|---:|---|
+| Melee Single Target Special: Blight | 4 | Blight(8) |
+| Melee Single Target Special: Ruin | 4 | Ruin(7) |
+| Ranged Single Target Special: Ruin | 4 | Ruin(6) |
+| Melee Single Target Special: Sundered | 4 | Sundered(5) |
+| Melee Single Target Special: Sundered | 16 | Sundered(12) |
+| Ranged Single Target Special: Sundered | 16 | Sundered(11) |
 
-A Martial AoE Active uses one Attack Roll for the area and compares the same final result separately against each valid creature's Evade.
+### 9.3 Instant AoE attacks
 
-Each creature resolves its own legal defenses. Every creature that remains hit receives the **full printed payload**.
+A Martial AoE uses one Attack Roll, checked separately against eligible creatures' Evade; a Spell AoE uses one Casting Roll checked separately against each Final Spell TN. **Instant AoEs may exclude any creatures; allies are excluded by default.** The same valid payload goes to each hit target.
 
-That means full weapon damage, full Power damage, full Special values, and legal offensive riders are not divided merely because the Power is an AoE.
+- **Damage AoE:** one shared Damage Roll includes the purchased Power Damage and matching Weapon Damage (Martial) or Spell Focus Damage (Spell) **once**. Each successful target resolves its own mitigation.
+- **Special-only AoE:** no direct Damage Roll or delivery damage, but the printed Special is applied separately to each successful target.
+- The radius tax uses the **instant Attack AoE table** in Section 8.6. For printed numeric Special ranks, use the exact special-cost rule and full catalogue row; do not invent a generic AoE Special multiplier.
 
-The Radius cost is the coverage tax.
+### 9.4 Ranged Persistent Special Zones – fixed rules, no PP formula
 
-For an AoE numeric Special:
+Persistent Zones are **Ranged only**: no Melee Zone variant exists. They occupy a fixed point within the printed Range, **do not follow the creator**, and remain active only while the creator pays **one Attack Action per Zone at the start of every subsequent creator Turn**. Creation costs one Attack Action.
 
-> **AoE Special Cost = normal Special Cost**
-
-There is no additional generic halving or multiplier for an instant Attack AoE Special.
-
-### 9.4 Persistent Diminishing Zones
-
-Standard ranged Persistent Diminishing Zones:
-
-- are placed at a point within Range;
-- stay in place while maintained (1 Attack Action per maintained Zone at the start of each subsequent Turn);
-- make no Attack Roll;
-- normally deal no damage;
-- affect a creature when the zone appears on it, when it enters the zone for the first time in a Round, or when it starts its Turn inside;
-- affect the same creature from the same zone at most once per Round;
-- affect every occupying creature, including the creator and allies.
-
-**PP status: pending recalibration.** The former 4-Round duration with a **x2 multiplier** no longer matches the maintained-Zone rule in Actives v0.9.9.6. The formula below is the historical pricing model; the printed Zone tables are unchanged and need a separate recalibration.
-
-> **Final Cost = Range Cost + [(Radius Cost + AoE Special Cost) x 2]**
-
-For these Persistent Zones:
-
-> **Persistent AoE Special(X) = Base Cost x T(X + 1)**
-
-For pool-reduction Specials in Persistent Zones:
-
-- `Challenge(1)` uses `6 x T(2)`; at X 2+, use `6 x T(2X + 1)`.
-- `Disoriented(1)`, `Soulburn(1)`, and `Weaken(1)` use `8 x T(2)`; at X 2+, use `8 x T(2X + 1)`.
-
-`Expose` remains on the normal `8 x T(X + 1)` Persistent Zone progression.
-
-Current Persistent Zone Radius costs are subsystem-specific:
-
-| Radius | PP |
-|---:|---:|
-| 2 m | 20 |
-| 3 m | 50 |
-| 4 m | 90 |
-| 5 m | 140 |
-| 6 m | 200 |
-
-**Important:** repeated application of a Diminishing Special follows the current Core stacking rules unless the exact entry says otherwise. A later Round's legal zone application can therefore add new stacks, subject to the zone's once-per-creature-per-Round rule. Each new Ruin application also deals immediate damage (see 14.7).
+- No fixed four-Round duration. The old four-Round **×2 duration-cost formula is retired** and must not be used.
+- No Attack/Casting Roll, no Spell Resistance check on occupancy, no Damage Roll, and no Raises. Apply the printed Special automatically on creation, on first entry in a Round, or at a qualifying target Turn start.
+- **Once per distinct Zone / creature / combat Round**. Every creature inside is affected, **including creator, allies, neutrals, Summons and enemies**.
+- At a creature's Turn start: resolve ticks of existing Specials, Natural Special Recovery and decay first; only then apply any eligible Zone/Aura payload.
+- **Root is not a legal Persistent Zone Special.**
+- **The printed Zone values are authoritative.** By design decision there is **no PP formula** for Zones; do not invent one, and do not present Zone rows as derived from the Active curve.
 
 ### 9.5 Player Split Attack
 
-A player `Split Attack` divides **accuracy** (Attack Pool or Casting Pool) between different targets. It does **not** divide damage.
+A player Split Attack divides the Attack Pool (Martial) or Casting Pool (Spell) **for accuracy**, not the Damage Pool. Each successful split deals the **full matching Weapon/Spell Focus Damage plus full printed Power Damage**. One Power use, one shared Raise declaration and allocation, separately resolved splits, different targets.
 
-- Split the Attack/Casting Pool between targets before rolling.
-- Resolve each split separately against Evade / Final Spell TN.
-- Each successful split deals the Power's **full** Damage Pool and payload (Martial: full weapon + power bonus; Spell: full spell damage + legal Spell Focus).
-- A target normally cannot be selected more than once by the same Split Attack.
+- Target capacity: **2 targets at PL 1–6, 3 at PL 7–12, 4 at PL 13–16**.
+- Price: **30 PP per additional target**, 15 PP per bonus d8, plus Range for the Ranged version.
 
-Target capacity costs:
+### 9.6 Split AoE – not a current generative template
 
-> **30 PP per additional attack/target beyond the first**
+The v0.9.9.6 Actives catalogue does **not** provide a standard selectable `Split AoE` catalogue entry. Do not generate it or price it through this framework. A specifically authored Artifact or future dedicated entry would require its own written mechanics and balancing review.
 
-Flexibility costs accuracy per target; a successful hit still carries full force.
+### 9.7 Ranged Autofire
 
-### 9.6 Split AoE
+Autofire is a stepped sequence of **attacks, not AoE**. Declare up to the printed Attack Capacity; the same creature may appear repeatedly. All declared slots are within Range and each successive target is within 4 m of the preceding slot. Resolve **one shared Attack/Casting Roll** against each ordered slot's TN:
 
-**Not part of the current Actives catalogue.** Historical model only:
+> **TN(slot i) = target's Evade or Final Spell TN + 4 × (i−1) + 4 × declared Paid Raises**
 
-- split the Attack Pool between placements;
-- resolve each placement separately;
-- roll one total Damage Pool;
-- divide that Damage Pool between successful placements;
-- overlapping placements do not multiply damage against the same creature unless an exact entry explicitly says otherwise.
+A miss/resisted slot ends the chain. Cumulative +4 steps are not Paid Raises. Each prior success is a **separate full-damage hit** even against a repeat target; make one shared Damage Roll and reuse the result per successful hit, with independent defenses. Dive for Cover is unavailable. Each extra attack slot beyond the first costs **30 PP** per its dedicated table.
 
-### 9.7 Autofire
+### 9.8 Support Actives – Cleanse and Scarred-Bar Restoration
 
-Autofire is a ranged **stepped attack chain** (not AoE):
+- **Cleanse(X)** = **4 × T(X) PP**, plus Range and AoE radius (Section 8.6) where the entry has them. Direct Support Cleanse may distribute its value across eligible Specials on each affected creature.
+- **Restoration** restores a **Scarred Health Bar at full HP**: **40 PP per Bar**, plus Range and AoE radius (Section 8.6). Each acquired Restoration Power has **one shared pool per Safe Haven Rest**; AoE Restoration distributes that pool among recipients.
+- **HP Healing** is supplied by Resolve Stone Ability: Healing and Damage Transfer, not by a generic Healing Active.
+- Artifact **Moonlight Mending** is a Ranged Single Target Restoration (Scarred Bars), consistent with this section.
 
-- declare ordered **attack slots** up to Attack Capacity (same creature may repeat);
-- every slot after the first must be within 4 m of the preceding slot's target and inside Range;
-- one Attack/Casting Roll;
-- TN(i) = Defense(i) + 4×(i−1) + 4×Paid Raises (steps are not Paid Raises);
-- the first miss ends the chain; earlier hits remain;
-- one shared Damage Roll (Weapon or Spell Focus + Power dice) reused per successful slot as a separate hit;
-- Dive for Cover is not available against Autofire under the current catalogue rule.
+### 9.9 Barriers, Images and Damage Transfer
 
-Attack Capacity costs:
+- **Ranged Barrier** (4 Rounds): **Range + 2 × (Radius cost + Barrier HP)**, Barrier HP 1 PP each, Radius from Section 8.6.
+- **Power Images** and illusions use qualitative milestones (Image size and tier) and printed values; no generic PP curve.
+- **Damage Transfer** is a dedicated attack family at **25 PP per purchased +1d8** plus Range; healing equals HP actually removed, limited to the current Health Bar. It has no separate Healing Roll.
 
-> **30 PP per additional attack slot after the first**
+### 9.10 Mental powers
 
-### 9.8 Support Actives
-
-Cleanse, Scarred-Bar Restoration and their approved structures use their own exact catalogue entries. Ordinary HP healing is provided by Resolve Ability: Healing, not by an Active.
-
-Do not assume that a healing Power can add damage, control, or unrelated utility because budget remains.
-
-Scarred-Bar Restoration is a scarce recovery axis and costs **40 PP per restorable Scarred Bar per Safe Haven Rest** in the current Active catalogue. It is not interchangeable with ordinary HP healing.
-
-### 9.9 Barriers, Images, and terrain
-
-Barriers, Walls, Power Images, Illusion Fields, and construct-style Actives have dedicated formulas for Range, field size, duration, durability, sensory layers, and similar geometry.
-
-They are not built from the instant Attack AoE table.
-
-Use the exact catalogue entry rather than inventing a generic `area + duration` multiplier.
-
-### 9.10 Mental Powers
-
-Mental Powers are dedicated Actives, not generic Spell reskins.
-
-The current mental catalogue contains:
-
-- Mind Illusion;
-- Mind Probe;
-- Mental Control.
-
-Most require Telepathic Access. Their fixed TN, Armor interaction, later checks, and restrictions are defined by the exact entry.
-
-Do not derive Mental Control or Mind Illusion from generic damage/Special math.
+**Mind Illusion, Mind Probe and Mental Control** use their exact Mental TN, Telepathic Access and qualitative per-Level milestones. They have **no PP formula**; their printed rows govern. **Mental Attack / Mental Damage is retired.** Do not repurpose Mental Control or Mind Illusion as damage attacks.
 
 ---
 
 ## 10. Active Buff Construction
 
-Active Buffs are maintained temporary combat states.
+Active Buff budget reference: **30 PP × PL + 10 PP**, subject to the exact current Active Buff catalogue and its dedicated exceptions.
 
-Normal rules:
+### 10.1 Preparation activation and limit
 
-- activation normally costs 1 Attack Action;
-- duration is normally **Mastery Rank Rounds**;
-- the activation Round counts as the first Round;
-- a character normally maintains only one Active Buff;
-- activating another ends the previous one unless an explicit exception says otherwise.
+- **Activate during Preparation**, at **no Attack Action or Stone cost**; activation cannot occur during an ordinary Turn.
+- **Each named Active Buff may be activated once per Combat**. Its effects last **MR complete Rounds**, counting the activation Round as the first.
+- **Maintain only one Active Buff at a time.** A still-unused Buff may replace it during a later Preparation Phase.
+- Round-based resources refresh at their printed Preparation timing.
+- **Combined Active Buffs are not selectable.**
 
-### 10.1 Structure
+### 10.2 Dedicated buffs and closed subsystems
 
-A standard Active Buff is either:
+Use the exact catalogue rows. The Self Buffs **Armor, Evade and Spell Resistance** grant **+2 per PL** (15 PP per point; the +10 PP Buff premium stays unused). Closed subsystem Buffs (Damage Reduction, Phasing, Damage Negation Pool, Parry Recovery, Absorption Stone Increase, Critical, Maximization and others) follow their dedicated milestones. No filler, extra Attack Actions, hidden Reactions or Movement.
 
-- **Pure:** exactly one mechanical axis; or
-- **Combination:** exactly two approved axes sharing one budget.
+### 10.3 Fourteen Special Auras
 
-Levels 1-4 define the structure. Levels 5-16 scale that same structure.
+Fourteen catalogued **Special Auras** are Active Buffs: Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken.
 
-### 10.2 Standard Active Buff axis prices
+- Self-centered and moving with the caster.
+- Applies the printed Special automatically on activation, first entry or start of Turn, at most **once per Aura/creature/combat Round**.
+- The **caster alone is exempt**; allies, enemies, neutrals and Summons are affected.
+- No Attack Roll, Casting Roll, direct Damage Roll, Spell Resistance occupancy check or Raises.
+- Printed values govern; the Instant AoE table is not used.
 
-| Axis | Price | Notes |
-|---|---:|---|
-| Armor | 7.5 PP per +1 Armor | standard self-defense |
-| Evade | 15 PP per +1 Evade | standard self-defense |
-| Refreshing Temporary HP | 4 PP per 1 HP | restored to listed value at start of Turn while Buff lasts |
-| Healing / Regeneration | 4 PP per 1 HP | start-of-Turn real HP recovery |
-| Damage | 15 PP per +1d8 | qualifying own attacks only |
-| Penetration | 7.5 PP per Penetration(1) | Armor bypass only |
+### 10.4 Three Protective Auras
 
-Approved standard combinations currently include:
+There are exactly three **Protective Auras**: **Armor Aura, Evade Aura and Spell Resistance Aura**. No Damage, Critical or other offensive Aura exists, and closed premium defenses (Damage Reduction, Phasing, Damage Negation) are never offered as Auras.
 
-- Armor + Temporary HP;
-- Evade + Temporary HP;
-- Temporary HP + Healing;
-- Armor + Evade;
-- Damage + Penetration.
-
-The full budget is shared between both axes.
-
-### 10.3 Standard restrictions
-
-A standard Active Buff may not grant:
-
-- Attack Dice;
-- Extra Attacks;
-- free Attack Actions;
-- additional Reactions;
-- Special Application;
-- hard control;
-- hidden Movement Powers;
-- unrelated secondary effects.
-
-### 10.4 Critical
-
-Critical is closed.
-
-Direct Critical access is limited to:
-
-1. `Active Buff: Critical`; and
-2. the dedicated `Agility Ability: Crit` Stone Power.
-
-`Active Buff: Critical` milestones:
-
-| PL band | Effect |
-|---|---|
-| 1-3 | no effect |
-| 4-7 | Critical(1) |
-| 8-11 | Critical(2) |
-| 12-14 | Critical(3) |
-| 15-16 | Critical(4) |
-
-Unused PP inside a milestone band remains unused. Do not fill it with damage, Penetration, Specials, defense, or Attack Dice.
-
-### 10.5 Special Increase
-
-Standard Active Buffs do not apply Specials.
-
-The dedicated `Active Buff: Special Increase + [chosen Special]` may increase an **already existing** eligible numeric Special. It does not create the Special on an unaffected target.
-
-Current milestone structure:
-
-| PL band | Normal eligible Special | Challenge / Disoriented / Soulburn / Weaken |
-|---|---:|---:|
-| 1-3 | none | none |
-| 4-7 | +1 | +1 |
-| 8-11 | +2 | +1 |
-| 12-14 | +3 | +2 |
-| 15-16 | +4 | +2 |
-
-This is a pressure amplifier, not a Special-delivery engine. Pool-reduction variants use the compressed column.
-
-### 10.6 Dedicated subsystem Buffs
-
-The current catalogue contains dedicated subsystem entries including:
-
-- Active Buff: Damage Reduction
-- Active Buff: Phasing
-- Active Buff: Critical
-- Active Buff: Special Increase
-- Active Buff: Spell Resistance
-- Active Buff: Self Cleanse
-- Active Buff: Damage Aura
-- Active Buff: Healing Aura
-- Active Buff: Size + Damage + Armor
-- Active Buff: Summon Damage Aura
-- Active Buff: Summon Armor Aura
-- Active Buff: Thorns
-- Active Buff: Invisibility
-- Active Buff: Parry Recovery
-- Active Buff: Absorption Stone Increase
-- Active Buff: Damage Negation Pool
-
-`Active Buff: Parry Recovery` restores up to **1 Parry per Power Level per Round**, never above the Parry Pool with which the character entered Parry that Turn.
-
-These fixed structures are not permission to generalize their mechanics into new combination axes.
-
-### 10.7 Damage and Healing Auras
-
-The standard self-centered Damage/Healing Aura subsystem triggers once at the end of each of the user's Turns. The same creature can be affected by the same aura only once per Round.
-
-Radius bands:
-
-| PL band | Radius | Radius cost |
-|---|---:|---:|
-| 1-7 | 2 m | 20 PP |
-| 8-14 | 3 m | 50 PP |
-| 15-16 | 4 m | 90 PP |
-
-> **Payload Budget = Active Buff target PP - Radius Cost**
-
-Damage Aura payload costs **35 PP per +1d8 damage**. Healing Aura payload costs **35 PP per +1d8 healing**. Do not reuse these radius costs or payload prices for unrelated aura systems such as Artifact Armor Aura.
+- Active Buff; once per Combat; occupies the one Buff slot; lasts MR complete Rounds; moves with the caster.
+- Affects **the caster and every ally inside the radius**; never enemies.
+- **No stacking:** a creature benefits from only **one Active Buff bonus to the same value**. Compare its own Active Buff and every Protective Aura it is inside; only the highest applies. Passives, Stones, Reactions, equipment and Artifacts stay separate sources.
+- **Price:** Radius (Section 8.6: 2 m = 20 PP at PL 1–8, 3 m = 50 PP at PL 9–16) + **10 PP ally premium** + **15 PP per +1** of the value, filled to target + 5 PP.
+- Resulting value: **+(2 × PL − 1)** at PL 1–8 and **+(2 × PL − 3)** at PL 9–16 (PL 4: +7; PL 16: +29).
+- Tuning lever if playtests show excess strength: raise the ally premium (+15 PP lowers each row by 1).
 
 ---
 
 ## 11. Passive Construction
 
-Passives are reliable prepared parts of a character's combat identity.
-
-They require no Action, Movement, Reaction, or activation roll while slotted, unless their exact entry states a condition or subsystem trigger.
+Passive target budget reference: **20 PP × PL**, subject to the exact, current dedicated Passive catalogue. Passives occupy the listed Passive Slots and grant always-on effects while legally slotted; they do not cost an Attack Action or Reaction to activate, unless their exact effect states a distinct trigger.
 
 ### 11.1 Passive Slots
 
@@ -785,133 +629,25 @@ They require no Action, Movement, Reaction, or activation roll while slotted, un
 | 7 | 5 |
 | 8 | 6 |
 
-Every slotted Passive is active. There is no separate prepared-but-inactive state.
+### 11.2 Categories and availability
 
-### 11.2 Categories
+Core v0.9.9.6 describes **28 current named Passives**, each in **exactly one mechanical Passive Category**. **Combined Passives are not available.** Offensive/Defensive/Utility selection groups are UI labels, not categories for stacking or eligibility.
 
-A Pure Passive belongs to exactly one category. A Combined Passive belongs to exactly two approved categories and counts as both for loadout and duplication rules.
+Relevant current mechanical names include Armor, Evade, Health, Fortitude, Temporary HP, Parry, Damage Negation, Damage, Armor Reduction, Critical, Maximization, Enemy Evade Reduction, Spell Resistance Piercing, Special Amplification, Self Cleanse, Regeneration and Speed. The **exact Passive catalogue** (not the outdated historical name list) determines which entries and formulas exist.
 
-Current categories:
+**Health** adds Bars, while **Fortitude** increases Bar capacity; both share the Health category and cannot be slotted together. **Passive: Regeneration** handles its own Scarred-Bar recovery. Do not substitute the retired generic `Passive: Healing` name or assume per-Turn HP Healing.
 
-- Armor
-- Damage Reduction
-- Evade
-- Damage
-- Health
-- Temporary HP
-- Healing
-- Telepathy
-- Phasing
-- Special Aura
-- Special Negation
-- Initiative
-- Invisibility
-- Parry
-- Absorption
-- Damage Negation
-- Summon
+### 11.3 Pricing and subsystem boundaries
 
-A character cannot normally benefit from two active Passives using the same category.
+Older generic Armor/Evade/Damage, Conditional and Combined-Passive heuristics in earlier frameworks are **not a license to generate new entries**. Use printed PL1–16 milestones and exact category restrictions. Particularly closed subsystem effects (Damage Reduction, Phasing, Special Negation, Damage Negation, Parry, Absorption, Invisibility and similar) cannot be added as discount riders.
 
-### 11.3 Standard unconditional baselines
+### 11.4 Special support
 
-Current common catalogue prices include:
+Current rules distinguish **Passive: Special Amplification** (adds to its owner's attack-applied numeric Specials), **Passive: Special Aura** (increases the effective value of one chosen existing diminishing Special on creatures inside its radius by +1; it never applies a Special), **Intellect Stone Ability: Special Boost**, and the **Special Increase Raise effect**. Auras that *apply* Specials are Active Buffs (Section 10.3).
 
-| Axis | Price |
-|---|---:|
-| Armor | 15 PP per +1 Armor |
-| Evade | 20 PP per +1 Evade |
-| Damage | 40 PP per +1d8 Damage |
-| Healing / Regeneration | 8 PP per 1 HP |
+### 11.5 Combat Senses
 
-Temporary HP, Health Bars, and Combined Passives follow their exact catalogue tables rather than a single universal pure-axis formula.
-
-### 11.4 Conditional Passives
-
-Conditional Passives use only approved, meaningful combat conditions and their exact catalogue baselines.
-
-Current common conditional prices include:
-
-| Axis | Conditional price |
-|---|---:|
-| Armor | 7.5 PP per +1 Armor |
-| Evade | 15 PP per +1 Evade |
-| Damage | 20 PP per +1d8 Damage |
-| Healing | 4 PP per 1 HP |
-
-Examples of meaningful conditions include moving at least 8 m, moving 0 m, adjacency requirements, the target being unable to perceive the character, being Wounded or worse, or being affected by a defined drawback.
-
-There is **no generic percentage discount system** for inventing new conditions. Do not apply arbitrary x0.95, x0.90, x0.80, or similar multipliers.
-
-Use an approved catalogue condition or create a new condition only through explicit design review.
-
-### 11.5 Combined Passives
-
-**Combined Passives are not available in the current release** (Core v0.9.9.5). This section is kept as the historical model.
-
-A Combined Passive:
-
-- combines exactly two approved categories;
-- occupies one Passive Slot;
-- counts as both categories;
-- uses one Passive budget;
-- may not hide a third axis;
-- may not casually include a closed subsystem.
-
-For conditional Combined Passives, current half-budget baselines include:
-
-- Armor: 7.5 PP per +1 Armor;
-- Evade: 15 PP per +1 Evade;
-- Damage: 20 PP per +1d8 Damage;
-- Healing: 4 PP per 1 HP;
-- Temporary HP: 2 PP per 1 start-of-combat Temporary HP;
-- Health: milestone structural progression.
-
-### 11.6 Special Aura
-
-`Passive: Special Aura + [chosen Special]` is the standard Passive way to interact with an existing Special.
-
-It:
-
-- grants exactly **+1 step** to one chosen eligible Special(X);
-- affects only creatures already affected by that Special;
-- never applies, refreshes, extends, spreads, triggers, or maintains the Special;
-- ends its +1 immediately when the affected creature leaves the aura;
-- does not stack with another Special Aura increasing the same Special; only the strongest applies.
-
-Core cost:
-
-> **80 PP + Radius Cost**
-
-Current radius table:
-
-| Radius | PP |
-|---:|---:|
-| 2 m | 0 |
-| 3 m | 20 |
-| 4 m | 40 |
-| 5 m | 60 |
-| 6 m | 100 |
-| 7 m | 160 |
-| 8 m | 240 |
-
-The +1 Special increase never grows to +2 or more through normal Passive Special Aura scaling. Higher PL buys coverage.
-
-### 11.7 Dedicated Passive subsystems
-
-Damage Reduction, Phasing, Special Negation, Initiative, Invisibility, Parry, Absorption, Damage Negation, Summon, and other exact dedicated entries follow their own progression.
-
-For `Passive: Parry`, the current maximum Parry Pool is `ceil(5 x Power Level / 2)`, capped naturally by the chosen Parry Attribute. The Level 4 / 8 / 12 / 16 caps are 10 / 20 / 30 / 40.
-
-Unused PP in a milestone subsystem may remain unused.
-
-Do not add premium subsystem mechanics as riders to unrelated Passives.
-
-### 11.8 Combat Senses
-
-Combat Senses are governed by the Core Sense Slot and are **not Passive Powers**.
-
-Do not create generic Awareness/Heightened Senses Passives or treat additional Sense Options as a normal Passive budget axis.
+Combat Senses use their separate Core Sense Slot system and are **not** generic Passive Powers. Do not invent a universal `Passive: Awareness` or bundle extra Combat Senses into a standard Passive PP formula.
 
 ---
 
@@ -924,7 +660,10 @@ Normal rules:
 - using one consumes 1 Reaction;
 - a character normally has 1 Reaction per Round;
 - a Reaction applies only to its triggering attack, hit, damage instance, effect, ally, or movement event unless the exact entry says otherwise;
-- Reaction effects normally do not create maintained states.
+- Reaction effects normally do not create maintained states;
+- Reaction Temporary HP protects only its triggering damage instance.
+
+**Basic Reactions** available without a purchase are only **Guard** (+MR × 2 Armor against the triggering hit or damage) and **Dive for Cover**. There is **no Basic Evade Reaction**; Evade as a Reaction requires `Reaction: Evade`.
 
 ### 12.1 Trigger identity
 
@@ -935,11 +674,9 @@ A Reaction consists of:
 
 Choosing a different Trigger does not normally create another copy of the same Reaction Effect.
 
-Duplicate sources do not stack or grant additional uses.
+Duplicate Reaction Effects do not stack and grant no additional uses; use only the highest available version. An extra Reaction is never created by owning a duplicate.
 
 ### 12.2 Standard Reaction pricing
-
-Current reusable Reaction prices include:
 
 | Axis | Price |
 |---|---:|
@@ -951,6 +688,8 @@ Current reusable Reaction prices include:
 | Counter Push | 20 PP per 2 m, maximum 8 m |
 | Initiative | 10 PP per +1 Initiative |
 | Cleanse | 4 x T(X), one triggering Special only |
+
+The +5 PP tolerance (Section 3.3) applies; Reaction: Cleanse uses it at PL 4, 7 and 13.
 
 ### 12.3 Counter Effects
 
@@ -979,31 +718,13 @@ Current milestones:
 
 This is normal legal movement, not Teleport, not Evade, and not automatic Safe Movement.
 
-### 12.5 Reaction: Special Increase
+### 12.5 Current Reaction catalogue
 
-This Reaction increases one already existing chosen Special on the triggering creature. It never applies the Special itself.
-
-Current milestones:
-
-- PL 1-3: none
-- PL 4-7: +1 for all eligible Specials
-- PL 8-15: +2 normally; +1 for Challenge, Disoriented, Soulburn, or Weaken
-- PL 16: +3 normally; +2 for Challenge, Disoriented, Soulburn, or Weaken
-
-No filler is added inside milestone bands.
+Armor, Evade, Temporary HP; Ally Armor, Ally Evade, Ally Temporary HP; Reposition; Cleanse; Damage Reduction; Phasing; Damage; Damage + Push; Initiative; Parry + Weapon Damage; Parry + Attack Reflection; Absorption Surge. There is **no Reaction that applies or increases a Special**; the former `Reaction: Special Increase` is not part of the current catalogue.
 
 ### 12.6 Closed Reaction subsystems
 
-The following current entries are dedicated systems and are not generic construction axes:
-
-- Reaction: Damage Reduction
-- Reaction: Phasing
-- Reaction: Initiative
-- Reaction: Parry + Weapon Damage
-- Reaction: Parry + Attack Reflection
-- Reaction: Absorption Damage Multiplier
-
-Use the exact catalogue progression.
+Reaction: Damage Reduction, Phasing, Initiative, Parry + Weapon Damage, Parry + Attack Reflection and Absorption Surge use their exact milestones and requirements. Unused PP inside milestone bands stays unused. Trigger alternatives do not create a new Reaction Effect or extra Reaction use.
 
 ---
 
@@ -1015,7 +736,7 @@ There is no universal `PP per meter` rule that can safely generate every Movemen
 
 Movement value depends on what geometry and threat rules the movement bypasses.
 
-### 13.1 Current standard families and caps
+### 13.1 Movement families and caps (verified 2026-11-23)
 
 | Movement Power | Current cap / structure |
 |---|---|
@@ -1057,102 +778,71 @@ Trample is a dedicated catalogue exception, not a general permission to attach d
 
 Specials are one of the primary tactical languages of Destroyed Faith. Their mathematical cost and their runtime stacking rules must both be respected.
 
-### 14.1 Effect classes
+### 14.1 Effect classes and the Blight exception
 
-Current Core distinguishes structures such as:
+- **Diminishing:** numerical points normally stack, tick if applicable, receive eligible Natural Special Recovery, then decay by 1.
+- **Timed:** repeated applications do **not** add their durations unless expressly stated. **Blight(X) is Timed** in Core v0.9.9.6; X is affected Turns remaining. Blight imposes Disadvantage on every Attribute-based pool, counts down at the **end** of the affected creature's Turn, uses no Natural Special Recovery, and on reapplication keeps the higher remaining duration.
+- **Until Broken / Until Used:** resolve the exact break/use conditions. **Root** has its own MR reduction and optional break check; it is not normal Diminishing decay.
+- **Instant:** effect resolves immediately without a maintained stack unless stated otherwise.
 
-- **Diminishing (X -> 0)**;
-- **Timed**;
-- **Until Broken / Until Used**;
-- **Instant**.
+### 14.2 Diminishing application and stacking
 
-Do not apply Diminishing behavior to an effect from another class unless its entry says so.
+A surviving incoming numeric Special is:
 
-### 14.2 Diminishing stacking
+> **Printed X + eligible after-roll Special Raises + eligible Stone Special Boost + applicable attacker's Passive Special Amplification + target Vulnerability − target Special Negation**
 
-Reapplying the same Diminishing Special normally adds new points to the existing stack unless that Special says otherwise.
+Apply the surviving value under that Special's own rule. Diminishing applications usually add the new points to existing stacks; distinct sources and repeat applications work unless a named exception restricts them. Reaction/defense timing and the target's special-specific protections still apply.
 
-### 14.3 Special Application Limit
+### 14.3 No global Special Application Limit
 
-**There is no per-Round 4 x MR Special Application Limit** in the current Core. All surviving Special points (after Special Negation) are applied according to that Special's own stacking, timing and duration rules.
+**Core v0.9.9.6 explicitly removed the former `4 × target MR` maximum for newly applied Diminishing points per Round.** It is neither an application cap nor a stack cap. Do **not** reintroduce it in Foundry, tooltip math, test fixtures, Zone logic, or audit formulas.
 
 ### 14.4 Start-of-Turn order
 
-For eligible negative Diminishing Specials:
+For existing eligible negative Diminishing Specials:
 
-> **Tick -> Natural Special Recovery -> Decay 1**
+> **Existing Tick → Natural Special Recovery (target MR total) → Diminishing Decay (−1)**
 
-Natural Special Recovery reduces one or more eligible negative Diminishing Specials by a **total amount equal to the affected creature's MR**. The affected creature chooses how to distribute that reduction. Unused reduction is lost.
-
-Root is excluded and uses its own Until Broken recovery.
-
-### 14.7 Ruin immediate damage
-
-Whenever Ruin stacks are newly applied, the creature immediately takes **4 damage per newly applied stack**, ignoring Armor. Only stacks actually added after Special Negation count. The damage is Special-generated (not Attack Damage) and otherwise uses the Ruin Tick protection rules. The Ruin cost **4 x T(X)** does not yet price this damage; **Balance Review: open**. Printed Ruin values are unchanged.
+Then resolve qualifying new persistent Zone/Aura applications at the required start-of-Turn stage. **Blight is Timed** and counts down at Turn end; **Root** uses its own rule and is excluded from both Natural Special Recovery and ordinary Diminishing decay. A new Zone Ruin application does not receive a retroactive tick.
 
 ### 14.5 Cleanse eligibility
 
-A Special may be reduced by Cleanse only when its rules mark it as eligible.
+Cleanse affects only eligible negative Specials and follows its exact source scope. Direct Core Cleanse may distribute points across eligible effects; a narrower Reaction/Power rule may constrain the target or trigger. Cleanse does not heal ordinary HP or restore Scarred Bars.
 
-Dedicated Cleanse sources may narrow target count, distribution, timing, or scope. The narrower exact entry controls.
+### 14.6 Special-generated damage
 
-### 14.6 Special synergy is expected
+**Ruin:** when new Ruin points are successfully applied (after increases, Vulnerability and Special Negation), deal **4 × the newly added points** immediately; at each start-of-Turn tick deal **4 × current Ruin(X)**. Both ignore Armor but use Damage Reduction, Temporary HP and normal Health processing. Existing stacks never count toward the immediate component.
 
-The balance framework intentionally allows different Specials to combine tactically. Corrode can open Armor, Expose can open Evade, Mark can improve payoff from later damage, Hex can support Spell damage, control can buy time, and Cleanse/Special Negation can answer pressure.
+**Ruin pricing is deliberately kept at 4 × T(X)** (same group as Lacerate, Mark, Slow) while the immediate damage is playtested, because Special-only damage was previously too weak. `RUIN_BALANCE_REVIEW_PENDING` remains until playtest results exist. A later simplification of Ruin's printed values may replace the ×4 conversion.
 
-This interaction is not represented by a generic hidden synergy surcharge on every Power. Instead, the system limits stacking through:
+Slow and Lacerate use their own damage timing; Hex and Sundered modify later eligible damaging hits; Mark adjusts later damage dice floors. Do not infer direct Attack Damage from a Special-only Power.
 
-- PP cost;
-- action economy;
-- named Power use limits (non-Attack Powers);
-- Passive slots;
-- Active Buff maintenance;
-- Natural Special Recovery;
-- target defenses and encounter geometry.
+### 14.7 Intended tactical synergy
 
-Party synergy therefore remains a play layer above individual Power normalization.
+Corrode can open Armor, Expose reduces Evade, Mark adjusts damage dice floors on later hits, Hex supports eligible Spell hits, Sundered supports later non-Spell hits, and control can buy time. This synergy is not a general hidden PP surcharge; the permitted checks are the **exact PP table**, action/Reaction economy, printed activation limits, current stacking/recovery, and defensive counters. The removed global `4 × MR` cap must not be listed as a balance constraint.
 
 ---
 
-## 15. Stones and Stone Powers
+## 15. Stones and Stone Abilities
 
-Stones are a runtime resource system, not PP.
+Stones are a runtime resource system, not PP. Never convert PP into Stones or Stones into PP unless an exact subsystem defines it.
 
-The Power framework must not convert PP into Stones or Stones into PP unless an exact subsystem explicitly defines such a conversion.
+### 15.1 Stone Ability Ranks and costs
 
-### 15.1 Stone tier cost chain
+Every Stone Ability has **exactly four Ranks**; Rank 4 is the absolute maximum.
 
-Current Stone tier cost chain:
+| Rank | Normal (incremental / total) | Premium (incremental / total) |
+|---:|---:|---:|
+| 1 | 1 / 1 | 2 / 2 |
+| 2 | 2 / 3 | 4 / 6 |
+| 3 | 4 / 7 | 6 / 12 |
+| 4 | 8 / 15 | 8 / 20 |
 
-| Tier | Stone cost |
-|---:|---:|
-| 1 | 1 |
-| 2 | 2 |
-| 3 | 4 |
-| 4 | 8 |
+**Premium Stone Abilities:** Extra Attack, Parry, Crit, Damage Negation, Special Boost, Damage Reduction, Not a Target, Phasing. All others use the Normal cost.
 
-### 15.2 Powers that begin at Tier 2
+### 15.2 Lower Ranks always exist
 
-Some Stone Powers do **not** have Tier 1 at all. Their first real Tier is Tier 2.
-
-Current runtime references include examples such as:
-
-- Extra Attack;
-- Crit;
-- Parry;
-- Damage Negation;
-- Spell Action;
-- Damage Reduction;
-- Not a Target;
-- Phasing.
-
-For such a Power, **Tier 1 does not exist**. It is not empty, hidden, or payable.
-
-Therefore:
-
-> **A requirement to pay all lower tiers means all lower tiers that actually exist for that Stone Power. Never invent a nonexistent Tier 1 prerequisite.**
-
-This rule is especially important when interpreting Artifact Stone Power Support.
+All Stone Abilities, Premium included, have a payable Rank 1. A higher Rank requires every lower Rank to be activated and paid in the same Preparation Phase unless a rule explicitly waives it (for example Artifact Awakening).
 
 ---
 
@@ -1178,16 +868,16 @@ Current slots:
 
 A two-handed Artifact normally counts as one Artifact for capacity but blocks both hand slots.
 
-### 16.2 Stage to Power Level mapping
+### 16.2 Artifact Level to Power Level mapping
 
-When an Artifact grants a normal catalogue Power through its progression:
+| Artifact Level | Default effective Power Level |
+|---:|---:|
+| 1-3 | PL 4 |
+| 4-6 | PL 10 |
+| 7-9 | PL 16 |
+| 10 | Artifact Awakening (universal rules, no separate Ultimate) |
 
-| Artifact Level | Stage | Default effective Power Level |
-|---:|---|---:|
-| 1-3 | Basic | PL 4 |
-| 4-6 | Improved | PL 10 |
-| 7-9 | Greater | PL 16 |
-| 10 | Ultimate | explicit final profile |
+Artifact Level cap by MR: MR 1 → 1, MR 2 → 2, MR 3 → 4, MR 4 → 6, MR 5 → 8, MR 6+ → 10. Artifact-granted Powers use their printed PL even above the MR × 2 cap.
 
 ### 16.3 Technical Reference inheritance
 
@@ -1211,40 +901,28 @@ If an Artifact Function does not match a catalogue Power, it needs an exact Arti
 
 Do not force a unique Artifact effect into an unrelated generic Power solely to obtain PP math.
 
-### 16.5 Incomplete Ultimates
+### 16.5 Artifact Awakening
 
-A GM-defined or unfinished Ultimate is unavailable until its complete mechanical profile and Technical Reference are recorded.
+Artifact Level 10 grants **Artifact Awakening** under the universal Core rules (once per Safe Haven Rest per distinct ability, action-free use of granted Powers, cost-free Stone Power Support, one-combat refill of Stone reservoirs). It does not invent a new Power or Base Value; only explicit Level-10 exceptions printed in an Artifact add another effect.
 
 ### 16.6 Stone Power Support
 
-Stone Power Support pre-fills a named higher tier of one Stone Power. It does not directly grant the Stone Power's final effect independently.
-
-The character must pay all **actual existing** lower tiers required by that Stone Power.
-
-For Stone Powers whose first real tier is Tier 2, Tier 1 is not a prerequisite because Tier 1 does not exist.
-
-This framework treats that as the mechanically coherent interpretation. Any Artifact example that says otherwise should be corrected upstream rather than creating a fictional Tier 1.
+Stone Power Support pre-fills one named Rank of a Stone Ability. Every lower Rank must still be activated and paid normally. Support never skips unpaid lower Ranks.
 
 ---
 
 ## 17. Spells
 
-A Spell is **not a separate Power Type**.
+A Spell is **not a separate Power Type**; it is a **legal magical delivery** of an eligible Ranged Active and retains that Power's base Technical Reference and exact PL row. It substitutes Casting Pool/Roll and **Final Spell TN** for a Martial Attack Pool/Roll against Evade, and eligible Spell Focus Damage for mundane Weapon Damage on **damaging** attacks.
 
-A Spell is a valid **Ranged Active Power** converted to magical delivery.
+- **Spell Base TN = 4 × used Power Level**, not MR. MR determines Keep and applicable PL caps. For an eligible direct Spell, Final TN additionally includes effective target Spell Resistance; creatures with no granted Spell Resistance have 0.
+- Casting Attribute is fixed from **Intellect, Resolve or Influence**.
+- **Special-less Spells are allowed**, up to a number of such Spell Powers equal to the character's MR; a qualifying Spell need not contain any Special.
+- Damaging Single Target, AoE, Split and Autofire profiles use their corresponding current catalogue damage/roll rules. Special-only Spell Attacks deal **no direct Attack Damage** and gain no Spell Focus Damage.
+- A normal **Persistent Special Zone** may be delivered via a qualifying Ranged Power but makes **no Casting Roll or Spell Resistance occupancy check** and cannot use Raises.
+- Changing a Power's Martial versus Spell delivery **does not create another independently purchased Power instance**.
 
-To become a Spell, the Power must have:
-
-- Range; and
-- at least one Special.
-
-The casting source is Intellect, Resolve, or Influence as allowed by the Core rules.
-
-Spell identity does not create a second PP curve. The underlying Ranged Active template, Range cost, Special structure, and other purchased effects remain the basis of the Power.
-
-Do not invent a separate Spell Level, class level, or spell-only PP budget.
-
-Mental Powers remain dedicated exceptions and use their exact catalogue rules.
+Do not create separate Spell-only PL pricing curves, and do not silently reuse the old requirement that a Spell must have a Special.
 
 ---
 
@@ -1312,98 +990,40 @@ These examples show how the public framework should be checked.
 
 ### 19.1 Active Buff: Armor, PL 4
 
-Target:
-
-`30 x 4 + 10 = 130 PP`
-
-Effect:
-
-`+17 Armor x 7.5 PP = 127.5 PP`
-
-Deviation:
-
-`127.5 - 130 = -2.5 PP`
-
-Result: cleanly on-curve. Do not add a rider to fill 2.5 PP.
+- Target: `30 x 4 + 10 = 130 PP`
+- Effect: `+8 Armor x 15 PP = 120 PP`
+- Unused: `10 PP` (the Buff premium). No filler.
 
 ### 19.2 Reaction: Armor, PL 4
 
-Target:
-
-`20 x 4 = 80 PP`
-
-Effect:
-
-`+8 Armor x 10 PP = 80 PP`
-
-Result: exact.
+- Target: `20 x 4 = 80 PP`
+- Effect: `+8 Armor x 10 PP = 80 PP` (matches the current catalogue)
 
 ### 19.3 Passive: Armor, PL 4
 
-Target:
+- Target: `20 x 4 = 80 PP`
+- Current catalogue row: `+5 Armor` (progression 1 / 3 / 4 / 5 … 21 at PL 16). No filler required.
 
-`20 x 4 = 80 PP`
+### 19.4 Melee Single Target Special: Blight, PL 4
 
-Effect:
+Printed v0.9.9.6 working entry: **Blight(8)**, no direct Power/Weapon/Spell Focus Damage.
 
-`+5 Armor x 15 PP = 75 PP`
+- Target budget: **30 × PL4 = 120 PP**.
+- Blight is Timed in the current Core; the catalogue design price is **3 × T(8) = 3 × 36 = 108 PP**.
+- Melee Range cost: **0 PP**; no direct Damage dice or AoE cost.
+- Unspent: **12 PP**. The lack of filler is intentional; **do not** reinsert the former 1d8 Damage Anchor.
 
-Deviation:
+This pricing reproduces the printed row but is **not** a demonstration that Blight and every other Special have identical empirical combat value.
 
-`75 - 80 = -5 PP`
+### 19.5 Ranged Persistent Zone: Blight, PL 4
 
-Result: on-curve. No filler required.
+Printed v0.9.9.6 Zone: **20 m Range, Radius 2 m, Maintained, Blight(3)**. The printed values are authoritative. Zones have **no PP formula** by design (Section 9.4); do not present a PP total for them.
 
-### 19.4 Special-first Melee Attack + Blight, PL 4
+### 19.5b Protective Aura: Armor Aura, PL 4
 
-Target:
-
-`30 x 4 = 120 PP`
-
-Damage:
-
-`+1d8 = 15 PP`
-
-Special:
-
-`Blight(8) = 3 x T(8)`
-
-`T(8) = 8 x 9 / 2 = 36`
-
-`3 x 36 = 108 PP`
-
-Total:
-
-`15 + 108 = 123 PP`
-
-Deviation:
-
-`+3 PP`
-
-Result: legal near-target Special-first structure. Blight remains the Power's identity.
-
-### 19.5 Persistent Zone + Blight, PL 4
-
-Target:
-
-`120 PP`
-
-Example components:
-
-- Range 20 m = 15 PP
-- Radius 2 m = 20 PP
-- printed Blight(3) in a Persistent Zone uses `3 x T(4)` = `3 x 10` = 30 PP
-- persistent payload multiplier = x2
-
-Calculation:
-
-`15 + [(20 + 30) x 2] = 115 PP`
-
-Deviation:
-
-`-5 PP`
-
-Result: on-curve without filler.
+- Target: `30 x 4 + 10 = 130 PP`
+- Radius 2 m = 20 PP; ally premium = 10 PP; `+7 Armor x 15 PP = 105 PP`
+- Total `135 PP` (5 PP over, within tolerance). Compare Self Buff: +8 Armor.
 
 ### 19.6 Reaction: Damage + Push, PL 8
 
@@ -1420,29 +1040,19 @@ Total:
 
 `160 PP`
 
-Result: exact.
+Matches the current Reaction catalogue (PL 8: 4d8 + Push 8 m).
 
 ### 19.7 Active Buff: Critical, PL 8
 
-Target:
+- Target: `250 PP`
+- Current catalogue milestone: `Critical(2)` (PL 4: Critical(1); PL 16: Critical(4)).
+- The remaining budget is **not filled** with damage, Penetration, Specials, Attack Dice or defense.
 
-`250 PP`
+### 19.8 Player Split Attack, PL 7
 
-The dedicated Critical milestone at PL 8 is:
-
-`Critical(2)`
-
-The remaining apparent budget is **not filled** with damage, Penetration, Specials, Attack Dice, or defense.
-
-Result: correct because the exact milestone table is the balancing structure.
-
-### 19.8 Player Split Attack
-
-Adding one additional target costs 30 PP.
-
-The user splits the Attack Pool for accuracy; each successful hit deals full weapon + power damage.
-
-Result: the Power buys targeting flexibility, not another full copy of weapon damage. This is a direct example of the rule **no output multiplication without paid structure**.
+- Target: `30 x 7 = 210 PP`
+- Melee: 3 targets (2 additional × 30 = 60 PP) + `10d8 x 15 = 150 PP` = `210 PP`
+- Each successful split deals the full eligible Weapon/Spell Focus Damage and Power Damage. No shared Damage Pool is divided, and no extra Attack Action is created.
 
 ---
 
@@ -1494,16 +1104,7 @@ Check that later Levels scale the same concept instead of adding a new unrelated
 
 ### Step 8 - Check runtime constraints
 
-Verify:
-
-- once-per-Round named Power use;
-- Action/Movement/Reaction cost;
-- Active Buff maintenance;
-- Passive category occupancy;
-- Special Application Limit;
-- Diminishing recovery;
-- duplicate source rules;
-- relevant closed subsystem caps.
+Verify the Attack Action economy (Actives reusable with any legal Attack Action), Reaction and Movement economy, Preparation-only Active Buff activation, the Protective Aura stacking rule, current Passive Categories, Limited and Artifact quotas, Special Negation, Special stacking without a global 4 × MR cap, Timed Blight, Root recovery and maintenance-based Zones.
 
 ### Step 9 - Calculate the row
 
@@ -1538,97 +1139,119 @@ If the math and runtime rule disagree, the runtime rule wins and the design must
 
 ---
 
-## 21. Machine-Readable Design Contract
+## 21. Machine-Readable Design Contract (v0.9.9.6, 2026-11-23)
 
-The following compact contract is intended for designers, code assistants, and validation tooling.
+This is a human-readable design contract for auditing; it is **not** an automatically synchronized Foundry data source.
 
 ```text
-SOURCE_PRECEDENCE:
-  Core > relevant catalogue > exact dedicated entry > explicit source restriction > runtime aid > encounter guide > this framework
+AUTHORITY:
+  current_core = Core v0.9.9.6 (2026-11-23)
+  current_catalogues = Actives, ActiveBuffs, Passives, Reactions, Movement, Artifacts v0.9.9.6 (2026-11-23)
+  balance_framework = derivative, never overrides exact catalogue
+  foundry_runtime = migration pending
 
-POWER_IDENTITY:
-  technical_name != flavor_name
-  once-per-Round limit tracks independently acquired/granted instances
-  Attack Power: repeatable while Attack Actions remain; Limited and explicit limits still apply
-  other named Power normally <= 1 use / Round per instance
-  no automatic Basic Attack
+POWER_USE:
+  technical_reference != flavor_name
+  active_reusable_with_each_available_attack_action = true
+  duplicate_purchase_needed_for_reuse = false
+  basic_attack = NONE
+  regular_attack_action_transferable_in_preparation = true (once, not again)
+  martial_spell_delivery_change_creates_new_power = false
 
-TARGETS:
-  Active(L)      = 30 * L
-  ActiveBuff(L)  = 30 * L + 10
-  Passive(L)     = 20 * L
-  Reaction(L)    = 20 * L
-  Movement       = exact catalogue progression; no universal PP curve
+TARGET_PP:
+  Active(PL)      = 30 * PL
+  ActiveBuff(PL)  = 30 * PL + 10
+  Passive(PL)     = 20 * PL
+  Reaction(PL)    = 20 * PL
+  Movement        = exact catalogue progression
 
 BUDGET:
-  combination effects share one total budget
-  unused PP is legal
-  no generic +/-10% tolerance
-  continuous near-target audit convention: about +/-5 PP where exact fitting is practical
-  exact milestone/dedicated entry overrides generic arithmetic
-  no filler riders
-
-DICE:
-  normal roll = Attribute k MR
-  Keep is not Power Level
-  natural 8 explodes unless stated otherwise
-  damage dice do not explode by default
+  no_unrelated_filler = true
+  unused_PP_legal = true
+  overspend_tolerance = +5_PP
+  fill_rule = max_value_within_target_plus_5_then_running_min_from_top
+  paid_axis_may_decrease = false
+  exact_printed_PL_rows_override_generic_heuristics = true
+  damage_attack_d8 = 15_PP
+  damage_transfer_d8 = 25_PP
+  ranged_baseline = 8m_zero_PP_then_5PP_each_4m
+  AoE_radius_table = 1m:0,2m:20,3m:50,4m:80,5m:120,6m:165,7m:220,8m:280
+  AoE_radius_table_used_for = instant_attack_AoE, support_AoE, barrier_radius, protective_auras
+  restoration_bar = 40_PP
+  cleanse = 4*T(X)
+  barrier = range + 2*(radius + HP); HP_1PP; 4_rounds
+  split_extra_target = 30_PP; targets = 2(PL1-6),3(PL7-12),4(PL13-16)
+  autofire_extra_slot = 30_PP
 
 SPECIALS:
-  T(X) = X * (X + 1) / 2
-  numeric_cost = BaseCost * T(X)
-  no per-Round 4 * MR Special Application cap
-  Ruin immediate damage = 4 * newly applied stacks, ignores Armor (unpriced, review open)
-  start of Turn = Tick -> Natural Special Recovery -> Decay 1
-  Natural Special Recovery total = target MR
-  Root uses own recovery and minimum Root(2)
+  T(X) = X*(X+1)/2
+  base_cost = Blight3; Lacerate/Mark/Ruin/Slow4; Corrode/Hex/Sundered/Root6; Expose8
+  pool_reduction = Challenge 6 / 6*T(2X); Disoriented/Soulburn/Weaken 8 / 8*T(2X)
+  blight = TIMED; duration_refresh_not_additive
+  root = minimum_Root_2; MR_reduction; no_natural_recovery
+  global_per_round_special_application_cap = NONE
+  diminish_start_turn = tick_then_natural_recovery_then_decay
+  special_negation_before_application = true
+  special_only_attack_direct_damage = 0
 
-ACTIVE:
-  damage = 15 PP / +1d8 where exact entry uses standard Active damage
-  ordinary HP healing is not an Active (Resolve Ability: Healing)
-  Scarred-Bar Restoration = 40 PP per Bar per Safe Haven Rest
-  ranged baseline = 8 m at 0 PP, then +5 PP / +4 m
-  instant Attack AoE radius uses exact 1-8 m table
-  player Split Attack additional target = 30 PP; splits Attack Pool, full damage per hit
-  Autofire additional target = 30 PP
+RUIN:
+  immediate_damage = 4 * newly_applied_points; ignores_Armor
+  start_of_turn_tick = 4 * current_Ruin_points; ignores_Armor
+  price = 4*T(X) (unchanged during playtest)
 
-ACTIVE_BUFF:
-  standard pure = 1 axis
-  standard combination = exactly 2 approved axes, one shared budget
-  L1-4 establish structure; L5-16 scale it
-  Critical and other closed subsystems use exact dedicated entries
+DAMAGE:
+  natural_8_minimum_damage = NONE
+  large_pool_threshold = 40_dice_after_damage_negation
+  large_pool_value_per_die = 5 (optional)
+  maximization_per_die = 8
+  floor_above_5 = applies_per_die
+  max_total_DR_current_sources = 90_percent
 
-PASSIVE:
-  pure = 1 category
-  combined = not available in the current release (historical model)
-  same category normally cannot be active twice
-  no generic percentage condition discounts
+ZONES:
+  delivery = RANGED_ONLY
+  duration = maintained_per_creator_turn_with_Attack_Action
+  affects_creator_and_allies = true
+  pp_formula = NONE_BY_DESIGN
 
-REACTION:
-  effect + chosen Trigger
-  normally 1 Reaction / Round
-  duplicate Reaction Effect does not create extra uses
-  closed subsystem entries are not generic axes
+BUFFS:
+  activate = Preparation_free
+  once_per_named_Buff_per_Combat = true
+  max_maintained = 1
+  combined_buffs = false
+  self_armor_evade_sr = +2_per_PL
+  special_auras = fourteen_named; caster_exempt
+  protective_auras = Armor, Evade, SpellResistance; caster_and_allies; enemies_never
+  protective_aura_value = 2PL-1 (PL1-8, r2m), 2PL-3 (PL9-16, r3m)
+  same_value_active_buff_bonus_stacking = highest_only
 
-MOVEMENT:
-  replaces normal Movement
-  use exact catalogue table
-  Safe Movement suppresses movement-triggered Reactions
-  Teleport skips intervening path
+REACTIONS:
+  basic_reactions = Guard, DiveForCover
+  basic_evade = NONE
+  reaction_special_increase = NONE
+
+PASSIVES:
+  count = 28
+  combined_passives = false
+  slots_by_MR = 1,2,3,3,4,4,5,6
 
 STONES:
-  T1/T2/T3/T4 costs = 1/2/4/8 Stones
-  nonexistent tiers are never payable prerequisites
+  ranks = 4
+  normal_cost = 1/3/7/15
+  premium_cost = 2/6/12/20
+  premium = ExtraAttack, Parry, Crit, DamageNegation, SpecialBoost, DamageReduction, NotATarget, Phasing
 
 ARTIFACTS:
-  Technical Reference inherits exact current catalogue Power
-  explicit Artifact restriction may narrow delivery
-  duplicate Technical Reference shares identity; Artifact grant is a separate use instance
-  unfinished Ultimate unavailable until fully specified
+  level_to_PL = 1-3:4, 4-6:10, 7-9:16, 10:Awakening
+  max_bound = 4
 
-ENCOUNTERS:
-  PP construction math != encounter calibration
-  player Split Attack != Boss Split Attack
+SPELLS:
+  spell_delivery = eligible_Ranged_Active
+  spell_base_TN = used_PL * 4
+  specialless_spell_count_cap = MR
+
+MENTAL:
+  Mind_Illusion, Mind_Probe, Mental_Control = qualitative_no_PP_formula
+  Mental_Attack = RETIRED
 ```
 
 ---
@@ -1638,12 +1261,12 @@ ENCOUNTERS:
 The following claims are justified by the framework:
 
 - Power construction uses explicit target curves and published component costs.
-- Combination Powers share a single budget rather than receiving multiple full budgets.
+- Powers cannot silently gain multiple full budgets. Historical Combined Buff/Passive templates are **not selectable** in v0.9.9.6.
 - Multi-target coverage and premium timing are explicitly constrained or priced.
 - Closed premium mechanics cannot be freely attached as cheap riders.
-- Technical Power identity prevents duplicate-source abuse.
-- Numeric Diminishing Specials use a reproducible triangular cost function.
-- Designers can independently recalculate many catalogue rows.
+- Technical Reference and separately purchased instance identity remain distinct; duplicate sources do not grant extra Actions or bypass global charges.
+- Many numeric Special rows use a reproducible triangular catalogue cost function, subject to dedicated prices and class distinctions (e.g. Timed Blight).
+- Designers can independently recalculate every **direct** catalogue row; Zones, Images and Mental Powers use fixed printed values by design.
 - Encounter calibration is deliberately separated from Power normalization.
 
 The following stronger claims are **not** established by PP math alone:
@@ -1657,7 +1280,7 @@ The following stronger claims are **not** established by PP math alone:
 
 The intended public position is therefore:
 
-> **Destroyed Faith exposes the arithmetic used to normalize its mechanical building blocks. The framework is mathematically explicit and independently auditable; playtesting remains the validation layer for emergent combinations and encounter performance.**
+> **Destroyed Faith exposes the arithmetic used to normalize its mechanical building blocks. Direct catalogue values are traceable to published tables; qualitative subsystems (Zones, Images, Mental Powers) use fixed printed values, and new combat decisions still require playtesting before any universal balance claim.**
 
 ---
 
@@ -1675,7 +1298,7 @@ A change requires an AGENT audit when it modifies any of the following:
 - Range or area pricing;
 - multi-target behavior;
 - action economy;
-- the named Power use limit;
+- the Attack Action economy or Power reuse rules;
 - Passive slot progression;
 - Stone tier existence or cost;
 - Artifact Technical Reference behavior;
@@ -1690,133 +1313,96 @@ For each update, record:
 5. whether Foundry/runtime data also needs migration;
 6. whether the change is mathematical normalization or empirical playtest tuning.
 
-Do not silently edit a formula without updating examples that depend on it.
+Do not silently edit a formula without updating examples that depend on it. Rulebook, Foundry runtime, current Actor-item levels and preview UI must be validated **together**, not independently declared correct.
 
 ---
 
-## Appendix A - Current Technical Catalogue Names
+## 24. Decision log and implementation status
 
-This list is included to make terminology auditable. Exact effects remain in the relevant catalogue.
+### 24.1 Implemented in the v0.9.9.6 rules documents (Foundry migration pending)
 
-### Active Buffs
+- **Repeatable Actives:** every Active may be used again with each legal Attack Action.
+- **Basic Attack removed:** no default damage attack; Combat Maneuvers remain.
+- **Immediate Ruin damage:** 4 × newly applied points; price unchanged during playtest.
+- **Mental Attack retired**; Mind Illusion, Mind Probe and Mental Control remain.
+- **Damage-plus-Special hybrids retired**; Special-only families per Special.
 
-- Active Buff: Armor
-- Active Buff: Evade
-- Active Buff: Armor Aura
-- Active Buff: Temporary HP
-- Active Buff: Healing
-- Active Buff: Damage Reduction
-- Active Buff: Phasing
-- Active Buff: Armor + Temporary HP
-- Active Buff: Evade + Temporary HP
-- Active Buff: Temporary HP + Healing
-- Active Buff: Armor + Evade
-- Active Buff: Damage
-- Active Buff: Penetration
-- Active Buff: Damage + Penetration
-- Active Buff: Critical
-- Active Buff: Special Increase + [chosen eligible Special]
-- Active Buff: Spell Resistance
-- Active Buff: Self Cleanse
-- Active Buff: Damage Aura
-- Active Buff: Healing Aura
-- Active Buff: Size + Damage + Armor
-- Active Buff: Summon Damage Aura
-- Active Buff: Summon Armor Aura
-- Active Buff: Thorns
-- Active Buff: Invisibility
-- Active Buff: Parry Recovery
-- Active Buff: Absorption Stone Increase
-- Active Buff: Damage Negation Pool
+### 24.2 Decisions of 2026-11-23
 
-### Reactions
+- **Basic Reaction Evade removed.** It equalled a maximum-PL Reaction: Evade for free.
+- **Natural-8 minimum damage removed.**
+- **Large Damage Pools:** optional 5 per die from 40 dice after Damage Negation.
+- **Protective Auras added** (Armor, Evade, Spell Resistance only) with the same-value stacking rule.
+- **Split Attack targets:** 2 / 3 / 4 at PL 1–6 / 7–12 / 13–16.
+- **+5 PP tolerance** formalized; AoE, Autofire, Split, AoE Cleanse, AoE Restoration, Barrier and Reaction: Cleanse rows refilled under the monotonicity rule.
+- **Unified radius table** (4 m = 80 PP) for Support AoE and Barrier.
+- **Otherworld Reflex** (Elorian Stride) aligned to PL 4/10/16.
+- **Lor-Keth's Titanstorm Staff** completed (Levels 1–10 and Staff Base).
+- **Tactical Choices** (All-Out Attack, Regular Attack Action Transfer) finalized; Shared Free Raises live under the Intellect Stone Ability.
+- **Persistent Zones** keep their printed rules and values; no PP formula.
 
-- Reaction: Armor
-- Reaction: Evade
-- Reaction: Temporary HP
-- Reaction: Armor + Temporary HP
-- Reaction: Evade + Temporary HP
-- Reaction: Ally Armor
-- Reaction: Ally Evade
-- Reaction: Ally Temporary HP
-- Reaction: Reposition
-- Reaction: Cleanse
-- Reaction: Damage Reduction
-- Reaction: Phasing
-- Reaction: Damage
-- Reaction: Damage + Push
-- Reaction: Special Increase + [chosen eligible Special]
-- Reaction: Initiative
-- Reaction: Parry + Weapon Damage
-- Reaction: Parry + Attack Reflection
-- Reaction: Absorption Damage Multiplier
+### 24.3 Foundry migration checklist
 
-### Movement Powers
+Synchronize runtime data, previews and Actor items with the decisions above. Migrate existing PCs, NPCs, token Actors and Artifact grants only after a dry run, backup and GM review; never silently delete or refund owned Powers.
 
-- Movement: Ground Dash
-- Movement: Safe Movement
-- Movement: Teleport
-- Movement: Teleport with Ally
-- Movement: Flight
-- Movement: Leap
-- Movement: Wall Walk
-- Movement: Burrow
-- Movement: Phase Passage
-- Movement: Trample
+---
 
-### Dedicated / named Passives
+## Appendix A - Active catalogue taxonomy and technical identity (v0.9.9.6)
 
-- Passive: Armor
-- Passive: Damage Reduction
-- Passive: Evade
-- Passive: Healing
-- Passive: Phasing
-- Passive: Damage
-- Passive: Health
-- Passive: Special Aura + [chosen eligible Special]
-- Passive: Spell Resistance
-- Passive: Special Negation
-- Passive: Telepathy
-- Passive: Summon Tokens
-- Passive: Thorns
-- Passive: Invisibility
-- Passive: Initiative
-- Passive: Parry
-- Passive: Absorption
-- Passive: Damage Negation
+The exact current Actives catalogue owns all names and rows; this appendix is a taxonomy, not an additional catalogue to maintain manually.
 
-Combined and Conditional Passives retain their exact current catalogue names and conditions.
+- **Damage Attacks:** Melee Single Target Attack, Ranged Single Target Attack; Melee AoE Attack, Ranged AoE Attack; Melee Split Attack, Ranged Split Attack; Ranged Autofire.
+- **Special-only direct attacks:** for every one of the 14 eligible Specials, Melee Single Target, Ranged Single Target, Melee AoE and Ranged AoE **as separate catalogue entries**. The 14 printed names are Blight, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Root, Ruin, Slow, Soulburn, Sundered and Weaken.
+- **Limited Damage:** dedicated Limited Melee/Ranged Single Target and Limited Melee/Ranged AoE attacks, shared Limited charge.
+- **Damage Transfer:** separate Melee/Ranged single-target dedicated attacks.
+- **Pure forced movement:** Melee and Ranged Push/Pull.
+- **Support:** Melee/Ranged Single Target Restoration, Melee/Ranged AoE Restoration; Melee/Ranged Single Target Cleanse, Melee/Ranged AoE Cleanse.
+- **Mental utility:** Mind Illusion, Mind Probe, Mental Control. **Mental Attack is retired.**
+- **Constructs and terrain:** Ranged Barrier and Ranged Power Image.
+
+**No longer selectable in the Active catalogue:** mixed `Damage + Special` Power tiers; pure HP Heal Actives; Mental Attack. For legacy Foundry items, perform a reviewed migration, not silent deletion.
+
+**Other Power categories:** the current, exact Active Buff, Passive, Reaction, Movement and Artifact catalogues own their own legal names. Earlier appendix lists are not copied here because several historical entries were retired or renamed in Core v0.9.9.6.
 
 ---
 
 ## Appendix B - Audit Red Flags
 
-A proposed Power should be stopped for review if any of the following appear without an exact catalogue source:
+Stop implementation or flag a source conflict if any of the following appears without an exact current authoritative catalogue entry:
 
-- Keep scaling from Power Level;
-- `Attribute + Weapon Dice` used as the default Damage Pool;
-- d6 as the normal Power damage die;
-- generic `once per Day` or other reset language invented outside an exact subsystem;
-- duration extended through a generic Raise ladder not present in the current rules;
-- generic condition discounts such as x0.95/x0.90/x0.80;
-- one universal AoE/radius price applied to all area systems;
-- one universal movement PP-per-meter rule;
-- Critical attached as a secondary rider;
-- Damage Reduction or Phasing bundled into an unrelated combination;
-- a Passive applying a Special directly;
-- a standard Active Buff applying a Special directly;
-- a Reaction behaving like a full Active Power;
-- player Split Attack damage treated as shared or halved instead of full per successful hit;
-- Boss Split Attack used as a player Power rule;
-- Persistent Diminishing Zone reapplication forced to `highest only` despite current Core stacking;
-- a nonexistent Stone Tier treated as a prerequisite;
-- an Artifact summary overriding its catalogue Technical Reference without an explicit source-profile exception;
-- an incomplete Ultimate being treated as usable;
-- leftover PP automatically filled with unrelated effects.
-
-Any of these signals usually means that an older internal design note has leaked back into current rules work.
+- inferred Power Level or Keep from unrelated MR/PL, or generic Damage Pool from Attribute + Weapon Dice;
+- restoring the historical **global 4 × MR Special Application Limit**;
+- treating **Blight** as stack-additive Diminishing instead of Timed, or **Root** as ordinary Diminishing;
+- resurrecting retired **Damage + Special** templates, **Mental Attack**, generic HP Heal Actives or a **Basic Attack**;
+- reintroducing a **Basic Evade Reaction** or the **natural-8 minimum damage**;
+- generating different Special ranks from a shared tier-default preview rather than the chosen Special's printed PL row;
+- giving a Special-only Attack direct Weapon, Spell Focus, Stone, Buff or Damage Raise damage;
+- failing to add matching delivery damage **once** to the shared Damage AoE roll;
+- treating player Split Attack as shared/halved damage, or using 2 targets at PL 7+;
+- treating Autofire as AoE, forbidding repeat targets, or skipping its cumulative +4 TN steps;
+- any progression in which a paid axis (damage, Radius, Range, targets, Special value) decreases at a higher PL;
+- pricing Zones with a PP formula, adding Melee Zones, or putting Root into a Zone;
+- exempting allies or the creator from Persistent Zones, or making Special Auras hit their own caster;
+- Protective Auras affecting enemies, offensive or premium-defense Auras, or stacking two Active Buff bonuses to the same value;
+- placing Special-applying Auras under Passives instead of Active Buffs;
+- enabling **Combined Passives** or **Combined Active Buffs**;
+- requiring every Spell to contain a Special, or assuming Spell Base TN depends on MR;
+- charging an Attack Action to activate an Active Buff during Preparation;
+- requiring a duplicate purchase to reuse an Active in the same Round;
+- auto-merging, refunding or deleting legacy owner Powers before a GM-reviewed migration;
+- silently adding unrelated effects just to spend leftover PP.
 
 ---
+
+## Appendix C - Outstanding reviews
+
+- `RUIN_BALANCE_REVIEW_PENDING`: immediate Ruin damage is playtested at the unchanged 4 × T(X) price.
+- `ABSORPTION_PLAYTEST_PENDING`: Passive/Reaction/Buff Absorption and Temporary Colorless Stones are untested at the table.
+- `PROTECTIVE_AURA_PLAYTEST_PENDING`: verify party-wide value; tuning lever is the ally premium.
+- `FOUNDRY_MIGRATION_PENDING`: runtime data must be synchronized with the 2026-11-23 documents.
+- `LEGACY_ITEM_MIGRATION_PENDING`: legacy owners (Mental Attack, Damage-plus-Special Powers, duplicates) require a GM-reviewed migration decision.
+
+See Section 24 for the decision log.
 
 ---
 

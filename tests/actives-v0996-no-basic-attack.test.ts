@@ -50,7 +50,7 @@ describe('Actives v0.9.9.6 — no Basic Attack', () => {
 
   it('Grapple and the other Basic Maneuvers stay; Basic Attack is gone from the catalog and prefs', () => {
     const ids = new Set(COMBAT_MANEUVERS.map((m) => m.id));
-    for (const id of ['grapple', 'grapple-escape', 'grapple-release', 'guard', 'evade', 'dive-for-cover']) {
+    for (const id of ['grapple', 'grapple-escape', 'grapple-release', 'guard', 'dive-for-cover']) {
       expect(ids.has(id)).toBe(true);
     }
     expect(ids.has('weapon-attack')).toBe(false);

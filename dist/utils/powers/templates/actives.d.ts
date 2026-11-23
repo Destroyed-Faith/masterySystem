@@ -19,6 +19,14 @@
  * listed payload.
  */
 import type { PowerTemplate } from './_shared.js';
+export declare const MELEE_SPLIT_PROG: readonly {
+    attacks: number;
+    dice: number;
+}[];
+export declare const RANGED_SPLIT_PROG: readonly {
+    attacks: number;
+    dice: number;
+}[];
 export declare const AUTOFIRE_PROG: readonly {
     extra: number;
     dice: number;

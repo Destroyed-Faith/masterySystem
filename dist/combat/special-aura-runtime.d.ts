@@ -10,7 +10,7 @@
 export declare const SPECIAL_AURA_TEMPLATE_IDS: readonly ["ab-blight-aura", "ab-challenge-aura", "ab-corrode-aura", "ab-disoriented-aura", "ab-expose-aura", "ab-hex-aura", "ab-lacerate-aura", "ab-mark-aura", "ab-root-aura", "ab-ruin-aura", "ab-slow-aura", "ab-soulburn-aura", "ab-sundered-aura", "ab-weaken-aura"];
 export type SpecialAuraTemplateId = (typeof SPECIAL_AURA_TEMPLATE_IDS)[number];
 export type SpecialAuraSpecialKey = 'blight' | 'challenge' | 'corrode' | 'disoriented' | 'expose' | 'hex' | 'lacerate' | 'mark' | 'root' | 'ruin' | 'slow' | 'soulburn' | 'sundered' | 'weaken';
-export declare const RETIRED_LEGACY_AURA_TEMPLATE_IDS: readonly ["ab-armor-aura", "ab-damage-aura", "ab-summon-damage-aura", "ab-summon-armor-aura", "ab-armor-reduction-aura", "ab-allied-damage-aura"];
+export declare const RETIRED_LEGACY_AURA_TEMPLATE_IDS: readonly ["ab-damage-aura", "ab-summon-damage-aura", "ab-summon-armor-aura", "ab-armor-reduction-aura", "ab-allied-damage-aura"];
 export interface ActiveSpecialAuraState {
     templateId: SpecialAuraTemplateId;
     special: SpecialAuraSpecialKey;

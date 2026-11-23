@@ -69,7 +69,7 @@ export const DISADVANTAGES: DisadvantageDefinition[] = [
     id: 'addiction',
     name: 'Addiction',
     basePoints: 2,
-    description: 'You are dependent on a substance, ritual, faith, or contact. If denied that source, Skill Dice Pools take −1d8 after 1 day, −2d8 after 1 week, −4d8 after 1 month, and −8d8 after 3 months or more. The GM may call for a Resolve k1 roll when the Addiction is offered, threatened, denied, or becomes dangerous. That roll has no fixed Target Number.',
+    description: 'You are dependent on a substance, ritual, faith, or contact. If denied that source, all Attribute-based Training Check Pools take −1d8 after 1 Tyhran Day, −2d8 after 7 Tyhran Days, −4d8 after 1 Lunar Month (44 Tyhran Days), and −8d8 after 3 Lunar Months or more. The GM may call for a Resolve k1 roll when the Addiction is offered, threatened, denied, or becomes dangerous. That roll has no fixed Target Number.',
     fields: [
       {
         name: 'substance',
@@ -79,7 +79,7 @@ export const DISADVANTAGES: DisadvantageDefinition[] = [
         required: true
       }
     ],
-    effect: 'Withdrawal Skill Dice Pools: 1 day −1d8; 1 week −2d8; 1 month −4d8; 3 months or more −8d8. Resolve k1 may be called; no fixed TN.'
+    effect: 'Withdrawal (all Attribute-based Training Check Pools): 1 Tyhran Day −1d8; 7 Tyhran Days −2d8; 1 Lunar Month (44 Tyhran Days) −4d8; 3 Lunar Months or more −8d8. Resolve k1 may be called; no fixed TN.'
   },
   {
     id: 'berserkers-curse',

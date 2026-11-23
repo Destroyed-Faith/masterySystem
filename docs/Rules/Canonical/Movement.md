@@ -58,7 +58,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Movement
-Version: v0.9.9.5 (2026-10-16)
+Version: v0.9.9.6 (2026-11-23)
 }}
 
 }}
@@ -108,11 +108,11 @@ A Movement Power is not an Attack Action, not an Active Buff, not a Reaction, an
 
 Every catalogue entry uses its heading as its canonical technical Power name.
 
-The technical Power name defines rules identity and data identity. Power Level changes the strength of that Power, not its identity.
+The technical Power name defines its rules identity. Power Level changes the strength of that Power, not its identity.
 
 A character-facing name is not part of this catalogue and never creates a second mechanical Power.
 
-Foundry must store the technical Power name separately from Power Level and any character-facing label. Rules comparisons use the technical Power name.
+Rules comparisons use the technical Power name.
 
 ---
 
@@ -161,7 +161,7 @@ Movement Powers may not grant:
 
 If a Power’s main payoff is “your next attack gains X,” it is not a Movement Power.
 
-It is an Active Buff, Active Power, or Tree-specific exception.
+It is an Active Buff, an Active Power, or an explicitly granted exception.
 
 ---
 
@@ -322,7 +322,7 @@ You move with perfect timing, slipping past openings without giving enemies a cl
       You must end in a legal free space.<br><br>
       RESTRICTIONS<br>
       You cannot teleport into solid matter, sealed spaces, occupied spaces, or invalid spaces.<br>
-      You must see the destination unless a Tree explicitly says otherwise.<br>
+      You must see the destination unless another rule explicitly says otherwise.<br>
       This does not carry allies unless using Movement: Teleport with Ally.<br><br>
       DISTANCE CAP<br>
       Teleport scales to a hard cap of 16 m.<br><br>
@@ -377,7 +377,7 @@ You fold distance and appear somewhere else without crossing the space between.
       RESTRICTIONS<br>
       This cannot move unwilling creatures.<br>
       This cannot carry more than one ally.<br>
-      This does not carry additional creatures or oversized objects unless a Tree explicitly says otherwise.<br>
+      This does not carry additional creatures or oversized objects unless another rule explicitly says otherwise.<br>
       This does not provoke movement-triggered Reactions through the intervening path because it is teleportation; Threat Zone entry and exit at its endpoints still trigger normally.<br><br>
       DISTANCE CAP<br>
       Teleport with Ally scales to a hard cap of 12 m.<br><br>
@@ -481,7 +481,7 @@ You lift from the ground and move through the air under your own power.
       You may leap up to the listed distance horizontally, or up to half the listed distance vertically.<br>
       You must have a legal landing point.<br><br>
       RESTRICTIONS<br>
-      Leap follows an arc unless a Tree explicitly says otherwise.<br>
+      Leap follows an arc unless another rule explicitly says otherwise.<br>
       It does not pass through walls, ceilings, or solid obstacles.<br>
       It does not ignore hazards in spaces you pass through unless the GM rules your arc avoids them.<br>
       Leap does not automatically prevent movement-triggered Reactions.<br><br>
@@ -589,7 +589,7 @@ You cling, crawl, run, or move across surfaces that normal movement cannot use.
       DESIGN STRUCTURE<br>
       Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You may move through suitable loose earth, sand, mud, snow, ash, or similar soft material.<br>
-      This is not general phasing and does not pass through stone, metal, worked walls, magical barriers, or solid structures unless a Tree explicitly says otherwise.<br><br>
+      This is not general phasing and does not pass through stone, metal, worked walls, magical barriers, or solid structures unless another rule explicitly says otherwise.<br><br>
       RESTRICTIONS<br>
       You must begin adjacent to or inside suitable burrowable material.<br>
       You must end in a legal space or a legal burrowed position allowed by the GM.<br>
@@ -650,7 +650,7 @@ You force your way through soft material beneath or around the battlefield.
       Move up to your normal Speed during this Movement. Within that route, you may pass through up to the listed total thickness of solid material.<br>
       You must end in a legal free space.<br>
       You cannot remain inside solid material after the Movement ends.<br>
-      This cannot bypass magical barriers unless a Tree explicitly says otherwise.<br><br>
+      This cannot bypass magical barriers unless another rule explicitly says otherwise.<br><br>
       MATERIAL CAP<br>
       Phase Passage scales to a hard cap of 8 m total material thickness.<br><br>
       NOTES<br>

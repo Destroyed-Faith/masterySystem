@@ -1,5 +1,5 @@
 /**
- * Shared Intellect Free Raises (playtest).
+ * Shared Intellect Free Raises.
  * The Stone user decides how its unchanged pool is split: an allocation moves
  * Raises from the donor's `stoneBonuses.freeRaises` into the recipient's
  * `sharedFreeRaisesReceived` (see `teamwork-transactions.ts`). A recipient

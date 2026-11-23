@@ -5,10 +5,9 @@
  * Artifact's Bite Weapon Damage (Dragon Head-only exception to no-Weapon-Damage-on-AoE).
  * Ruin Breath = Melee AoE Special: Ruin (catalogue Ruin ranks / lengths; no damage, no Bite).
  *
- * Geometry specialty: **Cone** (apex on the caster, aimed by facing) — still a Martial
- * Melee Instant AoE (one shared Attack Roll vs each Evade, equal payload; no Primary Target).
- * Both modes share the Breath Weapon use counter (ceil(MR/2) per Safe Haven Rest
- * and once per Combat). Attack Attribute: Might or Agility (choose before the roll).
+ * Both modes are self-centered Martial Melee Instant AoEs using the catalogue radii
+ * (one shared Attack Roll vs each Evade, equal payload; no Primary Target, no Cone).
+ * Both modes share the Breath Weapon use counter (ceil(MR/2) per Safe Haven Rest).
  * Do not add Dragon Claws or other weapons to Damage Breath.
  */
 
@@ -37,13 +36,13 @@ function damageBreathRow(artifactLevel: number):
   return tpl?.levels?.[String(breathPowerLevel(artifactLevel))];
 }
 
-/** Damage Breath cone length (m): Melee AoE Attack radius at the stage Power Level. */
-export function breathDamageConeMeters(artifactLevel: number): number {
+/** Damage Breath radius (m): Melee AoE Attack radius at the stage Power Level. */
+export function breathDamageRadiusMeters(artifactLevel: number): number {
   return Number(damageBreathRow(artifactLevel)?.aoe?.radiusM) || 0;
 }
 
-/** Ruin Breath cone length (m): Melee AoE Special: Ruin radius at the stage Power Level. */
-export function breathRuinConeMeters(artifactLevel: number): number {
+/** Ruin Breath radius (m): Melee AoE Special: Ruin radius at the stage Power Level. */
+export function breathRuinRadiusMeters(artifactLevel: number): number {
   return aoeSpecialRadiusM('melee', 'ruin', breathPowerLevel(artifactLevel)) ?? 0;
 }
 
@@ -75,30 +74,30 @@ export function damageBreathSharedPoolFormula(artifactLevel: number): string {
 }
 
 /**
- * Cone length for a Breath mode. Same catalogue numbers as the printed AoE column.
+ * Radius for a Breath mode. Same catalogue numbers as the printed AoE column.
  */
-export function breathConeMeters(
+export function breathRadiusMeters(
   artifactLevel: number,
   mode: DragonBreathMode = 'damage',
 ): number {
   return mode === 'ruin'
-    ? breathRuinConeMeters(artifactLevel)
-    : breathDamageConeMeters(artifactLevel);
+    ? breathRuinRadiusMeters(artifactLevel)
+    : breathDamageRadiusMeters(artifactLevel);
 }
 
 /**
- * Sheet / dialog AoE text for a Breath Weapon row: dual Damage / Ruin cone lengths.
+ * Sheet / dialog AoE text for a Breath Weapon row: dual Damage / Ruin radii.
  */
 export function breathWeaponRowDisplay(artifactLevel: number): { range: string; aoe: string } {
-  const d = breathDamageConeMeters(artifactLevel);
-  const r = breathRuinConeMeters(artifactLevel);
+  const d = breathDamageRadiusMeters(artifactLevel);
+  const r = breathRuinRadiusMeters(artifactLevel);
   return {
     range: 'Self',
-    aoe: `Damage: Cone ${d} m / Ruin: Cone ${r} m`,
+    aoe: `Damage: radius ${d} m / Ruin: radius ${r} m`,
   };
 }
 
-/** Range / AoE text for any progression row, with Breath Weapon dual cones applied. */
+/** Range / AoE text for any progression row, with Breath Weapon dual radii applied. */
 export function progressionRowRangeAoe(
   row:
     | {

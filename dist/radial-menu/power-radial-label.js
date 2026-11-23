@@ -32,7 +32,7 @@ export function formatRadialPowerDisplayName(item, opts) {
         }
     }
     if (opts?.splitAttack) {
-        name = `${name} × 2`;
+        name = `${name} × ${Math.max(2, Math.floor(Number(opts.splitTargets) || 2))}`;
     }
     return name;
 }

@@ -713,7 +713,7 @@ async function executeReactionSpend(params) {
                 const roll = await new globalThis.Roll(formula).evaluate({ async: true });
                 const total = Math.max(0, Math.floor(Number(roll?.total) || 0));
                 const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
-                await applyDamageToTarget(attacker, total, actor, 0, {
+                await applyDamageToTarget(attacker, total, actor, {
                     skipPhasing: true,
                     skipReactionPrompt: true,
                 });
@@ -873,7 +873,7 @@ async function executeReactionSpend(params) {
                 const total = Math.max(0, Math.floor(Number(roll?.total) || 0));
                 const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
                 // No armorPenetration: Passive Armor Reduction applies to damaging Attacks only.
-                await applyDamageToTarget(attacker, total, actor, 0, {
+                await applyDamageToTarget(attacker, total, actor, {
                     skipPhasing: true,
                     skipReactionPrompt: true,
                 });

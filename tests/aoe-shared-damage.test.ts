@@ -10,14 +10,12 @@ describe('AoE shared damage payload', () => {
   it('builds a reusable payload from a primary damage result', () => {
     const shared = toSharedAoeDamagePayload({
       totalDamage: 12,
-      count8s: 1,
       specialsUsed: ['Slow(4)', 'Penetration(8)'],
       rollDetails: ['Weapon: 0', 'Power: 0d8'],
       attackContext: { armorPenetration: 8 },
     });
     expect(shared).toEqual({
       totalDamage: 12,
-      count8s: 1,
       specialsUsed: ['Slow(4)', 'Penetration(8)'],
       applicationLimitNotes: undefined,
       rollDetails: ['Weapon: 0', 'Power: 0d8'],
@@ -27,7 +25,7 @@ describe('AoE shared damage payload', () => {
   });
 
   it('reuses one raw damage total for every hit target (no primary / no re-roll)', () => {
-    const shared = toSharedAoeDamagePayload({ totalDamage: 21, count8s: 1, specialsUsed: ['Push(2)'] });
+    const shared = toSharedAoeDamagePayload({ totalDamage: 21, specialsUsed: ['Push(2)'] });
     const perTarget = ['t1', 't2', 't3'].map(() => ({ ...shared! }));
     expect(perTarget.map((p) => p.totalDamage)).toEqual([21, 21, 21]);
     expect(perTarget.every((p) => p.specialsUsed?.[0] === 'Push(2)')).toBe(true);
@@ -36,7 +34,6 @@ describe('AoE shared damage payload', () => {
   it('pure Special AoE (0 damage) still carries full Specials for every hit', () => {
     const shared = toSharedAoeDamagePayload({
       totalDamage: 0,
-      count8s: 0,
       specialsUsed: ['Slow(4)'],
       rollDetails: ['Power: 0d8'],
     });

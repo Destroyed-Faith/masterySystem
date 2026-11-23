@@ -1,6 +1,6 @@
 /**
- * P0: Limited / Breath charges must not be spent before Not-a-Target or
- * cancellable Breath attribute dialogs abort the declaration.
+ * P0: Limited / Breath charges must not be spent before Not-a-Target
+ * aborts the declaration.
  *
  * Exercises the real `createAttackCard` executor path (not only a local harness).
  */
@@ -79,6 +79,7 @@ describe('P0 Limited / Breath spend ordering', () => {
     expect(assertDragonBreathAvailable(actor).ok).toBe(true);
     expect(assertDragonBreathAvailable(actor).ok).toBe(true);
     expect(await spendDragonBreathUse(actor)).toBe(true);
+    expect(await spendDragonBreathUse(actor)).toBe(true);
     expect(assertDragonBreathAvailable(actor).ok).toBe(false);
   });
 });
@@ -95,7 +96,7 @@ describe('P0 createAttackCard executor — cancel does not consume resources', (
     };
   });
 
-  it('Breath attribute Dialog cancel does not call spendDragonBreathUse', async () => {
+  it('Not-a-Target abort does not call spendDragonBreathUse', async () => {
     const attacker = makeActor({
       artifactRestUses: { dragonBreath: { used: 0 } },
       artifactCombatUses: {},
@@ -106,10 +107,11 @@ describe('P0 createAttackCard executor — cancel does not consume resources', (
     target.type = 'npc';
 
     const spendSpy = vi.spyOn(artifactRestUses, 'spendDragonBreathUse');
-    (globalThis as any).Dialog = {
-      wait: vi.fn(async () => null), // user closed / cancelled
-      confirm: vi.fn(async () => false),
-    };
+    vi.spyOn(stoneCombatEffects, 'notATargetDecision').mockReturnValue({
+      block: true,
+      reason: 'Not a Target.',
+      next: null,
+    } as any);
 
     const result = await createAttackCard(
       makeToken(attacker, 'tok-atk'),

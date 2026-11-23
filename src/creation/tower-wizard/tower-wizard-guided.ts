@@ -275,7 +275,7 @@ const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
         playerTitle: 'Thorns',
         powerName: 'Thorns',
         explanation:
-            'When you take final HP damage, deal Thorns damage back to the source (capped by the loss). Green Warden Echo only.',
+            'When you take final HP damage, deal Thorns damage back to the source (capped by the loss). Greenwarden access only.',
     },
     'passive-damage-negation': {
         playerTitle: 'Damage Negation',

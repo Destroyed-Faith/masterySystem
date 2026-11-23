@@ -16,7 +16,7 @@
  * Different defenses stay mechanically different — nothing here collapses
  * them into one "effective armor" number.
  */
-import { damageJointPmf, hitChance, pmfAtLeast, pmfMean, pmfQuantile, poolKeepPmf, } from './probability.js';
+import { hitChance, plainDamagePmf, pmfAtLeast, pmfMean, pmfQuantile, poolKeepPmf, } from './probability.js';
 /* ------------------------------------------------------------------ */
 /* Rule constants                                                      */
 /* ------------------------------------------------------------------ */
@@ -74,9 +74,8 @@ export function attackConnectChance(spec) {
 }
 /**
  * Exact expected HP damage of one connecting hit, respecting:
- * Damage Negation (dice removed) -> roll -> Penetration -> Armor -> DR% ->
- * natural-8 minimum damage (if armor+DR zero out the hit, the target still
- * takes 1 damage per natural 8 rolled).
+ * Damage Negation (dice removed) -> roll -> Penetration -> Armor -> DR%.
+ * A hit reduced to 0 deals 0.
  *
  * Temporary HP is handled by the simulator (it is a pool, not a per-hit
  * modifier).
@@ -90,20 +89,14 @@ export function expectedHitDamage(spec) {
         const afterArmor = Math.max(0, flat - effArmor);
         return afterArmor - Math.ceil((afterArmor * dr) / 100);
     }
-    const joint = damageJointPmf(dice);
+    const pmf = plainDamagePmf(dice);
     let expected = 0;
-    for (let eights = 0; eights < joint.length; eights += 1) {
-        const pmf = joint[eights];
-        for (let s = 0; s < pmf.length; s += 1) {
-            const p = pmf[s];
-            if (p === 0)
-                continue;
-            const raw = s + flat;
-            const afterArmor = Math.max(0, raw - effArmor);
-            const afterDr = afterArmor - Math.ceil((afterArmor * dr) / 100);
-            const dmg = afterDr > 0 ? afterDr : eights;
-            expected += p * dmg;
-        }
+    for (let s = 0; s < pmf.length; s += 1) {
+        const p = pmf[s];
+        if (p === 0)
+            continue;
+        const afterArmor = Math.max(0, s + flat - effArmor);
+        expected += p * (afterArmor - Math.ceil((afterArmor * dr) / 100));
     }
     return expected;
 }
@@ -121,21 +114,14 @@ export function hitDamageQuantile(spec, q) {
         return afterArmor - Math.ceil((afterArmor * dr) / 100);
     }
     // Build the mitigated-damage PMF, then take the quantile.
-    const joint = damageJointPmf(dice);
-    const maxDmg = 8 * dice + flat;
-    const out = new Float64Array(maxDmg + 1);
-    for (let eights = 0; eights < joint.length; eights += 1) {
-        const pmf = joint[eights];
-        for (let s = 0; s < pmf.length; s += 1) {
-            const p = pmf[s];
-            if (p === 0)
-                continue;
-            const raw = s + flat;
-            const afterArmor = Math.max(0, raw - effArmor);
-            const afterDr = afterArmor - Math.ceil((afterArmor * dr) / 100);
-            const dmg = afterDr > 0 ? afterDr : eights;
-            out[dmg] += p;
-        }
+    const pmf = plainDamagePmf(dice);
+    const out = new Float64Array(8 * dice + flat + 1);
+    for (let s = 0; s < pmf.length; s += 1) {
+        const p = pmf[s];
+        if (p === 0)
+            continue;
+        const afterArmor = Math.max(0, s + flat - effArmor);
+        out[afterArmor - Math.ceil((afterArmor * dr) / 100)] += p;
     }
     return pmfQuantile(out, q);
 }

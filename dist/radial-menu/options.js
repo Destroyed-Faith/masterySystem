@@ -17,6 +17,7 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { resolvePowerIdentity, deriveActiveSegment } from '../utils/power-identity.js';
 import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
+import { splitTargetsForPowerLevel } from '../combat/split-attack-targets.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { filterCatalog } from '../utils/power-catalog.js';
@@ -954,7 +955,7 @@ export async function getAllCombatOptionsForActor(actor) {
             actionCost === 'movement';
         const costsAction = actionCost === true || cost.actions === true ||
             (typeof actionCost === 'string' && ['attack', 'full', 'utility'].includes(actionCost));
-        // Strip tier suffixes, mark spells, and label split-attack powers (× 2).
+        // Strip tier suffixes, mark spells, and label split-attack powers (× max targets).
         let splitAttack = false;
         try {
             const mech = resolvePowerMechanics(item);
@@ -963,7 +964,10 @@ export async function getAllCombatOptionsForActor(actor) {
         catch {
             /* ignore */
         }
-        const displayName = formatRadialPowerDisplayName(item, { splitAttack });
+        const splitTargets = splitAttack
+            ? splitTargetsForPowerLevel(Number(item.system?.level ?? item.system?.rank ?? 1))
+            : undefined;
+        const displayName = formatRadialPowerDisplayName(item, { splitAttack, splitTargets });
         let specialOnly = false;
         try {
             const { isSpecialOnlyTemplateId } = await import('../combat/damage-transfer.js');

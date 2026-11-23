@@ -9,8 +9,8 @@ import {
 } from '../src/combat/attack-executor.js';
 import { resolveAoeFromSharedRoll } from '../src/combat/aoe-melee-resolution.js';
 import {
-  breathDamageConeMeters,
-  breathRuinConeMeters,
+  breathDamageRadiusMeters,
+  breathRuinRadiusMeters,
   breathWeaponRowDisplay,
   damageBreathSharedPoolFormula,
 } from '../src/utils/breath-weapon.js';
@@ -68,16 +68,16 @@ describe('Dragon Breath L3 — Cone specialty, Instant AoE flags', () => {
     });
     const damage = opts.find((o) => /Damage Breath/i.test(o.name));
     const ruin = opts.find((o) => /Ruin Breath/i.test(o.name));
-    expect(damage?.aoeShape).toBe('cone');
-    expect(ruin?.aoeShape).toBe('cone');
-    expect(damage?.burstMeleeAoE).toBeFalsy();
-    expect(ruin?.burstMeleeAoE).toBeFalsy();
-    expect(damage?.aoeRadiusMeters).toBe(breathDamageConeMeters(3));
-    expect(ruin?.aoeRadiusMeters).toBe(breathRuinConeMeters(3));
+    expect(damage?.aoeShape).toBe('radius');
+    expect(ruin?.aoeShape).toBe('radius');
+    expect(damage?.burstMeleeAoE).toBe(true);
+    expect(ruin?.burstMeleeAoE).toBe(true);
+    expect(damage?.aoeRadiusMeters).toBe(breathDamageRadiusMeters(3));
+    expect(ruin?.aoeRadiusMeters).toBe(breathRuinRadiusMeters(3));
     expect(damage?.dragonHeadDamageBreath).toBe(true);
     expect(ruin?.dragonHeadBreathMode).toBe('ruin');
-    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+4d8');
-    expect(breathWeaponRowDisplay(3).aoe).toMatch(/Cone 3 m/);
+    expect(damageBreathSharedPoolFormula(3)).toBe('3d8+5d8');
+    expect(breathWeaponRowDisplay(3).aoe).toMatch(/radius 3 m/);
   });
 });
 
@@ -92,7 +92,7 @@ describe('Catalogue Melee / Ranged AoE Instant rules (no Primary)', () => {
     const { getTemplate } = await import('../src/utils/powers/templates/index.js');
     const melee = getTemplate('active-melee-weapon-aoe');
     expect(melee?.levels?.['4']?.aoe?.center).toBe('self');
-    expect(String(melee?.levels?.['4']?.effect?.dice || '')).toMatch(/4d8/);
+    expect(String(melee?.levels?.['4']?.effect?.dice || '')).toMatch(/5d8/);
   });
 
   it('Ranged AoE Attack places at targetPoint (not a Primary Target)', async () => {

@@ -88,7 +88,6 @@ describe('Defensive stone duration — until start of next own turn', () => {
     expect(getTargetSpellResistance(defender as any)).toBe(8);
     const duringEnemyHit = applyDefensiveMitigation({
       rawDamage: 20,
-      count8s: 0,
       armorTotal: 4 + Number(mid.stoneBonuses.tempArmor || 0),
       damageReductionPct: Number(mid.stoneBonuses.damageReductionBoostPct || 0),
     });

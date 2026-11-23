@@ -12,12 +12,6 @@ export { regenerationPoolMaxForLevel, regenerationCatalogText } from './r05-pool
 export declare const PP_PER_LEVEL_ACTIVE = 30;
 export declare const PP_PER_LEVEL_PASSIVE = 20;
 export declare const PP_PER_RESTORATION_BAR = 40;
-export declare const PP_PER_RANGE_STEP = 5;
-export declare const MELEE_AOE_RADIUS_COST: Record<number, number>;
-export declare const RANGED_AOE_RADIUS_COST: Record<number, number>;
-export declare function rangedRangeCostPp(pl: number): number;
-export declare function meleeAoePoolFromBudget(pl: number): number;
-export declare function rangedAoePoolFromBudget(pl: number): number;
 export declare function passiveRegenPoolFromBudget(pl: number): number;
 export declare const R05_RETIRED_HEALING_BUFF_IDS: Set<string>;
 export declare const R05_AOE_RESTORATION_IDS: Set<string>;

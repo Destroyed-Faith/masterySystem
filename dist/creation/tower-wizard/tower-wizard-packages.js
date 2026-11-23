@@ -799,6 +799,8 @@ const SUPPORT_ACTIVE_BUFF_ORDER = [
     'ab-spell-resistance',
     'ab-cleanse-maintenance',
     'ab-armor-aura',
+    'ab-evade-aura',
+    'ab-spell-resistance-aura',
     'ab-invisibility',
     'ab-summon-damage-aura',
     'ab-summon-armor-aura',
@@ -826,7 +828,17 @@ const SUPPORT_BUFF_META = {
     'ab-armor-aura': {
         groupLabel: 'Auras',
         label: 'Active Buff: Armor Aura',
-        explanation: 'Share Armor with nearby allies.',
+        explanation: 'You and allies inside the Aura gain Armor (highest Active Buff bonus applies).',
+    },
+    'ab-evade-aura': {
+        groupLabel: 'Auras',
+        label: 'Active Buff: Evade Aura',
+        explanation: 'You and allies inside the Aura gain Evade (highest Active Buff bonus applies).',
+    },
+    'ab-spell-resistance-aura': {
+        groupLabel: 'Auras',
+        label: 'Active Buff: Spell Resistance Aura',
+        explanation: 'You and allies inside the Aura gain Spell Resistance (highest Active Buff bonus applies).',
     },
     'ab-invisibility': {
         groupLabel: 'Ward',
@@ -1001,7 +1013,7 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
         grants: {
             passive1: def('passive-damage-negation', DEF_RANK),
             activeBuff: def('ab-reinforced-damage-negation', DEF_RANK),
-            reaction: def('reaction-damage-negation', DEF_RANK),
+            reaction: def('reaction-temp-hp', DEF_RANK),
         },
     },
 ];

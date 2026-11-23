@@ -22,12 +22,12 @@ import { getTemplate } from '../src/utils/powers/index.js';
 
 // Printed catalogue tables: [radiusM, dice] per Power Level 1..16.
 const MELEE_AOE: ReadonlyArray<[number, number]> = [
-  [2, 1], [2, 2], [3, 2], [3, 4], [4, 4], [4, 6], [5, 6], [5, 7],
+  [2, 1], [2, 3], [3, 3], [3, 5], [4, 5], [4, 6], [5, 6], [5, 7],
   [6, 7], [6, 7], [7, 7], [7, 7], [8, 7], [8, 9], [8, 11], [8, 13],
 ];
 const RANGED_AOE: ReadonlyArray<[number, number]> = [
   [2, 1], [2, 2], [3, 2], [3, 3], [4, 3], [4, 4], [5, 4], [5, 4],
-  [6, 4], [6, 4], [7, 4], [7, 5], [7, 5], [8, 5], [8, 6], [8, 8],
+  [6, 4], [6, 4], [7, 4], [7, 5], [7, 5], [8, 5], [8, 7], [8, 8],
 ];
 
 describe('Melee / Ranged AoE Attack PL tables', () => {
@@ -166,7 +166,6 @@ describe('Shared roll, no primary', () => {
   it('one raw Power damage total applies unchanged to N targets', () => {
     const shared = toSharedAoeDamagePayload({
       totalDamage: 27,
-      count8s: 2,
       specialsUsed: ['Slow(4)'],
       rollDetails: ['Power: 6d8'],
     });

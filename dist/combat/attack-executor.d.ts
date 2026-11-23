@@ -3,25 +3,33 @@
  * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
 import type { RadialCombatOption } from "../token-radial-menu";
+import { splitTargetsForPowerLevel } from "./split-attack-targets.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
-/** Bookkeeping for a single strike of a split-attack pair. */
+/** Bookkeeping for a single strike of a Split Attack. */
 interface SplitContext {
     splitPairId: string;
-    splitIndex: 1 | 2;
-    /** This strike's share of the attack pool. Strike 2 carries the remainder. */
+    /** 1-based strike number. */
+    splitIndex: number;
+    /** Number of chosen targets (= strikes) for this Power use. */
+    splitTotal: number;
+    /** This strike's share of the attack pool (recomputed on Strike 1). */
     attributePool: number;
-    secondPool?: number;
     sharedRaisePlan?: string;
     sharedRaiseSlots?: string;
     sharedRaiseFree?: string;
     sharedRaiseTn?: string;
 }
-/** Split one attack pool across two strikes. No Mastery Rank floor. */
+export { splitTargetsForPowerLevel };
+/** Maximum different targets for this Split Attack option (NPC rows: 2 unless stated). */
+export declare function splitAttackMaxTargets(option: RadialCombatOption): number;
+/** Divide one attack pool across N strikes; earlier strikes take the remainder. No MR floor. */
+export declare function divideSplitAttackPoolN(total: number, parts: number): number[];
+/** Split one attack pool across two strikes. */
 export declare function divideSplitAttackPool(total: number): {
     first: number;
     second: number;
 };
-/** Combatants other than the attacker. One alternative target is enough. */
+/** Combatants other than the attacker (deduplicated). */
 export declare function listSplitSecondTargetIds(tokenIds: readonly string[], attackerTokenId: string): string[];
 export declare function rememberSplitSharedRaises(pairId: string, raises: {
     plan?: string;
@@ -29,19 +37,27 @@ export declare function rememberSplitSharedRaises(pairId: string, raises: {
     free?: string;
     tn?: string;
 }): void;
+/** Next queued strike of a Split Attack (target + pool), or null when none is left. */
 export declare function peekPendingSplit(pairId: string): {
     targetTokenId: string;
     secondPool: number;
+    nextIndex: number;
+    splitTotal: number;
     sharedRaisePlan?: string;
 } | null;
-type SplitSecondTargetFn = (attackerToken: any, primaryTargetToken: any, option: RadialCombatOption) => Promise<string | null>;
-/** Tests and the attack card use this to choose the second Split Attack token. */
+type SplitSecondTargetFn = (attackerToken: any, primaryTargetToken: any, option: RadialCombatOption, chosenTokenIds?: readonly string[]) => Promise<string | null>;
+/**
+ * Tests and the attack card use this to choose additional Split Attack targets.
+ * Called once per additional target; return null (or an already chosen id) to stop.
+ */
 export declare function setSplitSecondTargetResolver(fn: SplitSecondTargetFn | null): void;
 /**
- * After Strike 1 of a Split Attack fully resolves (hit or miss), post Strike 2.
- * Safe to call more than once — the pending entry is consumed on first spawn.
+ * After a Split Attack strike fully resolves (hit or miss), post the next strike.
+ * Safe to call more than once — each queued strike is consumed on first spawn.
  */
-export declare function spawnSplitStrike2IfPending(splitPairId: string | null | undefined): Promise<void>;
+export declare function spawnNextSplitStrikeIfPending(splitPairId: string | null | undefined): Promise<void>;
+/** @deprecated Name from the two-strike version — posts the next queued strike. */
+export declare const spawnSplitStrike2IfPending: typeof spawnNextSplitStrikeIfPending;
 /** One melee AoE declaration → multiple attack cards; only volleyIndex === 1 spends the attack action on roll. */
 export interface MeleeBurstVolleyContext {
     volleyId: string;
@@ -93,6 +109,7 @@ export declare function getAttackAttribute(actor: any, weapon: any | null, optio
 export declare function openSplitPair(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: 'melee' | 'ranged'): Promise<{
     pairId: string;
     secondTargetId: string;
+    targetTokenIds: string[];
 }>;
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).

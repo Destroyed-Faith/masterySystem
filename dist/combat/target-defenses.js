@@ -4,9 +4,10 @@
  * second interpretation of the sheet.
  *
  * Always-on Passive `mechanics.evade` / `mechanics.armor` are already folded
- * into `evadeTotal` / `armorTotal` by `prepareDerivedData`. Active Buff
- * bonuses still stack on top via `*FromActiveBuffs`.
+ * into `evadeTotal` / `armorTotal` by `prepareDerivedData`. The Active Buff
+ * part (`*FromActiveBuffs` vs Protective Auras in range, highest only) adds on top.
  */
+import { protectiveAuraDelta } from './protective-aura-runtime.js';
 import { getActiveBuffEnemyEvadeReduction, getActiveBuffSpellResistancePiercing, } from './offensive-active-buff-effects.js';
 import { applyAllOutArmorPenalty, applyAllOutEvadePenalty, currentCombatRoundState, } from './tactical-options.js';
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
@@ -42,8 +43,7 @@ export function getTargetEvadeBeforeAllOut(targetActor) {
         return 6;
     const combat = targetActor.system.combat || {};
     const base = combat.evadeTotal ?? combat.evade ?? 6;
-    const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
-    return Math.max(0, Math.floor(Number(base) + Number(buffBonus) || 0));
+    return Math.max(0, Math.floor(Number(base) + activeBuffDefenseBonus(targetActor, 'evade') || 0));
 }
 /** Effective Armor (armorTotal + Active Buffs) before any All-Out drawback. */
 export function getTargetArmorBeforeAllOut(targetActor) {
@@ -51,7 +51,21 @@ export function getTargetArmorBeforeAllOut(targetActor) {
         return 0;
     const combat = targetActor.system.combat ?? {};
     return (Math.max(0, Math.floor(Number(combat.armorTotal ?? combat.armor ?? 0) || 0)) +
-        Math.max(0, Math.floor(Number(combat.armorFromActiveBuffs ?? 0) || 0)));
+        Math.max(0, activeBuffDefenseBonus(targetActor, 'armor')));
+}
+/**
+ * Active Buff part of Armor / Evade / Spell Resistance: the highest of the
+ * creature's own Active Buff and every Protective Aura it stands in (no stacking).
+ */
+export function activeBuffDefenseBonus(targetActor, stat) {
+    const combat = targetActor?.system?.combat ?? {};
+    const field = stat === 'armor'
+        ? combat.armorFromActiveBuffs
+        : stat === 'evade'
+            ? combat.evadeFromActiveBuffs
+            : combat.spellResistanceFromActiveBuffs;
+    const own = Math.floor(Number(field ?? 0) || 0);
+    return own + protectiveAuraDelta(targetActor, stat, own);
 }
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */
 export function getTargetArmor(targetActor) {
@@ -80,7 +94,7 @@ export function getTargetSpellResistance(targetActor) {
         /* ignore */
     }
     return Math.max(0, Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0) +
-        Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0) +
+        activeBuffDefenseBonus(targetActor, 'spellResistance') +
         stoneBonus);
 }
 /**

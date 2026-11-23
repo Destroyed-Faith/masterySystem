@@ -134,7 +134,7 @@ describe('preserveNpcAttackSpecialsInSystemUpdate', () => {
     const update = {
       npcReactions: [
         { id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' },
-        { id: 'b', name: 'Evade', source: 'basic', basicId: 'evade' },
+        { id: 'b', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' },
       ],
     };
     preserveNpcAttackSpecialsInSystemUpdate(current, update);
@@ -146,7 +146,7 @@ describe('preserveNpcAttackSpecialsInSystemUpdate', () => {
     const current = {
       npcReactions: [
         { id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' },
-        { id: 'b', name: 'Evade', source: 'basic', basicId: 'evade' },
+        { id: 'b', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' },
       ],
     };
     const update = {
@@ -161,7 +161,7 @@ describe('preserveNpcAttackSpecialsInSystemUpdate', () => {
     const current = {
       npcReactions: [
         { id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' },
-        { id: 'b', name: 'Evade', source: 'basic', basicId: 'evade' },
+        { id: 'b', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' },
       ],
     };
     const update = {

@@ -170,18 +170,11 @@ export async function spendMoonlightShadowUse(actor) {
     const r = await spendArtifactRestUse(actor, 'moonlightShadow', moonlightShadowMaxUses(masteryRankOf(actor)));
     return r.ok;
 }
-/**
- * Dragon Breath: shared Damage/Ruin counter.
- * Must have remaining Safe Haven uses AND not already used this Combat.
- * Artifact Awakening must not bypass the combat-once gate.
- */
+/** Dragon Breath: shared Damage/Ruin counter, ceil(MR/2) uses per Safe Haven Rest. */
 export function assertDragonBreathAvailable(actor) {
     const restMax = dragonBreathRestMaxUses(masteryRankOf(actor));
     if (!canSpendArtifactRestUse(actor, 'dragonBreath', restMax)) {
         return { ok: false, reason: 'rest' };
-    }
-    if (!canSpendArtifactCombatUse(actor, 'dragonBreath')) {
-        return { ok: false, reason: 'combat' };
     }
     return { ok: true };
 }
@@ -190,9 +183,6 @@ export async function spendDragonBreathUse(actor) {
     if (!gate.ok)
         return false;
     const rest = await spendArtifactRestUse(actor, 'dragonBreath', dragonBreathRestMaxUses(masteryRankOf(actor)));
-    if (!rest.ok)
-        return false;
-    const combat = await spendArtifactCombatUse(actor, 'dragonBreath');
-    return combat.ok;
+    return rest.ok;
 }
 //# sourceMappingURL=artifact-rest-uses.js.map

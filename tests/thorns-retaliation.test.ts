@@ -13,7 +13,6 @@ vi.mock('../src/dice/damage-dialog.js', () => ({
     mitigatedDamage: 0,
     tempHPAbsorbed: 0,
     barDamage: 0,
-    min8sUsed: false,
     breakdownLine: '',
     phased: false,
   })),
@@ -81,7 +80,7 @@ describe('Thorns retaliation', () => {
     expect(call[0]).toBe(attacker);
     expect(call[2]).toBe(defender);
     expect(call[1]).toBeLessThanOrEqual(3);
-    expect(call[4]?.skipThorns).toBe(true);
+    expect(call[3]?.skipThorns).toBe(true);
   });
 
   it('does nothing when there is no Thorns source', async () => {

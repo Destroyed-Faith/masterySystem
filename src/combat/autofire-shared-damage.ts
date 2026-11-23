@@ -14,7 +14,7 @@
  *   Passive, Raise d8s, NSC auto d8s (the same order the single-target negation
  *   strips them from the formula). Omission removes the FIRST `omitCount` dice of
  *   that list (index 0 .. omitCount-1). Omitted dice contribute nothing to total
- *   damage and nothing to the natural-8 minimum count.
+ *   damage.
  *
  * Non-negatable dice (Summon aura, conditional / vulnerability / buff riders,
  * Precision, manual bonus dice) and flat bonuses are NOT part of the omittable
@@ -49,14 +49,10 @@ export type SharedDicePool = {
 export type SharedDiceTotals = {
   /** Sum of the kept (non-omitted) dice. */
   total: number;
-  /** Natural 8s among the kept dice. */
-  natural8s: number;
   omittedCount: number;
   keptCount: number;
   /** Contribution of the omitted dice to the full total (to subtract). */
   omittedTotal: number;
-  /** Natural 8s among the omitted dice (to subtract from the full count8s). */
-  omittedNatural8s: number;
 };
 
 function normalizeFaces(faces: readonly number[] | null | undefined): number[] {
@@ -73,7 +69,7 @@ export function normalizeOmitCount(omit: number, poolSize: number): number {
 /**
  * Damage from a shared ordered die list when `omitCount` dice are omitted.
  * Omits the FIRST `omitCount` entries (see DICE-OMIT CONVENTION above). Pure; never
- * rolls. Omitted dice count toward neither `total` nor `natural8s`.
+ * rolls. Omitted dice do not count toward `total`.
  */
 export function damageFromSharedDice(
   faces: readonly number[],
@@ -85,34 +81,24 @@ export function damageFromSharedDice(
   const artificial = opts?.artificial === true;
   const floor = Math.max(0, Math.floor(Number(opts?.dieFloor) || 0));
   const value = (face: number) => (artificial ? 8 : Math.max(face, floor));
-  const isNatural8 = (face: number) => !artificial && face === 8;
 
   let total = 0;
-  let natural8s = 0;
   let omittedTotal = 0;
-  let omittedNatural8s = 0;
   list.forEach((face, i) => {
-    if (i < omit) {
-      omittedTotal += value(face);
-      if (isNatural8(face)) omittedNatural8s += 1;
-    } else {
-      total += value(face);
-      if (isNatural8(face)) natural8s += 1;
-    }
+    if (i < omit) omittedTotal += value(face);
+    else total += value(face);
   });
   return {
     total,
-    natural8s,
     omittedCount: omit,
     keptCount: list.length - omit,
     omittedTotal,
-    omittedNatural8s,
   };
 }
 
 /**
- * Per-hit payload derived from the ONE shared roll. `totalDamage` and `count8s`
- * drop the omitted dice only; the shared faces are never re-rolled or mutated.
+ * Per-hit payload derived from the ONE shared roll. `totalDamage` drops the
+ * omitted dice only; the shared faces are never re-rolled or mutated.
  */
 export function sharedDamageForHit(
   shared: SharedAoeDamagePayload,
@@ -126,7 +112,6 @@ export function sharedDamageForHit(
     dieFloor: shared.dieFloor,
   });
   const fullTotal = Math.max(0, Math.floor(Number(shared.totalDamage) || 0));
-  const fullCount8s = Math.max(0, Math.floor(Number(shared.count8s) || 0));
   const rollDetails = Array.isArray(shared.rollDetails) ? [...shared.rollDetails] : [];
   if (omit > 0) {
     rollDetails.unshift(
@@ -136,7 +121,6 @@ export function sharedDamageForHit(
   return {
     ...shared,
     totalDamage: Math.max(0, fullTotal - t.omittedTotal),
-    count8s: Math.max(0, fullCount8s - t.omittedNatural8s),
     omitCount: omit,
     rollDetails: rollDetails.length ? rollDetails : undefined,
     damageChatRolls: opts?.keepRolls === false ? undefined : shared.damageChatRolls,

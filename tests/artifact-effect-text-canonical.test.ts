@@ -13,9 +13,9 @@ import { GENERAL_ARTIFACTS } from '../src/utils/general-artifacts.js';
 import { getTemplate } from '../src/utils/powers/index.js';
 import { isLimitedPowerTemplateId } from '../src/combat/limited-charge.js';
 import {
-  breathDamageConeMeters,
+  breathDamageRadiusMeters,
   breathPowerDamageDice,
-  breathRuinConeMeters,
+  breathRuinRadiusMeters,
   breathRuinValue,
 } from '../src/utils/breath-weapon.js';
 import { aoeSpecialRadiusM, aoeSpecialRank } from '../src/utils/powers/instant-special-ranks.js';
@@ -76,7 +76,7 @@ function auditAuthoredTexts(): Finding[] {
           for (const m of stripped.matchAll(/(\d+)\s*(m\b|Temporary HP|Scarred|HP|Health Bars?|bars?)/gi)) {
             const n = Number(m[1]);
             if (new RegExp(`\\b${n}\\b`).test(tplText)) continue;
-            if (isBreath && /m/i.test(m[2]) && (n === breathRuinConeMeters(level) || n === breathDamageConeMeters(level))) continue;
+            if (isBreath && /m/i.test(m[2]) && (n === breathRuinRadiusMeters(level) || n === breathDamageRadiusMeters(level))) continue;
             findings.push({ where, problem: `"${m[0]}" not printed by the template row` });
           }
         });
@@ -95,10 +95,10 @@ describe('artifact authored effect texts carry no private Power values', () => {
     const weaponAoe = getTemplate('active-melee-weapon-aoe') as any;
     for (const [level, pl] of [[1, 4], [4, 10], [7, 16]] as const) {
       const row = weaponAoe.levels[String(pl)];
-      expect(breathDamageConeMeters(level)).toBe(row.aoe.radiusM);
+      expect(breathDamageRadiusMeters(level)).toBe(row.aoe.radiusM);
       expect(`+${breathPowerDamageDice(level)}d8`).toBe(row.mechanics.damageRider.flat);
       expect(breathRuinValue(level)).toBe(aoeSpecialRank('melee', 'ruin', pl));
-      expect(breathRuinConeMeters(level)).toBe(aoeSpecialRadiusM('melee', 'ruin', pl));
+      expect(breathRuinRadiusMeters(level)).toBe(aoeSpecialRadiusM('melee', 'ruin', pl));
     }
   });
 

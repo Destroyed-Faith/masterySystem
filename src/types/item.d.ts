@@ -342,6 +342,8 @@ export interface PowerMechanics {
   healthBarMultiplier?: number;
   /** Passive: Absorption — Temporary Colorless Stones per Scarred Health Bar. */
   absorptionStonesPerTrigger?: number;
+  /** Reaction: Absorption Surge — extra Temporary Colorless Stones once per triggering damage instance. */
+  absorptionSurgeStones?: number;
   /** Active Buff: Absorption Stone Increase — extra Stones on first eligible trigger per Round. */
   absorptionStoneIncrease?: number;
 
@@ -574,6 +576,8 @@ export interface PowerMechanics {
   summonDamageAura?: { dice: number; radiusM: number };
   /** Active Buff: extra Armor for the owner's own Summons inside the radius. */
   summonArmorAura?: { armor: number; radiusM: number };
+  /** Protective Aura (Armor / Evade / Spell Resistance) — caster and allies in radius; highest Active Buff bonus wins. */
+  protectiveAura?: { stat: 'armor' | 'evade' | 'spellResistance'; value: number; radiusM: number };
   /** End-of-turn pulse for Damage Aura and Healing Aura only. */
   auraPayload?: {
     kind: 'damage' | 'healing' | 'special';
@@ -1012,6 +1016,8 @@ export interface ArtifactProgressionPick {
    * column (e.g. Wyrm Scales' printed +6/+12/+18 Armor buff).
    */
   stageEffectTexts?: [string, string, string];
+  /** Printed Type column for every staged row (e.g. "Active, Martial"). */
+  rowType?: string;
   /** Ranged Active picks only: cast this line as a Spell (Intellect / Resolve). */
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;

@@ -55,6 +55,10 @@ export interface EchoArtifactStoneFunctionHint {
     level: 1 | 2 | 3;
     /** Optional flavor/display name for the generated rows (e.g. "Draconic Recovery"). */
     name?: string;
+    /** Printed Type column for the staged rows (e.g. "Artifact Active, Support"). */
+    rowType?: string;
+    /** Printed per-stage effect texts (length 3). */
+    stageEffectTexts?: [string, string, string];
 }
 /**
  * Rich Level Progression pick authoring for an Echo Artifact. Lets a definition
@@ -107,6 +111,8 @@ export interface EchoArtifactProgressionPickSpec {
      * (e.g. Wyrm Scales' +6/+12/+18 Armor buff).
      */
     stageEffectTexts?: [string, string, string];
+    /** Printed Type column for every staged row (e.g. "Active, Martial"). */
+    rowType?: string;
     /** Cast this line as a Spell (Intellect / Resolve). */
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
@@ -294,6 +300,7 @@ export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): 
     stageTemplateIds?: [string, string, string];
     stageNames?: [string, string, string];
     stageEffectTexts?: [string, string, string];
+    rowType?: string;
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;

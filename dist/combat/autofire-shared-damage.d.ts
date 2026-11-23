@@ -14,7 +14,7 @@
  *   Passive, Raise d8s, NSC auto d8s (the same order the single-target negation
  *   strips them from the formula). Omission removes the FIRST `omitCount` dice of
  *   that list (index 0 .. omitCount-1). Omitted dice contribute nothing to total
- *   damage and nothing to the natural-8 minimum count.
+ *   damage.
  *
  * Non-negatable dice (Summon aura, conditional / vulnerability / buff riders,
  * Precision, manual bonus dice) and flat bonuses are NOT part of the omittable
@@ -34,29 +34,25 @@ export type SharedDicePool = {
 export type SharedDiceTotals = {
     /** Sum of the kept (non-omitted) dice. */
     total: number;
-    /** Natural 8s among the kept dice. */
-    natural8s: number;
     omittedCount: number;
     keptCount: number;
     /** Contribution of the omitted dice to the full total (to subtract). */
     omittedTotal: number;
-    /** Natural 8s among the omitted dice (to subtract from the full count8s). */
-    omittedNatural8s: number;
 };
 /** Clamp a declared omit count to [0, poolSize]. */
 export declare function normalizeOmitCount(omit: number, poolSize: number): number;
 /**
  * Damage from a shared ordered die list when `omitCount` dice are omitted.
  * Omits the FIRST `omitCount` entries (see DICE-OMIT CONVENTION above). Pure; never
- * rolls. Omitted dice count toward neither `total` nor `natural8s`.
+ * rolls. Omitted dice do not count toward `total`.
  */
 export declare function damageFromSharedDice(faces: readonly number[], omitCount: number, opts?: {
     artificial?: boolean;
     dieFloor?: number;
 }): SharedDiceTotals;
 /**
- * Per-hit payload derived from the ONE shared roll. `totalDamage` and `count8s`
- * drop the omitted dice only; the shared faces are never re-rolled or mutated.
+ * Per-hit payload derived from the ONE shared roll. `totalDamage` drops the
+ * omitted dice only; the shared faces are never re-rolled or mutated.
  */
 export declare function sharedDamageForHit(shared: SharedAoeDamagePayload, omitCount: number, opts?: {
     keepRolls?: boolean;

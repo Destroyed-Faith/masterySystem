@@ -10,8 +10,8 @@ import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-co
 import { resolveFullLevelProgression } from '../src/utils/artifact-visible-abilities.js';
 import { getTemplate } from '../src/utils/powers/templates/index.js';
 import {
-  breathDamageConeMeters,
-  breathRuinConeMeters,
+  breathDamageRadiusMeters,
+  breathRuinRadiusMeters,
   breathWeaponRowDisplay,
 } from '../src/utils/breath-weapon.js';
 import {
@@ -110,7 +110,7 @@ describe('Every Echo Artifact L10 is Artifact Awakening', () => {
   });
 });
 
-describe('Moonlight Greatsword L10 Awakening (artefacts.md)', () => {
+describe('Moonlight Greatsword L10 Awakening (Artifacts.md)', () => {
   it('is Artifact Awakening, not True Moonlight', () => {
     const def = GENERAL_ARTIFACTS.moonlightGreatsword;
     const picks = buildEchoProgressionPicks(def as any);
@@ -134,7 +134,7 @@ describe('Dragon Head Breath Weapon — Core Melee AoE', () => {
     const melee = getTemplate('active-melee-weapon-aoe');
     expect(melee?.levels?.['4']?.aoe?.radiusM).toBe(3);
     expect(String(melee?.levels?.['4']?.effect?.dice || melee?.levels?.['4']?.mechanics?.damageRider?.flat)).toMatch(
-      /4d8/,
+      /5d8/,
     );
     expect(melee?.levels?.['10']?.aoe?.radiusM).toBe(6);
     expect(String(melee?.levels?.['10']?.effect?.dice || melee?.levels?.['10']?.mechanics?.damageRider?.flat)).toMatch(
@@ -153,20 +153,21 @@ describe('Dragon Head Breath Weapon — Core Melee AoE', () => {
     expect(b1?.name).toBe('Breath Weapon I');
     expect(String(b1?.effect)).toMatch(/Damage Breath/);
     expect(String(b1?.effect)).toMatch(/Ruin Breath/);
-    expect(String(b1?.effect)).toMatch(/Bite Weapon Damage \+ 4d8/);
+    expect(b1?.type).toBe('Artifact Active');
+    expect(String(b1?.effect)).toMatch(/\*\*5d8\*\* Power Damage \(plus matching Bite Weapon Damage\)/);
     expect(String(b1?.effect)).toMatch(/Ruin\(5\)/);
-    expect(String(b1?.effect)).toMatch(/Might or Agility/);
+    expect(String(b1?.effect)).not.toMatch(/Might or Agility|Cone/);
     expect(String(b1?.effect)).not.toMatch(/no Bite damage/i);
-    expect(String(b2?.effect)).toMatch(/Bite Weapon Damage \+ 7d8/);
+    expect(String(b2?.effect)).toMatch(/\*\*7d8\*\* Power Damage \(plus matching Bite Weapon Damage\)/);
     expect(String(b2?.effect)).toMatch(/Ruin\(9\)/);
-    expect(String(b3?.effect)).toMatch(/Bite Weapon Damage \+ 13d8/);
+    expect(String(b3?.effect)).toMatch(/\*\*13d8\*\* Power Damage \(plus matching Bite Weapon Damage\)/);
     expect(String(b3?.effect)).toMatch(/Ruin\(10\)/);
-    expect(breathWeaponRowDisplay(1).aoe).toBe('Damage: Cone 3 m / Ruin: Cone 3 m');
-    expect(breathWeaponRowDisplay(4).aoe).toBe('Damage: Cone 6 m / Ruin: Cone 5 m');
-    expect(breathWeaponRowDisplay(7).aoe).toBe('Damage: Cone 8 m / Ruin: Cone 7 m');
-    expect(breathDamageConeMeters(1)).toBe(3);
-    expect(breathRuinConeMeters(4)).toBe(5);
-    expect(breathRuinConeMeters(7)).toBe(7);
+    expect(breathWeaponRowDisplay(1).aoe).toBe('Damage: radius 3 m / Ruin: radius 3 m');
+    expect(breathWeaponRowDisplay(4).aoe).toBe('Damage: radius 6 m / Ruin: radius 5 m');
+    expect(breathWeaponRowDisplay(7).aoe).toBe('Damage: radius 8 m / Ruin: radius 7 m');
+    expect(breathDamageRadiusMeters(1)).toBe(3);
+    expect(breathRuinRadiusMeters(4)).toBe(5);
+    expect(breathRuinRadiusMeters(7)).toBe(7);
   });
 
   it('L10 is Artifact Awakening', () => {
@@ -216,26 +217,23 @@ describe('Artifact rest / combat use helpers', () => {
     expect(assertMoonlightShadowAvailable(actor)).toBe(false);
   });
 
-  it('Dragon Breath requires rest uses AND once-per-combat; Damage/Ruin share the gate', async () => {
+  it('Dragon Breath uses only the shared Safe Haven Rest counter (no once-per-Combat limit)', async () => {
     const actor = mockActor({ masteryRank: 4 });
     expect(assertDragonBreathAvailable(actor)).toEqual({ ok: true });
     expect(await spendDragonBreathUse(actor)).toBe(true);
-    // Shared combat-once: second use in same combat blocked even with rest uses left.
-    expect(assertDragonBreathAvailable(actor)).toEqual({ ok: false, reason: 'combat' });
-    expect(await spendDragonBreathUse(actor)).toBe(false);
-    await clearArtifactCombatUses(actor);
     expect(assertDragonBreathAvailable(actor)).toEqual({ ok: true });
     expect(await spendDragonBreathUse(actor)).toBe(true);
+    // Rest exhausted (MR4 → 2 uses); clearing Combat ledgers does not restore it.
     await clearArtifactCombatUses(actor);
-    // Rest exhausted (MR4 → 2 uses).
     expect(assertDragonBreathAvailable(actor)).toEqual({ ok: false, reason: 'rest' });
+    expect(await spendDragonBreathUse(actor)).toBe(false);
   });
 
-  it('Awakening does not bypass Breath combat-once (ledger still blocks)', async () => {
+  it('a legacy once-per-Combat ledger entry no longer blocks Breath', async () => {
     const actor = mockActor({
       masteryRank: 6,
       combatUses: { dragonBreath: 1 },
     });
-    expect(assertDragonBreathAvailable(actor)).toEqual({ ok: false, reason: 'combat' });
+    expect(assertDragonBreathAvailable(actor)).toEqual({ ok: true });
   });
 });

@@ -913,25 +913,19 @@ describe("Lor-Keth's Titanstorm Staff", () => {
     expect(sys.artifactWeapon.hands).toBe(2);
   });
 
-  it('staff damage scales 5d8 → 14d8 (4d8 two-handed base + 1d8 per level)', () => {
+  it('Staff Base follows the printed table (4d8 … 12d8, 14d8 at L10)', () => {
+    const table = [4, 5, 6, 7, 8, 9, 10, 11, 12, 14];
     for (let lvl = 1; lvl <= 10; lvl++) {
-      expect(baseValue(tree, lvl, 'Staff Damage').value).toBe(`${lvl + 4}d8`);
-      expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(`${lvl + 4}d8`);
+      expect(baseValue(tree, lvl, 'Staff Damage').value).toBe(`${table[lvl - 1]}d8`);
+      expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(`${table[lvl - 1]}d8`);
     }
   });
 
-  it('Storm Rune unlocks at L4 and upgrades at L7 and L10', () => {
-    expect(baseValue(tree, 3, 'Storm Rune')).toBeUndefined();
-    expect(baseValue(tree, 4, 'Storm Rune').value).toBe('Shock Rune');
-    expect(baseValue(tree, 6, 'Storm Rune').value).toBe('Shock Rune');
-    expect(baseValue(tree, 7, 'Storm Rune').value).toBe('Greater Shock Rune');
-    expect(baseValue(tree, 10, 'Storm Rune').value).toBe('True Shock Rune');
-  });
-
-  it('Giant Weight unlocks at L7 and upgrades at L10', () => {
-    expect(baseValue(tree, 6, 'Giant Weight')).toBeUndefined();
-    expect(baseValue(tree, 7, 'Giant Weight').value).toBe('Giant Weight');
-    expect(baseValue(tree, 10, 'Giant Weight').value).toBe('True Giant Weight');
+  it('has only Base Value A (no unprinted Storm Rune / Giant Weight)', () => {
+    for (let lvl = 1; lvl <= 10; lvl++) {
+      expect(baseValue(tree, lvl, 'Storm Rune')).toBeUndefined();
+      expect(baseValue(tree, lvl, 'Giant Weight')).toBeUndefined();
+    }
   });
 
   it('supports the Might Ignore Armor Stone Power from L3', () => {
@@ -944,17 +938,17 @@ describe("Lor-Keth's Titanstorm Staff", () => {
     });
   });
 
-  it('is a melee staff (7d8 at L3), not a Spell Focus', async () => {
+  it('is a melee staff (6d8 at L3), not a Spell Focus', async () => {
     const { artifactIsSpellFocusOnly, artifactSystemHasSpellFocus } = await import(
       '../src/utils/artifact-rules.js'
     );
     const sys = sysAt(tree, 3);
-    expect(sys.artifactWeapon.damage).toBe('7d8');
+    expect(sys.artifactWeapon.damage).toBe('6d8');
     expect(artifactSystemHasSpellFocus(sys)).toBe(false);
     expect(artifactIsSpellFocusOnly(sys)).toBe(false);
   });
 
-  it('builds Giant Shock / Ancestral Guard / Ignore Armor from catalog picks (no authored)', () => {
+  it('builds Giant Shock Strike / Titanstorm Guard / Stormbreaker from catalog picks (no authored)', () => {
     const def = getGeneralArtifact('lorKethsStaff')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'stoneFunction']);
@@ -965,11 +959,11 @@ describe("Lor-Keth's Titanstorm Staff", () => {
     });
     expect(picks[1]).toMatchObject({
       powerTemplateId: 'reaction-armor',
-      displayName: 'Ancestral Guard',
+      displayName: 'Titanstorm Guard',
     });
     expect(picks[2]).toMatchObject({
       kind: 'stoneFunction',
-      displayName: 'Might Ignore Armor Support',
+      displayName: 'Stormbreaker',
       stoneFunction: { kind: 'stonePowerSupport', stonePowerId: 'might.armorReduction' },
     });
     // No authored slots — Node Editor can edit the Expose / Armor lines.
@@ -977,19 +971,19 @@ describe("Lor-Keth's Titanstorm Staff", () => {
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Giant Shock Strike/);
-    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Ancestral Guard/);
-    for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Might Ignore Armor Support/);
+    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Titanstorm Guard/);
+    for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Stormbreaker/);
     expect((byLevel.get(10) as any).name).toBe('Artifact Awakening');
 
     expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-instant-special-t6');
     expect((byLevel.get(1) as any).chosenSpecialKey).toBe('expose');
     expect((byLevel.get(2) as any).powerTemplateId).toBe('reaction-armor');
-    expect((byLevel.get(1) as any).type).toMatch(/Melee/i);
+    expect((byLevel.get(1) as any).type).toBe('Active, Special');
     expect((byLevel.get(2) as any).type).toMatch(/Reaction|Armor/i);
 
     const shock = sysAt(tree, 1).powers.find((p: any) => /Giant Shock Strike/.test(p.name));
     expect(shock?.category).toBe('active');
-    const guard = sysAt(tree, 2).powers.find((p: any) => /Ancestral Guard/.test(p.name));
+    const guard = sysAt(tree, 2).powers.find((p: any) => /Titanstorm Guard/.test(p.name));
     expect(guard?.category).toBe('reaction');
   });
 });

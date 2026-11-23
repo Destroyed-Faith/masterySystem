@@ -260,6 +260,12 @@ export async function runCombatEndCleanup(combat: any): Promise<void> {
     } catch (err) {
       console.warn('Mastery System | once-per-combat stone flag cleanup failed', err);
     }
+    try {
+      const { clearActiveBuffCombatUses } = await import('./active-buff-combat-uses.js');
+      await clearActiveBuffCombatUses(actor);
+    } catch (err) {
+      console.warn('Mastery System | Active Buff once-per-Combat ledger cleanup failed', err);
+    }
   }
   await clearColorlessStonesAfterCombat(combat);
   await clearNpcOngoingEffectsAfterCombat(combat);

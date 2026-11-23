@@ -141,7 +141,7 @@
             "range": "Melee Reach",
             "aoe": "Radius 4 m",
             "duration": "Instant",
-            "effect": "Restore up to 9 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.",
+            "effect": "Restore up to 10 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.",
             "special": "Melee AoE Restoration (PL 16)",
             "powerTemplateId": "active-melee-aoe-restoration",
             "rank": 16

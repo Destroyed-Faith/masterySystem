@@ -200,6 +200,7 @@ import {
 } from './character-status-panel.js';
 import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import { activeBuffDefenseBonus } from '../combat/target-defenses.js';
 import {
   invisibilityTokenEffectEnabled,
   setInvisibilityTokenEffect,
@@ -1521,8 +1522,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           armorBreakdown: takeRows(combat.armorBreakdownRows, 14),
           evadeBreakdown: takeRows(combat.evadeBreakdownRows, 14),
           drBreakdown: takeRows(combat.damageReductionRows, 10),
-          armorFromActiveBuffs: Math.max(0, Math.floor(Number(combat.armorFromActiveBuffs) || 0)),
-          evadeFromActiveBuffs: Math.max(0, Math.floor(Number(combat.evadeFromActiveBuffs) || 0)),
+          armorFromActiveBuffs: Math.max(0, activeBuffDefenseBonus(this.actor, 'armor')),
+          evadeFromActiveBuffs: Math.max(0, activeBuffDefenseBonus(this.actor, 'evade')),
         };
       }
     } catch (err) {

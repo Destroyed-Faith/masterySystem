@@ -90,7 +90,6 @@ describe('Passive: Armor Reduction', () => {
     const penetration = 5 + 4 + 3;
     const result = applyDefensiveMitigation({
       rawDamage: 40,
-      count8s: 0,
       armorTotal: armorAfterCorrode,
       damageReductionPct: 0,
       armorPenetration: penetration,

@@ -26,10 +26,12 @@ import { getEligibleSpecialsForTier } from './_specials.js';
 import { instantSpecialRank, zoneSpecialRank } from '../instant-special-ranks.js';
 import {
     ZONE_CANON_ID_BY_TIER,
+    canonicalActiveRow,
     canonicalRadiusM,
     canonicalRadiusSeries,
     canonicalSpecialSeries,
 } from '../canonical-active-lookup.js';
+import type { CanonicalActiveRow } from '../canonical-actives.generated.js';
 import { solveDamageRow } from '../pp-budget.js';
 import {
     R05_MELEE_AOE_POOL,
@@ -44,6 +46,11 @@ const R_NONE: AoeSpec = { shape: 'none' };
 
 function rangedRange(lvl: number, base = 8): RangeSpec {
     return { kind: 'distance', m: base + (lvl - 1) * 4 };
+}
+
+/** PL 1–16 progression mapped from one printed Actives.md table (`null` rows = Unavailable). */
+function canonicalProgression<T>(canonId: string, map: (row: CanonicalActiveRow | null) => T): readonly T[] {
+    return Array.from({ length: 16 }, (_, i) => map(canonicalActiveRow(canonId, i + 1)));
 }
 
 /**
@@ -453,11 +460,9 @@ function buildActiveTemplates(): PowerTemplate[] {
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            // Budget-derived irregular HP (range + radius steps eat into HP).
-            const BARRIER_HP = [0, 10, 22, 35, 42, 42, 42, 55, 65, 65, 65, 65, 77, 90, 102, 115];
-            const BARRIER_RADIUS = [0, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4];
-            const hp = BARRIER_HP[lvl - 1];
-            const radius = BARRIER_RADIUS[lvl - 1];
+            const printed = canonicalActiveRow('ranged-barrier', lvl);
+            const hp = printed?.hp ?? 0;
+            const radius = printed?.radiusM ?? 0;
             if (hp <= 0) {
                 return activeRow({
                     type: 'Ranged Barrier',
@@ -607,18 +612,10 @@ function singleWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate 
 }
 
 // AoE Weapon Attack progression — exact PL tables from docs/Rules/Canonical/Actives.md.
-const MELEE_AOE_PROG: readonly { radiusM: number; dice: number }[] = [
-    { radiusM: 2, dice: 1 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 4 },
-    { radiusM: 4, dice: 4 }, { radiusM: 4, dice: 6 }, { radiusM: 5, dice: 6 }, { radiusM: 5, dice: 7 },
-    { radiusM: 6, dice: 7 }, { radiusM: 6, dice: 7 }, { radiusM: 7, dice: 7 }, { radiusM: 7, dice: 7 },
-    { radiusM: 8, dice: 7 }, { radiusM: 8, dice: 9 }, { radiusM: 8, dice: 11 }, { radiusM: 8, dice: 13 },
-];
-const RANGED_AOE_PROG: readonly { radiusM: number; dice: number }[] = [
-    { radiusM: 2, dice: 1 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 3 },
-    { radiusM: 4, dice: 3 }, { radiusM: 4, dice: 4 }, { radiusM: 5, dice: 4 }, { radiusM: 5, dice: 4 },
-    { radiusM: 6, dice: 4 }, { radiusM: 6, dice: 4 }, { radiusM: 7, dice: 4 }, { radiusM: 7, dice: 5 },
-    { radiusM: 7, dice: 5 }, { radiusM: 8, dice: 5 }, { radiusM: 8, dice: 6 }, { radiusM: 8, dice: 8 },
-];
+const aoeProgression = (canonId: string) =>
+    canonicalProgression(canonId, (r) => ({ radiusM: r?.radiusM ?? 0, dice: r?.dice ?? 0 }));
+const MELEE_AOE_PROG: readonly { radiusM: number; dice: number }[] = aoeProgression('melee-aoe-attack');
+const RANGED_AOE_PROG: readonly { radiusM: number; dice: number }[] = aoeProgression('ranged-aoe-attack');
 
 function aoeWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
     const isRanged = flavour === 'ranged';
@@ -739,19 +736,11 @@ function limitedAoeAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
     };
 }
 
-// Split Weapon Attack progression: (attack count, bonus dice).
-const MELEE_SPLIT_PROG: readonly { attacks: number; dice: number }[] = [
-    { attacks: 2, dice: 0 }, { attacks: 2, dice: 2 }, { attacks: 2, dice: 4 }, { attacks: 2, dice: 6 },
-    { attacks: 2, dice: 8 }, { attacks: 2, dice: 10 }, { attacks: 3, dice: 10 }, { attacks: 3, dice: 12 },
-    { attacks: 3, dice: 14 }, { attacks: 3, dice: 16 }, { attacks: 3, dice: 18 }, { attacks: 3, dice: 20 },
-    { attacks: 4, dice: 20 }, { attacks: 4, dice: 22 }, { attacks: 4, dice: 24 }, { attacks: 4, dice: 26 },
-];
-const RANGED_SPLIT_PROG: readonly { attacks: number; dice: number }[] = [
-    { attacks: 2, dice: 0 }, { attacks: 2, dice: 1 }, { attacks: 2, dice: 3 }, { attacks: 2, dice: 5 },
-    { attacks: 2, dice: 6 }, { attacks: 2, dice: 8 }, { attacks: 3, dice: 8 }, { attacks: 3, dice: 9 },
-    { attacks: 3, dice: 11 }, { attacks: 3, dice: 13 }, { attacks: 3, dice: 14 }, { attacks: 3, dice: 16 },
-    { attacks: 4, dice: 16 }, { attacks: 4, dice: 17 }, { attacks: 4, dice: 19 }, { attacks: 4, dice: 21 },
-];
+// Split Weapon Attack progression: (target count, bonus dice) from the printed tables.
+const splitProgression = (canonId: string) =>
+    canonicalProgression(canonId, (r) => ({ attacks: r?.attacks ?? 2, dice: r?.dice ?? 0 }));
+export const MELEE_SPLIT_PROG: readonly { attacks: number; dice: number }[] = splitProgression('melee-split-weapon-attack');
+export const RANGED_SPLIT_PROG: readonly { attacks: number; dice: number }[] = splitProgression('ranged-split-weapon-attack');
 
 function splitWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
     const isRanged = flavour === 'ranged';
@@ -795,13 +784,11 @@ function splitWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
 }
 
 // Autofire progression: (additional targets X, bonus dice); range = 8 + 4*(L-1).
-// Matches docs/Rules/Canonical/Actives.md Ranged Autofire (30 PP × X capacity tax).
-export const AUTOFIRE_PROG: readonly { extra: number; dice: number }[] = [
-    { extra: 1, dice: 0 }, { extra: 1, dice: 1 }, { extra: 2, dice: 1 }, { extra: 2, dice: 2 },
-    { extra: 3, dice: 2 }, { extra: 3, dice: 4 }, { extra: 4, dice: 4 }, { extra: 4, dice: 5 },
-    { extra: 5, dice: 5 }, { extra: 5, dice: 6 }, { extra: 6, dice: 6 }, { extra: 6, dice: 8 },
-    { extra: 7, dice: 8 }, { extra: 7, dice: 9 }, { extra: 8, dice: 9 }, { extra: 8, dice: 11 },
-];
+// Read from docs/Rules/Canonical/Actives.md Ranged Autofire (printed attack slots − 1 = extra).
+export const AUTOFIRE_PROG: readonly { extra: number; dice: number }[] = canonicalProgression(
+    'ranged-autofire-weapon-attack',
+    (r) => ({ extra: Math.max(1, (r?.attacks ?? 2) - 1), dice: r?.dice ?? 0 }),
+);
 
 function autofireWeaponAttackTemplate(): PowerTemplate {
     return {
@@ -1027,8 +1014,8 @@ const MIND_PROBE_ACCESS: readonly string[] = [
     'Read one sensory memory from approximately the last minute.',
     'Read one event memory from approximately the last hour.',
     'Read one named memory from approximately the last day.',
-    'Read one named memory from approximately the last week.',
-    'Read one named memory from approximately the last month.',
+    'Read one named memory from approximately the last 7 Tyhran Days.',
+    'Read one named memory from approximately the last 44 Tyhran Days.',
     'Read one named memory from approximately the last year.',
     "Read one accessible named memory from any point in the target's life.",
     'Follow one connected memory chain and learn up to **MR linked facts** about one named person, place, object, or event.',
@@ -1068,22 +1055,22 @@ function mindProbeTemplate(): PowerTemplate {
 
 /** Mental Control — printed Targets / Duration / Scope columns (docs/Rules/Canonical/Actives.md). */
 const MENTAL_CONTROL_ROWS: readonly { targets: string; duration: string; scope: string }[] = [
-    { targets: '1 creature', duration: '1 minute', scope: 'Impose one immediate, simple, non-harmful instruction.' },
-    { targets: '1 creature', duration: '10 minutes', scope: 'Impose one simple task that can be completed without complex judgment.' },
-    { targets: '1 creature', duration: '1 hour', scope: 'Impose one simple task with several obvious steps.' },
-    { targets: '1 creature', duration: '4 hours', scope: 'Impose one clear command or one temporary attitude toward a person, place, or object.' },
-    { targets: '2 creatures', duration: '4 hours', scope: 'Give both targets the same simple task or attitude.' },
-    { targets: '2 creatures', duration: '8 hours', scope: 'Impose one sustained role, routine, or pattern of cooperation.' },
-    { targets: '2 creatures', duration: '12 hours', scope: 'Impose two linked instructions or one simple conditional instruction.' },
-    { targets: '3 creatures', duration: '1 day', scope: 'Impose one believable temporary relationship, loyalty, aversion, trust, affection, or false assumption.' },
-    { targets: '3 creatures', duration: '1 day', scope: 'Impose one complex noncombat objective and allow reasonable improvisation toward it.' },
-    { targets: 'MR creatures', duration: '2 days', scope: 'Give all targets the same complex task, attitude, or temporary relationship.' },
-    { targets: 'MR creatures', duration: '3 days', scope: 'Impose one conditional behavioral program with a clear trigger and response.' },
-    { targets: 'MR + 1 creatures', duration: '3 days', scope: 'Combine one complex task with one supporting attitude or belief.' },
-    { targets: 'MR + 1 creatures', duration: '1 week', scope: 'Impose one sustained false loyalty, relationship, social role, or long-form objective.' },
-    { targets: 'MR + 2 creatures', duration: '1 week', scope: 'Impose several linked instructions serving one defined noncombat purpose.' },
-    { targets: 'MR + 3 creatures', duration: '2 weeks', scope: 'Impose a broad behavioral program around one defined noncombat purpose.' },
-    { targets: 'MR + 4 creatures', duration: '1 month', scope: 'Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior.' },
+    { targets: '1 creature', duration: '1 Tyhran Minute', scope: 'Impose one immediate, simple, non-harmful instruction.' },
+    { targets: '1 creature', duration: '10 Tyhran Minutes', scope: 'Impose one simple task that can be completed without complex judgment.' },
+    { targets: '1 creature', duration: '1 Tyhran Hour', scope: 'Impose one simple task with several obvious steps.' },
+    { targets: '1 creature', duration: '4 Tyhran Hours', scope: 'Impose one clear command or one temporary attitude toward a person, place, or object.' },
+    { targets: '2 creatures', duration: '4 Tyhran Hours', scope: 'Give both targets the same simple task or attitude.' },
+    { targets: '2 creatures', duration: '8 Tyhran Hours', scope: 'Impose one sustained role, routine, or pattern of cooperation.' },
+    { targets: '2 creatures', duration: '12 Tyhran Hours', scope: 'Impose two linked instructions or one simple conditional instruction.' },
+    { targets: '3 creatures', duration: '1 Tyhran Day', scope: 'Impose one believable temporary relationship, loyalty, aversion, trust, affection, or false assumption.' },
+    { targets: '3 creatures', duration: '1 Tyhran Day', scope: 'Impose one complex noncombat objective and allow reasonable improvisation toward it.' },
+    { targets: 'MR creatures', duration: '2 Tyhran Days', scope: 'Give all targets the same complex task, attitude, or temporary relationship.' },
+    { targets: 'MR creatures', duration: '3 Tyhran Days', scope: 'Impose one conditional behavioral program with a clear trigger and response.' },
+    { targets: 'MR + 1 creatures', duration: '3 Tyhran Days', scope: 'Combine one complex task with one supporting attitude or belief.' },
+    { targets: 'MR + 1 creatures', duration: '7 Tyhran Days', scope: 'Impose one sustained false loyalty, relationship, social role, or long-form objective.' },
+    { targets: 'MR + 2 creatures', duration: '7 Tyhran Days', scope: 'Impose several linked instructions serving one defined noncombat purpose.' },
+    { targets: 'MR + 3 creatures', duration: '14 Tyhran Days', scope: 'Impose a broad behavioral program around one defined noncombat purpose.' },
+    { targets: 'MR + 4 creatures', duration: '44 Tyhran Days', scope: 'Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior.' },
 ];
 
 /** Printed Melee Single Target Damage Transfer dice, PL 1–16 (docs/Rules/Canonical/Actives.md). */

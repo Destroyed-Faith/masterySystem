@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.879] - 2026-11-23
+
+Rules sync to Destroyed Faith v0.9.9.6 (2026-11-23).
+
+### Changed
+
+- **Rulebooks:** the seven Canonical rulebooks and `agent.md` replaced with v0.9.9.6; lowercase duplicates in `docs/Rules/` removed; rules journals rebuilt (page "Tactical Choices" without the Playtest label).
+- **Basic Reaction Evade removed** for characters and NPCs; Reaction: Evade is a purchased Reaction only.
+- **Damage:** the natural-8 minimum damage is gone; Large Damage Pools added.
+- **Active Buffs:** each Active Buff can be activated once per Combat; used Buffs are shown disabled in Preparation.
+- **Protective Auras:** Armor Aura (v0.9.9.6), Evade Aura and Spell Resistance Aura; only the highest Active Buff or Aura bonus applies.
+- **Last Breath** seals instead of burning; the 1 HP goes into the Broken Health Bar.
+- **Split Attack** hits up to 2 / 3 / 4 different targets by Power Level; Raises and Damage/Special allocation are declared once.
+- **Catalogue:** Actives, Active Buffs, Reactions, Movement and Passives match the printed PL 1–16 tables (parity tests). Reaction: Reactive Cleanse is now Reaction: Cleanse with the printed row; Reaction: Reposition uses the printed 2 / 4 / 6 / 8 m milestones; Mental Control / Mind Probe use Tyhran units.
+- **Character builder:** only printed Reactions are offered; existing owners keep unprinted ones. Tower Wizard "Damage Negation" package grants Reaction: Temporary HP.
+- **Artifacts:** Dragon Head, Elorian Stride, Ringchain of Kept Names, Hunter's Scourge, Frostbound Returning Axe and Lor-Keth's Titanstorm Staff follow Artifacts.md; Lor-Keth's Staff can be granted again. Echo Artifacts pack rebuilt.
+- **Tactical Choices:** Playtest labels removed.
+
+### Added
+
+- **Reaction: Absorption Surge** (+1 … +8 Temporary Colorless Stones after an Absorption-triggering damage instance, offered in chat).
+- **World migration v0.9.9.6:** runs once on the first GM load, re-bakes changed Powers, renames Cleanse, refreshes the changed Artifact trees, removes NPC Basic Evade rows, lists Last Breath cases, keeps backups and whispers a report to the GM. Rollback: `game.masterySystem.v0996WorldRollback(actor)`.
+
 ## [0.9.878] - 2026-11-20
 
 ### Fixed

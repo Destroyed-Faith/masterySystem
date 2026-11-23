@@ -44,7 +44,6 @@ export function mitigateArmorIgnoringTickDamage(rawDamage, damageReductionPct) {
         return { damage: 0, drPercent: 0 };
     const result = applyDefensiveMitigation({
         rawDamage: raw,
-        count8s: 0,
         armorTotal: 0,
         damageReductionPct: Math.max(0, Math.min(100, Math.floor(Number(damageReductionPct) || 0))),
     });

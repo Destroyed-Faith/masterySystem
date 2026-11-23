@@ -179,11 +179,10 @@ const ELORIAN_STRIDE = {
     description: 'Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, reflex, clinging movement and focus in combat.',
     restriction: 'An Elorian with Elorian Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elorian Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
     progressionPickSpecs: {
-        // Players' Guide: Reaction: Evade at PL 2 / 4 / 6 → +2 / +4 / +6 Evade.
+        // Reaction: Evade at PL 4 / 10 / 16 → +4 / +10 / +16 Evade.
         1: {
             templateId: 'reaction-evade',
             name: 'Otherworld Reflex',
-            stagePowerLevels: ['2', '4', '6'],
         },
         2: { templateId: 'movement-wall-walk', name: 'Elorian Cling' },
         // Slot 3 — Crit Support (Agility Ability: Crit). Catalog stone function,
@@ -798,36 +797,53 @@ const DRAGON_HEAD = {
     echoKey: 'dragonborn',
     slot: 'head',
     baseProfile: 'headArmor',
-    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin Melee Cone Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.',
+    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon (Damage or Ruin self-centered Melee Instant AoE), the Draconic Roar armor aura, and stone-refreshing Draconic Recovery.',
     restriction: 'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
     // Bite Weapon Damage (1d8…10d8): martial weapon source for Powers / Basic
     // Attack (free radial toggle), not a standalone Attack Action. Occupies no hands.
     naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
     // Breath Weapon = Melee AoE Attack (Damage + Dragon Head Bite) OR Melee AoE Special: Ruin
-    // on each use (shared rest + once-per-combat). Damage uses active-melee-weapon-aoe plus
-    // this Artifact's Bite (Dragon Head-only AoE weapon-damage exception). Ruin is Special-only.
-    // Attack Attribute: Might or Agility (choose before the roll). Roar = Armor Aura;
-    // Recovery = Stone Refresh (Might).
+    // on each use (shared ceil(MR/2) uses per Safe Haven Rest). Damage uses active-melee-weapon-aoe
+    // plus this Artifact's Bite (Dragon Head-only AoE weapon-damage exception). Ruin is Special-only.
+    // Roar = Armor Aura; Recovery = Stone Refresh (Might).
     progressionPickSpecs: {
         1: {
             name: 'Breath Weapon',
             templateId: 'active-melee-weapon-aoe',
             artifactFunctionId: 'dragon-breath',
             stagePowerLevels: ['4', '10', '16'],
+            rowType: 'Artifact Active',
             stageEffectTexts: [
-                'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
-                'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
-                'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 4: **5d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
+                'Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (plus matching Bite Weapon Damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
             ],
         },
         2: {
             name: 'Draconic Roar',
             templateId: 'ab-armor-aura',
-            // Armor Aura PL 4 / 10 / 16 (+1 Armor / PL → +4 / +10 / +16; radii 8 / 20 / 32 m).
+            // Protective Armor Aura PL 4 / 10 / 16 → +7 / +17 / +29 Armor; radius 2 / 3 / 3 m.
             stagePowerLevels: ['4', '10', '16'],
+            rowType: 'Active Buff, Aura',
+            stageEffectTexts: [
+                'You and every ally inside the Aura gain **+7 Armor**.',
+                'You and every ally inside the Aura gain **+17 Armor**. This replaces Draconic Roar I.',
+                'You and every ally inside the Aura gain **+29 Armor**. This replaces Draconic Roar II.',
+            ],
         },
     },
-    stoneFunction: { level: 3, kind: 'stoneRefresh', attribute: 'might', name: 'Draconic Recovery' },
+    stoneFunction: {
+        level: 3,
+        kind: 'stoneRefresh',
+        attribute: 'might',
+        name: 'Draconic Recovery',
+        rowType: 'Artifact Active, Support',
+        stageEffectTexts: [
+            'As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery.',
+            'As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I.',
+            'As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II.',
+        ],
+    },
     baseValues: [
         {
             slot: 'a',
@@ -849,11 +865,11 @@ const DRAGON_HEAD = {
         {
             level: 1,
             name: 'Breath Weapon I',
-            type: 'Melee AoE',
+            type: 'Artifact Active',
             range: 'Self',
-            aoe: 'Damage: Cone 3 m / Ruin: Cone 3 m',
+            aoe: 'Damage: radius 3 m / Ruin: radius 3 m',
             duration: 'Instant',
-            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 4: **Bite Weapon Damage + 4d8** Power Damage, Cone 3 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, Cone 3 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter.',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 4: **5d8** Power Damage (plus matching Bite Weapon Damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter.',
             special: 'Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)',
             powerTemplateId: 'active-melee-weapon-aoe',
             artifactFunctionId: 'dragon-breath',
@@ -862,30 +878,30 @@ const DRAGON_HEAD = {
         {
             level: 2,
             name: 'Draconic Roar I',
-            type: 'Active Buff',
+            type: 'Active Buff, Aura',
             range: 'Self',
-            aoe: 'Radius 8 m',
+            aoe: 'Radius 2 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +4 Armor.',
+            effect: 'You and every ally inside the Aura gain **+7 Armor**.',
             special: 'Active Buff: Armor Aura (PL 4)',
         },
         {
             level: 3,
             name: 'Draconic Recovery I',
-            type: 'Stone Refresh',
+            type: 'Artifact Active, Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Restore 1 spent Stone of the chosen Attribute.',
-            special: 'Stone Refresh',
+            effect: 'As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery.',
+            special: 'Artifact Active: Stone Refresh (PL 4)',
         },
         {
             level: 4,
             name: 'Breath Weapon II',
-            type: 'Melee AoE',
+            type: 'Artifact Active',
             range: 'Self',
-            aoe: 'Damage: Cone 6 m / Ruin: Cone 5 m',
+            aoe: 'Damage: radius 6 m / Ruin: radius 5 m',
             duration: 'Instant',
-            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 10: **Bite Weapon Damage + 7d8** Power Damage, Cone 6 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, Cone 5 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (plus matching Bite Weapon Damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I.',
             special: 'Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)',
             powerTemplateId: 'active-melee-weapon-aoe',
             artifactFunctionId: 'dragon-breath',
@@ -894,30 +910,30 @@ const DRAGON_HEAD = {
         {
             level: 5,
             name: 'Draconic Roar II',
-            type: 'Active Buff',
+            type: 'Active Buff, Aura',
             range: 'Self',
-            aoe: 'Radius 20 m',
+            aoe: 'Radius 3 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +10 Armor.',
+            effect: 'You and every ally inside the Aura gain **+17 Armor**. This replaces Draconic Roar I.',
             special: 'Active Buff: Armor Aura (PL 10)',
         },
         {
             level: 6,
             name: 'Draconic Recovery II',
-            type: 'Stone Refresh',
+            type: 'Artifact Active, Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Restore 2 spent Stones of the chosen Attribute.',
-            special: 'Stone Refresh',
+            effect: 'As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I.',
+            special: 'Artifact Active: Stone Refresh (PL 10)',
         },
         {
             level: 7,
             name: 'Breath Weapon III',
-            type: 'Melee AoE',
+            type: 'Artifact Active',
             range: 'Self',
-            aoe: 'Damage: Cone 8 m / Ruin: Cone 7 m',
+            aoe: 'Damage: radius 8 m / Ruin: radius 7 m',
             duration: 'Instant',
-            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 16: **Bite Weapon Damage + 13d8** Power Damage, Cone 8 m; Might or Agility) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, Cone 7 m, no damage; Might or Agility). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
+            effect: 'Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (plus matching Bite Weapon Damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no direct Attack Damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II.',
             special: 'Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)',
             powerTemplateId: 'active-melee-weapon-aoe',
             artifactFunctionId: 'dragon-breath',
@@ -926,21 +942,21 @@ const DRAGON_HEAD = {
         {
             level: 8,
             name: 'Draconic Roar III',
-            type: 'Active Buff',
+            type: 'Active Buff, Aura',
             range: 'Self',
-            aoe: 'Radius 32 m',
+            aoe: 'Radius 3 m',
             duration: 'Mastery Rank Rounds',
-            effect: 'You and allies in the area gain +16 Armor.',
+            effect: 'You and every ally inside the Aura gain **+29 Armor**. This replaces Draconic Roar II.',
             special: 'Active Buff: Armor Aura (PL 16)',
         },
         {
             level: 9,
             name: 'Draconic Recovery III',
-            type: 'Stone Refresh',
+            type: 'Artifact Active, Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Restore 4 spent Stones of the chosen Attribute.',
-            special: 'Stone Refresh',
+            effect: 'As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II.',
+            special: 'Artifact Active: Stone Refresh (PL 16)',
         },
         artifactAwakeningRow('Dragon Head'),
     ],
@@ -1473,7 +1489,7 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             range: 'Melee Reach',
             aoe: 'Radius 4 m',
             duration: 'Instant',
-            effect: 'Restore up to 9 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.',
+            effect: 'Restore up to 10 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.',
             special: 'Melee AoE Restoration (PL 16)',
             powerTemplateId: 'active-melee-aoe-restoration',
             rank: 16,
@@ -1796,6 +1812,7 @@ export function buildEchoProgressionPicks(def) {
             ...(spec.stageTemplateIds ? { stageTemplateIds: spec.stageTemplateIds } : {}),
             ...(spec.stageNames ? { stageNames: spec.stageNames } : {}),
             ...(spec.stageEffectTexts ? { stageEffectTexts: spec.stageEffectTexts } : {}),
+            ...(spec.rowType ? { rowType: spec.rowType } : {}),
             ...(spec.isSpell ? { isSpell: true } : {}),
             ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
             ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),
@@ -1856,6 +1873,8 @@ export function buildEchoProgressionPicks(def) {
             kind: 'stoneFunction',
             stoneFunction: buildEchoStoneFunction(def),
             displayName: sf.name?.trim() || undefined,
+            ...(sf.rowType ? { rowType: sf.rowType } : {}),
+            ...(sf.stageEffectTexts ? { stageEffectTexts: sf.stageEffectTexts } : {}),
         };
     }
     // Authored fallback: any base level (1/2/3) still empty but covered by the

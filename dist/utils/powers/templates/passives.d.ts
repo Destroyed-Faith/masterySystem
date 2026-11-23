@@ -1,7 +1,7 @@
 /**
  * Passive Power Templates.
  *
- * Canonical source: `docs/passives.md` (Passive Design Rules + Catalog).
+ * Canonical source: `docs/Rules/Canonical/Passives.md` (Passive Design Rules + Catalog).
  *
  * Structure:
  *   - Base unconditional passives (one axis per template): Armor, Damage

@@ -25,7 +25,6 @@ export const SPECIAL_AURA_TEMPLATE_IDS = [
     'ab-weaken-aura',
 ];
 export const RETIRED_LEGACY_AURA_TEMPLATE_IDS = [
-    'ab-armor-aura',
     'ab-damage-aura',
     'ab-summon-damage-aura',
     'ab-summon-armor-aura',

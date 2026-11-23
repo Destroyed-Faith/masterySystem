@@ -50,7 +50,7 @@ const sumCache = new Map();
  * PMF of the sum of `count` exploding d8 (keep all).
  * NOTE: Mastery damage dice do NOT explode (see damage-dialog.ts:
  * "damage dice do not explode unless a rule explicitly says so").
- * Use `plainDamagePmf` / `damageJointPmf` for damage rolls; this helper is
+ * Use `plainDamagePmf` for damage rolls; this helper is
  * for rolls that keep all exploding dice (e.g. initiative).
  */
 export function explodingSumPmf(count) {
@@ -96,42 +96,6 @@ export function plainDamagePmf(count) {
             out[s + v] += p / 8;
     }
     plainCache.set(n, out);
-    return out;
-}
-const jointCache = new Map();
-/**
- * Joint distribution of (damage sum, count of natural 8s) for `count` plain
- * d8. Needed for the minimum-damage rule: when Armor + DR reduce a hit to 0,
- * the target still takes 1 damage per natural 8 rolled.
- * Returned as an array indexed by eights-count; each entry is a PMF over sums.
- */
-export function damageJointPmf(count) {
-    const n = Math.max(0, Math.floor(count));
-    const key = n;
-    const cached = jointCache.get(key);
-    if (cached)
-        return cached;
-    if (n === 0) {
-        const out = [Float64Array.of(1)];
-        jointCache.set(key, out);
-        return out;
-    }
-    const prev = damageJointPmf(n - 1);
-    const out = [];
-    for (let e = 0; e <= n; e += 1)
-        out.push(new Float64Array(8 * n + 1));
-    for (let e = 0; e < prev.length; e += 1) {
-        const pmf = prev[e];
-        for (let s = 0; s < pmf.length; s += 1) {
-            const p = pmf[s];
-            if (p === 0)
-                continue;
-            for (let v = 1; v <= 7; v += 1)
-                out[e][s + v] += p / 8;
-            out[e + 1][s + 8] += p / 8;
-        }
-    }
-    jointCache.set(key, out);
     return out;
 }
 const poolKeepCache = new Map();
@@ -319,7 +283,6 @@ export function clearProbabilityCaches() {
     singleDieCache = null;
     sumCache.clear();
     plainCache.clear();
-    jointCache.clear();
     poolKeepCache.clear();
 }
 //# sourceMappingURL=probability.js.map

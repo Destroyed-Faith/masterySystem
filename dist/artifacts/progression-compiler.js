@@ -123,7 +123,7 @@ function stoneFunctionEffect(sf, stageIndex) {
     }
     if (sf.kind === 'stoneRefresh') {
         const amount = [1, 2, 4][stageIndex];
-        return `Restore ${amount} spent ${attrLabel}Stone${amount === 1 ? '' : 's'}.`;
+        return `Once per Safe Haven Rest, restore ${amount} spent ${attrLabel}Stone${amount === 1 ? '' : 's'}.`;
     }
     if (sf.kind === 'stoneBattery') {
         const cap = [10, 20, 40][stageIndex];
@@ -190,17 +190,19 @@ export function deriveLevelProgressionFromPicks(picks) {
                     .filter(Boolean)
                     .join(', ');
                 const rowName = perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`;
-                // Dragon Head Breath Weapon: dual Damage/Ruin Cone lengths (Core specialty).
+                // Dragon Head Breath Weapon: dual Damage/Ruin radii.
                 const rangeAoe = pick.artifactFunctionId === 'dragon-breath'
                     ? breathWeaponRowDisplay(level)
                     : { range: clean(renderRange(lr.range ?? null)), aoe: clean(renderAoe(lr.aoe ?? null)) };
                 // Limited Artifact Spells (Moonlight Judgment) print as "Artifact Active, Spell".
                 // Other Spell picks keep the catalog martial type so unrelated Artifacts stay stable.
-                const rowType = pick.isSpell
-                    ? limited
-                        ? 'Artifact Active, Spell'
-                        : lr.type || tpl.category || 'Active'
-                    : lr.type || tpl.category || 'Active';
+                const rowType = pick.rowType?.trim()
+                    ? pick.rowType.trim()
+                    : pick.isSpell
+                        ? limited
+                            ? 'Artifact Active, Spell'
+                            : lr.type || tpl.category || 'Active'
+                        : lr.type || tpl.category || 'Active';
                 const powerRank = Number(pl) || undefined;
                 rows.push({
                     level,
@@ -280,7 +282,7 @@ export function deriveLevelProgressionFromPicks(picks) {
                 rows.push({
                     level,
                     name: `${baseName} ${numerals[s]}`,
-                    type: STONE_KIND_LABELS[sf.kind] || 'Support',
+                    type: pick.rowType?.trim() || STONE_KIND_LABELS[sf.kind] || 'Support',
                     range: 'Self',
                     aoe: '',
                     duration: sf.kind === 'stonePowerSupport' || sf.kind === 'stoneRefresh' ? 'Instant' : 'Passive',

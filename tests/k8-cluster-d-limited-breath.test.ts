@@ -75,8 +75,8 @@ describe('K8.d Limited / Breath', () => {
       range: 'Self',
       aoe: 'old',
     });
-    expect(out.aoe).toMatch(/Damage: Cone 3 m/);
-    expect(out.aoe).toMatch(/Ruin: Cone 3 m/);
+    expect(out.aoe).toMatch(/Damage: radius 3 m/);
+    expect(out.aoe).toMatch(/Ruin: radius 3 m/);
   });
 
   it('Ruin Breath radial option keeps K3 identity and ruin mode flags', () => {

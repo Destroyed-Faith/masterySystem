@@ -26,6 +26,7 @@ import {
   collectMechanicsContributions,
 } from '../../utils/power-mechanics.js';
 import {
+  activeBuffDefenseBonus,
   getTargetArmor,
   getTargetEvade,
   getTargetSpellResistance,
@@ -257,9 +258,9 @@ export function analyzePc(actor: any): PcCombatProfile {
   const stoneEvade = Math.max(0, num(combat.stoneEvadeBonus, 0));
   const stoneArmor = Math.max(0, num(combat.stoneArmorBonus, 0));
   const stoneDr = Math.max(0, num(combat.stoneDrBonusPct, 0));
-  const buffEvade = Math.max(0, num(combat.evadeFromActiveBuffs, 0));
-  const buffArmor = Math.max(0, num(combat.armorFromActiveBuffs, 0));
-  const buffSr = Math.max(0, num(combat.spellResistanceFromActiveBuffs, 0));
+  const buffEvade = Math.max(0, activeBuffDefenseBonus(actor, 'evade'));
+  const buffArmor = Math.max(0, activeBuffDefenseBonus(actor, 'armor'));
+  const buffSr = Math.max(0, activeBuffDefenseBonus(actor, 'spellResistance'));
 
   let mechWard = 0;
   let mechAttackDice = 0;

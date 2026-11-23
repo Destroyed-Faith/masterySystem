@@ -38,12 +38,6 @@
       "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
     {
-      "file": "src\\combat\\defender-reactions.ts",
-      "line": 188,
-      "match": "/\\bevade",
-      "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
-    },
-    {
       "file": "src\\combat\\heal-resolution.ts",
       "line": 329,
       "match": "toLowerCase().includes(",
@@ -123,7 +117,7 @@
     },
     {
       "file": "src\\combat\\reaction-followups.ts",
-      "line": 63,
+      "line": 64,
       "match": "name.includes(",
       "reason": "K8.b/f — pre-K9 missing-ID name-class bridge"
     },
@@ -171,13 +165,13 @@
     },
     {
       "file": "src\\radial-menu\\power-radial-label.ts",
-      "line": 25,
+      "line": 28,
       "match": "/\\bspell",
       "reason": "display"
     },
     {
       "file": "src\\radial-menu\\power-radial-label.ts",
-      "line": 27,
+      "line": 30,
       "match": "/\\bspell",
       "reason": "display"
     },
@@ -285,55 +279,55 @@
     },
     {
       "file": "src\\radial-menu\\artifact-options.ts",
-      "line": 554,
+      "line": 555,
       "match": "const stageSuffix",
       "reason": "display"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 141,
+      "line": 142,
       "match": "includes('artifact only')",
       "reason": "display"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 572,
+      "line": 573,
       "match": "name.includes('bless')",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 583,
+      "line": 584,
       "match": "name.includes('feather fall')",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 661,
+      "line": 662,
       "match": "tags.includes",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 679,
+      "line": 680,
       "match": "textSuggestsActiveBuff",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 688,
+      "line": 689,
       "match": "tags.includes",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 691,
+      "line": 692,
       "match": "textSuggestsActiveBuff",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
     {
       "file": "src\\radial-menu\\options.ts",
-      "line": 922,
+      "line": 923,
       "match": "tags.includes",
       "reason": "K8.a/c — missing-ID segment/row text bridge"
     },
