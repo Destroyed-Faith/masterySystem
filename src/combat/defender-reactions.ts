@@ -168,41 +168,14 @@ export function getEligibleReactionPowers(defender: Actor, combat: Combat | null
 }
 
 /**
- * If the actor already has a real Guard / Reaction: Armor power, hide the Basic
- * Guard so the window does not list both. Legacy Basic Evade items (removed in
- * Core v0.9.9.6) are always dropped.
+ * Legacy Basic Evade / Guard items (removed in Core v0.9.9.6) are always dropped.
+ * The only Basic Reaction injected today is Dive for Cover.
  */
 export function dedupeOverlappingBasicReactions(powers: any[]): any[] {
   if (!powers?.length) return powers ?? [];
-  const nonBasic = powers.filter((p) => !isBasicReactionItem(p));
-
-  const hasPowerGuard = nonBasic.some((p) => {
-    const tid = String(p?.system?.templateId ?? '').toLowerCase();
-    const name = String(p?.name ?? '').toLowerCase();
-    // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
-    return compareIdentityDecision(
-      'reaction.hasPowerGuard',
-      () =>
-        tid.includes('guard') ||
-        tid === 'reaction-armor' ||
-        tid.includes('pure-defense') ||
-        /\bguard\b/.test(name) ||
-        /^reaction:\s*armor\b/.test(name),
-      () => {
-        if (tid.includes('guard') || tid === 'reaction-armor' || tid.includes('pure-defense')) {
-          return true;
-        }
-        if (!tid) return { kind: 'unresolved', reason: 'missing-identity' };
-        return false;
-      },
-      { tid, name },
-      { prefer: 'identity' },
-    );
-  });
-
   return powers.filter((p) => {
     if (p?.basicReaction === 'evade') return false;
-    if (p?.basicReaction === 'guard' && hasPowerGuard) return false;
+    if (p?.basicReaction === 'guard') return false;
     return true;
   });
 }

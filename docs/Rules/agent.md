@@ -21,7 +21,7 @@
 | Core | v0.9.9.6 (2026-11-23), governs play |
 | Actives, Active Buffs, Passives, Reactions, Movement, Artifacts | v0.9.9.6 (2026-11-23); audited against this framework; calculation tooltips reflect the current rows |
 | Repeatable Active Powers, Basic Attack removal, immediate Ruin damage, Mental Attack retirement | **Implemented in Core and Actives**; Foundry migration pending |
-| Changes of 2026-11-23 | Basic Reaction Evade removed; natural-8 minimum damage removed; Large Damage Pool averaging added; Protective Auras added; Split Attack target progression; unified AoE radius table for Support and Barrier; refilled AoE/Autofire/Cleanse/Restoration rows; see Section 24 |
+| Changes of 2026-11-23 | Basic Reactions Evade and Guard removed; natural-8 minimum damage removed; Large Damage Pool averaging added; Protective Auras added; Split Attack target progression; unified AoE radius table for Support and Barrier; refilled AoE/Autofire/Cleanse/Restoration rows; see Section 24 |
 | Persistent Zones | Printed rules and values are authoritative; **no PP formula by design** |
 | Ruin pricing | Deliberately unchanged at 4 × T(X) while immediate damage is playtested (`RUIN_BALANCE_REVIEW_PENDING`) |
 | Absorption | Rules complete; playtest pending |
@@ -663,7 +663,7 @@ Normal rules:
 - Reaction effects normally do not create maintained states;
 - Reaction Temporary HP protects only its triggering damage instance.
 
-**Basic Reactions** available without a purchase are only **Guard** (+MR × 2 Armor against the triggering hit or damage) and **Dive for Cover**. There is **no Basic Evade Reaction**; Evade as a Reaction requires `Reaction: Evade`.
+The only **Basic Reaction** available without a purchase is **Dive for Cover**. There is **no Basic Evade or Guard Reaction**; defensive Reactions require `Reaction: Evade`, `Reaction: Armor`, or another Reaction Power.
 
 ### 12.1 Trigger identity
 
@@ -1225,8 +1225,9 @@ BUFFS:
   same_value_active_buff_bonus_stacking = highest_only
 
 REACTIONS:
-  basic_reactions = Guard, DiveForCover
+  basic_reactions = DiveForCover
   basic_evade = NONE
+  basic_guard = NONE
   reaction_special_increase = NONE
 
 PASSIVES:
@@ -1330,6 +1331,7 @@ Do not silently edit a formula without updating examples that depend on it. Rule
 ### 24.2 Decisions of 2026-11-23
 
 - **Basic Reaction Evade removed.** It equalled a maximum-PL Reaction: Evade for free.
+- **Basic Reaction Guard removed.** It duplicated `Reaction: Armor` for free. Principle: no universal option may duplicate a purchasable Power.
 - **Natural-8 minimum damage removed.**
 - **Large Damage Pools:** optional 5 per die from 40 dice after Damage Negation.
 - **Protective Auras added** (Armor, Evade, Spell Resistance only) with the same-value stacking rule.

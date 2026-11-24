@@ -1458,7 +1458,7 @@ The world of Destroyed Faith is harsh and uncertain. Resources are scarce, allie
  
 > **Attack Action:** You normally have one per Turn. Spend it to activate an eligible Active Power (including a Martial Attack or Spell) or perform an available Combat Maneuver. An Attack Action does not itself provide a free weapon strike or damage.
 
-> **Reaction:** Trigger-based responses outside your Turn, such as Guard, Dive for Cover, or an eligible Reaction Power.  
+> **Reaction:** Trigger-based responses outside your Turn, such as Dive for Cover or an eligible Reaction Power.  
 \page
 {{pageNumber,auto}}
 
@@ -6255,15 +6255,7 @@ During the **Preparation Phase**, you may **give your one regular Attack Action 
 {{wide
 ### Basic Reactions
 
-Every character can use Basic Reactions without purchasing a Reaction Power. Using a Basic Reaction spends **1 Reaction**. Basic Reactions are not Powers and do not become spent after use. If a character gains additional Reactions through Stones, Powers, or another effect, they may use Basic Reactions again whenever their Trigger occurs. Reaction Powers provide stronger, more specialized, or more tactical responses, but they are not required to react in combat.
-
----
-
-#### Guard
-
-**Trigger:** You are hit by an Attack or would take damage.
-
-**Effect:** Gain **+MR × 2 Armor** against the triggering Attack or damage instance. This Armor is added to your existing Armor and applies only against the triggering event.
+Every character can use Basic Reactions without purchasing a Reaction Power. Using a Basic Reaction spends **1 Reaction**. Basic Reactions are not Powers and do not become spent after use. If a character gains additional Reactions through Stones, Powers, or another effect, they may use Basic Reactions again whenever their Trigger occurs. Reaction Powers provide stronger, more specialized, or more tactical responses. There is **no free Armor or Evade Reaction**: these come only from Reaction Powers such as `Reaction: Armor` and `Reaction: Evade`.
 
 ---
 

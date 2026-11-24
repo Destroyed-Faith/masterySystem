@@ -22,7 +22,7 @@ export interface NpcReactionRow {
   id: string;
   name: string;
   source: NpcReactionSource;
-  /** Standard maneuver: guard | dive-for-cover | interpose */
+  /** Standard maneuver: dive-for-cover | interpose (guard/evade retired) */
   basicId?: string;
   /** Catalog templateId */
   templateId?: string;
@@ -36,7 +36,6 @@ export const NPC_STANDARD_REACTIONS: Array<{
   name: string;
   description: string;
 }> = [
-  { id: 'guard', name: 'Guard', description: '+MR × 2 Armor vs the triggering hit.' },
   { id: 'dive-for-cover', name: 'Dive for Cover', description: 'Move 2 × MR m to leave an AoE.' },
   { id: 'interpose', name: 'Interpose', description: 'Take half of an adjacent ally’s damage.' },
 ];
@@ -59,10 +58,25 @@ export function isNpcRetiredBasicEvadeRow(
   return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'evade';
 }
 
+/** Basic Guard no longer exists (Core v0.9.9.6); stored rows are inert. */
+export function isNpcRetiredBasicGuardRow(
+  row: { source?: string; basicId?: string } | null | undefined,
+): boolean {
+  return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'guard';
+}
+
+export function isNpcRetiredBasicReactionRow(
+  row: { source?: string; basicId?: string } | null | undefined,
+): boolean {
+  return isNpcRetiredBasicEvadeRow(row) || isNpcRetiredBasicGuardRow(row);
+}
+
 export function omitNpcCounterattackRows<T extends { source?: string; basicId?: string }>(
   rows: T[],
 ): T[] {
-  return rows.filter((row) => !isNpcCounterattackRow(row) && !isNpcRetiredBasicEvadeRow(row));
+  return rows.filter(
+    (row) => !isNpcCounterattackRow(row) && !isNpcRetiredBasicReactionRow(row),
+  );
 }
 
 export function coerceNpcReactionsArray(raw: unknown): NpcReactionRow[] {
@@ -195,7 +209,7 @@ function buildNpcInterposeItem(): any {
 
 function materializeBasic(actor: any, basicId: string): any | null {
   const id = String(basicId || '');
-  if (id === 'counterattack' || id === 'evade') return null;
+  if (id === 'counterattack' || id === 'evade' || id === 'guard') return null;
   if (id === 'interpose') return buildNpcInterposeItem();
   const basics = buildBasicReactionItems(actor);
   return basics.find((b) => b.basicReaction === id) ?? null;

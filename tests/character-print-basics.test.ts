@@ -52,7 +52,8 @@ describe('character print table sheet', () => {
     const activeNames = (ctx.battle?.active ?? []).map((p: any) => p.name);
     const reactionNames = (ctx.battle?.reactions ?? []).map((p: any) => p.name);
     expect(activeNames).not.toContain('Basic Attack');
-    expect(reactionNames).toEqual(expect.arrayContaining(['Guard', 'Dive for Cover']));
+    expect(reactionNames).toEqual(expect.arrayContaining(['Dive for Cover']));
+    expect(reactionNames).not.toContain('Guard');
     expect(ctx.battle?.includeStandardManeuvers).toBe(true);
     expect(ctx.battle?.showBasicAttack).toBe(false);
     expect(ctx.specialRecovery).toBe(2);
@@ -85,10 +86,9 @@ describe('character print table sheet', () => {
     const active = ctx.battle?.active ?? [];
     expect(active.map((p: any) => p.name)).not.toContain('Basic Attack');
     const reactions = ctx.battle?.reactions ?? [];
-    // v0.9.9.6: Basic Evade no longer exists.
-    expect(reactions.map((r: any) => r.name)).toEqual(['Guard', 'Dive for Cover']);
-    expect(reactions[0]?.damageRoll).toBe('+6 Armor');
-    expect(reactions[1]?.damageRoll).toBe('Move 6 m');
+    // v0.9.9.6: only Dive for Cover remains as a Basic Reaction.
+    expect(reactions.map((r: any) => r.name)).toEqual(['Dive for Cover']);
+    expect(reactions[0]?.damageRoll).toBe('Move 6 m');
     expect(ctx.battle?.showBasicAttack).toBe(false);
   });
 

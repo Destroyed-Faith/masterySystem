@@ -10,7 +10,7 @@ export interface NpcReactionRow {
     id: string;
     name: string;
     source: NpcReactionSource;
-    /** Standard maneuver: guard | dive-for-cover | interpose */
+    /** Standard maneuver: dive-for-cover | interpose (guard/evade retired) */
     basicId?: string;
     /** Catalog templateId */
     templateId?: string;
@@ -31,6 +31,15 @@ export declare function isNpcCounterattackRow(row: {
 } | null | undefined): boolean;
 /** Basic Evade no longer exists (Core v0.9.9.6); stored rows are inert. */
 export declare function isNpcRetiredBasicEvadeRow(row: {
+    source?: string;
+    basicId?: string;
+} | null | undefined): boolean;
+/** Basic Guard no longer exists (Core v0.9.9.6); stored rows are inert. */
+export declare function isNpcRetiredBasicGuardRow(row: {
+    source?: string;
+    basicId?: string;
+} | null | undefined): boolean;
+export declare function isNpcRetiredBasicReactionRow(row: {
     source?: string;
     basicId?: string;
 } | null | undefined): boolean;

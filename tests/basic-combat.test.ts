@@ -22,25 +22,21 @@ describe('basic-combat helpers', () => {
     expect(getMasteryRank({ system: {} })).toBe(2);
   });
 
-  it('builds only Guard and Dive for Cover (no Basic Evade, Core v0.9.9.6)', () => {
+  it('builds only Dive for Cover (no Basic Evade or Guard, Core v0.9.9.6)', () => {
     const items = buildBasicReactionItems({ system: { mastery: { rank: 3 } } });
-    expect(items.map((i) => i.id)).toEqual([
-      BASIC_REACTION_IDS.guard,
-      BASIC_REACTION_IDS.diveForCover,
-    ]);
-    expect(items[0].mechanics.armor).toBe(6);
-    expect(items[1].basicReaction).toBe('dive-for-cover');
-    expect(items.some((i) => i.basicReaction === 'evade')).toBe(false);
+    expect(items.map((i) => i.id)).toEqual([BASIC_REACTION_IDS.diveForCover]);
+    expect(items[0].basicReaction).toBe('dive-for-cover');
+    expect(items.some((i) => i.basicReaction === 'evade' || i.basicReaction === 'guard')).toBe(false);
     expect(items.every(isBasicReactionItem)).toBe(true);
   });
 });
 
 describe('basic combat maneuvers catalog', () => {
-  it('includes Guard/Dive/Quick Load/Flee and radial prefs cover core basics', () => {
+  it('includes Dive/Quick Load/Flee and radial prefs cover core basics', () => {
     const ids = new Set(COMBAT_MANEUVERS.map((m) => m.id));
     expect(ids.has('evade')).toBe(false);
+    expect(ids.has('guard')).toBe(false);
     for (const id of [
-      'guard',
       'dive-for-cover',
       'quick-load',
       'weapon-swap',

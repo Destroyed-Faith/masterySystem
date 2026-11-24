@@ -3,19 +3,20 @@
  *
  * There is no automatic Basic Attack (Actives v0.9.9.6): damage attacks come
  * from learned or granted Attack Powers.
- * Basic Reactions (Core v0.9.9.6): Guard (+MR×2 Armor) and Dive for Cover (AoE) only.
- * There is no Basic Evade; Reaction: Evade is a purchased Power.
+ * Basic Reactions (Core v0.9.9.6): only Dive for Cover (AoE). There is no Basic
+ * Evade or Guard; Reaction: Evade / Reaction: Armor are purchased Powers.
  * Counterattack is not a Basic Reaction; legacy Counterattack items are never offered.
  */
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 export function getMasteryRank(actor) {
     return getRulesMasteryRank(actor);
 }
-/** MR × 2 — Guard bonus and Dive for Cover distance. */
+/** MR × 2 — Dive for Cover distance (legacy Basic Guard used the same value). */
 export function basicCombatMrTimesTwo(actor) {
     return getMasteryRank(actor) * 2;
 }
 export const BASIC_REACTION_IDS = {
+    /** @deprecated Not injected; Armor comes from Reaction: Armor. */
     guard: 'basic-reaction-guard',
     diveForCover: 'basic-reaction-dive-for-cover',
     /** @deprecated Not injected as a universal Basic Reaction. */
@@ -26,18 +27,6 @@ export function buildBasicReactionItems(actor) {
     const mr2 = basicCombatMrTimesTwo(actor);
     const moveM = mr2;
     return [
-        {
-            id: BASIC_REACTION_IDS.guard,
-            name: 'Guard',
-            type: 'basic-reaction',
-            system: {
-                powerType: 'reaction',
-                templateId: 'basic-guard',
-                description: `Gain +${mr2} Armor (MR × 2) against the triggering attack or damage instance.`,
-            },
-            basicReaction: 'guard',
-            mechanics: { armor: mr2 },
-        },
         {
             id: BASIC_REACTION_IDS.diveForCover,
             name: 'Dive for Cover',

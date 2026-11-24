@@ -10,7 +10,6 @@ import { coerceNpcAttackSpecials, coerceNpcPhasesArray, npcSpecialEffectString, 
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export const NPC_STANDARD_REACTIONS = [
-    { id: 'guard', name: 'Guard', description: '+MR × 2 Armor vs the triggering hit.' },
     { id: 'dive-for-cover', name: 'Dive for Cover', description: 'Move 2 × MR m to leave an AoE.' },
     { id: 'interpose', name: 'Interpose', description: 'Take half of an adjacent ally’s damage.' },
 ];
@@ -25,8 +24,15 @@ export function isNpcCounterattackRow(row) {
 export function isNpcRetiredBasicEvadeRow(row) {
     return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'evade';
 }
+/** Basic Guard no longer exists (Core v0.9.9.6); stored rows are inert. */
+export function isNpcRetiredBasicGuardRow(row) {
+    return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'guard';
+}
+export function isNpcRetiredBasicReactionRow(row) {
+    return isNpcRetiredBasicEvadeRow(row) || isNpcRetiredBasicGuardRow(row);
+}
 export function omitNpcCounterattackRows(rows) {
-    return rows.filter((row) => !isNpcCounterattackRow(row) && !isNpcRetiredBasicEvadeRow(row));
+    return rows.filter((row) => !isNpcCounterattackRow(row) && !isNpcRetiredBasicReactionRow(row));
 }
 export function coerceNpcReactionsArray(raw) {
     const list = Array.isArray(raw)
@@ -143,7 +149,7 @@ function buildNpcInterposeItem() {
 }
 function materializeBasic(actor, basicId) {
     const id = String(basicId || '');
-    if (id === 'counterattack' || id === 'evade')
+    if (id === 'counterattack' || id === 'evade' || id === 'guard')
         return null;
     if (id === 'interpose')
         return buildNpcInterposeItem();

@@ -12,7 +12,7 @@ import { compareIdentityDecision } from '../utils/identity-shadow.js';
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters, THREATENED_RANGED_DEBUG } from './threatened-ranged.js';
-import { buildBasicReactionItems, isBasicReactionItem } from './basic-combat.js';
+import { buildBasicReactionItems } from './basic-combat.js';
 import { actorParticipatesInReactions, materializeNpcReactionPowers, } from '../utils/npc-reactions.js';
 import { reactionMayRepeatThisRound } from './reaction-kind.js';
 /**
@@ -117,35 +117,16 @@ export function getEligibleReactionPowers(defender, combat) {
     return dedupeOverlappingBasicReactions(out);
 }
 /**
- * If the actor already has a real Guard / Reaction: Armor power, hide the Basic
- * Guard so the window does not list both. Legacy Basic Evade items (removed in
- * Core v0.9.9.6) are always dropped.
+ * Legacy Basic Evade / Guard items (removed in Core v0.9.9.6) are always dropped.
+ * The only Basic Reaction injected today is Dive for Cover.
  */
 export function dedupeOverlappingBasicReactions(powers) {
     if (!powers?.length)
         return powers ?? [];
-    const nonBasic = powers.filter((p) => !isBasicReactionItem(p));
-    const hasPowerGuard = nonBasic.some((p) => {
-        const tid = String(p?.system?.templateId ?? '').toLowerCase();
-        const name = String(p?.name ?? '').toLowerCase();
-        // K8.f: templateId decides; name regex is pre-K9 missing-ID bridge.
-        return compareIdentityDecision('reaction.hasPowerGuard', () => tid.includes('guard') ||
-            tid === 'reaction-armor' ||
-            tid.includes('pure-defense') ||
-            /\bguard\b/.test(name) ||
-            /^reaction:\s*armor\b/.test(name), () => {
-            if (tid.includes('guard') || tid === 'reaction-armor' || tid.includes('pure-defense')) {
-                return true;
-            }
-            if (!tid)
-                return { kind: 'unresolved', reason: 'missing-identity' };
-            return false;
-        }, { tid, name }, { prefer: 'identity' });
-    });
     return powers.filter((p) => {
         if (p?.basicReaction === 'evade')
             return false;
-        if (p?.basicReaction === 'guard' && hasPowerGuard)
+        if (p?.basicReaction === 'guard')
             return false;
         return true;
     });

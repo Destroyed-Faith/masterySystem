@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.880] - 2026-11-24
+
+Rules sync delta from Destroyed Faith v0.9.9.6 ZIP (3).
+
+### Changed
+
+- **Basic Reaction Guard removed.** The only Basic Reaction is Dive for Cover; Armor requires `Reaction: Armor`. NPC Basic Guard rows are stripped on load.
+- **Players Handbook / agent.md** match ZIP (3) (Basic Reactions list Dive for Cover only).
+- **Last Breath migration:** when Last Breath was used under the old burn rule, convert 1 Burned Attribute Stone → Sealed (temporary Colorless burns are not restored).
+- **Unprinted Powers (C2):** owned Reactions / Active Buffs / Passives not in the printed catalogues are marked Retired (v0.9.9.6), cannot be used, and are listed for a free same-type same-PL swap after GM review. Worlds that already applied 0.9.879 get this via Delta B on the next GM load.
+
 ## [0.9.879] - 2026-11-23
 
 Rules sync to Destroyed Faith v0.9.9.6 (2026-11-23).

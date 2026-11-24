@@ -179,17 +179,8 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
 
   // ========================================
   // BASIC REACTIONS (also injected into the Reaction Window)
+  // Core v0.9.9.6: only Dive for Cover. Guard / Evade require Reaction Powers.
   // ========================================
-  {
-    id: "guard",
-    name: "Guard",
-    description: "Gain +MR × 2 Armor vs the triggering hit/damage.",
-    slot: "reaction",
-    category: "defensive-reaction",
-    tags: ["reaction", "defensive", "basic", "basic-reaction"],
-    effect:
-      "Trigger: you are hit by an Attack or would take damage. Gain **+MR × 2 Armor** against that triggering event only.",
-  },
   {
     id: "counterattack",
     name: "Counterattack",

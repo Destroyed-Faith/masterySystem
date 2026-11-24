@@ -61,9 +61,8 @@ export declare function evaluateReactionEvadeNegation(baseEvade: number, bonus: 
  */
 export declare function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[];
 /**
- * If the actor already has a real Guard / Reaction: Armor power, hide the Basic
- * Guard so the window does not list both. Legacy Basic Evade items (removed in
- * Core v0.9.9.6) are always dropped.
+ * Legacy Basic Evade / Guard items (removed in Core v0.9.9.6) are always dropped.
+ * The only Basic Reaction injected today is Dive for Cover.
  */
 export declare function dedupeOverlappingBasicReactions(powers: any[]): any[];
 /** Ally-protection reactions (help another creature in range). */

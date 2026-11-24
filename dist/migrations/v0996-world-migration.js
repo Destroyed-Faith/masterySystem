@@ -15,24 +15,31 @@
  *      Ringchain of Kept Names, Hunter's Scourge, Frostbound Returning Axe,
  *      Lor-Keth's Titanstorm Staff): library refreshed and pushed to linked
  *      actor copies; unlinked copies are listed only.
- *   3. NPC Basic Evade Reaction rows (no longer a rule) are removed.
- *   4. Last Breath burns are listed only: Burned and Sealed Stones both
- *      return at the next Safe Haven Rest, so nothing is converted.
+ *   3. NPC Basic Evade / Guard Reaction rows (no longer a rule) are removed.
+ *   4. Last Breath: when the flag is set and an Attribute Stone is Burned,
+ *      convert 1 Burned → Sealed of that Attribute (identical Rest return).
+ *   5. Unprinted catalogue Powers still owned: mark Retired (v0.9.9.6); they
+ *      cannot be used; the GM chat report lists them for a free same-type swap.
  *
- * Nothing is merged, refunded or deleted except the inert NPC Basic Evade rows.
+ * Nothing is merged, refunded or deleted except inert NPC Basic Evade/Guard rows.
  * Idempotent: the world state is set to `applied`; per-document markers skip
  * already migrated documents.
  */
 import { collectV0996Actors, } from './actives-v0996-migration.js';
 import { isActivesV0996HeldTemplate, isActivesV0996ResyncHeld, previewPowerItemResync, resyncPowerItemFromTemplate, } from './power-template-resync-migration.js';
-import { coerceNpcReactionsArray, isNpcLikeActor, isNpcRetiredBasicEvadeRow, } from '../utils/npc-reactions.js';
+import { coerceNpcReactionsArray, isNpcLikeActor, isNpcRetiredBasicReactionRow, } from '../utils/npc-reactions.js';
 import { coerceNpcPhasesArray } from '../utils/npc-attack-model.js';
 import { LAST_BREATH_FLAG } from '../stones/last-breath.js';
 import { STONE_POOL_ATTRIBUTE_KEYS } from '../combat/action-economy.js';
+import { isCanonicalPassiveTemplateId, isSelectableActiveBuffTemplateId, isSelectableReactionTemplateId, } from '../utils/power-catalog.js';
+import { V0996_RETIRED_FLAG } from './actives-v0996-migration.js';
 const FLAG_SCOPE = 'mastery-system';
 export const V0996_WORLD_STATE_KEY = 'v0996WorldMigrationState';
+/** Second pass for worlds that already applied the first v0.9.9.6 migration. */
+export const V0996_DELTA_B_STATE_KEY = 'v0996DeltaBMigrationState';
 export const V0996_WORLD_BACKUP_FLAG = 'v0996WorldBackup';
 export const V0996_WORLD_MIGRATED_FLAG = 'v0996WorldMigrated';
+export const V0996_LAST_BREATH_CONVERTED_FLAG = 'v0996LastBreathConverted';
 /** Artifact library keys whose generator output changed in v0.9.9.6. */
 export const V0996_CHANGED_ARTIFACT_KEYS = [
     'dragonHead',
@@ -108,6 +115,14 @@ export function getV0996WorldMigrationState(g = globalThis.game) {
         return '';
     }
 }
+export function getV0996DeltaBMigrationState(g = globalThis.game) {
+    try {
+        return String(g?.settings?.get?.(FLAG_SCOPE, V0996_DELTA_B_STATE_KEY) ?? '');
+    }
+    catch {
+        return '';
+    }
+}
 export function registerV0996WorldMigrationSetting() {
     try {
         game.settings.register(FLAG_SCOPE, V0996_WORLD_STATE_KEY, {
@@ -118,10 +133,32 @@ export function registerV0996WorldMigrationSetting() {
             type: String,
             default: 'pending',
         });
+        game.settings.register(FLAG_SCOPE, V0996_DELTA_B_STATE_KEY, {
+            name: 'Rules v0.9.9.6 Delta B Migration State',
+            hint: 'Internal: Guard removal, Last Breath seal convert, unprinted Power retirement.',
+            scope: 'world',
+            config: false,
+            type: String,
+            default: 'pending',
+        });
     }
     catch (err) {
         console.warn('Mastery System | v0.9.9.6 world migration: setting register failed', err);
     }
+}
+/** Owned template-backed Powers that are not printed in the v0.9.9.6 catalogues. */
+export function isUnprintedV0996CatalogueTemplate(templateId, category) {
+    const tid = String(templateId || '').trim();
+    if (!tid || tid.startsWith('basic-'))
+        return false;
+    const cat = String(category || '').trim();
+    if (cat === 'reaction')
+        return !isSelectableReactionTemplateId(tid);
+    if (cat === 'activeBuff')
+        return !isSelectableActiveBuffTemplateId(tid);
+    if (cat === 'passive')
+        return !isCanonicalPassiveTemplateId(tid);
+    return false;
 }
 /* ------------------------------------------------------------------ */
 /* Planning (pure reads)                                               */
@@ -191,34 +228,66 @@ export function planV0996WorldArtifacts(actor) {
     }
     return out;
 }
-function countEvadeRows(raw) {
-    return coerceNpcReactionsArray(raw).filter((r) => isNpcRetiredBasicEvadeRow(r)).length;
+function countRetiredBasicRows(raw) {
+    return coerceNpcReactionsArray(raw).filter((r) => isNpcRetiredBasicReactionRow(r)).length;
 }
-/** Stored NPC Basic Evade rows (top level + every phase). */
+/** Stored NPC Basic Evade / Guard rows (top level + every phase). */
 export function planV0996WorldNpcEvade(actor) {
     if (!isNpcLikeActor(actor))
         return null;
     const sys = actor?.system ?? {};
-    let removed = countEvadeRows(sys.npcReactions);
-    for (const phase of coerceNpcPhasesArray(sys.phases))
-        removed += countEvadeRows(phase?.npcReactions);
+    let removed = countRetiredBasicRows(sys.npcReactions);
+    for (const phase of coerceNpcPhasesArray(sys.phases)) {
+        removed += countRetiredBasicRows(phase?.npcReactions);
+    }
     if (removed <= 0)
         return null;
     return { actorName: String(actor?.name ?? 'NPC'), actorUuid: actorUuid(actor), removed };
 }
-/** Actors holding a Last Breath burn from the old rule (info only). */
+/** Actors with Last Breath used and a Burned Attribute Stone to convert → Sealed. */
 export function planV0996WorldLastBreath(actor) {
     if (readFlag(actor, LAST_BREATH_FLAG) !== true)
         return null;
+    if (readFlag(actor, V0996_LAST_BREATH_CONVERTED_FLAG) === true)
+        return null;
     const pools = actor?.system?.stonePools ?? {};
-    const burned = [...STONE_POOL_ATTRIBUTE_KEYS, 'colorless'].filter((k) => Math.floor(Number(pools?.[k]?.burned) || 0) > 0);
-    if (!burned.length)
+    const attr = STONE_POOL_ATTRIBUTE_KEYS.find((k) => Math.floor(Number(pools?.[k]?.burned) || 0) > 0) ?? null;
+    const colorlessBurned = Math.floor(Number(pools?.colorless?.burned) || 0) > 0;
+    if (!attr && !colorlessBurned)
         return null;
     return {
         actorName: String(actor?.name ?? 'Actor'),
         actorUuid: actorUuid(actor),
-        note: `Last Breath used under the old rule; Burned Stones in ${burned.join(', ')}. Burned and Sealed Stones both return at the next Safe Haven Rest, so nothing was converted.`,
+        attribute: attr,
+        note: attr
+            ? `Convert 1 Burned ${attr} Stone → Sealed (Last Breath under the old rule).`
+            : 'Last Breath used; only temporary Colorless Stone(s) Burned — not restored.',
     };
+}
+/** Owned unprinted Reactions / Active Buffs / Passives still usable before retirement. */
+export function planV0996WorldRetired(actor) {
+    const out = [];
+    for (const item of docItems(actor)) {
+        if (item?.type !== 'power')
+            continue;
+        if (readFlag(item, V0996_RETIRED_FLAG) === true)
+            continue;
+        const sys = item?.system ?? {};
+        const tid = String(sys.templateId ?? '').trim();
+        const cat = String(sys.powerType ?? sys.category ?? '').trim();
+        if (!isUnprintedV0996CatalogueTemplate(tid, cat))
+            continue;
+        out.push({
+            actorName: String(actor?.name ?? 'Actor'),
+            actorUuid: actorUuid(actor),
+            itemId: String(item?.id ?? ''),
+            itemName: String(item?.name ?? ''),
+            templateId: tid,
+            rank: Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1))),
+            category: cat,
+        });
+    }
+    return out;
 }
 export function buildV0996WorldReport(g = globalThis.game) {
     const report = {
@@ -229,6 +298,7 @@ export function buildV0996WorldReport(g = globalThis.game) {
         artifacts: [],
         npcEvade: [],
         lastBreath: [],
+        retired: [],
     };
     for (const actor of collectV0996Actors(g)) {
         const p = planV0996WorldPowers(actor);
@@ -241,6 +311,7 @@ export function buildV0996WorldReport(g = globalThis.game) {
         const lb = planV0996WorldLastBreath(actor);
         if (lb)
             report.lastBreath.push(lb);
+        report.retired.push(...planV0996WorldRetired(actor));
     }
     const keys = new Set(V0996_CHANGED_ARTIFACT_KEYS);
     const seen = new Set();
@@ -252,6 +323,29 @@ export function buildV0996WorldReport(g = globalThis.game) {
             seen.add(key);
     }
     report.artifactTrees = V0996_CHANGED_ARTIFACT_KEYS.filter((k) => seen.has(k));
+    return report;
+}
+/** Delta B: Guard rows, Last Breath convert, unprinted retirement (no Power re-bake). */
+export function buildV0996DeltaBReport(g = globalThis.game) {
+    const report = {
+        generatedAt: new Date().toISOString(),
+        powers: [],
+        heldForActivesReview: 0,
+        artifactTrees: [],
+        artifacts: [],
+        npcEvade: [],
+        lastBreath: [],
+        retired: [],
+    };
+    for (const actor of collectV0996Actors(g)) {
+        const npc = planV0996WorldNpcEvade(actor);
+        if (npc)
+            report.npcEvade.push(npc);
+        const lb = planV0996WorldLastBreath(actor);
+        if (lb)
+            report.lastBreath.push(lb);
+        report.retired.push(...planV0996WorldRetired(actor));
+    }
     return report;
 }
 /* ------------------------------------------------------------------ */
@@ -351,8 +445,8 @@ async function applyArtifacts(report, g, summary) {
         }
     }
 }
-function withoutEvade(raw) {
-    return coerceNpcReactionsArray(raw).filter((r) => !isNpcRetiredBasicEvadeRow(r));
+function withoutRetiredBasics(raw) {
+    return coerceNpcReactionsArray(raw).filter((r) => !isNpcRetiredBasicReactionRow(r));
 }
 async function applyNpcEvade(report, g, summary) {
     for (const row of report.npcEvade) {
@@ -368,11 +462,11 @@ async function applyNpcEvade(report, g, summary) {
                     npcReactions: clone(coerceNpcReactionsArray(sys.npcReactions)),
                     phases: clone(phases),
                 },
-                'system.npcReactions': withoutEvade(sys.npcReactions),
+                'system.npcReactions': withoutRetiredBasics(sys.npcReactions),
             };
             if (phases.length) {
                 patch['system.phases'] = phases.map((p) => p && typeof p === 'object' && p.npcReactions !== undefined
-                    ? { ...p, npcReactions: withoutEvade(p.npcReactions) }
+                    ? { ...p, npcReactions: withoutRetiredBasics(p.npcReactions) }
                     : p);
             }
             await actor.update(patch);
@@ -380,19 +474,114 @@ async function applyNpcEvade(report, g, summary) {
         }
         catch (err) {
             summary.failed += 1;
-            console.warn(`Mastery System | v0.9.9.6 world migration: NPC Basic Evade on ${row.actorName} failed`, err);
+            console.warn(`Mastery System | v0.9.9.6 world migration: NPC Basic Evade/Guard on ${row.actorName} failed`, err);
+        }
+    }
+}
+async function applyLastBreath(report, g, summary) {
+    for (const row of report.lastBreath) {
+        const actor = findActor(row.actorUuid, g);
+        if (!actor || readFlag(actor, V0996_LAST_BREATH_CONVERTED_FLAG) === true)
+            continue;
+        try {
+            const attr = row.attribute;
+            if (!attr) {
+                await actor.update({
+                    [`flags.${FLAG_SCOPE}.${V0996_LAST_BREATH_CONVERTED_FLAG}`]: true,
+                });
+                continue;
+            }
+            const pools = actor.system?.stonePools ?? {};
+            const burned = Math.floor(Number(pools?.[attr]?.burned) || 0);
+            const sealed = Math.floor(Number(pools?.[attr]?.sealed) || 0);
+            if (burned <= 0) {
+                await actor.update({
+                    [`flags.${FLAG_SCOPE}.${V0996_LAST_BREATH_CONVERTED_FLAG}`]: true,
+                });
+                continue;
+            }
+            await actor.update({
+                [`flags.${FLAG_SCOPE}.${V0996_WORLD_BACKUP_FLAG}`]: {
+                    at: new Date().toISOString(),
+                    lastBreath: { attribute: attr, burned, sealed },
+                },
+                [`flags.${FLAG_SCOPE}.${V0996_LAST_BREATH_CONVERTED_FLAG}`]: true,
+                [`system.stonePools.${attr}.burned`]: burned - 1,
+                [`system.stonePools.${attr}.sealed`]: sealed + 1,
+            });
+            summary.lastBreathConverted += 1;
+        }
+        catch (err) {
+            summary.failed += 1;
+            console.warn(`Mastery System | v0.9.9.6 world migration: Last Breath convert on ${row.actorName} failed`, err);
+        }
+    }
+}
+async function applyRetired(report, g, summary) {
+    for (const row of report.retired) {
+        const actor = findActor(row.actorUuid, g);
+        const item = actor ? findItem(actor, row.itemId) : null;
+        if (!item || readFlag(item, V0996_RETIRED_FLAG) === true)
+            continue;
+        try {
+            const name = String(item.name || row.itemName);
+            const retiredName = /retired/i.test(name) ? name : `${name} [Retired (v0.9.9.6)]`;
+            await item.update({
+                name: retiredName,
+                [`flags.${FLAG_SCOPE}.${V0996_RETIRED_FLAG}`]: true,
+                [`flags.${FLAG_SCOPE}.${V0996_WORLD_BACKUP_FLAG}`]: {
+                    at: new Date().toISOString(),
+                    name,
+                },
+            });
+            summary.retired += 1;
+        }
+        catch (err) {
+            summary.failed += 1;
+            console.warn(`Mastery System | v0.9.9.6 world migration: retire "${row.itemName}" on ${row.actorName} failed`, err);
         }
     }
 }
 export async function applyV0996WorldReport(report, g = globalThis.game) {
-    const summary = { powers: 0, artifactNodes: 0, artifactCopies: 0, npcEvadeRows: 0, failed: 0 };
+    const summary = {
+        powers: 0,
+        artifactNodes: 0,
+        artifactCopies: 0,
+        npcEvadeRows: 0,
+        lastBreathConverted: 0,
+        retired: 0,
+        failed: 0,
+    };
     if (!g?.user?.isGM)
         return summary;
     await applyPowers(report, g, summary);
     await applyArtifacts(report, g, summary);
     await applyNpcEvade(report, g, summary);
+    await applyLastBreath(report, g, summary);
+    await applyRetired(report, g, summary);
     if (summary.failed === 0) {
         await g.settings.set(FLAG_SCOPE, V0996_WORLD_STATE_KEY, 'applied');
+        await g.settings.set(FLAG_SCOPE, V0996_DELTA_B_STATE_KEY, 'applied');
+    }
+    return summary;
+}
+export async function applyV0996DeltaBReport(report, g = globalThis.game) {
+    const summary = {
+        powers: 0,
+        artifactNodes: 0,
+        artifactCopies: 0,
+        npcEvadeRows: 0,
+        lastBreathConverted: 0,
+        retired: 0,
+        failed: 0,
+    };
+    if (!g?.user?.isGM)
+        return summary;
+    await applyNpcEvade(report, g, summary);
+    await applyLastBreath(report, g, summary);
+    await applyRetired(report, g, summary);
+    if (summary.failed === 0) {
+        await g.settings.set(FLAG_SCOPE, V0996_DELTA_B_STATE_KEY, 'applied');
     }
     return summary;
 }
@@ -405,10 +594,12 @@ export async function rollbackV0996WorldActor(actor) {
     const clear = {
         [`flags.${FLAG_SCOPE}.-=${V0996_WORLD_BACKUP_FLAG}`]: null,
         [`flags.${FLAG_SCOPE}.-=${V0996_WORLD_MIGRATED_FLAG}`]: null,
+        [`flags.${FLAG_SCOPE}.-=${V0996_RETIRED_FLAG}`]: null,
     };
     for (const item of docItems(actor)) {
         const backup = readFlag(item, V0996_WORLD_BACKUP_FLAG);
-        if (!backup && readFlag(item, V0996_WORLD_MIGRATED_FLAG) !== true)
+        const retired = readFlag(item, V0996_RETIRED_FLAG) === true;
+        if (!backup && readFlag(item, V0996_WORLD_MIGRATED_FLAG) !== true && !retired)
             continue;
         const patch = { ...clear };
         if (backup?.name !== undefined)
@@ -420,13 +611,21 @@ export async function rollbackV0996WorldActor(actor) {
         await item.update(patch);
         restored += 1;
     }
-    const npc = readFlag(actor, V0996_WORLD_BACKUP_FLAG);
-    if (npc && typeof npc === 'object') {
+    const actorBackup = readFlag(actor, V0996_WORLD_BACKUP_FLAG);
+    if (actorBackup && typeof actorBackup === 'object') {
         const patch = { ...clear };
-        if (Array.isArray(npc.npcReactions))
-            patch['system.npcReactions'] = npc.npcReactions;
-        if (Array.isArray(npc.phases) && npc.phases.length)
-            patch['system.phases'] = npc.phases;
+        if (Array.isArray(actorBackup.npcReactions)) {
+            patch['system.npcReactions'] = actorBackup.npcReactions;
+        }
+        if (Array.isArray(actorBackup.phases) && actorBackup.phases.length) {
+            patch['system.phases'] = actorBackup.phases;
+        }
+        if (actorBackup.lastBreath?.attribute) {
+            const attr = String(actorBackup.lastBreath.attribute);
+            patch[`system.stonePools.${attr}.burned`] = actorBackup.lastBreath.burned;
+            patch[`system.stonePools.${attr}.sealed`] = actorBackup.lastBreath.sealed;
+            patch[`flags.${FLAG_SCOPE}.-=${V0996_LAST_BREATH_CONVERTED_FLAG}`] = null;
+        }
         await actor.update(patch);
         restored += 1;
     }
@@ -447,11 +646,13 @@ export function formatV0996WorldReportHtml(report, summary) {
     });
     const artifacts = report.artifacts.map((a) => li(`<strong>${escHtml(a.actorName)}</strong>: ${escHtml(a.itemName)}` +
         (a.linked ? '' : ' — <em>not linked to the library, not refreshed (re-grant or refresh manually)</em>')));
-    const npc = report.npcEvade.map((n) => li(`<strong>${escHtml(n.actorName)}</strong>: removed ${n.removed} Basic Evade row${n.removed === 1 ? '' : 's'}`));
+    const npc = report.npcEvade.map((n) => li(`<strong>${escHtml(n.actorName)}</strong>: removed ${n.removed} Basic Evade/Guard row${n.removed === 1 ? '' : 's'}`));
     const lb = report.lastBreath.map((r) => li(`<strong>${escHtml(r.actorName)}</strong>: ${escHtml(r.note)}`));
+    const retired = report.retired.map((r) => li(`<strong>${escHtml(r.actorName)}</strong>: ${escHtml(r.itemName)} (${escHtml(r.templateId)}, PL ${r.rank}) — free same-type swap after GM review`));
     const counts = summary
         ? `<p>Applied: ${summary.powers} Power(s), ${summary.artifactNodes} Artifact library node(s), ` +
-            `${summary.artifactCopies} Artifact copy backup(s), ${summary.npcEvadeRows} NPC Basic Evade row(s)` +
+            `${summary.artifactCopies} Artifact copy backup(s), ${summary.npcEvadeRows} NPC Basic Evade/Guard row(s), ` +
+            `${summary.lastBreathConverted} Last Breath convert(s), ${summary.retired} retired Power(s)` +
             `${summary.failed ? ` · <strong>${summary.failed} failed (see console; migration will retry next load)</strong>` : ''}.</p>`
         : '';
     const held = report.heldForActivesReview
@@ -465,8 +666,9 @@ export function formatV0996WorldReportHtml(report, summary) {
   ${counts}${held}${trees}
   ${block('Power values re-baked', powers)}
   ${block('Artifact copies', artifacts)}
-  ${block('NPC Basic Evade removed', npc)}
-  ${block('Last Breath (info only)', lb)}
+  ${block('NPC Basic Evade/Guard removed', npc)}
+  ${block('Last Breath Burned → Sealed', lb)}
+  ${block('Retired unprinted Powers (free swap)', retired)}
   <p><small>Backups: <code>flags.mastery-system.${V0996_WORLD_BACKUP_FLAG}</code> on each changed document. Restore an actor with <code>game.masterySystem.v0996WorldRollback(actor)</code>.</small></p>
 </div>`;
 }
@@ -475,20 +677,10 @@ function reportIsEmpty(report) {
         !report.artifacts.length &&
         !report.artifactTrees.length &&
         !report.npcEvade.length &&
-        !report.lastBreath.length);
+        !report.lastBreath.length &&
+        !report.retired.length);
 }
-/** GM world load: plan, apply once, whisper the report to the GM(s). */
-export async function runV0996WorldMigrationOnReady(g = globalThis.game) {
-    if (!g?.user?.isGM)
-        return null;
-    if (getV0996WorldMigrationState(g) === 'applied')
-        return null;
-    const report = buildV0996WorldReport(g);
-    if (reportIsEmpty(report)) {
-        await g.settings.set(FLAG_SCOPE, V0996_WORLD_STATE_KEY, 'applied');
-        return report;
-    }
-    const summary = await applyV0996WorldReport(report, g);
+async function whisperV0996Report(report, summary, g) {
     try {
         const CM = globalThis.ChatMessage;
         const whisper = CM?.getWhisperRecipients?.('GM')?.map((u) => u.id) ?? [g.user.id];
@@ -502,6 +694,38 @@ export async function runV0996WorldMigrationOnReady(g = globalThis.game) {
     catch (err) {
         console.warn('Mastery System | v0.9.9.6 world migration: chat report failed', err);
     }
+}
+/** GM world load: plan, apply once, whisper the report to the GM(s). */
+export async function runV0996WorldMigrationOnReady(g = globalThis.game) {
+    if (!g?.user?.isGM)
+        return null;
+    if (getV0996WorldMigrationState(g) !== 'applied') {
+        const report = buildV0996WorldReport(g);
+        if (reportIsEmpty(report)) {
+            await g.settings.set(FLAG_SCOPE, V0996_WORLD_STATE_KEY, 'applied');
+            await g.settings.set(FLAG_SCOPE, V0996_DELTA_B_STATE_KEY, 'applied');
+        }
+        else {
+            const summary = await applyV0996WorldReport(report, g);
+            await whisperV0996Report(report, summary, g);
+            return report;
+        }
+    }
+    return runV0996DeltaBOnReady(g);
+}
+/** Second pass for worlds that already applied the first migration (Guard / Last Breath / C2). */
+export async function runV0996DeltaBOnReady(g = globalThis.game) {
+    if (!g?.user?.isGM)
+        return null;
+    if (getV0996DeltaBMigrationState(g) === 'applied')
+        return null;
+    const report = buildV0996DeltaBReport(g);
+    if (reportIsEmpty(report)) {
+        await g.settings.set(FLAG_SCOPE, V0996_DELTA_B_STATE_KEY, 'applied');
+        return report;
+    }
+    const summary = await applyV0996DeltaBReport(report, g);
+    await whisperV0996Report(report, summary, g);
     return report;
 }
 //# sourceMappingURL=v0996-world-migration.js.map

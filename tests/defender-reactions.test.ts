@@ -57,13 +57,12 @@ describe('defender-reactions', () => {
     const list = getEligibleReactionPowers(defender, combat);
     expect(list.map((x: any) => x.id).sort()).toEqual([
       'basic-reaction-dive-for-cover',
-      'basic-reaction-guard',
       'gs',
       'r1',
     ]);
   });
 
-  it('dedupeOverlappingBasicReactions drops legacy Basic Evade and hides Guard when a real power exists', () => {
+  it('dedupeOverlappingBasicReactions drops legacy Basic Evade and Guard', () => {
     const powers = [
       {
         id: 'ev-power',
@@ -87,7 +86,7 @@ describe('defender-reactions', () => {
     ]);
   });
 
-  it('getEligibleReactionPowers offers the purchased Reaction: Evade beside Guard and Dive for Cover', () => {
+  it('getEligibleReactionPowers offers purchased Reaction: Evade beside Dive for Cover only', () => {
     const combat = { id: 'c1' } as any;
     const defender = {
       system: { mastery: { rank: 2 } },
@@ -104,7 +103,6 @@ describe('defender-reactions', () => {
     const list = getEligibleReactionPowers(defender, combat);
     expect(list.map((x: any) => x.id).sort()).toEqual([
       'basic-reaction-dive-for-cover',
-      'basic-reaction-guard',
       'ev-power',
     ]);
   });

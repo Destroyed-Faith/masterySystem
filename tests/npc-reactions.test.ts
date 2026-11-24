@@ -26,13 +26,16 @@ describe('NPC reaction opt-in', () => {
     const onlySlots = { type: 'npc', system: { npcReactionSlots: 2, npcReactions: [] } };
     const onlyRows = {
       type: 'npc',
-      system: { npcReactionSlots: 0, npcReactions: [{ id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' }] },
+      system: {
+        npcReactionSlots: 0,
+        npcReactions: [{ id: 'a', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' }],
+      },
     };
     const both = {
       type: 'npc',
       system: {
         npcReactionSlots: 2,
-        npcReactions: [{ id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' }],
+        npcReactions: [{ id: 'a', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' }],
       },
     };
     expect(actorParticipatesInReactions(onlySlots)).toBe(false);
@@ -54,9 +57,11 @@ describe('NPC reaction opt-in', () => {
     expect(powers.map((p: any) => p.basicReaction)).toEqual(['dive-for-cover']);
   });
 
-  it('drops stored Basic Evade rows (Core v0.9.9.6)', () => {
+  it('drops stored Basic Evade and Guard rows (Core v0.9.9.6)', () => {
     expect(NPC_STANDARD_REACTIONS.map((row) => row.id)).not.toContain('evade');
+    expect(NPC_STANDARD_REACTIONS.map((row) => row.id)).not.toContain('guard');
     expect(newStandardNpcReaction('evade')).toBeNull();
+    expect(newStandardNpcReaction('guard')).toBeNull();
     const npc = {
       type: 'npc',
       system: {
@@ -65,11 +70,16 @@ describe('NPC reaction opt-in', () => {
         npcReactions: [
           { id: 'e', name: 'Evade', source: 'basic', basicId: 'evade' },
           { id: 'g', name: 'Guard', source: 'basic', basicId: 'guard' },
+          { id: 'd', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' },
         ],
       },
     };
-    expect(resolveNpcReactionConfig(npc.system).rows.map((row) => row.basicId)).toEqual(['guard']);
-    expect(materializeNpcReactionPowers(npc).map((p: any) => p.basicReaction)).toEqual(['guard']);
+    expect(resolveNpcReactionConfig(npc.system).rows.map((row) => row.basicId)).toEqual([
+      'dive-for-cover',
+    ]);
+    expect(materializeNpcReactionPowers(npc).map((p: any) => p.basicReaction)).toEqual([
+      'dive-for-cover',
+    ]);
   });
 
   it('reads the active boss phase', () => {
@@ -77,12 +87,15 @@ describe('NPC reaction opt-in', () => {
       npcActivePhaseIndex: 1,
       phases: [
         { npcReactionSlots: 1, npcReactions: [{ name: 'P1', source: 'custom' }] },
-        { npcReactionSlots: 3, npcReactions: [{ name: 'P2 Guard', source: 'basic', basicId: 'guard' }] },
+        {
+          npcReactionSlots: 3,
+          npcReactions: [{ name: 'P2 Dive', source: 'basic', basicId: 'dive-for-cover' }],
+        },
       ],
     });
     expect(cfg.phaseIndex).toBe(1);
     expect(cfg.slots).toBe(3);
-    expect(cfg.rows[0]?.basicId).toBe('guard');
+    expect(cfg.rows[0]?.basicId).toBe('dive-for-cover');
   });
 
   it('does not offer or fire Counterattack', () => {
@@ -95,13 +108,15 @@ describe('NPC reaction opt-in', () => {
         npcReactionSlots: 1,
         npcReactions: [
           { id: 'c', name: 'Counterattack', source: 'basic', basicId: 'counterattack' },
-          { id: 'g', name: 'Guard', source: 'basic', basicId: 'guard' },
+          { id: 'd', name: 'Dive for Cover', source: 'basic', basicId: 'dive-for-cover' },
         ],
       },
     };
     const cfg = resolveNpcReactionConfig(npc.system);
-    expect(cfg.rows.map((row) => row.basicId)).toEqual(['guard']);
-    expect(materializeNpcReactionPowers(npc).map((p: any) => p.basicReaction)).toEqual(['guard']);
+    expect(cfg.rows.map((row) => row.basicId)).toEqual(['dive-for-cover']);
+    expect(materializeNpcReactionPowers(npc).map((p: any) => p.basicReaction)).toEqual([
+      'dive-for-cover',
+    ]);
   });
 
   it('clamps slots and coerces object-shaped arrays', () => {
@@ -109,9 +124,9 @@ describe('NPC reaction opt-in', () => {
     expect(clampNpcReactionSlots(99)).toBe(10);
     const rows = coerceNpcReactionsArray({
       0: { name: 'A', source: 'custom' },
-      1: { name: 'B', source: 'basic', basicId: 'guard' },
+      1: { name: 'B', source: 'basic', basicId: 'dive-for-cover' },
     });
     expect(rows).toHaveLength(2);
-    expect(rows[1].basicId).toBe('guard');
+    expect(rows[1].basicId).toBe('dive-for-cover');
   });
 });

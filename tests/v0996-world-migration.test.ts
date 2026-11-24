@@ -18,6 +18,8 @@ import {
     buildV0996WorldReport,
     rollbackV0996WorldActor,
     runV0996WorldMigrationOnReady,
+    V0996_DELTA_B_STATE_KEY,
+    V0996_LAST_BREATH_CONVERTED_FLAG,
     V0996_WORLD_BACKUP_FLAG,
     V0996_WORLD_STATE_KEY,
 } from '../src/migrations/v0996-world-migration.js';
@@ -110,20 +112,23 @@ describe('Rules v0.9.9.6 world migration', () => {
         settings.set('activesV0996MigrationState', 'applied');
         settings.set('legacyCleanup2026MigrationState', 'applied');
         settings.set(V0996_WORLD_STATE_KEY, 'pending');
+        settings.set(V0996_DELTA_B_STATE_KEY, 'pending');
         chat.length = 0;
         repaired.length = 0;
     });
 
-    it('plans re-bakes, renames, Artifact copies, NPC Basic Evade rows and Last Breath info', () => {
+    it('plans re-bakes, renames, Artifact copies, NPC Basic Evade/Guard rows and Last Breath convert', () => {
+        const unprinted = power('reaction-damage-negation', 4, 'neg', 'Reaction: Damage Negation');
         const pc = mockActor('pc', 'Kael', [
             oldReposition('rep'),
             power('reaction-reactive-cleanse', 4, 'cl', 'Reaction: Reactive Cleanse'),
             power('reaction-armor', 4, 'arm'),
+            unprinted,
             mockDoc({ id: 'dh', name: 'Dragon Head', type: 'artifact', flags: { 'mastery-system': { echoArtifactKey: 'dragonHead', evolutionRootItemId: 'r', evolutionNodeId: 'dragonHead-l1' } } }),
             mockDoc({ id: 'fx', name: 'Frostbound Axe', type: 'artifact', flags: { 'mastery-system': { echoArtifactKey: 'frostboundReturningAxe' } } }),
         ], {
             flags: { 'mastery-system': { lastBreathUsed: true } },
-            system: { stonePools: { might: { burned: 1 } } },
+            system: { stonePools: { might: { burned: 1, sealed: 0 } } },
         });
         const npc = mockActor('npc', 'Ghoul', [], {
             type: 'npc',
@@ -146,15 +151,20 @@ describe('Rules v0.9.9.6 world migration', () => {
         expect(report.powers.find((p) => p.itemId === 'cl')!.rename).toBe('Reaction: Cleanse');
         expect(report.artifactTrees).toEqual(['dragonHead']);
         expect(report.artifacts.map((a) => [a.itemId, a.linked])).toEqual([['dh', true], ['fx', false]]);
-        expect(report.npcEvade).toEqual([{ actorName: 'Ghoul', actorUuid: 'Actor.npc', removed: 2 }]);
+        expect(report.npcEvade).toEqual([{ actorName: 'Ghoul', actorUuid: 'Actor.npc', removed: 3 }]);
         expect(report.lastBreath).toHaveLength(1);
-        expect(report.lastBreath[0]!.note).toContain('might');
+        expect(report.lastBreath[0]!.attribute).toBe('might');
+        expect(report.retired.map((r) => r.itemId)).toEqual(['neg']);
     });
 
     it('applies once with backups, whispers the report, and rolls back', async () => {
         const rep = oldReposition('rep');
         const cleanse = power('reaction-reactive-cleanse', 4, 'cl', 'Reaction: Reactive Cleanse');
-        const pc = mockActor('pc', 'Kael', [rep, cleanse]);
+        const unprinted = power('reaction-damage-negation', 4, 'neg', 'Reaction: Damage Negation');
+        const pc = mockActor('pc', 'Kael', [rep, cleanse, unprinted], {
+            flags: { 'mastery-system': { lastBreathUsed: true } },
+            system: { stonePools: { might: { burned: 1, sealed: 0 } } },
+        });
         const npc = mockActor('npc', 'Ghoul', [], {
             type: 'npc',
             system: { npcReactions: [{ id: 'a', name: 'Evade', source: 'basic', basicId: 'evade' }, { id: 'b', name: 'Guard', source: 'basic', basicId: 'guard' }] },
@@ -165,17 +175,23 @@ describe('Rules v0.9.9.6 world migration', () => {
         await runV0996WorldMigrationOnReady();
 
         expect(settings.get(V0996_WORLD_STATE_KEY)).toBe('applied');
+        expect(settings.get(V0996_DELTA_B_STATE_KEY)).toBe('applied');
         expect(rep.system.levels['6'].effect.text).toContain('**2 m**');
         expect(rep.flags['mastery-system'][V0996_WORLD_BACKUP_FLAG].system.levels['6'].effect.text).toContain('3 m');
         expect(cleanse.name).toBe('Reaction: Cleanse');
         expect(cleanse.system.templateName).toBe('Cleanse');
-        expect(npc.system.npcReactions.map((r: any) => r.basicId)).toEqual(['guard']);
+        expect(npc.system.npcReactions).toEqual([]);
         expect(npc.flags['mastery-system'][V0996_WORLD_BACKUP_FLAG].npcReactions).toHaveLength(2);
+        expect(pc.system.stonePools.might.burned).toBe(0);
+        expect(pc.system.stonePools.might.sealed).toBe(1);
+        expect(pc.flags['mastery-system'][V0996_LAST_BREATH_CONVERTED_FLAG]).toBe(true);
+        expect(unprinted.flags['mastery-system'].v0996Retired).toBe(true);
+        expect(unprinted.name).toContain('Retired');
         expect(repaired).toEqual(['lorKethsStaff']);
         expect(chat).toHaveLength(1);
         expect(chat[0].whisper).toEqual(['gm']);
         expect(chat[0].content).toContain('Rules v0.9.9.6 world migration');
-        expect(chat[0].content).toContain('removed 1 Basic Evade row');
+        expect(chat[0].content).toContain('Basic Evade/Guard');
 
         // Idempotent: a second load does nothing.
         await runV0996WorldMigrationOnReady();
@@ -184,6 +200,8 @@ describe('Rules v0.9.9.6 world migration', () => {
         await rollbackV0996WorldActor(pc);
         expect(rep.system.levels['6'].effect.text).toContain('3 m');
         expect(cleanse.name).toBe('Reaction: Reactive Cleanse');
+        expect(unprinted.name).toBe('Reaction: Damage Negation');
+        expect(pc.system.stonePools.might.burned).toBe(1);
         await rollbackV0996WorldActor(npc);
         expect(npc.system.npcReactions.map((r: any) => r.basicId)).toEqual(['evade', 'guard']);
     });
@@ -200,6 +218,7 @@ describe('Rules v0.9.9.6 world migration', () => {
         installGame([mockActor('pc2', 'Clean', [power('reaction-armor', 4, 'arm')])]);
         await runV0996WorldMigrationOnReady();
         expect(settings.get(V0996_WORLD_STATE_KEY)).toBe('applied');
+        expect(settings.get(V0996_DELTA_B_STATE_KEY)).toBe('applied');
         expect(chat).toHaveLength(0);
     });
 });

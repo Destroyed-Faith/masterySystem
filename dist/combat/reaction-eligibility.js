@@ -256,6 +256,13 @@ export function evaluateReactionEligibility(power, ctx) {
     const phase = ctx.phase ?? 'defender';
     const tid = templateIdOf(power);
     const basic = String(power?.basicReaction || '');
+    // Retired Basic Guard / Evade and v0.9.9.6-retired catalogue Powers.
+    if (basic === 'guard' || basic === 'evade') {
+        return { shown: false, enabled: false, reason: 'No Basic Guard or Evade (Core v0.9.9.6)' };
+    }
+    if (power?.flags?.['mastery-system']?.v0996Retired === true) {
+        return { shown: false, enabled: false, reason: 'Retired (v0.9.9.6) — free swap pending GM review' };
+    }
     // Wrong surface: Cleanse / Overload never belong on the attack reaction card.
     if (isCleanseReaction(power) && !ctx.statusSurface) {
         return { shown: false, enabled: false, reason: 'Cleanse uses the status / effect surface' };
